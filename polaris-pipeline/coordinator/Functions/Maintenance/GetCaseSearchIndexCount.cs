@@ -1,11 +1,14 @@
+using System;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using coordinator.Helpers;
 using Microsoft.AspNetCore.Http;
 using coordinator.Clients.TextExtractor;
-using Microsoft.Azure.Functions.Worker;
 
 namespace coordinator.Functions.Maintenance
 {
@@ -22,7 +25,7 @@ namespace coordinator.Functions.Maintenance
             _logger = logger;
         }
 
-        [Function(nameof(GetCaseSearchIndexCount))]
+        [FunctionName(nameof(GetCaseSearchIndexCount))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> HttpStart(
@@ -30,11 +33,21 @@ namespace coordinator.Functions.Maintenance
             string caseUrn,
             int caseId)
         {
-            var currentCorrelationId = req.Headers.GetCorrelationId();
+            Guid currentCorrelationId = default;
 
-            var searchIndexCount = await _textExtractorClient.GetCaseIndexCount(caseUrn, caseId, currentCorrelationId);
+            try
+            {
+                currentCorrelationId = req.Headers.GetCorrelationId();
 
-            return new OkObjectResult(searchIndexCount);
+                var searchIndexCount = await _textExtractorClient.GetCaseIndexCount(caseUrn, caseId, currentCorrelationId);
+
+                return new OkObjectResult(searchIndexCount);
+            }
+            catch (Exception ex)
+            {
+                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(SearchCase), currentCorrelationId, ex);
+            }
+
         }
     }
 }

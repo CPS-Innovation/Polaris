@@ -49,7 +49,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
             {
                 var stopwatch = Stopwatch.StartNew();
 
-                var redactionAnnotationsEntity = new RedactionAnnotationsEntity
+                RedactionAnnotationsEntity redactionAnnotationsEntity = new RedactionAnnotationsEntity
                 {
                     PageNumber = pageNumber,
                 };

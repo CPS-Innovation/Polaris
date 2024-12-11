@@ -8,10 +8,6 @@ using Common.Logging;
 using PolarisGateway.Domain.Validation;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using System.Threading.Tasks;
-using System;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace PolarisGateway.Validators
 {
@@ -21,8 +17,6 @@ namespace PolarisGateway.Validators
         private readonly ConfigurationManager<OpenIdConnectConfiguration> _configurationManager;
         private readonly ILogger<AuthorizationValidator> _log;
         private const string ScopeType = @"http://schemas.microsoft.com/identity/claims/scope";
-        private static readonly string[] separator = [" "];
-        private static readonly string[] separatorArray = [","];
 
         public AuthorizationValidator(ConfigurationManager<OpenIdConnectConfiguration> configurationManager, ILogger<AuthorizationValidator> log)
         {
@@ -96,7 +90,7 @@ namespace PolarisGateway.Validators
             }
         }
 
-        private static bool IsValid(ClaimsPrincipal claimsPrincipal, string scopes = null, string roles = null)
+        private bool IsValid(ClaimsPrincipal claimsPrincipal, string scopes = null, string roles = null)
         {
             if (claimsPrincipal == null)
             {
@@ -106,25 +100,27 @@ namespace PolarisGateway.Validators
             var requiredScopes = LoadRequiredItems(scopes);
             var requiredRoles = LoadRequiredItems(roles);
 
-            if (requiredScopes.Count == 0 && requiredRoles.Count == 0)
+            if (!requiredScopes.Any() && !requiredRoles.Any())
             {
                 return true;
             }
 
-            var hasAccessToRoles = requiredRoles.Count == 0 || requiredRoles.All(claimsPrincipal.IsInRole);
+            var hasAccessToRoles = !requiredRoles.Any() || requiredRoles.All(claimsPrincipal.IsInRole);
             var scopeClaim = claimsPrincipal.HasClaim(x => x.Type == ScopeType)
                 ? claimsPrincipal.Claims.First(x => x.Type == ScopeType).Value
                 : string.Empty;
 
-            var tokenScopes = scopeClaim.Split(separator, StringSplitOptions.RemoveEmptyEntries).ToList();
-            var hasAccessToScopes = requiredScopes.Count == 0 || requiredScopes.All(x => tokenScopes.Any(y => string.Equals(x, y, StringComparison.OrdinalIgnoreCase)));
+            var tokenScopes = scopeClaim.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var hasAccessToScopes = !requiredScopes.Any() || requiredScopes.All(x => tokenScopes.Any(y => string.Equals(x, y, StringComparison.OrdinalIgnoreCase)));
 
             return hasAccessToRoles && hasAccessToScopes;
         }
 
-        private static List<string> LoadRequiredItems(string items) =>
-            string.IsNullOrWhiteSpace(items) ?
-            [] :
-            [.. items.Replace(" ", string.Empty).Split(separatorArray, StringSplitOptions.RemoveEmptyEntries)];
+        private static List<string> LoadRequiredItems(string items)
+        {
+            return string.IsNullOrWhiteSpace(items)
+                ? new List<string>()
+                : items.Replace(" ", string.Empty).Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        }
     }
 }

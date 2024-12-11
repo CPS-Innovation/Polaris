@@ -37,7 +37,6 @@ namespace text_extractor.Functions
             {
                 throw new BadRequestException("Request body has no content", nameof(request));
             }
-
             var content = await request.GetRawBodyStringAsync();
             var searchDto = _jsonConvertWrapper.DeserializeObject<SearchRequestDto>(content);
 

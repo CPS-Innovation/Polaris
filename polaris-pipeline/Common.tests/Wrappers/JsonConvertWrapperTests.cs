@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using Common.Wrappers;
 using FluentAssertions;
-using System.Text.Json;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace Common.tests.Wrappers
@@ -19,7 +19,7 @@ namespace Common.tests.Wrappers
         public void SerializeObjectShouldDelegate()
         {
             var testObject = _fixture.Create<StubRequest>();
-            var expectedSerializedRequest = JsonSerializer.Serialize(testObject, new JsonSerializerOptions { WriteIndented = false });
+            var expectedSerializedRequest = JsonConvert.SerializeObject(testObject, Formatting.None, new JsonSerializerSettings());
 
             var serializedObject = new JsonConvertWrapper().SerializeObject(testObject);
 
@@ -30,7 +30,7 @@ namespace Common.tests.Wrappers
         public void DeserializeObjectShouldDelegate()
         {
             var testObject = _fixture.Create<StubRequest>();
-            var serializedRequest = JsonSerializer.Serialize(testObject, new JsonSerializerOptions { WriteIndented = false });
+            var serializedRequest = JsonConvert.SerializeObject(testObject, Formatting.None, new JsonSerializerSettings());
 
             var deserializedRequest = new JsonConvertWrapper().DeserializeObject<StubRequest>(serializedRequest);
 

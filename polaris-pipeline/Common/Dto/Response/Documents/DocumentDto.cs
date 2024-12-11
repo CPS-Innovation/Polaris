@@ -1,95 +1,95 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using Common.Constants;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Document.FeatureFlags;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Common.Dto.Response.Documents
 {
     public class DocumentDto
     {
         public DocumentDto()
-        {
-        }
+        { }
 
-        [JsonPropertyName("documentId")]
+        [JsonProperty("documentId")]
         public string DocumentId { get; set; }
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        [JsonPropertyName("status")]
+        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty("status")]
         public DocumentStatus Status { get; set; }
 
-        [JsonPropertyName("versionId")]
+        [JsonProperty("versionId")]
         public long VersionId { get; set; }
 
-        [JsonPropertyName("cmsDocType")]
+        [JsonProperty("cmsDocType")]
         public DocumentTypeDto CmsDocType { get; set; }
 
-        [JsonPropertyName("cmsOriginalFileName")]
+        [JsonProperty("cmsOriginalFileName")]
         [Required]
         [RegularExpression(@"^.+\.[A-Za-z]{3,4}$")]
         public string CmsOriginalFileName { get; set; }
 
-        [JsonPropertyName("presentationTitle")]
+        [JsonProperty("presentationTitle")]
         public string PresentationTitle { get; set; }
 
-        [JsonPropertyName("cmsFileCreatedDate")]
+        [JsonProperty("cmsFileCreatedDate")]
         public string CmsFileCreatedDate { get; set; }
 
-        [JsonPropertyName("pdfBlobName")]
+        [JsonProperty("pdfBlobName")]
         [JsonIgnore]
         public string PdfBlobName { get; set; }
 
-        [JsonPropertyName("isOcrProcessed")]
+        [JsonProperty("isOcrProcessed")]
         public bool IsOcrProcessed { get; set; }
 
-        [JsonPropertyName("categoryListOrder")]
+        [JsonProperty("categoryListOrder")]
         public int? CategoryListOrder { get; set; }
 
-        [JsonPropertyName("presentationFlags")]
+        [JsonProperty("presentationFlags")]
         public PresentationFlagsDto PresentationFlags { get; set; }
 
-        [JsonPropertyName("parentDocumentId")]
+        [JsonProperty("parentDocumentId")]
         public string ParentDocumentId { get; set; }
 
-        [JsonPropertyName("witnessId")]
+        [JsonProperty("witnessId")]
         public int? WitnessId { get; set; }
 
-        [JsonPropertyName("hasFailedAttachments")]
+        [JsonProperty("hasFailedAttachments")]
         public bool HasFailedAttachments { get; set; }
 
-        [JsonPropertyName("hasNotes")]
+        [JsonProperty("hasNotes")]
         public bool HasNotes { get; set; }
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        [JsonPropertyName("conversionStatus")]
+        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty("conversionStatus")]
         public PdfConversionStatus ConversionStatus { get; set; }
 
-        [JsonPropertyName("piiVersionId")]
+        [JsonProperty("piiVersionId")]
         public int? PiiVersionId { get; set; }
 
-        [JsonPropertyName("isUnused")]
+        [JsonProperty("isUnused")]
         public bool IsUnused { get; set; }
 
-        [JsonPropertyName("isInbox")]
+        [JsonProperty("isInbox")]
         public bool IsInbox { get; set; }
 
-        [JsonPropertyName("classification")]
+        [JsonProperty("classification")]
         public string Classification { get; set; }
 
-        [JsonPropertyName("isWitnessManagement")]
+        [JsonProperty("isWitnessManagement")]
         public bool IsWitnessManagement { get; set; }
 
-        [JsonPropertyName("canReclassify")]
+        [JsonProperty("canReclassify")]
         public bool CanReclassify { get; set; }
 
-        [JsonPropertyName("canRename")]
+        [JsonProperty("canRename")]
         public bool CanRename { get; set; }
 
-        [JsonPropertyName("renameStatus")]
+        [JsonProperty("renameStatus")]
         public string RenameStatus { get; set; }
 
-        [JsonPropertyName("reference")]
+        [JsonProperty("reference")]
         public string Reference { get; set; }
     }
 }

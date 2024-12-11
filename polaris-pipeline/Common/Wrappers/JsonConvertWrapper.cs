@@ -1,20 +1,17 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace Common.Wrappers
 {
     public class JsonConvertWrapper : IJsonConvertWrapper
     {
-        private readonly JsonSerializerOptions _jsonSerializerSerializeOptions = new () { WriteIndented = false, ReferenceHandler = ReferenceHandler.IgnoreCycles, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        private readonly JsonSerializerOptions _jsonSerializerDeserializeOptions = new () { PropertyNameCaseInsensitive = true };
-
         public JsonConvertWrapper()
         {
         }
 
         public string SerializeObject(object objectToSerialize) =>
-            JsonSerializer.Serialize(objectToSerialize, _jsonSerializerSerializeOptions);
+            JsonConvert.SerializeObject(objectToSerialize, Formatting.None, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
 
-        public T DeserializeObject<T>(string value) => JsonSerializer.Deserialize<T>(value, _jsonSerializerDeserializeOptions);
+        public T DeserializeObject<T>(string value) =>
+            JsonConvert.DeserializeObject<T>(value);
     }
 }

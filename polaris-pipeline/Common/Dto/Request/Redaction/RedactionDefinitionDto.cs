@@ -1,20 +1,20 @@
 ﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Common.Dto.Request.Redaction
 {
     public class RedactionDefinitionDto
     {
-        [JsonPropertyName("pageIndex")]
+        [JsonProperty("pageIndex")]
         public int PageIndex { get; set; }
 
-        [JsonPropertyName("width")]
+        [JsonProperty("width")]
         public double Width { get; set; }
 
-        [JsonPropertyName("height")]
+        [JsonProperty("height")]
         public double Height { get; set; }
 
-        [JsonPropertyName("redactionCoordinates")]
+        [JsonProperty("redactionCoordinates")]
         public List<RedactionCoordinatesDto> RedactionCoordinates { get; set; }
     }
 }

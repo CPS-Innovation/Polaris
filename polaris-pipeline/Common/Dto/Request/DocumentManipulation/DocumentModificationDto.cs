@@ -1,14 +1,14 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Common.Dto.Request.DocumentManipulation
 {
     public class DocumentModificationDto
     {
-        [JsonPropertyName("pageIndex")]
+        [JsonProperty("pageIndex")]
         public int PageIndex { get; set; }
-        [JsonPropertyName("operation")]
+        [JsonProperty("operation")]
         public string Operation { get; set; }
-        [JsonPropertyName("arg")]
+        [JsonProperty("arg")]
         public object Arg { get; set; }
     }
 }

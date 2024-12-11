@@ -1,41 +1,37 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace Common.Dto.Response.Case
 {
     public class ChargeDto
     {
-        public ChargeDto()
-        {
-        }
-
-        [JsonPropertyName("id")]
+        [JsonProperty("id")]
         public int Id { get; set; }
 
-        [JsonPropertyName("listOrder")]
+        [JsonProperty("listOrder")]
         public int? ListOrder { get; set; }
 
-        [JsonPropertyName("isCharged")]
+        [JsonProperty("isCharged")]
         public bool IsCharged { get; set; }
 
-        [JsonPropertyName("nextHearingDate")]
+        [JsonProperty("nextHearingDate")]
         public string NextHearingDate { get; set; }
 
-        [JsonPropertyName("earlyDate")]
+        [JsonProperty("earlyDate")]
         public string EarlyDate { get; set; }
 
-        [JsonPropertyName("lateDate")]
+        [JsonProperty("lateDate")]
         public string LateDate { get; set; }
 
-        [JsonPropertyName("code")]
+        [JsonProperty("code")]
         public string Code { get; set; }
 
-        [JsonPropertyName("shortDescription")]
+        [JsonProperty("shortDescription")]
         public string ShortDescription { get; set; }
 
-        [JsonPropertyName("longDescription")]
+        [JsonProperty("longDescription")]
         public string LongDescription { get; set; }
 
-        [JsonPropertyName("custodyTimeLimit")]
+        [JsonProperty("custodyTimeLimit")]
         public CustodyTimeLimitDto CustodyTimeLimit { get; set; }
     }
 }

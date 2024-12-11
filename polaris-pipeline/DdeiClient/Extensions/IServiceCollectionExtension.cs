@@ -20,7 +20,7 @@ namespace Ddei.Extensions
         private const int RetryAttempts = 1;
         private const int FirstRetryDelaySeconds = 1;
 
-        public static void AddDdeiClient(this IServiceCollection services, IConfiguration configuration)
+        public static void AddDdeiClient(this IServiceCollection services, IConfigurationRoot configuration)
         {
             services.AddTransient<IDdeiArgFactory, DdeiArgFactory>();
 

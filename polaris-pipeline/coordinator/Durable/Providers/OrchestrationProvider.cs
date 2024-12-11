@@ -1,16 +1,16 @@
 ﻿using coordinator.Durable.Entity;
 using coordinator.Durable.Orchestration;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
 using Common.Dto.Response;
 using coordinator.Durable.Payloads;
 using Microsoft.AspNetCore.Http;
-using Microsoft.DurableTask.Client;
-using Microsoft.DurableTask;
 
 namespace coordinator.Durable.Providers;
 
@@ -18,62 +18,67 @@ public class OrchestrationProvider : IOrchestrationProvider
 {
     private readonly IConfiguration _configuration;
     private readonly IQueryConditionFactory _queryConditionFactory;
-    private static readonly OrchestrationRuntimeStatus[] _inProgressStatuses = 
-    [
+    private static readonly OrchestrationRuntimeStatus[] _inProgressStatuses = {
         OrchestrationRuntimeStatus.Running,
         OrchestrationRuntimeStatus.Pending,
         OrchestrationRuntimeStatus.Suspended,
-    ];
+        OrchestrationRuntimeStatus.ContinuedAsNew
+    };
 
-    private static readonly OrchestrationRuntimeStatus[] _completedStatuses =
-    [
+    private static readonly OrchestrationRuntimeStatus[] _completedStatuses = {
         OrchestrationRuntimeStatus.Completed,
+        OrchestrationRuntimeStatus.Canceled,
         OrchestrationRuntimeStatus.Failed,
         OrchestrationRuntimeStatus.Terminated
-    ];
+    };
 
-    private static readonly OrchestrationRuntimeStatus[] _entityStatuses =
-    [
+    private static readonly OrchestrationRuntimeStatus[] _entityStatuses = {
         // entities are eternally running orchestrations
         OrchestrationRuntimeStatus.Running,
-    ];
+    };
 
     public OrchestrationProvider(
             IConfiguration configuration,
-            IQueryConditionFactory queryConditionFactory)
+            IQueryConditionFactory queryConditionFactory
+    )
     {
         _configuration = configuration;
         _queryConditionFactory = queryConditionFactory;
     }
 
-    public async Task<List<int>> FindCaseInstancesByDateAsync(DurableTaskClient orchestrationClient, DateTime createdTimeTo, int batchSize)
+    public async Task<List<int>> FindCaseInstancesByDateAsync(IDurableOrchestrationClient orchestrationClient, DateTime createdTimeTo, int batchSize)
     {
         var instanceIds = await GetInstanceIdsAsync(orchestrationClient,
             _queryConditionFactory.Create(createdTimeTo, batchSize),
             shouldFollowContinuation: false
         );
 
+        static int getCaseIdFromInstanceId(string instanceId) => int.Parse(
+            Regex.Match(instanceId, @"\d+", RegexOptions.None, TimeSpan.FromSeconds(1))
+            .Value
+        );
+
         return instanceIds
-            .Select(GetCaseIdFromInstanceId)
+            .Select(getCaseIdFromInstanceId)
             .ToList();
     }
 
-    public async Task<bool> RefreshCaseAsync(DurableTaskClient client, Guid correlationId,
+    public async Task<bool> RefreshCaseAsync(IDurableOrchestrationClient client, Guid correlationId,
         int caseId, CasePayload casePayload, HttpRequest req)
     {
         var instanceId = CaseDurableEntity.GetKey(caseId);
-        var existingInstance = await client.GetInstanceAsync(instanceId);
+        var existingInstance = await client.GetStatusAsync(instanceId);
 
         if (existingInstance != null && _inProgressStatuses.Contains(existingInstance.RuntimeStatus))
         {
             return false;
         }
 
-        await client.ScheduleNewOrchestrationInstanceAsync(nameof(RefreshCaseOrchestrator), casePayload, new StartOrchestrationOptions { InstanceId = instanceId });
+        await client.StartNewAsync(nameof(RefreshCaseOrchestrator), instanceId, casePayload);
         return true;
     }
 
-    public async Task<DeleteCaseOrchestrationResult> DeleteCaseOrchestrationAsync(DurableTaskClient client, int caseId)
+    public async Task<DeleteCaseOrchestrationResult> DeleteCaseOrchestrationAsync(IDurableOrchestrationClient client, int caseId)
     {
         var result = new DeleteCaseOrchestrationResult();
         try
@@ -85,7 +90,7 @@ public class OrchestrationProvider : IOrchestrationProvider
             result.GotTerminateInstancesDateTime = DateTime.UtcNow;
 
             await Task.WhenAll(
-                terminateInstanceIds.Select(instanceId => client.TerminateInstanceAsync(instanceId, "Forcibly terminated DELETE"))
+                terminateInstanceIds.Select(instanceId => client.TerminateAsync(instanceId, "Forcibly terminated DELETE"))
             );
             result.TerminatedInstancesTime = DateTime.UtcNow;
 
@@ -96,22 +101,15 @@ public class OrchestrationProvider : IOrchestrationProvider
             var orchestratorPurgeInstanceIds = await GetInstanceIdsAsync(client,
                  _queryConditionFactory.Create(_completedStatuses, CaseDurableEntity.GetKey(caseId))
             );
-
-            var entityPurgeInstanceIds = new List<string>();
-            await foreach (var page in client.Entities.GetAllEntitiesAsync(new Microsoft.DurableTask.Client.Entities.EntityQuery { InstanceIdStartsWith = $"@{nameof(CaseDurableEntity).ToLower()}@{CaseDurableEntity.GetKey(caseId)}", }).AsPages())
-            {
-                entityPurgeInstanceIds.AddRange(page.Values.Select(o => o.Id.ToString()));
-            }
-
+            var entityPurgeInstanceIds = await GetInstanceIdsAsync(client,
+                 _queryConditionFactory.Create(_entityStatuses, $"@{nameof(CaseDurableEntity).ToLower()}@{CaseDurableEntity.GetKey(caseId)}")
+            );
             result.GotPurgeInstancesDateTime = DateTime.UtcNow;
             var instancesToPurge = Enumerable.Concat(orchestratorPurgeInstanceIds, entityPurgeInstanceIds);
             result.PurgeInstancesCount = instancesToPurge.Count();
 
-            foreach(var instance in instancesToPurge)
-            {
-                var purgeResult = await client.PurgeInstanceAsync(instance);
-                result.PurgedInstancesCount += purgeResult.PurgedInstanceCount;
-            }
+            var purgeResult = await client.PurgeInstanceHistoryAsync(instancesToPurge);
+            result.PurgedInstancesCount = purgeResult.InstancesDeleted;
 
             result.OrchestrationEndDateTime = DateTime.UtcNow;
             result.IsSuccess = true;
@@ -123,31 +121,32 @@ public class OrchestrationProvider : IOrchestrationProvider
         }
     }
 
-    private static async Task<List<string>> GetInstanceIdsAsync(DurableTaskClient client, OrchestrationQuery condition, bool shouldFollowContinuation = true)
+    private static async Task<List<string>> GetInstanceIdsAsync(IDurableOrchestrationClient client, OrchestrationStatusQueryCondition condition, bool shouldFollowContinuation = true)
     {
         var instanceIds = new List<string>();
-
-        await foreach (var page in client.GetAllInstancesAsync(condition).AsPages())
+        do
         {
-            instanceIds.AddRange(page.Values.Select(o => o.InstanceId));
+            var statusQueryResult = await client.ListInstancesAsync(condition, CancellationToken.None);
+            condition.ContinuationToken = statusQueryResult.ContinuationToken;
+
+            instanceIds.AddRange(
+                statusQueryResult.DurableOrchestrationState
+                .Select(o => o.InstanceId)
+            );
         }
+        while (shouldFollowContinuation && condition.ContinuationToken != null);
 
         return instanceIds;
     }
 
-    private static async Task<bool> WaitForOrchestrationsToCompleteAsync(DurableTaskClient client, IReadOnlyCollection<string> instanceIds)
+    private static async Task<bool> WaitForOrchestrationsToCompleteAsync(IDurableOrchestrationClient client, IReadOnlyCollection<string> instanceIds)
     {
         int remainingRetryAttempts = 10;
         const int retryDelayMilliseconds = 1000;
         do
         {
-            var allInstancesAreTerminated = true;
-            await foreach (var page in client.GetAllInstancesAsync(new OrchestrationQuery(Statuses: _inProgressStatuses)).AsPages())
-            {
-                allInstancesAreTerminated &=page.Values.All(i => i.RuntimeStatus == OrchestrationRuntimeStatus.Terminated);
-            }
-
-            if (allInstancesAreTerminated)
+            var statuses = await client.GetStatusAsync(instanceIds);
+            if (statuses.All(status => status.RuntimeStatus == OrchestrationRuntimeStatus.Terminated))
             {
                 return true;
             }
@@ -159,9 +158,4 @@ public class OrchestrationProvider : IOrchestrationProvider
 
         return false;
     }
-
-    static int GetCaseIdFromInstanceId(string instanceId) => int.Parse(
-        Regex.Match(instanceId, @"\d+", RegexOptions.None, TimeSpan.FromSeconds(1))
-        .Value
-    );
 }

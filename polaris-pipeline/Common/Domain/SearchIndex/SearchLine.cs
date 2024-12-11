@@ -1,15 +1,11 @@
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
+using Newtonsoft.Json;
 
 namespace Common.Domain.SearchIndex;
 
 public class SearchLine : Line, ISearchable
 {
-    public SearchLine()
-    {
-    }
-
     public SearchLine(string id, int caseId, string documentId, long versionId, string blobName, int pageIndex, int lineIndex, string language, IList<double?> boundingBox, Appearance appearance,
         string text, IList<Word> words, double pageHeight, double pageWidth)
     {
@@ -30,49 +26,49 @@ public class SearchLine : Line, ISearchable
         Words = words;
     }
 
-    [JsonPropertyName("id")]
+    [JsonProperty("id")]
     public string Id { get; set; }
 
-    [JsonPropertyName("caseId")]
+    [JsonProperty("caseId")]
     public int CaseId { get; set; }
 
-    [JsonPropertyName("documentId")]
+    [JsonProperty("documentId")]
     public string DocumentId { get; set; }
 
-    [JsonPropertyName("versionId")]
+    [JsonProperty("versionId")]
     public long VersionId { get; set; }
 
-    [JsonPropertyName("fileName")]
+    [JsonProperty("fileName")]
     public string FileName { get; set; }
 
-    [JsonPropertyName("pageIndex")]
+    [JsonProperty("pageIndex")]
     public int PageIndex { get; set; }
 
-    [JsonPropertyName("lineIndex")]
+    [JsonProperty("lineIndex")]
     public int LineIndex { get; set; }
 
-    [JsonPropertyName("pageHeight")]
+    [JsonProperty("pageHeight")]
     public double PageHeight { get; set; }
 
-    [JsonPropertyName("pageWidth")]
+    [JsonProperty("pageWidth")]
     public double PageWidth { get; set; }
 }
 
 public class Line
 {
-    [JsonPropertyName("language")]
+    [JsonProperty(PropertyName = "language")]
     public string Language { get; set; }
 
-    [JsonPropertyName("boundingBox")]
+    [JsonProperty(PropertyName = "boundingBox")]
     public IList<double?> BoundingBox { get; set; }
 
-    [JsonPropertyName("appearance")]
+    [JsonProperty(PropertyName = "appearance")]
     public Appearance Appearance { get; set; }
 
-    [JsonPropertyName("text")]
+    [JsonProperty(PropertyName = "text")]
     public string Text { get; set; }
 
-    [JsonPropertyName("words")]
+    [JsonProperty(PropertyName = "words")]
     public IList<Word> Words { get; set; }
 
     public Line()

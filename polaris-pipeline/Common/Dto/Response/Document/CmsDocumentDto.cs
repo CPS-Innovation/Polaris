@@ -4,10 +4,6 @@ namespace Common.Dto.Response.Document
 {
     public class CmsDocumentDto
     {
-        public CmsDocumentDto()
-        {
-        }
-
         public long DocumentId { get; set; }
 
         public long VersionId { get; set; }

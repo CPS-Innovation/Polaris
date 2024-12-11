@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Common.Domain.SearchIndex;
 
 public class StreamlinedWord
 {
-    [JsonPropertyName("boundingBox")]
+    [JsonProperty(PropertyName = "boundingBox")]
     public IList<double?> BoundingBox { get; set; }
 
-    [JsonPropertyName("text")]
+    [JsonProperty(PropertyName = "text")]
     public string Text { get; set; }
 
-    [JsonPropertyName("matchType")]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonProperty(PropertyName = "matchType")]
+    [JsonConverter(typeof(StringEnumConverter))]
     public StreamlinedMatchType StreamlinedMatchType { get; set; }
 }

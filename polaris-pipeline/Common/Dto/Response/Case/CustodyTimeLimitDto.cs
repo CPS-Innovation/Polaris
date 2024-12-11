@@ -1,20 +1,16 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Common.Dto.Response.Case
 {
     public class CustodyTimeLimitDto
     {
-        public CustodyTimeLimitDto()
-        {
-        }
-
-        [JsonPropertyName("expiryDate")]
+        [JsonProperty("expiryDate")]
         public string ExpiryDate { get; set; }
 
-        [JsonPropertyName("expiryDays")]
+        [JsonProperty("expiryDays")]
         public int? ExpiryDays { get; set; }
 
-        [JsonPropertyName("expiryIndicator")]
+        [JsonProperty("expiryIndicator")]
         public string ExpiryIndicator { get; set; }
     }
 }

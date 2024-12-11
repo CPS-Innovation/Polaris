@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace pdf_thumbnail_generator.Durable.Payloads

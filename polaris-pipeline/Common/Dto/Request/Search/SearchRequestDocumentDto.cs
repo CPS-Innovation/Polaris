@@ -1,13 +1,13 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Common.Dto.Request.Search
 {
     public class SearchRequestDocumentDto
     {
-        [JsonPropertyName("documentId")]
+        [JsonProperty("documentId")]
         public string DocumentId { get; set; }
 
-        [JsonPropertyName("versionId")]
+        [JsonProperty("versionId")]
         public long VersionId { get; set; }
     }
 }

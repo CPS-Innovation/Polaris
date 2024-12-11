@@ -1,31 +1,32 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using Common.Domain.SearchIndex;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Common.Domain.Pii
 {
     public class PiiWord
     {
-        [JsonPropertyName("boundingBox")]
+        [JsonProperty(PropertyName = "boundingBox")]
         public IList<double?> BoundingBox { get; set; }
 
-        [JsonPropertyName("text")]
+        [JsonProperty(PropertyName = "text")]
         public string Text { get; set; }
-        [JsonPropertyName("sanitizedText")]
+        [JsonProperty(PropertyName = "sanitizedText")]
         public string SanitizedText { get; set; }
 
-        [JsonPropertyName("matchType")]
-        [JsonConverter(typeof(JsonStringEnumConverter))]
+        [JsonProperty(PropertyName = "matchType")]
+        [JsonConverter(typeof(StringEnumConverter))]
         public StreamlinedMatchType StreamlinedMatchType { get; set; }
 
-        [JsonPropertyName("piiCategory")]
+        [JsonProperty(PropertyName = "piiCategory")]
         public string PiiCategory { get; set; }
 
-        [JsonPropertyName("redactionType")]
+        [JsonProperty(PropertyName = "redactionType")]
         public string RedactionType { get; set; }
 
-        [JsonPropertyName("piiGroupId")]
+        [JsonProperty(PropertyName = "piiGroupId")]
         public Guid? PiiGroupId { get; set; }
     }
 }

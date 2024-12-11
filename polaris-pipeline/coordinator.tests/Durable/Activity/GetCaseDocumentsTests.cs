@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -24,6 +25,7 @@ namespace coordinator.tests.Durable.Activity
         private readonly CmsDocumentDto[] _caseDocuments;
         private readonly PresentationFlagsDto[] _presentationFlags;
         private readonly CasePayload _payload;
+        private readonly Mock<IDurableActivityContext> _mockDurableActivityContext;
         private readonly GetCaseDocuments _getCaseDocuments;
         private readonly Mock<IConfiguration> _mockConfiguration;
 
@@ -32,19 +34,24 @@ namespace coordinator.tests.Durable.Activity
             var fixture = new Fixture();
             _payload = fixture.Create<CasePayload>();
             _case = fixture.Create<CaseDto>();
-            _caseDocuments = [
+            _caseDocuments = new[] {
               fixture.Create<CmsDocumentDto>(),
               fixture.Create<CmsDocumentDto>()
-            ];
+            };
 
-            _presentationFlags = [
+            _presentationFlags = new[] {
               fixture.Create<PresentationFlagsDto>(),
               fixture.Create<PresentationFlagsDto>()
-            ];
+            };
 
             var mockDdeiClient = new Mock<IDdeiClient>();
+            _mockDurableActivityContext = new Mock<IDurableActivityContext>();
 
             _mockConfiguration = new Mock<IConfiguration>();
+
+            _mockDurableActivityContext
+                .Setup(context => context.GetInput<CasePayload>())
+                .Returns(_payload);
 
             mockDdeiClient
                 .Setup(client => client.GetCaseAsync(It.IsAny<DdeiCaseIdentifiersArgDto>()))
@@ -83,8 +90,10 @@ namespace coordinator.tests.Durable.Activity
         public async Task Run_WhenCaseIdIsZero_ThrowsArgumentException()
         {
             _payload.CaseId = 0;
+            _mockDurableActivityContext.Setup(context => context.GetInput<CasePayload>())
+                .Returns(_payload);
 
-            await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_payload));
+            await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_mockDurableActivityContext.Object));
         }
 
         [Theory]
@@ -94,8 +103,10 @@ namespace coordinator.tests.Durable.Activity
         public async Task Run_WhenAccessTokenIsNullOrWhitespace_ThrowsArgumentException(string cmsAuthValues)
         {
             _payload.CmsAuthValues = cmsAuthValues;
+            _mockDurableActivityContext.Setup(context => context.GetInput<CasePayload>())
+                .Returns(_payload);
 
-            await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_payload));
+            await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_mockDurableActivityContext.Object));
         }
 
         [Theory]
@@ -105,24 +116,28 @@ namespace coordinator.tests.Durable.Activity
         public async Task Run_WhenCaseUrnIsNullOrWhitespace_ThrowsArgumentException(string caseUrn)
         {
             _payload.Urn = caseUrn;
+            _mockDurableActivityContext.Setup(context => context.GetInput<CasePayload>())
+                .Returns(_payload);
 
-            await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_payload));
+            await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_mockDurableActivityContext.Object));
         }
 
         [Fact]
         public async Task Run_WhenCorrelationIdIsEmpty_ThrowsArgumentException()
         {
             _payload.CorrelationId = Guid.Empty;
+            _mockDurableActivityContext.Setup(context => context.GetInput<CasePayload>())
+                .Returns(_payload);
 
-            await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_payload));
+            await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_mockDurableActivityContext.Object));
         }
 
         [Fact]
         public async Task Run_ReturnsCaseDocuments()
         {
-            var caseDocuments = await _getCaseDocuments.Run(_payload);
+            var (documents, _, _) = await _getCaseDocuments.Run(_mockDurableActivityContext.Object);
 
-            caseDocuments.CmsDocuments.Should().BeEquivalentTo(_caseDocuments);
+            documents.Should().BeEquivalentTo(_caseDocuments);
         }
     }
 }

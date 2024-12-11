@@ -5,7 +5,8 @@ using Common.Dto.Response;
 using Common.Services.BlobStorage;
 using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Payloads;
-using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Durable.Activity
@@ -21,9 +22,10 @@ namespace coordinator.Durable.Activity
             _textExtractorClient = textExtractorClient;
         }
 
-        [Function(nameof(InitiateIndex))]
-        public async Task<StoreCaseIndexesResult> Run([ActivityTrigger] DocumentPayload payload)
+        [FunctionName(nameof(InitiateIndex))]
+        public async Task<StoreCaseIndexesResult> Run([ActivityTrigger] IDurableActivityContext context)
         {
+            var payload = context.GetInput<DocumentPayload>();
             var blobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Ocr);
 
             await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(blobId);

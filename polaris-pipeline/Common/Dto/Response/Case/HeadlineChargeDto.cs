@@ -1,22 +1,22 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Common.Dto.Response.Case
 {
     public class HeadlineChargeDto
     {
-        [JsonPropertyName("charge")]
+        [JsonProperty("charge")]
         public string Charge { get; set; }
 
-        [JsonPropertyName("date")]
+        [JsonProperty("date")]
         public string Date { get; set; }
 
-        [JsonPropertyName("earlyDate")]
+        [JsonProperty("earlyDate")]
         public string EarlyDate { get; set; }
 
-        [JsonPropertyName("lateDate")]
+        [JsonProperty("lateDate")]
         public string LateDate { get; set; }
 
-        [JsonPropertyName("nextHearingDate")]
+        [JsonProperty("nextHearingDate")]
         public string NextHearingDate { get; set; }
     }
 }

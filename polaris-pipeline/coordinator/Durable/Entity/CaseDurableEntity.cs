@@ -2,71 +2,66 @@
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using coordinator.Durable.Payloads.Domain;
-using Microsoft.Azure.Functions.Worker;
-using System.Text.Json.Serialization;
-using Microsoft.DurableTask.Entities;
-using coordinator.Domain;
+using Common.Constants;
 
 namespace coordinator.Durable.Entity
 {
     // n.b. Entity proxy interface methods must define at most one argument for operation input.
     // (A single tuple is acceptable)
-    [JsonUnmappedMemberHandling(JsonUnmappedMemberHandling.Skip)]
+    [JsonObject(MemberSerialization.OptIn)]
     public class CaseDurableEntity : ICaseDurableEntity
     {
         public static string GetKey(int caseId) => $"[{caseId}]";
 
-        public static EntityInstanceId GetEntityId(int caseId) => new (nameof(CaseDurableEntity), GetKey(caseId));
+        public static EntityId GetEntityId(int caseId) => new EntityId(nameof(CaseDurableEntity), GetKey(caseId));
 
-        [Function(nameof(CaseDurableEntity))]
-        public static Task Run([EntityTrigger] TaskEntityDispatcher taskEntityDispatcher)
+        [FunctionName(nameof(CaseDurableEntity))]
+        public static Task Run([EntityTrigger] IDurableEntityContext context)
         {
-            return taskEntityDispatcher.DispatchAsync<CaseDurableEntity>();
+            return context.DispatchAsync<CaseDurableEntity>();
         }
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        [JsonPropertyName("status")]
-        [JsonInclude]
+        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty("status")]
         public CaseRefreshStatus Status { get; set; }
 
-        [JsonPropertyName("running")]
-        [JsonInclude]
+        [JsonProperty("running")]
         public DateTime? Running { get; set; }
 
-        [JsonPropertyName("Retrieved")]
-        [JsonInclude]
+        [JsonProperty("Retrieved")]
         public float? Retrieved { get; set; }
 
-        [JsonPropertyName("completed")]
-        [JsonInclude]
+        [JsonProperty("completed")]
         public float? Completed { get; set; }
 
-        [JsonPropertyName("failed")]
-        [JsonInclude]
+        [JsonProperty("failed")]
         public float? Failed { get; set; }
 
-        [JsonPropertyName("failedReason")]
-        [JsonInclude]
+        [JsonProperty("failedReason")]
         public string FailedReason { get; set; }
 
-        [JsonPropertyName("documents")]
-        [JsonInclude]
-        public List<CmsDocumentEntity> CmsDocuments { get; set; } = [];
+        [JsonProperty("documents")]
+        public List<CmsDocumentEntity> CmsDocuments { get; set; } = new List<CmsDocumentEntity>();
 
-        [JsonPropertyName("pcdRequests")]
-        [JsonInclude]
-        public List<PcdRequestEntity> PcdRequests { get; set; } = [];
+        [JsonProperty("pcdRequests")]
+        public List<PcdRequestEntity> PcdRequests { get; set; } = new List<PcdRequestEntity>();
 
-        [JsonPropertyName("defendantsAndCharges")]
-        [JsonInclude]
+        [JsonProperty("defendantsAndCharges")]
         public DefendantsAndChargesEntity DefendantsAndCharges { get; set; } = null; // null is the default state (do not initialise to an empty object)
 
-        public Task<DateTime> GetStartTime() => Task.FromResult(Running.GetValueOrDefault());
+        public Task<DateTime> GetStartTime()
+        {
+            return Task.FromResult(Running.GetValueOrDefault());
+        }
 
         public void Reset()
         {
@@ -78,14 +73,12 @@ namespace coordinator.Durable.Entity
             FailedReason = null;
         }
 
-        public async Task<CaseDeltasEntity> GetCaseDocumentChanges(GetCaseDocumentsResponse getCaseDocumentsResponse)
+        public async Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
         {
-            var cmsDocuments = getCaseDocumentsResponse.CmsDocuments;
-            var pcdRequests = getCaseDocumentsResponse.PcdRequests;
-            var defendantsAndCharges = getCaseDocumentsResponse.DefendantAndCharges;
+            var (cmsDocuments, pcdRequests, defendantsAndCharges) = args;
 
-            var (createdDocuments, updatedDocuments, deletedDocuments) = GetDeltaCmsDocuments([.. cmsDocuments]);
-            var (createdPcdRequests, updatedPcdRequests, deletedPcdRequests) = GetDeltaPcdRequests([.. pcdRequests]);
+            var (createdDocuments, updatedDocuments, deletedDocuments) = GetDeltaCmsDocuments(cmsDocuments.ToList());
+            var (createdPcdRequests, updatedPcdRequests, deletedPcdRequests) = GetDeltaPcdRequests(pcdRequests.ToList());
             var (createdDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges) = GetDeltaDefendantsAndCharges(defendantsAndCharges);
 
             var deltas = new CaseDeltasEntity
@@ -173,16 +166,12 @@ namespace coordinator.Durable.Entity
             DefendantsAndChargesListDto newDefendantsAndCharges = null, updatedDefendantsAndCharges = null;
 
             if (DefendantsAndCharges == null && incomingDefendantsAndCharges != null)
-            {
                 newDefendantsAndCharges = incomingDefendantsAndCharges;
-            }
 
             if (DefendantsAndCharges != null && incomingDefendantsAndCharges != null)
             {
                 if (DefendantsAndCharges.VersionId != incomingDefendantsAndCharges.VersionId)
-                {
                     updatedDefendantsAndCharges = incomingDefendantsAndCharges;
-                }
             }
 
             var deletedDefendantsAndCharges = DefendantsAndCharges != null && incomingDefendantsAndCharges == null;
@@ -190,13 +179,14 @@ namespace coordinator.Durable.Entity
             return (newDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges);
         }
 
-        private List<DocumentDelta> CreateTrackerCmsDocuments(List<CmsDocumentDto> createdDocuments)
+        private List<(CmsDocumentEntity, DocumentDeltaType)> CreateTrackerCmsDocuments(List<CmsDocumentDto> createdDocuments)
         {
-            var newDocuments = new List<DocumentDelta>();
+            var newDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>();
 
             foreach (var newDocument in createdDocuments)
             {
-                var trackerDocument = new CmsDocumentEntity
+                var trackerDocument
+                    = new CmsDocumentEntity
                     (
                         cmsDocumentId: newDocument.DocumentId,
                         versionId: newDocument.VersionId,
@@ -224,15 +214,15 @@ namespace coordinator.Durable.Entity
                     );
 
                 CmsDocuments.Add(trackerDocument);
-                newDocuments.Add(new DocumentDelta { Document = trackerDocument, DeltaType = DocumentDeltaType.RequiresIndexing });
+                newDocuments.Add((trackerDocument, DocumentDeltaType.RequiresIndexing));
             }
 
             return newDocuments;
         }
 
-        private List<DocumentDelta> UpdateTrackerCmsDocuments(List<CmsDocumentDto> updatedDocuments)
+        private List<(CmsDocumentEntity, DocumentDeltaType)> UpdateTrackerCmsDocuments(List<CmsDocumentDto> updatedDocuments)
         {
-            var changedDocuments = new List<DocumentDelta>();
+            var changedDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>();
 
             foreach (var updatedDocument in updatedDocuments)
             {
@@ -271,11 +261,11 @@ namespace coordinator.Durable.Entity
                     caseDeltaType = DocumentDeltaType.RequiresIndexing;
                 }
 
-                changedDocuments.Add(new DocumentDelta { Document = trackerDocument, DeltaType = caseDeltaType });
+                changedDocuments.Add((trackerDocument, caseDeltaType));
             }
 
             return changedDocuments
-                .Where(d => d.DeltaType != DocumentDeltaType.DoesNotRequireRefresh)
+                .Where(d => d.Item2 != DocumentDeltaType.DoesNotRequireRefresh)
                 .ToList();
         }
 
@@ -392,44 +382,38 @@ namespace coordinator.Durable.Entity
             }
 
             if (DefendantsAndCharges != null)
-            {
                 return DefendantsAndCharges;
-            }
 
             return null;
         }
 
-        public void SetCaseStatus(SetCaseStatusPayload payload)
+        public void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args)
         {
-            Status = payload.Status;
+            var (t, status, info) = args;
 
-            switch (Status)
+            Status = status;
+
+            switch (status)
             {
                 case CaseRefreshStatus.Running:
-                    Running = payload.UpdatedAt;
+                    Running = t;
                     break;
 
                 case CaseRefreshStatus.DocumentsRetrieved:
                     if (Running != null)
-                    {
-                        Retrieved = (float)((payload.UpdatedAt - Running).Value.TotalMilliseconds / 1000.0);
-                    }
-
+                        Retrieved = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
                     break;
 
                 case CaseRefreshStatus.Completed:
                     if (Running != null)
-                    {
-                        Completed = (float)((payload.UpdatedAt - Running).Value.TotalMilliseconds / 1000.0);
-                    }
-
+                        Completed = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
                     break;
 
                 case CaseRefreshStatus.Failed:
                     if (Running != null)
                     {
-                        Failed = (float)((payload.UpdatedAt - Running).Value.TotalMilliseconds / 1000.0);
-                        FailedReason = payload.FailedReason;
+                        Failed = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
+                        FailedReason = info;
                     }
                     break;
             }
@@ -441,11 +425,11 @@ namespace coordinator.Durable.Entity
             document.Status = DocumentStatus.PdfUploadedToBlob;
         }
 
-        public void SetDocumentPdfConversionFailed(SetDocumentPdfConversionFailedPayload payload)
+        public void SetDocumentPdfConversionFailed((string DocumentId, PdfConversionStatus PdfConversionStatus) arg)
         {
-            var document = GetDocument(payload.DocumentId);
+            var document = GetDocument(arg.DocumentId);
             document.Status = DocumentStatus.UnableToConvertToPdf;
-            document.ConversionStatus = payload.PdfConversionStatus;
+            document.ConversionStatus = arg.PdfConversionStatus;
         }
 
         public void SetDocumentIndexingSucceeded(string documentId)

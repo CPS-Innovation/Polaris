@@ -1,5 +1,5 @@
 ﻿using Common.Configuration;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace coordinator.Domain
 {
@@ -14,7 +14,7 @@ namespace coordinator.Domain
 			_caseId = caseId;
 		}
 
-		[JsonPropertyName("trackerUrl")]
+		[JsonProperty("trackerUrl")]
 		public string TrackerUrl
 		{
 			get => "/api/" + RestApi.GetCaseTrackerPath(_caseUrn, _caseId);

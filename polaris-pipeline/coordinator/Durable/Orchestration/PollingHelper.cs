@@ -1,17 +1,17 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using System;
-using Microsoft.DurableTask;
 
 namespace coordinator.Durable.Orchestration;
 
 public class PollingHelper
 {
     // By default, we mean do not retry
-    public static readonly TaskOptions DefaultActivityOptions = new(new TaskRetryOptions(new RetryPolicy(firstRetryInterval: TimeSpan.FromSeconds(1), maxNumberOfAttempts: 1)));
+    private static readonly RetryOptions _defaultActivityRetryOptions = new(firstRetryInterval: TimeSpan.FromSeconds(1), maxNumberOfAttempts: 1);
 
-    public static async Task<PollingResult<T>> PollActivityUntilComplete<T>(TaskOrchestrationContext context, PollingArgs pollingArgs)
+    public static async Task<PollingResult<T>> PollActivityUntilComplete<T>(IDurableOrchestrationContext context, PollingArgs pollingArgs)
     {
         // Pause before making the call because we want one interval before making the first call
         var firstCheckTime = context.CurrentUtcDateTime.AddMilliseconds(pollingArgs.PrePollingDelayMs);
@@ -23,20 +23,20 @@ public class PollingHelper
             // Note the two types of retry in this method:
             //  1. The activity itself is retried according to the RetryOptions passed in the PollingArgs (transient HTTP errors)
             //  2. The entire polling loop is retried until a positive flag is returned from the activity
-            var pollingActivityResult = await context.CallActivityAsync<PollingActivityResult<T>>(
+            var (isCompleted, result) = await context.CallActivityWithRetryAsync<(bool, T)>(
                 pollingArgs.ActivityName,
-                pollingArgs.ActivityInput,
-                pollingArgs.ActivityOptions ?? DefaultActivityOptions);
+                pollingArgs.ActivityRetryOptions ?? _defaultActivityRetryOptions,
+                pollingArgs.ActivityInput);
 
-            results.Add(pollingActivityResult.Result);
+            results.Add(result);
 
-            if (pollingActivityResult.IsCompleted)
+            if (isCompleted)
             {
                 return new PollingResult<T>
                 {
                     IsCompleted = true,
                     Results = results,
-                    FinalResult = pollingActivityResult.Result,
+                    FinalResult = result
                 };
             }
 
@@ -46,7 +46,7 @@ public class PollingHelper
                 {
                     IsCompleted = false,
                     Results = results,
-                    FinalResult = pollingActivityResult.Result,
+                    FinalResult = result
                 };
             }
 
@@ -61,7 +61,7 @@ public class PollingHelper
         int prePollingDelayMs,
         int pollingIntervalMs,
         int maxPollingAttempts,
-        TaskOptions activityOptions = null)
+        RetryOptions activityRetryOptions = null)
     {
         return new PollingArgs
         {
@@ -70,7 +70,7 @@ public class PollingHelper
             PrePollingDelayMs = prePollingDelayMs,
             PollingIntervalMs = pollingIntervalMs,
             MaxPollingAttempts = maxPollingAttempts,
-            ActivityOptions = activityOptions,
+            ActivityRetryOptions = activityRetryOptions,
         };
     }
 }
@@ -82,14 +82,6 @@ public class PollingResult<T>
     public T FinalResult { get; set; }
 }
 
-
-public class PollingActivityResult<T>
-{
-    public bool IsCompleted { get; set; }
-
-    public T Result { get; set; }
-}
-
 public class PollingArgs
 {
     public string ActivityName { get; set; }
@@ -97,5 +89,5 @@ public class PollingArgs
     public int PrePollingDelayMs { get; set; }
     public int PollingIntervalMs { get; set; }
     public int MaxPollingAttempts { get; set; }
-    public TaskOptions ActivityOptions { get; set; }
+    public RetryOptions ActivityRetryOptions { get; set; }
 }

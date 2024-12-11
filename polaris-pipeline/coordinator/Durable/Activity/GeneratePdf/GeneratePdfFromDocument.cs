@@ -2,14 +2,15 @@
 using System.Threading.Tasks;
 using Common.Services.BlobStorage;
 using Ddei;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using coordinator.Durable.Payloads;
 using Common.Clients.PdfGenerator;
+using Common.Constants;
 using Ddei.Factories;
 using System;
 using coordinator.Durable.Activity.GeneratePdf;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Azure.Functions.Worker;
-using coordinator.Domain;
 
 namespace coordinator.Durable.Activity
 {
@@ -23,10 +24,10 @@ namespace coordinator.Durable.Activity
             IConfiguration configuration)
             : base(ddeiClient, ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorCLient, configuration) { }
 
-        [Function(nameof(GeneratePdfFromDocument))]
-        public new async Task<PdfConversionResponse> Run([ActivityTrigger] DocumentPayload payload)
+        [FunctionName(nameof(GeneratePdfFromDocument))]
+        public new async Task<(bool, PdfConversionStatus)> Run([ActivityTrigger] IDurableActivityContext context)
         {
-            return await base.Run(payload);
+            return await base.Run(context);
         }
 
         protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload)

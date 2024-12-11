@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using Common.Services.PiiService.Domain.Chunking;
+using Newtonsoft.Json;
 
 namespace Common.Dto.Request
 {
@@ -12,16 +12,16 @@ namespace Common.Dto.Request
             AnalysisInput = CreateDocuments(piiChunks);
         }
 
-        [JsonPropertyName("kind")]
+        [JsonProperty("kind")]
         public static string Kind => "PiiEntityRecognition";
 
-        [JsonPropertyName("parameters")]
+        [JsonProperty("parameters")]
         public PiiCategoryParameters Parameters { get; set; }
 
-        [JsonPropertyName("analysisInput")]
+        [JsonProperty("analysisInput")]
         public AnalysisInput AnalysisInput { get; set; }
 
-        private static AnalysisInput CreateDocuments(List<PiiChunk> piiChunks)
+        private AnalysisInput CreateDocuments(List<PiiChunk> piiChunks)
         {
             var analysisInput = new AnalysisInput();
             var documentId = 1;
@@ -46,28 +46,28 @@ namespace Common.Dto.Request
             PiiCategories = piiCategories;
         }
 
-        [JsonPropertyName("piiCategories")]
+        [JsonProperty("piiCategories")]
         public string[] PiiCategories { get; set; }
 
-        [JsonPropertyName("modelVersion")]
+        [JsonProperty("modelVersion")]
         public static string ModelVersion => "latest";
     }
 
     public class AnalysisInput
     {
-        [JsonPropertyName("documents")]
+        [JsonProperty("documents")]
         public List<AnalysisDocument> Documents { get; set; } = new List<AnalysisDocument>();
     }
 
     public class AnalysisDocument
     {
-        [JsonPropertyName("id")]
+        [JsonProperty("id")]
         public string Id { get; set; }
 
-        [JsonPropertyName("language")]
-        public static string Language => "en";
+        [JsonProperty("language")]
+        public string Language => "en";
 
-        [JsonPropertyName("text")]
+        [JsonProperty("text")]
         public string Text { get; set; }
     }
 }

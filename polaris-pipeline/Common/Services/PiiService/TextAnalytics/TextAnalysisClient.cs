@@ -22,7 +22,7 @@ namespace Common.Services.PiiService.TextAnalytics
             {
                 batchedDocuments.Add(new TextDocumentInput(document.Id, document.Text)
                 {
-                    Language = AnalysisDocument.Language
+                    Language = document.Language
                 });
             }
 

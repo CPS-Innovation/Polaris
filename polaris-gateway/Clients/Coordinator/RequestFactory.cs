@@ -1,6 +1,4 @@
 ﻿using Common.Constants;
-using System;
-using System.Net.Http;
 
 namespace PolarisGateway.Clients.Coordinator
 {
