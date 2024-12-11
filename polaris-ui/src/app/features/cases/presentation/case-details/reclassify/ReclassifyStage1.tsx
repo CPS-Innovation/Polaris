@@ -30,6 +30,7 @@ type ReclassifyStage1Props = {
   handleLookUpDataError: (errorMessage: string) => void;
   handleResetFormDataErrors: () => void;
   reclassifiedDocumentUpdate?: boolean;
+  handleCheckContentLoaded: (value: number) => void
 };
 
 export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
@@ -43,6 +44,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   handleLookUpDataError,
   handleResetFormDataErrors,
   reclassifiedDocumentUpdate,
+  handleCheckContentLoaded
 }) => {
   const reclassifyContext = useReClassifyContext()!;
   const errorSummaryRef = useRef(null);
@@ -106,7 +108,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         ref={backButtonRef}
         disabled={
           state.reClassifySaveStatus === "saving" ||
-          state.reClassifySaveStatus === "success"
+            state.reClassifySaveStatus === "success"
             ? true
             : false
         }
@@ -123,20 +125,20 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
       </div>
       {(state.reClassifySaveStatus === "saving" ||
         state.reClassifySaveStatus === "success") && (
-        <NotificationBanner className={classes.notificationBanner}>
-          <div
-            className={classes.bannerContent}
-            data-testid="div-notification-banner"
-          >
-            <div className={classes.spinnerWrapper}>
-              <Spinner diameterPx={25} ariaLabel={"spinner-animation"} />
+          <NotificationBanner className={classes.notificationBanner}>
+            <div
+              className={classes.bannerContent}
+              data-testid="div-notification-banner"
+            >
+              <div className={classes.spinnerWrapper}>
+                <Spinner diameterPx={25} ariaLabel={"spinner-animation"} />
+              </div>
+              <p className={classes.notificationBannerText}>
+                Saving to CMS. Please wait.
+              </p>
             </div>
-            <p className={classes.notificationBannerText}>
-              Saving to CMS. Please wait.
-            </p>
-          </div>
-        </NotificationBanner>
-      )}
+          </NotificationBanner>
+        )}
       <h1 id="main-description" className="govuk-heading-l">
         What type of document is this?
       </h1>
@@ -164,8 +166,8 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         errorMessage={
           formDataErrors.documentTypeErrorText
             ? {
-                children: formDataErrors.documentTypeErrorText,
-              }
+              children: formDataErrors.documentTypeErrorText,
+            }
             : undefined
         }
         label={{
@@ -184,7 +186,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         onChange={(ev) => handleDocTypeChange(ev.target.value)}
         disabled={
           state.reClassifySaveStatus === "saving" ||
-          state.reClassifySaveStatus === "success"
+            state.reClassifySaveStatus === "success"
             ? true
             : false
         }
@@ -198,6 +200,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
           getWitnessStatementNumbers={getWitnessStatementNumbers}
           handleBackBtnClick={handleBackBtnClick}
           handleLookUpDataError={handleLookUpDataError}
+          handleCheckContentLoaded={(value) => handleCheckContentLoaded(value)}
         />
       ) : (
         ""

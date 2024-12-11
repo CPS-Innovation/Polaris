@@ -84,10 +84,16 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   const reclassifyContext = useReClassifyContext()!;
 
   const { state, dispatch } = reclassifyContext;
+  const [contentLoaded, setContentLoaded] = useState<number>(0);
 
   const handleResetFormDataErrors = useCallback(() => {
     setFormDataErrors(errorTextsInitialValue);
   }, []);
+
+  const handleCheckContentLoaded = useCallback((value: number) => {
+    setContentLoaded(value)
+  }, []);
+
 
   const validateData = () => {
     const {
@@ -254,50 +260,50 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       immediate:
         state.reclassifyVariant === "Immediate"
           ? {
-              documentName:
-                formData.documentRenameStatus === "YES"
-                  ? formData.documentNewName
-                  : null,
-            }
+            documentName:
+              formData.documentRenameStatus === "YES"
+                ? formData.documentNewName
+                : null,
+          }
           : null,
       other:
         state.reclassifyVariant === "Other"
           ? {
-              documentName:
-                formData.documentRenameStatus === "YES"
-                  ? formData.documentNewName
-                  : null,
-              used,
-            }
+            documentName:
+              formData.documentRenameStatus === "YES"
+                ? formData.documentNewName
+                : null,
+            used,
+          }
           : null,
       statement:
         state.reclassifyVariant === "Statement"
           ? {
-              used,
-              witnessId: +formData.statementWitnessId!,
-              statementNo: +formData.statementNumber!,
-              date:
-                reclassificationType === "Statement"
-                  ? `${formData.statementYear}-${formData.statementMonth}-${formData.statementDay}`
-                  : "",
-            }
+            used,
+            witnessId: +formData.statementWitnessId!,
+            statementNo: +formData.statementNumber!,
+            date:
+              reclassificationType === "Statement"
+                ? `${formData.statementYear}-${formData.statementMonth}-${formData.statementDay}`
+                : "",
+          }
           : null,
       exhibit:
         state.reclassifyVariant === "Exhibit"
           ? {
-              used,
-              existingProducerOrWitnessId:
-                formData.exhibitProducerId &&
+            used,
+            existingProducerOrWitnessId:
+              formData.exhibitProducerId &&
                 formData.exhibitProducerId !== "other"
-                  ? +formData.exhibitProducerId
-                  : null,
-              newProducer:
-                formData.exhibitProducerId === "other"
-                  ? formData.exhibitOtherProducerValue
-                  : null,
-              item: formData.exhibitItemName,
-              reference: formData.exhibitReference,
-            }
+                ? +formData.exhibitProducerId
+                : null,
+            newProducer:
+              formData.exhibitProducerId === "other"
+                ? formData.exhibitOtherProducerValue
+                : null,
+            item: formData.exhibitItemName,
+            reference: formData.exhibitReference,
+          }
           : null,
     };
     return saveData;
@@ -369,12 +375,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           <Button
             ref={continueButtonRef}
             onClick={handleAcceptAndSave}
-            disabled={
-              state.reClassifySaveStatus === "saving" ||
-              state.reClassifySaveStatus === "success"
-                ? true
-                : false
-            }
+            disabled={contentLoaded > 0 ? false : true}
             data-testid="reclassify-continue-btn"
           >
             Accept and save
@@ -450,6 +451,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               getWitnessStatementNumbers={getWitnessStatementNumbers}
               handleLookUpDataError={handleLookUpDataError}
               handleResetFormDataErrors={handleResetFormDataErrors}
+              handleCheckContentLoaded={handleCheckContentLoaded}
             />
           )}
           <div className={classes.btnWrapper}>{renderActionButtons()}</div>

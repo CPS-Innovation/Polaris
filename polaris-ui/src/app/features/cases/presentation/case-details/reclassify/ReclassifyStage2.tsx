@@ -26,6 +26,7 @@ type ReclassifyStage2Props = {
   ) => Promise<StatementWitnessNumber[]>;
   handleBackBtnClick: () => void;
   handleLookUpDataError: (errorMessage: string) => void;
+  handleCheckContentLoaded: (value: number) => void
 };
 
 export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
@@ -36,6 +37,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   getWitnessStatementNumbers,
   handleBackBtnClick,
   handleLookUpDataError,
+  handleCheckContentLoaded
 }) => {
 
   const [loading, setLoading] = useState(false);
@@ -93,6 +95,12 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     if (!loading && backButtonRef.current)
       (backButtonRef.current as HTMLButtonElement).focus();
   }, [loading]);
+
+  useEffect(() => {
+    const elem = document.querySelector(".govuk-checkboxes__conditional");
+    const h = elem?.clientHeight as number;
+    handleCheckContentLoaded(h)
+  }, [handleCheckContentLoaded])
 
   const statementWitnessValues = useMemo(() => {
     const defaultValue = {
@@ -729,6 +737,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
         )}
       </div>
       <p>&nbsp;</p>
+      {handleCheckContentLoaded(789)}
     </div>
   );
 };
