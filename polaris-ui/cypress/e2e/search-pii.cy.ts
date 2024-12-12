@@ -1,11 +1,19 @@
+import { TRACKER_ROUTE } from "../../src/mock-api/routes";
+import { getPipelinePdfResults } from "../../src/mock-api/data/pipelinePdfResults.cypress";
 describe("Search PII", () => {
   describe("Feature flag 'ON'", () => {
+    beforeEach(() => {
+      const trackerResults = getPipelinePdfResults(1);
+      cy.overrideRoute(TRACKER_ROUTE, {
+        body: trackerResults[0],
+      });
+    });
     it("Should show turn on/off redaction suggestions menu correctly and should not call the pii request if the versionId is not changed", () => {
       const piiRequestCounter = { count: 0 };
       cy.trackRequestCount(
         piiRequestCounter,
         "GET",
-        "/api/urns/12AB1111111/cases/13401/documents/12/versions/12/pii"
+        "/api/urns/12AB1111111/cases/13401/documents/12/versions/1/pii"
       );
       cy.visit("/case-details/12AB1111111/13401?searchPII=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -383,7 +391,7 @@ describe("Search PII", () => {
       cy.trackRequestBody(
         saveRequestObject,
         "PUT",
-        "/api/urns/12AB1111111/cases/13401/documents/12"
+        "/api/urns/12AB1111111/cases/13401/documents/12/versions/1/redact"
       );
       cy.visit("/case-details/12AB1111111/13401?searchPII=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -444,9 +452,7 @@ describe("Search PII", () => {
       cy.findByTestId("div-modal").contains("li", "1 - Email address");
 
       //assertion on the redaction save request
-      cy.waitUntil(() => {
-        return saveRequestObject.body;
-      }).then(() => {
+      cy.waitUntil(() => saveRequestObject.body).then(() => {
         expect(saveRequestObject.body).to.deep.equal(
           JSON.stringify(expectedSaveRedactionPayload)
         );
