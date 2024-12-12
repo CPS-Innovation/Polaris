@@ -45,6 +45,8 @@ public class DocumentDtoMapper : IDocumentDtoMapper
         return new DocumentDto
         {
             DocumentId = documentId,
+            // todo: stop sending CmsDocType for non-CMS documents. The UI looks to this to discern between CMS and non-CMS documents
+            //  so we should add a top-level property to the document DTO to indicate the source of the document instead.
             CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
             CmsFileCreatedDate = pcdRequest.DecisionRequested,
             CmsOriginalFileName = $"{documentId}.pdf",
@@ -61,7 +63,9 @@ public class DocumentDtoMapper : IDocumentDtoMapper
         {
             DocumentId = documentId,
             VersionId = defendantAndCharges.VersionId,
-            CmsDocType = new DocumentTypeDto("DC", null, "Review"),
+            // todo: stop sending CmsDocType for non-CMS documents. The UI looks to this to discern between CMS and non-CMS documents
+            //  so we should add a top-level property to the document DTO to indicate the source of the document instead.
+            CmsDocType = new DocumentTypeDto("DAC", null, "Review"),
             // this date is never displayed, and is not used for any logic
             CmsFileCreatedDate = new DateTime(1970, 1, 1).ToString("yyyy-MM-dd"),
             CmsOriginalFileName = $"{documentId}.pdf",
