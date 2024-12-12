@@ -54,7 +54,7 @@ namespace Common.tests.Extensions
         [Fact]
         public void WhenGettingCorrelation_AndTheHeaderDoesNotExist_AnExceptionIsThrown()
         {
-            _headers.Append("BlobName", "BlobName");
+            _headers.Add("BlobName", "BlobName");
 
             _headers.Invoking(x => x.GetCorrelationId())
                 .Should().Throw<BadRequestException>()
@@ -65,7 +65,7 @@ namespace Common.tests.Extensions
         public void WhenGettingCorrelation_AndTheHeaderValueIsInvalid_AnExceptionIsThrown()
         {
             var headerValue = "HeaderValue";
-            _headers.Append(HttpHeaderKeys.CorrelationId, headerValue);
+            _headers.Add(HttpHeaderKeys.CorrelationId, headerValue);
 
             _headers.Invoking(x => x.GetCorrelationId())
                 .Should().Throw<BadRequestException>()
@@ -76,7 +76,7 @@ namespace Common.tests.Extensions
         public void WhenGettingCorrelation_AndTheHeaderValueIsValid_AGuidIsReturned()
         {
             var headerValue = Guid.NewGuid();
-            _headers.Append(HttpHeaderKeys.CorrelationId, headerValue.ToString());
+            _headers.Add(HttpHeaderKeys.CorrelationId, headerValue.ToString());
 
             var result = _headers.GetCorrelationId();
 

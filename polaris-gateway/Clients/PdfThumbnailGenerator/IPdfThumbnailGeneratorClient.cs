@@ -1,7 +1,3 @@
-using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-
 namespace PolarisGateway.Clients.PdfThumbnailGenerator;
 
 public interface IPdfThumbnailGeneratorClient

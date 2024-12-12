@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 using coordinator.Clients.TextExtractor;
-using coordinator.Domain;
-using coordinator.Durable.Orchestration;
-using Microsoft.Azure.Functions.Worker;
+using coordinator.Durable.Payloads;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
 namespace coordinator.Durable.Activity
 {
@@ -15,23 +15,20 @@ namespace coordinator.Durable.Activity
             _textExtractorClient = textExtractorClient;
         }
 
-        [Function(nameof(CompleteIndex))]
-        public async Task<PollingActivityResult<CompleteIndexResponse>> Run([ActivityTrigger] CompleteIndexPayload payload)
+        [FunctionName(nameof(CompleteIndex))]
+        public async Task<(bool, long)> Run([ActivityTrigger] IDurableActivityContext context)
         {
+            var (payload, targetCount) = context.GetInput<(DocumentPayload, int)>();
             var results = await _textExtractorClient.GetDocumentIndexCount(
-                payload.Payload.Urn,
-                payload.Payload.CaseId,
-                payload.Payload.DocumentId,
-                payload.Payload.VersionId,
-                payload.Payload.CorrelationId);
+                payload.Urn,
+                payload.CaseId,
+                payload.DocumentId,
+                payload.VersionId,
+                payload.CorrelationId);
 
-            var isComplete = results.LineCount >= payload.TargetCount;
+            var isComplete = results.LineCount >= targetCount;
 
-            return new PollingActivityResult<CompleteIndexResponse> 
-            {
-                IsCompleted = isComplete,
-                Result = new CompleteIndexResponse { IsCompleted = isComplete, LineCount = results.LineCount }
-            };
+            return (isComplete, results.LineCount);
         }
     }
 }

@@ -10,10 +10,10 @@ using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.Response.PreCharge;
 using Ddei.Factories;
 using Ddei.Mappers;
+using Ddei.Exceptions;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Domain.Response.Defendant;
 using Ddei.Domain.Response.Document;
-using Common.Exceptions;
 
 namespace Ddei
 {

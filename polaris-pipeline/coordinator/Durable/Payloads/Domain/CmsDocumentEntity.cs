@@ -1,16 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using Common.Domain.Document;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Document.FeatureFlags;
+using Newtonsoft.Json;
 
 namespace coordinator.Durable.Payloads.Domain
 {
     public class CmsDocumentEntity : BaseDocumentEntity
     {
-        public CmsDocumentEntity() : base()
-        {
-        }
+        public CmsDocumentEntity()
+            : base()
+        { }
 
         public CmsDocumentEntity(
            long cmsDocumentId,
@@ -65,8 +65,6 @@ namespace coordinator.Durable.Payloads.Domain
             RenameStatus = renameStatus;
             Reference = reference;
         }
-
-        [JsonPropertyName("documentId")]
         public override string DocumentId
         {
             get
@@ -75,30 +73,30 @@ namespace coordinator.Durable.Payloads.Domain
             }
         }
 
-        [JsonPropertyName("path")]
+        [JsonProperty("path")]
         public string Path { get; set; }
 
-        [JsonPropertyName("cmsDocType")]
+        [JsonProperty("cmsDocType")]
         public DocumentTypeDto CmsDocType { get; set; }
 
-        [JsonPropertyName("cmsOriginalFileName")]
+        [JsonProperty("cmsOriginalFileName")]
         [Required]
         [RegularExpression(@"^.+\.[A-Za-z]{3,4}$")]
         public string CmsOriginalFileName { get; set; }
 
-        [JsonPropertyName("cmsFileCreatedDate")]
+        [JsonProperty("cmsFileCreatedDate")]
         public string CmsFileCreatedDate { get; set; }
 
-        [JsonPropertyName("isOcrProcessed")]
+        [JsonProperty("isOcrProcessed")]
         public bool IsOcrProcessed { get; set; }
 
-        [JsonPropertyName("isDispatched")]
+        [JsonProperty("isDispatched")]
         public bool IsDispatched { get; set; }
 
-        [JsonPropertyName("categoryListOrder")]
+        [JsonProperty("categoryListOrder")]
         public int? CategoryListOrder { get; set; }
 
-        [JsonPropertyName("parentDocumentId")]
+        [JsonProperty("parentDocumentId")]
         public string ParentDocumentId
         {
             get
@@ -109,43 +107,44 @@ namespace coordinator.Durable.Payloads.Domain
             }
         }
 
-        [JsonPropertyName("cmsParentDocumentId")]
+        [JsonProperty("cmsParentDocumentId")]
         public string CmsParentDocumentId { get; set; }
 
-        [JsonPropertyName("presentationTitle")]
+        [JsonProperty("presentationTitle")]
         public string PresentationTitle { get; set; }
 
-        [JsonPropertyName("witnessId")]
+        [JsonProperty("witnessId")]
         public int? WitnessId { get; set; }
 
-        [JsonPropertyName("hasFailedAttachments")]
+        [JsonProperty("hasFailedAttachments")]
         public bool HasFailedAttachments { get; set; }
 
-        [JsonPropertyName("hasNotes")]
+        [JsonProperty("hasNotes")]
         public bool HasNotes { get; set; }
 
-        [JsonPropertyName("isUnused")]
+        [JsonProperty("isUnused")]
         public bool IsUnused { get; set; }
 
-        [JsonPropertyName("isInbox")]
+        [JsonProperty("isInbox")]
         public bool IsInbox { get; set; }
 
-        [JsonPropertyName("classification")]
+        [JsonProperty("classification")]
         public string Classification { get; set; }
 
-        [JsonPropertyName("isWitnessManagement")]
+        [JsonProperty("isWitnessManagement")]
         public bool IsWitnessManagement { get; set; }
 
-        [JsonPropertyName("canReclassify")]
+        [JsonProperty("canReclassify")]
         public bool CanReclassify { get; set; }
 
-        [JsonPropertyName("canRename")]
+        [JsonProperty("canRename")]
         public bool CanRename { get; set; }
 
-        [JsonPropertyName("renameStatus")]
+        [JsonProperty("renameStatus")]
         public string RenameStatus { get; set; }
 
-        [JsonPropertyName("reference")]
+        [JsonProperty("reference")]
         public string Reference { get; set; }
+
     }
 }

@@ -1,55 +1,38 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <RootNamespace>coordinator</RootNamespace>
-    <OutputType>Exe</OutputType>
     <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <WarningLevel>4</WarningLevel>
     <DefineConstants>$(DefineConstants);SCALABILITY_TEST</DefineConstants>
   </PropertyGroup>
-  <!-- See for reason why we need this
-  https://github.com/microsoft/durabletask-dotnet/issues/148#issuecomment-1729006827 -->
-  <Target Name="CopyGrpcNativeAssetsToOutDir" AfterTargets="Build">
-    <ItemGroup>
-      <NativeAssetToCopy Condition="$([MSBuild]::IsOSPlatform('OSX'))"
-        Include="$(OutDir)runtimes/osx-arm64/native/*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(NativeAssetToCopy)"
-      DestinationFolder="$(OutDir).azurefunctions/runtimes/osx-arm64/native" />
-  </Target>
   <ItemGroup>
-    <!-- See for reason why we need version 2.41.0 explicitly
-    https://github.com/microsoft/durabletask-dotnet/issues/148#issuecomment-1729006827 -->
-    <PackageReference Include="Contrib.Grpc.Core.M1" Version="2.46.7" />
     <PackageReference Include="AutoFixture" Version="4.18.1" />
     <PackageReference Include="Azure.AI.TextAnalytics" Version="5.3.0" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
-    <PackageReference Include="Azure.Storage.Files.Shares" Version="12.21.0" />
-    <PackageReference Include="Azure.Storage.Queues" Version="12.21.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
+    <PackageReference Include="Azure.Storage.Files.Shares" Version="12.17.1" />
+    <PackageReference Include="Azure.Storage.Queues" Version="12.17.1" />
     <PackageReference Include="Mapster" Version="7.4.0" />
-    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="FluentValidation" Version="11.9.1" />
     <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0" />
-    <PackageReference Include="Microsoft.Azure.DurableTask.AzureStorage" Version="2.0.1" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore"
-      Version="2.0.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.OpenApi" Version="1.5.1" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask"
-      Version="1.2.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.8.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="8.2.1" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.2.1" />
-    <PackageReference Include="Polly.Core" Version="8.5.0" />
+    <PackageReference Include="Microsoft.Azure.Core.NewtonsoftJson" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.12.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.7.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.35.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.35.0" />
+
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.3.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Polly.Core" Version="8.3.1" />
     <PackageReference Include="System.Runtime.InteropServices.WindowsRuntime" Version="4.3.0" />
-    <PackageReference Include="System.Threading.AccessControl" Version="9.0.0" />
+    <PackageReference Include="System.Threading.AccessControl" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />

@@ -26,7 +26,7 @@
     <EmbeddedResource Include="Resources\page_removal.pdf" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Codeuctivity.ImageSharpCompare" Version="4.0.298" />
+    <PackageReference Include="Codeuctivity.ImageSharpCompare" Version="4.0.258" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appSettings.json">

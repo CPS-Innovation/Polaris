@@ -7,12 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Common.Constants;
+using Common.Helpers;
 using Common.Services.BlobStorage;
 using Microsoft.Extensions.Configuration;
-using Azure;
+using Microsoft.WindowsAzure.Storage;
 
 namespace pdf_thumbnail_generator.Functions
-{
+{ 
     public class GetThumbnail
     { 
         private readonly ILogger<GetThumbnail> _logger; 
@@ -45,7 +46,7 @@ namespace pdf_thumbnail_generator.Functions
                 
                 return new FileStreamResult(imageStream, ContentType.Jpeg);
             }
-            catch (RequestFailedException)
+            catch (StorageException)
             {
                 return new NotFoundResult();
             }
