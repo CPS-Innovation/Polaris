@@ -647,6 +647,7 @@ describe("reducerAsyncActionHandlers", () => {
           items: [
             {
               documentId: "1",
+              versionId: 3,
               redactionHighlights,
               pageDeleteRedactions: [{}],
               pageRotations: [{}],
@@ -692,7 +693,13 @@ describe("reducerAsyncActionHandlers", () => {
       });
 
       // assert
-      expect(saveSpy).toBeCalledWith("foo", 2, "1", mockRedactionSaveRequest);
+      expect(saveSpy).toBeCalledWith(
+        "foo",
+        2,
+        "1",
+        3,
+        mockRedactionSaveRequest
+      );
       //expect(checkInSpy).toBeCalledWith("foo", 2, 1);
     });
   });

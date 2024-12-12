@@ -227,10 +227,11 @@ export const saveRedactions = async (
   urn: string,
   caseId: number,
   documentId: string,
+  versionId: number,
   redactionSaveRequest: RedactionSaveRequest
 ) => {
   const url = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/redact`
   );
 
   const response = await fetchImplementation("proactive-reauth", url, {
@@ -247,10 +248,11 @@ export const saveRotations = async (
   urn: string,
   caseId: number,
   documentId: string,
+  versionId: number,
   rotationSaveRequest: RotationSaveRequest
 ) => {
   const url = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/modify`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/modify`
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", url, {

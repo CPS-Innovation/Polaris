@@ -2,7 +2,7 @@ import { PipelineResults } from "../../app/features/cases/domain/gateway/Pipelin
 import { PipelinePdfResultsDataSource } from "./types/PipelinePdfResultsDataSource";
 //the result count is set to 9 based on the maximum number of call tracker api call in a test suit, increase it when needed.
 
-const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(9);
+const dataSource: PipelinePdfResultsDataSource = () => getPipelinePdfResults(2);
 
 export default dataSource;
 
@@ -70,7 +70,7 @@ const pipelinePdfResult: PipelineResults = {
 };
 
 // this will return updated tracker data with updated versionId, processingCompleted and documentsRetrieved needed for te redaction refresh flow
-const getPipelinePdfResults = (resultsCount: number) => {
+export const getPipelinePdfResults = (resultsCount: number) => {
   let resultsArray = Array(resultsCount)
     .fill({})
     .map((value, index) => ({

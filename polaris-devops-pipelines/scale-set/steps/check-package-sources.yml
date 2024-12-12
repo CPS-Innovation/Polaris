@@ -1,0 +1,25 @@
+﻿---
+parameters:
+  taskDisplayName: ""
+
+steps:
+  - task: Bash@3
+    displayName: ${{ parameters.taskDisplayName }}
+    inputs:
+      targetType: 'inline'
+      script: |
+        ENDPOINTS=("http://archive.ubuntu.com/ubuntu/" "http://security.ubuntu.com/ubuntu/" "http://azure.archive.ubuntu.com/ubuntu/")
+        
+        for ENDPOINT_URL in "${ENDPOINTS[@]}"; do
+          echo "Checking $ENDPOINT_URL ..."
+          HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" $ENDPOINT_URL)
+        
+          echo "HTTP status for $ENDPOINT_URL: $HTTP_STATUS"
+        
+          if [ "$HTTP_STATUS" -eq 200 ]; then
+            echo "$ENDPOINT_URL is accessible"
+          else
+            echo "$ENDPOINT_URL is not accessible. HTTP Status: $HTTP_STATUS"
+            exit 1  # Fail the job if any endpoint is not accessible
+          fi
+        done

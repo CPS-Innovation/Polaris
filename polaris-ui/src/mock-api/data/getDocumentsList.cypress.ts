@@ -34,7 +34,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "2",
-    versionId: 2,
+    versionId: 1,
     cmsOriginalFileName: "CM01.pdf",
     presentationTitle: "CM01",
     cmsFileCreatedDate: "2020-06-02",
@@ -64,7 +64,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "3",
-    versionId: 3,
+    versionId: 1,
     cmsOriginalFileName: "MG05MCLOVE.pdf",
     presentationTitle: "Doc_3",
     cmsFileCreatedDate: "2020-06-03",
@@ -94,7 +94,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "4",
-    versionId: 4,
+    versionId: 1,
     cmsOriginalFileName: "MG06_3June.hte",
     presentationTitle: "Doc_4",
     cmsFileCreatedDate: "2020-06-04",
@@ -124,7 +124,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "5",
-    versionId: 5,
+    versionId: 1,
     cmsOriginalFileName: "MG06_10june.hte",
     presentationTitle: "Doc_5",
     cmsFileCreatedDate: "2020-06-10",
@@ -154,7 +154,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "6",
-    versionId: 6,
+    versionId: 1,
     cmsOriginalFileName: "CM01.pdf",
     presentationTitle: "Test DAC",
     cmsFileCreatedDate: "2023-05-11",
@@ -184,7 +184,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "8",
-    versionId: 8,
+    versionId: 1,
     cmsOriginalFileName: "MG06_3June.pdf",
     presentationTitle: "Doc_8",
     cmsFileCreatedDate: "2020-06-04",
@@ -214,7 +214,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "9",
-    versionId: 19,
+    versionId: 1,
     cmsOriginalFileName: "MG06_3June.pdf",
     presentationTitle: "Doc_9",
     cmsFileCreatedDate: "2020-06-10",
@@ -244,7 +244,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "10",
-    versionId: 10,
+    versionId: 1,
     cmsOriginalFileName: "PortraitLandscape.pdf",
     presentationTitle: "PortraitLandscape",
     cmsFileCreatedDate: "2020-06-02",
@@ -274,7 +274,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "12",
-    versionId: 12,
+    versionId: 1,
     cmsOriginalFileName: "SearchPII.pdf",
     presentationTitle: "SearchPII",
     cmsFileCreatedDate: "2020-06-02",
@@ -304,7 +304,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "13",
-    versionId: 13,
+    versionId: 1,
     cmsOriginalFileName: "CM01.pdf",
     presentationTitle: "PCD Document",
     cmsFileCreatedDate: "2020-06-02",
@@ -334,7 +334,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
 ];
 
-const getDocumentsListResult = (resultsCount: number) => {
+export const getDocumentsListResult = (resultsCount: number) => {
   let resultsArray = Array(resultsCount)
     .fill({})
     .map((value, index) =>

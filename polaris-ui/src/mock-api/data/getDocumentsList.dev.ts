@@ -34,7 +34,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "2",
-    versionId: 2,
+    versionId: 1,
     cmsOriginalFileName: "CM01.pdf",
     presentationTitle: "CM01 Item 4 very long",
     cmsFileCreatedDate: "2020-06-02",
@@ -64,7 +64,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "3",
-    versionId: 3,
+    versionId: 1,
     cmsOriginalFileName: "MG05MCLOVE.pdf",
     presentationTitle: "MG05MCLOVE very long",
     cmsFileCreatedDate: "2020-06-02",
@@ -94,7 +94,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "4",
-    versionId: 4,
+    versionId: 1,
     cmsOriginalFileName: "MG06_3June.hte",
     presentationTitle: "MG06_3June very long",
     cmsFileCreatedDate: "2020-06-03",
@@ -124,7 +124,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "5",
-    versionId: 5,
+    versionId: 1,
     cmsOriginalFileName: "MG06_10june.hte",
     presentationTitle: "MG06_10june very long",
     cmsFileCreatedDate: "2020-06-10",
@@ -154,7 +154,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "6",
-    versionId: 6,
+    versionId: 1,
     cmsOriginalFileName: "MCLOVEMG3.pdf",
     presentationTitle: "MCLOVEMG3 very long",
     cmsFileCreatedDate: "2020-06-02",
@@ -184,7 +184,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "7",
-    versionId: 7,
+    versionId: 1,
     cmsOriginalFileName: "CM01.pdf",
     presentationTitle: "CM01 very long",
     cmsFileCreatedDate: "2020-06-02",
@@ -214,7 +214,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "8",
-    versionId: 8,
+    versionId: 1,
     cmsOriginalFileName: "MG05MCLOVE.pdf",
     presentationTitle: "MG05MCLOVE very long",
     cmsFileCreatedDate: "2020-06-02",
@@ -244,7 +244,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "9",
-    versionId: 9,
+    versionId: 1,
     cmsOriginalFileName: "MG06_3June.pdf",
     presentationTitle: "MG06_3June very long",
     cmsFileCreatedDate: "2020-06-03",
@@ -274,7 +274,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "10",
-    versionId: 10,
+    versionId: 1,
     cmsOriginalFileName: "MG06_10june.pdf",
     presentationTitle: "MG06_10june very long",
     cmsFileCreatedDate: "2020-06-10",
@@ -304,7 +304,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "10",
-    versionId: 10,
+    versionId: 1,
     cmsOriginalFileName: "MG06_10june.pdf",
     presentationTitle: "MG06_11june  very long",
     cmsFileCreatedDate: "2020-06-02",
@@ -334,7 +334,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "11",
-    versionId: 11,
+    versionId: 1,
     cmsOriginalFileName: "PortraitLandscape.pdf",
     presentationTitle: "PortraitLandscape",
     cmsFileCreatedDate: "2020-06-02",
@@ -364,7 +364,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "12",
-    versionId: 12,
+    versionId: 1,
     cmsOriginalFileName: "SearchPII.pdf",
     presentationTitle: "SearchPII",
     cmsFileCreatedDate: "2020-06-02",
@@ -394,7 +394,7 @@ const documentsList: PresentationDocumentProperties[] = [
   },
   {
     documentId: "13",
-    versionId: 13,
+    versionId: 1,
     cmsOriginalFileName: "MG06_13june.pdf",
     presentationTitle: "MG06_13june very long",
     cmsFileCreatedDate: "2020-06-02",

@@ -442,7 +442,13 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             savedRedactionTypes: savedRedactionTypes,
           },
         });
-        await saveRedactions(urn, caseId, documentId, redactionSaveRequest);
+        await saveRedactions(
+          urn,
+          caseId,
+          documentId,
+          versionId,
+          redactionSaveRequest
+        );
         dispatch({
           type: "SAVING_DOCUMENT",
           payload: {
@@ -835,7 +841,13 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             saveStatus: { type: "rotation", status: "saving" },
           },
         });
-        await saveRotations(urn, caseId, documentId, rotationRequestData);
+        await saveRotations(
+          urn,
+          caseId,
+          documentId,
+          versionId,
+          rotationRequestData
+        );
         dispatch({
           type: "SAVING_DOCUMENT",
           payload: {

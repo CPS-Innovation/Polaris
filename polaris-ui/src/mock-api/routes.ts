@@ -11,7 +11,7 @@ export const DOCUMENT_CHECKOUT_ROUTE =
 export const DOCUMENT_CHECKIN_ROUTE =
   "/api/urns/:urn/cases/:caseId/documents/:documentId/versions/:versionId/checkout";
 export const SAVE_REDACTION_ROUTE =
-  "api/urns/:urn/cases/:caseId/documents/:documentId";
+  "api/urns/:urn/cases/:caseId/documents/:documentId/versions/:versionId/redact";
 
 export const REDACTION_LOG_LOOKUP_ROUTE = "/api/lookUps";
 export const REDACTION_LOG_MAPPING_ROUTE = "/api/polarisMappings";
@@ -41,6 +41,6 @@ export const SAVE_RECLASSIFY =
   "/api/urns/:urn/cases/:caseId/documents/:docId/reclassify";
 
 export const SAVE_ROTATION_ROUTE =
-  "api/urns/:urn/cases/:caseId/documents/:documentId/modify";
+  "api/urns/:urn/cases/:caseId/documents/:documentId/versions/:versionId/modify";
 
 export const GET_DOCUMENTS_LIST_ROUTE = "api/urns/:urn/cases/:caseId/documents";

@@ -21,7 +21,7 @@ stages:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/main-terraform/"
               artifact: "main-terraform-files"
               publishLocation: "pipeline"
-
+              
       - job: Build_Index_Terraform_Artifacts
         steps:
           - task: PublishPipelineArtifact@1

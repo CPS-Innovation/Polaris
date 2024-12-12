@@ -7,7 +7,7 @@ namespace coordinator.Clients.PdfRedactor
 {
     public interface IPdfRedactorClient
     {
-        Task<Stream> RedactPdfAsync(string caseUrn, int caseId, string documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId);
-        Task<Stream> ModifyDocument(string caseUrn, int caseId, string documentId, ModifyDocumentWithDocumentDto modifyDocumentDto, Guid correlationId);
+        Task<Stream> RedactPdfAsync(string caseUrn, int caseId, string documentId, long versionId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId);
+        Task<Stream> ModifyDocument(string caseUrn, int caseId, string documentId, long versionId, ModifyDocumentWithDocumentDto modifyDocumentDto, Guid correlationId);
     }
 }
