@@ -1,10 +1,6 @@
 using Common.Domain.Ocr;
 using Common.Domain.Pii;
 using PolarisGateway.Services.Artefact.Domain;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.Artefact;
 

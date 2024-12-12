@@ -4,21 +4,21 @@ using System.Threading.Tasks;
 using Common.Dto.Response;
 using coordinator.Durable.Payloads;
 using Microsoft.AspNetCore.Http;
-using Microsoft.DurableTask.Client;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
 namespace coordinator.Durable.Providers;
 
 public interface IOrchestrationProvider
 {
-    Task<List<int>> FindCaseInstancesByDateAsync(DurableTaskClient client,
+    Task<List<int>> FindCaseInstancesByDateAsync(IDurableOrchestrationClient client,
                                                  DateTime createdTimeTo,
                                                  int batchSize);
 
-    Task<bool> RefreshCaseAsync(DurableTaskClient client,
+    Task<bool> RefreshCaseAsync(IDurableOrchestrationClient client,
                                                Guid correlationId,
                                                int caseId,
                                                CasePayload casePayload,
                                                HttpRequest req);
 
-    Task<DeleteCaseOrchestrationResult> DeleteCaseOrchestrationAsync(DurableTaskClient client, int caseId);
+    Task<DeleteCaseOrchestrationResult> DeleteCaseOrchestrationAsync(IDurableOrchestrationClient client, int caseId);
 }

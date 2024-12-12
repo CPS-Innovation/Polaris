@@ -4,7 +4,7 @@ namespace Common.Dto.Response
     {
         public long OcrLineCount { get; set; }
 
-        public static RefreshDocumentResult Empty() => new ()
+        public static RefreshDocumentResult Empty() => new RefreshDocumentResult
         {
             OcrLineCount = 0
         };

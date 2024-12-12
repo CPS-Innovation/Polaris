@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Services.BlobStorage;
 using Common.Services.OcrService;
-using coordinator.Domain;
 using coordinator.Durable.Payloads;
-using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Durable.Activity
@@ -21,19 +21,20 @@ namespace coordinator.Durable.Activity
             _ocrService = ocrService;
         }
 
-        [Function(nameof(InitiateOcr))]
+        [FunctionName(nameof(InitiateOcr))]
 
-        public async Task<InitiateOcrResponse> Run([ActivityTrigger] DocumentPayload payload)
+        public async Task<(bool, Guid)> Run([ActivityTrigger] IDurableActivityContext context)
         {
+            var payload = context.GetInput<DocumentPayload>();
             var ocrBlobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Ocr);
             if (await _polarisBlobStorageService.BlobExistsAsync(ocrBlobId))
             {
-                return new InitiateOcrResponse { BlobAlreadyExists = true, OcrOperationId = Guid.Empty };
+                return (true, Guid.Empty);
             }
 
             var pdfBlobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Pdf);
             await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(pdfBlobId);
-            return new InitiateOcrResponse { BlobAlreadyExists = false, OcrOperationId = await _ocrService.InitiateOperationAsync(documentStream, payload.CorrelationId) };
+            return (false, await _ocrService.InitiateOperationAsync(documentStream, payload.CorrelationId));
         }
     }
 }

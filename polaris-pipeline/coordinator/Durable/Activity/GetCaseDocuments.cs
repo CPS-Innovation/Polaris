@@ -6,12 +6,12 @@ using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Services.DocumentToggle;
 using Ddei;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using coordinator.Durable.Payloads;
 using Ddei.Factories;
-using Microsoft.Azure.Functions.Worker;
-using coordinator.Domain;
 
 namespace coordinator.Durable.Activity
 {
@@ -37,28 +37,19 @@ namespace coordinator.Durable.Activity
             _configuration = configuration;
         }
 
-        [Function(nameof(GetCaseDocuments))]
-        public async Task<GetCaseDocumentsResponse> Run([ActivityTrigger] CasePayload payload)
+        [FunctionName(nameof(GetCaseDocuments))]
+        public async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
         {
+            var payload = context.GetInput<CasePayload>();
+
             if (string.IsNullOrWhiteSpace(payload.Urn))
-            {
                 throw new ArgumentException("CaseUrn cannot be empty");
-            }
-
             if (payload.CaseId == 0)
-            {
                 throw new ArgumentException("CaseId cannot be zero");
-            }
-
             if (string.IsNullOrWhiteSpace(payload.CmsAuthValues))
-            {
                 throw new ArgumentException("Cms Auth Token cannot be null");
-            }
-
             if (payload.CorrelationId == Guid.Empty)
-            {
                 throw new ArgumentException("CorrelationId must be valid GUID");
-            }
 
             var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(
                 payload.CmsAuthValues,
@@ -73,18 +64,18 @@ namespace coordinator.Durable.Activity
             await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 
             var cmsDocuments = getDocumentsTask.Result
-                .Select(MapPresentationFlags)
+                .Select(doc => MapPresentationFlags(doc))
                 .ToArray();
 
 
             var pcdRequests = getPcdRequestsTask.Result
-                .Select(MapPresentationFlags)
+                .Select(corePcd => MapPresentationFlags(corePcd))
                 .ToArray();
 
             var defendantsAndCharges = getDefendantsAndChargesTask.Result;
             MapPresentationFlags(defendantsAndCharges);
 
-            return new (cmsDocuments, pcdRequests, defendantsAndCharges);
+            return (cmsDocuments, pcdRequests, defendantsAndCharges);
         }
 
         private CmsDocumentDto MapPresentationFlags(CmsDocumentDto document)

@@ -1,46 +1,62 @@
 using Common.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using PolarisGateway.Handlers;
 using Ddei.Factories;
 using PolarisGateway.Services.DdeiOrchestration;
-using Microsoft.Azure.Functions.Worker;
-using System.Threading.Tasks;
-using System;
-using Common.Telemetry;
 
-namespace PolarisGateway.Functions;
-
-public class GetDocumentList : BaseFunction
+namespace PolarisGateway.Functions
 {
-    private readonly ILogger<GetDocumentList> _logger;
-    private readonly IDdeiOrchestrationService _ddeiOrchestrationService;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly ITelemetryClient _telemetryClient;
-
-    public GetDocumentList(
-        ILogger<GetDocumentList> logger,
-        IDdeiOrchestrationService ddeiOrchestrationService,
-        IDdeiArgFactory ddeiArgFactory,
-        ITelemetryClient telemetryClient)
-        : base(telemetryClient)
+    public class GetDocumentList
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _ddeiOrchestrationService = ddeiOrchestrationService ?? throw new ArgumentNullException(nameof(ddeiOrchestrationService));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
-        _telemetryClient = telemetryClient;
-    }
+        private readonly ILogger<GetDocumentList> _logger;
+        private readonly IDdeiOrchestrationService _ddeiOrchestrationService;
+        private readonly IDdeiArgFactory _ddeiArgFactory;
 
-    [Function(nameof(GetDocumentList))]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Documents)] HttpRequest req, string caseUrn, int caseId)
-    {
-        var correlationId = EstablishCorrelation(req);
-        var cmsAuthValues = EstablishCmsAuthValues(req);
+        private readonly IInitializationHandler _initializationHandler;
+        private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
-        var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
-        var result = await _ddeiOrchestrationService.GetCaseDocuments(arg);
+        public GetDocumentList(
+            ILogger<GetDocumentList> logger,
+            IDdeiOrchestrationService ddeiOrchestrationService,
+            IDdeiArgFactory ddeiArgFactory,
+            IInitializationHandler initializationHandler,
+            IUnhandledExceptionHandler unhandledExceptionHandler)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _ddeiOrchestrationService = ddeiOrchestrationService ?? throw new ArgumentNullException(nameof(ddeiOrchestrationService));
+            _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
+            _initializationHandler = initializationHandler ?? throw new ArgumentNullException(nameof(initializationHandler));
+            _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
+        }
 
-        return new OkObjectResult(result);
+        [FunctionName(nameof(GetDocumentList))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Documents)] HttpRequest req, string caseUrn, int caseId)
+        {
+            (Guid CorrelationId, string CmsAuthValues) context = default;
+            try
+            {
+                context = await _initializationHandler.Initialize(req);
+
+                var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId);
+                var result = await _ddeiOrchestrationService.GetCaseDocuments(arg);
+
+                return new OkObjectResult(result);
+            }
+            catch (Exception ex)
+            {
+                return _unhandledExceptionHandler.HandleUnhandledExceptionActionResult(
+                      _logger,
+                      nameof(GetDocumentList),
+                      context.CorrelationId,
+                      ex
+                    );
+            }
+        }
     }
 }
+
