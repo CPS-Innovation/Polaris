@@ -18,25 +18,23 @@ namespace pdf_thumbnail_generator.Functions.Maintenance
     private readonly IConfiguration _configuration;
     private readonly IClearDownService _clearDownService;
     private readonly IOrchestrationProvider _orchestrationProvider;
-    private readonly DurableTaskClient _durableOrchestrationClient;
-
+    
     public SlidingClearDown(ILogger<SlidingClearDown> logger,
      IConfiguration configuration,
     IClearDownService clearDownService,
-    IOrchestrationProvider orchestrationProvider,
-    DurableTaskClient durableOrchestrationClient)
+    IOrchestrationProvider orchestrationProvider
+    )
     {
       _logger = logger;
       _configuration = configuration;
       _clearDownService = clearDownService;
       _orchestrationProvider = orchestrationProvider;
-      _durableOrchestrationClient = durableOrchestrationClient;
     }
 
     [Function(nameof(SlidingClearDown))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task Run([TimerTrigger("%SlidingClearDownSchedule%", RunOnStartup = false)] TimerInfo myTimer)
+    public async Task Run([TimerTrigger("%SlidingClearDownSchedule%", RunOnStartup = false)] TimerInfo myTimer, [DurableClient] DurableTaskClient client)
     {
       var correlationId = Guid.NewGuid();
       try
@@ -46,12 +44,12 @@ namespace pdf_thumbnail_generator.Functions.Maintenance
         var hoursBackNumber = double.Parse(hoursBack);
         var countCasesNumber = int.Parse(countCases);
         var earliestDateToKeep = DateTime.UtcNow.AddHours(hoursBackNumber * -1);
-        var instanceIds = await _orchestrationProvider.FindInstancesByDateAsync(_durableOrchestrationClient, earliestDateToKeep, countCasesNumber);
+        var instanceIds = await _orchestrationProvider.FindInstancesByDateAsync(client, earliestDateToKeep, countCasesNumber);
 
         foreach (var instanceId in instanceIds)
         {
           // pass an explicit string for the caseUrn for logging purposes as we don't have access to the caseUrn here
-          await _clearDownService.DeleteCaseThumbnailAsync(_durableOrchestrationClient,
+          await _clearDownService.DeleteCaseThumbnailAsync(client,
            "sliding-clear-down",
            instanceId,
            earliestDateToKeep,

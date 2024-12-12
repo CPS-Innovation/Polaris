@@ -7,10 +7,10 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace pdf_thumbnail_generator.Functions
 { 
-    public class Status
+    public static class Status
     {
         [Function("Status")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Status)] HttpRequest req)
+        public static IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Status)] HttpRequest req)
         {
             return Assembly.GetExecutingAssembly().CurrentStatus();
         }
