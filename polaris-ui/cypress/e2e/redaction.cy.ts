@@ -4,11 +4,21 @@ import {
   TRACKER_ROUTE,
   DOCUMENT_CHECKOUT_ROUTE,
 } from "../../src/mock-api/routes";
-
+import { getPipelinePdfResults } from "../../src/mock-api/data/pipelinePdfResults.cypress";
 import { refreshPipelineDeletedDocuments } from "../../src/mock-api/data/pipelinePdfResults.cypress";
 
 describe("redaction refresh flow", () => {
+  beforeEach(() => {
+    const trackerResults = getPipelinePdfResults(1);
+    cy.overrideRoute(TRACKER_ROUTE, {
+      body: trackerResults[0],
+    });
+  });
   it("should successfully complete the redaction refresh flow for saving redaction of single document two times", () => {
+    const trackerResults = getPipelinePdfResults(4);
+    cy.overrideRoute(TRACKER_ROUTE, {
+      body: trackerResults[0],
+    });
     cy.visit("/case-details/12AB1111111/13401");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
@@ -21,6 +31,9 @@ describe("redaction refresh flow", () => {
     cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
+    cy.overrideRoute(TRACKER_ROUTE, {
+      body: trackerResults[1],
+    });
     cy.findByTestId("btn-save-redaction-0").click();
     cy.findByTestId("div-modal").should("be.visible");
     cy.findByTestId("rl-under-redaction-content").should("be.visible");
@@ -37,6 +50,9 @@ describe("redaction refresh flow", () => {
     cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
+    cy.overrideRoute(TRACKER_ROUTE, {
+      body: trackerResults[2],
+    });
     cy.findByTestId("btn-save-redaction-0").click();
     cy.findByTestId("div-modal").should("be.visible");
     cy.findByTestId("rl-under-redaction-content").should("be.visible");
@@ -49,6 +65,10 @@ describe("redaction refresh flow", () => {
   });
 
   it("should successfully complete the redaction refresh flow for saving redaction of two different documents", () => {
+    const trackerResults = getPipelinePdfResults(4);
+    cy.overrideRoute(TRACKER_ROUTE, {
+      body: trackerResults[0],
+    });
     cy.visit("/case-details/12AB1111111/13401?redactionLog");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
@@ -76,6 +96,9 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
     //save both redaction simultaneously
+    cy.overrideRoute(TRACKER_ROUTE, {
+      body: trackerResults[1],
+    });
     cy.findByTestId("btn-save-redaction-1").click({ force: true });
     cy.findByTestId("div-modal").should("be.visible");
     cy.findByTestId("rl-under-redaction-content").should("be.visible");
@@ -84,6 +107,9 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("div-pdfviewer-1").should("not.exist");
     cy.findByTestId("pdfTab-spinner-1").should("not.exist");
     cy.findByTestId("div-pdfviewer-1").should("exist");
+    cy.overrideRoute(TRACKER_ROUTE, {
+      body: trackerResults[2],
+    });
     cy.findByTestId("btn-save-redaction-0").click({ force: true });
     cy.findByTestId("div-modal").should("be.visible");
     cy.findByTestId("rl-under-redaction-content").should("be.visible");

@@ -14,7 +14,7 @@ public class DocumentDtoMapper : IDocumentDtoMapper
     {
         return new DocumentDto
         {
-            DocumentId = $"{DocumentNature.DocumentPrefix}-{document.DocumentId}",
+            DocumentId = DocumentNature.ToQualifiedStringDocumentId(document.DocumentId, DocumentNature.Types.Document),
             VersionId = document.VersionId,
             CmsDocType = document.CmsDocType,
             CmsFileCreatedDate = document.DocumentDate,
@@ -40,7 +40,7 @@ public class DocumentDtoMapper : IDocumentDtoMapper
 
     public DocumentDto Map(PcdRequestCoreDto pcdRequest, PresentationFlagsDto presentationFlagsDto)
     {
-        var documentId = $"{DocumentNature.PreChargeDecisionRequestPrefix}-{pcdRequest.Id}";
+        var documentId = DocumentNature.ToQualifiedStringDocumentId(pcdRequest.Id, DocumentNature.Types.PreChargeDecisionRequest);
 
         return new DocumentDto
         {
@@ -55,7 +55,7 @@ public class DocumentDtoMapper : IDocumentDtoMapper
 
     public DocumentDto Map(DefendantsAndChargesListDto defendantAndCharges, PresentationFlagsDto presentationFlagsDto)
     {
-        var documentId = $"{DocumentNature.DefendantsAndChargesPrefix}-{defendantAndCharges.CaseId}";
+        var documentId = DocumentNature.ToQualifiedStringDocumentId(defendantAndCharges.CaseId, DocumentNature.Types.DefendantsAndCharges);
 
         return new DocumentDto
         {
