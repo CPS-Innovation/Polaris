@@ -40,24 +40,19 @@ namespace text_extractor.Services.SearchIndexService
 
         public async Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, int caseId, string documentId, long versionId, Guid correlationId)
         {
-
             var lines = new List<SearchLine>();
 
             foreach (var readResult in analyzeResults.ReadResults)
             {
-                var searchLines = readResult.Lines.Select
-                    (
-                        (line, index) => _searchLineFactory.Create
-                                            (
-                                                caseId,
-                                                documentId,
-                                                versionId,
-                                                "deprecated",
-                                                readResult,
-                                                _lineMapper.Map(line),
-                                                index
-                                             )
-                    );
+                var searchLines = readResult.Lines.Select((line, index) => _searchLineFactory.Create(
+                    caseId,
+                    documentId,
+                    versionId,
+                    "deprecated",
+                    readResult,
+                    _lineMapper.Map(line),
+                    index));
+
                 lines.AddRange(searchLines);
             }
 
@@ -123,6 +118,7 @@ namespace text_extractor.Services.SearchIndexService
             // => e.g. search=caseId eq 2146928
             var searchResults = await GetSearchResults<SearchLine>(searchOptions, searchTerm);
             var searchLines = new List<SearchLine>();
+
             await foreach (var searchResult in searchResults.Value.GetResultsAsync())
             {
                 searchLines.Add(searchResult.Document);
@@ -134,8 +130,7 @@ namespace text_extractor.Services.SearchIndexService
                 return streamlinedResults;
             }
 
-            var searchResultsValues
-                = searchLines.Select(searchResult => _streamlinedSearchResultFactory.Create(searchResult, searchTerm));
+            var searchResultsValues = searchLines.Select(searchResult => _streamlinedSearchResultFactory.Create(searchResult, searchTerm));
 
             streamlinedResults.AddRange(searchResultsValues);
 

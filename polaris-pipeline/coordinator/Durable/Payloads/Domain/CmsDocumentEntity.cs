@@ -1,16 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Common.Domain.Document;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Document.FeatureFlags;
-using Newtonsoft.Json;
 
 namespace coordinator.Durable.Payloads.Domain
 {
     public class CmsDocumentEntity : BaseDocumentEntity
     {
-        public CmsDocumentEntity()
-            : base()
-        { }
+        public CmsDocumentEntity() : base()
+        {
+        }
 
         public CmsDocumentEntity(
            long cmsDocumentId,
@@ -65,32 +65,34 @@ namespace coordinator.Durable.Payloads.Domain
             RenameStatus = renameStatus;
             Reference = reference;
         }
+
+        [JsonPropertyName("documentId")]
         public override string DocumentId => DocumentNature.ToQualifiedStringDocumentId(CmsDocumentId, DocumentNature.Types.Document);
 
-        [JsonProperty("path")]
+        [JsonPropertyName("path")]
         public string Path { get; set; }
 
-        [JsonProperty("cmsDocType")]
+        [JsonPropertyName("cmsDocType")]
         public DocumentTypeDto CmsDocType { get; set; }
 
-        [JsonProperty("cmsOriginalFileName")]
+        [JsonPropertyName("cmsOriginalFileName")]
         [Required]
         [RegularExpression(@"^.+\.[A-Za-z]{3,4}$")]
         public string CmsOriginalFileName { get; set; }
 
-        [JsonProperty("cmsFileCreatedDate")]
+        [JsonPropertyName("cmsFileCreatedDate")]
         public string CmsFileCreatedDate { get; set; }
 
-        [JsonProperty("isOcrProcessed")]
+        [JsonPropertyName("isOcrProcessed")]
         public bool IsOcrProcessed { get; set; }
 
-        [JsonProperty("isDispatched")]
+        [JsonPropertyName("isDispatched")]
         public bool IsDispatched { get; set; }
 
-        [JsonProperty("categoryListOrder")]
+        [JsonPropertyName("categoryListOrder")]
         public int? CategoryListOrder { get; set; }
 
-        [JsonProperty("parentDocumentId")]
+        [JsonPropertyName("parentDocumentId")]
         public string ParentDocumentId
         {
             get => string.IsNullOrWhiteSpace(CmsParentDocumentId)
@@ -98,44 +100,43 @@ namespace coordinator.Durable.Payloads.Domain
                 : DocumentNature.ToQualifiedStringDocumentId(CmsParentDocumentId, DocumentNature.Types.Document);
         }
 
-        [JsonProperty("cmsParentDocumentId")]
+        [JsonPropertyName("cmsParentDocumentId")]
         public string CmsParentDocumentId { get; set; }
 
-        [JsonProperty("presentationTitle")]
+        [JsonPropertyName("presentationTitle")]
         public string PresentationTitle { get; set; }
 
-        [JsonProperty("witnessId")]
+        [JsonPropertyName("witnessId")]
         public int? WitnessId { get; set; }
 
-        [JsonProperty("hasFailedAttachments")]
+        [JsonPropertyName("hasFailedAttachments")]
         public bool HasFailedAttachments { get; set; }
 
-        [JsonProperty("hasNotes")]
+        [JsonPropertyName("hasNotes")]
         public bool HasNotes { get; set; }
 
-        [JsonProperty("isUnused")]
+        [JsonPropertyName("isUnused")]
         public bool IsUnused { get; set; }
 
-        [JsonProperty("isInbox")]
+        [JsonPropertyName("isInbox")]
         public bool IsInbox { get; set; }
 
-        [JsonProperty("classification")]
+        [JsonPropertyName("classification")]
         public string Classification { get; set; }
 
-        [JsonProperty("isWitnessManagement")]
+        [JsonPropertyName("isWitnessManagement")]
         public bool IsWitnessManagement { get; set; }
 
-        [JsonProperty("canReclassify")]
+        [JsonPropertyName("canReclassify")]
         public bool CanReclassify { get; set; }
 
-        [JsonProperty("canRename")]
+        [JsonPropertyName("canRename")]
         public bool CanRename { get; set; }
 
-        [JsonProperty("renameStatus")]
+        [JsonPropertyName("renameStatus")]
         public string RenameStatus { get; set; }
 
-        [JsonProperty("reference")]
+        [JsonPropertyName("reference")]
         public string Reference { get; set; }
-
     }
 }

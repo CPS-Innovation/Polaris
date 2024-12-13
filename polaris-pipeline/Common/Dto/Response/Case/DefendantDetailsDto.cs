@@ -1,26 +1,30 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Common.Dto.Response.Case
 {
     public class DefendantDetailsDto
     {
-        [JsonProperty("id")]
+        public DefendantDetailsDto()
+        {
+        }
+
+        [JsonPropertyName("id")]
         public int Id { get; set; }
 
-        [JsonProperty("listOrder")]
+        [JsonPropertyName("listOrder")]
         public int? ListOrder { get; set; }
 
-        [JsonProperty("firstNames")]
+        [JsonPropertyName("firstNames")]
         public string FirstNames { get; set; }
 
-        [JsonProperty("surname")]
+        [JsonPropertyName("surname")]
         public string Surname { get; set; }
 
-        [JsonProperty("organisationName")]
+        [JsonPropertyName("organisationName")]
         public string OrganisationName { get; set; }
 
-        [JsonProperty("dob")]
+        [JsonPropertyName("dob")]
         public string Dob { get; set; }
 
         public string Age
@@ -43,15 +47,13 @@ namespace Common.Dto.Response.Case
             }
         }
 
-        private DateTime GetYyyyMmDdDateOfBirth()
-        {
-            return new DateTime(int.Parse(Dob.Substring(0, 4)), int.Parse(Dob.Substring(5, 2)), int.Parse(Dob.Substring(8, 2)));
-        }
+        private DateTime GetYyyyMmDdDateOfBirth() =>
+            new(int.Parse(Dob[..4]), int.Parse(Dob.Substring(5, 2)), int.Parse(Dob.Substring(8, 2)));
 
         public string GetDdMmYyyyDateOfBirth()
         {
             if (IsYyyyMmDd())
-                return $"{Dob.Substring(8, 2)}/{Dob.Substring(5, 2)}/{Dob.Substring(0, 4)}";
+                return $"{Dob.Substring(8, 2)}/{Dob.Substring(5, 2)}/{Dob[..4]}";
 
             return Dob;
         }
@@ -66,10 +68,10 @@ namespace Common.Dto.Response.Case
                     && char.IsDigit(Dob[8]) && char.IsDigit(Dob[9]);
         }
 
-        [JsonProperty("youth")]
+        [JsonPropertyName("youth")]
         public bool IsYouth { get; set; }
 
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public string Type { get; set; }
     }
 }

@@ -7,7 +7,6 @@ namespace Common.Extensions;
 
 public static class HttpRequestExtensions
 {
-
     /// <summary>
     /// Retrieve the raw body as a string from the Request.Body stream
     /// </summary>

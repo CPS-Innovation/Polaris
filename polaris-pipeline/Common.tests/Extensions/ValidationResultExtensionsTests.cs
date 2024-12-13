@@ -20,7 +20,7 @@ public class ValidationResultExtensionsTests
     public void FlattenErrors_NoErrors_ShouldStillBeFlattened_AsExpected()
     {
         var sut = _fixture.Create<ValidationResult>();
-        sut.Errors = new List<ValidationFailure>();
+        sut.Errors = [];
 
         var test = sut.FlattenErrors();
 
