@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Common.Domain.Ocr
 {
@@ -12,13 +12,13 @@ namespace Common.Domain.Ocr
       Words = words;
     }
 
-    [JsonProperty(PropertyName = "boundingBox")]
+    [JsonPropertyName("boundingBox")]
     public IList<double?> BoundingBox { get; set; }
 
-    [JsonProperty(PropertyName = "text")]
+    [JsonPropertyName("text")]
     public string Text { get; set; }
 
-    [JsonProperty(PropertyName = "words")]
+    [JsonPropertyName("words")]
     public IList<Word> Words { get; set; }
 
   }

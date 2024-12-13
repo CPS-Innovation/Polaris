@@ -1,83 +1,68 @@
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
-using PolarisGateway.Handlers;
 using Microsoft.AspNetCore.Http.Extensions;
 using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.Artefact.Domain;
+using Microsoft.Azure.Functions.Worker;
+using System.Threading.Tasks;
+using System;
+using Common.Telemetry;
 
 
-namespace PolarisGateway.Functions
+namespace PolarisGateway.Functions;
+
+public class GetPii : BaseFunction
 {
-    public class GetPii
+    private const string JsonContentType = "application/json";
+    private const string tokenQueryParamName = "token";
+    private const string isOcrProcessedParamName = "isOcrProcessed";
+    private readonly ILogger<GetPii> _logger;
+    private readonly IArtefactService _artefactService;
+    private readonly ITelemetryClient _telemetryClient;
+
+    public GetPii(
+        ILogger<GetPii> logger,
+        ICachingArtefactService artefactService,
+        ITelemetryClient telemetryClient)
+        : base(telemetryClient)
     {
-        private const string JsonContentType = "application/json";
-        private const string tokenQueryParamName = "token";
-        private const string isOcrProcessedParamName = "isOcrProcessed";
-        private readonly ILogger<GetPii> _logger;
-        private readonly IArtefactService _artefactService;
-        private readonly IInitializationHandler _initializationHandler;
-        private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _artefactService = artefactService ?? throw new ArgumentNullException(nameof(artefactService));
+        _telemetryClient = telemetryClient;
+    }
 
-        public GetPii(
-            ILogger<GetPii> logger,
-            ICachingArtefactService artefactService,
-            IInitializationHandler initializationHandler,
-            IUnhandledExceptionHandler unhandledExceptionHandler)
+    [Function(nameof(GetPii))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Pii)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId)
+    {
+        var correlationId = EstablishCorrelation(req);
+        var cmsAuthValues = EstablishCmsAuthValues(req);
+
+        var isOcrProcessed = req.Query.ContainsKey(isOcrProcessedParamName) && bool.Parse(req.Query[isOcrProcessedParamName]);
+        var token = req.Query.ContainsKey(tokenQueryParamName) ?
+            Guid.Parse(req.Query[tokenQueryParamName]) :
+            (Guid?)null;
+
+        var ocrResult = await _artefactService.GetPiiAsync(cmsAuthValues, correlationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, token);
+        return ocrResult.Status switch
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _artefactService = artefactService ?? throw new ArgumentNullException(nameof(artefactService));
-            _initializationHandler = initializationHandler ?? throw new ArgumentNullException(nameof(initializationHandler));
-            _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
-        }
-
-        [FunctionName(nameof(GetPii))]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Pii)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId)
-        {
-            (Guid CorrelationId, string CmsAuthValues) context = default;
-            try
+            ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Result.Item2),
+            ResultStatus.PollWithToken => new JsonResult(new
             {
-                context = await _initializationHandler.Initialize(req);
-
-                var isOcrProcessed = req.Query.ContainsKey(isOcrProcessedParamName) && bool.Parse(req.Query[isOcrProcessedParamName]);
-                var token = req.Query.ContainsKey(tokenQueryParamName)
-                    ? Guid.Parse(req.Query[tokenQueryParamName])
-                    : (Guid?)null;
-
-                var ocrResult = await _artefactService.GetPiiAsync(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, token);
-                return ocrResult.Status switch
-                {
-                    ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Result.Item2),
-                    ResultStatus.PollWithToken => new JsonResult(new
-                    {
-                        NextUrl = $"{req.GetDisplayUrl()}{(req.QueryString.Value.StartsWith("?") ? "&" : "?")}{tokenQueryParamName}={ocrResult.Result.Item1}"
-                    })
-                    {
-                        StatusCode = (int)HttpStatusCode.Accepted // the client will understand 202 as a signal to poll again
-                    },
-                    ResultStatus.Failed => new JsonResult(ocrResult)
-                    {
-                        StatusCode = (int)HttpStatusCode.UnsupportedMediaType
-                    },
-                    _ => new JsonResult(ocrResult) { StatusCode = (int)HttpStatusCode.InternalServerError },
-                };
-            }
-            catch (Exception ex)
+                NextUrl = $"{req.GetDisplayUrl()}{(req.QueryString.Value.StartsWith("?") ? "&" : "?")}{tokenQueryParamName}={ocrResult.Result.Item1}"
+            })
             {
-                return _unhandledExceptionHandler.HandleUnhandledExceptionActionResult(
-                  _logger,
-                  nameof(GetPii),
-                  context.CorrelationId,
-                  ex
-                );
-            }
-        }
+                StatusCode = (int)HttpStatusCode.Accepted // the client will understand 202 as a signal to poll again
+            },
+            ResultStatus.Failed => new JsonResult(ocrResult)
+            {
+                StatusCode = (int)HttpStatusCode.UnsupportedMediaType
+            },
+            _ => new JsonResult(ocrResult) { StatusCode = (int)HttpStatusCode.InternalServerError },
+        };
     }
 }
-

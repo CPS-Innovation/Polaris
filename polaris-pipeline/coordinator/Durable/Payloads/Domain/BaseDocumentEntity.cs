@@ -1,15 +1,15 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Common.Dto.Response.Documents;
+﻿using Common.Dto.Response.Documents;
 using Common.Constants;
 using Common.Dto.Response.Document.FeatureFlags;
+using System.Text.Json.Serialization;
 
 namespace coordinator.Durable.Payloads.Domain
 {
     public abstract class BaseDocumentEntity
     {
-        public BaseDocumentEntity()
-        { }
+        public BaseDocumentEntity() 
+        {
+        }
 
         protected BaseDocumentEntity(
             long cmsDocumentId,
@@ -22,27 +22,28 @@ namespace coordinator.Durable.Payloads.Domain
             Status = DocumentStatus.New;
         }
 
-        [JsonConverter(typeof(StringEnumConverter))]
-        [JsonProperty("status")]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        [JsonPropertyName("status")]
         public DocumentStatus Status { get; set; }
 
-        [JsonProperty("documentId")]
+        [JsonPropertyName("documentId")]
         public abstract string DocumentId { get; }
 
-        [JsonProperty("cmsDocumentId")]
+        [JsonPropertyName("cmsDocumentId")]
         //[AdaptIgnore]
         public long CmsDocumentId { get; set; }
 
-        [JsonProperty("versionId")]
+        [JsonPropertyName("versionId")]
         public long VersionId { get; set; }
 
-        [JsonProperty("presentationFlags")]
+        [JsonPropertyName("presentationFlags")]
         public PresentationFlagsDto PresentationFlags { get; set; }
-        [JsonConverter(typeof(StringEnumConverter))]
-        [JsonProperty("conversionStatus")]
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        [JsonPropertyName("conversionStatus")]
         public PdfConversionStatus ConversionStatus { get; set; }
 
-        [JsonProperty("piiVersionId")]
+        [JsonPropertyName("piiVersionId")]
         public long? PiiVersionId { get; set; }
     }
 }

@@ -1,5 +1,6 @@
-namespace PolarisGateway.Exceptions;
+using System;
 
+namespace Common.Exceptions;
 
 [Serializable]
 public class CpsAuthenticationException : Exception
