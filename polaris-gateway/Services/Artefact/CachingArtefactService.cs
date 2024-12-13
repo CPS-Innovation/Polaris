@@ -44,7 +44,7 @@ public class CachingArtefactService : ArtefactService, ICachingArtefactService
             return _artefactServiceResponseFactory.CreateOkfResult(cachedBlobStream, true);
         }
 
-        var result = await GetPdfInternalAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed);
+        var result = await GetPdfInternalAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId);
 
         if (result.Status != ResultStatus.ArtefactAvailable)
         {
@@ -65,7 +65,7 @@ public class CachingArtefactService : ArtefactService, ICachingArtefactService
             return _artefactServiceResponseFactory.CreateOkfResult(((Guid?)null, cachedResults), true);
         }
 
-        var getPdfAsync = () => GetPdfAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed);
+        Task<ArtefactResult<Stream>> getPdfAsync() => GetPdfAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed);
 
         var result = await GetOcrInternalAsync(getPdfAsync, correlationId, operationId);
         if (result.Status != ResultStatus.ArtefactAvailable)
