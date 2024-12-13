@@ -93,7 +93,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     setContentLoaded(value)
   }, []);
 
-
   const validateData = () => {
     const {
       reclassifyVariant,
@@ -452,6 +451,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               handleLookUpDataError={handleLookUpDataError}
               handleResetFormDataErrors={handleResetFormDataErrors}
               handleCheckContentLoaded={handleCheckContentLoaded}
+              contentLoaded={contentLoaded ? contentLoaded : false}
             />
           )}
           <div className={classes.btnWrapper}>{renderActionButtons()}</div>

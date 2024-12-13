@@ -30,7 +30,8 @@ type ReclassifyStage1Props = {
   handleLookUpDataError: (errorMessage: string) => void;
   handleResetFormDataErrors: () => void;
   reclassifiedDocumentUpdate?: boolean;
-  handleCheckContentLoaded: (value: boolean) => void
+  handleCheckContentLoaded: (value: boolean) => void,
+  contentLoaded: boolean
 };
 
 export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
@@ -44,7 +45,8 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   handleLookUpDataError,
   handleResetFormDataErrors,
   reclassifiedDocumentUpdate,
-  handleCheckContentLoaded
+  handleCheckContentLoaded,
+  contentLoaded
 }) => {
   const reclassifyContext = useReClassifyContext()!;
   const errorSummaryRef = useRef(null);
@@ -106,12 +108,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         className={classes.backBtn}
         onClick={handleBackBtnClick}
         ref={backButtonRef}
-        disabled={
-          state.reClassifySaveStatus === "saving" ||
-            state.reClassifySaveStatus === "success"
-            ? true
-            : false
-        }
+        disabled={contentLoaded}
       >
         Back
       </LinkButton>

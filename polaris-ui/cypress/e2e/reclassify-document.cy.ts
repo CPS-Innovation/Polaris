@@ -155,7 +155,13 @@ describe("Feature Reclassify Document", () => {
     cy.findByTestId("reclassify-document-type")
       .find("option")
       .should("have.length", 6);
+    // cy.findByTestId('reclassify-continue-btn').should('be.enabled');
     cy.findByTestId("reclassify-document-type").select("MG10");
+    // .then((el) => {
+    //   cy.findByTestId("reclassify-continue-btn").should("be.disabled");
+    // })
+    cy.findByTestId('reclassify-continue-btn').should('be.enabled');
+    // cy.findByTestId('reclassify-continue-btn').should('be.disabled'); //rd?
     cy.findByTestId("div-reclassify")
       .find("h1")
       .should("have.length", 1)
@@ -280,6 +286,7 @@ describe("Feature Reclassify Document", () => {
       .find("option")
       .should("have.length", 6);
     cy.findByTestId("reclassify-document-type").select("Other Communication");
+    cy.findByTestId('reclassify-continue-btn').should('be.enabled');
     cy.findByTestId("div-reclassify")
       .find("h1")
       .should("have.length", 1)
@@ -445,7 +452,12 @@ describe("Feature Reclassify Document", () => {
     cy.findByTestId("reclassify-document-type")
       .find("option")
       .should("have.length", 6);
-    cy.findByTestId("reclassify-document-type").select("MG11");
+
+    cy.findByTestId('reclassify-continue-btn').should('be.enabled');
+    cy.findByTestId("reclassify-document-type").select("MG11").then(() => {
+      cy.findByTestId('reclassify-continue-btn').should('be.disabled');   // RD?
+    })
+    cy.findByTestId('reclassify-continue-btn').should('be.enabled');
 
     cy.findByTestId("reclassify-statement-witness")
       .find("option:selected")
@@ -638,7 +650,11 @@ describe("Feature Reclassify Document", () => {
     cy.findByTestId("reclassify-document-type")
       .find("option")
       .should("have.length", 6);
-    cy.findByTestId("reclassify-document-type").select("MG15(SDN)");
+    cy.findByTestId('reclassify-continue-btn').should('be.enabled');
+    cy.findByTestId("reclassify-document-type").select("MG15(SDN)").then(() => {
+      cy.findByTestId('reclassify-continue-btn').should('be.disabled')
+    })
+    cy.findByTestId('reclassify-continue-btn').should('be.enabled');
     cy.findByTestId("div-reclassify").should(
       "contain",
       "You're entering exhibit details for MCLOVEMG3"
@@ -962,7 +978,12 @@ describe("Feature Reclassify Document", () => {
       .and("have.text", "What type of document is this?");
 
     //Statement type validation
-    cy.findByTestId("reclassify-document-type").select("MG11");
+    cy.findByTestId('reclassify-continue-btn').should('be.enabled');
+    cy.findByTestId("reclassify-document-type").select("MG11").then(() => {
+      cy.findByTestId('reclassify-continue-btn').should('be.disabled');
+    });
+    cy.findByTestId('reclassify-continue-btn').should('be.enabled');
+
     cy.findByTestId("reclassify-continue-btn").click();
 
     cy.findByTestId("reclassify-error-summary")
