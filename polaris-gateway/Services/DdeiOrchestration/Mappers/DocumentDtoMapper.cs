@@ -45,6 +45,7 @@ public class DocumentDtoMapper : IDocumentDtoMapper
         return new DocumentDto
         {
             DocumentId = documentId,
+            VersionId = pcdRequest.Id,
             // todo: stop sending CmsDocType for non-CMS documents. The UI looks to this to discern between CMS and non-CMS documents
             //  so we should add a top-level property to the document DTO to indicate the source of the document instead.
             CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
