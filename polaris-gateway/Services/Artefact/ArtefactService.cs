@@ -18,7 +18,7 @@ public class ArtefactService : IArtefactService
     private readonly IDdeiClient _ddeiClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
     private readonly IPdfGeneratorClient _pdfGeneratorClient;
-    private readonly IConvertModelToHtmlService _convertPcdRequestToHtmlService;
+    private readonly IConvertModelToHtmlService _convertModelToHtmlService;
     private readonly IOcrService _ocrService;
     private readonly IPiiService _piiService;
 
@@ -27,7 +27,7 @@ public class ArtefactService : IArtefactService
         IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
         IPdfGeneratorClient pdfGeneratorClient,
-        IConvertModelToHtmlService convertPcdRequestToHtmlService,
+        IConvertModelToHtmlService convertModelToHtmlService,
         IOcrService ocrService,
         IPiiService piiService)
     {
@@ -35,14 +35,14 @@ public class ArtefactService : IArtefactService
         _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
         _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
         _pdfGeneratorClient = pdfGeneratorClient ?? throw new ArgumentNullException(nameof(pdfGeneratorClient));
-        _convertPcdRequestToHtmlService = convertPcdRequestToHtmlService ?? throw new ArgumentNullException(nameof(convertPcdRequestToHtmlService));
+        _convertModelToHtmlService = convertModelToHtmlService ?? throw new ArgumentNullException(nameof(convertModelToHtmlService));
         _ocrService = ocrService ?? throw new ArgumentNullException(nameof(ocrService));
         _piiService = piiService ?? throw new ArgumentNullException(nameof(piiService));
     }
 
     public async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed)
     {
-        return await GetPdfInternalAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed);
+        return await GetPdfInternalAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId);
     }
 
     public async Task<ArtefactResult<(Guid?, AnalyzeResults)>> GetOcrAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null)
@@ -59,22 +59,25 @@ public class ArtefactService : IArtefactService
         return await GetPiiInternalAsync(getOcr, correlationId, caseId, documentId);
     }
 
-    protected async Task<ArtefactResult<Stream>> GetPdfInternalAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed)
+    protected async Task<ArtefactResult<Stream>> GetPdfInternalAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
     {
-        var documentNature = DocumentNature.GetDocumentNatureType(documentId);
-
-        (PdfConversionStatus Status, Stream Stream) pdfResult = documentNature switch
+        var (stream, fileType, isKnownFileType) = DocumentNature.GetDocumentNatureType(documentId) switch
         {
-            DocumentNature.Types.PreChargeDecisionRequest => await GetPcdRequestStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId),
+            DocumentNature.Types.PreChargeDecisionRequest => await GetPcdRequestStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId),
             DocumentNature.Types.DefendantsAndCharges => await GetDefendantsAndChargesStreamAsync(cmsAuthValues, correlationId, urn, caseId),
             _ => await GetDocumentStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId)
         };
 
-        if (pdfResult.Status == PdfConversionStatus.DocumentConverted)
+        if (!isKnownFileType)
         {
-            return _artefactServiceResponseFactory.CreateOkfResult(pdfResult.Stream, null);
+            return _artefactServiceResponseFactory.CreateFailedResult<Stream>(PdfConversionStatus.DocumentTypeUnsupported);
         }
-        return _artefactServiceResponseFactory.CreateFailedResult<Stream>(pdfResult.Status);
+
+        var pdfResult = await _pdfGeneratorClient.ConvertToPdfAsync(correlationId, urn, caseId, documentId, versionId, stream, fileType);
+
+        return pdfResult.Status == PdfConversionStatus.DocumentConverted
+            ? _artefactServiceResponseFactory.CreateOkfResult(pdfResult.PdfStream, null)
+            : _artefactServiceResponseFactory.CreateFailedResult<Stream>(pdfResult.Status);
     }
 
     protected async Task<ArtefactResult<(Guid?, AnalyzeResults)>> GetOcrInternalAsync(Func<Task<ArtefactResult<Stream>>> getPdf, Guid correlationId, Guid? operationId = null)
@@ -82,12 +85,9 @@ public class ArtefactService : IArtefactService
         if (operationId.HasValue)
         {
             var ocrResult = await _ocrService.GetOperationResultsAsync(operationId.Value, correlationId);
-            if (ocrResult.IsSuccess)
-            {
-                return _artefactServiceResponseFactory.CreateOkfResult<(Guid?, AnalyzeResults)>((null, ocrResult.AnalyzeResults), false);
-            }
-
-            return _artefactServiceResponseFactory.CreateInterimResult<(Guid?, AnalyzeResults)>((operationId, null));
+            return ocrResult.IsSuccess
+                ? _artefactServiceResponseFactory.CreateOkfResult<(Guid?, AnalyzeResults)>((null, ocrResult.AnalyzeResults), false)
+                : _artefactServiceResponseFactory.CreateInterimResult<(Guid?, AnalyzeResults)>((operationId, null));
         }
 
         var pdfResult = await getPdf();
@@ -108,43 +108,35 @@ public class ArtefactService : IArtefactService
             var piiResult = await _piiService.GetPiiResultsAsync(ocrResult.Result.Item2, caseId, documentId, correlationId);
             return _artefactServiceResponseFactory.CreateOkfResult(((Guid?)null, piiResult), null);
         }
-        if (ocrResult.Status == ResultStatus.PollWithToken)
-        {
-            return _artefactServiceResponseFactory.CreateInterimResult((ocrResult.Result.Item1, (IEnumerable<PiiLine>)null));
-        }
 
-        return _artefactServiceResponseFactory.CreateFailedResult<(Guid?, IEnumerable<PiiLine>)>(ocrResult.PdfConversionStatus);
+        return ocrResult.Status == ResultStatus.PollWithToken
+            ? _artefactServiceResponseFactory.CreateInterimResult((ocrResult.Result.Item1, (IEnumerable<PiiLine>)null))
+            : _artefactServiceResponseFactory.CreateFailedResult<(Guid?, IEnumerable<PiiLine>)>(ocrResult.PdfConversionStatus);
     }
 
-    private async Task<(PdfConversionStatus, Stream)> GetDocumentStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
+    private async Task<(Stream Stream, FileType FileType, bool IsKnownFileType)> GetDocumentStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
     {
         var ddeiArgs = _ddeiArgFactory.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId, documentId, versionId);
-
         var fileResult = await _ddeiClient.GetDocumentAsync(ddeiArgs);
-        if (!FileTypeHelper.TryGetSupportedFileType(fileResult.FileName, out var fileType))
-        {
-            return (PdfConversionStatus.DocumentTypeUnsupported, null);
-        }
 
-        var pdfResult = await _pdfGeneratorClient.ConvertToPdfAsync(correlationId, urn, caseId, documentId, versionId, fileResult.Stream, fileType);
-        return (pdfResult.Status, pdfResult.PdfStream);
+        var isKnownFileType = FileTypeHelper.TryGetSupportedFileType(fileResult.FileName, out var fileType);
+        return (fileResult.Stream, fileType, isKnownFileType);
     }
 
-    private async Task<(PdfConversionStatus, Stream)> GetPcdRequestStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
+    private async Task<(Stream Stream, FileType FileType, bool IsKnownFileType)> GetPcdRequestStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId)
     {
         var arg = _ddeiArgFactory.CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, documentId);
         var pcdRequest = await _ddeiClient.GetPcdRequestAsync(arg);
-        return (PdfConversionStatus.DocumentConverted, await _convertPcdRequestToHtmlService.ConvertAsync(pcdRequest));
+
+        var stream = await _convertModelToHtmlService.ConvertAsync(pcdRequest);
+        return (stream, FileTypeHelper.PseudoDocumentFileType, true);
     }
 
-    private async Task<(PdfConversionStatus, Stream)> GetDefendantsAndChargesStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId)
+    private async Task<(Stream Stream, FileType FileType, bool IsKnownFileType)> GetDefendantsAndChargesStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId)
     {
-        var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(
-                                    cmsAuthValues,
-                                    correlationId,
-                                    urn,
-                                    caseId);
+        var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId);
         var defendantsAndCharges = await _ddeiClient.GetDefendantAndChargesAsync(arg);
-        return (PdfConversionStatus.DocumentConverted, await _convertPcdRequestToHtmlService.ConvertAsync(defendantsAndCharges));
+        var stream = await _convertModelToHtmlService.ConvertAsync(defendantsAndCharges);
+        return (stream, FileTypeHelper.PseudoDocumentFileType, true);
     }
 }
