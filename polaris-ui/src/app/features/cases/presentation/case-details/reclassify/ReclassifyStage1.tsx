@@ -108,7 +108,10 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         className={classes.backBtn}
         onClick={handleBackBtnClick}
         ref={backButtonRef}
-        disabled={contentLoaded}
+        disabled={contentLoaded || state.reClassifySaveStatus === "saving" ||
+          state.reClassifySaveStatus === "success"
+          ? true
+          : false}
       >
         Back
       </LinkButton>
@@ -170,7 +173,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         label={{
           htmlFor: "reclassify-document-type",
           children: (
-            <span>
+            <span className={classes.labelMargin}>
               Select the document type for{" "}
               <strong className={classes.highlight}>{presentationTitle}</strong>
             </span>

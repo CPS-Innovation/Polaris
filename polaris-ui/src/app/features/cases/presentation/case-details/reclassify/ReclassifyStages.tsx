@@ -374,7 +374,9 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           <Button
             ref={continueButtonRef}
             onClick={handleAcceptAndSave}
-            disabled={contentLoaded}
+            disabled={contentLoaded || (state.reClassifySaveStatus === "saving" || state.reClassifySaveStatus === "success")
+              ? true
+              : false}
             data-testid="reclassify-continue-btn"
           >
             Accept and save

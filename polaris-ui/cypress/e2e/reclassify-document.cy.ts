@@ -453,10 +453,11 @@ describe("Feature Reclassify Document", () => {
       .find("option")
       .should("have.length", 6);
 
+    cy.findByTestId("div-reclassify").contains("button", "Back").should("be.enabled");
     cy.findByTestId('reclassify-continue-btn').should('be.enabled');
-    cy.findByTestId("reclassify-document-type").select("MG11").then(() => {
-      cy.findByTestId('reclassify-continue-btn').should('be.disabled');   // RD?
-    })
+    cy.findByTestId("reclassify-document-type").select("MG11");
+
+    cy.findByTestId("div-reclassify").contains("button", "Back").should("be.enabled");
     cy.findByTestId('reclassify-continue-btn').should('be.enabled');
 
     cy.findByTestId("reclassify-statement-witness")
@@ -548,6 +549,15 @@ describe("Feature Reclassify Document", () => {
 
     cy.findByTestId("div-notification-banner").should("not.exist");
     cy.findByText("Accept and save").click();
+
+    cy.findByTestId("div-reclassify").contains("button", "Back").should("be.disabled");
+    cy.findByTestId('reclassify-continue-btn').should('be.disabled');
+    cy.findByTestId('reclassify-statement-witness').children('option').first().should('be.disabled');
+    cy.get('#reclassify-statement-day').should('be.disabled')
+    cy.get('#reclassify-statement-month').should('be.disabled')
+    cy.get('#reclassify-statement-year').should('be.disabled')
+    cy.findByTestId("reclassify-statement-number").should('be.disabled')
+
     cy.findByTestId("div-notification-banner").should("exist");
     cy.findByTestId("div-notification-banner").contains(
       "Saving to CMS. Please wait."
@@ -651,9 +661,15 @@ describe("Feature Reclassify Document", () => {
       .find("option")
       .should("have.length", 6);
     cy.findByTestId('reclassify-continue-btn').should('be.enabled');
+    cy.findByTestId("div-reclassify").contains("button", "Back").should("be.enabled");
     cy.findByTestId("reclassify-document-type").select("MG15(SDN)").then(() => {
-      cy.findByTestId('reclassify-continue-btn').should('be.disabled')
+      cy.findByTestId("div-reclassify").contains("button", "Back").should("be.disabled");
+      cy.findByTestId('reclassify-continue-btn').should('be.disabled');
+      // cy.findByTestId("reclassify-exhibit-item-name").should('be.disabled');
+      // cy.findByTestId("reclassify-exhibit-reference").should('be.disabled');
+      // cy.findByTestId("reclassify-exhibit-producer").children().first().should('be.disabled');
     })
+    cy.findByTestId("div-reclassify").contains("button", "Back").should("be.enabled");
     cy.findByTestId('reclassify-continue-btn').should('be.enabled');
     cy.findByTestId("div-reclassify").should(
       "contain",
