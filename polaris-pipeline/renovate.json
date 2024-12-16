@@ -3,5 +3,5 @@
   "extends": [
     "config:base"
   ],
-  "ignoreDeps": ["Aspose.Cells", "Aspose.Diagram", "Aspose.Email", "Aspose.Imaging", "Aspose.PDF", "Aspose.Slides.NET", "Aspose.Words"]
+  "ignoreDeps": ["Aspose.Cells", "Aspose.Email", "Aspose.Imaging", "Aspose.PDF", "Aspose.Slides.NET", "Aspose.Words"]
 }

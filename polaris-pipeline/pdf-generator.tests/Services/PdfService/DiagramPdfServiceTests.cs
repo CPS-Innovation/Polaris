@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Aspose.Diagram;
+// using Aspose.Diagram;
 using FluentAssertions;
 using Moq;
 using pdf_generator.Factories.Contracts;
@@ -17,7 +17,7 @@ namespace pdf_generator.tests.Services.PdfService
         public DiagramPdfServiceTests()
         {
             _asposeItemFactory = new Mock<IAsposeItemFactory>();
-            _asposeItemFactory.Setup(x => x.CreateDiagram(It.IsAny<Stream>(), It.IsAny<Guid>())).Returns(new Diagram());
+            //_asposeItemFactory.Setup(x => x.CreateDiagram(It.IsAny<Stream>(), It.IsAny<Guid>())).Returns(new Diagram());
 
             _pdfService = new DiagramPdfService(_asposeItemFactory.Object);
         }
@@ -38,16 +38,18 @@ namespace pdf_generator.tests.Services.PdfService
         public void ReadToPdfStream_CallsCreateDiagram()
         {
             using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.tests.TestResources.TestDiagram.vsd");
+            var act = () => _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
 
-            var conversionResult = _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
+            act.Should().Throw<NotImplementedException>();
+            // var conversionResult = _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
 
-            using (new AssertionScope())
-            {
-                _asposeItemFactory.Verify(x => x.CreateDiagram(It.IsAny<Stream>(), It.IsAny<Guid>()));
-                conversionResult.Should().NotBeNull();
-                conversionResult.ConvertedDocument.Should().NotBeNull();
-                conversionResult.ConvertedDocument.Length.Should().BeGreaterThan(0);
-            }
+            // using (new AssertionScope())
+            // {
+            //     _asposeItemFactory.Verify(x => x.CreateDiagram(It.IsAny<Stream>(), It.IsAny<Guid>()));
+            //     conversionResult.Should().NotBeNull();
+            //     conversionResult.ConvertedDocument.Should().NotBeNull();
+            //     conversionResult.ConvertedDocument.Length.Should().BeGreaterThan(0);
+            // }
         }
 #endif
     }
