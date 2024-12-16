@@ -8,12 +8,12 @@ namespace coordinator.Helpers
         public static List<string> ChunkStringListByMaxCharacterCount(List<string> stringList, int maxCharacter)
         {
             var chunkedStrings = new List<string>();
-            var stringBuilder = new StringBuilder();
-            var currentChunkLength = 0;
+            StringBuilder stringBuilder = new StringBuilder();
+            int currentChunkLength = 0;
 
             foreach (var stringItem in stringList)
             {
-                var stringLength = stringItem.Length;
+                int stringLength = stringItem.Length;
 
                 if (currentChunkLength + stringLength + 5 > maxCharacter) // add the length of ", " and "[]"
                 {

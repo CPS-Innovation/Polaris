@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Common.Domain.SearchIndex;
 
 public class StreamlinedSearchLine
 {
-    [JsonPropertyName("id")]
+    [JsonProperty("id")]
     public string Id { get; set; }
 
-    [JsonPropertyName("documentId")]
+    [JsonProperty("documentId")]
     public string DocumentId
     {
         get
@@ -27,26 +27,26 @@ public class StreamlinedSearchLine
             }
         }
     }
-    [JsonPropertyName("versionId")]
+    [JsonProperty("versionId")]
     public long VersionId { get; set; }
-    [JsonPropertyName("fileName")]
+    [JsonProperty("fileName")]
     public string FileName { get; set; }
 
-    [JsonPropertyName("pageIndex")]
+    [JsonProperty("pageIndex")]
     public int PageIndex { get; set; }
 
-    [JsonPropertyName("lineIndex")]
+    [JsonProperty("lineIndex")]
     public int LineIndex { get; set; }
 
-    [JsonPropertyName("pageHeight")]
+    [JsonProperty("pageHeight")]
     public double PageHeight { get; set; }
 
-    [JsonPropertyName("pageWidth")]
+    [JsonProperty("pageWidth")]
     public double PageWidth { get; set; }
 
-    [JsonPropertyName("text")]
+    [JsonProperty(PropertyName = "text")]
     public string Text { get; set; }
 
-    [JsonPropertyName("words")]
+    [JsonProperty(PropertyName = "words")]
     public IList<StreamlinedWord> Words { get; set; }
 }

@@ -12,10 +12,10 @@ using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using Moq;
+using Newtonsoft.Json;
 using pdf_redactor.Functions;
 using pdf_redactor.Services.DocumentManipulation;
 using Xunit;
-using System.Text.Json;
 
 namespace pdf_redactor.tests.Functions
 {
@@ -36,7 +36,7 @@ namespace pdf_redactor.tests.Functions
         {
             var request = _fixture.Create<ModifyDocumentWithDocumentDto>();
 
-            _serializedModifyPdfRequest = JsonSerializer.Serialize(request);
+            _serializedModifyPdfRequest = JsonConvert.SerializeObject(request);
 
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
@@ -167,7 +167,7 @@ namespace pdf_redactor.tests.Functions
             var ms = new MemoryStream();
             var sw = new StreamWriter(ms);
 
-            var json = JsonSerializer.Serialize(body);
+            var json = JsonConvert.SerializeObject(body);
 
             sw.Write(json);
             sw.Flush();

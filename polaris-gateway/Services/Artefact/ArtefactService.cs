@@ -10,10 +10,6 @@ using Ddei;
 using Ddei.Factories;
 using PolarisGateway.Services.Artefact.Domain;
 using PolarisGateway.Services.Artefact.Factories;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.Artefact;
 public class ArtefactService : IArtefactService
