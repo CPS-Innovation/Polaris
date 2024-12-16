@@ -4,9 +4,7 @@
     {
         public const int UnknownDocumentType = 1029;
 
-        public DocumentTypeDto()
-        {
-        }
+        public DocumentTypeDto() { }
 
         public DocumentTypeDto(string documentType, int? documentTypeId, string documentCategory)
         {

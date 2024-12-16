@@ -1,12 +1,11 @@
-﻿using coordinator.Domain;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace coordinator.Durable.Payloads.Domain
 {
     public class CaseDeltasEntity
     {
-        public List<DocumentDelta> CreatedCmsDocuments { get; set; }
-        public List<DocumentDelta> UpdatedCmsDocuments { get; set; }
+        public List<(CmsDocumentEntity, DocumentDeltaType)> CreatedCmsDocuments { get; set; }
+        public List<(CmsDocumentEntity, DocumentDeltaType)> UpdatedCmsDocuments { get; set; }
         public List<CmsDocumentEntity> DeletedCmsDocuments { get; set; }
 
         public List<PcdRequestEntity> CreatedPcdRequests { get; set; }

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Moq;
+using Newtonsoft.Json;
 
 namespace text_extractor.tests.Functions;
 
@@ -15,7 +15,7 @@ public abstract class BaseTestClass
         var ms = new MemoryStream();
         var sw = new StreamWriter(ms);
 
-        var json = JsonSerializer.Serialize(body);
+        var json = JsonConvert.SerializeObject(body);
 
         sw.Write(json);
         sw.Flush();

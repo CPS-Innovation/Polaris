@@ -1,8 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Telemetry;
 using coordinator.TelemetryEvents;
@@ -12,8 +16,6 @@ using coordinator.Mappers;
 using coordinator.Durable.Payloads.Domain;
 using Microsoft.AspNetCore.Http;
 using coordinator.Clients.TextExtractor;
-using Microsoft.DurableTask.Client;
-using Microsoft.Azure.Functions.Worker;
 
 namespace coordinator.Functions
 {
@@ -37,7 +39,7 @@ namespace coordinator.Functions
             _logger = logger;
         }
 
-        [Function(nameof(SearchCase))]
+        [FunctionName(nameof(SearchCase))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -45,24 +47,25 @@ namespace coordinator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearch)] HttpRequest req,
             string caseUrn,
             int caseId,
-            [DurableClient] DurableTaskClient client)
+            [DurableClient] IDurableEntityClient client)
         {
-            var currentCorrelationId = req.Headers.GetCorrelationId();
-            var searchTerm = req.Query[QueryStringSearchParam];
+            Guid currentCorrelationId = default;
 
-            if (string.IsNullOrWhiteSpace(searchTerm))
+            try
             {
-                return new BadRequestObjectResult("Search term not supplied.");
-            }
+                currentCorrelationId = req.Headers.GetCorrelationId();
+                var searchTerm = req.Query[QueryStringSearchParam];
+                if (string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    return new BadRequestObjectResult("Search term not supplied.");
+                }
 
-            var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
+                var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
 
-            var entityId = CaseDurableEntity.GetEntityId(caseId);
-            var stateResponse = await client.Entities.GetEntityAsync<CaseDurableEntity>(entityId);
+                var entityId = CaseDurableEntity.GetEntityId(caseId);
+                var trackerState = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
 
-            if (stateResponse is not null && stateResponse?.IncludesState == true)
-            {
-                var entityState = stateResponse.State;
+                var entityState = trackerState.EntityState;
                 // todo: temporary code, need an AllDocuments method as per first refactor
                 var documents =
                     entityState.CmsDocuments.OfType<BaseDocumentEntity>()
@@ -96,8 +99,11 @@ namespace coordinator.Functions
 
                 return new OkObjectResult(filteredSearchResults);
             }
+            catch (Exception ex)
+            {
+                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(SearchCase), currentCorrelationId, ex);
+            }
 
-            return new BadRequestObjectResult("Could not get entity state.");
         }
     }
 }

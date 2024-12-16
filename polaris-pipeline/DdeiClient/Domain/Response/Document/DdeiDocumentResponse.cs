@@ -1,84 +1,84 @@
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Ddei.Domain.Response.Document;
 
 public class DdeiDocumentResponse
 {
-    [JsonPropertyName("id")]
+    [JsonProperty("id")]
     public long Id { get; set; }
 
-    [JsonPropertyName("versionId")]
+    [JsonProperty("versionId")]
     public long VersionId { get; set; }
 
-    [JsonPropertyName("presentationTitle")]
+    [JsonProperty("presentationTitle")]
     public string PresentationTitle { get; set; }
 
-    [JsonPropertyName("path")]
+    [JsonProperty("path")]
     public string Path { get; set; }
 
-    [JsonPropertyName("originalFileName")]
+    [JsonProperty("originalFileName")]
     public string OriginalFileName { get; set; }
 
-    [JsonPropertyName("mimeType")]
+    [JsonProperty("mimeType")]
     public string MimeType { get; set; }
 
-    [JsonPropertyName("fileExtension")]
+    [JsonProperty("fileExtension")]
     public string FileExtension { get; set; }
 
-    [JsonPropertyName("cmsDocCategory")]
+    [JsonProperty("cmsDocCategory")]
     public string CmsDocCategory { get; set; }
 
-    [JsonPropertyName("typeId")]
+    [JsonProperty("typeId")]
     public int? DocumentTypeId { get; set; }
 
-    [JsonPropertyName("type")]
+    [JsonProperty("type")]
     public string DocumentType { get; set; }
 
-    [JsonPropertyName("date")]
+    [JsonProperty("date")]
     public string DocumentDate { get; set; }
 
-    [JsonPropertyName("isOcrProcessed")]
+    [JsonProperty("isOcrProcessed")]
     public bool? IsOcrProcessed { get; set; }
 
-    [JsonPropertyName("isDispatched")]
+    [JsonProperty("isDispatched")]
     public bool IsDispatched { get; set; }
 
-    [JsonPropertyName("categoryListOrder")]
+    [JsonProperty("categoryListOrder")]
     public int? CategoryListOrder { get; set; }
 
-    [JsonPropertyName("parentId")]
+    [JsonProperty("parentId")]
     public long? ParentId { get; set; }
 
-    [JsonPropertyName("witnessId")]
+    [JsonProperty("witnessId")]
     public int? WitnessId { get; set; }
 
-    [JsonPropertyName("hasFailedAttachments")]
+    [JsonProperty("hasFailedAttachments")]
     public bool HasFailedAttachments { get; set; }
 
-    [JsonPropertyName("hasNotes")]
+    [JsonProperty("hasNotes")]
     public bool HasNotes { get; set; }
 
-    [JsonPropertyName("isUnused")]
+    [JsonProperty("isUnused")]
     public bool IsUnused { get; set; }
 
-    [JsonPropertyName("isInbox")]
+    [JsonProperty("isInbox")]
     public bool IsInbox { get; set; }
 
-    [JsonPropertyName("classification")]
+    [JsonProperty("classification")]
     public string Classification { get; set; }
 
-    [JsonPropertyName("isWitnessManagement")]
+    [JsonProperty("isWitnessManagement")]
     public bool IsWitnessManagement { get; set; }
 
-    [JsonPropertyName("canReclassify")]
+    [JsonProperty("canReclassify")]
     public bool CanReclassify { get; set; }
 
-    [JsonPropertyName("canRename")]
+    [JsonProperty("canRename")]
     public bool CanRename { get; set; }
 
-    [JsonPropertyName("renameStatus")]
+    [JsonProperty("renameStatus")]
     public string RenameStatus { get; set; }
 
-    [JsonPropertyName("reference")]
+    [JsonProperty("reference")]
     public string Reference { get; set; }
 }

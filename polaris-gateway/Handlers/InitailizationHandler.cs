@@ -1,0 +1,67 @@
+using Common.Telemetry;
+using Microsoft.AspNetCore.Http;
+using PolarisGateway.Validators;
+using Common.Extensions;
+using Common.Constants;
+using PolarisGateway.Exceptions;
+using PolarisGateway.Extensions;
+
+namespace PolarisGateway.Handlers;
+
+public class InitializationHandler : IInitializationHandler
+{
+    private readonly IAuthorizationValidator _tokenValidator;
+    private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
+    private const int MockUserUserId = int.MinValue;
+
+    public InitializationHandler(
+            IAuthorizationValidator tokenValidator,
+            ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+    {
+
+        _tokenValidator = tokenValidator ?? throw new ArgumentNullException(nameof(tokenValidator));
+        _telemetryAugmentationWrapper = telemetryAugmentationWrapper ?? throw new ArgumentNullException(nameof(telemetryAugmentationWrapper));
+    }
+
+    public async Task<(Guid, string)> Initialize(HttpRequest req)
+    {
+        var correlationId = req.Headers.GetCorrelationId();
+        _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
+
+        var username = await AuthenticateRequest(req, correlationId);
+        // Important that we register the telemetry values we need to as soon as we have called AuthenticateRequest.
+        //  We are adding our user identity in to the AppInsights logs, so best to do this before
+        //  e.g. EstablishCmsAuthValues throws on missing cookies thereby preventing us from logging the user identity.
+        _telemetryAugmentationWrapper.RegisterUserName(username);
+
+        var cmsAuthValues = EstablishCmsAuthValues(req);
+        var cmsUserId = cmsAuthValues.ExtractCmsUserId();
+        var isMockUser = cmsUserId == MockUserUserId;
+
+        _telemetryAugmentationWrapper.RegisterCmsUserId(cmsUserId);
+
+        if (isMockUser)
+            _telemetryAugmentationWrapper.RegisterIsMockUser(true);
+
+        return (correlationId, cmsAuthValues);
+    }
+
+    private async Task<string> AuthenticateRequest(HttpRequest req, Guid correlationId)
+    {
+        if (!req.Headers.TryGetValue(OAuthSettings.Authorization, out var accessTokenValue) ||
+            string.IsNullOrWhiteSpace(accessTokenValue))
+            throw new CpsAuthenticationException();
+
+        var validateTokenResult = await _tokenValidator.ValidateTokenAsync(accessTokenValue, correlationId, ValidRoles.UserImpersonation);
+        if (!validateTokenResult.IsValid)
+            throw new CpsAuthenticationException();
+
+        return validateTokenResult.UserName;
+    }
+
+    private static string EstablishCmsAuthValues(HttpRequest req)
+    {
+        req.Cookies.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValues);
+        return cmsAuthValues;
+    }
+}

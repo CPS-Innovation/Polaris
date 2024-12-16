@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace PolarisGateway.TelemetryEvents
 {
     public class RedactionRequestEvent : BaseRequestEvent
