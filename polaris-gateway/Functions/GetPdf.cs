@@ -17,13 +17,13 @@ namespace PolarisGateway.Functions
         private const string PdfContentType = "application/pdf";
         private const string isOcrProcessedParamName = "isOcrProcessed";
         private readonly ILogger<GetPdf> _logger;
-        private readonly IArtefactService _cachingArtefactService;
+        private readonly IPdfArtefactService _cachingArtefactService;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public GetPdf(
             ILogger<GetPdf> logger,
-            ICachingArtefactService cachingArtefactService,
+            IPdfArtefactService cachingArtefactService,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {
@@ -46,7 +46,7 @@ namespace PolarisGateway.Functions
                 var isOcrProcessed = req.Query.ContainsKey(isOcrProcessedParamName) && bool.Parse(req.Query[isOcrProcessedParamName]);
                 var getPdfResult = await _cachingArtefactService.GetPdfAsync(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed);
                 return getPdfResult.Status == ResultStatus.ArtefactAvailable
-                    ? new FileStreamResult(getPdfResult.Result, PdfContentType)
+                    ? new FileStreamResult(getPdfResult.Artefact, PdfContentType)
                     : new JsonResult(getPdfResult)
                     {
                         StatusCode = (int)HttpStatusCode.UnsupportedMediaType
