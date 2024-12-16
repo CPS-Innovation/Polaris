@@ -1,1 +1,18 @@
-{"cypress/e2e/a11y.cy.ts":{"time":23214,"weight":6},"cypress/e2e/case-details-page.cy.ts":{"time":100523,"weight":27},"cypress/e2e/case-search-results.cy.ts":{"time":6418,"weight":1},"cypress/e2e/case-search.cy.ts":{"time":2987,"weight":0},"cypress/e2e/delete-page.cy.ts":{"time":24304,"weight":6},"cypress/e2e/landing-page.cy.ts":{"time":1311,"weight":0},"cypress/e2e/notes.cy.ts":{"time":22572,"weight":6},"cypress/e2e/reclassify-document.cy.ts":{"time":58156,"weight":15},"cypress/e2e/redaction-assurance.cy.ts":{"time":118737,"weight":32},"cypress/e2e/redaction-log.cy.ts":{"time":48317,"weight":13},"cypress/e2e/redaction.cy.ts":{"time":34855,"weight":9},"cypress/e2e/rename-document.cy.ts":{"time":12870,"weight":3},"cypress/e2e/rotate-page.cy.ts":{"time":32597,"weight":8},"cypress/e2e/saved-user-data.cy.ts":{"time":37211,"weight":10},"cypress/e2e/search-pii.cy.ts":{"time":18891,"weight":5},"cypress/e2e/search.cy.ts":{"time":48341,"weight":13}}
+{
+  "cypress/e2e/a11y.cy.ts": { "time": 23214, "weight": 6 },
+  "cypress/e2e/case-details-page.cy.ts": { "time": 100523, "weight": 27 },
+  "cypress/e2e/case-search-results.cy.ts": { "time": 6418, "weight": 1 },
+  "cypress/e2e/case-search.cy.ts": { "time": 2987, "weight": 0 },
+  "cypress/e2e/delete-page.cy.ts": { "time": 24304, "weight": 6 },
+  "cypress/e2e/landing-page.cy.ts": { "time": 1311, "weight": 0 },
+  "cypress/e2e/notes.cy.ts": { "time": 22572, "weight": 6 },
+  "cypress/e2e/reclassify-document.cy.ts": { "time": 58156, "weight": 15 },
+  "cypress/e2e/redaction-assurance.cy.ts": { "time": 118737, "weight": 32 },
+  "cypress/e2e/redaction-log.cy.ts": { "time": 48317, "weight": 13 },
+  "cypress/e2e/redaction.cy.ts": { "time": 34855, "weight": 9 },
+  "cypress/e2e/rename-document.cy.ts": { "time": 12870, "weight": 3 },
+  "cypress/e2e/rotate-page.cy.ts": { "time": 32597, "weight": 8 },
+  "cypress/e2e/saved-user-data.cy.ts": { "time": 37211, "weight": 10 },
+  "cypress/e2e/search-pii.cy.ts": { "time": 18891, "weight": 5 },
+  "cypress/e2e/search.cy.ts": { "time": 48341, "weight": 13 }
+}
