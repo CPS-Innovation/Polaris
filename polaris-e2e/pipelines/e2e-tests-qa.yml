@@ -49,9 +49,9 @@ pool:
 variables:
   - group: polaris-global
   - group: polaris-e2e-tests
-  - group: kv-dev-terraform
+  - group: kv-qa-terraform
   - name: cypress-environment
-    value: "dev"
+    value: "qa"
     
 stages:
   - stage: Run_e2e_Tests
