@@ -556,6 +556,7 @@ describe("Feature Reclassify Document", () => {
     cy.get('#reclassify-statement-day').should('be.disabled')
     cy.get('#reclassify-statement-month').should('be.disabled')
     cy.get('#reclassify-statement-year').should('be.disabled')
+    cy.findByTestId('reclassify-cancel-btn').should('be.disabled');
     cy.findByTestId("reclassify-statement-number").should('be.disabled')
 
     cy.findByTestId("div-notification-banner").should("exist");
@@ -665,6 +666,7 @@ describe("Feature Reclassify Document", () => {
     cy.findByTestId("reclassify-document-type").select("MG15(SDN)").then(() => {
       cy.findByTestId("div-reclassify").contains("button", "Back").should("be.disabled");
       cy.findByTestId('reclassify-continue-btn').should('be.disabled');
+      cy.findByTestId('reclassify-cancel-btn').should('be.disabled');
       // cy.findByTestId("reclassify-exhibit-item-name").should('be.disabled');
       // cy.findByTestId("reclassify-exhibit-reference").should('be.disabled');
       // cy.findByTestId("reclassify-exhibit-producer").children().first().should('be.disabled');

@@ -385,6 +385,9 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
             className={classes.btnCancel}
             onClick={closeReclassify}
             dataTestId="reclassify-cancel-btn"
+            disabled={contentLoaded || (state.reClassifySaveStatus === "saving" || state.reClassifySaveStatus === "success")
+              ? true
+              : false}
           >
             Cancel
           </LinkButton>
