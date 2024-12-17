@@ -7,6 +7,7 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 using Common.Configuration;
 using Common.Wrappers;
+using Common.Services.BlobStorage.Factories;
 
 namespace Common.Services.BlobStorage
 {
@@ -37,7 +38,7 @@ namespace Common.Services.BlobStorage
             {
                 var blobServiceClient = serviceProvider.GetRequiredService<BlobServiceClient>();
                 var jsonConvertWrapper = serviceProvider.GetRequiredService<IJsonConvertWrapper>();
-              
+
                 return key.ToLower(CultureInfo.InvariantCulture) switch
                 {
                     "documents" => new PolarisBlobStorageService(new BlobStorageService(blobServiceClient, GetValueFromConfig(configuration, StorageKeys.BlobServiceContainerNameDocuments), jsonConvertWrapper)),
@@ -45,6 +46,8 @@ namespace Common.Services.BlobStorage
                     _ => throw new ArgumentException($"Unknown key: {key}")
                 };
             });
+
+            services.AddSingleton<IBlobTypeIdFactory, BlobTypeIdFactory>();
         }
 
         private static string GetValueFromConfig(IConfiguration configuration, string secretName)

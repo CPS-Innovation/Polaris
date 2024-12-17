@@ -9,17 +9,13 @@ namespace Common.Services.PiiService.Domain.Chunking
         private readonly int _characterLimit;
         private string _text;
 
-        public PiiChunk(int id, int caseId, string documentId, int characterLimit)
+        public PiiChunk(int id, int characterLimit)
         {
             ChunkId = id;
-            CaseId = caseId;
-            DocumentId = documentId;
             _characterLimit = characterLimit;
         }
 
         public int ChunkId { get; protected set; }
-        public int CaseId { get; protected set; }
-        public string DocumentId { get; protected set; }
         public IList<OcrLineResult> Lines { get; set; } = new List<OcrLineResult>();
         public int LineCount => Lines.Count;
         public int WordCount => Lines.Sum(x => x.WordCount);

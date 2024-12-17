@@ -77,13 +77,13 @@ namespace Common.tests.Services
         public static Func<OcrLineResult> OcrLineResult1 { get; } = () => new(OcrLine4(), ReadResult1(), 0, null);
 
         public static Func<ReconciledPiiEntity> ReconciledPiiEntity1 { get; } = () =>
-            new(OcrLineResult1(), new OcrWord(Word4(), 15), "PersonType", "Occupation", "CMS-112233", Guid.NewGuid());
+            new(OcrLineResult1(), new OcrWord(Word4(), 15), "PersonType", "Occupation", Guid.NewGuid());
 
         public static Func<ReconciledPiiEntity> ReconciledPiiEntity2 { get; } = () =>
-            new(OcrLineResult1(), new OcrWord(Word12(), 61), "PersonType", "Occupation", "CMS-112233", Guid.NewGuid());
+            new(OcrLineResult1(), new OcrWord(Word12(), 61), "PersonType", "Occupation", Guid.NewGuid());
 
         public static Func<ReconciledPiiEntity> ReconciledPiiEntity3 { get; } = () =>
-            new(OcrLineResult1(), new OcrWord(Word13(), 68), "PersonType", "Occupation", "CMS-112233", Guid.NewGuid());
+            new(OcrLineResult1(), new OcrWord(Word13(), 68), "PersonType", "Occupation", Guid.NewGuid());
 
         public static Func<PiiResultEntity> PiiResultEntity1 { get; } = () =>
             new PiiResultEntity { Text = WhitelistedPiiTerm1, Category = "Organization", ConfidenceScore = 1, Length = WhitelistedPiiTerm1.Length, Offset = OcrLine4Text.IndexOf(WhitelistedPiiTerm1, StringComparison.OrdinalIgnoreCase) };

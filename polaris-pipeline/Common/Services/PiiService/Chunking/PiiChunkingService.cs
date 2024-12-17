@@ -8,7 +8,7 @@ namespace Common.Services.PiiService.Chunking
 {
     public class PiiChunkingService : IPiiChunkingService
     {
-        public List<PiiChunk> GetDocumentTextPiiChunks(AnalyzeResults analyzeResults, int caseId, string documentId, int characterLimit, Guid correlationId) // char limit should be a config value
+        public List<PiiChunk> GetDocumentTextPiiChunks(AnalyzeResults analyzeResults, int characterLimit) // char limit should be a config value
         {
             var chunks = new List<PiiChunk>();
             var chunkId = 1;
@@ -18,7 +18,7 @@ namespace Common.Services.PiiService.Chunking
 
             while (processedCount < linesToProcessCount)
             {
-                var piiChunk = new PiiChunk(chunkId, caseId, documentId, currentCharacterLimit);
+                var piiChunk = new PiiChunk(chunkId, currentCharacterLimit);
                 piiChunk.BuildChunk(analyzeResults, ref processedCount);
                 chunks.Add(piiChunk);
                 chunkId++;
