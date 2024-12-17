@@ -19,18 +19,18 @@ namespace PolarisGateway.Functions
         private const string tokenQueryParamName = "token";
         private const string isOcrProcessedParamName = "isOcrProcessed";
         private readonly ILogger<GetPii> _logger;
-        private readonly IArtefactService _artefactService;
+        private readonly IPiiArtefactService _piiArtefactService;
         private readonly IInitializationHandler _initializationHandler;
         private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
 
         public GetPii(
             ILogger<GetPii> logger,
-            ICachingArtefactService artefactService,
+            IPiiArtefactService piiArtefactService,
             IInitializationHandler initializationHandler,
             IUnhandledExceptionHandler unhandledExceptionHandler)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _artefactService = artefactService ?? throw new ArgumentNullException(nameof(artefactService));
+            _piiArtefactService = piiArtefactService ?? throw new ArgumentNullException(nameof(piiArtefactService));
             _initializationHandler = initializationHandler ?? throw new ArgumentNullException(nameof(initializationHandler));
             _unhandledExceptionHandler = unhandledExceptionHandler ?? throw new ArgumentNullException(nameof(unhandledExceptionHandler));
         }
@@ -50,13 +50,13 @@ namespace PolarisGateway.Functions
                     ? Guid.Parse(req.Query[tokenQueryParamName])
                     : (Guid?)null;
 
-                var ocrResult = await _artefactService.GetPiiAsync(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, token);
+                var ocrResult = await _piiArtefactService.GetPiiAsync(context.CmsAuthValues, context.CorrelationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, token);
                 return ocrResult.Status switch
                 {
-                    ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Result.Item2),
+                    ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Artefact),
                     ResultStatus.PollWithToken => new JsonResult(new
                     {
-                        NextUrl = $"{req.GetDisplayUrl()}{(req.QueryString.Value.StartsWith("?") ? "&" : "?")}{tokenQueryParamName}={ocrResult.Result.Item1}"
+                        NextUrl = $"{req.GetDisplayUrl()}{(req.QueryString.Value.StartsWith("?") ? "&" : "?")}{tokenQueryParamName}={ocrResult.ContinuationToken}"
                     })
                     {
                         StatusCode = (int)HttpStatusCode.Accepted // the client will understand 202 as a signal to poll again
