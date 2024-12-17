@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using Aspose.Cells;
-using Aspose.Diagram;
+// using Aspose.Diagram;
 using Aspose.Email;
 using Aspose.Slides;
 using Aspose.Words;
@@ -13,7 +13,7 @@ namespace pdf_generator.Factories.Contracts
 	{
 		public Workbook CreateWorkbook(Stream inputStream, Guid correlationId);
 
-		public Diagram CreateDiagram(Stream inputStream, Guid correlationId);
+		// public Diagram CreateDiagram(Stream inputStream, Guid correlationId);
 
 		public MailMessage CreateMailMessage(Stream inputStream, Guid correlationId);
 

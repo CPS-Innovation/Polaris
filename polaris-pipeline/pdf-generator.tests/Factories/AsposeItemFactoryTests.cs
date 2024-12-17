@@ -30,14 +30,14 @@ namespace pdf_generator.tests.Factories
             result.Should().NotBeNull();
         }
 
-        [Fact]
-        public void CreateDiagram_ReturnsValidObject()
-        {
-            using var testStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.tests.TestResources.TestDiagram.vsd");
-            var result = _asposeItemFactory.CreateDiagram(testStream, _correlationId);
+        // [Fact]
+        // public void CreateDiagram_ReturnsValidObject()
+        // {
+        //     using var testStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.tests.TestResources.TestDiagram.vsd");
+        //     var result = _asposeItemFactory.CreateDiagram(testStream, _correlationId);
 
-            result.Should().NotBeNull();
-        }
+        //     result.Should().NotBeNull();
+        // }
 
         [Fact]
         public void CreateMailMessage_ReturnsValidObject()

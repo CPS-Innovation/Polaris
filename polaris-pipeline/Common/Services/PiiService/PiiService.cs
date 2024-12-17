@@ -45,9 +45,9 @@ namespace Common.Services.PiiService
             PiiChunkCharacterLimit = int.Parse(configuration[nameof(PiiChunkCharacterLimit)]);
         }
 
-        public async Task<IEnumerable<PiiLine>> GetPiiResultsAsync(AnalyzeResults ocrResults, int caseId, string documentId, Guid correlationId)
+        public async Task<IEnumerable<PiiLine>> GetPiiResultsAsync(AnalyzeResults ocrResults, Guid correlationId)
         {
-            var piiChunks = _piiChunkingService.GetDocumentTextPiiChunks(ocrResults, caseId, documentId, PiiChunkCharacterLimit, correlationId);
+            var piiChunks = _piiChunkingService.GetDocumentTextPiiChunks(ocrResults, PiiChunkCharacterLimit);
             var piiRequests = CreatePiiRequests(piiChunks);
 
             var calls = piiRequests.Select(async piiRequest => await _textAnalysisClient.CheckForPii(piiRequest));
@@ -102,7 +102,7 @@ namespace Common.Services.PiiService
                         var redactionType = GetRedactionTypeCategoryMapping(piiEntity.Category);
 
                         if (ocrWord != null)
-                            results.Add(new ReconciledPiiEntity(chunkLine, ocrWord, piiEntity.Category, redactionType, chunk.DocumentId, entityGroupId));
+                            results.Add(new ReconciledPiiEntity(chunkLine, ocrWord, piiEntity.Category, redactionType, entityGroupId));
                     }
                 }
             }
@@ -130,7 +130,6 @@ namespace Common.Services.PiiService
                 {
                     piiLine = new PiiLine
                     {
-                        DocumentId = entity.DocumentId,
                         PageIndex = entity.PageIndex,
                         LineIndex = entity.LineIndex,
                         AccumulativeLineIndex = entity.AccumulativeLineIndex,
