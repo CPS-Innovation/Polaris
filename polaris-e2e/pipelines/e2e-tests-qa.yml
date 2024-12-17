@@ -54,8 +54,16 @@ variables:
     value: "qa"
     
 stages:
+  - stage: Wait_For_Running_Tests
+    displayName: Wait for Running Tests
+    jobs:
+      - template: ../../polaris-devops-pipelines/deployments_v2/stages/jobs/tasks/task_wait-for-running-releases.yml
+        parameters:
+          devOpsPatToken: $(System.AccessToken)
+
   - stage: Run_e2e_Tests
     displayName: Run e2e Tests
+    dependsOn: Wait_For_Running_Tests
     jobs:
       - template: stages/jobs/job_prepare-dot-net-tests.yml
         parameters:
