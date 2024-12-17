@@ -6,7 +6,7 @@ namespace Common.Services.PiiService.Domain
 {
     public class ReconciledPiiEntity
     {
-        public ReconciledPiiEntity(OcrLineResult ocrLineResult, OcrWord ocrWord, string piiCategory, string redactionType, string documentId, Guid entityGroupId)
+        public ReconciledPiiEntity(OcrLineResult ocrLineResult, OcrWord ocrWord, string piiCategory, string redactionType, Guid entityGroupId)
         {
             PageHeight = ocrLineResult.PageHeight;
             PageWidth = ocrLineResult.PageWidth;
@@ -17,12 +17,10 @@ namespace Common.Services.PiiService.Domain
             Word = ocrWord;
             PiiCategory = piiCategory;
             RedactionType = redactionType;
-            DocumentId = documentId;
             EntityGroupId = entityGroupId;
         }
 
         public OcrWord Word { get; protected set; }
-        public string DocumentId { get; protected set; }
         public double PageHeight { get; protected set; }
         public double PageWidth { get; protected set; }
         public int PageIndex { get; protected set; }

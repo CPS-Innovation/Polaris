@@ -8,6 +8,6 @@ namespace Common.Services.PiiService
 {
     public interface IPiiService
     {
-        Task<IEnumerable<PiiLine>> GetPiiResultsAsync(AnalyzeResults ocrResults, int caseId, string documentId, Guid correlationId);
+        Task<IEnumerable<PiiLine>> GetPiiResultsAsync(AnalyzeResults ocrResults, Guid correlationId);
     }
 }
