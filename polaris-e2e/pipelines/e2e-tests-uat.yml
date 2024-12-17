@@ -28,13 +28,15 @@ stages:
           cypressEnvironment: $(cypress-environment)
           checkoutRef: PolarisBranch
 
-      - template: stages/jobs/job_prepare-dot-net-tests.yml
+      - template: stages/jobs/job_run-dot-net-tests.yml
         parameters:
           checkoutRef: PolarisBranch
           
       - template: stages/jobs/job_run-cypress-tests-a.yml
         parameters:
           checkoutRef: PolarisBranch
+          cypressClientId: $(polaris-spa-client-id)
+          cypressClientSecret: $(polaris-spa-client-secret)
           cypressAdUserName: $(cypress-ad-username)
           cypressAdPassword: $(cypress-ad-password)
           cypressEnvironment: $(cypress-environment)
@@ -44,6 +46,8 @@ stages:
       - template: stages/jobs/job_run-cypress-tests-b.yml
         parameters:
           checkoutRef: PolarisBranch
+          cypressClientId: $(polaris-spa-client-id)
+          cypressClientSecret: $(polaris-spa-client-secret)
           cypressAdUserName: $(cypress-ad-username)
           cypressAdPassword: $(cypress-ad-password)
           cypressEnvironment: $(cypress-environment)
