@@ -3,6 +3,7 @@ using PolarisGateway.Services.Artefact.Domain;
 using PolarisGateway.Services.Artefact.Factories;
 
 namespace PolarisGateway.Services.Artefact;
+
 public class PdfArtefactService : IPdfArtefactService
 {
     private readonly IArtefactServiceResponseFactory _artefactServiceResponseFactory;
@@ -24,7 +25,7 @@ public class PdfArtefactService : IPdfArtefactService
     {
         if (await _cacheService.TryGetPdfAsync(caseId, documentId, versionId, isOcrProcessed) is (true, var stream))
         {
-            return _artefactServiceResponseFactory.CreateOkfResult(stream, false);
+            return _artefactServiceResponseFactory.CreateOkfResult(stream, true);
         }
 
         var result = await _pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId);

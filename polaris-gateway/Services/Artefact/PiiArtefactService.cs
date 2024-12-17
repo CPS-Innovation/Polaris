@@ -6,6 +6,7 @@ using PolarisGateway.Services.Artefact.Domain;
 using PolarisGateway.Services.Artefact.Factories;
 
 namespace PolarisGateway.Services.Artefact;
+
 public class PiiArtefactService : IPiiArtefactService
 {
     private readonly IArtefactServiceResponseFactory _artefactServiceResponseFactory;

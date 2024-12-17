@@ -60,7 +60,7 @@ public class PdfArtefactServiceTests
         var expectedResult = new ArtefactResult<Stream>();
 
         _artefactServiceResponseFactoryMock
-            .Setup(x => x.CreateOkfResult(cachedPdfStream, false))
+            .Setup(x => x.CreateOkfResult(cachedPdfStream, true))
             .Returns(expectedResult);
 
         // Act
