@@ -86,4 +86,4 @@ stages:
           cypressAdPassword: $(cypress-ad-password)
           cypressEnvironment: $(cypress-environment)
           cypressPreSearchDelayMs: $(cypress-pre-search-delay-ms)
-          cypressGrepTagsA: $(cypress-grep-tags-b)
+          cypressGrepTagsB: $(cypress-grep-tags-b)
