@@ -44,7 +44,7 @@ resources:
       ref: refs/tags/$(cypress-environment)
       
 pool:
-  name: $(dev-build-agent)
+  name: $(qa-build-agent)
 
 variables:
   - group: polaris-global
