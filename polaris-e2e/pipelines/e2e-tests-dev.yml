@@ -1,0 +1,68 @@
+pr: none
+trigger: none
+
+schedules:
+  # Switch off pre-midnight runs for now, devs still working/releasing
+  #  and the e2e tests runs use up agents and otherwise confound releases
+
+  # - cron: "*/15 07-23 * * *"
+  #   displayName: Temp cron schedule during the day for durable performance diagnosis
+  #   branches:
+  #     include:
+  #       - main
+  #   always: true
+
+  # # run every 15 minutes between 7pm and 11:45pm UTC
+  # - cron: "*/15 19-23 * * *"
+  #   displayName: Cron schedule after work and before midnight
+  #   branches:
+  #     include:
+  #       - main
+  #   always: true
+  # run every 15 minutes between midnight and 2:45am UTC
+
+  - cron: "*/15 00-02 * * *"
+    displayName: Cron schedule after midnight before 3am cleardown operations
+    branches:
+      include:
+        - main
+    always: true
+  # run every 15 minutes between 4am and 5:45am UTC
+  - cron: "*/15 04-05 * * *"
+    displayName: Cron schedule after 4am cleardown operations
+    branches:
+      include:
+        - main
+    always: true
+
+resources:
+  repositories:
+    - repository: PolarisTagged
+      type: github
+      endpoint: CPS-Innovation
+      name: CPS-Innovation/Polaris
+      ref: refs/tags/$(cypress-environment)
+      
+pool:
+  name: $(dev-build-agent)
+
+variables:
+  - group: polaris-global
+  - group: polaris-e2e-tests
+  - group: kv-dev-terraform
+  - name: cypress-environment
+    value: "dev"
+    
+stages:
+  - template: stages/stage_run-e2e-tests.yml
+    parameters:
+      devOpsPatToken: $(System.AccessToken)
+      checkoutRef: PolarisTagged
+      cypressClientId: $(polaris-spa-client-id)
+      cypressClientSecret: $(polaris-spa-client-secret)
+      cypressAdUserName: $(cypress-ad-username)
+      cypressAdPassword: $(cypress-ad-password)
+      cypressEnvironment: $(cypress-environment)
+      cypressPreSearchDelayMs: $(cypress-pre-search-delay-ms)
+      cypressGrepTagsA: $(cypress-grep-tags-a)
+      cypressGrepTagsB: $(cypress-grep-tags-b)
