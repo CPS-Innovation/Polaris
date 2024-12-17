@@ -54,45 +54,15 @@ variables:
     value: "prod"
     
 stages:
-  - stage: Wait_For_Running_Tests
-    displayName: Wait for Running Tests
-    jobs:
-      - job:
-        steps:
-          - template: ../../polaris-devops-pipelines/deployments_v2/stages/jobs/tasks/task_wait-for-running-releases.yml
-            parameters:
-              devOpsPatToken: $(System.AccessToken)
-
-  - stage: Run_e2e_Tests
-    displayName: Run e2e Tests
-    dependsOn: Wait_For_Running_Tests
-    jobs:
-      - template: stages/jobs/job_prepare-dot-net-tests.yml
-        parameters:
-          checkoutRef: PolarisTagged
-
-      - template: stages/jobs/job_run-dot-net-tests.yml
-        parameters:
-          checkoutRef: PolarisTagged
-          
-      - template: stages/jobs/job_run-cypress-tests-a.yml
-        parameters:
-          checkoutRef: PolarisTagged
-          cypressClientId: $(polaris-spa-client-id)
-          cypressClientSecret: $(polaris-spa-client-secret)
-          cypressAdUserName: $(cypress-ad-username)
-          cypressAdPassword: $(cypress-ad-password)
-          cypressEnvironment: $(cypress-environment)
-          cypressPreSearchDelayMs: $(cypress-pre-search-delay-ms)
-          cypressGrepTagsA: $(cypress-grep-tags-a)
-          
-      - template: stages/jobs/job_run-cypress-tests-b.yml
-        parameters:
-          checkoutRef: PolarisTagged
-          cypressClientId: $(polaris-spa-client-id)
-          cypressClientSecret: $(polaris-spa-client-secret)
-          cypressAdUserName: $(cypress-ad-username)
-          cypressAdPassword: $(cypress-ad-password)
-          cypressEnvironment: $(cypress-environment)
-          cypressPreSearchDelayMs: $(cypress-pre-search-delay-ms)
-          cypressGrepTagsB: $(cypress-grep-tags-b)
+  - template: stages/stage_run-e2e-tests.yml
+    parameters:
+      devOpsPatToken: $(System.AccessToken)
+      checkoutRef: PolarisTagged
+      cypressClientId: $(polaris-spa-client-id)
+      cypressClientSecret: $(polaris-spa-client-secret)
+      cypressAdUserName: $(cypress-ad-username)
+      cypressAdPassword: $(cypress-ad-password)
+      cypressEnvironment: $(cypress-environment)
+      cypressPreSearchDelayMs: $(cypress-pre-search-delay-ms)
+      cypressGrepTagsA: $(cypress-grep-tags-a)
+      cypressGrepTagsB: $(cypress-grep-tags-b)
