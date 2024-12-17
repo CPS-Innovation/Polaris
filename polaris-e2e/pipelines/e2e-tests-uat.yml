@@ -22,13 +22,5 @@ variables:
 stages:
   - template: stages/stage_run-e2e-tests.yml
     parameters:
-      devOpsPatToken: $(System.AccessToken)
       checkoutRef: PolarisBranch
-      cypressClientId: $(polaris-spa-client-id)
-      cypressClientSecret: $(polaris-spa-client-secret)
-      cypressAdUserName: $(cypress-ad-username)
-      cypressAdPassword: $(cypress-ad-password)
       cypressEnvironment: $(cypress-environment)
-      cypressPreSearchDelayMs: $(cypress-pre-search-delay-ms)
-      cypressGrepTagsA: $(cypress-grep-tags-a)
-      cypressGrepTagsB: $(cypress-grep-tags-b)
