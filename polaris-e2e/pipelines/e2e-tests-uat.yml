@@ -25,7 +25,6 @@ stages:
     jobs:
       - template: stages/jobs/job_prepare-dot-net-tests.yml
         parameters:
-          cypressEnvironment: $(cypress-environment)
           checkoutRef: PolarisBranch
 
       - template: stages/jobs/job_run-dot-net-tests.yml
