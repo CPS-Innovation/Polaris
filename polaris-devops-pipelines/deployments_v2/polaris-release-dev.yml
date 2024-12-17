@@ -86,7 +86,7 @@ stages:
       targetBuild: PolarisBuild
       targetLabel: "DEV"
       appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
-      buildDefinitionId: 129
+      buildDefinitionId: 588
       stageDependsOn: Update_GitHub_Tag
 
   - template: stages/stage_schedule-releases.yml
@@ -95,6 +95,6 @@ stages:
       targetLabel: "DEV"
       appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
       qaTargetLabel: "QA"
-      qaBuildDefinitionId: 352
+      qaBuildDefinitionId: 588
       prodTargetLabel: "PROD"
       prodBuildDefinitionId: 353
