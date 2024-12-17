@@ -1,14 +1,8 @@
 ﻿---
 parameters:
   - name: checkoutRef
-  - name: cypressClientId
-  - name: cypressClientSecret
-  - name: cypressAdUserName
-  - name: cypressAdPassword
   - name: cypressEnvironment
-  - name: cypressPreSearchDelayMs
-  - name: cypressGrepTagsB
-
+  
 jobs:
   - job: Run_Cypress_Tests_B
     displayName: Run Cypress Tests B
@@ -36,17 +30,17 @@ jobs:
         displayName: 'Substitute Client Id'
         workingDirectory: "polaris-e2e/config"
         env:
-          SPA_CLIENT_ID: ${{ parameters.cypressClientId }}
+          SPA_CLIENT_ID: $(polaris-spa-client-id)
           CURRENT_ENV: ${{ parameters.cypressEnvironment }}
 
       - task: CmdLine@2
         env:
-          CYPRESS_CLIENTSECRET: ${{ parameters.cypressClientSecret }}
-          CYPRESS_AD_USERNAME: ${{ parameters.cypressAdUserName }}
-          CYPRESS_AD_PASSWORD: ${{ parameters.cypressAdPassword }}
+          CYPRESS_CLIENTSECRET: $(polaris-spa-client-secret)
+          CYPRESS_AD_USERNAME: $(cypress-ad-username)
+          CYPRESS_AD_PASSWORD: $(cypress-ad-password)
           CYPRESS_ENVIRONMENT: ${{ parameters.cypressEnvironment }}
-          CYPRESS_PRE_SEARCH_DELAY_MS: ${{ parameters.cypressPreSearchDelayMs }}
-          CYPRESS_grepTags: ${{ parameters.cypressGrepTagsB }}
+          CYPRESS_PRE_SEARCH_DELAY_MS: $(cypress-pre-search-delay-ms)
+          CYPRESS_grepTags: $(cypress-grep-tags-b)
         condition: succeeded()
         inputs:
           workingDirectory: "polaris-e2e"
