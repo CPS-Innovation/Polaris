@@ -1,0 +1,58 @@
+﻿---
+parameters:
+  - name: checkoutRef
+  - name: cypressClientSecret
+  - name: cypressAdUserName
+  - name: cypressAdPassword
+  - name: cypressEnvironment
+  - name: cypressPreSearchDelayMs
+  - name: cypressGrepTagsA
+
+jobs:
+  - job: Run_Cypress_Tests_A
+    displayName: Run Cypress Tests A
+    steps:
+      - checkout: ${{ parameters.checkoutRef }}
+        clean: true
+        persistCredentials: true
+        fetchDepth: 1
+        displayName: "Checkout polaris-e2e"
+
+      - task: Bash@3
+        inputs:
+          targetType: "inline"
+          script: "env | sort"
+
+      - task: Npm@1
+        inputs:
+          command: "install"
+          workingDir: "polaris-e2e"
+        displayName: "npm install"
+
+      - task: CmdLine@2
+        env:
+          CYPRESS_CLIENTSECRET: ${{ parameters.cypressClientSecret }}
+          CYPRESS_AD_USERNAME: ${{ parameters.cypressAdUserName }}
+          CYPRESS_AD_PASSWORD: ${{ parameters.cypressAdPassword }}
+          CYPRESS_ENVIRONMENT: ${{ parameters.cypressEnvironment }}
+          CYPRESS_PRE_SEARCH_DELAY_MS: ${{ parameters.cypressPreSearchDelayMs }}
+          CYPRESS_grepTags: ${{ parameters.cypressGrepTagsA }}
+        condition: succeeded()
+        inputs:
+          workingDirectory: "polaris-e2e"
+          script: "npm run cy:ci"
+        displayName: "cypress run tests"
+
+      - task: PublishBuildArtifacts@1
+        condition: always() # this step will always run, helpful to diagnose failing cypress tests
+        inputs:
+          PathtoPublish: "polaris-e2e/cypress/videos"
+          ArtifactName: "Cypress failure vidoes"
+          publishLocation: "Container"
+
+      - task: PublishBuildArtifacts@1
+        condition: always() # this step will always run, helpful to diagnose failing cypress tests
+        inputs:
+          PathtoPublish: "polaris-e2e/cypress/screenshots"
+          ArtifactName: "Cypress failure screenshots"
+          publishLocation: "Container"

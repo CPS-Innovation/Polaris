@@ -1,0 +1,51 @@
+pr: none
+trigger: none
+
+resources:
+  repositories:
+    - repository: PolarisBranch
+      type: github
+      endpoint: CPS-Innovation
+      name: CPS-Innovation/Polaris
+      ref: $(Build.SourceBranch)
+      
+pool:
+  name: $(uat-build-agent)
+
+variables:
+  - group: polaris-global
+  - group: polaris-e2e-tests
+  - group: kv-uat-terraform
+  - name: cypress-environment
+    value: "uat"
+    
+stages:
+  - stage: Run_e2e_Tests
+    displayName: Run e2e Tests
+    jobs:
+      - template: stages/jobs/job_prepare-dot-net-tests.yml
+        parameters:
+          cypressEnvironment: $(cypress-environment)
+          checkoutRef: PolarisBranch
+
+      - template: stages/jobs/job_prepare-dot-net-tests.yml
+        parameters:
+          checkoutRef: PolarisBranch
+          
+      - template: stages/jobs/job_run-cypress-tests-a.yml
+        parameters:
+          checkoutRef: PolarisBranch
+          cypressAdUserName: $(cypress-ad-username)
+          cypressAdPassword: $(cypress-ad-password)
+          cypressEnvironment: $(cypress-environment)
+          cypressPreSearchDelayMs: $(cypress-pre-search-delay-ms)
+          cypressGrepTagsA: $(cypress-grep-tags-a)
+          
+      - template: stages/jobs/job_run-cypress-tests-b.yml
+        parameters:
+          checkoutRef: PolarisBranch
+          cypressAdUserName: $(cypress-ad-username)
+          cypressAdPassword: $(cypress-ad-password)
+          cypressEnvironment: $(cypress-environment)
+          cypressPreSearchDelayMs: $(cypress-pre-search-delay-ms)
+          cypressGrepTagsA: $(cypress-grep-tags-b)

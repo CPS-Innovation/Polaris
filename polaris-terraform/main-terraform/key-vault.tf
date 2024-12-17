@@ -59,28 +59,6 @@ resource "azurerm_key_vault_secret" "kvs_fa_polaris_client_secret" {
   ]
 }
 
-resource "azurerm_key_vault_secret" "kvs_spa_client_id" {
-  #checkov:skip=CKV_AZURE_41:Ensure that the expiration date is set on all secrets
-  #checkov:skip=CKV_AZURE_114:Ensure that key vault secrets have "content_type" set
-  name         = "PolarisSpaRegistrationClientId"
-  value        = module.azurerm_app_reg_as_web_polaris.client_id
-  key_vault_id = azurerm_key_vault.kv_polaris.id
-  depends_on = [
-    azurerm_role_assignment.kv_role_terraform_sp
-  ]
-}
-
-resource "azurerm_key_vault_secret" "kvs_spa_client_secret" {
-  #checkov:skip=CKV_AZURE_41:Ensure that the expiration date is set on all secrets
-  #checkov:skip=CKV_AZURE_114:Ensure that key vault secrets have "content_type" set
-  name         = "PolarisSpaRegistrationClientSecret"
-  value        = azuread_application_password.asap_web_polaris_app_service.value
-  key_vault_id = azurerm_key_vault.kv_polaris.id
-  depends_on = [
-    azurerm_role_assignment.kv_role_terraform_sp
-  ]
-}
-
 resource "azurerm_role_assignment" "kv_role_terraform_sp" {
   scope                = azurerm_key_vault.kv_polaris.id
   role_definition_name = "Key Vault Administrator"
