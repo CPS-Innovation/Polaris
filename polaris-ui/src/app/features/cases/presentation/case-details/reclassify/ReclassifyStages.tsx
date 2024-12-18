@@ -42,6 +42,7 @@ type ReclassifyStagesProps = {
     name: string,
     properties: Record<string, any>
   ) => void;
+  handleLookUpDataError: (errorMessage: string) => void;
 };
 
 const MAX_LENGTH = 252;
@@ -82,11 +83,17 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   const reclassifyContext = useReClassifyContext()!;
 
   const { state, dispatch } = reclassifyContext;
+  const [contentLoaded, setContentLoaded] = useState<boolean>(false);
+
+  const handleResetFormDataErrors = useCallback(() => {
+    setFormDataErrors(errorTextsInitialValue);
+  }, []);
+
+  const handleCheckContentLoaded = useCallback((value: boolean) => {
+    setContentLoaded(value)
+  }, []);
 
   const validateData = () => {
-    if (state.reClassifyStage === "stage3") {
-      return true;
-    }
     const {
       reclassifyVariant,
       statementWitnessNumbers,
@@ -220,13 +227,13 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         errorTexts.documentTypeErrorText =
           "New document type should not be empty";
       }
-    }
 
-    if (state.reClassifyStage === "stage2") {
       handleRenameValidation();
+
       if (reclassifyVariant === "Exhibit") {
         handleExhibitValidation();
       }
+
       if (reclassifyVariant === "Statement") {
         handleStatementValidation();
       }
@@ -236,7 +243,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     const validErrors = Object.keys(errorTexts).filter(
       (key) => errorTexts[key as keyof FormDataErrors]
     );
-
     return !validErrors.length;
   };
 
@@ -252,78 +258,53 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       immediate:
         state.reclassifyVariant === "Immediate"
           ? {
-              documentName:
-                formData.documentRenameStatus === "YES"
-                  ? formData.documentNewName
-                  : null,
-            }
+            documentName:
+              formData.documentRenameStatus === "YES"
+                ? formData.documentNewName
+                : null,
+          }
           : null,
       other:
         state.reclassifyVariant === "Other"
           ? {
-              documentName:
-                formData.documentRenameStatus === "YES"
-                  ? formData.documentNewName
-                  : null,
-              used,
-            }
+            documentName:
+              formData.documentRenameStatus === "YES"
+                ? formData.documentNewName
+                : null,
+            used,
+          }
           : null,
       statement:
         state.reclassifyVariant === "Statement"
           ? {
-              used,
-              witnessId: +formData.statementWitnessId!,
-              statementNo: +formData.statementNumber!,
-              date:
-                reclassificationType === "Statement"
-                  ? `${formData.statementYear}-${formData.statementMonth}-${formData.statementDay}`
-                  : "",
-            }
+            used,
+            witnessId: +formData.statementWitnessId!,
+            statementNo: +formData.statementNumber!,
+            date:
+              reclassificationType === "Statement"
+                ? `${formData.statementYear}-${formData.statementMonth}-${formData.statementDay}`
+                : "",
+          }
           : null,
       exhibit:
         state.reclassifyVariant === "Exhibit"
           ? {
-              used,
-              existingProducerOrWitnessId:
-                formData.exhibitProducerId &&
+            used,
+            existingProducerOrWitnessId:
+              formData.exhibitProducerId &&
                 formData.exhibitProducerId !== "other"
-                  ? +formData.exhibitProducerId
-                  : null,
-              newProducer:
-                formData.exhibitProducerId === "other"
-                  ? formData.exhibitOtherProducerValue
-                  : null,
-              item: formData.exhibitItemName,
-              reference: formData.exhibitReference,
-            }
+                ? +formData.exhibitProducerId
+                : null,
+            newProducer:
+              formData.exhibitProducerId === "other"
+                ? formData.exhibitOtherProducerValue
+                : null,
+            item: formData.exhibitItemName,
+            reference: formData.exhibitReference,
+          }
           : null,
     };
     return saveData;
-  };
-
-  const handleContinueBtnClick = () => {
-    const validData = validateData();
-    if (!validData) return;
-    if (continueButtonRef.current)
-      (continueButtonRef.current as HTMLButtonElement).blur();
-    if (state.reClassifyStage === "stage1") {
-      dispatch({
-        type: "UPDATE_CLASSIFY_STAGE",
-        payload: { newStage: "stage2" },
-      });
-      dispatch({
-        type: "RESET_FORM_DATA",
-        payload: { presentationTitle: presentationTitle },
-      });
-      return;
-    }
-
-    if (state.reClassifyStage === "stage2") {
-      dispatch({
-        type: "UPDATE_CLASSIFY_STAGE",
-        payload: { newStage: "stage3" },
-      });
-    }
   };
 
   const handleBackBtnClick = () => {
@@ -331,29 +312,22 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       closeReclassify();
       return;
     }
-
-    if (state.reClassifyStage === "stage2") {
-      dispatch({
-        type: "UPDATE_CLASSIFY_STAGE",
-        payload: { newStage: "stage1" },
-      });
-      return;
-    }
-    if (state.reClassifyStage === "stage3") {
-      dispatch({
-        type: "UPDATE_CLASSIFY_STAGE",
-        payload: { newStage: "stage2" },
-      });
-    }
   };
 
   const handleAcceptAndSave = async () => {
+    const validData = validateData();
+
+    if (!validData) return false;
+    if (continueButtonRef.current)
+      (continueButtonRef.current as HTMLButtonElement).blur();
+
     const saveData: ReclassifySaveData = getMappedSaveData();
     dispatch({
       type: "UPDATE_RECLASSIFY_SAVE_STATUS",
       payload: { value: "saving" },
     });
     handleReclassifyTracking("Save Reclassify", saveData);
+
     const result = await handleSubmitReclassify(documentId, saveData);
     if (result) {
       dispatch({
@@ -388,6 +362,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     setLookupDataError(errorMessage);
   };
 
+
   const closeReclassify = useCallback(() => {
     handleCloseReclassify(documentId);
   }, [handleCloseReclassify, documentId]);
@@ -398,39 +373,28 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
         <>
           <Button
             ref={continueButtonRef}
-            onClick={handleContinueBtnClick}
-            disabled={
-              state.reClassifyStage === "stage2" &&
-              state.reclassifyVariant === "Statement" &&
-              !state.statementWitness?.length
-            }
+            onClick={handleAcceptAndSave}
+            disabled={contentLoaded || (state.reClassifySaveStatus === "saving" || state.reClassifySaveStatus === "success")
+              ? true
+              : false}
             data-testid="reclassify-continue-btn"
           >
-            Continue
+            Accept and save
           </Button>
           <LinkButton
             className={classes.btnCancel}
             onClick={closeReclassify}
             dataTestId="reclassify-cancel-btn"
+            disabled={contentLoaded || (state.reClassifySaveStatus === "saving" || state.reClassifySaveStatus === "success")
+              ? true
+              : false}
           >
             Cancel
           </LinkButton>
         </>
       );
     }
-    return (
-      <Button
-        ref={acceptAndSaveButtonRef}
-        onClick={handleAcceptAndSave}
-        data-testid="reclassify-save-btn"
-        disabled={
-          state.reClassifySaveStatus === "saving" ||
-          state.reClassifySaveStatus === "success"
-        }
-      >
-        Accept and save
-      </Button>
-    );
+    return <></>;
   };
 
   useEffect(() => {
@@ -462,6 +426,13 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     }
   }, [reclassifiedDocumentUpdate, closeReclassify, documentId]);
 
+  useEffect(() => {
+    dispatch({
+      type: "RESET_FORM_DATA",
+      payload: { presentationTitle: presentationTitle },
+    });
+  }, [presentationTitle]);
+
   if (lookupError) {
     throw Error(lookupError);
   }
@@ -479,28 +450,15 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               presentationTitle={presentationTitle}
               formDataErrors={formDataErrors}
               handleBackBtnClick={handleBackBtnClick}
-            />
-          )}
-          {state.reClassifyStage === "stage2" && (
-            <ReclassifyStage2
-              presentationTitle={presentationTitle}
-              formDataErrors={formDataErrors}
               getExhibitProducers={getExhibitProducers}
               getStatementWitnessDetails={getStatementWitnessDetails}
               getWitnessStatementNumbers={getWitnessStatementNumbers}
-              handleBackBtnClick={handleBackBtnClick}
               handleLookUpDataError={handleLookUpDataError}
+              handleResetFormDataErrors={handleResetFormDataErrors}
+              handleCheckContentLoaded={handleCheckContentLoaded}
+              contentLoaded={contentLoaded ? contentLoaded : false}
             />
           )}
-
-          {state.reClassifyStage === "stage3" && (
-            <ReclassifyStage3
-              presentationTitle={presentationTitle}
-              reclassifiedDocumentUpdate={reclassifiedDocumentUpdate}
-              handleBackBtnClick={handleBackBtnClick}
-            />
-          )}
-
           <div className={classes.btnWrapper}>{renderActionButtons()}</div>
         </div>
       </div>

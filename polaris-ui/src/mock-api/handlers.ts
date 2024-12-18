@@ -99,6 +99,9 @@ export const setupHandlers = ({
   const delay = (ctx: RestContext) =>
     ctx.delay(Math.random() * sanitisedMaxDelay);
 
+  const delay1 = (ctx: RestContext) =>
+    ctx.delay(50);
+
   return [
     rest.get(makeApiPath(routes.URN_LOOKUP_ROUTE), (req, res, ctx) => {
       const { caseId } = req.params;
@@ -232,17 +235,20 @@ export const setupHandlers = ({
 
     rest.get(makeApiPath(routes.EXHIBIT_PRODUCERS), (req, res, ctx) => {
       const results = reclassifyDataSources[sourceName].exhibitProducers;
-      return res(delay(ctx), ctx.json(results));
+      return res(delay1(ctx), ctx.json(results));
+      // return res(ctx.status(500), ctx.body("test_user_name"));
     }),
 
     rest.get(makeApiPath(routes.STATEMENT_WITNESS), (req, res, ctx) => {
       const results = reclassifyDataSources[sourceName].statementWitness;
-      return res(delay(ctx), ctx.json(results));
+      return res(delay1(ctx), ctx.json(results));
+      // return res(ctx.status(500), ctx.body("test_user_name"));
     }),
 
     rest.get(makeApiPath(routes.STATEMENT_WITNESS_NUMBERS), (req, res, ctx) => {
       const results = reclassifyDataSources[sourceName].statementWitnessNumbers;
       return res(delay(ctx), ctx.json(results));
+      // return res(ctx.status(500), ctx.body("test_user_name"));
     }),
 
     rest.post(makeApiPath(routes.SAVE_RECLASSIFY), (req, res, ctx) => {
