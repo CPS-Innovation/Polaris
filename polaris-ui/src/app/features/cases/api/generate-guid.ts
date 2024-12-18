@@ -4,5 +4,10 @@ declare global {
   var __POLARIS_INSTRUMENTATION_GUID__: string;
 }
 
-export const generateGuid = () =>
-  window.__POLARIS_INSTRUMENTATION_GUID__ || uuidv4();
+export const generateGuid = () => {
+  console.log(
+    "Being asked for correlation Id and by override is:",
+    window.__POLARIS_INSTRUMENTATION_GUID__
+  );
+  return window.__POLARIS_INSTRUMENTATION_GUID__ || uuidv4();
+};
