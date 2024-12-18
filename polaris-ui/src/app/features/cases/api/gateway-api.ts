@@ -491,7 +491,7 @@ export const getDocumentsList = async (urn: string, caseId: number) => {
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/documents`);
 
   const response = await fetchImplementation("reauth", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
   });
 
   if (!response.ok) {
