@@ -1,11 +1,11 @@
-import { TRACKER_ROUTE } from "../../src/mock-api/routes";
-import { getPipelinePdfResults } from "../../src/mock-api/data/pipelinePdfResults.cypress";
+import { GET_DOCUMENTS_LIST_ROUTE } from "../../src/mock-api/routes";
+import { getDocumentsListResult } from "../../src/mock-api/data/getDocumentsList.cypress";
 describe("Search PII", () => {
   describe("Feature flag 'ON'", () => {
     beforeEach(() => {
-      const trackerResults = getPipelinePdfResults(1);
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[0],
+      const documentList = getDocumentsListResult(1);
+      cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+        body: documentList[0],
       });
     });
     it("Should show turn on/off redaction suggestions menu correctly and should not call the pii request if the versionId is not changed", () => {

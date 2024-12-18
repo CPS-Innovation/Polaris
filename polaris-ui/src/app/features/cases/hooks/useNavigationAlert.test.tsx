@@ -3,7 +3,6 @@ import { CaseDocumentViewModel } from "../domain/CaseDocumentViewModel";
 import { useNavigationAlert } from "./useNavigationAlert";
 import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
-import { ConversionStatus } from "../domain/gateway/PipelineDocument";
 
 describe("useNavigationAlert hook", () => {
   const history = createMemoryHistory();
@@ -44,7 +43,6 @@ describe("useNavigationAlert hook", () => {
       pageRotations: [],
       rotatePageMode: false,
       deletePageMode: false,
-      sasUrl: undefined,
       url: undefined,
       isDeleted: false,
       saveStatus: { type: "none", status: "initial" },
@@ -53,7 +51,6 @@ describe("useNavigationAlert hook", () => {
       hasFailedAttachments: false,
       areaOnlyRedactionMode: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
       isUnused: false,
       isInbox: false,
       isOcrProcessed: false,
@@ -100,7 +97,6 @@ describe("useNavigationAlert hook", () => {
       pageRotations: [],
       rotatePageMode: false,
       deletePageMode: false,
-      sasUrl: undefined,
       url: undefined,
       isDeleted: false,
       saveStatus: { type: "none", status: "initial" },
@@ -109,7 +105,6 @@ describe("useNavigationAlert hook", () => {
       hasFailedAttachments: false,
       areaOnlyRedactionMode: false,
       hasNotes: false,
-      conversionStatus: "DocumentConverted",
       isUnused: false,
       isInbox: false,
       isOcrProcessed: false,

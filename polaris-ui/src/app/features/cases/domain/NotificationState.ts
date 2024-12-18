@@ -35,7 +35,8 @@ export type NotificationEvent = NotificationEventCore & {
 export type NotificationState<
   T extends NotificationEventCore = NotificationEvent
 > = {
-  lastUpdatedDateTime?: string;
+  lastCheckedDateTime?: string;
+  lastModifiedDateTime?: string;
   // ignoreNextEvents allows us to register events triggered by the current user
   //  so that we may ignore them when we see the corresponding document change
   //  in the tracker

@@ -58,7 +58,10 @@ Cypress.Commands.add(
               case "delay":
                 return res.once(ctx.delay(response.timeMs));
               default:
-                return res.once(ctx.json(response.body));
+                return res.once(
+                  ctx.delay(response.timeMs || 0),
+                  ctx.json(response.body)
+                );
             }
           }
         )

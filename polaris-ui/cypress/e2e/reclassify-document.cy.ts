@@ -4,9 +4,10 @@ import {
   EXHIBIT_PRODUCERS,
   STATEMENT_WITNESS,
   STATEMENT_WITNESS_NUMBERS,
-  TRACKER_ROUTE,
+  GET_DOCUMENTS_LIST_ROUTE,
 } from "../../src/mock-api/routes";
-import { refreshPipelineReclassifyDocuments } from "../../src/mock-api/data/pipelinePdfResults.cypress";
+
+import { getRefreshReclassifyDocuments } from "../../src/mock-api/data/getDocumentsList.cypress";
 
 describe("Feature Reclassify Document", () => {
   it("Should show reclassify document option if the document 'canReclassify' is true and presentationFlags, write property is not 'isDispatched' and should not show if it is not ", () => {
@@ -104,10 +105,8 @@ describe("Feature Reclassify Document", () => {
       "GET",
       "/api/reference/reclassification"
     );
-    const trackerResults = refreshPipelineReclassifyDocuments("10", 1015, 2);
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: trackerResults[0],
-    });
+    const documentList = getRefreshReclassifyDocuments("10", 1015, 2);
+
     const expectedSaveReclassifyPayload = {
       documentTypeId: 1015,
       immediate: { documentName: null },
@@ -120,19 +119,6 @@ describe("Feature Reclassify Document", () => {
       saveReclassifyRequestObject,
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/10/reclassify"
-    );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
-
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
     );
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
@@ -217,6 +203,10 @@ describe("Feature Reclassify Document", () => {
         expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("div-notification-banner").should("not.exist");
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 100,
+    });
     cy.findByTestId("reclassify-save-btn").click();
     cy.findByTestId("div-notification-banner").should("exist");
     cy.findByTestId("div-notification-banner").contains(
@@ -229,21 +219,9 @@ describe("Feature Reclassify Document", () => {
       expect(saveReclassifyRequestObject.body).to.deep.equal(
         JSON.stringify(expectedSaveReclassifyPayload)
       );
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[1],
-      });
     });
 
-    cy.waitUntil(() => {
-      return cy
-        .findByTestId("div-reclassify")
-        .should("not.exist")
-        .then(() => true);
-    }).then(() => {
-      expect(trackerCounter.count).to.equal(2);
-      expect(refreshPipelineCounter.count).to.equal(2);
-    });
-
+    cy.findByTestId("div-reclassify").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
@@ -254,10 +232,8 @@ describe("Feature Reclassify Document", () => {
       "GET",
       "/api/reference/reclassification"
     );
-    const trackerResults = refreshPipelineReclassifyDocuments("10", 1029, 2);
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: trackerResults[0],
-    });
+    const documentList = getRefreshReclassifyDocuments("10", 1029, 2);
+
     const expectedSaveReclassifyPayload = {
       documentTypeId: 1029,
       immediate: null,
@@ -271,19 +247,7 @@ describe("Feature Reclassify Document", () => {
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/10/reclassify"
     );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
 
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
-    );
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -406,6 +370,10 @@ describe("Feature Reclassify Document", () => {
         expect(cells.eq(2)).to.have.text("Change");
       });
     cy.findByTestId("div-notification-banner").should("not.exist");
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 100,
+    });
     cy.findByTestId("reclassify-save-btn").click();
     cy.findByTestId("div-notification-banner").should("exist");
     cy.findByTestId("div-notification-banner").contains(
@@ -419,19 +387,9 @@ describe("Feature Reclassify Document", () => {
       expect(saveReclassifyRequestObject.body).to.deep.equal(
         JSON.stringify(expectedSaveReclassifyPayload)
       );
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[1],
-      });
     });
-    cy.waitUntil(() => {
-      return cy
-        .findByTestId("div-reclassify")
-        .should("not.exist")
-        .then(() => true);
-    }).then(() => {
-      expect(trackerCounter.count).to.equal(2);
-      expect(refreshPipelineCounter.count).to.equal(2);
-    });
+
+    cy.findByTestId("div-reclassify").should("not.exist");
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
@@ -454,10 +412,8 @@ describe("Feature Reclassify Document", () => {
       "GET",
       "/api/urns/12AB1111111/cases/13401/witnesses/1/statements"
     );
-    const trackerResults = refreshPipelineReclassifyDocuments("10", 1031, 2);
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: trackerResults[0],
-    });
+    const documentList = getRefreshReclassifyDocuments("10", 1031, 2);
+
     const expectedSaveReclassifyPayload = {
       documentTypeId: 1031,
       immediate: null,
@@ -476,19 +432,7 @@ describe("Feature Reclassify Document", () => {
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/10/reclassify"
     );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
 
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
-    );
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -660,6 +604,10 @@ describe("Feature Reclassify Document", () => {
         expect(cells.eq(1)).to.have.text("Used");
         expect(cells.eq(2)).to.have.text("Change");
       });
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 100,
+    });
     cy.findByTestId("div-notification-banner").should("not.exist");
     cy.findByTestId("reclassify-save-btn").click();
     cy.findByTestId("div-notification-banner").should("exist");
@@ -676,19 +624,6 @@ describe("Feature Reclassify Document", () => {
       expect(saveReclassifyRequestObject.body).to.deep.equal(
         JSON.stringify(expectedSaveReclassifyPayload)
       );
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[1],
-      });
-    });
-
-    cy.waitUntil(() => {
-      return cy
-        .findByTestId("div-reclassify")
-        .should("not.exist")
-        .then(() => true);
-    }).then(() => {
-      expect(trackerCounter.count).to.equal(2);
-      expect(refreshPipelineCounter.count).to.equal(2);
     });
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
@@ -706,11 +641,7 @@ describe("Feature Reclassify Document", () => {
       "GET",
       "/api/urns/12AB1111111/cases/13401/exhibit-producers"
     );
-
-    const trackerResults = refreshPipelineReclassifyDocuments("1", 1042, 2);
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: trackerResults[0],
-    });
+    const documentList = getRefreshReclassifyDocuments("1", 1042, 2);
     const expectedSaveReclassifyPayload = {
       documentTypeId: 1042,
       immediate: null,
@@ -730,19 +661,7 @@ describe("Feature Reclassify Document", () => {
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/1/reclassify"
     );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
 
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
-    );
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -892,6 +811,10 @@ describe("Feature Reclassify Document", () => {
         expect(cells.eq(1)).to.have.text("Used");
         expect(cells.eq(2)).to.have.text("Change");
       });
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 100,
+    });
     cy.findByTestId("div-notification-banner").should("not.exist");
     cy.findByTestId("reclassify-save-btn").click();
     cy.findByTestId("div-notification-banner").should("exist");
@@ -907,19 +830,6 @@ describe("Feature Reclassify Document", () => {
       expect(saveReclassifyRequestObject.body).to.deep.equal(
         JSON.stringify(expectedSaveReclassifyPayload)
       );
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[1],
-      });
-    });
-
-    cy.waitUntil(() => {
-      return cy
-        .findByTestId("div-reclassify")
-        .should("not.exist")
-        .then(() => true);
-    }).then(() => {
-      expect(trackerCounter.count).to.equal(2);
-      expect(refreshPipelineCounter.count).to.equal(2);
     });
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-1");
   });
@@ -940,10 +850,7 @@ describe("Feature Reclassify Document", () => {
       "GET",
       "/api/reference/reclassification"
     );
-    const trackerResults = refreshPipelineReclassifyDocuments("10", 1015, 2);
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: trackerResults[0],
-    });
+
     const expectedSaveReclassifyPayload = {
       documentTypeId: 1015,
       immediate: { documentName: null },
@@ -957,19 +864,7 @@ describe("Feature Reclassify Document", () => {
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/10/reclassify"
     );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
 
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
-    );
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -1010,10 +905,6 @@ describe("Feature Reclassify Document", () => {
       .contains("Failed to save reclassification. Please try again later.");
     cy.findByTestId("btn-error-modal-ok").click();
     cy.findByTestId("div-modal").should("not.exist");
-    cy.window().then(() => {
-      expect(refreshPipelineCounter.count).to.equal(1);
-      expect(trackerCounter.count).to.equal(1);
-    });
   });
 
   it("Should show all the reclassify UI validation errors", () => {

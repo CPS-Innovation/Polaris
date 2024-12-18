@@ -59,7 +59,7 @@ declare global {
               body?: any;
             }
           | { type: "delay"; timeMs: number }
-          | { type?: false; body: any },
+          | { type?: false; timeMs?: number; body: any },
         method?: "get" | "post" | "put",
         baseUrl?: string
       ): Chainable<AUTWindow>;

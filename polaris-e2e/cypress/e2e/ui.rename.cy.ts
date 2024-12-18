@@ -17,8 +17,6 @@ describe("Rename refresh flow", { tags: ["@ci", "@ci-chunk-2"] }, () => {
     cy.findByTestId("input-search-urn").type(`${RENAME_DOCUMENT_URN}{enter}`);
     cy.findByTestId(`link-${RENAME_DOCUMENT_URN}`).click();
 
-    cy.findByTestId("span-flag-all-indexed");
-
     cy.findByTestId("btn-accordion-open-close-all").click();
 
     cy.findByTestId(`link-document-CMS-${RENAME_DOCUMENT_DOCUMENT_ID}`).should(

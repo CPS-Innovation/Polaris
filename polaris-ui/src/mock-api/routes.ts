@@ -42,3 +42,5 @@ export const SAVE_RECLASSIFY =
 
 export const SAVE_ROTATION_ROUTE =
   "api/urns/:urn/cases/:caseId/documents/:documentId/versions/:versionId/modify";
+
+export const GET_DOCUMENTS_LIST_ROUTE = "api/urns/:urn/cases/:caseId/documents";

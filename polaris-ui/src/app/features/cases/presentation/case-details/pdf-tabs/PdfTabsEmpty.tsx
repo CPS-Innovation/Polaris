@@ -1,5 +1,4 @@
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
-import { TrackerSummary } from "./TrackerSummary";
 import classes from "./PdfTabsEmpty.module.scss";
 import { TaggedContext } from "../../../../../inbound-handover/context";
 
@@ -21,12 +20,6 @@ export const PdfTabsEmpty: React.FC<Props> = ({
     <p className={`${classes.content}`}>
       Search or choose a file to start reviewing documents
     </p>
-
-    <TrackerSummary
-      pipelineState={pipelineState}
-      isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
-    />
-
     <TemporaryContextFeedback context={context} />
   </div>
 );

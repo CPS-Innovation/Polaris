@@ -16,7 +16,7 @@ export const Notifications: React.FC<{
   handleClearAllNotifications: () => void;
   handleClearNotification: (notificationId: number) => void;
 }> = ({
-  state: { events, lastUpdatedDateTime },
+  state: { events, lastCheckedDateTime },
   handleOpenPdf,
   handleClearAllNotifications,
   handleClearNotification,
@@ -104,8 +104,8 @@ export const Notifications: React.FC<{
             }`}
           >
             Last synced with CMS:{" "}
-            {lastUpdatedDateTime ? (
-              <Time dateTime={lastUpdatedDateTime} />
+            {lastCheckedDateTime ? (
+              <Time dateTime={lastCheckedDateTime} />
             ) : (
               "please wait..."
             )}

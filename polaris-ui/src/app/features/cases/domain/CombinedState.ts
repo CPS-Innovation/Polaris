@@ -6,6 +6,7 @@ import { PipelineResults } from "./gateway/PipelineResults";
 import { MappedTextSearchResult } from "./MappedTextSearchResult";
 import { AccordionDocumentSection } from "../presentation/case-details/accordion/types";
 import { MappedCaseDocument } from "./MappedCaseDocument";
+import { LocalDocumentState } from "./LocalDocumentState";
 import { FeatureFlagData } from "./FeatureFlagData";
 import { FilterOption } from "./FilterOption";
 import {
@@ -33,13 +34,18 @@ export type CombinedState = {
   caseState: AsyncResult<CaseDetails>;
   documentsState: AsyncResult<MappedCaseDocument[]>;
   pipelineState: AsyncPipelineResult<PipelineResults>;
-  pipelineRefreshData: {
-    startRefresh: boolean;
+  localDocumentState: LocalDocumentState;
+  documentRefreshData: {
+    startDocumentRefresh: boolean;
     savedDocumentDetails: {
       documentId: string;
       versionId: number;
     }[];
+  };
+  pipelineRefreshData: {
+    startPipelineRefresh: boolean;
     lastProcessingCompleted: string;
+    localLastRefreshTime: string;
   };
   accordionState: AsyncResult<AccordionDocumentSection[]>;
   notificationState: NotificationState;
@@ -54,8 +60,9 @@ export type CombinedState = {
   searchTerm: string;
   searchState: {
     isResultsVisible: boolean;
-    requestedSearchTerm: undefined | string;
-    submittedSearchTerm: undefined | string;
+    requestedSearchTerm: string | undefined;
+    submittedSearchTerm: string | undefined;
+    lastSubmittedSearchTerm: string | undefined;
     resultsOrder: "byDateDesc" | "byOccurancesPerDocumentDesc";
     filterOptions: {
       docType: { [key: string]: FilterOption };
@@ -94,11 +101,16 @@ export type CombinedState = {
 export const initialState = {
   caseState: { status: "loading" },
   documentsState: { status: "loading" },
-  pipelineState: { status: "initiating", haveData: false, correlationId: "" },
-  pipelineRefreshData: {
-    startRefresh: false,
+  pipelineState: { status: "initiating", correlationId: "" },
+  localDocumentState: {},
+  documentRefreshData: {
+    startDocumentRefresh: true,
     savedDocumentDetails: [],
+  },
+  pipelineRefreshData: {
+    startPipelineRefresh: false,
     lastProcessingCompleted: "",
+    localLastRefreshTime: "",
   },
   accordionState: { status: "loading" },
   tabsState: { items: [], headers: {}, activeTabId: undefined },
@@ -108,6 +120,7 @@ export const initialState = {
     isResultsVisible: false,
     requestedSearchTerm: undefined,
     submittedSearchTerm: undefined,
+    lastSubmittedSearchTerm: undefined,
     resultsOrder: "byDateDesc",
     filterOptions: {
       docType: {},

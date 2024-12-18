@@ -21,14 +21,12 @@ describe("reducerAsyncActionHandlers", () => {
 
   describe("REQUEST_OPEN_PDF", () => {
     it("can open a pdf when auth token and correlation id are retrieved", async () => {
-      jest
-        .spyOn(headerFactory, "correlationId")
-        .mockImplementation(() => ({ "Correlation-Id": "foo" }));
-
-      jest
-        .spyOn(headerFactory, "auth")
-        .mockImplementation(() => Promise.resolve({ Authorization: "bar" }));
-
+      jest.spyOn(headerFactory, "buildHeaders").mockImplementation(() =>
+        Promise.resolve({
+          "Correlation-Id": "foo",
+          Authorization: "bar",
+        })
+      );
       const handler = reducerAsyncActionHandlers.REQUEST_OPEN_PDF({
         dispatch: dispatchMock,
         getState: () => combinedStateMock,
