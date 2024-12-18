@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Common.Logging;
 using Common.Exceptions;
 using Microsoft.AspNetCore.Http;
-using Ddei.Exceptions;
 
 namespace coordinator.Helpers
 {

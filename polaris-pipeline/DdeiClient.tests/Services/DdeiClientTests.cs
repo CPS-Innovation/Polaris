@@ -1,20 +1,20 @@
-using System.Net;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using AutoFixture.Idioms;
+using Common.Exceptions;
 using Common.Wrappers;
 using Ddei.Domain.CaseData.Args.Core;
+using Ddei.Domain.Response.Document;
 using Ddei.Factories;
 using Ddei.Mappers;
-using Ddei.Exceptions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
+using System.Net;
 using Xunit;
-using Ddei.Domain.Response.Document;
 
 namespace Ddei.tests.Services;
 

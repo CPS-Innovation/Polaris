@@ -1,6 +1,8 @@
 
 using Common.Domain.Ocr;
 using PolarisGateway.Services.Artefact.Domain;
+using System;
+using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.Artefact;
 

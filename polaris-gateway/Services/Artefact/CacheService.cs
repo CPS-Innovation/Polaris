@@ -2,6 +2,9 @@ using Common.Configuration;
 using Common.Services.BlobStorage;
 using Common.Services.BlobStorage.Factories;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.Artefact
 {

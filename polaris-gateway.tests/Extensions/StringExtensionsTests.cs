@@ -1,5 +1,5 @@
+using Common.Extensions;
 using FluentAssertions;
-using PolarisGateway.Extensions;
 using Xunit;
 
 namespace PolarisGateway.Tests.Extensions;
