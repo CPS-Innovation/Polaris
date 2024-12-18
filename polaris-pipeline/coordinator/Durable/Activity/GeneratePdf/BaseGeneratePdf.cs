@@ -24,7 +24,7 @@ namespace coordinator.Durable.Activity.GeneratePdf
             IDdeiClient ddeiClient,
             IDdeiArgFactory ddeiArgFactory,
             Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-            IPdfGeneratorClient pdfGeneratorClient, 
+            IPdfGeneratorClient pdfGeneratorClient,
             IConfiguration configuration)
         {
             DdeiClient = ddeiClient;
