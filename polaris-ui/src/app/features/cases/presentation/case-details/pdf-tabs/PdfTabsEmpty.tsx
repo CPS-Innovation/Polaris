@@ -1,9 +1,9 @@
-import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
+import { CombinedState } from "../../../domain/CombinedState";
 import classes from "./PdfTabsEmpty.module.scss";
 import { TaggedContext } from "../../../../../inbound-handover/context";
 
 type Props = {
-  pipelineState: CaseDetailsState["pipelineState"];
+  pipelineState: CombinedState["pipelineState"];
   isMultipleDefendantsOrCharges: boolean;
   context: TaggedContext | undefined;
 };

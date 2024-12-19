@@ -2,8 +2,10 @@ import { LinkButton } from "../../../../../common/presentation/components/LinkBu
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import classes from "./HeaderSearchMode.module.scss";
 import { HeaderSearchModeNavigation } from "./HeaderSearchModeNavigation";
+import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 
 type Props = {
+  mappedDocument: MappedCaseDocument;
   caseDocumentViewModel: Extract<CaseDocumentViewModel, { mode: "search" }>;
   handleLaunchSearchResults: () => void;
   focussedHighlightIndex: number;
@@ -11,11 +13,8 @@ type Props = {
 };
 
 export const HeaderSearchMode: React.FC<Props> = ({
-  caseDocumentViewModel: {
-    searchTerm,
-    occurrencesInDocumentCount,
-    presentationTitle,
-  },
+  caseDocumentViewModel: { searchTerm, occurrencesInDocumentCount },
+  mappedDocument: { presentationTitle },
   focussedHighlightIndex,
   handleSetFocussedHighlightIndex,
   handleLaunchSearchResults,

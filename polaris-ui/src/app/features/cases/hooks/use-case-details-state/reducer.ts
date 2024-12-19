@@ -31,11 +31,7 @@ import {
 } from "../../domain/redactionLog/RedactionLogData";
 import { FeatureFlagData } from "../../domain/FeatureFlagData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
-import {
-  addToLocalStorage,
-  deleteFromLocalStorage,
-} from "../../presentation/case-details/utils/localStorageUtils";
-import { getRedactionsToSaveLocally } from "../utils/redactionUtils";
+import { handleSaveRedactionsLocally } from "../utils/redactionUtils";
 import { StoredUserData } from "../../domain//gateway/StoredUserData";
 import { ErrorModalTypes } from "../../domain/ErrorModalTypes";
 import { Note } from "../../domain/gateway/NotesData";
@@ -251,7 +247,7 @@ export const reducer = (
               documentId: string;
               notesData: Note[];
               addNoteStatus: "initial";
-              getNoteStatus: "initial" | "loading" | "failure";
+              getNoteStatus: "initial" | "success" | "loading" | "failure";
             };
       }
     | {
@@ -274,12 +270,17 @@ export const reducer = (
     | {
         type: "UPDATE_RECLASSIFY_DATA";
         payload: {
-          properties: {
-            documentId: string;
-            newDocTypeId?: number;
-            reclassified?: boolean;
-            saveReclassifyRefreshStatus: "initial" | "updating" | "updated";
-          };
+          properties:
+            | {
+                documentId: string;
+                saveReclassifyRefreshStatus: "initial" | "updated";
+              }
+            | {
+                documentId: string;
+                newDocTypeId: number;
+                reclassified: boolean;
+                saveReclassifyRefreshStatus: "updating";
+              };
         };
       }
     | {
@@ -354,6 +355,11 @@ export const reducer = (
           status: GroupedConversionStatus;
         };
       }
+    | {
+        type: "ACCORDION_OPEN_CLOSE";
+        payload: { id: string; open: boolean };
+      }
+    | { type: "ACCORDION_OPEN_CLOSE_ALL"; payload: boolean }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -419,7 +425,10 @@ export const reducer = (
         coreDocumentsState
       );
 
-      const accordionState = mapAccordionState(documentsState);
+      const accordionState = mapAccordionState(
+        documentsState,
+        state.accordionState
+      );
 
       nextState = {
         ...nextState,
@@ -1025,14 +1034,12 @@ export const reducer = (
         },
       };
       //adding redactions to local storage
-      const redactionsToSave = getRedactionsToSaveLocally(
+      handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      if (redactionsToSave.length) {
-        addToLocalStorage(state.caseId, "redactions", redactionsToSave);
-      }
+
       return newState;
     }
     case "ADD_PAGE_DELETE_REDACTION": {
@@ -1090,14 +1097,11 @@ export const reducer = (
         },
       };
       //adding redactions to local storage
-      const redactionsToSave = getRedactionsToSaveLocally(
+      handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      if (redactionsToSave.length) {
-        addToLocalStorage(state.caseId, "redactions", redactionsToSave);
-      }
       return newState;
     }
     case "SAVING_DOCUMENT": {
@@ -1138,14 +1142,11 @@ export const reducer = (
         },
       };
       //adding redactions to local storage
-      const redactionsToSave = getRedactionsToSaveLocally(
+      handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      redactionsToSave.length
-        ? addToLocalStorage(state.caseId, "redactions", redactionsToSave)
-        : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
     }
@@ -1170,14 +1171,11 @@ export const reducer = (
         },
       };
       //adding redactions to local storage
-      const redactionsToSave = getRedactionsToSaveLocally(
+      handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      redactionsToSave.length
-        ? addToLocalStorage(state.caseId, "redactions", redactionsToSave)
-        : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
     }
@@ -1200,14 +1198,11 @@ export const reducer = (
         },
       };
       //adding redaction highlight to local storage
-      const redactionHighlights = getRedactionsToSaveLocally(
+      handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
         state.caseId
       );
-      redactionHighlights.length
-        ? addToLocalStorage(state.caseId, "redactions", redactionHighlights)
-        : deleteFromLocalStorage(state.caseId, "redactions");
 
       return newState;
     }
@@ -1229,6 +1224,7 @@ export const reducer = (
         },
       };
     }
+
     case "SHOW_ERROR_MODAL": {
       const { message, title, type } = action.payload;
       return {
@@ -1252,6 +1248,7 @@ export const reducer = (
         },
       };
     }
+
     case "SHOW_HIDE_DOCUMENT_ISSUE_MODAL": {
       return {
         ...state,
@@ -1312,6 +1309,7 @@ export const reducer = (
         storedUserData: { status: "succeeded", data: storedUserData },
       };
     }
+
     case "UPDATE_NOTES_DATA": {
       const { documentId, addNoteStatus, getNoteStatus } = action.payload;
       const filteredNotes = state.notes.filter(
@@ -1416,9 +1414,16 @@ export const reducer = (
         getData,
         defaultOption = true,
       } = action.payload;
-      const versionId = state.tabsState.items.find(
-        (data) => data.documentId === documentId
-      )?.versionId!;
+      // const versionId = state.tabsState.items.find(
+      //   (data) => data.documentId === documentId
+      // )?.versionId!;
+      const mappedDocuments =
+        state.documentsState.status === "succeeded"
+          ? state.documentsState.data
+          : [];
+      const { versionId } = mappedDocuments.find(
+        (item) => item.documentId === documentId
+      )!;
       const availablePIIData = state.searchPII.find(
         (data) => data.documentId === documentId
       );
@@ -1578,13 +1583,11 @@ export const reducer = (
         notificationState,
         state.documentsState
       );
-      const accordionState = mapAccordionState(documentsState);
 
       return {
         ...state,
         notificationState,
         documentsState,
-        accordionState,
       };
     }
 
@@ -1597,13 +1600,11 @@ export const reducer = (
         notificationState,
         state.documentsState
       );
-      const accordionState = mapAccordionState(documentsState);
 
       return {
         ...state,
         notificationState,
         documentsState,
-        accordionState,
       };
     }
     case "CLEAR_DOCUMENT_NOTIFICATIONS": {
@@ -1615,13 +1616,11 @@ export const reducer = (
         notificationState,
         state.documentsState
       );
-      const accordionState = mapAccordionState(documentsState);
 
       return {
         ...state,
         notificationState,
         documentsState,
-        accordionState,
       };
     }
 
@@ -1760,6 +1759,51 @@ export const reducer = (
         },
       };
       return newState;
+    }
+    case "ACCORDION_OPEN_CLOSE": {
+      const { id, open } = action.payload;
+      if (state.accordionState.status !== "succeeded") return state;
+      const { sectionsOpenStatus } = state.accordionState.data;
+      const nextSections = {
+        ...sectionsOpenStatus,
+        [id]: open,
+      };
+      return {
+        ...state,
+        accordionState: {
+          ...state.accordionState,
+          data: {
+            ...state.accordionState.data,
+            sectionsOpenStatus: nextSections,
+            isAllOpen: Object.values(nextSections).every(
+              (value) => value === true
+            ),
+          },
+        },
+      };
+    }
+    case "ACCORDION_OPEN_CLOSE_ALL": {
+      if (state.accordionState.status !== "succeeded") return state;
+      const { sectionsOpenStatus } = state.accordionState.data;
+
+      const nextSections = Object.keys(sectionsOpenStatus).reduce(
+        (accumulator, current) => {
+          accumulator[current] = action.payload;
+          return accumulator;
+        },
+        {} as any
+      );
+      return {
+        ...state,
+        accordionState: {
+          ...state.accordionState,
+          data: {
+            ...state.accordionState.data,
+            sectionsOpenStatus: nextSections,
+            isAllOpen: action.payload,
+          },
+        },
+      };
     }
     default:
       throw new Error("Unknown action passed to case details reducer");

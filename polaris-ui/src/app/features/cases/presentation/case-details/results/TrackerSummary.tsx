@@ -1,10 +1,10 @@
 import { useMemo } from "react";
 import { PipelineResults } from "../../../domain/gateway/PipelineResults";
-import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
+import { CombinedState } from "../../../domain/CombinedState";
 import classes from "./TrackerSummary.module.scss";
 
 type Props = {
-  pipelineState: CaseDetailsState["pipelineState"];
+  pipelineState: CombinedState["pipelineState"];
 };
 
 const renderDocResults = (
