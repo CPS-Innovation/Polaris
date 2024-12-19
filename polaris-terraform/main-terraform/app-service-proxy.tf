@@ -350,3 +350,10 @@ resource "azurerm_monitor_diagnostic_setting" "proxy_diagnostic_settings" {
 
   depends_on = [azurerm_linux_web_app.polaris_proxy]
 }
+
+resource "azurerm_role_assignment" "ra_proxy_container_registry" {
+  principal_id                     =  azurerm_linux_web_app.polaris_proxy.identity[0].principal_id
+  role_definition_name             = "AcrPull"
+  scope                            = data.azurerm_container_registry.polaris_container_registry.id
+  skip_service_principal_aad_check = true
+}

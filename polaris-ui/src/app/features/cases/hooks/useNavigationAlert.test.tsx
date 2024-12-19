@@ -5,7 +5,6 @@ import { createMemoryHistory } from "history";
 import { Router } from "react-router-dom";
 import { AsyncResult } from "../../../common/types/AsyncResult";
 import { MappedCaseDocument } from "../../cases/domain/MappedCaseDocument";
-
 describe("useNavigationAlert hook", () => {
   const history = createMemoryHistory();
   const tabItems: CaseDocumentViewModel[] = [

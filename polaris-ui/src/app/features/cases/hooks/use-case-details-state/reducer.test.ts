@@ -512,6 +512,9 @@ describe("useCaseDetailsState reducer", () => {
 
   describe("UPDATE_DOCUMENT_REFRESH", () => {
     it("can update documentRefreshData", () => {
+      const dateSpy = jest
+        .spyOn(Date.prototype, "toISOString")
+        .mockReturnValue("2023-01-01T00:00:00.000Z");
       const existingState = {
         documentRefreshData: {
           startDocumentRefresh: false,
@@ -541,6 +544,33 @@ describe("useCaseDetailsState reducer", () => {
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
         },
       });
+
+      dateSpy.mockRestore();
+    });
+  });
+
+  describe("UPDATE_DOCUMENTS", () => {
+    it("throws error if update documents fails", () => {
+      expect(() =>
+        reducer({} as CombinedState, {
+          type: "UPDATE_DOCUMENTS",
+          payload: {
+            status: "failed",
+            error: ERROR,
+            httpStatusCode: undefined,
+          },
+        })
+      ).toThrowError(ERROR);
+    });
+    it("returns the currentState if the payload.status is loading", () => {
+      const existingState = {} as CombinedState;
+      const nextState = reducer(existingState, {
+        type: "UPDATE_DOCUMENTS",
+        payload: {
+          status: "loading",
+        },
+      });
+      expect(nextState).toStrictEqual(existingState);
     });
     it("can update documentRefreshData if the payload doesn't have savedDocumentDetails ", () => {
       const existingState = {
@@ -591,6 +621,92 @@ describe("useCaseDetailsState reducer", () => {
           lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
           localLastRefreshTime: "2023-04-05T15:02:17.601Z",
         },
+      });
+    });
+
+    it("should update the states correctly if there are no open document tabs", () => {
+      const expectedDocumentsState: AsyncResult<MappedCaseDocument[]> = {
+        status: "succeeded",
+        data: [],
+      };
+      const mockDocumentsState = {} as CombinedState["documentsState"];
+      const mockNotificationState = {
+        name: "mock_notification",
+      } as unknown as CombinedState["notificationState"];
+      const mockAccordionState = {
+        name: "mock_accordion",
+      } as unknown as CombinedState["accordionState"];
+
+      jest
+        .spyOn(
+          mapNotificationToDocumentsState,
+          "mapNotificationToDocumentsState"
+        )
+        .mockImplementation(() => {
+          return expectedDocumentsState;
+        });
+
+      jest
+        .spyOn(documentsMapper, "mapDocumentsState")
+        .mockImplementation(() => {
+          return mockDocumentsState;
+        });
+      jest
+        .spyOn(notificationMapper, "mapNotificationState")
+        .mockImplementation(() => {
+          return mockNotificationState;
+        });
+      jest
+        .spyOn(accordionMapper, "mapAccordionState")
+        .mockImplementation(() => {
+          return mockAccordionState;
+        });
+      const existingState = {
+        notificationState: {},
+        documentsState: {},
+        caseState: { name: "caseState" },
+        documentRefreshData: { savedDocumentDetails: [] },
+      } as unknown as CombinedState;
+      const nextState = reducer(existingState, {
+        type: "UPDATE_DOCUMENTS",
+        payload: {
+          status: "succeeded",
+          data: [],
+        },
+      });
+
+      expect(documentsMapper.mapDocumentsState).toHaveBeenCalledTimes(1);
+      expect(documentsMapper.mapDocumentsState).toHaveBeenCalledWith([], []);
+      expect(notificationMapper.mapNotificationState).toHaveBeenCalledTimes(1);
+      expect(
+        mapNotificationToDocumentsState.mapNotificationToDocumentsState
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mapNotificationToDocumentsState.mapNotificationToDocumentsState
+      ).toHaveBeenCalledWith(
+        {
+          name: "mock_notification",
+        },
+        {}
+      );
+      expect(accordionMapper.mapAccordionState).toHaveBeenCalledTimes(1);
+      expect(accordionMapper.mapAccordionState).toHaveBeenCalledWith(
+        {
+          data: [],
+          status: "succeeded",
+        },
+        undefined
+      );
+
+      expect(nextState).toStrictEqual({
+        accordionState: { name: "mock_accordion" },
+        caseState: { name: "caseState" },
+        documentRefreshData: { savedDocumentDetails: [] },
+        documentsState: {
+          data: [],
+          status: "succeeded",
+        },
+        notificationState: { name: "mock_notification" },
       });
     });
   });
@@ -2281,6 +2397,136 @@ describe("useCaseDetailsState reducer", () => {
             { documentId: "1", clientLockedState: "locked" },
             { documentId: "2", clientLockedState: "unlocking" },
           ],
+        },
+      });
+    });
+  });
+
+  describe("UPDATE_DOCUMENT_REFRESH", () => {
+    it("can update documentRefreshData", () => {
+      const existingState = {
+        documentRefreshData: {
+          startDocumentRefresh: false,
+          savedDocumentDetails: [{ documentId: "1", versionId: 1 }],
+          lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
+        },
+      } as unknown as CombinedState;
+
+      const result = reducer(existingState, {
+        type: "UPDATE_DOCUMENT_REFRESH",
+        payload: {
+          startDocumentRefresh: true,
+          savedDocumentDetails: {
+            documentId: "2",
+            versionId: 1,
+          },
+        },
+      });
+
+      expect(result).toEqual({
+        documentRefreshData: {
+          startDocumentRefresh: true,
+          savedDocumentDetails: [
+            { documentId: "1", versionId: 1 },
+            { documentId: "2", versionId: 1 },
+          ],
+          lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
+        },
+      });
+    });
+    it("can update documentRefreshData if the payload doesn't have savedDocumentDetails ", () => {
+      const existingState = {
+        documentRefreshData: {
+          startDocumentRefresh: false,
+          savedDocumentDetails: [{ documentId: "1", versionId: 1 }],
+          lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
+        },
+      } as unknown as CombinedState;
+
+      const result = reducer(existingState, {
+        type: "UPDATE_DOCUMENT_REFRESH",
+        payload: {
+          startDocumentRefresh: true,
+        },
+      });
+
+      expect(result).toEqual({
+        documentRefreshData: {
+          startDocumentRefresh: true,
+          savedDocumentDetails: [{ documentId: "1", versionId: 1 }],
+          lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
+        },
+      });
+    });
+  });
+
+  describe("UPDATE_PIPELINE_REFRESH", () => {
+    it("can update pipelineRefreshData", () => {
+      const existingState = {
+        pipelineRefreshData: {
+          startPipelineRefresh: false,
+          lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
+          localLastRefreshTime: "2023-04-05T15:02:17.601Z",
+        },
+      } as unknown as CombinedState;
+
+      const result = reducer(existingState, {
+        type: "UPDATE_PIPELINE_REFRESH",
+        payload: {
+          startPipelineRefresh: true,
+        },
+      });
+
+      expect(result).toEqual({
+        pipelineRefreshData: {
+          startPipelineRefresh: true,
+          lastProcessingCompleted: "2023-04-05T15:02:17.601Z",
+          localLastRefreshTime: "2023-04-05T15:02:17.601Z",
+        },
+      });
+    });
+  });
+  describe("UPDATE_CONVERSION_STATUS", () => {
+    it("can update conversion status of already existing document in the localDocumentState", () => {
+      const existingState = {
+        localDocumentState: {
+          "1": { conversionStatus: "DocumentConverted" },
+        },
+      } as unknown as CombinedState;
+
+      const result = reducer(existingState, {
+        type: "UPDATE_CONVERSION_STATUS",
+        payload: {
+          documentId: "1",
+          status: "EncryptionOrPasswordProtection",
+        },
+      });
+
+      expect(result).toEqual({
+        localDocumentState: {
+          "1": { conversionStatus: "EncryptionOrPasswordProtection" },
+        },
+      });
+    });
+    it("can add new documents with conversion status in the localDocumentState", () => {
+      const existingState = {
+        localDocumentState: {
+          "1": { conversionStatus: "DocumentConverted" },
+        },
+      } as unknown as CombinedState;
+
+      const result = reducer(existingState, {
+        type: "UPDATE_CONVERSION_STATUS",
+        payload: {
+          documentId: "2",
+          status: "EncryptionOrPasswordProtection",
+        },
+      });
+
+      expect(result).toEqual({
+        localDocumentState: {
+          "1": { conversionStatus: "DocumentConverted" },
+          "2": { conversionStatus: "EncryptionOrPasswordProtection" },
         },
       });
     });

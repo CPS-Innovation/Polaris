@@ -4,12 +4,6 @@ DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
 echo '==== Update package sources ===='
 sudo apt-get update
 
-echo '==== dotnet 6 ===='
-sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-6.0
-
-echo '==== dotnet 7 ===='
-sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-7.0
-
 echo '==== dotnet 8 ===='
 sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-8.0
 
@@ -101,3 +95,12 @@ sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/chrome-keyring.g
 sudo apt-get update -yq
 sudo apt-get install -y google-chrome-stable
 sudo apt-get clean
+
+wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+
+sudo chmod +x ./dotnet-install.sh
+./dotnet-install.sh --channel 6.0 --quality GA
+./dotnet-install.sh --channel 7.0 --quality GA
+
+echo 'export DOTNET_ROOT=$HOME/.dotnet' >> ~/.bashrc
+echo 'export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools' >> ~/.bashrc

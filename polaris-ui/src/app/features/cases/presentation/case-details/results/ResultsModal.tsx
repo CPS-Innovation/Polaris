@@ -7,6 +7,8 @@ import { Content } from "./Content";
 import { useMandatoryWaitPeriod } from "../../../hooks/useMandatoryWaitPeriod";
 import { CombinedState } from "../../../domain/CombinedState";
 import { PleaseWait } from "./PleaseWait";
+import { TrackerSummary } from "./TrackerSummary";
+import classes from "./ResultsModal.module.scss";
 
 type Props = {
   // This is intentionally narrower than ApiResult<...> as we definitely have
@@ -33,19 +35,20 @@ export const ResultsModal: React.FC<Props> = ({
   handleCloseSearchResults,
   ...restProps
 }) => {
-  //this is just to show the loading percentage only when the first pipeline refresh.
-  const [showLoadingPercentage, setShowLoadingPercentage] = useState(
-    !restProps.pipelineState?.data
-  );
+  const [showLoadingPercentage, setShowLoadingPercentage] = useState(false);
+  const [loadingPercentage, setLoadingPercentage] = useState(0);
 
   const { searchState } = restProps;
-  const percentageCompleted = useMemo(() => {
+  useEffect(() => {
     const docs = restProps.pipelineState.data
       ? restProps.pipelineState.data.documents
       : [];
     const indexedDocs = docs.filter((doc) => doc.status === "Indexed");
-    if (!docs.length) return 0;
-    return Math.round(indexedDocs.length / docs.length) * 100;
+    const percentage = !docs.length
+      ? 0
+      : Math.round((indexedDocs.length / docs.length) * 100);
+
+    setLoadingPercentage(percentage);
   }, [restProps.pipelineState]);
 
   const waitStatus = useMandatoryWaitPeriod(
@@ -61,14 +64,24 @@ export const ResultsModal: React.FC<Props> = ({
       waitStatus !== "wait" &&
       restProps.pipelineState?.data?.status === "Completed"
     ) {
-      setShowLoadingPercentage(false);
+      const timeout = setTimeout(() => {
+        setShowLoadingPercentage(false);
+      }, 500);
+
+      return () => {
+        clearTimeout(timeout);
+      };
     }
-  }, [
-    restProps.pipelineState?.data?.status,
-    showLoadingPercentage,
-    setShowLoadingPercentage,
-    waitStatus,
-  ]);
+    if (
+      waitStatus === "wait" &&
+      !showLoadingPercentage &&
+      restProps.pipelineState?.data &&
+      restProps.pipelineState?.data?.status !== "Completed"
+    ) {
+      setLoadingPercentage(0);
+      setShowLoadingPercentage(true);
+    }
+  }, [restProps.pipelineState?.data, showLoadingPercentage, waitStatus]);
   return (
     <Modal
       isVisible={searchState.isResultsVisible}
@@ -79,10 +92,16 @@ export const ResultsModal: React.FC<Props> = ({
       {waitStatus === "wait" &&
       searchState.submittedSearchTerm !==
         searchState.lastSubmittedSearchTerm ? (
-        <PleaseWait
-          percentageCompleted={percentageCompleted}
-          showLoadingPercentage={showLoadingPercentage}
-        />
+        <div className={classes.loadingContent}>
+          <PleaseWait
+            percentageCompleted={loadingPercentage}
+            showLoadingPercentage={showLoadingPercentage}
+          />
+
+          {showLoadingPercentage && (
+            <TrackerSummary pipelineState={restProps.pipelineState} />
+          )}
+        </div>
       ) : (
         <Content {...restProps} />
       )}

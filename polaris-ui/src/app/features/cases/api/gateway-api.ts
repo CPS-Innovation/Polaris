@@ -3,7 +3,7 @@ import { CaseSearchResult } from "../domain/gateway/CaseSearchResult";
 import { PipelineResults } from "../domain/gateway/PipelineResults";
 import { ApiTextSearchResult } from "../domain/gateway/ApiTextSearchResult";
 import { RedactionSaveRequest } from "../domain/gateway/RedactionSaveRequest";
-import * as HEADERS from "./auth/header-factory";
+
 import { CaseDetails } from "../domain/gateway/CaseDetails";
 import { GATEWAY_BASE_URL, REDACTION_LOG_BASE_URL } from "../../../config";
 import { LOCKED_STATUS_CODE } from "../hooks/utils/refreshUtils";
@@ -31,22 +31,7 @@ import { RotationSaveRequest } from "../domain/IPageRotation";
 import { PresentationDocumentProperties } from "../domain/gateway/PipelineDocument";
 import { OcrData } from "../domain/gateway/OcrData";
 import { artefactPollingHelper } from "./artefact-polling-helper";
-
-const buildHeaders = async (
-  ...args: (
-    | Record<string, string>
-    | (() => Record<string, string>)
-    | (() => Promise<Record<string, string>>)
-  )[]
-) => {
-  let headers = {} as Record<string, string>;
-  for (const arg of args) {
-    const header = typeof arg === "function" ? await arg() : arg; // unwrap if a promise. otherwise all good
-    headers = { ...headers, ...header };
-  }
-
-  return headers;
-};
+import { buildHeaders, buildHeadersRedactionLog } from "./auth/header-factory";
 
 const fullUrl = (path: string, baseUrl: string = GATEWAY_BASE_URL) => {
   const origin = baseUrl?.startsWith("http") ? baseUrl : window.location.origin;
@@ -70,7 +55,7 @@ export const resolvePdfUrl = (
 
 export const lookupUrn = async (caseId: number) => {
   const url = fullUrl(`/api/urn-lookup/${caseId}`);
-  const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
+  const headers = await buildHeaders();
   const response = await fetchImplementation("reauth", url, {
     headers,
   });
@@ -84,7 +69,7 @@ export const lookupUrn = async (caseId: number) => {
 
 export const searchUrn = async (urn: string) => {
   const url = fullUrl(`/api/urns/${urn}/cases`);
-  const headers = await buildHeaders(HEADERS.correlationId, HEADERS.auth);
+  const headers = await buildHeaders();
   const response = await fetchImplementation("reauth", url, {
     headers,
   });
@@ -100,7 +85,7 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
   const url = fullUrl(`/api/urns/${urn}/cases/${caseId}`);
 
   const response = await fetchImplementation("reauth", url, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
   });
 
   if (!response.ok) {
@@ -117,9 +102,8 @@ export const initiatePipeline = async (
 ) => {
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}`);
 
-  const correlationIdHeader = HEADERS.correlationId(correlationId);
   const response = await fetchImplementation("reauth-if-in-situ", path, {
-    headers: await buildHeaders(correlationIdHeader, HEADERS.auth),
+    headers: await buildHeaders(correlationId),
     method: "POST",
   });
 
@@ -131,19 +115,16 @@ export const initiatePipeline = async (
 
   return {
     trackerUrl: fullUrl(trackerUrl),
-    correlationId: Object.values(correlationIdHeader)[0],
+    correlationId,
     status: response.status,
   };
 };
 
 export const getPipelinePdfResults = async (
   trackerUrl: string,
-  existingCorrelationId: string
+  correlationId: string
 ): Promise<false | PipelineResults> => {
-  const headers = await buildHeaders(
-    HEADERS.correlationId(existingCorrelationId),
-    HEADERS.auth
-  );
+  const headers = await buildHeaders(correlationId);
 
   const response = await fetchImplementation("reauth-if-in-situ", trackerUrl, {
     headers,
@@ -158,6 +139,7 @@ export const getPipelinePdfResults = async (
 
   return (await response.json()) as PipelineResults;
 };
+
 export const searchCase = async (
   urn: string,
   caseId: number,
@@ -167,7 +149,7 @@ export const searchCase = async (
     `/api/urns/${urn}/cases/${caseId}/search/?query=${searchTerm}`
   );
   const response = await fetchImplementation("reauth-if-in-situ", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
   });
 
   if (!response.ok) {
@@ -188,7 +170,7 @@ export const checkoutDocument = async (
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", url, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
     method: "POST",
   });
 
@@ -212,7 +194,7 @@ export const cancelCheckoutDocument = async (
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", url, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
     method: "DELETE",
   });
 
@@ -227,14 +209,15 @@ export const saveRedactions = async (
   urn: string,
   caseId: number,
   documentId: string,
+  versionId: number,
   redactionSaveRequest: RedactionSaveRequest
 ) => {
   const url = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/redact`
   );
 
   const response = await fetchImplementation("proactive-reauth", url, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
     method: "PUT",
     body: JSON.stringify(redactionSaveRequest),
   });
@@ -243,18 +226,20 @@ export const saveRedactions = async (
     throw new ApiError("Save redactions failed", url, response);
   }
 };
+
 export const saveRotations = async (
   urn: string,
   caseId: number,
   documentId: string,
+  versionId: number,
   rotationSaveRequest: RotationSaveRequest
 ) => {
   const url = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/modify`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/modify`
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", url, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
     method: "POST",
     body: JSON.stringify(rotationSaveRequest),
   });
@@ -269,10 +254,7 @@ export const saveRedactionLog = async (
 ) => {
   const url = fullUrl(`/api/redactionLogs`, REDACTION_LOG_BASE_URL);
   const response = await fetchImplementation("no-reauth", url, {
-    headers: await buildHeaders(
-      HEADERS.correlationId,
-      HEADERS.authRedactionLog
-    ),
+    headers: await buildHeadersRedactionLog(),
     method: "POST",
     body: JSON.stringify(redactionLogRequestData),
   });
@@ -284,12 +266,9 @@ export const saveRedactionLog = async (
 
 export const getRedactionLogLookUpsData = async () => {
   const url = fullUrl("/api/lookUps", REDACTION_LOG_BASE_URL);
-  const headers = await buildHeaders(
-    HEADERS.correlationId,
-    HEADERS.authRedactionLog
-  );
+
   const response = await fetchImplementation("no-reauth", url, {
-    headers,
+    headers: await buildHeadersRedactionLog(),
   });
   if (!response.ok) {
     throw new ApiError("Get Redaction Log data failed", url, response);
@@ -299,12 +278,9 @@ export const getRedactionLogLookUpsData = async () => {
 
 export const getRedactionLogMappingData = async () => {
   const url = fullUrl("/api/polarisMappings", REDACTION_LOG_BASE_URL);
-  const headers = await buildHeaders(
-    HEADERS.correlationId,
-    HEADERS.authRedactionLog
-  );
+
   const response = await fetchImplementation("no-reauth", url, {
-    headers,
+    headers: await buildHeadersRedactionLog(),
   });
 
   if (!response.ok) {
@@ -323,7 +299,7 @@ export const getNotesData = async (
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
   });
 
   if (!response.ok) {
@@ -344,7 +320,7 @@ export const addNoteData = async (
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
     method: "POST",
     body: JSON.stringify({ text: text }),
   });
@@ -367,7 +343,7 @@ export const saveDocumentRename = async (
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
     method: "PUT",
     body: JSON.stringify({ documentName }),
   });
@@ -392,7 +368,7 @@ export const getOcrData = async (
   return artefactPollingHelper<OcrData>(
     async (url: string) =>
       fetchImplementation("reauth-if-in-situ", url, {
-        headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+        headers: await buildHeaders(),
       }),
     path
   );
@@ -411,7 +387,7 @@ export const getSearchPIIData = async (
   return artefactPollingHelper<SearchPIIResultItem[]>(
     async (url: string) =>
       fetchImplementation("reauth-if-in-situ", url, {
-        headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+        headers: await buildHeaders(),
       }),
     path
   );
@@ -421,7 +397,7 @@ export const getMaterialTypeList = async () => {
   const path = fullUrl(`/api/reference/reclassification`);
 
   const response = await fetchImplementation("no-reauth", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
   });
 
   if (!response.ok) {
@@ -435,7 +411,7 @@ export const getExhibitProducers = async (urn: string, caseId: number) => {
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/exhibit-producers`);
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
   });
 
   if (!response.ok) {
@@ -452,7 +428,7 @@ export const getStatementWitnessDetails = async (
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/witnesses`);
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
   });
 
   if (!response.ok) {
@@ -472,7 +448,7 @@ export const getWitnessStatementNumbers = async (
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
   });
 
   if (!response.ok) {
@@ -493,7 +469,7 @@ export const saveDocumentReclassify = async (
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -505,7 +481,7 @@ export const getDocumentsList = async (urn: string, caseId: number) => {
   const path = fullUrl(`/api/urns/${urn}/cases/${caseId}/documents`);
 
   const response = await fetchImplementation("reauth", path, {
-    headers: await buildHeaders(HEADERS.correlationId, HEADERS.auth),
+    headers: await buildHeaders(),
   });
 
   if (!response.ok) {

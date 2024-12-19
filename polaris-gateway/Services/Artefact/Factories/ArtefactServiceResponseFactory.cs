@@ -12,17 +12,17 @@ public class ArtefactServiceResponseFactory : IArtefactServiceResponseFactory
         return new ArtefactResult<T>
         {
             Status = ResultStatus.ArtefactAvailable,
-            Result = result,
+            Artefact = result,
             IsFromStorage = isFromStorage,
         };
     }
 
-    public ArtefactResult<T> CreateInterimResult<T>(T result)
+    public ArtefactResult<T> CreateInterimResult<T>(Guid continuationToken)
     {
         return new ArtefactResult<T>
         {
             Status = ResultStatus.PollWithToken,
-            Result = result,
+            ContinuationToken = continuationToken,
         };
     }
 
@@ -31,7 +31,18 @@ public class ArtefactServiceResponseFactory : IArtefactServiceResponseFactory
         return new ArtefactResult<T>
         {
             Status = ResultStatus.Failed,
-            PdfConversionStatus = pdfConversionStatus,
+            FailedStatus = pdfConversionStatus,
+        };
+    }
+
+    public ArtefactResult<U> ConvertNonOkResult<T, U>(ArtefactResult<T> result)
+    {
+        return new ArtefactResult<U>
+        {
+            Status = result.Status,
+            ContinuationToken = result.ContinuationToken,
+            FailedStatus = result.FailedStatus,
+            IsFromStorage = result.IsFromStorage,
         };
     }
 }

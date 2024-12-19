@@ -124,7 +124,6 @@ namespace Ddei.Factories.Contracts
         {
             var content = JsonSerializer.Serialize(new AddDocumentNoteDto
             {
-                DocumentId = arg.DocumentId,
                 Text = arg.Text
             });
             var request = new HttpRequestMessage(HttpMethod.Post, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/notes");
@@ -137,7 +136,6 @@ namespace Ddei.Factories.Contracts
         {
             var content = JsonSerializer.Serialize(new RenameDocumentDto
             {
-                DocumentId = arg.DocumentId.ToString(),
                 DocumentName = arg.DocumentName
             });
             var request = new HttpRequestMessage(HttpMethod.Put, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/rename");

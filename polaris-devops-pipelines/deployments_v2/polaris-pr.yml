@@ -26,8 +26,20 @@ variables:
     value: "$(System.DefaultWorkingDirectory)/polaris-terraform/search-index-terraform"
     
 stages:
+  - stage: Wait_For_Running_PRs
+    displayName: Wait for running PRs
+    jobs:
+      - job:
+        pool:
+          name: $(dev-build-agent)
+        steps:
+          - template: stages/jobs/tasks/task_wait-for-running-releases.yml
+            parameters:
+              devOpsPatToken: $(System.AccessToken)
+      
   - stage: Determine_Changes
     displayName: Determine Changes
+    dependsOn: Wait_For_Running_PRs
     jobs:
       - job: Generate_Diff
         pool:
@@ -295,7 +307,12 @@ stages:
               projects: "polaris-gateway/polaris-gateway.csproj"
               arguments: "--configuration $(buildConfiguration)"
             displayName: "Build Gateway"
-            
+        
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: 'echo $PATH'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: "test"

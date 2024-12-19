@@ -917,8 +917,18 @@ describe("Case Details Search", () => {
       });
     });
 
-    it("Should show the loading percentage only on the first pipeline refresh call", () => {
+    it("Should show the loading percentage and the tracker summary if the pipeline refresh tracker is called more than once during the search", () => {
       cy.visit("/case-details/12AB1111111/13401");
+      const pipelineDocuments = pipelinePdfResults()[0];
+      cy.overrideRoute(TRACKER_ROUTE, {
+        type: "break",
+        timeMs: 300,
+        httpStatusCode: 200,
+        body: JSON.stringify({
+          ...pipelineDocuments,
+          status: "DocumentsRetrieved",
+        }),
+      });
       cy.findByTestId("input-search-case").type("a");
       cy.findByTestId("btn-search-case").click();
       cy.findByTestId("loading-percentage").should("exist");
@@ -931,6 +941,18 @@ describe("Case Details Search", () => {
           .findByTestId("loading-percentage")
           .should("contain.text", "Loading... 100%");
       });
+      cy.findByTestId("div-modal").should(
+        "contain.text",
+        "Total documents: 11"
+      );
+      cy.findByTestId("div-modal").should(
+        "contain.text",
+        "Documents ready to read: 11"
+      );
+      cy.findByTestId("div-modal").should(
+        "contain.text",
+        "Documents indexed: 11"
+      );
       cy.findByTestId("input-results-search-case").type("d");
       cy.findByTestId("btn-results-search-case").click();
       cy.findByTestId("loading-percentage").should("not.exist");

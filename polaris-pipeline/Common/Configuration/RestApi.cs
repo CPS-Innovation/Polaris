@@ -13,10 +13,9 @@
         public const string CaseWitnesses = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses";
         public const string WitnessStatements = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
         public const string Documents = "urns/{caseUrn}/cases/{caseId:min(1)}/documents";
-        public const string Document = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}";
         public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
-        public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/redact";
-        public const string ModifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/modify";
+        public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/redact";
+        public const string ModifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/modify";
         public const string RenameDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/rename";
         public const string ReclassifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/reclassify";
         public const string Pdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/pdf";
@@ -27,7 +26,6 @@
         // Internal Pipeline
         public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";
         public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/convert-to-pdf";
-        public const string RedactPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/redact-pdf";
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
         public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/document-index-count";
@@ -52,9 +50,9 @@
             return $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";
         }
 
-        public static string GetRedactDocumentPath(string caseUrn, int caseId, string documentId)
+        public static string GetRedactDocumentPath(string caseUrn, int caseId, string documentId, long versionId)
         {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact";
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/redact";
         }
 
         public static string GetConvertToPdfPath(string caseUrn, int caseId, string documentId, long versionId)
@@ -77,9 +75,9 @@
             return $"urns/{caseUrn}/cases/{caseId}/search";
         }
 
-        public static string GetRedactPdfPath(string caseUrn, int caseId, string documentId)
+        public static string GetRedactPdfPath(string caseUrn, int caseId, string documentId, long versionId)
         {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/redact-pdf";
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/redact";
         }
 
         public static string GetCaseIndexCountResultsPath(string caseUrn, int caseId)
@@ -92,9 +90,9 @@
             return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/document-index-count";
         }
 
-        public static string GetModifyDocumentPath(string caseUrn, int caseId, string documentId)
+        public static string GetModifyDocumentPath(string caseUrn, int caseId, string documentId, long versionId)
         {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/modify";
+            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/modify";
         }
 
         public static string CaseSearchCountPath(string caseUrn, int caseId)

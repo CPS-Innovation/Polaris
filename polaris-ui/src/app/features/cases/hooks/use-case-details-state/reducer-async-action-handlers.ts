@@ -21,12 +21,12 @@ import {
   mapSearchPIISaveRedactionObject,
 } from "./map-redaction-save-request";
 import { reducer } from "./reducer";
-import * as HEADERS from "../../api/auth/header-factory";
 import { ApiError } from "../../../../common/errors/ApiError";
 import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
 import { addToLocalStorage } from "../../presentation/case-details/utils/localStorageUtils";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
+import { buildHeaders } from "../../api/auth/header-factory";
 
 const LOCKED_STATES_REQUIRING_UNLOCK: CaseDocumentViewModel["clientLockedState"][] =
   ["locked", "locking"];
@@ -153,10 +153,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, mode },
       } = action;
 
-      const headers = {
-        ...HEADERS.correlationId(),
-        ...(await HEADERS.auth()),
-      };
+      const headers = await buildHeaders();
 
       dispatch({
         type: "OPEN_PDF",
@@ -463,7 +460,13 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             savedRedactionTypes: savedRedactionTypes,
           },
         });
-        await saveRedactions(urn, caseId, documentId, redactionSaveRequest);
+        await saveRedactions(
+          urn,
+          caseId,
+          documentId,
+          versionId,
+          redactionSaveRequest
+        );
         dispatch({
           type: "SAVING_DOCUMENT",
           payload: {
@@ -857,7 +860,13 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             saveStatus: { type: "rotation", status: "saving" },
           },
         });
-        await saveRotations(urn, caseId, documentId, rotationRequestData);
+        await saveRotations(
+          urn,
+          caseId,
+          documentId,
+          versionId,
+          rotationRequestData
+        );
         dispatch({
           type: "SAVING_DOCUMENT",
           payload: {

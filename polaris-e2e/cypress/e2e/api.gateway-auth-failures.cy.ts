@@ -66,6 +66,7 @@ const getRoutesToTest = (
       HAPPY_PATH_URN,
       HAPPY_PATH_CASE_ID,
       HAPPY_PATH_DOCUMENT_ID,
+      versionId,
       correlationId
     ),
   ];

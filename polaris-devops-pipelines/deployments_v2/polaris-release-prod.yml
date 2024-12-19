@@ -169,10 +169,10 @@ stages:
                     armSubscriptionId: $(subscriptionId)
                     logRetentionTime: $(log-retention-time)
                     totalLogRetentionTime: $(total-log-retention-time)
-
+                    
       - deployment: Apply_Index_Terraform
         condition: succeeded()
-        dependsOn: Log_Start_Terraform
+        dependsOn: Set_Log_Analytics_Archival_Periods
         displayName: Apply Index Terraform
         environment: "Prod"
         workspace:
@@ -268,7 +268,7 @@ stages:
       targetBuild: PolarisBuild
       targetLabel: "PROD"
       appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
-      buildDefinitionId: 240
+      buildDefinitionId: 590
       stageDependsOn: Update_GitHub_Tag
 
   - stage: Send_Success_Report

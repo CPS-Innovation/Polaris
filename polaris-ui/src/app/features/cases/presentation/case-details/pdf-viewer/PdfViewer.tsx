@@ -263,7 +263,7 @@ export const PdfViewer: React.FC<Props> = ({
   };
 
   const handlePdfLoaderError = (error: any) => {
-    console.log("error>>>", error);
+    if (!error?.status) return;
     let status: GroupedConversionStatus = "OtherReasons";
     if (error.status === 403) status = "EncryptionOrPasswordProtection";
     if (error.status === 415) status = "UnsupportedFileTypeOrContent";
