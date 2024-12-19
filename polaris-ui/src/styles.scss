@@ -1,6 +1,24 @@
+@font-face {
+  font-family: "NewTransport";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/NewTransport-RegularWEB.woff") format("woff"),
+    url("./fonts/NewTransport-RegularWEB.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "NewTransport";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("./fonts/NewTransport-BoldWEB.woff") format("woff"),
+    url("./fonts/NewTransport-BoldWEB.woff2") format("woff2");
+}
+
 $govuk-assets-path: "~govuk-frontend/govuk/assets/";
 
-$govuk-font-family: "Helvetica", "Arial", sans-serif;
+$govuk-font-family: "NewTransport", "Arial", sans-serif;
 
 @import "~govuk-frontend/govuk/all";
 
