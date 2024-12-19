@@ -54,7 +54,6 @@ export const Routes: FC = () => {
         <Route path={caseSearchPath}>
           <Layout>
             <Helmet>
-              {" "}
               <title>Casework App case search page</title>
             </Helmet>
             <CaseSearch />

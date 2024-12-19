@@ -23,7 +23,7 @@ type Props = {
     documentId: string,
     documentCategory: string,
     presentationTitle: string,
-    type: "notes" | "rename",
+    type: "notes" | "rename" | "change",
     documentType: string,
     classification: Classification
   ) => void;
@@ -32,6 +32,7 @@ type Props = {
   ) => void;
   handleGetNotes: (documentId: string) => void;
   handleReclassifyDocument: (documentId: string) => void;
+  handleChangeUseDocument: (documentId: string) => void;
   notesData: NotesData[];
 };
 export type AccordionRef = {
@@ -98,6 +99,10 @@ export const Accordion = forwardRef<AccordionRef, Props>(
       }
     };
 
+    const handleChangeUseDocument = (id: string) => {
+      alert('4');
+    }
+
     useImperativeHandle(ref, () => ({
       handleOpenAccordion,
     }));
@@ -123,6 +128,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
             handleOpenPanel={handleOpenPanel}
             handleGetNotes={handleGetNotes}
             handleReclassifyDocument={handleReclassifyDocument}
+            handleChangeUseDocument={handleChangeUseDocument}
             notesData={notesData}
           />
         ))}

@@ -48,6 +48,7 @@ type Props = {
     classification: Classification
   ) => void;
   handleReclassifyDocument: (documentId: string) => void;
+  handleChangeUseDocument: (documentId: string) => void;
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
 };
@@ -62,6 +63,7 @@ export const AccordionDocument: React.FC<Props> = ({
   handleOpenPanel,
   handleGetNotes,
   handleReclassifyDocument,
+  handleChangeUseDocument,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
 
@@ -123,9 +125,8 @@ export const AccordionDocument: React.FC<Props> = ({
         : `${notes[notes.length - 1].text}`;
     }
     return ariaLiveText
-      ? `recent note text is ${notes[notes.length - 1].text}, and ${
-          notes.length - 1
-        } more`
+      ? `recent note text is ${notes[notes.length - 1].text}, and ${notes.length - 1
+      } more`
       : `${notes[notes.length - 1].text} (+${notes.length - 1} more)`;
   };
 
@@ -162,7 +163,23 @@ export const AccordionDocument: React.FC<Props> = ({
       ];
     }
 
-    return items;
+    // check when this value should be available
+    if (
+      (featureFlags.renameDocument &&
+        caseDocument.canRename) ||
+      (featureFlags.reclassify &&
+        caseDocument.canReclassify
+      ) && caseDocument.presentationFlags.write !== "IsDispatched") {
+      const usedFlag = !false ? 'used' : 'unused';
+      const itemsArray = [...items, {
+        id: '3',
+        label: 'Mark as used',
+        ariaLabel: `Mark as ${usedFlag}`,
+        disabled: false
+      }]
+
+      return itemsArray
+    }
   }, [
     caseDocument.canReclassify,
     caseDocument.canRename,
@@ -352,7 +369,7 @@ export const AccordionDocument: React.FC<Props> = ({
             )}
           </div>
 
-          {!!dropDownItems.length && (
+          {dropDownItems && (
             <DropdownButton
               name=""
               dropDownItems={dropDownItems}
@@ -396,8 +413,8 @@ export const AccordionDocument: React.FC<Props> = ({
             Document only available on CMS
             {caseDocument.conversionStatus !== "DocumentConverted"
               ? `: ${mapConversionStatusToMessage(
-                  caseDocument.conversionStatus
-                )}`
+                caseDocument.conversionStatus
+              )}`
               : ""}
           </span>
         )}

@@ -16,6 +16,7 @@ import {
   PRIVATE_BETA_FEATURE_USER_GROUP3,
   PRIVATE_BETA_FEATURE_USER_GROUP4,
   FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
+  // USED_FLAG_RECLASSIFY
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
 import {
@@ -78,6 +79,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     pageDelete,
     pageRotate,
     notifications,
+    // used
   } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
