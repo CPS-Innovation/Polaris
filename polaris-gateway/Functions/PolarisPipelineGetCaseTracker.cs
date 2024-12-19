@@ -1,56 +1,42 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using PolarisGateway.Clients.Coordinator;
-using PolarisGateway.Handlers;
+using Microsoft.Azure.Functions.Worker;
+using System.Threading.Tasks;
+using PolarisGateway.Extensions;
+using Common.Telemetry;
 
-namespace PolarisGateway.Functions
+namespace PolarisGateway.Functions;
+
+public class PolarisPipelineGetCaseTracker : BaseFunction
 {
-    public class PolarisPipelineGetCaseTracker
+    private readonly ILogger<PolarisPipelineGetCaseTracker> _logger;
+    private readonly ICoordinatorClient _coordinatorClient;
+    private readonly ITelemetryClient _telemetryClient;
+
+    public PolarisPipelineGetCaseTracker(
+        ILogger<PolarisPipelineGetCaseTracker> logger,
+        ICoordinatorClient coordinatorClient,
+        ITelemetryClient telemetryClient)
+        : base(telemetryClient)
     {
-        private readonly ILogger<PolarisPipelineGetCaseTracker> _logger;
-        private readonly ICoordinatorClient _coordinatorClient;
-        private readonly IInitializationHandler _initializationHandler;
-        private readonly IUnhandledExceptionHandler _unhandledExceptionHandler;
+        _logger = logger;
+        _coordinatorClient = coordinatorClient;
+        _telemetryClient = telemetryClient;
+    }
 
-        public PolarisPipelineGetCaseTracker(
-            ILogger<PolarisPipelineGetCaseTracker> logger,
-            ICoordinatorClient coordinatorClient,
-            IInitializationHandler initializationHandler,
-            IUnhandledExceptionHandler unhandledExceptionHandler)
-        {
-            _logger = logger;
-            _coordinatorClient = coordinatorClient;
-            _initializationHandler = initializationHandler;
-            _unhandledExceptionHandler = unhandledExceptionHandler;
-        }
+    [Function(nameof(PolarisPipelineGetCaseTracker))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req, string caseUrn, int caseId)
+    {
+        var correlationId = EstablishCorrelation(req);
 
-        [FunctionName(nameof(PolarisPipelineGetCaseTracker))]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req, string caseUrn, int caseId)
-        {
-            (Guid CorrelationId, string CmsAuthValues) context = default;
-            try
-            {
-                context = await _initializationHandler.Initialize(req);
-                return await _coordinatorClient.GetTrackerAsync(
-                    caseUrn,
-                    caseId,
-                    context.CorrelationId);
-            }
-            catch (Exception ex)
-            {
-                return _unhandledExceptionHandler.HandleUnhandledException(
-                  _logger,
-                  nameof(PolarisPipelineGetCaseTracker),
-                  context.CorrelationId,
-                  ex
-                );
-            }
-        }
+        return await (await _coordinatorClient.GetTrackerAsync(
+                caseUrn,
+                caseId,
+                correlationId))
+            .ToActionResult();
     }
 }
-

@@ -1,59 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <AzureFunctionsVersion>v4</AzureFunctionsVersion>
-    <RootNamespace>PolarisGateway</RootNamespace>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-    <InformationalVersion Condition=" '$(BUILD_BUILDNUMBER)' == '' ">dev</InformationalVersion>
-    <InformationalVersion Condition=" '$(BUILD_BUILDNUMBER)' != '' ">$(BUILD_BUILDNUMBER)</InformationalVersion>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-  </PropertyGroup>
-  <PropertyGroup>
-    <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Update="local.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>local.settings.json</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Functions\PolarisPipeline\" />
-    <None Remove="Wrappers\" />
-    <None Remove="Azure.Storage.Blobs" />
-    <None Remove="Microsoft.Extensions.Azure" />
-    <None Remove="Functions\DocumentExtraction\" />
-    <None Remove="Mappers\" />
-    <None Remove="Azure.Search.Documents" />
-    <None Remove="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" />
-    <None Remove="Microsoft.Azure.Core.NewtonsoftJson" />
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.29" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.3.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.66.1" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="6.35.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.35.0" />
-    <None Update="authorization.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Polly.Contrib.WaitAndRetry" Version="1.1.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="host.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<AzureFunctionsVersion>v4</AzureFunctionsVersion>
+		<RootNamespace>PolarisGateway</RootNamespace>
+		<OutputType>Exe</OutputType>
+	</PropertyGroup>
+	<PropertyGroup>
+		<_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.24.0" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.2.1" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.OpenApi" Version="1.5.1" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.2" />
+		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="6.0.29" />
+		<PackageReference Include="Microsoft.Identity.Client" Version="4.66.2" />
+		<PackageReference Include="Microsoft.IdentityModel.Protocols" Version="8.2.1" />
+		<PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.2.1" />
+		<None Update="authorization.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<PackageReference Include="Polly.Contrib.WaitAndRetry" Version="1.1.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Update="host.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 
-    <None Update="local.settings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-      <Generator></Generator>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
-    <ProjectReference Include="..\polaris-pipeline\DdeiClient\DdeiClient.csproj" />
-  </ItemGroup>
+		<None Update="local.settings.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
+		<ProjectReference Include="..\polaris-pipeline\DdeiClient\DdeiClient.csproj" />
+	</ItemGroup>
 </Project>

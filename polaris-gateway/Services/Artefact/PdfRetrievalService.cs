@@ -5,6 +5,9 @@ using Common.Services.RenderHtmlService;
 using Ddei;
 using Ddei.Factories;
 using PolarisGateway.Services.Artefact.Domain;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.Artefact;
 

@@ -1,4 +1,6 @@
 using Common.Services.BlobStorage;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.Artefact
 {

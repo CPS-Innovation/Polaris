@@ -31,7 +31,6 @@ using System.Net.Http;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
 using System.Net;
-
 using PdfGenerator = Common.Clients.PdfGenerator;
 using TextExtractor = coordinator.Clients.TextExtractor;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
