@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { LinkButton } from "../../../../../common/presentation/components";
 import { ReactComponent as RotateIcon } from "../../../../../common/presentation/svgs/rotateIcon.svg";
 import { ReactComponent as PageIcon } from "../../../../../common/presentation/svgs/pageIcon.svg";
@@ -28,6 +28,20 @@ export const RotatePage: React.FC<RotatePageProps> = ({
   const pageRotateData = useMemo(() => {
     return pageRotations.find((rotation) => rotation.pageNumber === pageNumber);
   }, [pageRotations, pageNumber]);
+
+  //adding/removing any anchor links in the unsaved deleted page as tabbable, for accessibility
+  useEffect(() => {
+    const pages = document.querySelectorAll(".page");
+    const links = pages[pageNumber - 1]?.querySelectorAll("a");
+
+    links.forEach((link) => {
+      if (pageRotateData) {
+        link.setAttribute("tabindex", "-1");
+        return;
+      }
+      link.setAttribute("tabindex", "0");
+    });
+  }, [pageRotateData, pageNumber]);
 
   const handleRotateBtnClick = () => {
     handleAddPageRotation(documentId, [{ pageNumber, rotationAngle: 0 }]);
@@ -79,8 +93,53 @@ export const RotatePage: React.FC<RotatePageProps> = ({
     }
   };
 
+  // this is to bring the rotate page buttons in view for a11y
+  const handleKeyUp = (event: KeyboardEvent): void => {
+    const focusedElement = document.activeElement as HTMLElement;
+    if (focusedElement && focusedElement.tagName === "BUTTON") {
+      focusedElement.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "center",
+      });
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
   return (
     <div>
+      <div aria-live="polite" className={classes.visuallyHidden}>
+        {pageRotateData && (
+          <span>
+            {`Page ${pageNumber} selected for rotation. Click rotate page left or rotate page right button to rotate the page.`}
+          </span>
+        )}
+
+        {!pageRotateData && (
+          <span>{`Page ${pageNumber} unselected for rotation.`}</span>
+        )}
+      </div>
+
+      <div aria-live="polite" className={classes.visuallyHidden}>
+        {pageRotateData && (
+          <>
+            <span>
+              {`Current page ${pageNumber} rotation is ${pageRotateData.rotationAngle} degree`}
+            </span>
+            <span>
+              {pageRotateData.rotationAngle !== 0
+                ? `Click save all rotations button to submit changes to CMS`
+                : ""}
+            </span>
+          </>
+        )}
+      </div>
       {
         <div className={classes.buttonWrapper}>
           <div className={classes.content}>
@@ -97,6 +156,7 @@ export const RotatePage: React.FC<RotatePageProps> = ({
             </div>
             {pageRotateData && (
               <LinkButton
+                ariaLabel={`cancel page ${pageNumber} rotation`}
                 className={classes.cancelBtn}
                 onClick={handleCancelBtnClick}
                 data-pageNumber={pageNumber}
@@ -107,6 +167,7 @@ export const RotatePage: React.FC<RotatePageProps> = ({
             )}
             {!pageRotateData && (
               <LinkButton
+                ariaLabel={`rotate page ${pageNumber} out of ${totalPages} pages`}
                 className={classes.rotateBtn}
                 onClick={handleRotateBtnClick}
                 data-pageNumber={pageNumber}
@@ -131,6 +192,7 @@ export const RotatePage: React.FC<RotatePageProps> = ({
           >
             <div className={classes.rotateControlWrapper}>
               <LinkButton
+                ariaLabel={`rotate page ${pageNumber} left`}
                 className={classes.rotateLeftBtn}
                 onClick={handleRotateLeft}
                 data-pageNumber={pageNumber}
@@ -148,6 +210,7 @@ export const RotatePage: React.FC<RotatePageProps> = ({
                 }}
               />
               <LinkButton
+                ariaLabel={`rotate page ${pageNumber} right`}
                 className={classes.rotateRightBtn}
                 onClick={handleRotateRight}
                 data-pageNumber={pageNumber}
@@ -162,7 +225,7 @@ export const RotatePage: React.FC<RotatePageProps> = ({
             <p className={classes.overlayMainText}>
               {`Rotate page ${pageRotateData?.rotationAngle}°`}
             </p>
-            {pageRotateData?.rotationAngle && (
+            {!!pageRotateData?.rotationAngle && (
               <p
                 className={classes.overlaySubText}
                 data-testid="rotation-overlay-save-content"
@@ -171,6 +234,7 @@ export const RotatePage: React.FC<RotatePageProps> = ({
               </p>
             )}
             <LinkButton
+              ariaLabel={`cancel page ${pageNumber} rotation`}
               className={classes.cancelBtn}
               onClick={handleCancelBtnClick}
               data-pageNumber={pageNumber}

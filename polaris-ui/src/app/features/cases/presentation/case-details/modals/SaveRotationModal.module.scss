@@ -3,3 +3,52 @@
   max-width: 37.5rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.5);
 }
+.visuallyHidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+.savedBanner,
+.savingBanner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  font-size: 1.1875rem;
+  font-weight: bold;
+}
+.savingBanner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 4.625rem;
+  background-color: #1d70b8;
+  padding-left: 1.5rem;
+}
+.savedBanner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 4.625rem;
+  background-color: #00703c;
+  overflow: hidden;
+  animation: reduceHeight 0.5s forwards;
+  animation-delay: 3s;
+  padding-left: 1.5rem;
+}
+.greyColor {
+  color: #505a5f;
+}
+.bannerText {
+  margin-left: 1rem;
+  font-size: 1.1875rem;
+  margin-right: 3rem;
+}
+.whiteTickIcon {
+  width: 2.25rem;
+  fill: #fff;
+}
