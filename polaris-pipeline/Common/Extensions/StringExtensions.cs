@@ -13,13 +13,13 @@ public static partial class StringExtensions
             return 0;
         }
 
-        var viaUidPattern = new Regex(@"UID=(?<uid>-?\d+)");
+        var viaUidPattern = new Regex(@"UID=(?<uid>-?\d+)", RegexOptions.None, TimeSpan.FromMilliseconds(100));
         if (int.TryParse(viaUidPattern.Match(cookieString).Groups["uid"].Value, out var userId))
         {
             return userId;
         }
 
-        var viaFallbackPattern = new Regex(@"CMSUSER(\d+)");
+        var viaFallbackPattern = new Regex(@"CMSUSER(\d+)", RegexOptions.None, TimeSpan.FromMilliseconds(100));
         if (int.TryParse(viaFallbackPattern.Match(cookieString).Groups[1].Value, out var userIdViaFallback))
         {
             return userIdViaFallback;
