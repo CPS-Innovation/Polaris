@@ -1,11 +1,11 @@
 import { redactionRequestAssertionValidator } from "../utils/redactionAssuranceUtils";
-import { TRACKER_ROUTE } from "../../src/mock-api/routes";
-import { getPipelinePdfResults } from "../../src/mock-api/data/pipelinePdfResults.cypress";
+import { GET_DOCUMENTS_LIST_ROUTE } from "../../src/mock-api/routes";
+import { getDocumentsListResult } from "../../src/mock-api/data/getDocumentsList.cypress";
 describe("Feature Delete Page", () => {
   beforeEach(() => {
-    const trackerResults = getPipelinePdfResults(1);
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: trackerResults[0],
+    const documentList = getDocumentsListResult(1);
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
     });
   });
   it("Should show page delete button and page number correctly in each page", () => {

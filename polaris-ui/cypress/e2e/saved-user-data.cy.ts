@@ -1,12 +1,12 @@
-import { TRACKER_ROUTE } from "../../src/mock-api/routes";
 import { redactionRequestAssertionValidator } from "../utils/redactionAssuranceUtils";
-import { getPipelinePdfResults } from "../../src/mock-api/data/pipelinePdfResults.cypress";
+import { GET_DOCUMENTS_LIST_ROUTE } from "../../src/mock-api/routes";
+import { getDocumentsListResult } from "../../src/mock-api/data/getDocumentsList.cypress";
 describe("Save User Data", () => {
   describe("Read/Unread Documents", () => {
     beforeEach(() => {
-      const trackerResults = getPipelinePdfResults(1);
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[0],
+      const documentList = getDocumentsListResult(1);
+      cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+        body: documentList[0],
       });
     });
     it("Should identify the document as read if the user has opened the document and should persist that state when user comes back and clear it if we clear local storage", () => {
@@ -79,9 +79,9 @@ describe("Save User Data", () => {
 
   describe("unsaved redactions", () => {
     beforeEach(() => {
-      const trackerResults = getPipelinePdfResults(1);
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[0],
+      const documentList = getDocumentsListResult(1);
+      cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+        body: documentList[0],
       });
     });
     it("Should be able to apply and ignore unsaved redaction data if the user chose to refresh the page or close the document tab in the middle of redaction", () => {
@@ -317,9 +317,10 @@ describe("Save User Data", () => {
         "POST",
         /\/api\/urns\/12AB1111111\/cases\/13401\/documents\/1\/versions\/(\d+)\/checkout/
       );
-      const trackerResults = getPipelinePdfResults(2);
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[0],
+
+      const documentList = getDocumentsListResult(2);
+      cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+        body: documentList[0],
       });
 
       cy.visit("/case-details/12AB1111111/13401");
@@ -345,8 +346,8 @@ describe("Save User Data", () => {
       cy.window().then(() => {
         expect(doc1CheckoutCounter.count).to.equal(1);
       });
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[0],
+      cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+        body: documentList[0],
       });
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -401,8 +402,8 @@ describe("Save User Data", () => {
       cy.window().then(() => {
         expect(doc1CheckoutCounter.count).to.equal(3);
       });
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[1],
+      cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+        body: documentList[1],
       });
       cy.findByTestId("btn-save-redaction-0").click();
       //assertion on the redaction save request

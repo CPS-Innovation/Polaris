@@ -5,6 +5,7 @@ import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseD
 import { PdfTab } from "./PdfTab";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
+import { LocalDocumentState } from "../../../domain/LocalDocumentState";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
 
 type PdfTabsProps = {
@@ -21,9 +22,9 @@ type PdfTabsProps = {
   }[];
   featureFlags: FeatureFlagData;
   caseId: number;
-  isOkToSave: boolean;
   showOverRedactionLog: boolean;
   searchPIIData: SearchPIIData[];
+  localDocumentState: LocalDocumentState;
   handleOpenPdf: (caseDocument: {
     documentId: string;
     mode: "read" | "search";
@@ -47,6 +48,7 @@ type PdfTabsProps = {
   handleRemovePageRotation: CaseDetailsState["handleRemovePageRotation"];
   handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
   handleSaveRotations: CaseDetailsState["handleSaveRotations"];
+  handleUpdateConversionStatus: CaseDetailsState["handleUpdateConversionStatus"];
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
@@ -57,8 +59,8 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   savedDocumentDetails,
   showOverRedactionLog,
   searchPIIData,
+  localDocumentState,
   handleTabSelection,
-  isOkToSave,
   handleOpenPdf,
   handleClosePdf,
   handleLaunchSearchResults,
@@ -78,6 +80,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleRemovePageRotation,
   handleRemoveAllRotations,
   handleSaveRotations,
+  handleUpdateConversionStatus,
 }) => {
   const localHandleClosePdf = useCallback(
     (documentId: string, versionId: number) => {
@@ -116,7 +119,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               savedDocumentDetails={savedDocumentDetails}
               documentWriteStatus={item.presentationFlags.write}
               headers={headers}
-              isOkToSave={isOkToSave}
+              localDocumentState={localDocumentState}
               handleOpenPdf={handleOpenPdf}
               handleLaunchSearchResults={handleLaunchSearchResults}
               handleAddRedaction={handleAddRedaction}
@@ -142,6 +145,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               versionId={item.versionId}
               handleRemoveAllRotations={handleRemoveAllRotations}
               handleSaveRotations={handleSaveRotations}
+              handleUpdateConversionStatus={handleUpdateConversionStatus}
             />
           ),
         },

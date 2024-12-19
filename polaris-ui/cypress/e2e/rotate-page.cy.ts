@@ -1,10 +1,13 @@
-import { SAVE_ROTATION_ROUTE, TRACKER_ROUTE } from "../../src/mock-api/routes";
-import { getPipelinePdfResults } from "../../src/mock-api/data/pipelinePdfResults.cypress";
+import {
+  SAVE_ROTATION_ROUTE,
+  GET_DOCUMENTS_LIST_ROUTE,
+} from "../../src/mock-api/routes";
+import { getDocumentsListResult } from "../../src/mock-api/data/getDocumentsList.cypress";
 describe("Feature Rotate Page", () => {
   beforeEach(() => {
-    const trackerResults = getPipelinePdfResults(1);
-    cy.overrideRoute(TRACKER_ROUTE, {
-      body: trackerResults[0],
+    const documentList = getDocumentsListResult(1);
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
     });
   });
   it("Should be able to turn off/on the rotate page feature", () => {

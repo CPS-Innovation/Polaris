@@ -1,6 +1,6 @@
 import { redactionRequestAssertionValidator } from "../utils/redactionAssuranceUtils";
-import { TRACKER_ROUTE } from "../../src/mock-api/routes";
-import { getPipelinePdfResults } from "../../src/mock-api/data/pipelinePdfResults.cypress";
+import { GET_DOCUMENTS_LIST_ROUTE } from "../../src/mock-api/routes";
+import { getDocumentsListResult } from "../../src/mock-api/data/getDocumentsList.cypress";
 describe("Redaction Assurance", () => {
   const expectedSaveRedactionPayload = {
     documentId: "1",
@@ -30,9 +30,9 @@ describe("Redaction Assurance", () => {
   };
   describe("Document Fullscreen", () => {
     beforeEach(() => {
-      const trackerResults = getPipelinePdfResults(1);
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[0],
+      const documentList = getDocumentsListResult(1);
+      cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+        body: documentList[0],
       });
     });
     it("Should successfully verify the save redaction request data in non-full screen mode", () => {
@@ -154,9 +154,9 @@ describe("Redaction Assurance", () => {
 
   describe("Screen Resize", () => {
     beforeEach(() => {
-      const trackerResults = getPipelinePdfResults(1);
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[0],
+      const documentList = getDocumentsListResult(1);
+      cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+        body: documentList[0],
       });
     });
     it("Should successfully verify the save redaction request data in given screen size(1300, 1000)", () => {
@@ -611,9 +611,9 @@ describe("Redaction Assurance", () => {
 
   describe("Mixed Orientation PDf (Portrait and Landscape)", () => {
     beforeEach(() => {
-      const trackerResults = getPipelinePdfResults(1);
-      cy.overrideRoute(TRACKER_ROUTE, {
-        body: trackerResults[0],
+      const documentList = getDocumentsListResult(1);
+      cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+        body: documentList[0],
       });
     });
     const expectedMixedOrientationPDfSaveRequest = {

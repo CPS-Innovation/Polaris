@@ -68,7 +68,7 @@ export type PresentationDocumentProperties = {
   cmsOriginalFileName: string;                      // keep     redaction-log
   presentationTitle: string;                        // keep
   polarisDocumentVersionId: number;                 // remove   replumb to versionId
-    UPDATE_REFRESH_PIPELINE
+    UPDATE_DOCUMENT_REFRESH
     `api/urns/${urn}/cases/${caseId}/documents/${documentId}?v=${polarisDocumentVersionId}`
     SearchPIIData.polarisDocumentVersionId
 

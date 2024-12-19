@@ -5,7 +5,6 @@ import classes from "./TrackerSummary.module.scss";
 
 type Props = {
   pipelineState: CaseDetailsState["pipelineState"];
-  isMultipleDefendantsOrCharges: boolean;
 };
 
 const renderDocResults = (
@@ -13,7 +12,6 @@ const renderDocResults = (
   validDocs: PipelineResults["documents"]
 ) => {
   const isCaseCompleted = status === "Completed";
-  const everyDocIndexed = validDocs.every((doc) => doc.status === "Indexed");
 
   const getDocumentsReadyToReadText = () => {
     const docFailed = validDocs.filter(
@@ -58,13 +56,7 @@ const renderDocResults = (
     );
   };
 
-  const getCaseSearchReadyText = () => {
-    if (isCaseCompleted) return "Case is ready to search";
-    return "Case is not ready to search";
-  };
-
   return (
-    // WARNING: "span-flag-all-indexed" is used by the e2e tests to check the status of the documents
     <div data-testid="tracker-summary" className={classes.trackerSummary}>
       <span aria-live="polite">
         Total documents:{" "}
@@ -72,35 +64,18 @@ const renderDocResults = (
       </span>
       <span aria-live="polite">{getDocumentsReadyToReadText()}</span>
       <span aria-live="polite">{getDocumentsSearchIndexText()}</span>
-      <span
-        aria-live="polite"
-        data-testid={
-          isCaseCompleted && everyDocIndexed ? "span-flag-all-indexed" : ""
-        }
-        className={classes.caseSearchReadyText}
-      >
-        {getCaseSearchReadyText()}
-      </span>
     </div>
   );
 };
-export const TrackerSummary: React.FC<Props> = ({
-  pipelineState,
-  isMultipleDefendantsOrCharges,
-}) => {
-  // remove the filter out of DAC logic(validDocs) when the BUG 27712 is resolved
+export const TrackerSummary: React.FC<Props> = ({ pipelineState }) => {
   const validDocs = useMemo(() => {
-    if (!pipelineState.haveData) {
+    if (!pipelineState.data) {
       return [];
     }
-    return isMultipleDefendantsOrCharges
-      ? pipelineState.data.documents
-      : pipelineState.data.documents.filter(
-          (doc) => doc.cmsDocType.documentType !== "DAC"
-        );
-  }, [pipelineState, isMultipleDefendantsOrCharges]);
+    return pipelineState.data.documents;
+  }, [pipelineState]);
 
-  if (!pipelineState.haveData || !validDocs.length) {
+  if (!pipelineState.data) {
     return null;
   }
 

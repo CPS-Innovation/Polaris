@@ -5,36 +5,23 @@ import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseD
 describe("TrackerSummary", () => {
   it("Should return null if the there is not documents data available", () => {
     render(
-      <TrackerSummary
-        pipelineState={{ haveData: false } as CaseDetailsState["pipelineState"]}
-        isMultipleDefendantsOrCharges={false}
-      />
+      <TrackerSummary pipelineState={{} as CaseDetailsState["pipelineState"]} />
     );
     expect(screen.queryByTestId("tracker-summary")).not.toBeInTheDocument();
   });
   it("Should render the tracker summary correctly if all the documents are indexed", () => {
     const pipelineState = {
-      haveData: true,
       data: {
         status: "Completed",
         documents: [
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "DAC",
-            },
           },
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
         ],
       },
@@ -42,7 +29,6 @@ describe("TrackerSummary", () => {
     render(
       <TrackerSummary
         pipelineState={pipelineState as CaseDetailsState["pipelineState"]}
-        isMultipleDefendantsOrCharges={true}
       />
     );
 
@@ -56,31 +42,20 @@ describe("TrackerSummary", () => {
     expect(screen.queryByText("Documents indexed:")).toHaveTextContent(
       "Documents indexed: 3"
     );
-    expect(screen.queryByText("Case is ready to search")).toBeInTheDocument();
   });
   it("Should render the tracker summary correctly if some documents are not indexed", () => {
     const pipelineState = {
-      haveData: true,
       data: {
         status: "Completed",
         documents: [
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "DAC",
-            },
           },
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
           {
             status: "OcrAndIndexFailure",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
         ],
       },
@@ -88,7 +63,6 @@ describe("TrackerSummary", () => {
     render(
       <TrackerSummary
         pipelineState={pipelineState as CaseDetailsState["pipelineState"]}
-        isMultipleDefendantsOrCharges={true}
       />
     );
 
@@ -102,37 +76,23 @@ describe("TrackerSummary", () => {
     expect(screen.queryByText("Documents indexed:")).toHaveTextContent(
       "Documents indexed: 2 (unable to index 1 document)"
     );
-    expect(screen.queryByText("Case is ready to search")).toBeInTheDocument();
   });
   it("Should render the tracker summary correctly if some documents are not ready to read", () => {
     const pipelineState = {
-      haveData: true,
       data: {
         status: "Completed",
         documents: [
           {
             status: "UnexpectedFailure",
-            cmsDocType: {
-              documentType: "DAC",
-            },
           },
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
           {
             status: "UnableToConvertToPdf",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
           {
             status: "New",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
         ],
       },
@@ -140,7 +100,6 @@ describe("TrackerSummary", () => {
     render(
       <TrackerSummary
         pipelineState={pipelineState as CaseDetailsState["pipelineState"]}
-        isMultipleDefendantsOrCharges={true}
       />
     );
 
@@ -154,31 +113,20 @@ describe("TrackerSummary", () => {
     expect(screen.queryByText("Documents indexed:")).toHaveTextContent(
       "Documents indexed: 1 (unable to index 3 documents)"
     );
-    expect(screen.queryByText("Case is ready to search")).toBeInTheDocument();
   });
-  it("Should ignore the DAC documents from tracker summary if case is not multipleDefendants", () => {
+  it("Should render the tracker summary correctly if pipelineState is not completed", () => {
     const pipelineState = {
-      haveData: true,
       data: {
-        status: "Completed",
+        status: "Running",
         documents: [
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "DAC",
-            },
+          },
+          {
+            status: "UnexpectedFailure",
           },
           {
             status: "Indexed",
-            cmsDocType: {
-              documentType: "MG12",
-            },
-          },
-          {
-            status: "Indexed",
-            cmsDocType: {
-              documentType: "MG12",
-            },
           },
         ],
       },
@@ -186,13 +134,11 @@ describe("TrackerSummary", () => {
     render(
       <TrackerSummary
         pipelineState={pipelineState as CaseDetailsState["pipelineState"]}
-        isMultipleDefendantsOrCharges={false}
       />
     );
-
     expect(screen.queryByTestId("tracker-summary")).toBeInTheDocument();
     expect(screen.queryByText("Total documents:")).toHaveTextContent(
-      "Total documents: 2"
+      "Total documents: 3"
     );
     expect(screen.queryByText("Documents ready to read:")).toHaveTextContent(
       "Documents ready to read: 2"
@@ -200,53 +146,5 @@ describe("TrackerSummary", () => {
     expect(screen.queryByText("Documents indexed:")).toHaveTextContent(
       "Documents indexed: 2"
     );
-    expect(screen.queryByText("Case is ready to search")).toBeInTheDocument();
-  });
-  it("Should render the tracker summary correctly if pipelineState is not completed", () => {
-    const pipelineState = {
-      haveData: true,
-      data: {
-        status: "Running",
-        documents: [
-          {
-            status: "Indexed",
-            cmsDocType: {
-              documentType: "DAC",
-            },
-          },
-          {
-            status: "UnexpectedFailure",
-            cmsDocType: {
-              documentType: "MG12",
-            },
-          },
-          {
-            status: "Indexed",
-            cmsDocType: {
-              documentType: "MG12",
-            },
-          },
-        ],
-      },
-    };
-    render(
-      <TrackerSummary
-        pipelineState={pipelineState as CaseDetailsState["pipelineState"]}
-        isMultipleDefendantsOrCharges={false}
-      />
-    );
-    expect(screen.queryByTestId("tracker-summary")).toBeInTheDocument();
-    expect(screen.queryByText("Total documents:")).toHaveTextContent(
-      "Total documents: 2"
-    );
-    expect(screen.queryByText("Documents ready to read:")).toHaveTextContent(
-      "Documents ready to read: 1"
-    );
-    expect(screen.queryByText("Documents indexed:")).toHaveTextContent(
-      "Documents indexed: 1"
-    );
-    expect(
-      screen.queryByText("Case is not ready to search")
-    ).toBeInTheDocument();
   });
 });

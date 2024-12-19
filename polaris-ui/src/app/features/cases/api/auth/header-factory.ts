@@ -18,3 +18,21 @@ export const authRedactionLog = async () => ({
     REDACTION_LOG_SCOPE ? await getAccessToken([REDACTION_LOG_SCOPE]) : "TEST"
   }`,
 });
+
+export const buildHeaders = async (
+  knownCorrelationId?: string
+): Promise<Record<string, string>> => {
+  return {
+    ...correlationId(knownCorrelationId || undefined),
+    ...(await auth()),
+  };
+};
+
+export const buildHeadersRedactionLog = async (): Promise<
+  Record<string, string>
+> => {
+  return {
+    ...correlationId(undefined),
+    ...(await authRedactionLog()),
+  };
+};

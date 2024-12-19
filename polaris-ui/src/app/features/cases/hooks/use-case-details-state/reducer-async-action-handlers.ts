@@ -20,11 +20,11 @@ import {
   mapSearchPIISaveRedactionObject,
 } from "./map-redaction-save-request";
 import { reducer } from "./reducer";
-import * as HEADERS from "../../api/auth/header-factory";
 import { ApiError } from "../../../../common/errors/ApiError";
 import { RedactionLogRequestData } from "../../domain/redactionLog/RedactionLogRequestData";
 import { RedactionLogTypes } from "../../domain/redactionLog/RedactionLogTypes";
 import { addToLocalStorage } from "../../presentation/case-details/utils/localStorageUtils";
+import { buildHeaders } from "../../api/auth/header-factory";
 
 const LOCKED_STATES_REQUIRING_UNLOCK: CaseDocumentViewModel["clientLockedState"][] =
   ["locked", "locking"];
@@ -142,10 +142,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, mode },
       } = action;
 
-      const headers = {
-        ...HEADERS.correlationId(),
-        ...(await HEADERS.auth()),
-      };
+      const headers = await buildHeaders();
 
       dispatch({
         type: "OPEN_PDF",
@@ -471,9 +468,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
 
         dispatch({
-          type: "UPDATE_REFRESH_PIPELINE",
+          type: "UPDATE_DOCUMENT_REFRESH",
           payload: {
-            startRefresh: true,
+            startDocumentRefresh: true,
             savedDocumentDetails: {
               documentId,
               versionId,
@@ -691,9 +688,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       }
       if (successStatus) {
         dispatch({
-          type: "UPDATE_REFRESH_PIPELINE",
+          type: "UPDATE_DOCUMENT_REFRESH",
           payload: {
-            startRefresh: true,
+            startDocumentRefresh: true,
           },
         });
       }
@@ -736,9 +733,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
 
         dispatch({
-          type: "UPDATE_REFRESH_PIPELINE",
+          type: "UPDATE_DOCUMENT_REFRESH",
           payload: {
-            startRefresh: true,
+            startDocumentRefresh: true,
           },
         });
       } catch (e) {
@@ -865,9 +862,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         });
 
         dispatch({
-          type: "UPDATE_REFRESH_PIPELINE",
+          type: "UPDATE_DOCUMENT_REFRESH",
           payload: {
-            startRefresh: true,
+            startDocumentRefresh: true,
             savedDocumentDetails: {
               documentId,
               versionId,

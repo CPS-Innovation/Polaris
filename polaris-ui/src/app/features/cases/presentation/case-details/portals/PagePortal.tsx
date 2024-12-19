@@ -74,6 +74,7 @@ export const PagePortal: React.FC<PagePortalProps> = ({
   useEffect(() => {
     if (isUnmountedRef.current) return;
     const pdfViewer = document?.querySelectorAll(".pdfViewer")[tabIndex];
+    if (!pdfViewer) return;
     resizeObserverRef.current = new ResizeObserver((entries) => {
       updatePortals();
     });
