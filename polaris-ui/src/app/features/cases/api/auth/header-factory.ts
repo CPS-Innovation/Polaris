@@ -1,8 +1,7 @@
 import { getAccessToken } from "../../../../auth";
 import { GATEWAY_SCOPE, REDACTION_LOG_SCOPE } from "../../../../config";
 import { generateGuid } from "./../generate-guid";
-
-export const CORRELATION_ID = "Correlation-Id";
+import { CORRELATION_ID } from "./core";
 
 export const correlationId = (existingCorrelationId?: string) => ({
   [CORRELATION_ID]: existingCorrelationId || generateGuid(),
@@ -19,3 +18,21 @@ export const authRedactionLog = async () => ({
     REDACTION_LOG_SCOPE ? await getAccessToken([REDACTION_LOG_SCOPE]) : "TEST"
   }`,
 });
+
+export const buildHeaders = async (
+  knownCorrelationId?: string
+): Promise<Record<string, string>> => {
+  return {
+    ...correlationId(knownCorrelationId || undefined),
+    ...(await auth()),
+  };
+};
+
+export const buildHeadersRedactionLog = async (): Promise<
+  Record<string, string>
+> => {
+  return {
+    ...correlationId(undefined),
+    ...(await authRedactionLog()),
+  };
+};

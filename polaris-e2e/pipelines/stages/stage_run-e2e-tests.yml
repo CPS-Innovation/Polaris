@@ -1,0 +1,34 @@
+﻿---
+parameters:
+  - name: checkoutRef
+  - name: cypressEnvironment
+
+stages:
+  - stage: Wait_For_Running_Tests
+    displayName: Wait for Running Tests
+    jobs:
+      - job:
+        steps:
+          - template: ../../../polaris-devops-pipelines/deployments_v2/stages/jobs/tasks/task_wait-for-running-releases.yml
+            parameters:
+              devOpsPatToken: $(System.AccessToken)
+
+  - stage: Run_e2e_Tests
+    displayName: Run e2e Tests
+    dependsOn: Wait_For_Running_Tests
+    jobs:
+      - template: jobs/job_prepare-dot-net-tests.yml
+        parameters:
+          checkoutRef: ${{ parameters.checkoutRef }}
+
+      - template: jobs/job_run-dot-net-tests.yml
+
+      - template: jobs/job_run-cypress-tests-a.yml
+        parameters:
+          checkoutRef: ${{ parameters.checkoutRef }}
+          cypressEnvironment: ${{ parameters.cypressEnvironment }}
+
+      - template: jobs/job_run-cypress-tests-b.yml
+        parameters:
+          checkoutRef: ${{ parameters.checkoutRef }}
+          cypressEnvironment: ${{ parameters.cypressEnvironment }}

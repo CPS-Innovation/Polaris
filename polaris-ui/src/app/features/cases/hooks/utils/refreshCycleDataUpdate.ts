@@ -1,12 +1,12 @@
-import { PipelineResults } from "../../domain/gateway/PipelineResults";
+import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
 import { RenameDocumentData } from "../../domain/gateway/RenameDocumentData";
 import { ReclassifyDocumentData } from "../../domain/gateway/ReclassifyDocumentData";
 
 export const handleRenameUpdateConfirmation = (
-  pipelineResults: PipelineResults,
+  documents: PresentationDocumentProperties[],
   activeRenameDoc: RenameDocumentData
 ) => {
-  const newDocData = pipelineResults.documents.find(
+  const newDocData = documents.find(
     (doc) => doc.documentId === activeRenameDoc.documentId
   );
   if (newDocData?.presentationTitle === activeRenameDoc.newName) return true;
@@ -15,10 +15,10 @@ export const handleRenameUpdateConfirmation = (
 };
 
 export const handleReclassifyUpdateConfirmation = (
-  pipelineResults: PipelineResults,
+  documents: PresentationDocumentProperties[],
   activeReclassifyDoc: ReclassifyDocumentData
 ) => {
-  const newDocData = pipelineResults.documents.find(
+  const newDocData = documents.find(
     (doc) => doc.documentId === activeReclassifyDoc.documentId
   );
 

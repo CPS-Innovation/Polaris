@@ -72,7 +72,6 @@ internal static class Program
       {
         const string licenceFileName = "Aspose.Total.NET.lic";
         new Aspose.Cells.License().SetLicense(licenceFileName);
-        new Aspose.Diagram.License().SetLicense(licenceFileName);
         new Aspose.Email.License().SetLicense(licenceFileName);
         new Aspose.Imaging.License().SetLicense(licenceFileName);
         new Aspose.Pdf.License().SetLicense(licenceFileName);

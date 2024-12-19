@@ -41,7 +41,12 @@ namespace pdf_redactor.Functions
         }
 
         [Function(nameof(RedactPdf))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactPdf)] HttpRequest request, string caseUrn, int caseId, string documentId)
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)] HttpRequest request,
+            string caseUrn,
+            int caseId,
+            string documentId,
+            long versionId)
         {
             Guid currentCorrelationId = default;
 
@@ -69,7 +74,7 @@ namespace pdf_redactor.Functions
 
                 var redactions = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestWithDocumentDto>(content);
                 _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
-                _telemetryAugmentationWrapper.RegisterDocumentVersionId(redactions.VersionId.ToString());
+                _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId.ToString());
 
                 var validationResult = await _requestValidator.ValidateAsync(redactions);
                 if (!validationResult.IsValid)

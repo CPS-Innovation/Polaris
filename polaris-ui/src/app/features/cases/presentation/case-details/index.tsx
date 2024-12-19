@@ -8,7 +8,7 @@ import {
   WaitPage,
   Button,
 } from "../../../../common/presentation/components";
-import { Wait as AccordionWait } from "./accordion/Wait";
+import { Wait } from "./accordion/Wait";
 import { BackLinkingPageProps } from "../../../../common/presentation/types/BackLinkingPageProps";
 import { Accordion, AccordionRef } from "./accordion/Accordion";
 import { KeyDetails } from "./KeyDetails";
@@ -31,10 +31,7 @@ import {
   useAppInsightsTrackEvent,
   useAppInsightsTrackPageView,
 } from "../../../../common/hooks/useAppInsightsTracks";
-import {
-  PipelineDocument,
-  Classification,
-} from "../../domain/gateway/PipelineDocument";
+import { Classification } from "../../domain/gateway/PipelineDocument";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import {
   BULK_UM_REDIRECT_URL,
@@ -131,7 +128,8 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     searchState,
     searchTerm,
     pipelineState,
-    pipelineRefreshData,
+    documentsState,
+    documentRefreshData,
     errorModal,
     documentIssueModal,
     redactionLog,
@@ -142,6 +140,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     renameDocuments,
     reclassifyDocuments,
     notificationState,
+    localDocumentState,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -176,6 +175,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleSaveRotations,
     handleClearAllNotifications,
     handleClearNotification,
+    handleUpdateConversionStatus,
     handleShowHidePageDeletion,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
 
@@ -280,7 +280,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const isMultipleDefendantsOrCharges = isMultipleChargeCase(caseState.data);
 
   const dacDocumentId = getDACDocumentId(
-    pipelineState?.haveData ? pipelineState.data.documents : []
+    documentsState?.status === "succeeded" ? documentsState.data : []
   );
 
   const handleOpenPanel = (
@@ -304,10 +304,10 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   const handleReclassifyDocument = (documentId: string) => {
     const selectedDocument =
-      pipelineState.haveData &&
-      (pipelineState.data.documents.find(
+      documentsState?.status === "succeeded" &&
+      (documentsState.data.find(
         (doc) => doc.documentId === documentId
-      ) as PipelineDocument);
+      ) as MappedCaseDocument);
     if (selectedDocument) {
       handleResetReclassifyData(documentId);
 
@@ -678,7 +678,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   />
 
                   {accordionState.status === "loading" ? (
-                    <AccordionWait />
+                    <Wait />
                   ) : (
                     <Accordion
                       ref={accordionRef}
@@ -701,6 +701,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       handleGetNotes={handleGetNotes}
                       notesData={notes}
                       handleReclassifyDocument={handleReclassifyDocument}
+                      localDocumentState={localDocumentState}
                     />
                   )}
                 </div>
@@ -817,11 +818,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                           .missedRedactions
                       : []
                   }
-                  isOkToSave={pipelineState.status === "complete"}
                   tabsState={tabsState}
                   savedDocumentDetails={
-                    pipelineRefreshData.savedDocumentDetails
+                    documentRefreshData.savedDocumentDetails
                   }
+                  localDocumentState={localDocumentState}
                   handleTabSelection={handleTabSelection}
                   handleClosePdf={handleClosePdf}
                   handleLaunchSearchResults={handleLaunchSearchResults}
@@ -852,6 +853,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   handleRemovePageRotation={handleRemovePageRotation}
                   handleRemoveAllRotations={handleRemoveAllRotations}
                   handleSaveRotations={handleSaveRotations}
+                  handleUpdateConversionStatus={handleUpdateConversionStatus}
                   handleShowHidePageDeletion={handleShowHidePageDeletion}
                 />
               )}

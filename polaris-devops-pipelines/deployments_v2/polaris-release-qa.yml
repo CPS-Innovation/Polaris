@@ -86,5 +86,5 @@ stages:
       targetBuild: PolarisBuild
       targetLabel: "QA"
       appInsightsKey: $(innovation-qa-app-insights-instrumentation-key)
-      buildDefinitionId: 210
+      buildDefinitionId: 589
       stageDependsOn: Update_GitHub_Tag

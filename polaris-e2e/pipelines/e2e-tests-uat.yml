@@ -1,0 +1,26 @@
+pr: none
+trigger: none
+
+resources:
+  repositories:
+    - repository: PolarisBranch
+      type: github
+      endpoint: CPS-Innovation
+      name: CPS-Innovation/Polaris
+      ref: $(Build.SourceBranch)
+      
+pool:
+  name: $(uat-build-agent)
+
+variables:
+  - group: polaris-global
+  - group: polaris-e2e-tests
+  - group: kv-uat-terraform
+  - name: cypress-environment
+    value: "uat"
+    
+stages:
+  - template: stages/stage_run-e2e-tests.yml
+    parameters:
+      checkoutRef: PolarisBranch
+      cypressEnvironment: $(cypress-environment)
