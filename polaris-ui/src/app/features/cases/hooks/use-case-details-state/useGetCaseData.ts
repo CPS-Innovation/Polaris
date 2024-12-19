@@ -23,7 +23,8 @@ export const useGetCaseData = (
   useGetDocumentsListApi(
     urn,
     caseId,
-    combinedState.documentRefreshData?.startDocumentRefresh,
+    combinedState.documentRefreshData?.startDocumentRefresh &&
+      combinedState.caseState.status === "succeeded",
     combinedState.renameDocuments,
     combinedState.reclassifyDocuments,
     dispatch
@@ -54,7 +55,10 @@ export const useGetCaseData = (
       });
     }
 
-    if (startDocumentRefresh) {
+    if (
+      startDocumentRefresh &&
+      combinedState.caseState.status === "succeeded"
+    ) {
       // Once startDocumentRefresh has been picked up by the reducer then we we will end up here and then we switch it off
       dispatch({
         type: "UPDATE_DOCUMENT_REFRESH",
@@ -66,6 +70,7 @@ export const useGetCaseData = (
   }, [
     combinedState.documentRefreshData,
     combinedState.pipelineRefreshData,
+    combinedState.caseState.status,
     dispatch,
   ]);
 };
