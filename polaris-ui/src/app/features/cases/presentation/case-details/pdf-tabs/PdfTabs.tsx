@@ -49,6 +49,7 @@ type PdfTabsProps = {
   handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
   handleSaveRotations: CaseDetailsState["handleSaveRotations"];
   handleUpdateConversionStatus: CaseDetailsState["handleUpdateConversionStatus"];
+  handleHideSaveRotationModal: CaseDetailsState["handleHideSaveRotationModal"];
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
@@ -81,6 +82,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleRemoveAllRotations,
   handleSaveRotations,
   handleUpdateConversionStatus,
+  handleHideSaveRotationModal,
 }) => {
   const localHandleClosePdf = useCallback(
     (documentId: string, versionId: number) => {
@@ -146,6 +148,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               handleRemoveAllRotations={handleRemoveAllRotations}
               handleSaveRotations={handleSaveRotations}
               handleUpdateConversionStatus={handleUpdateConversionStatus}
+              handleHideSaveRotationModal={handleHideSaveRotationModal}
             />
           ),
         },
