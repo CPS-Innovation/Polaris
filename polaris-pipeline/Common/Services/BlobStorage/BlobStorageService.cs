@@ -8,7 +8,6 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Common.Wrappers;
-using Microsoft.WindowsAzure.Storage;
 
 namespace Common.Services.BlobStorage;
 
@@ -39,7 +38,7 @@ public class BlobStorageService : IBlobStorageService
     public async Task<Stream> GetBlob(string blobName)
     {
         var stream = await TryGetBlobAsync(blobName);
-        return stream ?? throw new StorageException("Blob not found");
+        return stream ?? throw new RequestFailedException("Blob not found");
     }
 
 

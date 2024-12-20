@@ -5,6 +5,7 @@ using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Document.FeatureFlags;
 using Common.Dto.Response.Documents;
+using System;
 
 namespace PolarisGateway.Services.DdeiOrchestration.Mappers;
 

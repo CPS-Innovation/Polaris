@@ -31,18 +31,9 @@ namespace coordinator.Durable.Activity
         }
 
         protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload)
-        {
-            var arg = DdeiArgFactory.CreateDocumentVersionArgDto(
-                payload.CmsAuthValues,
-                payload.CorrelationId,
-                payload.Urn,
-                payload.CaseId,
-                payload.DocumentId,
-                payload.VersionId);
-
-            var result = await DdeiClient.GetDocumentAsync(arg);
-
-            return result.Stream;
-        }
+             => await DdeiClient.GetDocumentFromFileStoreAsync(
+                    payload.Path,
+                    payload.CmsAuthValues,
+                    payload.CorrelationId);
     }
 }

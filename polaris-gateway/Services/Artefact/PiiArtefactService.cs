@@ -4,6 +4,9 @@ using Common.Services.BlobStorage;
 using Common.Services.PiiService;
 using PolarisGateway.Services.Artefact.Domain;
 using PolarisGateway.Services.Artefact.Factories;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.Artefact;
 
