@@ -1,5 +1,4 @@
-import { useCallback } from "react";
-import { useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { PdfViewer } from "../pdf-viewer/PdfViewer";
@@ -20,6 +19,7 @@ import {
   RotationDeletionWarningModal,
 } from "../modals/PageRotationDeletionWarningModal";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
+import { buildHeaders } from "../../../../cases/api/auth/header-factory";
 import classes from "./PdfTab.module.scss";
 
 type PdfTabProps = {
@@ -106,6 +106,10 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     useState<{ show: boolean; type: RotationDeletionWarningModal } | null>(
       null
     );
+  const [urlWithHeader, setUrlWithHeader] = useState<{
+    url: string;
+    headers: HeadersInit;
+  } | null>(null);
   const {
     url,
     mode,
@@ -122,6 +126,16 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     rotatePageMode,
     deletePageMode,
   } = caseDocumentViewModel;
+
+  useEffect(() => {
+    const updateNewUrlWithHeader = async (url: string) => {
+      const headers = await buildHeaders();
+      setUrlWithHeader({ url: url, headers: headers });
+    };
+    if (url && url !== urlWithHeader?.url) {
+      updateNewUrlWithHeader(url);
+    }
+  }, [url, urlWithHeader]);
 
   const showDeletePage = useMemo(
     () =>
@@ -389,14 +403,14 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           </div>
         )}
 
-        {url && !isDocumentRefreshing() ? (
+        {urlWithHeader?.url && !isDocumentRefreshing() ? (
           <PdfViewer
             redactionTypesData={redactionTypesData}
-            url={url}
+            url={urlWithHeader?.url}
             tabIndex={tabIndex}
             activeTabId={activeTabId}
             tabId={tabId}
-            headers={headers}
+            headers={urlWithHeader?.headers}
             searchHighlights={searchHighlights}
             isSearchPIIOn={isSearchPIIOn}
             isSearchPIIDefaultOptionOn={!!searchPIIDataItem?.defaultOption}
