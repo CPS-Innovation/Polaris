@@ -9,6 +9,7 @@ AppRequests
     DocumentId = make_set(iif(Name in ('InitiateCookies', "InitiateCookiesNew"), "", extract("/documents/.*-([0-9]*)(/|$)", 1, Url))),
     CmsUserId = max(tolong(Properties.CmsUserId)),
     User = max(tostring(Properties.User)) by PolarisCorrelationId
-| where User != 'REDACTED@REDACTED.EMAIL.ADDRESS' and CmsUserId != -2147483648
-
+// The thinking here is that we need to know if we are in e2e tests higher up in the functions that call this
+//   to e.g. to filter our exceptions that are purposely created by e2e tests    
+//| where User != 'REDACTED@REDACTED.EMAIL.ADDRESS' and CmsUserId != -2147483648
 

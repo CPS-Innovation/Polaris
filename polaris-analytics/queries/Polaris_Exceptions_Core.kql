@@ -6,6 +6,8 @@ let FilteredExceptions = AppExceptions
 | where OperationName !in ('RefreshDocumentOrchestrator', 'RefreshCaseOrchestrator','RefreshDocumentOrchestratorNext', "RefreshDocumentOrchestrator")
 | where OperationId != ''
 | where Properties.functionName != "Status"
+// Some (all?) AppExceptions in dotnet-isolated functions do not have OperationName specified but do have it in the Properties bag
+| extend OperationName = coalesce(OperationName, tostring(Properties.AzureFunctions_FunctionName))
 //| where not(OperationId in (IgnoreOperations))
 ;
 
