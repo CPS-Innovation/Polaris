@@ -7,7 +7,8 @@ let isKnownBug = (
     cmsStatusCode: dynamic,
     urn: dynamic,
     loadBalancedDestination: dynamic,
-    appRoleName: dynamic) {
+    appRoleName: dynamic,
+    user: dynamic) {
 
     let me = tostring(method);
     let et = tostring(exceptionType);
@@ -42,10 +43,10 @@ let isKnownBug = (
                 im contains "aspose" and im contains "expired" and (im contains "licence" or im contains "license"),
         "ASPOSE - Aspose licence has expired",
 
-                csc contains "302" and u contains "InitiateCookies",
+                csc contains "302" and op contains "InitiateCookies",
         "23611 - Auth fail InitiateCookies",
 
-                csc contains "302" and u notcontains "InitiateCookies",
+                csc contains "302" and op notcontains "InitiateCookies",
         "23613 - Auth fail CMS post-InitiateCookies",
 
         om contains "header or cookie is expected" or im contains "Cms Auth Token cannot be null",
@@ -177,6 +178,22 @@ let isKnownBug = (
         "27980 - CMS Classic Not Found uainGeneratedScript",
         arn contains "fa-polaris-pdf-generator" and om contains "Object reference not set to an instance of an object",
         "Aspose - Object reference not set to an instance of an object",
+        om contains "IDX10231",
+        "28321 - IDX10231 errors post big refactor release",
+        om contains "Invalid document id: PCD",
+        "28322 - PCD read errors post big refactor release",
+        om contains "The HTTP request failed with status code Unauthorized" and isnotempty(user),
+        "28592 - The HTTP request failed with status code Unauthorized - seen by real users",
+        im contains "302 (Found)",
+        "28655 - CMS auth exception raised at gateway",
+        arn contains "pdf-generator",
+        "28649 - General Apose/pdf-generator failures (not classified elsewhere)",
+        me contains "DdeiClient" and im contains ":( Application Error",
+        "28650 - HTTP failures - DDEI not available", 
+        om contains "CancelCheckoutDocument" and om contains "Timeout",
+        "28656 - Document Cancel Checkout timing out",
+        me contains "GetPii" and om contains "Guid should contain 32 digits with 4 dashes",
+        "28657 - GetPii errors on guid format",
     "");
 };
 
@@ -188,7 +205,7 @@ Polaris_Exceptions_Core
     and strcmp(format_datetime(EarliestExceptionTimeGenerated, 'yyyy-MM-dd-HH:mm'), '2023-08-30-10:09') < 0
 )
 | extend 
-    IsKnownBug = isKnownBug(Method, ExceptionType, OuterMessage ,InnermostMessage ,OperationName, CmsStatusCode,  Urn, LoadBalancedDestination, AppRoleName ),
+    IsKnownBug = isKnownBug(Method, ExceptionType, OuterMessage ,InnermostMessage ,OperationName, CmsStatusCode,  Urn, LoadBalancedDestination, AppRoleName, User ),
     PolarisCorrelationId = tostring(PolarisCorrelationId)    
 | where AppRoleName !contains "staging"
 // filter out known fixes
@@ -214,3 +231,10 @@ Polaris_Exceptions_Core
 
 // remove Status func timeouts from dashboard for the time being, reduce the noise
 | where IsKnownBug != "Status func timeout"
+
+// Ignore exceptions to do with JwtBearer token checking that we believe is a temporary Microsoft-level issue
+| where OuterMessage !contains("IDX10205: Issuer validation failed.")
+
+// ignore auth fails from e2e tests, not interesting
+| where not(User == "REDACTED@REDACTED.EMAIL.ADDRESS" and IsKnownBug contains "auth")
+

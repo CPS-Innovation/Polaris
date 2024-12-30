@@ -21,4 +21,15 @@ AppEvents
     VersionId = toint(Properties.versionId),
     CountEntries
 | extend DurationPerDocumentSeconds = todouble(DurationSeconds/ CmsDocsProcessedCount)
+| extend EndTime = iif(EndTime == datetime(0001-01-01), TimeGenerated, EndTime) 
+// fix for when a bug stopped StartTime being recorded
+| join kind=leftouter ( 
+    AppRequests 
+    | where AppRoleName == "fa-polaris-gateway" 
+    | where Name == "PolarisPipelineCase" 
+    | project PolarisCorrelationId = tostring(Properties.PolarisCorrelationId), StartTimeFromRequest = datetime_add('millisecond', -1 * toint(DurationMs), TimeGenerated)
+) on PolarisCorrelationId | project-away PolarisCorrelationId1
+| extend StartTime = iif(StartTime == datetime(0001-01-01), StartTimeFromRequest, StartTime) | project-away StartTimeFromRequest
+| extend DurationSeconds = iif(isempty(DurationSeconds), toreal(datetime_diff('second', EndTime, StartTime)), DurationSeconds)
+| extend DurationPerDocumentSeconds = iif(isempty(DurationPerDocumentSeconds), todouble(DurationSeconds/ CmsDocsProcessedCount), DurationPerDocumentSeconds)
 

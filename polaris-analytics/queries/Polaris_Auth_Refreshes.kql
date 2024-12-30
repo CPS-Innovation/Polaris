@@ -1,9 +1,12 @@
 
 AppTraces
-| where OperationName in ("InitiateCookies", "InitiateCookiesNew")
-| where Message contains "Query"
+| where (
+    OperationName in ("InitiateCookies", "InitiateCookiesNew")
+    or Properties.CategoryName == "polaris_ddei.Functions.AuthHandover.InitiateCookies"
+)
+| where AppRoleName == "fa-polaris-ddei"
 | where Message !contains "polaris-cmsproxy.azurewebsites.net"
-| where Message contains "refresh"
+| where Message !startswith "Exec"
 | extend Message = url_decode(Message)
 | extend 
     CmsUserId = toint(coalesce(extract("CMSUSER(\\d+)", 1, Message), extract("UID=(\\d+)", 1, Message))), 
