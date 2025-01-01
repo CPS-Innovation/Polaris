@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using pdf_generator;
 using pdf_generator.Services.Extensions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.ApplicationInsights.Extensibility;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -24,7 +25,13 @@ var host = new HostBuilder()
     .ConfigureServices((context, services) =>
     {
         StartupHelpers.SetAsposeLicence();
+        // services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
+        // {
+        //     var telemetryProcessorChainBuilder = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
 
+        //     // Using adaptive sampling
+        //     telemetryProcessorChainBuilder.UseAdaptiveSampling(maxTelemetryItemsPerSecond: 2, excludedTypes: "Request;Exception;Event");
+        // });
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
 
