@@ -14,8 +14,8 @@ import {customElement, property} from 'lit/decorators.js';
  * @slot - This element has a slot
  * @csspart button - The button
  */
-@customElement('global-nav')
-export class GlobalNav extends LitElement {
+@customElement('cps-global-nav')
+export class CPSGlobalNav extends LitElement {
   static override styles = css`
     :host {
       display: block;
@@ -63,6 +63,6 @@ export class GlobalNav extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'global-nav': GlobalNav;
+    'cps-global-nav': CPSGlobalNav;
   }
 }

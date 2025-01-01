@@ -4,19 +4,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-import {GlobalNav} from '../global-nav.js';
+import {CPSGlobalNav} from '../cps-global-nav.js';
 
 import {fixture, assert} from '@open-wc/testing';
 import {html} from 'lit/static-html.js';
 
-suite('global-nav', () => {
+suite('cps-global-nav', () => {
   test('is defined', () => {
-    const el = document.createElement('global-nav');
-    assert.instanceOf(el, GlobalNav);
+    const el = document.createElement('cps-global-nav');
+    assert.instanceOf(el, CPSGlobalNav);
   });
 
   test('renders with default values', async () => {
-    const el = await fixture(html`<global-nav></global-nav>`);
+    const el = await fixture(html`<cps-global-nav></cps-global-nav>`);
     assert.shadowDom.equal(
       el,
       `
@@ -28,7 +28,9 @@ suite('global-nav', () => {
   });
 
   test('renders with a set name', async () => {
-    const el = await fixture(html`<global-nav name="Test"></global-nav>`);
+    const el = await fixture(
+      html`<cps-global-nav name="Test"></cps-global-nav>`
+    );
     assert.shadowDom.equal(
       el,
       `
@@ -40,7 +42,9 @@ suite('global-nav', () => {
   });
 
   test('handles a click', async () => {
-    const el = (await fixture(html`<global-nav></global-nav>`)) as GlobalNav;
+    const el = (await fixture(
+      html`<cps-global-nav></cps-global-nav>`
+    )) as CPSGlobalNav;
     const button = el.shadowRoot!.querySelector('button')!;
     button.click();
     await el.updateComplete;
@@ -55,7 +59,9 @@ suite('global-nav', () => {
   });
 
   test('styling applied', async () => {
-    const el = (await fixture(html`<global-nav></global-nav>`)) as GlobalNav;
+    const el = (await fixture(
+      html`<cps-global-nav></cps-global-nav>`
+    )) as CPSGlobalNav;
     await el.updateComplete;
     assert.equal(getComputedStyle(el).paddingTop, '16px');
   });

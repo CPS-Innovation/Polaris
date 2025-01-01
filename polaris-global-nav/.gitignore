@@ -3,9 +3,9 @@
 /test/
 custom-elements.json
 # top level source
-global-nav.js
-global-nav.js.map
-global-nav.d.ts
-global-nav.d.ts.map
+cps-global-nav.js
+cps-global-nav.js.map
+cps-global-nav.d.ts
+cps-global-nav.d.ts.map
 # only generated for size check
-global-nav.bundled.js
+cps-global-nav.bundled.js
