@@ -1,8 +1,8 @@
 {
-  "name": "@lit/lit-starter-ts",
+  "name": "cps-global-nav",
   "private": true,
   "version": "2.0.2",
-  "description": "A simple web component",
+  "description": "CPS global nav header web component",
   "main": "cps-global-nav.js",
   "module": "cps-global-nav.js",
   "type": "module",
@@ -30,7 +30,7 @@
     "typescript",
     "lit"
   ],
-  "author": "Google LLC",
+  "author": "CPS",
   "license": "BSD-3-Clause",
   "dependencies": {
     "lit": "^3.2.0"
