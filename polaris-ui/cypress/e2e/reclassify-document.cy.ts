@@ -183,6 +183,10 @@ describe("Feature Reclassify Document", () => {
       .and("have.text", "What type of document is this?");
 
     cy.findByTestId("div-notification-banner").should("not.exist");
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 100,
+    });
     cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("div-notification-banner").should("exist");
     cy.findByTestId("div-notification-banner").contains(
@@ -308,6 +312,10 @@ describe("Feature Reclassify Document", () => {
       });
 
     cy.findByTestId("div-notification-banner").should("not.exist");
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 100,
+    });
     cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("div-notification-banner").should("exist");
     cy.findByTestId("div-notification-banner").contains(
@@ -323,7 +331,7 @@ describe("Feature Reclassify Document", () => {
       );
     });
 
-    cy.findByTestId("div-reclassify").should("not.exist");
+    cy.findByTestId("div-reclassify").should("not.exist");   
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
@@ -484,6 +492,10 @@ describe("Feature Reclassify Document", () => {
       });
 
     cy.findByTestId("div-notification-banner").should("not.exist");
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 100,
+    });
     cy.findByText("Accept and save").click();
 
     cy.findByTestId("div-reclassify").contains("button", "Back").should("be.disabled");
@@ -646,6 +658,10 @@ describe("Feature Reclassify Document", () => {
       });
 
     cy.findByTestId("div-notification-banner").should("not.exist");
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 100,
+    });
     cy.findByTestId("reclassify-continue-btn").click();
     cy.findByTestId("div-notification-banner").should("exist");
     cy.findByTestId("div-notification-banner").contains(
