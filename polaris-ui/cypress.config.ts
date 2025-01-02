@@ -3,7 +3,6 @@ import { defineConfig } from "cypress";
 export default defineConfig({
   defaultCommandTimeout: 60000,
   video: true,
-  chromeWebSecurity: false,
   reporter: "junit",
   reporterOptions: {
     mochaFile: "report-cypress/test-results-[hash].xml",
