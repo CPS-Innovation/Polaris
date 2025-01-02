@@ -32,6 +32,7 @@ type Props = {
   ) => void;
   handleGetNotes: (documentId: string) => void;
   handleReclassifyDocument: (documentId: string) => void;
+  notesData: NotesData[];
   handleChangeUseDocument: (documentId: string) => void;
   notesData: NotesData[];
 };

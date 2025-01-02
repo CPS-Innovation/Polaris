@@ -43,7 +43,7 @@ type Props = {
     documentId: string,
     documentCategory: string,
     presentationTitle: string,
-    type: "notes" | "rename",
+    type: "notes" | "rename" | "change",
     documentType: string,
     classification: Classification
   ) => void;
@@ -202,6 +202,16 @@ export const AccordionDocument: React.FC<Props> = ({
         return;
       case "2":
         handleReclassifyDocument(caseDocument.documentId);
+        return;
+      case "3":
+        handleOpenPanel(
+          caseDocument?.documentId,
+          caseDocument?.cmsDocType.documentCategory,
+          caseDocument?.presentationTitle,
+          "change",
+          caseDocument?.cmsDocType.documentType,
+          caseDocument?.classification
+        );
         return;
       default:
         break;

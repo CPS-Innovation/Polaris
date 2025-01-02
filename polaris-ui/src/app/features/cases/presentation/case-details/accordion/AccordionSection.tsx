@@ -24,12 +24,13 @@ type Props = {
     documentId: string,
     documentCategory: string,
     presentationTitle: string,
-    type: "notes" | "rename",
+    type: "notes" | "rename" | "change",
     documentType: string,
     classification: Classification
   ) => void;
   handleGetNotes: (documentId: string) => void;
   handleReclassifyDocument: (documentId: string) => void;
+  handleChangeUseDocument: (documentId: string) => void;
   notesData: NotesData[];
 };
 const formatTestIdText = (id: string) => {
@@ -110,6 +111,7 @@ export const AccordionSection: React.FC<Props> = ({
                     handleGetNotes={handleGetNotes}
                     notesData={notesData}
                     handleReclassifyDocument={handleReclassifyDocument}
+                    handleChangeUseDocument={handleChangeUseDocument}
                   />
                 ))}
               </ul>
@@ -135,9 +137,8 @@ export const AccordionSection: React.FC<Props> = ({
         aria-expanded={isOpen}
       >
         <h2
-          className={`govuk-heading-s ${
-            !docs.length ? classes.zeroDocsCategory : ""
-          }`}
+          className={`govuk-heading-s ${!docs.length ? classes.zeroDocsCategory : ""
+            }`}
         >
           {`${sectionLabel} (${docs.length})`}
         </h2>
@@ -154,15 +155,15 @@ export const AccordionSection: React.FC<Props> = ({
         )}
         {Object.keys(subCategories).length
           ? Object.keys(subCategories)
-              .sort()
-              .map((subCategory) => (
-                <div key={subCategory}>
-                  {renderAccordionDocument(
-                    subCategories[subCategory],
-                    subCategory
-                  )}
-                </div>
-              ))
+            .sort()
+            .map((subCategory) => (
+              <div key={subCategory}>
+                {renderAccordionDocument(
+                  subCategories[subCategory],
+                  subCategory
+                )}
+              </div>
+            ))
           : renderAccordionDocument(docs)}
       </div>
     </div>

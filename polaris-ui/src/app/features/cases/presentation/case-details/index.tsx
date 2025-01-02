@@ -64,6 +64,7 @@ import {
   isTaggedTriageContext,
   TaggedContext,
 } from "../../../../inbound-handover/context";
+import { ChangeRadio } from '../case-details/change-radio'
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {
@@ -87,7 +88,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const [inFullScreen, setInFullScreen] = useState(false);
   const [actionsSidePanel, setActionsSidePanel] = useState<{
     open: boolean;
-    type: "notes" | "rename" | "";
+    type: "notes" | "rename" | "change" | "";
     documentId: string;
     documentCategory: string;
     documentType: string;
@@ -287,7 +288,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     documentId: string,
     documentCategory: string,
     presentationTitle: string,
-    type: "notes" | "rename",
+    type: "notes" | "rename" | "change",
     documentType: string,
     classification: Classification
   ) => {
@@ -319,6 +320,16 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
         isUnused: selectedDocument.isUnused,
       });
     }
+  };
+  const handleChangeUseDocument = (documentId: string) => {
+    console.log('invoked')
+    setInReclassifyDetails({
+      open: true,
+      documentId: documentId,
+      presentationTitle: "Title",
+      docTypeId: null,
+      isUnused: false,
+    });
   };
 
   const handleOpenAccordion = (documentId: string) => {
@@ -701,6 +712,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       handleGetNotes={handleGetNotes}
                       notesData={notes}
                       handleReclassifyDocument={handleReclassifyDocument}
+                      handleChangeUseDocument={handleChangeUseDocument}
                     />
                   )}
                 </div>
@@ -758,6 +770,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       />
                     </div>
                   )}
+                  {actionsSidePanel.type === "change" && (
+                    <ChangeRadio
+                      handleClose={handleClosePanel} />
+                  )}
+
                 </div>
               </>
             )}
