@@ -1,3 +1,5 @@
+using Common.Extensions;
+using Microsoft.ApplicationInsights.WorkerService;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,9 +15,15 @@ var host = new HostBuilder()
 #endif
         builder.AddJsonFile("local.settings.json", optional: true, reloadOnChange: true);
     })
-    .ConfigureServices(services => {
-        services.AddApplicationInsightsTelemetryWorkerService();
+    .ConfigureServices(services =>
+    {
+        services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions
+        {
+            EnableAdaptiveSampling = false,
+        });
+
         services.ConfigureFunctionsApplicationInsights();
+        services.ConfigureLoggerFilterOptions();
     })
     .Build();
 

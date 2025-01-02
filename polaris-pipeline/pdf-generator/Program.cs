@@ -1,5 +1,6 @@
 using System.IO;
 using System.Linq;
+using Common.Extensions;
 using Common.Handlers;
 using Common.Telemetry;
 using Microsoft.Azure.Functions.Worker;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using pdf_generator;
 using pdf_generator.Services.Extensions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.ApplicationInsights.WorkerService;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -25,9 +27,14 @@ var host = new HostBuilder()
     {
         StartupHelpers.SetAsposeLicence();
 
-        services.AddApplicationInsightsTelemetryWorkerService();
+        services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions
+        {
+            EnableAdaptiveSampling = false,
+        });
+
         services.ConfigureFunctionsApplicationInsights();
 
+        services.ConfigureLoggerFilterOptions();
         services.Configure<WorkerOptions>(o =>
         {
             o.EnableUserCodeException = true;
@@ -49,21 +56,6 @@ var host = new HostBuilder()
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
-    })
-    .ConfigureLogging(logging =>
-    {
-        // The Application Insights SDK adds a default logging filter that instructs ILogger to capture only Warning and more severe logs. Application Insights requires an explicit override.
-        // Log levels can also be configured using appsettings.json. For more information, see https://learn.microsoft.com/en-us/azure/azure-monitor/app/worker-service#ilogger-logs
-        logging.Services.Configure<LoggerFilterOptions>(options =>
-        {
-            var defaultRule = options.Rules.FirstOrDefault(rule =>
-                rule.ProviderName ==
-                "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
-            if (defaultRule is not null)
-            {
-                options.Rules.Remove(defaultRule);
-            }
-        });
     })
     .Build();
 

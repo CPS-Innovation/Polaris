@@ -1,5 +1,6 @@
 using Common.Extensions;
 using Common.Middleware;
+using Microsoft.ApplicationInsights.WorkerService;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +28,12 @@ var host = new HostBuilder()
 #endif
         services.ConfigureServices();
         services.AddApplicationInsightsTelemetryWorkerService();
+
+        services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions
+        {
+            EnableAdaptiveSampling = false,
+        });
+
         services.ConfigureFunctionsApplicationInsights();
         services.ConfigureLoggerFilterOptions();
     })
