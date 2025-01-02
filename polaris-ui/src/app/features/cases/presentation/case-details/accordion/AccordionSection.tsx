@@ -55,6 +55,7 @@ export const AccordionSection: React.FC<Props> = ({
   handleOpenPanel,
   handleGetNotes,
   handleReclassifyDocument,
+  handleChangeUseDocument
 }) => {
   const groupIntoSubCategory = useCallback(() => {
     return docs.reduce((acc, doc) => {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useReducer } from "react";
 import { Input, Radios, LinkButton } from "../../../../../common/presentation/components";
 import './Change-radio.scss';
 
@@ -9,6 +9,31 @@ type ChangeRadioProps = {
 const ChangeRadio: React.FC<ChangeRadioProps> = ({
     handleClose
 }) => {
+
+    const initialState = {
+        RadioButtonsChange: 'used'
+    }
+
+    const reducer = (state: "used" | "unused", action: any) => {
+        switch (action.type) {
+            case 'USED':
+                return {
+                    RadioButtonsChange: 'used'
+                }
+            case 'UNUSED':
+                return {
+                    RadioButtonsChange: 'unused'
+                }
+            default:
+                return state
+        };
+    };
+
+    const [state, dispatch] = useReducer(reducer, initialState)
+
+    const handleRadioButtonsChange = (value: boolean) => {
+        dispatch({ type: value.toString().toUpperCase(), payload: null })
+    }
 
     return (
         <div>
@@ -23,11 +48,7 @@ const ChangeRadio: React.FC<ChangeRadioProps> = ({
                     legend: {
                         children: (
                             <span>
-                                Do you want to change the document name of{" "}
-                                <strong className={'classes.highlight'}>
-                                    {'presentationTitle'}
-                                </strong>
-                                ?
+                                What is the document status?
                             </span>
                         ),
                     },
@@ -37,46 +58,27 @@ const ChangeRadio: React.FC<ChangeRadioProps> = ({
                 //         ? "govuk-form-group--error"
                 //         : ""
                 // }
-                key={"reclassify-change-document-name"}
-                onChange={(val) => alert(val)}
-                value={'state.formData.documentRenameStatus'}
-                name="reclassify-change-document-name"
+                key={"reclassify-change-radio=buttons"}
+                onChange={(arg: any) => {
+                    arg &&
+                        handleRadioButtonsChange(arg);
+                }
+                }
+                value={state.used}
+                name="reclassify-change-radio=buttons"
                 items={[
                     {
-                        children: "Yes",
-                        conditional: {
-                            children: [
-                                <Input
-                                    key="reclassify-document-new-name"
-                                    id="reclassify-document-new-name"
-                                    data-testid="reclassify-document-new-name"
-                                    className="govuk-input--width-20"
-                                    label={{
-                                        children: "Enter new document name",
-                                    }}
-                                    // errorMessage={
-                                    //     formDataErrors.documentNewNameErrorText
-                                    //         ? {
-                                    //             children: formDataErrors.documentNewNameErrorText,
-                                    //         }
-                                    //         : undefined
-                                    // }
-                                    name="reclassify-document-new-name"
-                                    type="text"
-                                    value={'state.formData.documentNewName'}
-                                    onChange={() => alert('fdlf')}
-                                />,
-                            ],
-                        },
-                        value: "YES",
+                        children: "Used",
+                        value: "Used",
                     },
                     {
-                        children: "No",
-                        value: "NO",
+                        children: "Unused",
+                        value: "Unused",
                     },
                 ]}
-                data-testid="reclassify-rename"
+                data-testid="reclassify-change"
             />
+            {console.log("end: ", state.RadioButtonsChange)}
         </div>
     )
 }

@@ -34,7 +34,6 @@ type Props = {
   handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
   handleChangeUseDocument: (documentId: string) => void;
-  notesData: NotesData[];
 };
 export type AccordionRef = {
   handleOpenAccordion: (documentId: string) => void;
@@ -54,6 +53,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
       accordionStateChangeCallback,
       handleReclassifyDocument,
       handleGetNotes,
+
     },
     ref
   ) => {
