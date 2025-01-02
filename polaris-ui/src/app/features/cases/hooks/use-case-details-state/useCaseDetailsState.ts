@@ -510,6 +510,21 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleHideSaveRotationModal = useCallback(
+    (documentId: string) =>
+      dispatch({
+        type: "UPDATE_DOCUMENT_SAVE_STATUS",
+        payload: {
+          documentId,
+          saveStatus: {
+            type: "none",
+            status: "initial",
+          },
+        },
+      }),
+    [dispatch]
+  );
+
   return {
     ...combinedState,
     handleOpenPdf,
@@ -549,5 +564,6 @@ export const useCaseDetailsState = (
     handleClearNotification,
     handleUpdateConversionStatus,
     handleShowHidePageDeletion,
+    handleHideSaveRotationModal,
   };
 };
