@@ -19,7 +19,7 @@ import {
   RotationDeletionWarningModal,
 } from "../modals/PageRotationDeletionWarningModal";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
-import { buildHeaders } from "../../../../cases/api/auth/header-factory";
+import { useAuthHeaderContext } from "../../../../../AuthHeaderProvider";
 import classes from "./PdfTab.module.scss";
 
 type PdfTabProps = {
@@ -97,6 +97,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   handleSaveRotations,
   handleUpdateConversionStatus,
 }) => {
+  const { buildHeaders } = useAuthHeaderContext();
   const trackEvent = useAppInsightsTrackEvent();
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
     useState<number>(0);
@@ -127,15 +128,25 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     deletePageMode,
   } = caseDocumentViewModel;
 
+  const isDocumentRefreshing = useMemo(() => {
+    return savedDocumentDetails.find(
+      (document) => document.documentId === caseDocumentViewModel.documentId
+    );
+  }, [savedDocumentDetails, caseDocumentViewModel.documentId]);
+
   useEffect(() => {
     const updateNewUrlWithHeader = async (url: string) => {
       const headers = await buildHeaders();
       setUrlWithHeader({ url: url, headers: headers });
     };
+    if (isDocumentRefreshing) {
+      setUrlWithHeader(null);
+      return;
+    }
     if (url && url !== urlWithHeader?.url) {
       updateNewUrlWithHeader(url);
     }
-  }, [url, urlWithHeader]);
+  }, [url, urlWithHeader, buildHeaders, isDocumentRefreshing]);
 
   const showDeletePage = useMemo(
     () =>
@@ -287,11 +298,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     handleShowHidePageDeletion(documentId, newDeletePageMode);
   };
 
-  const isDocumentRefreshing = () => {
-    return savedDocumentDetails.find(
-      (document) => document.documentId === caseDocumentViewModel.documentId
-    );
-  };
   const isSearchPIIOn = useMemo(() => {
     return !!searchPIIDataItem?.show;
   }, [searchPIIDataItem]);
@@ -403,7 +409,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           </div>
         )}
 
-        {urlWithHeader?.url && !isDocumentRefreshing() ? (
+        {urlWithHeader?.url ? (
           <PdfViewer
             redactionTypesData={redactionTypesData}
             url={urlWithHeader?.url}
