@@ -9,20 +9,18 @@
             "Host.Results": "Information",
             "pdf_redactor.Functions.PdfRedactor": "Information"
         },
-        "applicationInsights": {
-            "samplingSettings": {
-                "isEnabled": true,
-                "maxTelemetryItemsPerSecond": 20,
-                "excludedTypes": "Request;Exception;Event"
-            },
-            "enableLiveMetrics": true,
-            "enableDependencyTracking": true,
-            "enablePerformanceCountersCollection": true,
-            "httpAutoCollectionOptions": {
-                "enableHttpTriggerExtendedInfoCollection": true,
-                "enableW3CDistributedTracing": true,
-                "enableResponseHeaderInjection": true
-            }
+      "applicationInsights": {
+        "logLevel": {
+          "default": "Information"
+        },
+        "enableLiveMetrics": true,
+        "enableDependencyTracking": true,
+        "enablePerformanceCountersCollection": true,
+        "httpAutoCollectionOptions": {
+          "enableHttpTriggerExtendedInfoCollection": true,
+          "enableW3CDistributedTracing": true,
+          "enableResponseHeaderInjection": true
         }
+      }
     }
 }

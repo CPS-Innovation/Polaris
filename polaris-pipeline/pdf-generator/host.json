@@ -9,10 +9,8 @@
       "Host.Results": "Information"
     },
     "applicationInsights": {
-      "samplingSettings": {
-        "isEnabled": true,
-        "maxTelemetryItemsPerSecond": 20,
-        "excludedTypes": "Request;Exception;Event"
+      "logLevel": {
+        "default": "Information"
       },
       "enableLiveMetrics": true,
       "enableDependencyTracking": true,

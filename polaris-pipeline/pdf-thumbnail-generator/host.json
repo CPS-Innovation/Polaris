@@ -13,10 +13,8 @@
       "pdf_thumbnail_generator.Functions.Maintenance": "Information"
     },
     "applicationInsights": {
-      "samplingSettings": {
-        "isEnabled": true,
-        "maxTelemetryItemsPerSecond": 20,
-        "excludedTypes": "Request"
+      "logLevel": {
+        "default": "Information"
       },
       "enableLiveMetricsFilters": true
     }
