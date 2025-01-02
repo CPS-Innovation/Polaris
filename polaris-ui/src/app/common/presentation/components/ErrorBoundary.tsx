@@ -5,6 +5,7 @@ import { CmsAuthRedirectingError } from "../../errors/CmsAuthRedirectingError";
 import { ErrorPage } from "./error-pages/ErrorPage";
 import { CmsAuthError } from "../../errors/CmsAuthError";
 import { AuthErrorPage } from "./error-pages/AuthErrorPage";
+import appInitialisationError from "../../../app-initialisation-error";
 
 interface Props {
   children: ReactNode;
@@ -16,6 +17,13 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    if (appInitialisationError.error) {
+      this.state = { hasError: true, error: appInitialisationError.error };
+    }
+  }
+
   public state: State = {
     hasError: false,
     error: undefined,

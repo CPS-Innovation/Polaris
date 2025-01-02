@@ -1,0 +1,23 @@
+.trackerSummary {
+  margin-top: 3rem;
+  display: flex;
+  flex-direction: column;
+  color: #505a5f;
+  display: flex;
+  align-items: center;
+}
+
+.caseSearchReadyText {
+  margin-top: 1rem;
+  font-weight: bold;
+  color: #0b0c0c;
+}
+.documentsSearchIndexText {
+  font-weight: bold;
+}
+.documentsReadyToReadText {
+  font-weight: bold;
+}
+.totalDocuments {
+  font-weight: bold;
+}

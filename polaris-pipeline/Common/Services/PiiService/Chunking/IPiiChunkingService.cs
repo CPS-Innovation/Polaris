@@ -7,6 +7,6 @@ namespace Common.Services.PiiService.Chunking
 {
     public interface IPiiChunkingService
     {
-        List<PiiChunk> GetDocumentTextPiiChunks(AnalyzeResults analyzeResults, int caseId, string documentId, int characterLimit, Guid correlationId);
+        List<PiiChunk> GetDocumentTextPiiChunks(AnalyzeResults analyzeResults, int characterLimit);
     }
 }

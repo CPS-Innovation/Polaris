@@ -53,7 +53,7 @@ namespace coordinator.Tests.Clients.PdfGenerator
         Method = HttpMethod.Put
       };
 
-      _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId)}", It.IsAny<Guid>(), null)).Returns(_httpRequestMessage);
+      _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId, _versionId)}", It.IsAny<Guid>(), null)).Returns(_httpRequestMessage);
 
       var response = _fixture.Create<RedactPdfResponse>();
       _httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)

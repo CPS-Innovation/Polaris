@@ -15,8 +15,6 @@ namespace Common.tests.Services.OcrResultsServiceTests
         private readonly Line _ocrLine1;
         private readonly Line _ocrLine2;
         private readonly Line _ocrLine3;
-        private const int CaseId = 123456;
-        private const string DocumentId = "CMS-1000";
 
         public PiiChunkingServiceServiceTests()
         {
@@ -80,7 +78,7 @@ namespace Common.tests.Services.OcrResultsServiceTests
 
             var expectedResult = $"{readResult.Lines[0].Text} {readResult.Lines[1].Text}";
 
-            var result = new PiiChunk(1, CaseId, DocumentId, 100);
+            var result = new PiiChunk(1, 100);
             result.BuildChunk(analyzeResults, ref processedCount);
 
             result.Text.Should().Be(expectedResult);
@@ -117,7 +115,7 @@ namespace Common.tests.Services.OcrResultsServiceTests
 
 
 
-            var results = _piiChunkingService.GetDocumentTextPiiChunks(analyzeResults, CaseId, DocumentId, characterLimit, Guid.NewGuid());
+            var results = _piiChunkingService.GetDocumentTextPiiChunks(analyzeResults, characterLimit);
 
             results[0].Text.Should().Be(expectedChunk1Text);
         }
@@ -143,7 +141,7 @@ namespace Common.tests.Services.OcrResultsServiceTests
                 ReadResults = new List<ReadResult> { readResult }
             };
 
-            var results = _piiChunkingService.GetDocumentTextPiiChunks(analyzeResults, CaseId, DocumentId, characterLimit, Guid.NewGuid());
+            var results = _piiChunkingService.GetDocumentTextPiiChunks(analyzeResults, characterLimit);
 
             results.Count.Should().Be(2);
             results.All(x => x.TextLength < characterLimit).Should().BeTrue();
@@ -180,7 +178,7 @@ namespace Common.tests.Services.OcrResultsServiceTests
                 ReadResults = readResults
             };
 
-            var results = _piiChunkingService.GetDocumentTextPiiChunks(analyzeResults, CaseId, DocumentId, characterLimit, Guid.NewGuid());
+            var results = _piiChunkingService.GetDocumentTextPiiChunks(analyzeResults, characterLimit);
 
             results.Count.Should().Be(1);
             results.All(x => x.TextLength < characterLimit).Should().BeTrue();
@@ -220,7 +218,7 @@ namespace Common.tests.Services.OcrResultsServiceTests
                 ReadResults = new List<ReadResult> { readResult }
             };
 
-            var result = new PiiChunk(1, CaseId, DocumentId, 100);
+            var result = new PiiChunk(1, 100);
             result.BuildChunk(analyzeResults, ref processedCount);
 
             result.Lines.Count.Should().Be(result.LineCount);
@@ -251,7 +249,7 @@ namespace Common.tests.Services.OcrResultsServiceTests
 
             var expectedProcessedCount = readResult.Lines.Count;
 
-            var result = new PiiChunk(1, CaseId, DocumentId, 100);
+            var result = new PiiChunk(1, 100);
             result.BuildChunk(analyzeResults, ref processedCount);
 
             processedCount.Should().Be(expectedProcessedCount);

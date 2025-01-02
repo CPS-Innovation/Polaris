@@ -1,26 +1,37 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Text.Json.Serialization;
 
 namespace Common.Dto.Response.Case
 {
     public class DefendantDetailsDto
     {
+        public DefendantDetailsDto()
+        {
+        }
+
         [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public int Id { get; set; }
 
         [JsonProperty("listOrder")]
+        [JsonPropertyName("listOrder")]
         public int? ListOrder { get; set; }
 
         [JsonProperty("firstNames")]
+        [JsonPropertyName("firstNames")]
         public string FirstNames { get; set; }
 
         [JsonProperty("surname")]
+        [JsonPropertyName("surname")]
         public string Surname { get; set; }
 
         [JsonProperty("organisationName")]
+        [JsonPropertyName("organisationName")]
         public string OrganisationName { get; set; }
 
         [JsonProperty("dob")]
+        [JsonPropertyName("dob")]
         public string Dob { get; set; }
 
         public string Age
@@ -67,9 +78,11 @@ namespace Common.Dto.Response.Case
         }
 
         [JsonProperty("youth")]
+        [JsonPropertyName("youth")]
         public bool IsYouth { get; set; }
 
         [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public string Type { get; set; }
     }
 }

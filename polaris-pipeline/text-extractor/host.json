@@ -6,7 +6,8 @@
       "default": "Information",
       "Function": "Information",
       "Host.Aggregator": "Information",
-      "Host.Results": "Information"
+      "Host.Results": "Information",
+      "Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerHandler": "Warning"
     },
     "applicationInsights": {
       "samplingSettings": {

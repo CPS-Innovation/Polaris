@@ -1,5 +1,13 @@
 import { redactionRequestAssertionValidator } from "../utils/redactionAssuranceUtils";
+import { GET_DOCUMENTS_LIST_ROUTE } from "../../src/mock-api/routes";
+import { getDocumentsListResult } from "../../src/mock-api/data/getDocumentsList.cypress";
 describe("Feature Delete Page", () => {
+  beforeEach(() => {
+    const documentList = getDocumentsListResult(1);
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+    });
+  });
   it("Should show page delete button and page number correctly in each page", () => {
     cy.visit("/case-details/12AB1111111/13401?pageDelete=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
@@ -65,7 +73,6 @@ describe("Feature Delete Page", () => {
 
   it("Should successfully complete deleting pages with other redaction", () => {
     const expectedSaveRequest = {
-      documentId: "1",
       redactions: [
         {
           pageIndex: 3,
@@ -85,7 +92,7 @@ describe("Feature Delete Page", () => {
     cy.trackRequestBody(
       saveRequestObject,
       "PUT",
-      "/api/urns/12AB1111111/cases/13401/documents/1"
+      "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
     );
     const expectedRedactionLogRequest = {
       urn: "99ZZ9999999",
@@ -262,6 +269,7 @@ describe("Feature Delete Page", () => {
   it("should remove any unsaved redactions in the page selected for deletion", () => {
     const expectedSaveRequest = {
       documentId: "1",
+      versionId: 2,
       redactions: [],
       documentModifications: [{ pageIndex: 1, operation: "delete" as const }],
     };
@@ -269,7 +277,7 @@ describe("Feature Delete Page", () => {
     cy.trackRequestBody(
       saveRequestObject,
       "PUT",
-      "/api/urns/12AB1111111/cases/13401/documents/1"
+      "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
     );
     cy.visit("/case-details/12AB1111111/13401?pageDelete=true");
     cy.findByTestId("btn-accordion-open-close-all").click();

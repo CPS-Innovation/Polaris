@@ -1,5 +1,8 @@
 using Common.Configuration;
 using PolarisGateway.Clients.Coordinator;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace PolarisGateway.Clients.PdfThumbnailGenerator
 { 

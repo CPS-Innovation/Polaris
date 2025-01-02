@@ -1,5 +1,15 @@
-import { SAVE_ROTATION_ROUTE } from "../../src/mock-api/routes";
+import {
+  SAVE_ROTATION_ROUTE,
+  GET_DOCUMENTS_LIST_ROUTE,
+} from "../../src/mock-api/routes";
+import { getDocumentsListResult } from "../../src/mock-api/data/getDocumentsList.cypress";
 describe("Feature Rotate Page", () => {
+  beforeEach(() => {
+    const documentList = getDocumentsListResult(1);
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+    });
+  });
   it("Should be able to turn off/on the rotate page feature", () => {
     cy.visit("/case-details/12AB1111111/13401?pageRotate=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
@@ -93,7 +103,7 @@ describe("Feature Rotate Page", () => {
     cy.trackRequestBody(
       saveRequestObject,
       "POST",
-      "/api/urns/12AB1111111/cases/13401/documents/1/modify"
+      "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/modify"
     );
     cy.visit("/case-details/12AB1111111/13401?pageRotate=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
@@ -228,9 +238,7 @@ describe("Feature Rotate Page", () => {
     cy.findByTestId("btn-save-rotations-0").click();
     cy.findByTestId("div-modal").should("exist");
 
-    cy.waitUntil(() => {
-      return saveRequestObject.body;
-    }).then(() => {
+    cy.waitUntil(() => saveRequestObject.body).then(() => {
       expect(saveRequestObject.body).to.deep.equal(
         JSON.stringify(expectedSaveRequest)
       );

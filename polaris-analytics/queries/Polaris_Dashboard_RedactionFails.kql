@@ -49,7 +49,7 @@ let DdeiExceptions = AppExceptions
 | project PolarisCorrelationIdDdei = PolarisCorrelationId,
     DdeiFailType = case(
         OuterMessage contains "RequestEntityTooLarge", "RequestEntityTooLarge",
-        OuterMessage contains "User session not found", "Auth",
+        OuterMessage contains "User session not found" or OuterMessage contains "It is possible that your auth token is missing or out-of-date", "Auth",
         OuterMessage contains "Sequence contains no matching element", "DocumentRemoved",
         OuterMessage contains "RegisterDocumentAsync", "RegisterDocument",
         OuterMessage contains "An exception occurred contacting Cms Classic", "CMS Classic Exception",

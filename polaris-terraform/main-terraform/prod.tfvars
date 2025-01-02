@@ -5,12 +5,10 @@ dns_server      = "10.7.204.164"
 dns_alt_server  = "168.63.129.16"
 
 ui_component_service_plans = {
-  gateway_service_plan_sku        = "EP1"
-  gateway_always_ready_instances  = 3
-  gateway_maximum_scale_out_limit = 10
-  spa_service_plan_sku            = "P1v3"
-  proxy_service_plan_sku          = "P1v3"
-  maintenance_service_plan_sku    = "B1"
+  gateway_service_plan_sku     = "P2v3"
+  spa_service_plan_sku         = "P1v3"
+  proxy_service_plan_sku       = "P1v3"
+  maintenance_service_plan_sku = "B1"
 }
 
 pipeline_component_service_plans = {
@@ -37,10 +35,6 @@ polaris_webapp_details = {
 }
 
 terraform_service_principal_display_name = "Azure Pipeline: Innovation-Production"
-
-ui_logging = {
-  gateway_scale_controller = "AppInsights:Verbose"
-}
 
 pipeline_logging = {
   pdf_generator_scale_controller  = "AppInsights:Verbose"
@@ -80,7 +74,7 @@ cms_details = {
 }
 
 wm_task_list_host_name  = "https://cps.outsystemsenterprise.com"
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps.outsystemsenterprise.com/WorkManagementApp/,https://cps.outsystemsenterprise.com/CaseReview/"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps.outsystemsenterprise.com/WorkManagementApp/,https://cps.outsystemsenterprise.com/CaseReview/,https://housekeeping-fn.cps.gov.uk/"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
@@ -115,10 +109,10 @@ private_beta = {
 }
 
 case_review_app_redirect_url = "https://cps.outsystemsenterprise.com/CaseReview/RedirectCW"
-bulk_um_redirect_url         = ""
+bulk_um_redirect_url         = "https://housekeeping-fn.cps.gov.uk/api/init"
 
 polaris_ui_reauth = {
-  outbound_live_url       = "/auth-refresh-outbound"
+  outbound_live_url       = "/auth-refresh-outbound,/polaris"
   outbound_e2e_url        = "/polaris"
   inbound_url             = "/auth-refresh-inbound"
   use_in_situ_refresh     = "false"

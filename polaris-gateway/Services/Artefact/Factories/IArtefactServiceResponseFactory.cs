@@ -1,5 +1,6 @@
 using Common.Constants;
 using PolarisGateway.Services.Artefact.Domain;
+using System;
 
 namespace PolarisGateway.Services.Artefact.Factories
 {
@@ -7,9 +8,11 @@ namespace PolarisGateway.Services.Artefact.Factories
     {
         ArtefactResult<T> CreateOkfResult<T>(T result, bool? isFromStorage);
 
-        ArtefactResult<T> CreateInterimResult<T>(T result);
+        ArtefactResult<T> CreateInterimResult<T>(Guid continuationToken);
 
         ArtefactResult<T> CreateFailedResult<T>(PdfConversionStatus? pdfConversionStatus);
+
+        ArtefactResult<U> ConvertNonOkResult<T, U>(ArtefactResult<T> result);
     }
 }
 

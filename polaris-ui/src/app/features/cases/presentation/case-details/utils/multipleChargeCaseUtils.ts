@@ -1,5 +1,5 @@
 import { CaseDetails } from "../../../domain/gateway/CaseDetails";
-import { PipelineDocument } from "../../../domain/gateway/PipelineDocument";
+import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 
 export const isMultipleChargeCase = (caseDetails: CaseDetails): boolean => {
   const { defendants } = caseDetails;
@@ -7,7 +7,7 @@ export const isMultipleChargeCase = (caseDetails: CaseDetails): boolean => {
   return defendants.length > 1 || defendants[0]?.charges.length > 1;
 };
 
-export const getDACDocumentId = (documents: PipelineDocument[]): string => {
+export const getDACDocumentId = (documents: MappedCaseDocument[]): string => {
   const dacDocument = documents.find(
     (document) => document.cmsDocType.documentType === "DAC"
   );

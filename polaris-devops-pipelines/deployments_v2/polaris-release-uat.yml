@@ -68,5 +68,5 @@ stages:
       targetBuild: PolarisBuild
       targetLabel: "UAT"
       appInsightsKey: $(innovation-uat-app-insights-instrumentation-key)
-      buildDefinitionId: 421
+      buildDefinitionId: 587
       stageDependsOn: Check_Status

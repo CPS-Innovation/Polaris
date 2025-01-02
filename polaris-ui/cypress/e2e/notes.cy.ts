@@ -63,19 +63,7 @@ describe("Feature Notes", () => {
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/10/notes"
     );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
 
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
-    );
     const doc10GetNotesCounter = { count: 0 };
     cy.trackRequestCount(
       doc10GetNotesCounter,
@@ -86,12 +74,6 @@ describe("Feature Notes", () => {
     cy.visit("/case-details/12AB1111111/13401?notes=true");
 
     cy.findByTestId("btn-accordion-open-close-all").click();
-    cy.waitUntil(() => {
-      return trackerCounter.count;
-    }).then(() => {
-      expect(refreshPipelineCounter.count).to.equal(1);
-      expect(trackerCounter.count).to.equal(1);
-    });
     cy.findByTestId("notes-panel").should("not.exist");
     cy.findByTestId("btn-notes-10").click();
     cy.findByTestId("notes-panel").should("exist");
@@ -114,12 +96,6 @@ describe("Feature Notes", () => {
       );
     });
 
-    cy.waitUntil(() => {
-      return trackerCounter.count > 1;
-    }).then(() => {
-      expect(doc10GetNotesCounter.count).to.equal(1);
-      expect(trackerCounter.count).to.equal(2);
-    });
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-10");
   });
@@ -138,18 +114,6 @@ describe("Feature Notes", () => {
       doc10GetNotesCounter,
       "GET",
       "/api/urns/12AB1111111/cases/13401/documents/10/notes"
-    );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
     );
 
     cy.visit("/case-details/12AB1111111/13401?notes=true");
@@ -176,8 +140,6 @@ describe("Feature Notes", () => {
     cy.focused().should("have.id", "btn-notes-10");
     cy.window().then(() => {
       expect(doc10GetNotesCounter.count).to.equal(1);
-      expect(refreshPipelineCounter.count).to.equal(1);
-      expect(trackerCounter.count).to.equal(1);
     });
   });
   it("Should throw error, if new note crosses the maximum character limit", () => {
@@ -317,19 +279,7 @@ describe("Feature Notes", () => {
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/2/notes"
     );
-    const refreshPipelineCounter = { count: 0 };
-    cy.trackRequestCount(
-      refreshPipelineCounter,
-      "POST",
-      "/api/urns/12AB1111111/cases/13401"
-    );
 
-    const trackerCounter = { count: 0 };
-    cy.trackRequestCount(
-      trackerCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/tracker"
-    );
     const doc2GetNotesCounter = { count: 0 };
     cy.trackRequestCount(
       doc2GetNotesCounter,
@@ -378,12 +328,9 @@ describe("Feature Notes", () => {
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-2");
     cy.waitUntil(() => {
-      return trackerCounter.count > 2;
-    }).then(() => {
-      expect(addNote2RequestCounter.count).to.equal(1);
-      expect(trackerCounter.count).to.equal(3);
-      expect(refreshPipelineCounter.count).to.equal(3);
+      return expect(addNote2RequestCounter.count).to.equal(1);
     });
+
     cy.waitUntil(() => {
       return doc2GetNotesCounter.count === 2;
     });

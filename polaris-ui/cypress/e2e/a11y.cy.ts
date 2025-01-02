@@ -1,3 +1,6 @@
+import { GET_DOCUMENTS_LIST_ROUTE } from "../../src/mock-api/routes";
+import { getRefreshRedactedDocument } from "../../src/mock-api/data/getDocumentsList.cypress";
+
 function terminalLog(violations: any) {
   cy.task(
     "log",
@@ -150,8 +153,13 @@ describe("Accessibility testing using cypress-axe", () => {
     });
 
     it("Has no violations while saving a redaction and when spinner screen is shown", () => {
+      const documentList = getRefreshRedactedDocument("1", 2);
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
+      cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+        body: documentList[0],
+        timeMs: 1000,
+      });
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");

@@ -1,0 +1,17 @@
+let Base = AppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where OperationName in ("PolarisPipelineCaseSearch")
+| where ResultCode == "200"
+| extend User = tostring(Properties.User)
+| where User != "REDACTED@REDACTED.EMAIL.ADDRESS"
+| summarize CountSearchesOnCase = count() by Url;
+
+
+let TotalCases = toscalar ( Base | summarize count())
+;
+
+Base
+| summarize CountBin = count() by CountSearchesOnCase
+| order by CountSearchesOnCase asc 
+| extend CumulativeCount = row_cumsum(CountBin)
+| project CountSearchesOnCase, CumulativePercentage = (100.0 * CumulativeCount / TotalCases)
