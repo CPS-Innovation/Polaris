@@ -33,6 +33,7 @@
   "author": "CPS",
   "license": "BSD-3-Clause",
   "dependencies": {
+    "@koa/cors": "^5.0.0",
     "lit": "^3.2.0"
   },
   "devDependencies": {

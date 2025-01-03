@@ -5,6 +5,7 @@
  */
 
 import {legacyPlugin} from '@web/dev-server-legacy';
+import cors from '@koa/cors';
 
 const mode = process.env.MODE || 'dev';
 if (!['dev', 'prod'].includes(mode)) {
@@ -21,5 +22,11 @@ export default {
         webcomponents: false,
       },
     }),
+  ],
+  middleware: [
+    // Allow files served from the localhost domain to be used on any domain
+    // (ex: gerrit-review.googlesource.com), which happens during local
+    // development with Gerrit FE Helper extension.
+    cors({origin: '*'}),
   ],
 };
