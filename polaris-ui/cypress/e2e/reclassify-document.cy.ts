@@ -141,13 +141,8 @@ describe("Feature Reclassify Document", () => {
     cy.findByTestId("reclassify-document-type")
       .find("option")
       .should("have.length", 6);
-    // cy.findByTestId('reclassify-continue-btn').should('be.enabled');
     cy.findByTestId("reclassify-document-type").select("MG10");
-    // .then((el) => {
-    //   cy.findByTestId("reclassify-continue-btn").should("be.disabled");
-    // })
     cy.findByTestId("reclassify-continue-btn").should("be.enabled");
-    // cy.findByTestId('reclassify-continue-btn').should('be.disabled'); //rd?
     cy.findByTestId("div-reclassify")
       .find("h1")
       .should("have.length", 1)
@@ -601,9 +596,6 @@ describe("Feature Reclassify Document", () => {
           .should("be.disabled");
         cy.findByTestId("reclassify-continue-btn").should("be.disabled");
         cy.findByTestId("reclassify-cancel-btn").should("be.disabled");
-        // cy.findByTestId("reclassify-exhibit-item-name").should('be.disabled');
-        // cy.findByTestId("reclassify-exhibit-reference").should('be.disabled');
-        // cy.findByTestId("reclassify-exhibit-producer").children().first().should('be.disabled');
       });
     cy.findByTestId("div-reclassify")
       .contains("button", "Back")
@@ -613,7 +605,7 @@ describe("Feature Reclassify Document", () => {
       "contain",
       "You're entering exhibit details for MCLOVEMG3"
     );
-    cy.findByTestId("reclassify-exhibit-item-name").clear().type("MCLOVEMG3_1"); /// RD
+    cy.findByTestId("reclassify-exhibit-item-name").clear().type("MCLOVEMG3_1");
 
     cy.findByTestId("reclassify-exhibit-item-name")
       .should("contain.value", "MCLOVEMG3")
@@ -761,7 +753,6 @@ describe("Feature Reclassify Document", () => {
   });
 
   it("Should show all the reclassify UI validation errors", () => {
-    //RD?
     const saveReclassifyRequestObject = { body: "" };
     cy.trackRequestBody(
       saveReclassifyRequestObject,
@@ -956,7 +947,7 @@ describe("Feature Reclassify Document", () => {
     );
     cy.findByTestId("reclassify-statement-number-link").should(
       "have.text",
-      "Statement number 3 already exist"
+      "Statement number 3 already exists"
     );
     cy.get("#reclassify-statement-date-error").should(
       "have.text",
@@ -971,7 +962,7 @@ describe("Feature Reclassify Document", () => {
     cy.focused().should("have.id", "reclassify-statement-number");
     cy.get("#reclassify-statement-number-error").should(
       "have.text",
-      "Error: Statement number 3 already exist"
+      "Error: Statement number 3 already exists"
     );
     cy.findByTestId("reclassify-statement-number").type("5");
     cy.findByTestId("reclassify-continue-btn").click();
@@ -1191,7 +1182,6 @@ describe("Feature Reclassify Document", () => {
   });
 
   it("should show error if it failed to retrieve exhibit producers", () => {
-    // RD?
     cy.overrideRoute(
       EXHIBIT_PRODUCERS,
       {
@@ -1240,7 +1230,6 @@ describe("Feature Reclassify Document", () => {
   });
 
   it("should show error if it failed to retrieve statement witness numbers", () => {
-    //RD?
     cy.overrideRoute(
       STATEMENT_WITNESS_NUMBERS,
       {
