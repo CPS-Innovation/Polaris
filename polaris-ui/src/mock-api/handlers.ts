@@ -253,7 +253,6 @@ export const setupHandlers = ({
     rest.get(makeApiPath(routes.STATEMENT_WITNESS), (req, res, ctx) => {
       const results = reclassifyDataSources[sourceName].statementWitness;
       return res(delay1(ctx), ctx.json(results));
-      // return res(ctx.status(500), ctx.body("test_user_name"));
     }),
 
     rest.get(makeApiPath(routes.STATEMENT_WITNESS_NUMBERS), (req, res, ctx) => {
