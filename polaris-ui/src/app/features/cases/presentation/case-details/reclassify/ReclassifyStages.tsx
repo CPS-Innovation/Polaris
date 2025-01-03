@@ -6,8 +6,6 @@ import {
 } from "../../../../../common/presentation/components";
 import { useReClassifyContext } from "./context/ReClassifyProvider";
 import { ReclassifyStage1 } from "./ReclassifyStage1";
-import { ReclassifyStage2 } from "./ReclassifyStage2";
-import { ReclassifyStage3 } from "./ReclassifyStage3";
 import { FormDataErrors } from "./data/FormDataErrors";
 import { MaterialType } from "./data/MaterialType";
 import { ExhibitProducer } from "./data/ExhibitProducer";
@@ -203,7 +201,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       if (
         statementWitnessNumbers[statementWitnessId]?.includes(+statementNumber)
       ) {
-        errorTexts.statementNumberErrorText = `Statement number ${statementNumber} already exist`;
+        errorTexts.statementNumberErrorText = `Statement number ${statementNumber} already exists`;
       }
       if (result.errors.includes("invalid day")) {
         errorTexts.statementDayErrorText = "invalid day";
@@ -377,8 +375,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               contentLoaded ||
               state.reClassifySaveStatus === "saving" ||
               state.reClassifySaveStatus === "success"
-                ? true
-                : false
             }
             data-testid="reclassify-continue-btn"
           >
@@ -392,8 +388,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
               contentLoaded ||
               state.reClassifySaveStatus === "saving" ||
               state.reClassifySaveStatus === "success"
-                ? true
-                : false
             }
           >
             Cancel

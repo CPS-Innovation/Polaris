@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
-  LinkButton,
   Select,
   Input,
   Radios,
@@ -456,8 +455,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                         disabled={
                           state.reClassifySaveStatus === "saving" ||
                           state.reClassifySaveStatus === "success"
-                            ? true
-                            : false
                         }
                       />,
                     ],
@@ -465,18 +462,14 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                   value: "YES",
                   disabled:
                     state.reClassifySaveStatus === "saving" ||
-                    state.reClassifySaveStatus === "success"
-                      ? true
-                      : false,
+                    state.reClassifySaveStatus === "success",
                 },
                 {
                   children: "No",
                   value: "NO",
                   disabled:
                     state.reClassifySaveStatus === "saving" ||
-                    state.reClassifySaveStatus === "success"
-                      ? true
-                      : false,
+                    state.reClassifySaveStatus === "success",
                 },
               ]}
               data-testid="reclassify-rename"
@@ -506,8 +499,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               disabled={
                 state.reClassifySaveStatus === "saving" ||
                 state.reClassifySaveStatus === "success"
-                  ? true
-                  : false
               }
             />
             <Input
@@ -531,8 +522,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               disabled={
                 state.reClassifySaveStatus === "saving" ||
                 state.reClassifySaveStatus === "success"
-                  ? true
-                  : false
               }
             />
 
@@ -559,8 +548,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 disabled={
                   state.reClassifySaveStatus === "saving" ||
                   state.reClassifySaveStatus === "success"
-                    ? true
-                    : false
                 }
               />
 
@@ -595,8 +582,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                     disabled={
                       state.reClassifySaveStatus === "saving" ||
                       state.reClassifySaveStatus === "success"
-                        ? true
-                        : false
                     }
                   />
                 </div>
@@ -627,8 +612,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               disabled={
                 state.reClassifySaveStatus === "saving" ||
                 state.reClassifySaveStatus === "success"
-                  ? true
-                  : false
               }
             />
             <DateInput
@@ -660,9 +643,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                   value: state.formData.statementDay,
                   disabled:
                     state.reClassifySaveStatus === "saving" ||
-                    state.reClassifySaveStatus === "success"
-                      ? true
-                      : false,
+                    state.reClassifySaveStatus === "success",
                 },
                 {
                   id: "reclassify-statement-month",
@@ -675,9 +656,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                   value: state.formData.statementMonth,
                   disabled:
                     state.reClassifySaveStatus === "saving" ||
-                    state.reClassifySaveStatus === "success"
-                      ? true
-                      : false,
+                    state.reClassifySaveStatus === "success",
                 },
                 {
                   id: "reclassify-statement-year",
@@ -690,9 +669,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                   value: state.formData.statementYear,
                   disabled:
                     state.reClassifySaveStatus === "saving" ||
-                    state.reClassifySaveStatus === "success"
-                      ? true
-                      : false,
+                    state.reClassifySaveStatus === "success",
                 },
               ]}
               namePrefix="reclassify-statement-date"
@@ -727,8 +704,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
               disabled={
                 state.reClassifySaveStatus === "saving" ||
                 state.reClassifySaveStatus === "success"
-                  ? true
-                  : false
               }
             />
           </div>
@@ -751,18 +726,14 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
                 value: "YES",
                 disabled:
                   state.reClassifySaveStatus === "saving" ||
-                  state.reClassifySaveStatus === "success"
-                    ? true
-                    : false,
+                  state.reClassifySaveStatus === "success",
               },
               {
                 children: "Unused",
                 value: "NO",
                 disabled:
                   state.reClassifySaveStatus === "saving" ||
-                  state.reClassifySaveStatus === "success"
-                    ? true
-                    : false,
+                  state.reClassifySaveStatus === "success",
               },
             ]}
           />

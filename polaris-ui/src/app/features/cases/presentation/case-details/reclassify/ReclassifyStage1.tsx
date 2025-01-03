@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect, useState } from "react";
+import { useMemo, useRef, useEffect } from "react";
 import {
   LinkButton,
   Select,
@@ -10,11 +10,9 @@ import classes from "./Reclassify.module.scss";
 import { ReclassifyStage2 } from "./ReclassifyStage2";
 
 import { useReClassifyContext } from "./context/ReClassifyProvider";
-import { ReclassifyVariant } from "./data/MaterialType";
 import { ExhibitProducer } from "./data/ExhibitProducer";
 import { StatementWitness } from "./data/StatementWitness";
 import { StatementWitnessNumber } from "./data/StatementWitnessNumber";
-import { statementNumberText } from "./utils/statementNumberText";
 import { FormDataErrors } from "./data/FormDataErrors";
 
 type ReclassifyStage1Props = {
@@ -112,8 +110,6 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
           contentLoaded ||
           state.reClassifySaveStatus === "saving" ||
           state.reClassifySaveStatus === "success"
-            ? true
-            : false
         }
       >
         Back
@@ -190,8 +186,6 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         disabled={
           state.reClassifySaveStatus === "saving" ||
           state.reClassifySaveStatus === "success"
-            ? true
-            : false
         }
       />
       {state?.newDocTypeId ? (
