@@ -109,8 +109,7 @@ export const setupHandlers = ({
   const delay = (ctx: RestContext) =>
     ctx.delay(Math.random() * sanitisedMaxDelay);
 
-  const delay1 = (ctx: RestContext) =>
-    ctx.delay(50);
+  const delay1 = (ctx: RestContext) => ctx.delay(50);
 
   return [
     rest.get(makeApiPath(routes.URN_LOOKUP_ROUTE), (req, res, ctx) => {

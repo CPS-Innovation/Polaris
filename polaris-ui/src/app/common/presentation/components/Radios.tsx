@@ -19,7 +19,7 @@ export type RadiosProps = {
     value: string | undefined;
     children: React.ReactNode;
     conditional?: any;
-    disabled?: boolean // disabling only children not parent takes effect
+    disabled?: boolean; // disabling only children not parent takes effect
   }[];
   onChange?: (value: string | undefined) => void;
 };

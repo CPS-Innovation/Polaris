@@ -6,7 +6,13 @@ type DateInputProps = {
   hint?: {
     children: React.ReactNode;
   };
-  items: { id: string; className: string; name: string; value?: string, disabled?: boolean }[];
+  items: {
+    id: string;
+    className: string;
+    name: string;
+    value?: string;
+    disabled?: boolean;
+  }[];
   errorMessage?: {
     children: React.ReactNode;
   };
@@ -17,7 +23,7 @@ type DateInputProps = {
   };
   namePrefix: string;
   onChange: (value: React.ChangeEvent<HTMLInputElement>) => void;
-  disabled?: boolean
+  disabled?: boolean;
 };
 export const DateInput: React.FC<DateInputProps> = (props) => {
   return <GDS.DateInput {...props} />;

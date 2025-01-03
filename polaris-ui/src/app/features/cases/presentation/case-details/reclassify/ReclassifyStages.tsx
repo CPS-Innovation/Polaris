@@ -90,7 +90,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
   }, []);
 
   const handleCheckContentLoaded = useCallback((value: boolean) => {
-    setContentLoaded(value)
+    setContentLoaded(value);
   }, []);
 
   const validateData = () => {
@@ -258,50 +258,50 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
       immediate:
         state.reclassifyVariant === "Immediate"
           ? {
-            documentName:
-              formData.documentRenameStatus === "YES"
-                ? formData.documentNewName
-                : null,
-          }
+              documentName:
+                formData.documentRenameStatus === "YES"
+                  ? formData.documentNewName
+                  : null,
+            }
           : null,
       other:
         state.reclassifyVariant === "Other"
           ? {
-            documentName:
-              formData.documentRenameStatus === "YES"
-                ? formData.documentNewName
-                : null,
-            used,
-          }
+              documentName:
+                formData.documentRenameStatus === "YES"
+                  ? formData.documentNewName
+                  : null,
+              used,
+            }
           : null,
       statement:
         state.reclassifyVariant === "Statement"
           ? {
-            used,
-            witnessId: +formData.statementWitnessId!,
-            statementNo: +formData.statementNumber!,
-            date:
-              reclassificationType === "Statement"
-                ? `${formData.statementYear}-${formData.statementMonth}-${formData.statementDay}`
-                : "",
-          }
+              used,
+              witnessId: +formData.statementWitnessId!,
+              statementNo: +formData.statementNumber!,
+              date:
+                reclassificationType === "Statement"
+                  ? `${formData.statementYear}-${formData.statementMonth}-${formData.statementDay}`
+                  : "",
+            }
           : null,
       exhibit:
         state.reclassifyVariant === "Exhibit"
           ? {
-            used,
-            existingProducerOrWitnessId:
-              formData.exhibitProducerId &&
+              used,
+              existingProducerOrWitnessId:
+                formData.exhibitProducerId &&
                 formData.exhibitProducerId !== "other"
-                ? +formData.exhibitProducerId
-                : null,
-            newProducer:
-              formData.exhibitProducerId === "other"
-                ? formData.exhibitOtherProducerValue
-                : null,
-            item: formData.exhibitItemName,
-            reference: formData.exhibitReference,
-          }
+                  ? +formData.exhibitProducerId
+                  : null,
+              newProducer:
+                formData.exhibitProducerId === "other"
+                  ? formData.exhibitOtherProducerValue
+                  : null,
+              item: formData.exhibitItemName,
+              reference: formData.exhibitReference,
+            }
           : null,
     };
     return saveData;
@@ -362,7 +362,6 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     setLookupDataError(errorMessage);
   };
 
-
   const closeReclassify = useCallback(() => {
     handleCloseReclassify(documentId);
   }, [handleCloseReclassify, documentId]);
@@ -374,9 +373,13 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
           <Button
             ref={continueButtonRef}
             onClick={handleAcceptAndSave}
-            disabled={contentLoaded || (state.reClassifySaveStatus === "saving" || state.reClassifySaveStatus === "success")
-              ? true
-              : false}
+            disabled={
+              contentLoaded ||
+              state.reClassifySaveStatus === "saving" ||
+              state.reClassifySaveStatus === "success"
+                ? true
+                : false
+            }
             data-testid="reclassify-continue-btn"
           >
             Accept and save
@@ -385,9 +388,13 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
             className={classes.btnCancel}
             onClick={closeReclassify}
             dataTestId="reclassify-cancel-btn"
-            disabled={contentLoaded || (state.reClassifySaveStatus === "saving" || state.reClassifySaveStatus === "success")
-              ? true
-              : false}
+            disabled={
+              contentLoaded ||
+              state.reClassifySaveStatus === "saving" ||
+              state.reClassifySaveStatus === "success"
+                ? true
+                : false
+            }
           >
             Cancel
           </LinkButton>

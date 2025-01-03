@@ -56,7 +56,7 @@ export const Reclassify: React.FC<ReclassifyProps> = ({
           getWitnessStatementNumbers={getWitnessStatementNumbers}
           handleSubmitReclassify={handleSubmitReclassify}
           handleReclassifyTracking={handleReclassifyTracking}
-          handleLookUpDataError={()=>{}}
+          handleLookUpDataError={() => {}}
         />
       </ReClassifyProvider>
     </div>
