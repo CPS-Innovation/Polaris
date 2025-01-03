@@ -2,13 +2,16 @@ import { useMemo, useRef, useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { Location } from "history";
 import { CaseDocumentViewModel } from "../../cases/domain/CaseDocumentViewModel";
+import { AsyncResult } from "../../../common/types/AsyncResult";
+import { MappedCaseDocument } from "../../cases/domain/MappedCaseDocument";
 export type UnSavedRedactionDoc = {
   documentId: CaseDocumentViewModel["documentId"];
   presentationTitle: string;
 };
 
 export const useNavigationAlert = (
-  tabItems: CaseDocumentViewModel[]
+  tabItems: CaseDocumentViewModel[],
+  documentsState: AsyncResult<MappedCaseDocument[]>
 ): {
   showAlert: boolean;
   newPath: string;
@@ -25,17 +28,23 @@ export const useNavigationAlert = (
     documentId: CaseDocumentViewModel["documentId"];
     presentationTitle: string;
   }[] => {
-    const reactionPdfs = tabItems
+    const unsavedRedactedItems = tabItems
       .filter(
         (item) =>
           item.redactionHighlights.length + item.pageDeleteRedactions.length > 0
       )
+      .map(({ documentId }) => documentId);
+
+    const mappedDocuments =
+      documentsState.status === "succeeded" ? documentsState.data : [];
+    const redactedDocs = mappedDocuments
+      .filter((doc) => unsavedRedactedItems.includes(doc.documentId))
       .map((item) => ({
         documentId: item.documentId!,
         presentationTitle: item.presentationTitle!,
       }));
-    return reactionPdfs;
-  }, [tabItems]);
+    return redactedDocs;
+  }, [tabItems, documentsState]);
 
   useEffect(() => {
     navigationUnblockHandle.current = history.block((tx: Location) => {

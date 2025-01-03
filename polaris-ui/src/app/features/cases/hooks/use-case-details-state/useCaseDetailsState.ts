@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { CombinedState, initialState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
@@ -23,6 +23,7 @@ import {
   PresentationDocumentProperties,
   GroupedConversionStatus,
 } from "../../domain/gateway/PipelineDocument";
+import { getStateFromSessionStorage } from "../../presentation/case-details/utils/stateRetentionUtil";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -32,7 +33,10 @@ export const useCaseDetailsState = (
   context: TaggedContext | undefined,
   isUnMounting: () => boolean
 ) => {
+  const retentionState = null;
+  // const retentionState = useMemo(() => getStateFromSessionStorage(caseId), []);
   const trackEvent = useAppInsightsTrackEvent();
+
   const [combinedState, dispatch] = useReducerAsync(
     reducer,
     { ...initialState, caseId, urn, context },
@@ -45,7 +49,14 @@ export const useCaseDetailsState = (
     combinedState.storedUserData.status,
     dispatch
   );
-  useGetCaseData(urn, caseId, combinedState, dispatch, isUnMounting);
+  useGetCaseData(
+    urn,
+    caseId,
+    combinedState,
+    dispatch,
+    !retentionState,
+    isUnMounting
+  );
   useDocumentSearch(urn, caseId, combinedState, dispatch);
   useDocumentRefreshPolling(dispatch, combinedState.featureFlags.notifications);
 
@@ -307,7 +318,7 @@ export const useCaseDetailsState = (
   const handleShowHideRedactionSuggestions = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
-      versionId: CaseDocumentViewModel["versionId"],
+      versionId: number,
       showSuggestion: boolean,
       getData: boolean,
       defaultOption: boolean
@@ -510,8 +521,26 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleAccordionOpenClose = useCallback(
+    (id: string, open: boolean) =>
+      dispatch({
+        type: "ACCORDION_OPEN_CLOSE",
+        payload: { id, open },
+      }),
+    [dispatch]
+  );
+
+  const handleAccordionOpenCloseAll = useCallback(
+    (value: boolean) =>
+      dispatch({
+        type: "ACCORDION_OPEN_CLOSE_ALL",
+        payload: value,
+      }),
+    [dispatch]
+  );
+
   return {
-    ...combinedState,
+    combinedState,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -549,5 +578,7 @@ export const useCaseDetailsState = (
     handleClearNotification,
     handleUpdateConversionStatus,
     handleShowHidePageDeletion,
+    handleAccordionOpenClose,
+    handleAccordionOpenCloseAll,
   };
 };

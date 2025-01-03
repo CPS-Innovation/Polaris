@@ -47,6 +47,10 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("div-pdfviewer-0").should("not.exist");
     cy.findByTestId("pdfTab-spinner-0").should("not.exist");
     cy.findByTestId("div-pdfviewer-0").should("exist");
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[1],
+      timeMs: 1000,
+    });
 
     //saving for the second time
     cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
