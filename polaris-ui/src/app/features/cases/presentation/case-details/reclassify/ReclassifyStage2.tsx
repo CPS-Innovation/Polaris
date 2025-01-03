@@ -229,7 +229,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   };
 
   const handleUpdateStatementWitnessId = async (value: string) => {
-    console.log("ex: ", value);
     dispatch({
       type: "UPDATE_STATEMENT_WITNESS_ID",
       payload: { value: value },
@@ -238,7 +237,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
       type: "UPDATE_STATEMENT_WITNESS_NUMBERS",
       payload: { witnessId: +value, statementNumbers: [] },
     });
-    console.log("witness id: ", value);
     try {
       const data = await getWitnessStatementNumbers(+value);
       const numbers = (

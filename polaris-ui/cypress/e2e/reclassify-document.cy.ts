@@ -759,19 +759,6 @@ describe("Feature Reclassify Document", () => {
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/1/reclassify"
     );
-    const expectedSaveReclassifyPayload = {
-      documentTypeId: 1042,
-      immediate: null,
-      other: null,
-      statement: null,
-      exhibit: {
-        used: false,
-        existingProducerOrWitnessId: null,
-        newProducer: "producer",
-        item: "abc",
-        reference: "test_ref",
-      },
-    };
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -1114,19 +1101,6 @@ describe("Feature Reclassify Document", () => {
       "POST",
       "/api/urns/12AB1111111/cases/13401/documents/1/reclassify"
     );
-    const expectedSaveReclassifyPayload = {
-      documentTypeId: 1042,
-      immediate: null,
-      other: null,
-      statement: null,
-      exhibit: {
-        used: false,
-        existingProducerOrWitnessId: null,
-        newProducer: "producer",
-        item: "abc",
-        reference: "test_ref",
-      },
-    };
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");

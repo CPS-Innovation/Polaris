@@ -40,7 +40,6 @@ type ReclassifyStagesProps = {
     name: string,
     properties: Record<string, any>
   ) => void;
-  handleLookUpDataError: (errorMessage: string) => void;
 };
 
 const MAX_LENGTH = 252;

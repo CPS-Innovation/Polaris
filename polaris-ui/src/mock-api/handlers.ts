@@ -238,7 +238,6 @@ export const setupHandlers = ({
     rest.get(makeApiPath(routes.SEARCH_PII_ROUTE), (req, res, ctx) => {
       const results = searchPIIDataSources[sourceName];
       return res(delay(ctx), ctx.json(results));
-      // return res(ctx.status(500), ctx.body("test_user_name"));
     }),
 
     rest.get(makeApiPath(routes.MATERIAL_TYPE_LIST), (req, res, ctx) => {
@@ -249,7 +248,6 @@ export const setupHandlers = ({
     rest.get(makeApiPath(routes.EXHIBIT_PRODUCERS), (req, res, ctx) => {
       const results = reclassifyDataSources[sourceName].exhibitProducers;
       return res(delay1(ctx), ctx.json(results));
-      // return res(ctx.status(500), ctx.body("test_user_name"));
     }),
 
     rest.get(makeApiPath(routes.STATEMENT_WITNESS), (req, res, ctx) => {
