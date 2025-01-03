@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import {
-  LinkButton,
   Select,
   Input,
   Radios,
@@ -26,6 +25,7 @@ type ReclassifyStage2Props = {
   ) => Promise<StatementWitnessNumber[]>;
   handleBackBtnClick: () => void;
   handleLookUpDataError: (errorMessage: string) => void;
+  handleCheckContentLoaded: (value: boolean) => void;
 };
 
 export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
@@ -36,6 +36,7 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   getWitnessStatementNumbers,
   handleBackBtnClick,
   handleLookUpDataError,
+  handleCheckContentLoaded,
 }) => {
   const [loading, setLoading] = useState(false);
   const reclassifyContext = useReClassifyContext();
@@ -86,17 +87,21 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
     };
 
     fetchDataOnMount();
-  }, []);
+  }, [state.reclassifyVariant]);
 
   useEffect(() => {
     if (!loading && backButtonRef.current)
       (backButtonRef.current as HTMLButtonElement).focus();
   }, [loading]);
 
+  useEffect(() => {
+    handleCheckContentLoaded(loading);
+  }, [loading]);
+
   const statementWitnessValues = useMemo(() => {
     const defaultValue = {
       value: "",
-      children: "Select a Witness",
+      children: "Select a witness",
       disabled: true,
     };
     if (!state.statementWitness) {
@@ -132,17 +137,6 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
 
     return [defaultValue, ...mappedValues, otherOption];
   }, [state.exhibitProducers]);
-
-  const getHeaderText = (variant: ReclassifyVariant) => {
-    switch (variant) {
-      case "Statement":
-        return "Enter the statement details";
-      case "Exhibit":
-        return "Enter the exhibit details";
-      default:
-        return "Enter the document details";
-    }
-  };
 
   const getSubHeading = (type: ReclassifyVariant) => {
     switch (type) {
@@ -371,15 +365,16 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   }, [errorSummaryList]);
 
   if (loading) {
-    return <div>loading data</div>;
+    return <div>loading data...</div>;
   }
+
   if (
     state.reclassifyVariant === "Statement" &&
     !state.statementWitness?.length
   ) {
     return (
       <>
-        <h1> There is a problem</h1>
+        <h1>There is a problem</h1>
         <p>
           Cannot continue with reclassification as the statement does not have
           any witness
@@ -389,306 +384,360 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   }
   return (
     <div role="main" aria-labelledby="main-description">
-      <LinkButton
-        className={classes.backBtn}
-        onClick={handleBackBtnClick}
-        ref={backButtonRef}
-      >
-        Back
-      </LinkButton>
-      <h1 id="main-description">{getHeaderText(state.reclassifyVariant)}</h1>
-      {!!errorSummaryList.length && (
-        <div
-          ref={errorSummaryRef}
-          tabIndex={-1}
-          className={classes.errorSummaryWrapper}
-        >
-          <ErrorSummary
-            data-testid={"reclassify-error-summary"}
-            className={classes.errorSummary}
-            errorList={errorSummaryList}
-          />
-        </div>
-      )}
-      {getSubHeading(state.reclassifyVariant)}
+      <div className="govuk-checkboxes__conditional">
+        {!!errorSummaryList.length && (
+          <div
+            ref={errorSummaryRef}
+            tabIndex={-1}
+            className={classes.errorSummaryWrapper}
+          >
+            <ErrorSummary
+              data-testid={"reclassify-error-summary"}
+              className={classes.errorSummary}
+              errorList={errorSummaryList}
+            />
+          </div>
+        )}
+        {getSubHeading(state.reclassifyVariant)}
 
-      {state.reclassifyVariant !== "Statement" &&
-        state.reclassifyVariant !== "Exhibit" && (
+        {state.reclassifyVariant !== "Statement" &&
+          state.reclassifyVariant !== "Exhibit" && (
+            <Radios
+              fieldset={{
+                legend: {
+                  children: (
+                    <span>
+                      Do you want to change the document name of{" "}
+                      <strong className={classes.highlight}>
+                        {presentationTitle}
+                      </strong>
+                      ?
+                    </span>
+                  ),
+                },
+              }}
+              className={
+                formDataErrors.documentNewNameErrorText
+                  ? "govuk-form-group--error"
+                  : ""
+              }
+              key={"reclassify-change-document-name"}
+              onChange={handleDocumentRenameStatusChange}
+              value={state.formData.documentRenameStatus}
+              name="reclassify-change-document-name"
+              items={[
+                {
+                  children: "Yes",
+                  conditional: {
+                    children: [
+                      <Input
+                        key="reclassify-document-new-name"
+                        id="reclassify-document-new-name"
+                        data-testid="reclassify-document-new-name"
+                        className="govuk-input--width-20"
+                        label={{
+                          children: "Enter new document name",
+                        }}
+                        errorMessage={
+                          formDataErrors.documentNewNameErrorText
+                            ? {
+                                children:
+                                  formDataErrors.documentNewNameErrorText,
+                              }
+                            : undefined
+                        }
+                        name="reclassify-document-new-name"
+                        type="text"
+                        value={state.formData.documentNewName}
+                        onChange={handleDocumentNewName}
+                        disabled={
+                          state.reClassifySaveStatus === "saving" ||
+                          state.reClassifySaveStatus === "success"
+                        }
+                      />,
+                    ],
+                  },
+                  value: "YES",
+                  disabled:
+                    state.reClassifySaveStatus === "saving" ||
+                    state.reClassifySaveStatus === "success",
+                },
+                {
+                  children: "No",
+                  value: "NO",
+                  disabled:
+                    state.reClassifySaveStatus === "saving" ||
+                    state.reClassifySaveStatus === "success",
+                },
+              ]}
+              data-testid="reclassify-rename"
+            />
+          )}
+
+        {state.reclassifyVariant === "Exhibit" && (
+          <div>
+            <Input
+              id="reclassify-exhibit-item-name"
+              data-testid="reclassify-exhibit-item-name"
+              className="govuk-input--width-20"
+              errorMessage={
+                formDataErrors.exhibitItemNameErrorText
+                  ? {
+                      children: formDataErrors.exhibitItemNameErrorText,
+                    }
+                  : undefined
+              }
+              label={{
+                children: "Item Name",
+              }}
+              name="reclassify-exhibit-item-name"
+              type="text"
+              value={state.formData.exhibitItemName}
+              onChange={handleUpdateExhibitItemName}
+              disabled={
+                state.reClassifySaveStatus === "saving" ||
+                state.reClassifySaveStatus === "success"
+              }
+            />
+            <Input
+              id="reclassify-exhibit-reference"
+              data-testid="reclassify-exhibit-reference"
+              errorMessage={
+                formDataErrors.exhibitReferenceErrorText
+                  ? {
+                      children: formDataErrors.exhibitReferenceErrorText,
+                    }
+                  : undefined
+              }
+              className="govuk-input--width-20"
+              label={{
+                children: "Exhibit Reference",
+              }}
+              name="reclassify-exhibit-reference"
+              type="text"
+              value={state.formData.exhibitReference}
+              onChange={handleUpdateExhibitReference}
+              disabled={
+                state.reClassifySaveStatus === "saving" ||
+                state.reClassifySaveStatus === "success"
+              }
+            />
+
+            <div className={classes.producerSelectWrapper}>
+              <Select
+                id="reclassify-exhibit-producer"
+                data-testid="reclassify-exhibit-producer"
+                items={exhibitProducersValues}
+                label={{
+                  children: "Select existing producer or witness",
+                }}
+                errorMessage={
+                  formDataErrors.otherExhibitProducerErrorText
+                    ? {
+                        children: formDataErrors.otherExhibitProducerErrorText,
+                      }
+                    : undefined
+                }
+                name="reclassify-exhibit-producer"
+                value={state.formData.exhibitProducerId}
+                onChange={(ev) =>
+                  handleUpdateExhibitProducerId(ev.target.value)
+                }
+                disabled={
+                  state.reClassifySaveStatus === "saving" ||
+                  state.reClassifySaveStatus === "success"
+                }
+              />
+
+              {state.formData.exhibitProducerId === "other" && (
+                <div
+                  className={`${
+                    formDataErrors.otherExhibitProducerErrorText
+                      ? classes.otherProducerNameError
+                      : classes.otherProducerWrapper
+                  }`}
+                >
+                  <Input
+                    id="reclassify-exhibit-other-producer-name"
+                    data-testid="reclassify-exhibit-other-producer-name"
+                    className="govuk-input--width-20"
+                    label={{
+                      children: "Enter name",
+                    }}
+                    aria-label="Enter other producer or witness name"
+                    errorMessage={
+                      formDataErrors.otherExhibitProducerErrorText
+                        ? {
+                            children:
+                              formDataErrors.otherExhibitProducerErrorText,
+                          }
+                        : undefined
+                    }
+                    name="reclassify-exhibit-other-producer-name"
+                    type="text"
+                    value={state.formData.exhibitOtherProducerValue}
+                    onChange={handleUpdateOtherProducerName}
+                    disabled={
+                      state.reClassifySaveStatus === "saving" ||
+                      state.reClassifySaveStatus === "success"
+                    }
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {state.reclassifyVariant === "Statement" && (
+          <div>
+            <Select
+              id="reclassify-statement-witness"
+              data-testid="reclassify-statement-witness"
+              errorMessage={
+                formDataErrors.statementWitnessErrorText
+                  ? {
+                      children: formDataErrors.statementWitnessErrorText,
+                    }
+                  : undefined
+              }
+              items={statementWitnessValues}
+              label={{
+                children: "Select witness",
+              }}
+              name="reclassify-statement-witness"
+              value={state.formData.statementWitnessId}
+              onChange={(ev) => handleUpdateStatementWitnessId(ev.target.value)}
+              disabled={
+                state.reClassifySaveStatus === "saving" ||
+                state.reClassifySaveStatus === "success"
+              }
+            />
+            <DateInput
+              errorMessage={
+                formDataErrors.statementDateErrorText
+                  ? {
+                      children: formDataErrors.statementDateErrorText,
+                    }
+                  : undefined
+              }
+              fieldset={{
+                legend: {
+                  children: <span>Statement date</span>,
+                },
+              }}
+              hint={{
+                children: <span>For example, 27 3 2024</span>,
+              }}
+              id="reclassify-statement-date"
+              items={[
+                {
+                  id: "reclassify-statement-day",
+                  className: `govuk-input--width-2 ${
+                    formDataErrors.statementDayErrorText
+                      ? "govuk-input--error"
+                      : ""
+                  }`,
+                  name: "day",
+                  value: state.formData.statementDay,
+                  disabled:
+                    state.reClassifySaveStatus === "saving" ||
+                    state.reClassifySaveStatus === "success",
+                },
+                {
+                  id: "reclassify-statement-month",
+                  className: `govuk-input--width-2 ${
+                    formDataErrors.statementMonthErrorText
+                      ? "govuk-input--error"
+                      : ""
+                  }`,
+                  name: "month",
+                  value: state.formData.statementMonth,
+                  disabled:
+                    state.reClassifySaveStatus === "saving" ||
+                    state.reClassifySaveStatus === "success",
+                },
+                {
+                  id: "reclassify-statement-year",
+                  className: `govuk-input--width-4 ${
+                    formDataErrors.statementYearErrorText
+                      ? "govuk-input--error"
+                      : ""
+                  }`,
+                  name: "year",
+                  value: state.formData.statementYear,
+                  disabled:
+                    state.reClassifySaveStatus === "saving" ||
+                    state.reClassifySaveStatus === "success",
+                },
+              ]}
+              namePrefix="reclassify-statement-date"
+              onChange={handleStatementDateChange}
+            />
+
+            <Input
+              id="reclassify-statement-number"
+              data-testid="reclassify-statement-number"
+              errorMessage={
+                formDataErrors.statementNumberErrorText
+                  ? {
+                      children: formDataErrors.statementNumberErrorText,
+                    }
+                  : undefined
+              }
+              className="govuk-input--width-10"
+              label={{
+                children: "Statement Number",
+              }}
+              hint={{
+                children: statementNumberText(
+                  state.statementWitnessNumbers[
+                    state.formData.statementWitnessId
+                  ] ?? []
+                ),
+              }}
+              name="reclassify-statement-number"
+              type="number"
+              value={state.formData.statementNumber}
+              onChange={handleUpdateStatementNumber}
+              disabled={
+                state.reClassifySaveStatus === "saving" ||
+                state.reClassifySaveStatus === "success"
+              }
+            />
+          </div>
+        )}
+        {state.reclassifyVariant !== "Immediate" && (
           <Radios
             fieldset={{
               legend: {
-                children: (
-                  <span>
-                    Do you want to change the document name of{" "}
-                    <strong className={classes.highlight}>
-                      {presentationTitle}
-                    </strong>
-                    ?
-                  </span>
-                ),
+                children: <span>What is the document status?</span>,
               },
             }}
-            className={
-              formDataErrors.documentNewNameErrorText
-                ? "govuk-form-group--error"
-                : ""
-            }
-            key={"reclassify-change-document-name"}
-            onChange={handleDocumentRenameStatusChange}
-            value={state.formData.documentRenameStatus}
-            name="reclassify-change-document-name"
+            key={"document-used-status"}
+            onChange={handleDocumentUsedStatusChange}
+            value={state.formData.documentUsedStatus}
+            name="radio-document-used-status"
             items={[
               {
-                children: "Yes",
-                conditional: {
-                  children: [
-                    <Input
-                      key="reclassify-document-new-name"
-                      id="reclassify-document-new-name"
-                      data-testid="reclassify-document-new-name"
-                      className="govuk-input--width-20"
-                      label={{
-                        children: "Enter new document name",
-                      }}
-                      errorMessage={
-                        formDataErrors.documentNewNameErrorText
-                          ? {
-                              children: formDataErrors.documentNewNameErrorText,
-                            }
-                          : undefined
-                      }
-                      name="reclassify-document-new-name"
-                      type="text"
-                      value={state.formData.documentNewName}
-                      onChange={handleDocumentNewName}
-                    />,
-                  ],
-                },
+                children: "Used",
+
                 value: "YES",
+                disabled:
+                  state.reClassifySaveStatus === "saving" ||
+                  state.reClassifySaveStatus === "success",
               },
               {
-                children: "No",
+                children: "Unused",
                 value: "NO",
+                disabled:
+                  state.reClassifySaveStatus === "saving" ||
+                  state.reClassifySaveStatus === "success",
               },
             ]}
-            data-testid="reclassify-rename"
           />
         )}
-
-      {state.reclassifyVariant === "Exhibit" && (
-        <div>
-          <Input
-            id="reclassify-exhibit-item-name"
-            data-testid="reclassify-exhibit-item-name"
-            className="govuk-input--width-20"
-            errorMessage={
-              formDataErrors.exhibitItemNameErrorText
-                ? {
-                    children: formDataErrors.exhibitItemNameErrorText,
-                  }
-                : undefined
-            }
-            label={{
-              children: "Item Name",
-            }}
-            name="reclassify-exhibit-item-name"
-            type="text"
-            value={state.formData.exhibitItemName}
-            onChange={handleUpdateExhibitItemName}
-          />
-          <Input
-            id="reclassify-exhibit-reference"
-            data-testid="reclassify-exhibit-reference"
-            errorMessage={
-              formDataErrors.exhibitReferenceErrorText
-                ? {
-                    children: formDataErrors.exhibitReferenceErrorText,
-                  }
-                : undefined
-            }
-            className="govuk-input--width-20"
-            label={{
-              children: "Exhibit Reference",
-            }}
-            name="reclassify-exhibit-reference"
-            type="text"
-            value={state.formData.exhibitReference}
-            onChange={handleUpdateExhibitReference}
-          />
-
-          <div className={classes.producerSelectWrapper}>
-            <Select
-              id="reclassify-exhibit-producer"
-              data-testid="reclassify-exhibit-producer"
-              items={exhibitProducersValues}
-              label={{
-                children: "Select existing producer or witness",
-              }}
-              name="reclassify-exhibit-producer"
-              value={state.formData.exhibitProducerId}
-              onChange={(ev) => handleUpdateExhibitProducerId(ev.target.value)}
-            />
-
-            {state.formData.exhibitProducerId === "other" && (
-              <div
-                className={`${
-                  formDataErrors.otherExhibitProducerErrorText
-                    ? classes.otherProducerNameError
-                    : classes.otherProducerWrapper
-                }`}
-              >
-                <Input
-                  id="reclassify-exhibit-other-producer-name"
-                  data-testid="reclassify-exhibit-other-producer-name"
-                  className="govuk-input--width-20"
-                  label={{
-                    children: "Enter name",
-                  }}
-                  aria-label="Enter other producer or witness name"
-                  errorMessage={
-                    formDataErrors.otherExhibitProducerErrorText
-                      ? {
-                          children:
-                            formDataErrors.otherExhibitProducerErrorText,
-                        }
-                      : undefined
-                  }
-                  name="reclassify-exhibit-other-producer-name"
-                  type="text"
-                  value={state.formData.exhibitOtherProducerValue}
-                  onChange={handleUpdateOtherProducerName}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {state.reclassifyVariant === "Statement" && (
-        <div>
-          <Select
-            id="reclassify-statement-witness"
-            data-testid="reclassify-statement-witness"
-            errorMessage={
-              formDataErrors.statementWitnessErrorText
-                ? {
-                    children: formDataErrors.statementWitnessErrorText,
-                  }
-                : undefined
-            }
-            items={statementWitnessValues}
-            label={{
-              children: "Select witness",
-            }}
-            name="reclassify-statement-witness"
-            value={state.formData.statementWitnessId}
-            onChange={(ev) => handleUpdateStatementWitnessId(ev.target.value)}
-          />
-          <DateInput
-            errorMessage={
-              formDataErrors.statementDateErrorText
-                ? {
-                    children: formDataErrors.statementDateErrorText,
-                  }
-                : undefined
-            }
-            fieldset={{
-              legend: {
-                children: <span>Statement date</span>,
-              },
-            }}
-            hint={{
-              children: <span>For example, 27 3 2024</span>,
-            }}
-            id="reclassify-statement-date"
-            items={[
-              {
-                id: "reclassify-statement-day",
-                className: `govuk-input--width-2 ${
-                  formDataErrors.statementDayErrorText
-                    ? "govuk-input--error"
-                    : ""
-                }`,
-                name: "day",
-                value: state.formData.statementDay,
-              },
-              {
-                id: "reclassify-statement-month",
-                className: `govuk-input--width-2 ${
-                  formDataErrors.statementMonthErrorText
-                    ? "govuk-input--error"
-                    : ""
-                }`,
-                name: "month",
-                value: state.formData.statementMonth,
-              },
-              {
-                id: "reclassify-statement-year",
-                className: `govuk-input--width-4 ${
-                  formDataErrors.statementYearErrorText
-                    ? "govuk-input--error"
-                    : ""
-                }`,
-                name: "year",
-                value: state.formData.statementYear,
-              },
-            ]}
-            namePrefix="reclassify-statement-date"
-            onChange={handleStatementDateChange}
-          />
-
-          <Input
-            id="reclassify-statement-number"
-            data-testid="reclassify-statement-number"
-            errorMessage={
-              formDataErrors.statementNumberErrorText
-                ? {
-                    children: formDataErrors.statementNumberErrorText,
-                  }
-                : undefined
-            }
-            className="govuk-input--width-10"
-            label={{
-              children: "Statement Number",
-            }}
-            hint={{
-              children: statementNumberText(
-                state.statementWitnessNumbers[
-                  state.formData.statementWitnessId
-                ] ?? []
-              ),
-            }}
-            name="reclassify-statement-number"
-            type="number"
-            value={state.formData.statementNumber}
-            onChange={handleUpdateStatementNumber}
-          />
-        </div>
-      )}
-      {state.reclassifyVariant !== "Immediate" && (
-        <Radios
-          fieldset={{
-            legend: {
-              children: <span>What is the document status?</span>,
-            },
-          }}
-          key={"document-used-status"}
-          onChange={handleDocumentUsedStatusChange}
-          value={state.formData.documentUsedStatus}
-          name="radio-document-used-status"
-          items={[
-            {
-              children: "Used",
-
-              value: "YES",
-            },
-            {
-              children: "Unused",
-              value: "NO",
-            },
-          ]}
-        />
-      )}
+      </div>
+      <p>&nbsp;</p>
     </div>
   );
 };
