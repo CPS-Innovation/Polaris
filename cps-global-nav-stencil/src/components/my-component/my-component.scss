@@ -1,6 +1,6 @@
 @import 'node_modules/govuk-frontend/dist/govuk/index';
 
-$level-height: 2.75rem;
+$level-height: 3.5rem;
 
 :host {
   display: block;
@@ -13,8 +13,8 @@ $level-height: 2.75rem;
 }
 
 .background-left-only {
-  box-shadow: 0 0 0 50vmax govuk-colour('light-grey');
-  clip-path: inset(0 -100vmax);
+  // box-shadow: 0 0 0 0vmax govuk-colour('light-grey');
+  // clip-path: inset(0 -100vmax);
   background-color: govuk-colour('light-grey');
 }
 
@@ -23,6 +23,20 @@ $level-height: 2.75rem;
   box-shadow: 0 0 0 100vmax $govuk-border-colour;
   clip-path: inset(0 -100vmax);
   background-color: $govuk-border-colour;
+}
+
+.background-left-only {
+  background-color: govuk-colour('light-grey');
+  position: relative;
+  display: grid;
+}
+.background-left-only:before {
+  content: '';
+  background-color: govuk-colour('light-grey');
+  position: absolute;
+  height: 100%;
+  width: 100vw;
+  left: -100vw;
 }
 
 @mixin horizontal-list {

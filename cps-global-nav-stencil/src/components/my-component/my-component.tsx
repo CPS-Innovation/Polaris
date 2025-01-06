@@ -49,7 +49,9 @@ export class MyComponent {
               <a>Triage</a>
             </li>
           </ul>
-          <div>Ccccc</div>
+          <div>
+            <slot />
+          </div>
         </div>
         <div class="background-divider"></div>
       </div>

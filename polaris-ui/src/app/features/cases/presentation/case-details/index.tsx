@@ -455,9 +455,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   return (
     <div>
-      {/* <cps-global-nav>
-        <span>foo</span>
-      </cps-global-nav> */}
       <my-component
         name={
           caseState.data.leadDefendantDetails?.type == "Organisation"
@@ -466,7 +463,16 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
               ", " +
               caseState.data.leadDefendantDetails?.firstNames
         }
-      ></my-component>
+      >
+        {featureFlags.notifications && (
+          <Notifications
+            state={notificationState}
+            handleOpenPdf={handleOpenPdf}
+            handleClearAllNotifications={handleClearAllNotifications}
+            handleClearNotification={handleClearNotification}
+          ></Notifications>
+        )}
+      </my-component>
       <div className={reclassifyDetails.open ? classes.reclassifyMode : ""}>
         {errorModal.show && (
           <Modal
@@ -588,14 +594,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           >
             {backLinkProps.label}
           </BackLink>
-          {featureFlags.notifications && (
-            <Notifications
-              state={notificationState}
-              handleOpenPdf={handleOpenPdf}
-              handleClearAllNotifications={handleClearAllNotifications}
-              handleClearNotification={handleClearNotification}
-            ></Notifications>
-          )}
         </nav>
         <PageContentWrapper>
           <div
