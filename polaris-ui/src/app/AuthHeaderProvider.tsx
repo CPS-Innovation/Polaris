@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useContext } from "react";
+import { ReactNode, createContext, useContext, useCallback } from "react";
 import { buildHeaders } from "../app/features/cases/api/auth/header-factory";
 
 interface AuthHeaderProviderProps {
@@ -16,8 +16,9 @@ const AuthHeaderContext = createContext<AuthHeaderContextType | undefined>(
 export const AuthHeaderProvider: React.FC<AuthHeaderProviderProps> = (
   props
 ) => {
+  const initialValue = useCallback(() => buildHeaders(), []);
   return (
-    <AuthHeaderContext.Provider value={{ buildHeaders }}>
+    <AuthHeaderContext.Provider value={{ buildHeaders: initialValue }}>
       {props.children}
     </AuthHeaderContext.Provider>
   );
