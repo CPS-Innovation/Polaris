@@ -1,0 +1,103 @@
+@import 'node_modules/govuk-frontend/dist/govuk/index';
+
+$level-height: 2.75rem;
+
+:host {
+  display: block;
+}
+
+.background {
+  box-shadow: 0 0 0 100vmax govuk-colour('light-grey');
+  clip-path: inset(0 -100vmax);
+  background-color: govuk-colour('light-grey');
+}
+
+.background-left-only {
+  box-shadow: 0 0 0 50vmax govuk-colour('light-grey');
+  clip-path: inset(0 -100vmax);
+  background-color: govuk-colour('light-grey');
+}
+
+.background-divider {
+  height: 1px;
+  box-shadow: 0 0 0 100vmax $govuk-border-colour;
+  clip-path: inset(0 -100vmax);
+  background-color: $govuk-border-colour;
+}
+
+@mixin horizontal-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: $level-height;
+  display: flex;
+  align-items: center;
+  li {
+    float: left;
+    box-sizing: border-box;
+
+    a {
+      @include govuk-font($size: 19);
+      color: $govuk-brand-colour;
+      //font-size: 1.3rem;
+    }
+  }
+}
+
+.level-1 {
+  height: $level-height;
+
+  ul {
+    @include horizontal-list();
+    li {
+      margin: 0 1.8rem 0 0;
+      a {
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+$arrow-length: $level-height/2;
+
+.level-2 {
+  height: $level-height;
+  display: flex;
+  align-items: center;
+  background-color: govuk-colour('white');
+
+  div:first-child {
+    @include govuk-font($size: 19);
+    font-weight: bold;
+    background-color: govuk-colour('light-grey');
+    display: flex;
+    align-items: center;
+    height: $level-height;
+
+    &:after {
+      content: '';
+      background-color: govuk-colour('white');
+      display: inline-block;
+      border-left: $arrow-length solid govuk-colour('light-grey');
+      border-bottom: $arrow-length solid transparent;
+      border-top: $arrow-length solid transparent;
+    }
+  }
+
+  ul {
+    @include horizontal-list();
+    margin-left: 1rem;
+    li {
+      margin: 0 1.8rem 0 0;
+      span {
+        color: $govuk-brand-colour;
+        font-size: 1.3rem;
+      }
+    }
+  }
+
+  div:last-child {
+    margin-left: auto;
+  }
+}

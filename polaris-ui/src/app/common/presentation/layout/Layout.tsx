@@ -2,15 +2,6 @@ import React from "react";
 import { useUserDetails } from "../../../auth";
 import { SkipLink } from "../components";
 import classes from "./Layout.module.scss";
-import "cps-global-nav";
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      ["cps-global-nav"]: { children: any };
-    }
-  }
-}
 
 type LayoutProps = {
   isWide?: boolean;
@@ -49,10 +40,6 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
           </div>
         </div>
       </header>
-
-      <cps-global-nav>
-        <span>foo</span>
-      </cps-global-nav>
 
       <div className={`${containerCssClass} ${classes["cps-main-container"]}`}>
         {children}

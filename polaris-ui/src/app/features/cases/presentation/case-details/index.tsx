@@ -61,6 +61,19 @@ import {
   isTaggedTriageContext,
   TaggedContext,
 } from "../../../../inbound-handover/context";
+
+// import "cps-global-nav";
+import "cps-global-nav-stencil";
+type CustomElement<T> = Partial<T & React.DOMAttributes<T> & { children: any }>;
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      ["my-component"]: CustomElement<any>;
+    }
+  }
+}
+
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {
@@ -442,6 +455,18 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   return (
     <div>
+      {/* <cps-global-nav>
+        <span>foo</span>
+      </cps-global-nav> */}
+      <my-component
+        name={
+          caseState.data.leadDefendantDetails?.type == "Organisation"
+            ? caseState.data.leadDefendantDetails?.organisationName
+            : caseState.data.leadDefendantDetails?.surname +
+              ", " +
+              caseState.data.leadDefendantDetails?.firstNames
+        }
+      ></my-component>
       <div className={reclassifyDetails.open ? classes.reclassifyMode : ""}>
         {errorModal.show && (
           <Modal
@@ -861,7 +886,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           </div>
         </PageContentWrapper>
       </div>
-
       {reclassifyDetails.open && (
         <div>
           <Reclassify
