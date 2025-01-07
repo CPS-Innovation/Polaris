@@ -23,6 +23,13 @@ public class RequestTelemetryMiddleware : IFunctionsWorkerMiddleware
         var requestTelemetry = new RequestTelemetry();
         requestTelemetry.Start();
         var requestData = await context.GetHttpRequestDataAsync();
+
+        if (requestData is null)
+        {
+            await next(context);
+            return;
+        }
+
         var correlationId = Guid.NewGuid();
         try
         {
