@@ -9,20 +9,28 @@ using System;
 using System.Linq;
 using Common.Logging;
 using Common.Extensions;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
+using Common.Telemetry;
 
 namespace Common.Middleware;
 
 public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
 {
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+    private readonly Microsoft.ApplicationInsights.TelemetryClient _telemetryClient;
 
-    public ExceptionHandlingMiddleware(ILogger<ExceptionHandlingMiddleware> logger)
+    public ExceptionHandlingMiddleware(ILogger<ExceptionHandlingMiddleware> logger, Microsoft.ApplicationInsights.TelemetryClient telemetryClient)
     {
         _logger = logger;
+        _telemetryClient = telemetryClient;
     }
 
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
+        var requestTelemetry = new RequestTelemetry();
+        requestTelemetry.Start();
+
         try
         {
             await next(context);
@@ -55,6 +63,7 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
                 }
 
                 _logger.LogMethodError(correlationId, httpRequestData.Url.ToString(), message, exception);
+                requestTelemetry.Properties[TelemetryConstants.CorrelationIdCustomDimensionName] = correlationId.ToString();
 
                 var newHttpResponse = httpRequestData.CreateResponse(statusCode);
 
@@ -71,6 +80,16 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
                 {
                     invocationResult.Value = newHttpResponse;
                 }
+
+                requestTelemetry.Name = context.FunctionDefinition.Name;
+                requestTelemetry.HttpMethod = httpRequestData.Method;
+                requestTelemetry.ResponseCode = ((int)statusCode).ToString();
+                requestTelemetry.Success = false;
+                requestTelemetry.Url = httpRequestData.Url;
+                requestTelemetry.Properties[TelemetryConstants.ErrorMessageCustomDimensionName] = exception.ToStringFullResponse();
+                requestTelemetry.Stop();
+
+                _telemetryClient.TrackRequest(requestTelemetry);
             }
         }
     }

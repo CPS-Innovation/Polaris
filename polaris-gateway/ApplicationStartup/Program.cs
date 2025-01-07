@@ -1,6 +1,6 @@
 using Common.Extensions;
 using Common.Middleware;
-using Microsoft.ApplicationInsights.WorkerService;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,10 +11,10 @@ using PolarisGateway.ApplicationStartup;
 using PolarisGateway.Middleware;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication(o =>
+    .ConfigureFunctionsWebApplication(options =>
     {
-        o.UseMiddleware<ExceptionHandlingMiddleware>();
-        o.UseMiddleware<RequestValidationMiddleware>();
+        options.UseMiddleware<ExceptionHandlingMiddleware>();
+        options.UseMiddleware<RequestValidationMiddleware>();
     })
     .ConfigureOpenApi()
     .ConfigureLogging(options => options.AddApplicationInsights())
@@ -28,13 +28,13 @@ var host = new HostBuilder()
 #endif
         services.ConfigureServices();
         services.AddApplicationInsightsTelemetryWorkerService();
-
-        services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions
-        {
-            EnableAdaptiveSampling = false,
-        });
-
         services.ConfigureFunctionsApplicationInsights();
+        services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
+        {
+            telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder
+                .UseAdaptiveSampling(maxTelemetryItemsPerSecond: 20, excludedTypes: "Request;Exception;Event;Trace");
+            telemetryConfiguration.DisableTelemetry = false;
+        });
         services.ConfigureLoggerFilterOptions();
     })
     .Build();

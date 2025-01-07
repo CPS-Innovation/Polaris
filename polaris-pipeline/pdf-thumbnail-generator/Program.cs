@@ -2,40 +2,37 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using pdf_thumbnail_generator.Durable.Providers;
-using Microsoft.Extensions.Configuration;
 using Common.Extensions;
 using Common.Handlers;
 using Common.Services.BlobStorage;
-using Microsoft.Extensions.Logging;
 using pdf_thumbnail_generator;
 using Common.Telemetry;
 using pdf_thumbnail_generator.Services.ClearDownService;
 using pdf_thumbnail_generator.Services.ThumbnailGenerationService;
 using Common.Wrappers;
-using Microsoft.ApplicationInsights.WorkerService;
+using Microsoft.ApplicationInsights.Extensibility;
+using Common.Middleware;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
-    .ConfigureHostConfiguration(builder =>
+    .ConfigureFunctionsWebApplication(options =>
     {
-        builder.AddEnvironmentVariables();
-#if DEBUG
-        builder.SetBasePath(Directory.GetCurrentDirectory());
-#endif
-        builder.AddJsonFile("local.settings.json", optional: true, reloadOnChange: true);
+        options.UseMiddleware<ExceptionHandlingMiddleware>();
+        options.UseMiddleware<RequestTelemetryMiddleware>();
     })
+    .ConfigureHostConfiguration(builder => builder.AddConfigurationSettings())
     .ConfigureServices((context, services) =>
     {
         StartupHelpers.SetAsposeLicence();
 
-        services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions
-        {
-            EnableAdaptiveSampling = false,
-        });
-
+        services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
+        services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
+        {
+            telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder
+                .UseAdaptiveSampling(maxTelemetryItemsPerSecond: 20, excludedTypes: "Request;Exception;Event;Trace");
+            telemetryConfiguration.DisableTelemetry = false;
+        });
         services.ConfigureLoggerFilterOptions();
-
 
         services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
         services.AddSingleton<IThumbnailGenerationService, ThumbnailGenerationService>();
@@ -44,6 +41,7 @@ var host = new HostBuilder()
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<IJsonConvertWrapper, JsonConvertWrapper>();
+        services.AddSingleton<Microsoft.ApplicationInsights.TelemetryClient, Microsoft.ApplicationInsights.TelemetryClient>();
         services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
     })
     .Build();

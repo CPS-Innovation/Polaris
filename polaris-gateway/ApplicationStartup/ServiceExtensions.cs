@@ -37,6 +37,7 @@ public static class ServiceExtensions
         var sp = services.BuildServiceProvider();
         var configuration = sp.GetService<IConfiguration>();
 
+        services.AddSingleton<Microsoft.ApplicationInsights.TelemetryClient, Microsoft.ApplicationInsights.TelemetryClient>();
         services.AddSingleton(configuration);
         services.AddSingleton(_ => new ConfigurationManager<OpenIdConnectConfiguration>(
                 $"https://sts.windows.net/{Environment.GetEnvironmentVariable(OAuthSettings.TenantId)}/.well-known/openid-configuration",
