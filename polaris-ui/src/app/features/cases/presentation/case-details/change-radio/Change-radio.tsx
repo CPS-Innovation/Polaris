@@ -10,44 +10,42 @@ type RadioProps = {
   handleClose: () => void;
 };
 
-type DocumentState = {
-  RadioButtons: "Used" | "Unused";
-};
-
 enum RadioButtoUsedState {
   USED = "Used",
   UNUSED = "Unused",
 }
 
-type RadioAction = { type: "Used" } | { type: "Unused" } | { type: string };
+type Action = { type: "USED" } | { type: "UNUSED" } | { type: string };
+
+type State = {
+  RadioButtons: "Used" | "Unused";
+};
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case RadioButtoUsedState.USED:
+      return {
+        RadioButtons: "Used",
+      };
+    case RadioButtoUsedState.UNUSED:
+      return {
+        RadioButtons: "Unused",
+      };
+    default:
+      return state;
+  }
+};
+
+const initialState: State = {
+  RadioButtons: "Used",
+};
 
 const ChangeRadio: React.FC<RadioProps> = ({ handleClose }) => {
-  const initialState = {
-    RadioButtons: RadioButtoUsedState.UNUSED,
-  };
-
-  const reducer = (state: DocumentState, action: RadioAction) => {
-    switch (action.type) {
-      case RadioButtoUsedState.USED:
-        return {
-          RadioButtons: "Used",
-        };
-      case RadioButtoUsedState.UNUSED:
-        return {
-          RadioButtons: "Unused",
-        };
-      default:
-        return state;
-    }
-  };
-
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const handleRadioButtonsChange = (value: string): any => {
-    dispatch({ type: "Unused" });
+  const handleRadioButtonsChange = (value: string): void => {
+    dispatch({ type: value });
   };
-
-  console.log("state.RadioButtonsChange", state.RadioButtons);
 
   return (
     <div>
@@ -66,8 +64,8 @@ const ChangeRadio: React.FC<RadioProps> = ({ handleClose }) => {
         //         : ""
         // }
         key={"reclassify-change-radio-buttons"}
-        onChange={(arg: string | undefined) => {
-          arg && handleRadioButtonsChange(arg);
+        onChange={(arg: any) => {
+          handleRadioButtonsChange(arg);
         }}
         value={state.RadioButtons}
         name="reclassify-change-radio-buttons"
