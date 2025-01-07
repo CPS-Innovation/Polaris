@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { useUserDetails } from "../../../auth";
 import { SkipLink } from "../components";
 import classes from "./Layout.module.scss";
@@ -11,13 +12,22 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
   const containerCssClass = isWide
     ? classes["cps-width-container-wide"]
     : "govuk-width-container";
-
+  const location = useLocation();
   const userDetails = useUserDetails();
+  const skipLinkRef = useRef(null);
+
+  useEffect(() => {
+    console.log("location.pathname", location.pathname);
+    console.log("skipLinkRef.current", skipLinkRef.current);
+    if (skipLinkRef.current) {
+      (skipLinkRef.current as HTMLButtonElement).focus();
+    }
+  }, [location.pathname]);
 
   return (
     <>
+      <div ref={skipLinkRef} tabIndex={-1}></div>
       <SkipLink href="#main-content">Skip to main content</SkipLink>
-
       <header
         className="govuk-header "
         role="banner"
@@ -40,11 +50,9 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
           </div>
         </div>
       </header>
-
       <div className={`${containerCssClass} ${classes["cps-main-container"]}`}>
         {children}
       </div>
-
       <footer className="govuk-footer" role="contentinfo">
         <div
           className={`${containerCssClass}  ${classes["cps-footer-container"]}`}
