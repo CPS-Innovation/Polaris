@@ -1,5 +1,4 @@
-import { Component, Prop, h } from '@stencil/core';
-// import { format } from '../../utils/utils';
+import { Component, Prop, h, Event, EventEmitter } from '@stencil/core';
 
 @Component({
   tag: 'my-component',
@@ -12,9 +11,19 @@ export class MyComponent {
    */
   @Prop() name: string;
 
-  // private getText(): string {
-  //   return format(this.first, this.middle, this.last);
-  // }
+  @Event({
+    eventName: 'globalNavLinkSelected',
+    composed: true,
+    cancelable: true,
+    bubbles: true,
+  })
+  globalNavLinkSelected: EventEmitter<string>;
+
+  private clickHandler = (ev: MouseEvent) => {
+    const label = (ev.target as HTMLAnchorElement).innerText;
+    console.log(label);
+    this.globalNavLinkSelected.emit('foo');
+  };
 
   render() {
     return (
@@ -22,13 +31,13 @@ export class MyComponent {
         <div class="level-1 background">
           <ul>
             <li>
-              <a>Home</a>
+              <a onClick={this.clickHandler}>Home</a>
             </li>
             <li>
-              <a>Tasks</a>
+              <a onClick={this.clickHandler}>Tasks</a>
             </li>
             <li>
-              <a>Cases</a>
+              <a onClick={this.clickHandler}>Cases</a>
             </li>
           </ul>
         </div>

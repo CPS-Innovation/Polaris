@@ -62,7 +62,6 @@ import {
   TaggedContext,
 } from "../../../../inbound-handover/context";
 
-// import "cps-global-nav";
 import "cps-global-nav-stencil";
 type CustomElement<T> = Partial<T & React.DOMAttributes<T> & { children: any }>;
 
