@@ -14,19 +14,22 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
     : "govuk-width-container";
   const location = useLocation();
   const userDetails = useUserDetails();
-  const skipLinkRef = useRef(null);
+  const skipLinkSiblingRef = useRef(null);
 
   useEffect(() => {
-    console.log("location.pathname", location.pathname);
-    console.log("skipLinkRef.current", skipLinkRef.current);
-    if (skipLinkRef.current) {
-      (skipLinkRef.current as HTMLButtonElement).focus();
+    /*This is a way to bring the focus back to the top of the page
+    whenever location change. We bring the focus to the dummy element just above the skip link and the call the blur(for the screen reader not to say it loud),
+    so that the next tabbable element will be skip link when user start tabbing on the page
+    */
+    if (skipLinkSiblingRef.current) {
+      (skipLinkSiblingRef.current as HTMLButtonElement).focus();
+      (skipLinkSiblingRef.current as HTMLButtonElement).blur();
     }
   }, [location.pathname]);
 
   return (
     <>
-      <div ref={skipLinkRef} tabIndex={-1}></div>
+      <div ref={skipLinkSiblingRef} tabIndex={-1} />
       <SkipLink href="#main-content">Skip to main content</SkipLink>
       <header
         className="govuk-header "
