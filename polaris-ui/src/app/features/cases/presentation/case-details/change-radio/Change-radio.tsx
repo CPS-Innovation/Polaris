@@ -6,37 +6,49 @@ import {
 } from "../../../../../common/presentation/components";
 import "./Change-radio.scss";
 
-type ChangeRadioProps = {
+type RadioProps = {
   handleClose: () => void;
 };
 
-const ChangeRadio: React.FC<ChangeRadioProps> = ({ handleClose }) => {
+type DocumentState = {
+  RadioButtons: "Used" | "Unused";
+};
+
+enum RadioButtoUsedState {
+  USED = "Used",
+  UNUSED = "Unused",
+}
+
+type RadioAction = { type: "Used" } | { type: "Unused" } | { type: string };
+
+const ChangeRadio: React.FC<RadioProps> = ({ handleClose }) => {
   const initialState = {
-    RadioButtonsChange: "Used",
+    RadioButtons: RadioButtoUsedState.UNUSED,
   };
 
-  const reducer = (state: "Used" | "Unused", action: any) => {
+  const reducer = (state: DocumentState, action: RadioAction) => {
     switch (action.type) {
-      case "Used":
+      case RadioButtoUsedState.USED:
         return {
-          RadioButtonsChange: "Used",
+          RadioButtons: "Used",
         };
-      case "Unused":
+      case RadioButtoUsedState.UNUSED:
         return {
-          RadioButtonsChange: "Unused",
+          RadioButtons: "Unused",
         };
       default:
         return state;
     }
   };
 
-  const [state, dispatch] = useReducer<any>(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  const handleRadioButtonsChange = (value: string | undefined) => {
-    console.log("value: ", value);
-    dispatch({ type: value });
+  const handleRadioButtonsChange = (value: string): any => {
+    dispatch({ type: "Unused" });
   };
-  console.log("state.RadioButtonsChange", state?.RadioButtonsChange);
+
+  console.log("state.RadioButtonsChange", state.RadioButtons);
+
   return (
     <div>
       <LinkButton className={"govuk-back-link"} onClick={handleClose}>
@@ -57,8 +69,8 @@ const ChangeRadio: React.FC<ChangeRadioProps> = ({ handleClose }) => {
         onChange={(arg: string | undefined) => {
           arg && handleRadioButtonsChange(arg);
         }}
-        value={state?.RadioButtonsChange}
-        name="reclassify-change-radio=buttons"
+        value={state.RadioButtons}
+        name="reclassify-change-radio-buttons"
         items={[
           {
             children: "Used",
