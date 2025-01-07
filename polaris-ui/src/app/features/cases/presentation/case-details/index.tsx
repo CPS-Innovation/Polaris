@@ -62,13 +62,13 @@ import {
   TaggedContext,
 } from "../../../../inbound-handover/context";
 
-import "cps-global-nav-stencil";
+import "cps-global-nav";
 type CustomElement<T> = Partial<T & React.DOMAttributes<T> & { children: any }>;
 
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      ["my-component"]: CustomElement<any>;
+      ["cps-global-nav"]: CustomElement<any>;
     }
   }
 }
@@ -454,7 +454,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   return (
     <div>
-      <my-component
+      <cps-global-nav
         name={
           caseState.data.leadDefendantDetails?.type == "Organisation"
             ? caseState.data.leadDefendantDetails?.organisationName
@@ -471,7 +471,8 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
             handleClearNotification={handleClearNotification}
           ></Notifications>
         )}
-      </my-component>
+      </cps-global-nav>
+
       <div className={reclassifyDetails.open ? classes.reclassifyMode : ""}>
         {errorModal.show && (
           <Modal

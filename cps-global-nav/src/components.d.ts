@@ -6,56 +6,56 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
-    interface MyComponent {
+    interface CpsGlobalNav {
         /**
           * The text to appear at the start of the second row
          */
         "name": string;
     }
 }
-export interface MyComponentCustomEvent<T> extends CustomEvent<T> {
+export interface CpsGlobalNavCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLMyComponentElement;
+    target: HTMLCpsGlobalNavElement;
 }
 declare global {
-    interface HTMLMyComponentElementEventMap {
+    interface HTMLCpsGlobalNavElementEventMap {
         "globalNavLinkSelected": string;
     }
-    interface HTMLMyComponentElement extends Components.MyComponent, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLMyComponentElementEventMap>(type: K, listener: (this: HTMLMyComponentElement, ev: MyComponentCustomEvent<HTMLMyComponentElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+    interface HTMLCpsGlobalNavElement extends Components.CpsGlobalNav, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLCpsGlobalNavElementEventMap>(type: K, listener: (this: HTMLCpsGlobalNavElement, ev: CpsGlobalNavCustomEvent<HTMLCpsGlobalNavElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
         addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLMyComponentElementEventMap>(type: K, listener: (this: HTMLMyComponentElement, ev: MyComponentCustomEvent<HTMLMyComponentElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLCpsGlobalNavElementEventMap>(type: K, listener: (this: HTMLCpsGlobalNavElement, ev: CpsGlobalNavCustomEvent<HTMLCpsGlobalNavElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
         removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
-    var HTMLMyComponentElement: {
-        prototype: HTMLMyComponentElement;
-        new (): HTMLMyComponentElement;
+    var HTMLCpsGlobalNavElement: {
+        prototype: HTMLCpsGlobalNavElement;
+        new (): HTMLCpsGlobalNavElement;
     };
     interface HTMLElementTagNameMap {
-        "my-component": HTMLMyComponentElement;
+        "cps-global-nav": HTMLCpsGlobalNavElement;
     }
 }
 declare namespace LocalJSX {
-    interface MyComponent {
+    interface CpsGlobalNav {
         /**
           * The text to appear at the start of the second row
          */
         "name"?: string;
-        "onGlobalNavLinkSelected"?: (event: MyComponentCustomEvent<string>) => void;
+        "onGlobalNavLinkSelected"?: (event: CpsGlobalNavCustomEvent<string>) => void;
     }
     interface IntrinsicElements {
-        "my-component": MyComponent;
+        "cps-global-nav": CpsGlobalNav;
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "my-component": LocalJSX.MyComponent & JSXBase.HTMLAttributes<HTMLMyComponentElement>;
+            "cps-global-nav": LocalJSX.CpsGlobalNav & JSXBase.HTMLAttributes<HTMLCpsGlobalNavElement>;
         }
     }
 }

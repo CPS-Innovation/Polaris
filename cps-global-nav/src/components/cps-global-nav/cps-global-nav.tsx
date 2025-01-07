@@ -1,11 +1,11 @@
 import { Component, Prop, h, Event, EventEmitter } from '@stencil/core';
 
 @Component({
-  tag: 'my-component',
-  styleUrl: 'my-component.scss',
+  tag: 'cps-global-nav',
+  styleUrl: 'cps-global-nav.scss',
   shadow: true,
 })
-export class MyComponent {
+export class CpsGlobalNav {
   /**
    * The text to appear at the start of the second row
    */

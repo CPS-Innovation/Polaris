@@ -1,11 +1,26 @@
-/node_modules/
-/lib/
-/test/
-custom-elements.json
-# top level source
-cps-global-nav.js
-cps-global-nav.js.map
-cps-global-nav.d.ts
-cps-global-nav.d.ts.map
-# only generated for size check
-cps-global-nav.bundled.js
+dist/
+www/
+loader/
+
+*~
+*.sw[mnpcod]
+*.log
+*.lock
+*.tmp
+*.tmp.*
+log.txt
+*.sublime-project
+*.sublime-workspace
+
+.stencil/
+.idea/
+.vscode/
+.sass-cache/
+.versions/
+node_modules/
+$RECYCLE.BIN/
+
+.DS_Store
+Thumbs.db
+UserInterfaceState.xcuserstate
+.env
