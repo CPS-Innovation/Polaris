@@ -45,4 +45,4 @@ export const SAVE_ROTATION_ROUTE =
 
 export const GET_DOCUMENTS_LIST_ROUTE = "api/urns/:urn/cases/:caseId/documents";
 
-export const TOGGLE_USED_DOCUMENT_STATE_ROUTE = "api/urns/:urn";
+export const TOGGLE_USED_DOCUMENT_ROUTE = "api/urns/:urn/cases/:caseId/documents/:documentId/rename";

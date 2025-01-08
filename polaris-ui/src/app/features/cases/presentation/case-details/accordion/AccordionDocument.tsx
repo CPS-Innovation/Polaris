@@ -172,18 +172,20 @@ export const AccordionDocument: React.FC<Props> = ({
       caseDocument.canReclassify &&
       caseDocument.presentationFlags.write !== "IsDispatched"
     ) {
-      const isUsed = !caseDocument.isUnused ? "used" : "unused";
-      const itemsArray = [
+      const isUsed =
+        typeof caseDocument.isUnused !== "undefined" ||
+        caseDocument.isUnused === "true"
+          ? "used"
+          : "unused";
+      items = [
         ...items,
         {
-          id: "3",
+          id: `3-${isUsed}`,
           label: `Mark as ${isUsed}`,
           ariaLabel: `Mark as ${isUsed}`,
           disabled: false,
         },
       ];
-
-      return itemsArray;
     }
 
     return items;
@@ -206,15 +208,19 @@ export const AccordionDocument: React.FC<Props> = ({
           caseDocument.cmsDocType.documentType,
           caseDocument.classification
         );
-        return;
+        break;
       case "2":
         handleReclassifyDocument(caseDocument.documentId);
-        return;
-      case "3":
-        toggleUsedDocumentState("toggleButton");
-        return;
-      default:
         break;
+      case "3-used":
+      case "3-unused":
+        toggleUsedDocumentState(
+          "45CV2911222",
+          "13401",
+          caseDocument.documentId
+        );
+        break;
+      default:
     }
   };
 

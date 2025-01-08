@@ -559,6 +559,22 @@ const caseCallErrorFactory = (
     : new ApiError(errorMessage, url, response);
 };
 
-export const toggleUsedDocumentState = (arg: string) => {
-  console.log(arg)
-}
+export const toggleUsedDocumentState = async (
+  urn: string,
+  caseId: string,
+  documentId: any
+) => {
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/toggle`
+  );
+
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
+    headers: await buildHeaders(),
+    method: "POST",
+    body: JSON.stringify({ documentId }),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Changing document state failed", path, response);
+  }
+};
