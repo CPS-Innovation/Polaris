@@ -32,6 +32,7 @@ import {
   DropdownButtonItem,
 } from "../../../../../common/presentation/components/DropdownButton";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
+import { toggleUsedDocumentState } from "../../../api/gateway-api";
 
 type Props = {
   activeDocumentId: string;
@@ -166,6 +167,24 @@ export const AccordionDocument: React.FC<Props> = ({
         },
       ];
     }
+    if (
+      featureFlags.reclassify &&
+      caseDocument.canReclassify &&
+      caseDocument.presentationFlags.write !== "IsDispatched"
+    ) {
+      const isUsed = !caseDocument.isUnused ? "used" : "unused";
+      const itemsArray = [
+        ...items,
+        {
+          id: "3",
+          label: `Mark as ${isUsed}`,
+          ariaLabel: `Mark as ${isUsed}`,
+          disabled: false,
+        },
+      ];
+
+      return itemsArray;
+    }
 
     return items;
   }, [
@@ -190,6 +209,9 @@ export const AccordionDocument: React.FC<Props> = ({
         return;
       case "2":
         handleReclassifyDocument(caseDocument.documentId);
+        return;
+      case "3":
+        toggleUsedDocumentState("toggleButton");
         return;
       default:
         break;

@@ -558,3 +558,7 @@ const caseCallErrorFactory = (
     ? new ApiError(knownMessage[0], url, response, undefined, knownMessage[1])
     : new ApiError(errorMessage, url, response);
 };
+
+export const toggleUsedDocumentState = (arg: string) => {
+  console.log(arg)
+}
