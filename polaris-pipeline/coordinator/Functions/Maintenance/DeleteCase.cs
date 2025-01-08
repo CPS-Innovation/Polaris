@@ -1,16 +1,13 @@
 ﻿using Common.Configuration;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
 using coordinator.Durable.Providers;
 using coordinator.Services.ClearDownService;
 using Common.Extensions;
 using Microsoft.AspNetCore.Http;
-using coordinator.Helpers;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Client;
 
 namespace coordinator.Functions.Maintenance
 {
@@ -30,42 +27,24 @@ namespace coordinator.Functions.Maintenance
             _clearDownService = clearDownService;
         }
 
-        [FunctionName(nameof(DeleteCase))]
+        [Function(nameof(DeleteCase))]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Run
-            (
+        public async Task<IActionResult> Run(
                 [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req,
                 string caseUrn,
                 int caseId,
-                [DurableClient] IDurableOrchestrationClient orchestrationClient
-            )
+                [DurableClient] DurableTaskClient orchestrationClient)
         {
-            Guid currentCorrelationId = default;
 
-            try
-            {
-                try
-                {
-                    currentCorrelationId = req.Headers.GetCorrelationId();
-                }
-                catch (Exception)
-                {
-                    // this is a maintenance function, so we don't want to fail the request if the correlationId is missing
-                    currentCorrelationId = Guid.NewGuid();
-                }
+            var currentCorrelationId = req.Headers.GetCorrelationId();
 
-                await _clearDownService.DeleteCaseAsync(orchestrationClient,
-                     caseUrn,
-                     caseId,
-                     currentCorrelationId);
+            await _clearDownService.DeleteCaseAsync(orchestrationClient,
+                 caseUrn,
+                 caseId,
+                 currentCorrelationId);
 
-                return new AcceptedResult();
-            }
-            catch (Exception ex)
-            {
-                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(DeleteCase), currentCorrelationId, ex);
-            }
+            return new AcceptedResult();
         }
     }
 }

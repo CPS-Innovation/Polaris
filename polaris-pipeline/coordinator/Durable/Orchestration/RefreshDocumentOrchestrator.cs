@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Common.Constants;
 using Common.Domain.Document;
@@ -6,12 +7,14 @@ using Common.Domain.Ocr;
 using Common.Dto.Response;
 using Common.Logging;
 using Common.Telemetry;
+using coordinator.Domain;
 using coordinator.Durable.Activity;
 using coordinator.Durable.Entity;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask;
+using Microsoft.DurableTask.Entities;
 using Microsoft.Extensions.Logging;
 using text_extractor.coordinator;
 
@@ -28,10 +31,10 @@ namespace coordinator.Durable.Orchestration
         // Here we use CallActivityWithRetryAsync for the OCR service interaction as it has ben seen to hang in production when making Http requests.
         //  The service will cancel and timeout at N seconds and throw.  So lets use the durable framework's own retry mechanism.
         //  (During the great OCR meltdown incident at Microsoft, a MS engineer told us it was OK to just abandon operations within reasonable limits)
-        private readonly RetryOptions _durableActivityRetryOptions = new RetryOptions(
+        private readonly TaskOptions _durableActivityOptions = new(new TaskRetryOptions(new RetryPolicy(
             firstRetryInterval: TimeSpan.FromSeconds(5),
             maxNumberOfAttempts: 3
-        );
+        )));
 
         public static string GetKey(int caseId, string documentId)
         {
@@ -44,16 +47,14 @@ namespace coordinator.Durable.Orchestration
             _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         }
 
-        [FunctionName(nameof(RefreshDocumentOrchestrator))]
-        public async Task Run([OrchestrationTrigger] IDurableOrchestrationContext context)
+        [Function(nameof(RefreshDocumentOrchestrator))]
+        public async Task Run([OrchestrationTrigger] TaskOrchestrationContext context)
         {
             var payload = context.GetInput<DocumentPayload>();
-            var log = context.CreateReplaySafeLogger(_log);
-            var caseEntity = context.CreateEntityProxy<ICaseDurableEntity>(
-                 CaseDurableEntity.GetEntityId(payload.CaseId)
-            );
+            var log = context.CreateReplaySafeLogger(nameof(RefreshDocumentOrchestrator));
+            var caseEntityId = CaseDurableEntity.GetEntityId(payload.CaseId);
 
-            var shouldProceed = await EnsurePdfExists(payload, context, caseEntity, log);
+            var shouldProceed = await EnsurePdfExists(payload, context, caseEntityId, log);
             if (!shouldProceed)
             {
                 return;
@@ -68,7 +69,7 @@ namespace coordinator.Durable.Orchestration
                 return;
             }
 
-            caseEntity.SetDocumentPdfConversionSucceeded(payload.DocumentId);
+            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentPdfConversionSucceeded), payload.DocumentId);
 
             var telemetryEvent = new IndexedDocumentEvent(payload.CorrelationId)
             {
@@ -85,22 +86,21 @@ namespace coordinator.Durable.Orchestration
             // 2 START
             try
             {
-                var (ocrBlobAlreadyExists, ocrPollingResult) = await EnsureOcrExists(payload, context, log);
-
+                var getOcrResultsResponse = await EnsureOcrExists(payload, context, log);
                 telemetryEvent.OcrCompletedTime = context.CurrentUtcDateTime;
-                telemetryEvent.PageCount = ocrPollingResult.FinalResult.PageCount;
-                telemetryEvent.LineCount = ocrPollingResult.FinalResult.LineCount;
-                telemetryEvent.WordCount = ocrPollingResult.FinalResult.WordCount;
+                telemetryEvent.PageCount = getOcrResultsResponse.OcrPollingResult.FinalResult.PageCount;
+                telemetryEvent.LineCount = getOcrResultsResponse.OcrPollingResult.FinalResult.LineCount;
+                telemetryEvent.WordCount = getOcrResultsResponse.OcrPollingResult.FinalResult.WordCount;
 
                 var (indexStoredTime, indexStoredResult, indexPollingResult) = await IndexDocument(context, payload, log, telemetryEvent);
 
                 telemetryEvent.IndexStoredTime = indexStoredTime;
                 telemetryEvent.DidIndexSettle = indexPollingResult.IsCompleted;
-                telemetryEvent.WaitRecordCounts = indexPollingResult.Results;
+                telemetryEvent.WaitRecordCounts = indexPollingResult.Results.Select(r => r.LineCount).ToList();
                 telemetryEvent.IndexSettleTargetCount = indexStoredResult.LineCount;
                 telemetryEvent.EndTime = context.CurrentUtcDateTime;
 
-                caseEntity.SetDocumentIndexingSucceeded(payload.DocumentId.ToString());
+                await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentIndexingSucceeded), payload.DocumentId);
 
                 // by this point we may be replaying, so good to keep a record
                 telemetryEvent.DidOrchestratorReplay = context.IsReplaying;
@@ -114,13 +114,14 @@ namespace coordinator.Durable.Orchestration
                 // todo: there is no durable replay protection here, and there is evidence of several failure event records for the same failure event in our analytics.
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
-                caseEntity.SetDocumentIndexingFailed(payload.DocumentId.ToString());
+                await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentIndexingFailed), payload.DocumentId);
+
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
                 return;
             }
         }
 
-        private async Task<bool> EnsurePdfExists(DocumentPayload payload, IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, ILogger log)
+        private async Task<bool> EnsurePdfExists(DocumentPayload payload, TaskOrchestrationContext context, EntityInstanceId caseEntityId, ILogger log)
         {
             try
             {
@@ -131,21 +132,23 @@ namespace coordinator.Durable.Orchestration
                     _ => nameof(GeneratePdfFromDocument)
                 };
 
-                var (blobAlreadyExists, pdfConversionStatus) = await context.CallActivityAsync<(bool, PdfConversionStatus)>(activityName, payload);
-                if (blobAlreadyExists)
+                var pdfConversionResponse = await context.CallActivityAsync<PdfConversionResponse>(activityName, payload);
+                if (pdfConversionResponse.BlobAlreadyExists)
                 {
                     return true;
                 }
 
-                if (pdfConversionStatus != PdfConversionStatus.DocumentConverted)
+                if (pdfConversionResponse.PdfConversionStatus != PdfConversionStatus.DocumentConverted)
                 {
-                    caseEntity.SetDocumentPdfConversionFailed((payload.DocumentId.ToString(), pdfConversionStatus));
+                    await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentPdfConversionFailed), new SetDocumentPdfConversionFailedPayload { DocumentId = payload.DocumentId, PdfConversionStatus = pdfConversionResponse.PdfConversionStatus });
+
                     return false;
                 }
             }
             catch (Exception exception)
             {
-                caseEntity.SetDocumentPdfConversionFailed((payload.DocumentId.ToString(), PdfConversionStatus.UnexpectedError));
+                await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentPdfConversionFailed), new SetDocumentPdfConversionFailedPayload { DocumentId = payload.DocumentId, PdfConversionStatus = PdfConversionStatus.UnexpectedError });
+
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error calling {nameof(RefreshDocumentOrchestrator)}: {exception.Message}", exception);
                 return false;
             }
@@ -153,16 +156,16 @@ namespace coordinator.Durable.Orchestration
             return true;
         }
 
-        private async Task<(bool, PollingResult<AnalyzeResultsStats>)> EnsureOcrExists(DocumentPayload payload, IDurableOrchestrationContext context, ILogger log)
+        private async Task<OcrOperationPollingResult> EnsureOcrExists(DocumentPayload payload, TaskOrchestrationContext context, ILogger log)
         {
-            var (blobAlreadyExists, ocrPollingResult) = await GetOcrResults(context, payload);
+            var getOcrResultsResponse = await GetOcrResults(context, payload);
 
-            if (blobAlreadyExists)
+            if (getOcrResultsResponse.BlobAlreadyExists)
             {
-                return (true, null);
+                return new OcrOperationPollingResult { BlobAlreadyExists = true };
             }
 
-            if (!ocrPollingResult.IsCompleted)
+            if (!getOcrResultsResponse.OcrPollingResult.IsCompleted)
             {
                 // Several times a day we see "stuck" OCR operations at Microsoft.  The recommendation is to a) just ditch an operation
                 //  if it has not come back within an appropriate time and b) kick off another OCR operation.  So if our first OCR operation
@@ -171,60 +174,57 @@ namespace coordinator.Durable.Orchestration
                 //  We would still kick off another operation after a timeout but keep the first alive.  We'd then have a two horse race.
                 //  (It is most likely that the first operation is stuck if our timeout is long enough, but it may not be stuck and just slow).
                 log.LogMethodFlow(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), "OCR operation did not complete within the polling timeout period, starting a fallback operation");
-                (_, ocrPollingResult) = await GetOcrResults(context, payload);
+                getOcrResultsResponse = await GetOcrResults(context, payload);
 
-                if (!ocrPollingResult.IsCompleted)
+                if (getOcrResultsResponse.OcrPollingResult?.IsCompleted == false)
                 {
                     // After second bit of the cherry, still no joy
                     throw new Exception("OCR operation did not complete within the polling timeout period");
                 }
             }
 
-            return (false, ocrPollingResult);
+            return new OcrOperationPollingResult { BlobAlreadyExists = false, OcrPollingResult = getOcrResultsResponse.OcrPollingResult };
         }
 
-        private async Task<(bool, PollingResult<AnalyzeResultsStats>)> GetOcrResults(IDurableOrchestrationContext context, DocumentPayload payload)
+        private async Task<OcrOperationPollingResult> GetOcrResults(TaskOrchestrationContext context, DocumentPayload payload)
         {
-            var (blobAlreadyExists, ocrOperationId) = await context.CallActivityWithRetryAsync<(bool, Guid)>(
+            var initiateOcrResponse = await context.CallActivityAsync<InitiateOcrResponse>(
                 nameof(InitiateOcr),
-                _durableActivityRetryOptions,
-                payload
-            );
+                payload,
+                _durableActivityOptions);
 
-            if (blobAlreadyExists)
+            if (initiateOcrResponse.BlobAlreadyExists)
             {
-                return (true, null);
+                return new OcrOperationPollingResult { BlobAlreadyExists = true };
             }
 
             var pollingResult = await PollingHelper.PollActivityUntilComplete<AnalyzeResultsStats>(
                 context,
                 PollingHelper.CreatePollingArgs(
                     activityName: nameof(CompleteOcr),
-                    activityInput: (ocrOperationId, payload),
+                    activityInput: new CompleteOcrPayload { OcrOperationId = initiateOcrResponse.OcrOperationId, Payload = payload },
                     prePollingDelayMs: _prePollingDelayMs,
                     pollingIntervalMs: _pollingIntervalMs,
                     maxPollingAttempts: _maxPollingAttempts,
-                    activityRetryOptions: _durableActivityRetryOptions
-                )
-           );
+                    activityOptions: _durableActivityOptions));
 
-            return (false, pollingResult);
+            return new OcrOperationPollingResult { BlobAlreadyExists = false, OcrPollingResult = pollingResult };
         }
 
-        private async Task<(DateTime IndexStoredTime, StoreCaseIndexesResult StoreCaseIndexesResult, PollingResult<long> PollingResult)> IndexDocument(IDurableOrchestrationContext context, DocumentPayload payload, ILogger log, IndexedDocumentEvent telemetryEvent)
+        private async Task<(DateTime IndexStoredTime, StoreCaseIndexesResult StoreCaseIndexesResult, PollingResult<CompleteIndexResponse> PollingResult)> IndexDocument(TaskOrchestrationContext context, DocumentPayload payload, ILogger log, IndexedDocumentEvent telemetryEvent)
         {
             var indexStoredResult = await context.CallActivityAsync<StoreCaseIndexesResult>(nameof(InitiateIndex), payload);
             var indexStoredTime = context.CurrentUtcDateTime;
 
-            var indexPollingResult = await PollingHelper.PollActivityUntilComplete<long>(
+            var indexPollingResult = await PollingHelper.PollActivityUntilComplete<CompleteIndexResponse>(
                 context,
                 PollingHelper.CreatePollingArgs(
                     activityName: nameof(CompleteIndex),
-                    activityInput: (payload, indexStoredResult.LineCount),
+                    activityInput: new CompleteIndexPayload { Payload = payload, TargetCount = indexStoredResult.LineCount },
                     prePollingDelayMs: _prePollingDelayMs,
                     pollingIntervalMs: _pollingIntervalMs,
                     maxPollingAttempts: _maxPollingAttempts,
-                    activityRetryOptions: _durableActivityRetryOptions
+                    activityOptions: _durableActivityOptions
                 )
             );
 
