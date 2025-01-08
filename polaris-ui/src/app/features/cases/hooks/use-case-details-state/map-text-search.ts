@@ -37,7 +37,7 @@ export const mapTextSearch = (
       const { id, pageIndex, words, pageHeight, pageWidth } = apiResultDocument;
 
       const occurrencesInLine = words
-        .filter((word) => word.matchType !== "None" && word.boundingBox)
+        .filter((word) => word.matchType !== "None" && !!word.boundingBox)
         // this || clause keeps typescript happy, by this point we are guaranteed to have an array,
         //  with stuff in rather than null, but typescript doen't think so, and I can't find a
         //  type-guard-y kind of way to convince typescript.
