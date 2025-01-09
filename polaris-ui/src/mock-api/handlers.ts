@@ -279,10 +279,12 @@ export const setupHandlers = ({
       );
     }),
 
-    rest.post(makeApiPath(routes.TOGGLE_USED_DOCUMENT_ROUTE), (req, res,ctx) => {
-      console.log('handlers: ', ctx)
-      return res(delay(ctx), ctx.json({}))
-    })
+    rest.post(
+      makeApiPath(routes.TOGGLE_USED_DOCUMENT_ROUTE),
+      (req, res, ctx) => {
+        return res(delay(ctx), ctx.json({}));
+      }
+    ),
   ];
 };
 
