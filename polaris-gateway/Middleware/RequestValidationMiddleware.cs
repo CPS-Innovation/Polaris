@@ -62,6 +62,7 @@ public sealed partial class RequestValidationMiddleware(
 
         await next(context);
 
+        requestTelemetry.Context.Operation.Name = context.FunctionDefinition.Name;
         requestTelemetry.Properties[TelemetryConstants.CorrelationIdCustomDimensionName] = correlationId.ToString();
         requestTelemetry.Name = context.FunctionDefinition.Name;
         requestTelemetry.HttpMethod = requestData.Method;

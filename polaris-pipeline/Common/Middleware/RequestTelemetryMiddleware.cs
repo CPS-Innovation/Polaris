@@ -43,6 +43,7 @@ public class RequestTelemetryMiddleware : IFunctionsWorkerMiddleware
 
         await next(context);
 
+        requestTelemetry.Context.Operation.Name = context.FunctionDefinition.Name;
         requestTelemetry.Name = context.FunctionDefinition.Name;
         requestTelemetry.HttpMethod = requestData.Method;
         requestTelemetry.ResponseCode = context.GetHttpResponseData()?.StatusCode.ToString() ?? string.Empty;

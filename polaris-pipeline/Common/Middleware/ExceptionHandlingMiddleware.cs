@@ -81,6 +81,7 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
                     invocationResult.Value = newHttpResponse;
                 }
 
+                requestTelemetry.Context.Operation.Name = context.FunctionDefinition.Name;
                 requestTelemetry.Name = context.FunctionDefinition.Name;
                 requestTelemetry.HttpMethod = httpRequestData.Method;
                 requestTelemetry.ResponseCode = ((int)statusCode).ToString();
