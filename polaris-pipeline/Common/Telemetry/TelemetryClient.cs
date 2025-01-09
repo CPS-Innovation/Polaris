@@ -53,8 +53,7 @@ namespace Common.Telemetry
             _telemetryClient.TrackEvent(
                 PrepareEventName(baseTelemetryEvent.EventName),
                 PrepareKeyNames(properties),
-                PrepareKeyNames(nonNullMetrics)
-            );
+                PrepareKeyNames(nonNullMetrics));
         }
 
         private static string PrepareEventName(string source)

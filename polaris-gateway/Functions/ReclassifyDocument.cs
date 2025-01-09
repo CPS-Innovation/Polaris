@@ -30,7 +30,7 @@ public class ReclassifyDocument : BaseFunction
         IDdeiArgFactory ddeiArgFactory,
         IReclassifyDocumentRequestMapper reclassifyDocumentRequestMapper,
         ITelemetryClient telemetryClient)
-        : base(telemetryClient)
+        : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));

@@ -60,13 +60,9 @@ namespace coordinator.Functions
             string caseUrn,
             int caseId,
             string documentId,
-            long versionId,
-            [DurableClient] DurableTaskClient client)
+            long versionId)
         {
             var currentCorrelationId = req.Headers.GetCorrelationId();
-
-            var response = await GetTrackerDocument(client, caseId, documentId, _logger, currentCorrelationId, nameof(RedactDocument));
-            var document = response.CmsDocument;
 
             var redactPdfRequest = await req.ReadFromJsonAsync<RedactPdfRequestDto>();
 
@@ -137,15 +133,13 @@ namespace coordinator.Functions
             }
 
             var cmsAuthValues = req.Headers.GetCmsAuthValues();
-            var arg = _ddeiArgFactory.CreateDocumentVersionArgDto
-            (
-                cmsAuthValues: cmsAuthValues,
+            var arg = _ddeiArgFactory.CreateDocumentVersionArgDto(
+                cmsAuthValues,
                 correlationId: currentCorrelationId,
-                urn: caseUrn,
+                caseUrn,
                 caseId: caseId,
-                documentId: DocumentNature.ToNumericDocumentId(documentId, DocumentNature.Types.Document),
-                versionId: versionId
-            );
+                DocumentNature.ToNumericDocumentId(documentId, DocumentNature.Types.Document),
+                versionId);
 
             var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, modifiedDocumentStream ?? redactedDocumentStream);
 

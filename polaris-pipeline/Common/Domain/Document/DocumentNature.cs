@@ -5,9 +5,9 @@ namespace Common.Domain.Document;
 
 public static class DocumentNature
 {
-    public const string DocumentPrefix = "CMS";
-    public const string PreChargeDecisionRequestPrefix = "PCD";
-    public const string DefendantsAndChargesPrefix = "DAC";
+    private const string DocumentPrefix = "CMS";
+    private const string PreChargeDecisionRequestPrefix = "PCD";
+    private const string DefendantsAndChargesPrefix = "DAC";
 
     public enum Types
     {

@@ -20,6 +20,8 @@ using Common.Configuration;
 using Common.Dto.Response.Document;
 using Microsoft.Extensions.Configuration;
 using coordinator.Domain;
+using Ddei.Domain.CaseData.Args;
+using Common.Dto.Response;
 
 namespace pdf_generator.tests.Durable.Activity
 {
@@ -48,36 +50,22 @@ namespace pdf_generator.tests.Durable.Activity
                     DocumentNature.Types.Document,
                     DocumentDeltaType.RequiresIndexing,
                     _fixture.Create<string>(),
-                    _fixture.Create<Guid>()
-                );
-
-
+                    _fixture.Create<Guid>());
             var docxStream = new MemoryStream();
             var pdfStream = new MemoryStream();
-
             _pdfStream = new MemoryStream();
-
             _mockDDeiClient = new Mock<IDdeiClient>();
             _mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
             _mockBlobStorageService = new Mock<IPolarisBlobStorageService>();
 
-            _mockDDeiClient
-                .Setup(service => service.GetDocumentFromFileStoreAsync
-                (
-                    "test.docx",
-                    It.IsAny<string>(),
-                    It.IsAny<Guid>())
-                )
-                .ReturnsAsync(docxStream);
+            var docArg = _fixture.Create<DdeiDocumentIdAndVersionIdArgDto>();
+            _mockDdeiArgFactory
+                .Setup(x => x.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>()))
+                .Returns(docArg);
 
             _mockDDeiClient
-                .Setup(service => service.GetDocumentFromFileStoreAsync
-                (
-                    "test.pdf",
-                    It.IsAny<string>(),
-                    It.IsAny<Guid>())
-                )
-                .ReturnsAsync(pdfStream);
+               .Setup(service => service.GetDocumentAsync(docArg))
+                .ReturnsAsync(new FileResult { Stream = docxStream });
 
             _mockPdfGeneratorClient = new Mock<IPdfGeneratorClient>();
 
@@ -123,23 +111,6 @@ namespace pdf_generator.tests.Durable.Activity
             _generatePdfRequest.Path = null;
             var result = await _generatePdf.Run(_generatePdfRequest);
             result.Should().BeEquivalentTo(new PdfConversionResponse { BlobAlreadyExists = false, PdfConversionStatus = PdfConversionStatus.DocumentTypeUnsupported });
-        }
-
-        [Fact]
-        public async Task Run_UploadsDocumentStreamWhenFileTypeIsPdf()
-        {
-            _generatePdfRequest.Path = "test.pdf";
-            await _generatePdf.Run(_generatePdfRequest);
-
-            _mockBlobStorageService.Verify
-            (
-                service => service.UploadBlobAsync
-                (
-                    _pdfStream,
-                    It.IsAny<BlobIdType>(),
-                    null
-                )
-            );
         }
 
         [Fact]

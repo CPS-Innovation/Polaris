@@ -31,7 +31,7 @@ public class AddDocumentNote : BaseFunction
         IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient,
         IJsonConvertWrapper jsonConvertWrapper)
-        : base(telemetryClient)
+        : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));

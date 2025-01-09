@@ -67,13 +67,7 @@ namespace coordinator.Durable.Payloads.Domain
         }
 
         [JsonPropertyName("documentId")]
-        public override string DocumentId
-        {
-            get
-            {
-                return $"{DocumentNature.DocumentPrefix}-{CmsDocumentId}";
-            }
-        }
+        public override string DocumentId => DocumentNature.ToQualifiedStringDocumentId(CmsDocumentId, DocumentNature.Types.Document);
 
         [JsonPropertyName("path")]
         public string Path { get; set; }
@@ -99,15 +93,9 @@ namespace coordinator.Durable.Payloads.Domain
         public int? CategoryListOrder { get; set; }
 
         [JsonPropertyName("parentDocumentId")]
-        public string ParentDocumentId
-        {
-            get
-            {
-                return string.IsNullOrWhiteSpace(CmsParentDocumentId)
-                    ? null
-                    : $"{DocumentNature.DocumentPrefix}-{CmsParentDocumentId}";
-            }
-        }
+        public string ParentDocumentId => string.IsNullOrWhiteSpace(CmsParentDocumentId) ?
+            null :
+            DocumentNature.ToQualifiedStringDocumentId(CmsParentDocumentId, DocumentNature.Types.Document);
 
         [JsonPropertyName("cmsParentDocumentId")]
         public string CmsParentDocumentId { get; set; }

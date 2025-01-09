@@ -27,7 +27,7 @@ public class RenameDocument : BaseFunction
         IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient)
-        : base(telemetryClient)
+        : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
