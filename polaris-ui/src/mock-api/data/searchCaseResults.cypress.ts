@@ -88,7 +88,9 @@ const searchResults: ApiTextSearchResult[] = [
         confidence: 0.0,
       },
       {
-        boundingBox: null,
+        boundingBox: [
+          1.6007, 6.9268, 1.9447, 6.9268, 1.9447, 7.0362, 0.6007, 7.0362,
+        ],
         text: "drink",
         matchType: "Exact",
         confidence: 0.0,
@@ -96,7 +98,7 @@ const searchResults: ApiTextSearchResult[] = [
       {
         boundingBox: null,
         text: "zorms",
-        matchType: "None",
+        matchType: "Exact",
         confidence: 0.0,
       },
       {
