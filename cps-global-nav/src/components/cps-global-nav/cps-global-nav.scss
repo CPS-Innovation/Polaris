@@ -12,12 +12,6 @@ $level-height: 3.5rem;
   background-color: govuk-colour('light-grey');
 }
 
-.background-left-only {
-  // box-shadow: 0 0 0 0vmax govuk-colour('light-grey');
-  // clip-path: inset(0 -100vmax);
-  background-color: govuk-colour('light-grey');
-}
-
 .background-divider {
   height: 1px;
   box-shadow: 0 0 0 100vmax $govuk-border-colour;
@@ -30,6 +24,7 @@ $level-height: 3.5rem;
   position: relative;
   display: grid;
 }
+
 .background-left-only:before {
   content: '';
   background-color: govuk-colour('light-grey');

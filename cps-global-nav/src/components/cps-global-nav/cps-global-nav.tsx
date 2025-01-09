@@ -19,6 +19,14 @@ export class CpsGlobalNav {
   })
   globalNavLinkSelected: EventEmitter<string>;
 
+  connectedCallback() {
+    console.log(window.location);
+    window.addEventListener('popstate', function (event) {
+      // Log the state data to the console
+      console.log(event.state);
+    });
+  }
+
   private clickHandler = (ev: MouseEvent) => {
     const label = (ev.target as HTMLAnchorElement).innerText;
     console.log(label);
