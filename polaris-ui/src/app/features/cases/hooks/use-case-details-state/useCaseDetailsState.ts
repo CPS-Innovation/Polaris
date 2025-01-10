@@ -39,7 +39,17 @@ export const useCaseDetailsState = (
 
   const [combinedState, dispatch] = useReducerAsync(
     reducer,
-    { ...initialState, ...retentionState, caseId, urn, context },
+    {
+      ...initialState,
+      ...retentionState,
+      documentRefreshData: {
+        startDocumentRefresh: true,
+        savedDocumentDetails: [],
+      },
+      caseId,
+      urn,
+      context,
+    },
     reducerAsyncActionHandlers
   );
 

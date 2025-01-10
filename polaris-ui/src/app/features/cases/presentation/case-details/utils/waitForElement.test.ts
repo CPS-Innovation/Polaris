@@ -13,13 +13,13 @@ describe("waitForElement", () => {
     expect(element.textContent).toBe(`abc2`);
   });
 
-  it("should handle invalid tabIndex gracefully", async () => {
+  it("should reject if the element cannot be found even after the timeout is reached", async () => {
     document.body.innerHTML = `
       <div class="pdfViewer"></div>
     `;
     await expect(
-      waitForElement(() => document.querySelectorAll(".pdfViewer")[5])
-    ).rejects.toThrow("max retries reached");
+      waitForElement(() => document.querySelectorAll(".pdfViewer")[5], 100)
+    ).rejects.toThrow("timeout reached");
   });
 
   it("should not resolve if the element is not found immediately but resolves later", async () => {

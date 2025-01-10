@@ -1,18 +1,16 @@
 export const waitForElement = async (
   getElement: () => Element | undefined,
-  maxRetry: number = 4
+  timeout: number = 5000
 ): Promise<Element> => {
   return new Promise((resolve, reject) => {
-    let retry = 0;
+    const startTime = Date.now();
     const checkForElement = () => {
       const targetElement = getElement();
       if (targetElement) {
         resolve(targetElement);
       } else {
-        retry++;
-
-        if (retry >= maxRetry) {
-          reject(new Error("max retries reached"));
+        if (Date.now() - startTime >= timeout) {
+          reject(new Error("timeout reached"));
         } else {
           requestAnimationFrame(checkForElement);
         }
