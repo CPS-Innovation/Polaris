@@ -1,0 +1,18 @@
+Polaris_Metrics_Redaction
+| join kind=leftouter (
+
+    AppRequests 
+    | where Name == "RedactDocument"
+    | summarize Url = max(Url) by OperationId
+    | project OperationId, Url
+
+) on OperationId
+| where CaseId != 1234
+| project 
+    TimeGenerated,
+    CaseId,
+    DocumentId,
+    DocumentPageCount = PageCount,
+    RedactionCount,
+    RedactedPageCount = array_length( split(RedactionPageCounts, ",")),
+    Url = split(Url, "/")[5]

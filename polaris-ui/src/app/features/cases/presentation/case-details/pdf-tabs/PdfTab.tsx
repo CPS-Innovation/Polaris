@@ -61,6 +61,7 @@ type PdfTabProps = {
   handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
   handleSaveRotations: CaseDetailsState["handleSaveRotations"];
   handleUpdateConversionStatus: CaseDetailsState["handleUpdateConversionStatus"];
+  handleHideSaveRotationModal: CaseDetailsState["handleHideSaveRotationModal"];
 };
 
 export const PdfTab: React.FC<PdfTabProps> = ({
@@ -95,6 +96,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   handleRemoveAllRotations,
   handleSaveRotations,
   handleUpdateConversionStatus,
+  handleHideSaveRotationModal,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
@@ -439,9 +441,12 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             ariaLabel="Refreshing document, please wait"
           />
         )}
-        {saveStatus.type === "rotation" && saveStatus.status !== "error" && (
-          <SaveRotationModal saveStatus={saveStatus.status} />
-        )}
+        <SaveRotationModal
+          saveStatus={saveStatus}
+          handleCloseSaveRotationModal={() =>
+            handleHideSaveRotationModal(documentId)
+          }
+        />
 
         {showRedactionWarning && (
           <SearchPIIRedactionWarningModal

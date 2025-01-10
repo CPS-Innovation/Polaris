@@ -12,6 +12,12 @@ describe("mapTextSearch", () => {
         words: [
           { boundingBox: [1], text: "foo", confidence: 1, matchType: "Exact" },
           { boundingBox: null, text: "bar", confidence: 1, matchType: "None" },
+          {
+            boundingBox: null,
+            text: "test",
+            confidence: 1,
+            matchType: "Exact",
+          },
         ],
       },
       {
@@ -65,6 +71,10 @@ describe("mapTextSearch", () => {
                 {
                   isHighlighted: false,
                   text: "bar",
+                },
+                {
+                  isHighlighted: false,
+                  text: "test",
                 },
               ],
               id: "1",

@@ -1,5 +1,8 @@
 using Common.Domain.Pii;
 using PolarisGateway.Services.Artefact.Domain;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.Artefact;
 

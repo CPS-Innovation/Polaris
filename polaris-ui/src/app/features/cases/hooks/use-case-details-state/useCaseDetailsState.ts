@@ -521,6 +521,21 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleHideSaveRotationModal = useCallback(
+    (documentId: string) =>
+      dispatch({
+        type: "UPDATE_DOCUMENT_SAVE_STATUS",
+        payload: {
+          documentId,
+          saveStatus: {
+            type: "none",
+            status: "initial",
+          },
+        },
+      }),
+    [dispatch]
+  );
+
   const handleAccordionOpenClose = useCallback(
     (id: string, open: boolean) =>
       dispatch({
@@ -578,6 +593,7 @@ export const useCaseDetailsState = (
     handleClearNotification,
     handleUpdateConversionStatus,
     handleShowHidePageDeletion,
+    handleHideSaveRotationModal,
     handleAccordionOpenClose,
     handleAccordionOpenCloseAll,
   };

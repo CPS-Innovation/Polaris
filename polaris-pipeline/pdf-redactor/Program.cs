@@ -3,37 +3,43 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Common.Domain.Validators;
 using Common.Dto.Request;
+using Common.Extensions;
 using Common.Handlers;
 using Common.Telemetry;
 using Common.Wrappers;
 using FluentValidation;
 using pdf_redactor;
 using pdf_redactor.Services.Extensions;
+using Microsoft.ApplicationInsights.Extensibility;
+using Common.Middleware;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
-    .ConfigureHostConfiguration(builder =>
+    .ConfigureFunctionsWebApplication(options =>
     {
-        builder.AddEnvironmentVariables();
-#if DEBUG
-        builder.SetBasePath(Directory.GetCurrentDirectory());
-#endif
-        builder.AddJsonFile("local.settings.json", optional: true, reloadOnChange: true);
+        options.Services.Configure<WorkerOptions>(o =>
+        {
+            o.EnableUserCodeException = true;
+        });
+
+        options.UseMiddleware<ExceptionHandlingMiddleware>();
+        options.UseMiddleware<RequestTelemetryMiddleware>();
     })
+    .ConfigureHostConfiguration(builder => builder.AddConfigurationSettings())
     .ConfigureServices((context, services) =>
     {
         StartupHelpers.SetAsposeLicence();
 
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
-
-        services.Configure<WorkerOptions>(o =>
+        services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
         {
-            o.EnableUserCodeException = true;
+            telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder
+                .UseAdaptiveSampling(maxTelemetryItemsPerSecond: 20, excludedTypes: "Request;Exception;Event;Trace");
+            telemetryConfiguration.DisableTelemetry = false;
         });
+        services.ConfigureLoggerFilterOptions();
 
         // bugfix: override .net core limitation of disallowing Synchronous IO for this function only
         services.Configure<KestrelServerOptions>(options =>
@@ -55,22 +61,8 @@ var host = new HostBuilder()
         services.AddScoped<IValidator<ModifyDocumentWithDocumentDto>, ModifyDocumentWithDocumentValidator>();
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
+        services.AddSingleton<Microsoft.ApplicationInsights.TelemetryClient, Microsoft.ApplicationInsights.TelemetryClient>();
         services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
-    })
-    .ConfigureLogging(logging =>
-    {
-        // The Application Insights SDK adds a default logging filter that instructs ILogger to capture only Warning and more severe logs. Application Insights requires an explicit override.
-        // Log levels can also be configured using appsettings.json. For more information, see https://learn.microsoft.com/en-us/azure/azure-monitor/app/worker-service#ilogger-logs
-        logging.Services.Configure<LoggerFilterOptions>(options =>
-        {
-            var defaultRule = options.Rules.FirstOrDefault(rule =>
-                rule.ProviderName ==
-                "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
-            if (defaultRule is not null)
-            {
-                options.Rules.Remove(defaultRule);
-            }
-        });
     })
     .Build();
 

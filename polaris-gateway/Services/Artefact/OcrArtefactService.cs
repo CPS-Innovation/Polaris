@@ -3,6 +3,9 @@ using Common.Services.BlobStorage;
 using Common.Services.OcrService;
 using PolarisGateway.Services.Artefact.Domain;
 using PolarisGateway.Services.Artefact.Factories;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.Artefact;
 public class OcrArtefactService : IOcrArtefactService

@@ -174,6 +174,7 @@ describe("useCaseDetailsState", () => {
         handleClearNotification,
         handleUpdateConversionStatus,
         handleShowHidePageDeletion,
+        handleHideSaveRotationModal,
         handleAccordionOpenClose,
         handleAccordionOpenCloseAll,
         ...stateProperties
