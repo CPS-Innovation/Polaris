@@ -45,7 +45,10 @@ public class ReclassifyDocument : BaseFunction
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ReclassifyDocument)] HttpRequest req, string caseUrn, int caseId, string documentId)
     {
-        var telemetryEvent = new DocumentReclassifiedEvent(caseId, documentId);
+        var telemetryEvent = new DocumentReclassifiedEvent(caseId, documentId)
+        {
+            OperationName = nameof(ReclassifyDocument),
+        };
 
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);

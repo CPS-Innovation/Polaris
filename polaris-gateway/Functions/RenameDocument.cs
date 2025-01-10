@@ -39,7 +39,10 @@ public class RenameDocument : BaseFunction
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RenameDocument)] HttpRequest req, string caseUrn, int caseId, string documentId)
     {
-        var telemetryEvent = new RenameDocumentRequestEvent(caseId, documentId.ToString());
+        var telemetryEvent = new RenameDocumentRequestEvent(caseId, documentId.ToString())
+        {
+            OperationName = nameof(RenameDocument),
+        };
 
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);

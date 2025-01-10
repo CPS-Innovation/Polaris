@@ -80,7 +80,8 @@ namespace coordinator.Durable.Orchestration
                 DocumentType = payload.DocumentType.DocumentType,
                 DocumentCategory = payload.DocumentType.DocumentCategory,
                 VersionId = payload.VersionId,
-                StartTime = context.CurrentUtcDateTime
+                StartTime = context.CurrentUtcDateTime,
+                OperationName = nameof(RefreshDocumentOrchestrator),
             };
 
             // 2 START

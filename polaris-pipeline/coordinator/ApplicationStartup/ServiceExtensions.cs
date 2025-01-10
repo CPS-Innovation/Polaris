@@ -101,7 +101,6 @@ public static class ServiceExtensions
         ));
 
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
-        services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
         services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
 
         return services;

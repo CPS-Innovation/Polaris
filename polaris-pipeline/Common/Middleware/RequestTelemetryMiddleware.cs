@@ -39,6 +39,16 @@ public class RequestTelemetryMiddleware : IFunctionsWorkerMiddleware
         {
         }
 
+        if (context.BindingContext.BindingData.TryGetValue("documentId", out var documentId))
+        {
+            requestTelemetry.Properties[TelemetryConstants.DocumentIdCustomDimensionName] = documentId.ToString();
+        }
+
+        if (context.BindingContext.BindingData.TryGetValue("versionId", out var versionId))
+        {
+            requestTelemetry.Properties[TelemetryConstants.DocumentVersionIdCustomDimensionName] = versionId.ToString();
+        }
+
         requestTelemetry.Properties[TelemetryConstants.CorrelationIdCustomDimensionName] = correlationId.ToString();
 
         await next(context);

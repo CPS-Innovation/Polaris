@@ -14,15 +14,16 @@ namespace text_extractor.Functions
     {
         private readonly ILogger<RemoveCaseIndexes> _log;
         private readonly ISearchIndexService _searchIndexService;
-        private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         private readonly IExceptionHandler _exceptionHandler;
         private const string LoggingName = nameof(RemoveCaseIndexes);
 
-        public RemoveCaseIndexes(ILogger<RemoveCaseIndexes> logger, ISearchIndexService searchIndexService, ITelemetryAugmentationWrapper telemetryAugmentationWrapper, IExceptionHandler exceptionHandler)
+        public RemoveCaseIndexes(
+            ILogger<RemoveCaseIndexes> logger,
+            ISearchIndexService searchIndexService,
+            IExceptionHandler exceptionHandler)
         {
             _log = logger ?? throw new ArgumentNullException(nameof(logger));
             _searchIndexService = searchIndexService ?? throw new ArgumentNullException(nameof(searchIndexService));
-            _telemetryAugmentationWrapper = telemetryAugmentationWrapper ?? throw new ArgumentNullException(nameof(telemetryAugmentationWrapper));
             _exceptionHandler = exceptionHandler ?? throw new ArgumentNullException(nameof(exceptionHandler));
         }
 
@@ -34,7 +35,6 @@ namespace text_extractor.Functions
             try
             {
                 correlationId = request.Headers.GetCorrelationId();
-                _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
 
                 var result = await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId, correlationId);
 

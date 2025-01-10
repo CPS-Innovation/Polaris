@@ -87,10 +87,12 @@ namespace coordinator.Functions
                 foreach (var documentIdsChunk in chunkedDocumentIds)
                 {
                     var telemetryEvent = new SearchCaseEvent(
-                        correlationId: currentCorrelationId,
+                        currentCorrelationId,
                         caseId,
-                        documentIds: documentIdsChunk
-                    );
+                        documentIdsChunk)
+                    {
+                        OperationName = nameof(SearchCase),
+                    };
                     _telemetryClient.TrackEvent(telemetryEvent);
                 }
 

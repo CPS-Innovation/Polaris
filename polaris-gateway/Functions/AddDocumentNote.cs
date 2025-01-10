@@ -47,7 +47,10 @@ public class AddDocumentNote : BaseFunction
         int caseId,
         string documentId)
     {
-        var telemetryEvent = new DocumentNoteRequestEvent(caseId, documentId.ToString());
+        var telemetryEvent = new DocumentNoteRequestEvent(caseId, documentId.ToString())
+        {
+            OperationName = nameof(AddDocumentNote),
+        };
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 

@@ -47,7 +47,10 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId)
     {
-        var telemetryEvent = new RedactionRequestEvent(caseId, documentId);
+        var telemetryEvent = new RedactionRequestEvent(caseId, documentId)
+        {
+            OperationName = nameof(PolarisPipelineSaveDocumentRedactions),
+        };
 
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);

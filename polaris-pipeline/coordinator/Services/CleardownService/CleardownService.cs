@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.DurableTask.Client;
+using coordinator.Functions.Maintenance;
 
 namespace coordinator.Services.ClearDownService
 {
@@ -33,10 +34,12 @@ namespace coordinator.Services.ClearDownService
         public async Task DeleteCaseAsync(DurableTaskClient client, string caseUrn, int caseId, Guid correlationId)
         {
             var telemetryEvent = new DeletedCaseEvent(
-                correlationId: correlationId,
-                caseId: caseId,
-                startTime: DateTime.UtcNow
-            );
+                correlationId,
+                caseId,
+                DateTime.UtcNow)
+            {
+                OperationName = nameof(DeleteCase),
+            };
             try
             {
                 var deleteResult = await _textExtractorClient.RemoveCaseIndexesAsync(caseUrn, caseId, correlationId);

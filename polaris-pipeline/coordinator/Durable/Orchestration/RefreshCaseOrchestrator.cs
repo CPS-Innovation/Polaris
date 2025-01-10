@@ -63,7 +63,10 @@ namespace coordinator.Durable.Orchestration
                 telemetryEvent = new RefreshedCaseEvent(
                     correlationId: payload.CorrelationId,
                     caseId: payload.CaseId,
-                    startTime: await context.Entities.CallEntityAsync<DateTime>(caseEntityId, nameof(CaseDurableEntity.GetStartTime)));
+                    startTime: await context.Entities.CallEntityAsync<DateTime>(caseEntityId, nameof(CaseDurableEntity.GetStartTime)))
+                {
+                    OperationName = nameof(RefreshCaseOrchestrator),
+                };
 
                 var orchestratorTask = RunCaseOrchestrator(context, caseEntityId, payload, telemetryEvent, log);
 

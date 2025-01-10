@@ -56,7 +56,6 @@ var host = new HostBuilder()
         services.AddTransient<IValidatorWrapper<StoreCaseIndexesRequestDto>, ValidatorWrapper<StoreCaseIndexesRequestDto>>();
         services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
-        services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
         services.AddSingleton<IDtoHttpRequestHeadersMapper, DtoHttpRequestHeadersMapper>();
         services.AddSingleton<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
         services.AddSingleton<Microsoft.ApplicationInsights.TelemetryClient, Microsoft.ApplicationInsights.TelemetryClient>();

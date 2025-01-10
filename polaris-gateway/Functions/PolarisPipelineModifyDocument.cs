@@ -41,7 +41,10 @@ public class PolarisPipelineModifyDocument : BaseFunction
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId)
     {
-        var telemetryEvent = new DocumentModifiedEvent(caseId, documentId);
+        var telemetryEvent = new DocumentModifiedEvent(caseId, documentId)
+        {
+            OperationName = nameof(PolarisPipelineModifyDocument),
+        };
 
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
