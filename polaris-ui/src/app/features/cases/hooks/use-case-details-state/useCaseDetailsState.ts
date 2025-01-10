@@ -33,13 +33,13 @@ export const useCaseDetailsState = (
   context: TaggedContext | undefined,
   isUnMounting: () => boolean
 ) => {
-  const retentionState = null;
+  const retentionState = {};
   // const retentionState = useMemo(() => getStateFromSessionStorage(caseId), []);
   const trackEvent = useAppInsightsTrackEvent();
 
   const [combinedState, dispatch] = useReducerAsync(
     reducer,
-    { ...initialState, caseId, urn, context },
+    { ...initialState, ...retentionState, caseId, urn, context },
     reducerAsyncActionHandlers
   );
 
@@ -49,14 +49,7 @@ export const useCaseDetailsState = (
     combinedState.storedUserData.status,
     dispatch
   );
-  useGetCaseData(
-    urn,
-    caseId,
-    combinedState,
-    dispatch,
-    !retentionState,
-    isUnMounting
-  );
+  useGetCaseData(urn, caseId, combinedState, dispatch, true, isUnMounting);
   useDocumentSearch(urn, caseId, combinedState, dispatch);
   useDocumentRefreshPolling(dispatch, combinedState.featureFlags.notifications);
 
