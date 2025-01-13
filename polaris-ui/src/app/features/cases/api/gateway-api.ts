@@ -504,11 +504,12 @@ export const getDocumentsList = async (urn: string, caseId: number) => {
 export const toggleUsedDocumentState = async (
   urn: string,
   caseId: string,
-  documentId?: any,
-  isUsed?: boolean
+  documentId?: string,
+  isUnused?: boolean
 ) => {
+  const isDocumentUsed = isUnused ? "used" : "unused";
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/toggle`
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/toggle/${isDocumentUsed}`
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {

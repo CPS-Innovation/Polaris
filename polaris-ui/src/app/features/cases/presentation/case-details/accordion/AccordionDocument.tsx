@@ -173,7 +173,7 @@ export const AccordionDocument: React.FC<Props> = ({
       caseDocument.canReclassify &&
       caseDocument.presentationFlags.write !== "IsDispatched"
     ) {
-      const isUnused = caseDocument.isUnused ? "unused" : "used";
+      const isUnused = caseDocument.isUnused ? "used" : "unused";
       items = [
         ...items,
         {
@@ -209,7 +209,6 @@ export const AccordionDocument: React.FC<Props> = ({
         handleReclassifyDocument(caseDocument.documentId);
         break;
       case "3":
-        console.log("urn: ", urn, caseId);
         toggleUsedDocumentState(
           urn,
           caseId,
