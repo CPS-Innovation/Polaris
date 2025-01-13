@@ -12,9 +12,9 @@
 
 ## Events
 
-| Event                   | Description | Type                  |
-| ----------------------- | ----------- | --------------------- |
-| `globalNavLinkSelected` |             | `CustomEvent<string>` |
+| Event               | Description | Type                  |
+| ------------------- | ----------- | --------------------- |
+| `cpsGlobalNavEvent` |             | `CustomEvent<string>` |
 
 
 ----------------------------------------------

@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
   <title>Stencil Component Starter</title>
 
-  <script type="module" src="/build/cps-global-nav-stencil.esm.js"></script>
+  <script type="module" src="/build/cps-global-nav.esm.js"></script>
 
   <style>
     body {
@@ -26,5 +26,9 @@
     <cps-global-nav name="McLove, Eoin"></cps-global-nav>
   </div>
 </body>
+
+<script>
+  document.addEventListener("cpsGlobalNavEvent", (ev) => console.log(ev.detail));
+</script>
 
 </html>

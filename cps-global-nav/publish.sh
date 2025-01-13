@@ -1,0 +1,1 @@
+azcopy copy './dist/*' 'https://sacpsglobalnavpoc.blob.core.windows.net/$web' --recursive

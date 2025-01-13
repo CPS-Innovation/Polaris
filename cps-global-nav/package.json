@@ -7,11 +7,11 @@
   "types": "dist/types/index.d.ts",
   "collection": "dist/collection/collection-manifest.json",
   "collection:main": "dist/collection/index.js",
-  "unpkg": "dist/cps-global-nav-stencil/cps-global-nav-stencil.esm.js",
+  "unpkg": "dist/cps-global-nav/cps-global-nav.esm.js",
   "exports": {
     ".": {
-      "import": "./dist/cps-global-nav-stencil/cps-global-nav-stencil.esm.js",
-      "require": "./dist/cps-global-nav-stencil/cps-global-nav-stencil.cjs.js"
+      "import": "./dist/cps-global-nav/cps-global-nav.esm.js",
+      "require": "./dist/cps-global-nav/cps-global-nav.cjs.js"
     },
     "./cps-global-nav": {
       "import": "./dist/components/cps-global-nav.js",
@@ -25,7 +25,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ionic-team/stencil-component-starter.git"
+    "url": "https://github.com/CPS-Innovation/Polaris.git"
   },
   "files": [
     "dist/",
@@ -36,7 +36,8 @@
     "start": "stencil build --dev --watch --serve",
     "test": "stencil test --spec --e2e",
     "test.watch": "stencil test --spec --e2e --watchAll",
-    "generate": "stencil generate"
+    "generate": "stencil generate",
+    "deployed": "http-server ./www-deployed"
   },
   "devDependencies": {
     "@stencil/core": "^4.7.0",
@@ -49,6 +50,10 @@
   },
   "license": "MIT",
   "dependencies": {
-    "govuk-frontend": "^5.7.1"
+    "@azure/msal-browser": "^2.38.1",
+    "fetch-jsonp": "^1.3.0",
+    "govuk-frontend": "^5.7.1",
+    "http-server": "^14.1.1",
+    "uuid": "^11.0.4"
   }
 }

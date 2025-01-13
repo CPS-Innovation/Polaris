@@ -1,8 +1,9 @@
-import { Component, Prop, h, Event, EventEmitter } from '@stencil/core';
-
+import { Component, Prop, h, Event, EventEmitter } from "@stencil/core";
+import { lookupUrn } from "../../api/polaris-client";
+import { ensureMsalLoggedIn } from "../../auth/ensure-msal-logged-in";
 @Component({
-  tag: 'cps-global-nav',
-  styleUrl: 'cps-global-nav.scss',
+  tag: "cps-global-nav",
+  styleUrl: "cps-global-nav.scss",
   shadow: true,
 })
 export class CpsGlobalNav {
@@ -12,26 +13,26 @@ export class CpsGlobalNav {
   @Prop() name: string;
 
   @Event({
-    eventName: 'globalNavLinkSelected',
+    eventName: "cpsGlobalNavEvent",
     composed: true,
     cancelable: true,
     bubbles: true,
   })
-  globalNavLinkSelected: EventEmitter<string>;
+  cpsGlobalNavEvent: EventEmitter<string>;
 
-  connectedCallback() {
-    console.log(window.location);
-    window.addEventListener('popstate', function (event) {
-      // Log the state data to the console
-      console.log(event.state);
-    });
+  async connectedCallback() {
+    try {
+      await ensureMsalLoggedIn();
+      const res = await lookupUrn(2149310);
+      console.log(res);
+    } catch (err) {
+      //console.error(err);
+    }
   }
 
-  private clickHandler = (ev: MouseEvent) => {
-    const label = (ev.target as HTMLAnchorElement).innerText;
-    console.log(label);
-    this.globalNavLinkSelected.emit('foo');
-  };
+  emitWindowEvent() {
+    this.cpsGlobalNavEvent.emit("foo");
+  }
 
   render() {
     return (
@@ -39,13 +40,13 @@ export class CpsGlobalNav {
         <div class="level-1 background">
           <ul>
             <li>
-              <a onClick={this.clickHandler}>Home</a>
+              <a>Home</a>
             </li>
             <li>
-              <a onClick={this.clickHandler}>Tasks</a>
+              <a>Tasks</a>
             </li>
             <li>
-              <a onClick={this.clickHandler}>Cases</a>
+              <a>Cases</a>
             </li>
           </ul>
         </div>
@@ -67,6 +68,7 @@ export class CpsGlobalNav {
             </li>
           </ul>
           <div>
+            <button onClick={() => this.emitWindowEvent()}>Fire an event</button>
             <slot />
           </div>
         </div>

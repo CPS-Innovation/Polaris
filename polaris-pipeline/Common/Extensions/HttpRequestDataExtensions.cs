@@ -30,8 +30,21 @@ public static class HttpRequestDataExtensions
 
     public static string EstablishCmsAuthValuesFromCookies(this HttpRequestData req)
     {
+        if (req.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesFromHeaders) &&
+            cmsAuthValuesFromHeaders.Any() &&
+            !string.IsNullOrWhiteSpace(cmsAuthValuesFromHeaders.First()))
+        {
+            // traffic from production pipeline functions
+            return cmsAuthValuesFromHeaders.First();
+        }
+
         var cmsAuthValues = req.Cookies.FirstOrDefault(c => c.Name.Equals(HttpHeaderKeys.CmsAuthValues));
-        return cmsAuthValues?.Value;
+        if (cmsAuthValues?.Value != null)
+        {
+            return cmsAuthValues?.Value;
+        }
+
+        return null;
     }
 
     public static string EstablishCmsAuthValuesFromHeaders(this HttpRequestData req)

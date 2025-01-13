@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using PolarisGateway.Extensions;
 using PolarisGateway.TelemetryEvents;
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -26,7 +27,19 @@ public class BaseFunction(ITelemetryClient telemetryClient)
 
     protected static string EstablishCmsAuthValues(HttpRequest req)
     {
+        if (req.Headers.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesFromHeaders) &&
+            cmsAuthValuesFromHeaders.Any() &&
+            !string.IsNullOrWhiteSpace(cmsAuthValuesFromHeaders.First()))
+        {
+            // traffic from production pipeline functions
+            return cmsAuthValuesFromHeaders.First();
+        }
+
         req.Cookies.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValues);
-        return cmsAuthValues;
+        if (cmsAuthValues != null)
+        {
+            return cmsAuthValues;
+        }
+        return null;
     }
 }
