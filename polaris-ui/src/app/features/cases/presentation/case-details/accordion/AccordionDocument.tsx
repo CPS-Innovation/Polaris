@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import {
   CommonDateTimeFormats,
   formatDate,
@@ -68,8 +69,9 @@ export const AccordionDocument: React.FC<Props> = ({
   handleGetNotes,
   handleReclassifyDocument,
 }) => {
-  const trackEvent = useAppInsightsTrackEvent();
+  const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
 
+  const trackEvent = useAppInsightsTrackEvent();
   const canViewDocument = conversionStatus
     ? caseDocument.presentationFlags?.read === "Ok" &&
       conversionStatus === "DocumentConverted"
@@ -134,7 +136,6 @@ export const AccordionDocument: React.FC<Props> = ({
         } more`
       : `${notes[notes.length - 1].text} (+${notes.length - 1} more)`;
   };
-
   const dropDownItems = useMemo(() => {
     let items: DropdownButtonItem[] = [];
     if (
@@ -172,22 +173,17 @@ export const AccordionDocument: React.FC<Props> = ({
       caseDocument.canReclassify &&
       caseDocument.presentationFlags.write !== "IsDispatched"
     ) {
-      const isUsed =
-        typeof caseDocument.isUnused !== "undefined" ||
-        caseDocument.isUnused === "true"
-          ? "used"
-          : "unused";
+      const isUnused = caseDocument.isUnused ? "unused" : "used";
       items = [
         ...items,
         {
-          id: `3-${isUsed}`,
-          label: `Mark as ${isUsed}`,
-          ariaLabel: `Mark as ${isUsed}`,
+          id: `3`,
+          label: `Mark as ${isUnused}`,
+          ariaLabel: `Mark as ${isUnused}`,
           disabled: false,
         },
       ];
     }
-
     return items;
   }, [
     caseDocument.canReclassify,
@@ -212,12 +208,13 @@ export const AccordionDocument: React.FC<Props> = ({
       case "2":
         handleReclassifyDocument(caseDocument.documentId);
         break;
-      case "3-used":
-      case "3-unused":
+      case "3":
+        console.log("urn: ", urn, caseId);
         toggleUsedDocumentState(
-          "45CV2911222",
-          "13401",
-          caseDocument.documentId
+          urn,
+          caseId,
+          caseDocument.documentId,
+          caseDocument.isUnused
         );
         break;
       default:

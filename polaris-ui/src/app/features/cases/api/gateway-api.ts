@@ -501,6 +501,29 @@ export const getDocumentsList = async (urn: string, caseId: number) => {
   return (await response.json()) as PresentationDocumentProperties[];
 };
 
+export const toggleUsedDocumentState = async (
+  urn: string,
+  caseId: string,
+  documentId?: any,
+  isUsed?: boolean
+) => {
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/toggle`
+  );
+
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
+    headers: await buildHeaders(),
+    method: "POST",
+    body: JSON.stringify({ isUsed: "isUsed" }),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Changing document state failed", path, response);
+  }
+
+  return true;
+};
+
 const fetchImplementation = (
   reauthBehaviour:
     | "no-reauth"
@@ -557,24 +580,4 @@ const caseCallErrorFactory = (
   return knownMessage
     ? new ApiError(knownMessage[0], url, response, undefined, knownMessage[1])
     : new ApiError(errorMessage, url, response);
-};
-
-export const toggleUsedDocumentState = async (
-  urn: string,
-  caseId: string,
-  documentId: any
-) => {
-  const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/toggle`
-  );
-
-  const response = await fetchImplementation("reauth-if-in-situ", path, {
-    headers: await buildHeaders(),
-    method: "POST",
-    body: JSON.stringify({ documentId }),
-  });
-
-  if (!response.ok) {
-    throw new ApiError("Changing document state failed", path, response);
-  }
 };

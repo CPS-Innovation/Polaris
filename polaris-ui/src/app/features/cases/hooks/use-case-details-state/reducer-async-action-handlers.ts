@@ -10,6 +10,7 @@ import {
   saveDocumentRename,
   getSearchPIIData,
   saveRotations,
+  toggleUsedDocumentState,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
@@ -124,6 +125,13 @@ type AsyncActions =
       type: "SAVE_ROTATIONS";
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
+      };
+    }
+  | {
+      type: "TOGGLE_DOCUMENT_STATE";
+      payload: {
+        urn: any;
+        caseId: any;
       };
     };
 
@@ -757,6 +765,21 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           },
         });
       }
+    },
+
+  TOGGLE_DOCUMENT_STATE:
+    ({ dispatch, getState }) =>
+    async (action) => {
+      console.log(action);
+      const { caseId, urn } = getState();
+      const res = await toggleUsedDocumentState(urn, caseId.toString());
+      // dispatch({
+      //   type: "TOGGLE_DOCUMENT_STATE",
+      //   payload: {
+      //     urn,
+      //     caseId,
+      //   },
+      // });
     },
 
   GET_SEARCH_PII_DATA:
