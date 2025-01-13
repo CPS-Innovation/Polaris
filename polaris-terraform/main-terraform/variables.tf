@@ -206,6 +206,11 @@ variable "feature_flag_page_rotate" {
   type = string
 }
 
+variable "feature_flag_state_retention"{
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
 variable "feature_flag_external_redirect_case_review_app" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string

@@ -23,6 +23,7 @@ import {
   PresentationDocumentProperties,
   GroupedConversionStatus,
 } from "../../domain/gateway/PipelineDocument";
+import { useUserGroupsFeatureFlag } from "../../../../auth/msal/useUserGroupsFeatureFlag";
 import { getStateFromSessionStorage } from "../../presentation/case-details/utils/stateRetentionUtil";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
@@ -34,7 +35,12 @@ export const useCaseDetailsState = (
   isUnMounting: () => boolean
 ) => {
   // const retentionState = {};
-  const retentionState = useMemo(() => getStateFromSessionStorage(caseId), []);
+  const featureFlagData = useUserGroupsFeatureFlag();
+  const retentionState = useMemo(
+    () =>
+      featureFlagData?.stateRetention ? getStateFromSessionStorage(caseId) : {},
+    []
+  );
   const trackEvent = useAppInsightsTrackEvent();
 
   const [combinedState, dispatch] = useReducerAsync(
