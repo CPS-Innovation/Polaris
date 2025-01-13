@@ -33,8 +33,8 @@ export const useCaseDetailsState = (
   context: TaggedContext | undefined,
   isUnMounting: () => boolean
 ) => {
-  const retentionState = {};
-  // const retentionState = useMemo(() => getStateFromSessionStorage(caseId), []);
+  // const retentionState = {};
+  const retentionState = useMemo(() => getStateFromSessionStorage(caseId), []);
   const trackEvent = useAppInsightsTrackEvent();
 
   const [combinedState, dispatch] = useReducerAsync(
@@ -42,10 +42,9 @@ export const useCaseDetailsState = (
     {
       ...initialState,
       ...retentionState,
-      documentRefreshData: {
-        startDocumentRefresh: true,
-        savedDocumentDetails: [],
-      },
+      documentRefreshData: initialState.documentRefreshData,
+      searchState: initialState.searchState,
+      searchTerm: initialState.searchTerm,
       caseId,
       urn,
       context,
