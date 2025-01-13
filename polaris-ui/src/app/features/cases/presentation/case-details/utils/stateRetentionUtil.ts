@@ -10,15 +10,18 @@ export const saveStateToSessionStorage = (state: CombinedState) => {
     console.error("Could not save state to sessionStorage:", error);
   }
 };
-
 export const getStateFromSessionStorage = (
   caseId: number
 ): CombinedState | null => {
-  console.log("getStateFromSessionStorage called >>> ");
-  console.log("sessionStorage Size in MB", getTotalSessionStorageSize());
+  // console.log("sessionStorage Size in MB", getTotalSessionStorageSize());
   try {
+    const session_storage_key_prefix = "casework_app_state_";
+    removeKeysWithPrefixExcept(
+      session_storage_key_prefix,
+      `${session_storage_key_prefix}${caseId}`
+    );
     const serializedState = sessionStorage.getItem(
-      `casework_app_state_${caseId}`
+      `${session_storage_key_prefix}${caseId}`
     );
     if (serializedState === null) return null;
 
@@ -26,6 +29,18 @@ export const getStateFromSessionStorage = (
   } catch (error) {
     console.error("Could not retrieve state from sessionStorage:", error);
     return null;
+  }
+};
+
+export const removeKeysWithPrefixExcept = (
+  prefix: string,
+  keyToRetain: string
+) => {
+  for (let i = sessionStorage.length - 1; i >= 0; i--) {
+    const key = sessionStorage.key(i);
+    if (key && key.startsWith(prefix) && key !== keyToRetain) {
+      sessionStorage.removeItem(key);
+    }
   }
 };
 
