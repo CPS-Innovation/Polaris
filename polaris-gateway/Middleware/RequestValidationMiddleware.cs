@@ -10,12 +10,14 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Common.Exceptions;
 using Common.Configuration;
 using Common.Constants;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights;
 
 namespace PolarisGateway.Middleware;
 
 public sealed partial class RequestValidationMiddleware(
-    ITelemetryAugmentationWrapper telemetryAugmentationWrapper,
-    IAuthorizationValidator authorizationValidator)
+    IAuthorizationValidator authorizationValidator,
+    Microsoft.ApplicationInsights.TelemetryClient telemetryClient)
     : IFunctionsWorkerMiddleware
 {
     private const int MockUserUserId = int.MinValue;
@@ -25,6 +27,8 @@ public sealed partial class RequestValidationMiddleware(
 
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
+        var requestTelemetry = new RequestTelemetry();
+        requestTelemetry.Start();
         var requestData = await context.GetHttpRequestDataAsync();
 
         var correlationId = Guid.NewGuid();
@@ -34,13 +38,12 @@ public sealed partial class RequestValidationMiddleware(
         if (!_unauthenticatedRoutes.Any(requestData.Url.LocalPath.TrimEnd('/').Equals))
         {
             correlationId = requestData.EstablishCorrelation();
-            telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
 
             var username = await AuthenticateRequest(requestData, correlationId);
             // Important that we register the telemetry values we need to as soon as we have called AuthenticateRequest.
             //  We are adding our user identity in to the AppInsights logs, so best to do this before
             //  e.g. EstablishCmsAuthValuesFromCookies throws on missing cookies thereby preventing us from logging the user identity.
-            telemetryAugmentationWrapper.RegisterUserName(username);
+            requestTelemetry.Properties[TelemetryConstants.UserCustomDimensionName] = username;
 
             if (!_nonCmsAuthenticatedRoutes.Any(requestData.Url.LocalPath.TrimEnd('/').Equals))
             {
@@ -48,16 +51,26 @@ public sealed partial class RequestValidationMiddleware(
                 var cmsUserId = cmsAuthValues.ExtractCmsUserId();
                 var isMockUser = cmsUserId == MockUserUserId;
 
-                telemetryAugmentationWrapper.RegisterCmsUserId(cmsUserId);
+                requestTelemetry.Properties[TelemetryConstants.CmsUserIdCustomDimensionName] = cmsUserId.ToString();
 
                 if (isMockUser)
                 {
-                    telemetryAugmentationWrapper.RegisterIsMockUser(true);
+                    requestTelemetry.Properties[TelemetryConstants.IsMockUser] = true.ToString();
                 }
             }
         }
 
         await next(context);
+
+        requestTelemetry.Properties[TelemetryConstants.CorrelationIdCustomDimensionName] = correlationId.ToString();
+        requestTelemetry.Name = context.FunctionDefinition.Name;
+        requestTelemetry.HttpMethod = requestData.Method;
+        requestTelemetry.ResponseCode = context.GetHttpResponseData()?.StatusCode.ToString() ?? string.Empty;
+        requestTelemetry.Success = true;
+        requestTelemetry.Url = requestData.Url;
+        requestTelemetry.Stop();
+
+        telemetryClient.TrackRequest(requestTelemetry);
 
         context.GetHttpResponseData()?.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
     }

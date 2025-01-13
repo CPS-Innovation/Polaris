@@ -45,7 +45,7 @@ namespace Common.Telemetry
             RegisterCustomDimension(TelemetryConstants.IsMockUser, isMockUser.ToString());
         }
 
-        private void RegisterCustomDimension(string key, string value)
+        private static void RegisterCustomDimension(string key, string value)
         {
             Activity activity = Activity.Current;
             if (activity == null)

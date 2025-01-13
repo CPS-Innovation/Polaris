@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { useUserDetails } from "../../../auth";
 import { SkipLink } from "../components";
 import classes from "./Layout.module.scss";
@@ -11,13 +12,25 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
   const containerCssClass = isWide
     ? classes["cps-width-container-wide"]
     : "govuk-width-container";
-
+  const location = useLocation();
   const userDetails = useUserDetails();
+  const skipLinkSiblingRef = useRef(null);
+
+  useEffect(() => {
+    /*This is a way to bring the focus back to the top of the page
+    whenever location change. We bring the focus to the dummy element just above the skip link and the call the blur(for the screen reader not to say it loud),
+    so that the next tabbable element will be skip link when user start tabbing on the page
+    */
+    if (skipLinkSiblingRef.current) {
+      (skipLinkSiblingRef.current as HTMLButtonElement).focus();
+      (skipLinkSiblingRef.current as HTMLButtonElement).blur();
+    }
+  }, [location.pathname]);
 
   return (
     <>
+      <div ref={skipLinkSiblingRef} tabIndex={-1} />
       <SkipLink href="#main-content">Skip to main content</SkipLink>
-
       <header
         className="govuk-header "
         role="banner"
@@ -40,11 +53,9 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
           </div>
         </div>
       </header>
-
       <div className={`${containerCssClass} ${classes["cps-main-container"]}`}>
         {children}
       </div>
-
       <footer className="govuk-footer" role="contentinfo">
         <div
           className={`${containerCssClass}  ${classes["cps-footer-container"]}`}
