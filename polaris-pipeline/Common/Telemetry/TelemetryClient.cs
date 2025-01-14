@@ -1,3 +1,5 @@
+using Microsoft.ApplicationInsights.DataContracts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AppInsights = Microsoft.ApplicationInsights;
@@ -50,19 +52,26 @@ namespace Common.Telemetry
                 properties.Add("isFailure", "true");
             }
 
-            _telemetryClient.TrackEvent(
-                PrepareEventName(baseTelemetryEvent.EventName),
-                PrepareKeyNames(properties),
-                PrepareKeyNames(nonNullMetrics));
+            var eventTelemetry = new EventTelemetry(PrepareEventName(baseTelemetryEvent.EventName));
+
+            if (properties != null && properties.Count > 0)
+            {
+                CopyDictionary(PrepareKeyNames(properties), eventTelemetry.Properties);
+            }
+
+            if (nonNullMetrics != null && nonNullMetrics.Count > 0)
+            {
+                CopyDictionary(PrepareKeyNames(nonNullMetrics), eventTelemetry.Metrics);
+            }
+
+            eventTelemetry.Context.Operation.Name = baseTelemetryEvent.OperationName;
+            eventTelemetry.Context.Cloud.RoleName = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
+
+            _telemetryClient.TrackEvent(eventTelemetry);
         }
 
-        private static string PrepareEventName(string source)
-        {
-            if (!source.EndsWith("Event"))
-                return source;
-
-            return source.Remove(source.LastIndexOf("Event"));
-        }
+        private static string PrepareEventName(string source) =>
+            source.EndsWith("Event") ? source.Remove(source.LastIndexOf("Event")) : source;
 
         private static IDictionary<string, T> PrepareKeyNames<T>(IDictionary<string, T> properties)
         {
@@ -92,12 +101,18 @@ namespace Common.Telemetry
             return ToLowerFirstChar(propertyName);
         }
 
-        public static string ToLowerFirstChar(string input)
-        {
-            if (string.IsNullOrEmpty(input))
-                return input;
+        private static string ToLowerFirstChar(string input) =>
+            string.IsNullOrEmpty(input) ? input : char.ToLower(input[0]) + input[1..];
 
-            return char.ToLower(input[0]) + input.Substring(1);
+        private static void CopyDictionary<TValue>(IDictionary<string, TValue> source, IDictionary<string, TValue> target)
+        {
+            foreach (var item in source)
+            {
+                if (!string.IsNullOrEmpty(item.Key) && !target.ContainsKey(item.Key))
+                {
+                    target[item.Key] = item.Value;
+                }
+            }
         }
     }
 }
