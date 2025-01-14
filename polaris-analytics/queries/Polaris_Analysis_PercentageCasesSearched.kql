@@ -1,0 +1,28 @@
+let Granularity = 7d;
+
+let Base = AppRequests
+| where AppRoleName == "fa-polaris-gateway"
+| where OperationName in ("PolarisPipelineCaseSearch", "PolarisPipelineCase")
+| extend CaseId = extract("/cases/([^/]+)", 1, Url);
+
+let Access = Base 
+| where OperationName == "PolarisPipelineCase" 
+| distinct CaseId, TimeGenerated = bin(TimeGenerated, Granularity);
+
+let Search = Base 
+| where OperationName == "PolarisPipelineCaseSearch" 
+| distinct CaseId, TimeGenerated = bin(TimeGenerated, Granularity);
+
+Access
+| join kind=leftouter Search on CaseId, TimeGenerated
+| extend WasSearched = isnotempty(CaseId1)
+| project-away TimeGenerated1, CaseId1
+| summarize 
+    CountNotSearched = countif(not(WasSearched)), 
+    CountSearched = countif(WasSearched) 
+    by TimeGenerated
+| extend PercentageCasesSearched = round(100.0 * CountSearched / (CountSearched + CountNotSearched), 1)
+| project-away CountNotSearched, CountSearched;
+
+
+

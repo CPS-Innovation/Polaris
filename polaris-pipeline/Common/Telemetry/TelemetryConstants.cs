@@ -11,5 +11,6 @@ namespace Common.Telemetry
         public const string ClientIpUnredacted = "ClientIPUnredacted";
         public const string LoadBalancingCookie = "LoadBalancingCookie";
         public const string IsMockUser = "IsMockUser";
+        public const string ErrorMessageCustomDimensionName = "ErrorMessage";
     }
 }

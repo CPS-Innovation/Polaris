@@ -15,15 +15,15 @@ export const App: FC = () => {
 
   return (
     <AppInsightsContext.Provider value={reactPlugin}>
-      <ErrorBoundary>
-        <Auth>
-          <AuthHeaderProvider>
-            <Router basename={process.env.PUBLIC_URL}>
+      <Router basename={process.env.PUBLIC_URL}>
+        <ErrorBoundary>
+          <Auth>
+            <AuthHeaderProvider>
               <Routes />
-            </Router>
-          </AuthHeaderProvider>
-        </Auth>
-      </ErrorBoundary>
+            </AuthHeaderProvider>
+          </Auth>
+        </ErrorBoundary>
+      </Router>
     </AppInsightsContext.Provider>
   );
 };

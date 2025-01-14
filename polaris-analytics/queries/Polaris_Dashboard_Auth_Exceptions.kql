@@ -1,6 +1,6 @@
 Polaris_Exceptions_List
-// | where EarliestExceptionTimeGenerated > now() - 1d
+| where EarliestExceptionTimeGenerated > now() - tsRange
 | extend IsKnownBug = coalesce(IsKnownBug, "Unknown")
-| where IsKnownBug has_any ("23616", "23613", "missing Cms-Auth-Values")
-| summarize count() by IsKnownBug, bin(EarliestExceptionTimeGenerated, 1h)
+| where IsKnownBug has_any ("auth")
+| summarize count() by IsKnownBug, bin(EarliestExceptionTimeGenerated, ts)
 | render columnchart 
