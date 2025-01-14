@@ -14,6 +14,7 @@ import { ReactComponent as TimeIcon } from "../../../../../common/presentation/s
 import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
 import { ReactComponent as NotesIcon } from "../../../../../common/presentation/svgs/notesIcon.svg";
 import { ReactComponent as MoreIcon } from "../../../../../common/presentation/svgs/more.svg";
+import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 
 import classes from "./Accordion.module.scss";
 import {
@@ -55,6 +56,7 @@ type Props = {
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
   conversionStatus?: ConversionStatus | GroupedConversionStatus;
+  handleToggleDocumentState?: (urn: string, caseId: number) => void | undefined;
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -68,6 +70,7 @@ export const AccordionDocument: React.FC<Props> = ({
   handleOpenPanel,
   handleGetNotes,
   handleReclassifyDocument,
+  handleToggleDocumentState,
 }) => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
 
@@ -208,14 +211,17 @@ export const AccordionDocument: React.FC<Props> = ({
       case "2":
         handleReclassifyDocument(caseDocument.documentId);
         break;
-      case "3":
-        toggleUsedDocumentState(
-          urn,
-          caseId,
-          caseDocument.documentId,
-          caseDocument.isUnused
-        );
+      case "3": {
+        handleToggleDocumentState &&
+          handleToggleDocumentState(urn, parseInt(caseId));
+        // console.log(urn, caseId);
+        // // if (urn && caseId) {
+        // // urn && caseId && handleToggleDocumentState(urn as any, caseId as any);
+        // HandleToggle();
+        // }
+
         break;
+      }
       default:
     }
   };

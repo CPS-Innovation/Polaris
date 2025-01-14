@@ -503,7 +503,7 @@ export const getDocumentsList = async (urn: string, caseId: number) => {
 
 export const toggleUsedDocumentState = async (
   urn: string,
-  caseId: string,
+  caseId: number,
   documentId?: string,
   isUnused?: boolean
 ) => {

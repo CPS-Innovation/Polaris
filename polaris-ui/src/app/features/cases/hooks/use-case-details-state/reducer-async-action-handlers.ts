@@ -772,14 +772,13 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
     async (action) => {
       console.log(action);
       const { caseId, urn } = getState();
-      const res = await toggleUsedDocumentState(urn, caseId.toString());
-      // dispatch({
-      //   type: "TOGGLE_DOCUMENT_STATE",
-      //   payload: {
-      //     urn,
-      //     caseId,
-      //   },
-      // });
+      const res = await toggleUsedDocumentState(urn, caseId);
+      dispatch({
+        type: "UPDATE_DOCUMENT_REFRESH",
+        payload: {
+          startDocumentRefresh: true,
+        },
+      });
     },
 
   GET_SEARCH_PII_DATA:

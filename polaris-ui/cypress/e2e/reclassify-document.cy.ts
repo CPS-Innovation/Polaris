@@ -1517,4 +1517,33 @@ describe("Feature Reclassify Document", () => {
       .contains("option", "MG16(ROTI)")
       .should("be.disabled");
   });
+
+  it.only("should change document state as used / unused on option select", () => {
+    cy.visit("/case-details/12AB1111111/13401?reclassify=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("div-reclassify").should("not.exist");
+    cy.findByTestId("document-housekeeping-actions-dropdown-10").click();
+
+    const lastElement = cy
+      .findByTestId("dropdown-panel")
+      .find("ul")
+      .find("li")
+      .eq(2);
+
+    lastElement.should("have.text", "Mark as unused").click();
+    const documentList = getRefreshReclassifyDocuments("10", 1015, 2);
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 1000,
+    });
+
+    cy.visit("/case-details/12AB1111111/13401?reclassify=true");
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("document-housekeeping-actions-dropdown-10").click();
+    cy.findByTestId("dropdown-panel")
+      .find("ul")
+      .find("li")
+      .eq(2)
+      .should("have.text", "Mark as used");
+  });
 });

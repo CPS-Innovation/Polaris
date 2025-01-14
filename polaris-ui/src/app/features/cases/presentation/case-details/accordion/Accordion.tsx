@@ -13,6 +13,7 @@ import { LocalDocumentState } from "../../../domain/LocalDocumentState";
 
 type Props = {
   initialState: AccordionReducerState | null;
+  handleToggleDocumentState?: (urn: string, caseId: number) => void;
   activeDocumentId: string;
   readUnreadData: string[];
   accordionState: AccordionDocumentSection[];
@@ -32,7 +33,7 @@ type Props = {
     accordionCurrentState: AccordionReducerState
   ) => void;
   handleGetNotes: (documentId: string) => void;
-  handleReclassifyDocument: (documentId: string) => void;
+  handleReclassifyDocument: (documentId: string) => void | undefined;
   notesData: NotesData[];
   localDocumentState: LocalDocumentState;
 };
@@ -55,6 +56,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
       accordionStateChangeCallback,
       handleReclassifyDocument,
       handleGetNotes,
+      handleToggleDocumentState,
     },
     ref
   ) => {
@@ -128,6 +130,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
             handleReclassifyDocument={handleReclassifyDocument}
             notesData={notesData}
             localDocumentState={localDocumentState}
+            handleToggleDocumentState={handleToggleDocumentState}
           />
         ))}
       </div>
