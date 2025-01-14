@@ -6,6 +6,7 @@ import { ErrorBoundary } from "./common/presentation/components";
 import { AppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { initializeAppInsights } from "../app/common/utils/appInsightsUtils";
 import { clearDownStorage } from "../app/features/cases/presentation/case-details/utils/localStorageUtils";
+import { AuthHeaderProvider } from "./AuthHeaderProvider";
 export const App: FC = () => {
   const reactPlugin = initializeAppInsights();
   useEffect(() => {
@@ -17,7 +18,9 @@ export const App: FC = () => {
       <Router basename={process.env.PUBLIC_URL}>
         <ErrorBoundary>
           <Auth>
-            <Routes />
+            <AuthHeaderProvider>
+              <Routes />
+            </AuthHeaderProvider>
           </Auth>
         </ErrorBoundary>
       </Router>

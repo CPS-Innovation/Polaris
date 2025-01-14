@@ -2,7 +2,6 @@ import React, { Component } from "react";
 
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf";
 import type { PDFDocumentProxy } from "pdfjs-dist";
-import { buildHeaders } from "../../../app/features/cases/api/auth/header-factory";
 
 interface Props {
   /** See `GlobalWorkerOptionsType`. */
@@ -74,15 +73,14 @@ export class PdfLoader extends Component<Props, State> {
 
     Promise.resolve()
       .then(() => discardedDocument && discardedDocument.destroy())
-      .then(() => buildHeaders())
-      .then((freshHeaders) => {
+      .then(() => {
         if (!url) {
           return;
         }
 
         return getDocument({
           ...this.props,
-          httpHeaders: freshHeaders,
+          httpHeaders: headers,
           ownerDocument,
           cMapUrl,
           cMapPacked,
