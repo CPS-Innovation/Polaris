@@ -3990,7 +3990,6 @@ describe("useCaseDetailsState reducer", () => {
 
         expect(result.notificationState).toBe(expectedNotificationState);
         expect(result.documentsState).toBe(expectedDocumentsState);
-        // expect(result.accordionState).toBe(expectedAccordionState);
       });
 
       it("should delegate clearing a notification to a function owned by the notifications code", () => {
@@ -4013,7 +4012,6 @@ describe("useCaseDetailsState reducer", () => {
 
         expect(result.notificationState).toBe(expectedNotificationState);
         expect(result.documentsState).toBe(expectedDocumentsState);
-        // expect(result.accordionState).toBe(expectedAccordionState);
       });
 
       it("should delegate clearing a documents notifications to a function owned by the notifications code", () => {
@@ -4036,7 +4034,6 @@ describe("useCaseDetailsState reducer", () => {
 
         expect(result.notificationState).toBe(expectedNotificationState);
         expect(result.documentsState).toBe(expectedDocumentsState);
-        // expect(result.accordionState).toBe(expectedAccordionState);
       });
     });
   });

@@ -34,7 +34,6 @@ export const useCaseDetailsState = (
   context: TaggedContext | undefined,
   isUnMounting: () => boolean
 ) => {
-  // const retentionState = {};
   const featureFlagData = useUserGroupsFeatureFlag();
   const retentionState = useMemo(
     () =>

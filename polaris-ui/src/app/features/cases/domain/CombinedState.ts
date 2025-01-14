@@ -1,6 +1,5 @@
 import { AsyncPipelineResult } from "../hooks/use-pipeline-api/AsyncPipelineResult";
 import { AsyncResult } from "../../../common/types/AsyncResult";
-import { AsyncDataResult } from "../presentation/case-details/accordion/types";
 import { CaseDetails } from "./gateway/CaseDetails";
 import { CaseDocumentViewModel } from "./CaseDocumentViewModel";
 import { PipelineResults } from "./gateway/PipelineResults";

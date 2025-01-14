@@ -55,11 +55,9 @@ describe("useNavigationAlert hook", () => {
       () => useNavigationAlert(tabItems, documentsState),
       {
         wrapper: ({ children }) => (
-          <>
-            <Router history={history}>
-              <div>{children}</div>
-            </Router>
-          </>
+          <Router history={history}>
+            <div>{children}</div>
+          </Router>
         ),
       }
     );

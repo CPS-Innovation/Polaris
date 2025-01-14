@@ -1,5 +1,4 @@
 import { IPdfHighlight } from "./IPdfHighlight";
-import { MappedCaseDocument } from "./MappedCaseDocument";
 import { IPageDeleteRedaction } from "./IPageDeleteRedaction";
 import { IPageRotation } from "./IPageRotation";
 import { SaveStatus } from "./gateway/SaveStatus";

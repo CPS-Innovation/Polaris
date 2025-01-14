@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Modal } from "../../../../../common/presentation/components";
 import { SucceededApiResult } from "../../../../../common/types/SucceededApiResult";
 import { CaseDetails } from "../../../domain/gateway/CaseDetails";

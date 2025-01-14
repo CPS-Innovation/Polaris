@@ -8,7 +8,6 @@ import { HeaderReadMode } from "./HeaderReadMode";
 import { HeaderSearchMode } from "./HeaderSearchMode";
 import { HeaderAttachmentMode } from "./HeaderAttachmentMode";
 import { HeaderSearchPIIMode } from "./HeaderSearchPIIMode";
-import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { SearchPIIRedactionWarningModal } from "../modals/SearchPIIRedactionWarningModal";
 import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";

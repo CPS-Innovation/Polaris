@@ -1,13 +1,15 @@
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { AsyncResult } from "../../../../common/types/AsyncResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
-import { AccordionDocumentSection } from "../../presentation/case-details/accordion/types";
+import {
+  AccordionDocumentSection,
+  AccordionData,
+} from "../../presentation/case-details/accordion/types";
 import {
   categoryNamesInPresentationOrder,
   getCategorySort,
 } from "./document-category-definitions";
 import { buildAccordionSectionOpenInitialState } from "../utils/accordionUtils";
-import { AccordionData } from "../../presentation/case-details/accordion/types";
 
 export const mapAccordionState = (
   documentsState: ApiResult<MappedCaseDocument[]>,

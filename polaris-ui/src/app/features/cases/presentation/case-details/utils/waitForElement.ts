@@ -8,12 +8,10 @@ export const waitForElement = async (
       const targetElement = getElement();
       if (targetElement) {
         resolve(targetElement);
+      } else if (Date.now() - startTime >= timeout) {
+        reject(new Error("timeout reached"));
       } else {
-        if (Date.now() - startTime >= timeout) {
-          reject(new Error("timeout reached"));
-        } else {
-          requestAnimationFrame(checkForElement);
-        }
+        requestAnimationFrame(checkForElement);
       }
     };
 
