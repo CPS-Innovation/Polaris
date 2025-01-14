@@ -69,7 +69,7 @@ resource "azurerm_role_assignment" "kv_role_fa_gateway_crypto_user" {
   scope                = azurerm_key_vault.kv_polaris.id
   role_definition_name = "Key Vault Crypto User"
   principal_id         = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
-  
+
   depends_on = [
     azurerm_linux_function_app.fa_polaris
   ]
@@ -79,7 +79,7 @@ resource "azurerm_role_assignment" "kv_role_fa_gateway_secrets_user" {
   scope                = azurerm_key_vault.kv_polaris.id
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_linux_function_app.fa_polaris.identity[0].principal_id
-  
+
   depends_on = [
     azurerm_linux_function_app.fa_polaris
   ]
