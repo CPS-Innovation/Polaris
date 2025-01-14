@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Clients.Coordinator;
+using PolarisGateway.Extensions;
 using PolarisGateway.Mappers;
 using PolarisGateway.TelemetryEvents;
 using PolarisGateway.Validators;
@@ -28,7 +29,7 @@ public class PolarisPipelineModifyDocument : BaseFunction
         ICoordinatorClient coordinatorClient,
         IModifyDocumentRequestMapper modifyDocumentRequestMapper,
         ITelemetryClient telemetryClient)
-        : base(telemetryClient)
+        : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
@@ -40,7 +41,10 @@ public class PolarisPipelineModifyDocument : BaseFunction
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId)
     {
-        var telemetryEvent = new DocumentModifiedEvent(caseId, documentId);
+        var telemetryEvent = new DocumentModifiedEvent(caseId, documentId)
+        {
+            OperationName = nameof(PolarisPipelineModifyDocument),
+        };
 
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
@@ -57,10 +61,11 @@ public class PolarisPipelineModifyDocument : BaseFunction
 
             if (!isRequestJsonValid)
             {
-                return await SendTelemetryAndReturn(new HttpResponseMessage()
+                _telemetryClient.TrackEvent(telemetryEvent);
+                return await new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.BadRequest
-                }, telemetryEvent);
+                }.ToActionResult();
             }
 
             var modifyDocumentDto = _modifyDocumentRequestMapper.Map(documentChanges.Value);
@@ -75,7 +80,8 @@ public class PolarisPipelineModifyDocument : BaseFunction
 
             telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
 
-            return await SendTelemetryAndReturn(response, telemetryEvent);
+            _telemetryClient.TrackEvent(telemetryEvent);
+            return await response.ToActionResult();
         }
         catch
         {

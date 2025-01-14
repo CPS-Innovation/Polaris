@@ -53,7 +53,6 @@ namespace text_extractor.tests.Functions
             _mockSearchIndexService = new Mock<ISearchIndexService>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _mockAnalyzeResults = Mock.Of<AnalyzeResults>(ctx => ctx.ReadResults == new List<ReadResult>());
-            var mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
 
             _correlationId = _fixture.Create<Guid>();
@@ -82,7 +81,6 @@ namespace text_extractor.tests.Functions
                                 _mockSearchIndexService.Object,
                                 _mockExceptionHandler.Object,
                                 _mockLogger.Object,
-                                mockTelemetryAugmentationWrapper.Object,
                                 _mockJsonConvertWrapper.Object);
         }
 

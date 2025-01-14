@@ -1,10 +1,10 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
+using coordinator.Domain;
 using coordinator.Durable.Payloads.Domain;
 using FluentAssertions;
 using Xunit;
@@ -27,7 +27,7 @@ public class CaseDurableEntityTests
         var sut = new CaseDurableEntity();
 
         // Act
-        var result = await sut.GetCaseDocumentChanges((new CmsDocumentDto[] { }, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+        var result = await sut.GetCaseDocumentChanges(new GetCaseDocumentsResponse([], System.Array.Empty<PcdRequestDto>(), new DefendantsAndChargesListDto()));
 
         // Assert
         result.CreatedCmsDocuments.Should().BeEmpty();
@@ -51,9 +51,9 @@ public class CaseDurableEntityTests
 
         var sut = new CaseDurableEntity
         {
-            CmsDocuments = new List<CmsDocumentEntity> {
+            CmsDocuments = [
                 existingDocInEntity,
-            }
+            ]
         };
 
         var incomingDocs = new CmsDocumentDto[] {
@@ -62,12 +62,12 @@ public class CaseDurableEntityTests
         };
 
         //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+        var result = await sut.GetCaseDocumentChanges(new GetCaseDocumentsResponse(incomingDocs, System.Array.Empty<PcdRequestDto>(), new DefendantsAndChargesListDto()));
 
         //Assert
         result.CreatedCmsDocuments.Should().HaveCount(1);
-        result.CreatedCmsDocuments.First().Item1.CmsDocumentId.Should().Be(newDocId);
-        result.CreatedCmsDocuments.First().Item2.Should().Be(DocumentDeltaType.RequiresIndexing);
+        result.CreatedCmsDocuments.First().Document.CmsDocumentId.Should().Be(newDocId);
+        result.CreatedCmsDocuments.First().DeltaType.Should().Be(DocumentDeltaType.RequiresIndexing);
 
         // for the time being this method also mutates the entity: subject to being refactored
         sut.CmsDocuments.Count.Should().Be(2);
@@ -92,9 +92,9 @@ public class CaseDurableEntityTests
 
         var sut = new CaseDurableEntity
         {
-            CmsDocuments = new List<CmsDocumentEntity> {
+            CmsDocuments = [
                 docInEntity,
-            }
+            ]
         };
 
         var incomingDocs = new CmsDocumentDto[] {
@@ -102,7 +102,7 @@ public class CaseDurableEntityTests
         };
 
         //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+        var result = await sut.GetCaseDocumentChanges(new GetCaseDocumentsResponse(incomingDocs, System.Array.Empty<PcdRequestDto>(), new DefendantsAndChargesListDto()));
 
         //Assert
         result.CreatedCmsDocuments.Should().BeEmpty();
@@ -129,9 +129,9 @@ public class CaseDurableEntityTests
 
         var sut = new CaseDurableEntity
         {
-            CmsDocuments = new List<CmsDocumentEntity> {
+            CmsDocuments = [
                 docInEntity,
-            }
+            ]
         };
 
         var incomingDocs = new CmsDocumentDto[] {
@@ -139,7 +139,7 @@ public class CaseDurableEntityTests
         };
 
         //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+        var result = await sut.GetCaseDocumentChanges(new GetCaseDocumentsResponse(incomingDocs, System.Array.Empty<PcdRequestDto>(), new DefendantsAndChargesListDto()));
 
         //Assert
         result.CreatedCmsDocuments.Should().BeEmpty();
@@ -165,9 +165,9 @@ public class CaseDurableEntityTests
 
         var sut = new CaseDurableEntity
         {
-            CmsDocuments = new List<CmsDocumentEntity> {
+            CmsDocuments = [
                 docInEntity,
-            }
+            ]
         };
 
         var incomingDocs = new CmsDocumentDto[] {
@@ -175,7 +175,7 @@ public class CaseDurableEntityTests
         };
 
         //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+        var result = await sut.GetCaseDocumentChanges(new GetCaseDocumentsResponse(incomingDocs, System.Array.Empty<PcdRequestDto>(), new DefendantsAndChargesListDto()));
 
         //Assert
         result.CreatedCmsDocuments.Should().BeEmpty();
@@ -201,9 +201,9 @@ public class CaseDurableEntityTests
 
         var sut = new CaseDurableEntity
         {
-            CmsDocuments = new List<CmsDocumentEntity> {
+            CmsDocuments = [
                 docInEntity,
-            }
+            ]
         };
 
         var incomingDocs = new CmsDocumentDto[] {
@@ -211,12 +211,12 @@ public class CaseDurableEntityTests
         };
 
         //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+        var result = await sut.GetCaseDocumentChanges(new GetCaseDocumentsResponse(incomingDocs, System.Array.Empty<PcdRequestDto>(), new DefendantsAndChargesListDto()));
 
         //Assert
         result.UpdatedCmsDocuments.Should().HaveCount(1);
-        result.UpdatedCmsDocuments.First().Item1.CmsDocumentId.Should().Be(docInEntity.CmsDocumentId);
-        result.UpdatedCmsDocuments.First().Item2.Should().Be(DocumentDeltaType.RequiresPdfRefresh);
+        result.UpdatedCmsDocuments.First().Document.CmsDocumentId.Should().Be(docInEntity.CmsDocumentId);
+        result.UpdatedCmsDocuments.First().DeltaType.Should().Be(DocumentDeltaType.RequiresPdfRefresh);
 
         sut.CmsDocuments.First().IsOcrProcessed.Should().BeTrue();
     }
@@ -237,9 +237,9 @@ public class CaseDurableEntityTests
 
         var sut = new CaseDurableEntity
         {
-            CmsDocuments = new List<CmsDocumentEntity> {
+            CmsDocuments = [
                 docInEntity,
-            }
+            ]
         };
 
         var incomingDocs = new CmsDocumentDto[] {
@@ -247,14 +247,13 @@ public class CaseDurableEntityTests
         };
 
         //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+        var result = await sut.GetCaseDocumentChanges(new GetCaseDocumentsResponse(incomingDocs, System.Array.Empty<PcdRequestDto>(), new DefendantsAndChargesListDto()));
 
         //Assert
         result.UpdatedCmsDocuments.Should().HaveCount(1);
-        result.UpdatedCmsDocuments.First().Item1.CmsDocumentId.Should().Be(docInEntity.CmsDocumentId);
-        result.UpdatedCmsDocuments.First().Item2.Should().Be(DocumentDeltaType.RequiresIndexing);
+        result.UpdatedCmsDocuments.First().Document.CmsDocumentId.Should().Be(docInEntity.CmsDocumentId);
+        result.UpdatedCmsDocuments.First().DeltaType.Should().Be(DocumentDeltaType.RequiresIndexing);
 
         sut.CmsDocuments.First().IsOcrProcessed.Should().BeTrue();
     }
 }
-

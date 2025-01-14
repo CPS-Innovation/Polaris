@@ -26,14 +26,17 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
                 var pagesRotated = modifications.DocumentModifications.Where(x => x.Operation == DocumentManipulationOperation.RotatePage).SelectMany(x => new[] { x.PageIndex }).ToArray();
 
                 telemetryEvent = new DocumentModifiedEvent(
-                    correlationId: correlationId,
-                    caseId: caseId,
-                    documentId: documentId,
-                    pageNumbersRemoved: pagesRemoved,
-                    pageNumbersRotated: pagesRotated,
-                    startTime: DateTime.UtcNow,
-                    originalBytes: inputStream.Length
-                );
+                    correlationId,
+                    caseId,
+                    documentId,
+                    pagesRemoved,
+                    pagesRotated,
+                    DateTime.UtcNow,
+                    inputStream.Length
+                )
+                {
+                    OperationName = nameof(ModifyDocument),
+                };
 
                 var document = new Document(inputStream);
 
@@ -76,7 +79,7 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
         {
             var rotationString = rotation == Rotation.None ? "0" : rotation.ToString().Remove(0, 2);
             var currentRotation = int.Parse(rotationString);
-            var rotationAngle = int.Parse(value);
+            var rotationAngle = int.Parse(value!);
 
             var newAngle = (currentRotation + rotationAngle) % 360;
 

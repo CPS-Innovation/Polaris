@@ -23,7 +23,7 @@ public class LookupUrn : BaseFunction
         IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient)
-        : base(telemetryClient)
+        : base()
     {
         _logger = logger;
         _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));

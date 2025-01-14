@@ -25,7 +25,6 @@ namespace text_extractor.tests.Functions
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Mock<ILogger<CaseIndexCount>> _mockLogger;
-        private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Guid _correlationId;
         private readonly int _caseId;
@@ -37,7 +36,6 @@ namespace text_extractor.tests.Functions
 
             _mockSearchIndexService = new Mock<ISearchIndexService>();
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
-            _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _correlationId = _fixture.Create<Guid>();
             _mockLogger = new Mock<ILogger<CaseIndexCount>>();
@@ -50,7 +48,6 @@ namespace text_extractor.tests.Functions
             _caseIndexCount = new CaseIndexCount(
                 _mockLogger.Object,
                 _mockSearchIndexService.Object,
-                _mockTelemetryAugmentationWrapper.Object,
                 _mockExceptionHandler.Object
             );
         }
@@ -58,31 +55,31 @@ namespace text_extractor.tests.Functions
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndLoggerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(null, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(null, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndSearchIndexServiceIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndJsonConvertWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndTelemetryAugmentationWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndExceptionHandlerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, _mockTelemetryAugmentationWrapper.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]

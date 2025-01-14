@@ -22,23 +22,19 @@ namespace pdf_redactor.Functions
         private readonly IDocumentManipulationService _documentManipulationService;
         private readonly ILogger<ModifyDocument> _logger;
         private readonly IValidator<ModifyDocumentWithDocumentDto> _requestValidator;
-        private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
 
         public ModifyDocument(
             IExceptionHandler exceptionHandler,
             IJsonConvertWrapper jsonConvertWrapper,
             IDocumentManipulationService documentManipulationService,
             ILogger<ModifyDocument> logger,
-            IValidator<ModifyDocumentWithDocumentDto> requestValidator,
-            ITelemetryAugmentationWrapper telemetryAugmentationWrapper
-        )
+            IValidator<ModifyDocumentWithDocumentDto> requestValidator)
         {
             _exceptionHandler = exceptionHandler ?? throw new ArgumentNullException(nameof(exceptionHandler));
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
             _documentManipulationService = documentManipulationService ?? throw new ArgumentNullException(nameof(documentManipulationService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _requestValidator = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
-            _telemetryAugmentationWrapper = telemetryAugmentationWrapper ?? throw new ArgumentNullException(nameof(telemetryAugmentationWrapper));
         }
 
         [Function(nameof(ModifyDocument))]
@@ -49,7 +45,6 @@ namespace pdf_redactor.Functions
             try
             {
                 currentCorrelationId = request.Headers.GetCorrelationId();
-                _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
                 request.EnableBuffering();
 
@@ -69,8 +64,6 @@ namespace pdf_redactor.Functions
                 }
 
                 var modifications = _jsonConvertWrapper.DeserializeObject<ModifyDocumentWithDocumentDto>(content);
-                _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
-                _telemetryAugmentationWrapper.RegisterDocumentVersionId(modifications.VersionId.ToString());
 
                 var validationResult = await _requestValidator.ValidateAsync(modifications);
                 if (!validationResult.IsValid)

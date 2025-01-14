@@ -24,7 +24,7 @@ public class GetPdf : BaseFunction
         ILogger<GetPdf> logger,
         IPdfArtefactService pdfArtefactService,
         ITelemetryClient telemetryClient)
-        : base(telemetryClient)
+        : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _pdfArtefactService = pdfArtefactService ?? throw new ArgumentNullException(nameof(pdfArtefactService));

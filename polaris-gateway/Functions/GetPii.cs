@@ -27,7 +27,7 @@ public class GetPii : BaseFunction
         ILogger<GetPii> logger,
         IPiiArtefactService piiArtefactService,
         ITelemetryClient telemetryClient)
-        : base(telemetryClient)
+        : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _piiArtefactService = piiArtefactService ?? throw new ArgumentNullException(nameof(piiArtefactService));

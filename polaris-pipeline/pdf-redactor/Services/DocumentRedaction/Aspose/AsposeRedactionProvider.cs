@@ -4,6 +4,7 @@ using Common.Dto.Request;
 using Common.Telemetry;
 using pdf_redactor.TelemetryEvents;
 using Common.Streaming;
+using pdf_redactor.Functions;
 
 namespace pdf_redactor.Services.DocumentRedaction.Aspose
 {
@@ -30,14 +31,18 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose
             {
                 var inputStream = await stream.EnsureSeekableAsync();
                 var (providerType, providerDetails) = _redactionImplementation.GetProviderType();
-                telemetryEvent = new RedactedDocumentEvent(correlationId: correlationId,
-                    caseId: caseId,
-                    documentId: documentId,
-                    redactionPageCounts: redactPdfRequest.RedactionPageCounts(),
-                    providerType: providerType,
-                    providerDetails: providerDetails,
-                    startTime: DateTime.UtcNow,
-                    originalBytes: inputStream.Length);
+                telemetryEvent = new RedactedDocumentEvent(
+                    correlationId,
+                    caseId,
+                    documentId,
+                    redactPdfRequest.RedactionPageCounts(),
+                    providerType,
+                    providerDetails,
+                    DateTime.UtcNow,
+                    inputStream.Length)
+                {
+                    OperationName = nameof(RedactPdf),
+                };
 
                 var document = new Document(inputStream);
 

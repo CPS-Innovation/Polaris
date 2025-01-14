@@ -62,7 +62,6 @@ var host = new HostBuilder()
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<Microsoft.ApplicationInsights.TelemetryClient, Microsoft.ApplicationInsights.TelemetryClient>();
-        services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
     })
     .Build();
 

@@ -57,14 +57,12 @@ namespace pdf_redactor.tests.Functions
             _caseId = _fixture.Create<int>();
             _documentId = _fixture.Create<string>();
 
-            var mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _documentModifier = new ModifyDocument(
                 _mockExceptionHandler.Object,
                 _mockJsonConvertWrapper.Object,
                 mockDocumentManipulationService.Object,
                 _loggerMock.Object,
-                _mockValidator.Object,
-                mockTelemetryAugmentationWrapper.Object);
+                _mockValidator.Object);
         }
 
         [Fact]

@@ -20,7 +20,7 @@ public class PolarisPipelineGetCaseTracker : BaseFunction
         ILogger<PolarisPipelineGetCaseTracker> logger,
         ICoordinatorClient coordinatorClient,
         ITelemetryClient telemetryClient)
-        : base(telemetryClient)
+        : base()
     {
         _logger = logger;
         _coordinatorClient = coordinatorClient;

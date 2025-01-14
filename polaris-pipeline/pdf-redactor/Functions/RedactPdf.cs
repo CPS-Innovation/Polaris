@@ -22,21 +22,18 @@ namespace pdf_redactor.Functions
         private readonly IDocumentRedactionService _documentRedactionService;
         private readonly ILogger<RedactPdf> _logger;
         private readonly IValidator<RedactPdfRequestWithDocumentDto> _requestValidator;
-        private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
 
         public RedactPdf(
             IExceptionHandler exceptionHandler,
             IJsonConvertWrapper jsonConvertWrapper,
             IDocumentRedactionService documentRedactionService,
             ILogger<RedactPdf> logger,
-            IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
-            ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+            IValidator<RedactPdfRequestWithDocumentDto> requestValidator)
         {
             _exceptionHandler = exceptionHandler;
             _jsonConvertWrapper = jsonConvertWrapper;
             _documentRedactionService = documentRedactionService;
             _requestValidator = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
-            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
             _logger = logger;
         }
 
@@ -53,7 +50,6 @@ namespace pdf_redactor.Functions
             try
             {
                 currentCorrelationId = request.Headers.GetCorrelationId();
-                _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
                 request.EnableBuffering();
 
@@ -73,8 +69,6 @@ namespace pdf_redactor.Functions
                 }
 
                 var redactions = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestWithDocumentDto>(content);
-                _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
-                _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId.ToString());
 
                 var validationResult = await _requestValidator.ValidateAsync(redactions);
                 if (!validationResult.IsValid)

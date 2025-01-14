@@ -5,10 +5,10 @@ using Common.Clients.PdfGenerator;
 using Common.Configuration;
 using Common.Constants;
 using Common.Services.BlobStorage;
+using coordinator.Domain;
 using coordinator.Durable.Payloads;
 using Ddei;
 using Ddei.Factories;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Durable.Activity.GeneratePdf
@@ -24,7 +24,7 @@ namespace coordinator.Durable.Activity.GeneratePdf
             IDdeiClient ddeiClient,
             IDdeiArgFactory ddeiArgFactory,
             Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-            IPdfGeneratorClient pdfGeneratorClient, 
+            IPdfGeneratorClient pdfGeneratorClient,
             IConfiguration configuration)
         {
             DdeiClient = ddeiClient;
@@ -33,19 +33,18 @@ namespace coordinator.Durable.Activity.GeneratePdf
             _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
         }
 
-        protected async Task<(bool, PdfConversionStatus)> Run(IDurableActivityContext context)
+        protected async Task<PdfConversionResponse> Run(DocumentPayload payload)
         {
-            var payload = context.GetInput<DocumentPayload>();
             var blobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Pdf);
 
             if (await _polarisBlobStorageService.BlobExistsAsync(blobId, payload.IsOcredProcessedPreference))
             {
-                return (true, 0);
+                return new PdfConversionResponse { BlobAlreadyExists = true, PdfConversionStatus = PdfConversionStatus.DocumentConverted };
             }
 
             if (payload.FileType == null)
             {
-                return (false, PdfConversionStatus.DocumentTypeUnsupported);
+                return new PdfConversionResponse { BlobAlreadyExists = false, PdfConversionStatus = PdfConversionStatus.DocumentTypeUnsupported };
             }
 
             await using var documentStream = await GetDocumentStreamAsync(payload);
@@ -61,13 +60,13 @@ namespace coordinator.Durable.Activity.GeneratePdf
 
             if (response.Status != PdfConversionStatus.DocumentConverted)
             {
-                return (false, response.Status);
+                return new PdfConversionResponse { BlobAlreadyExists = false, PdfConversionStatus = response.Status };
             }
 
             await _polarisBlobStorageService.UploadBlobAsync(response.PdfStream, blobId, payload.IsOcredProcessedPreference);
             await response.PdfStream.DisposeAsync();
 
-            return (false, PdfConversionStatus.DocumentConverted);
+            return new PdfConversionResponse { BlobAlreadyExists = false, PdfConversionStatus = PdfConversionStatus.DocumentConverted };
         }
 
         protected abstract Task<Stream> GetDocumentStreamAsync(DocumentPayload payload);

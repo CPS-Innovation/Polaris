@@ -21,7 +21,7 @@ public class GenerateThumbnail : BaseFunction
         ILogger<GenerateThumbnail> logger,
         IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient,
         ITelemetryClient telemetryClient)
-        : base(telemetryClient)
+        : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _pdfThumbnailGeneratorClient = pdfThumbnailGeneratorClient ?? throw new ArgumentNullException(nameof(pdfThumbnailGeneratorClient));

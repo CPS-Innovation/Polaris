@@ -15,6 +15,7 @@ using PolarisGateway.Helpers;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System;
+using PolarisGateway.Extensions;
 
 namespace PolarisGateway.Functions;
 
@@ -32,7 +33,7 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
         ILogger<PolarisPipelineSaveDocumentRedactions> logger,
         ITelemetryClient telemetryClient,
         IJsonConvertWrapper jsonConvertWrapper)
-        : base(telemetryClient)
+        : base()
 
     {
         _redactPdfRequestMapper = redactPdfRequestMapper ?? throw new ArgumentNullException(nameof(redactPdfRequestMapper));
@@ -46,7 +47,10 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId)
     {
-        var telemetryEvent = new RedactionRequestEvent(caseId, documentId);
+        var telemetryEvent = new RedactionRequestEvent(caseId, documentId)
+        {
+            OperationName = nameof(PolarisPipelineSaveDocumentRedactions),
+        };
 
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
@@ -64,11 +68,11 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
             if (!isRequestJsonValid)
             {
                 // todo: log these errors to telemetry event
-                return await SendTelemetryAndReturn(new HttpResponseMessage()
+                _telemetryClient.TrackEvent(telemetryEvent);
+                return await new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.BadRequest
-                },
-                telemetryEvent);
+                }.ToActionResult();
             }
 
             var redactPdfRequest = _redactPdfRequestMapper.Map(redactions.Value);
@@ -84,7 +88,8 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
             telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
             telemetryEvent.DeletedPageCount = redactPdfRequest.DocumentModifications.Count;
 
-            return await SendTelemetryAndReturn(response, telemetryEvent);
+            _telemetryClient.TrackEvent(telemetryEvent);
+            return await response.ToActionResult();
         }
         catch
         {

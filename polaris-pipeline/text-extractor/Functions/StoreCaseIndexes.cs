@@ -20,7 +20,6 @@ namespace text_extractor.Functions
         private readonly IExceptionHandler _exceptionHandler;
 
         private readonly ILogger<StoreCaseIndexes> _log;
-        private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private const string LoggingName = "StoreCaseIndexes - Run";
 
@@ -28,13 +27,11 @@ namespace text_extractor.Functions
                ISearchIndexService searchIndexService,
                IExceptionHandler exceptionHandler,
                ILogger<StoreCaseIndexes> logger,
-               ITelemetryAugmentationWrapper telemetryAugmentationWrapper,
                IJsonConvertWrapper jsonConvertWrapper)
         {
             _searchIndexService = searchIndexService;
             _exceptionHandler = exceptionHandler;
             _log = logger;
-            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
             _jsonConvertWrapper = jsonConvertWrapper;
         }
 
@@ -46,15 +43,11 @@ namespace text_extractor.Functions
             try
             {
                 currentCorrelationId = request.Headers.GetCorrelationId();
-                _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
                 if (request.Body == null)
                 {
                     throw new BadRequestException("Request body has no content", nameof(request));
                 }
-
-                _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
-                _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId.ToString());
 
                 var streamReader = new StreamReader(request.Body);
                 var content = await streamReader.ReadToEndAsync();

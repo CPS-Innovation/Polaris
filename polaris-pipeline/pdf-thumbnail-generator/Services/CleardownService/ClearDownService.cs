@@ -6,6 +6,7 @@ using Common.Telemetry;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Configuration;
 using pdf_thumbnail_generator.Durable.Providers;
+using pdf_thumbnail_generator.Functions.Maintenance;
 using pdf_thumbnail_generator.TelemetryEvents;
 
 namespace pdf_thumbnail_generator.Services.ClearDownService;
@@ -25,8 +26,11 @@ public class ClearDownService : IClearDownService
 
     public async Task DeleteCaseThumbnailAsync(DurableTaskClient client, string caseUrn, string instanceId, DateTime earliestDateToKeep, Guid correlationId)
     { 
-        var telemetryEvent = new DeleteCaseThumbnailEvent(correlationId: correlationId, instanceId: instanceId, startTime: DateTime.UtcNow);
-        
+        var telemetryEvent = new DeleteCaseThumbnailEvent(correlationId, instanceId, DateTime.UtcNow)
+        {
+            OperationName = nameof(SlidingClearDown),
+        };
+
         try
         { 
             var caseId = ExtractCaseIdFromInstanceId(instanceId);

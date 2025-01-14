@@ -56,7 +56,6 @@ public static class ServiceExtensions
         services.AddDdeiClient(configuration);
 
         services.AddSingleton<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
-        services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<IModifyDocumentRequestMapper, ModifyDocumentRequestMapper>();
         services.AddSingleton<IReclassifyDocumentRequestMapper, ReclassifyDocumentRequestMapper>();
