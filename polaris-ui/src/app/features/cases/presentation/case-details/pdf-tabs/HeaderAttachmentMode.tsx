@@ -1,4 +1,3 @@
-import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
 import { LinkButton } from "../../../../../common/presentation/components";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
@@ -6,7 +5,6 @@ import classes from "./HeaderAttachmentMode.module.scss";
 
 type Props = {
   mappedDocument: MappedCaseDocument;
-  caseDocumentViewModel: CaseDocumentViewModel;
   handleOpenPdf: (caseDocument: {
     documentId: string;
     mode: "read" | "search";

@@ -287,6 +287,7 @@ export const reducer = (
         type: "SHOW_HIDE_REDACTION_SUGGESTIONS";
         payload: {
           documentId: string;
+          versionId: number;
           show: boolean;
           getData: boolean;
           defaultOption?: boolean;
@@ -1410,20 +1411,11 @@ export const reducer = (
     case "SHOW_HIDE_REDACTION_SUGGESTIONS": {
       const {
         documentId,
+        versionId,
         show,
         getData,
         defaultOption = true,
       } = action.payload;
-      // const versionId = state.tabsState.items.find(
-      //   (data) => data.documentId === documentId
-      // )?.versionId!;
-      const mappedDocuments =
-        state.documentsState.status === "succeeded"
-          ? state.documentsState.data
-          : [];
-      const { versionId } = mappedDocuments.find(
-        (item) => item.documentId === documentId
-      )!;
       const availablePIIData = state.searchPII.find(
         (data) => data.documentId === documentId
       );

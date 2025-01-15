@@ -700,7 +700,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   ) : (
                     <Accordion
                       ref={accordionRef}
-                      // initialState={accordionOldState}
                       documentsState={
                         documentsState.status === "succeeded"
                           ? documentsState.data
@@ -835,7 +834,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                 />
               ) : (
                 <PdfTabs
-                  documentsState={documentsState}
+                  mappedCaseDocuments={
+                    documentsState.status === "succeeded"
+                      ? documentsState.data
+                      : []
+                  }
                   searchPIIData={searchPII}
                   redactionTypesData={
                     redactionLog.redactionLogLookUpsData.status === "succeeded"

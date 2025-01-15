@@ -7,11 +7,10 @@ import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData
 import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
 import { LocalDocumentState } from "../../../domain/LocalDocumentState";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
-import { AsyncResult } from "../../../../../common/types/AsyncResult";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 
 type PdfTabsProps = {
-  documentsState: AsyncResult<MappedCaseDocument[]>;
+  mappedCaseDocuments: MappedCaseDocument[];
   redactionTypesData: RedactionTypeData[];
   tabsState: {
     items: CaseDocumentViewModel[];
@@ -56,7 +55,7 @@ type PdfTabsProps = {
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
-  documentsState,
+  mappedCaseDocuments,
   redactionTypesData,
   caseId,
   tabsState: { items, headers, activeTabId },
@@ -103,12 +102,10 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   );
 
   const getMappedDocument = (
-    documentsState: AsyncResult<MappedCaseDocument[]>,
+    mappedCaseDocuments: MappedCaseDocument[],
     documentId: string
   ) => {
-    const mappedDocuments =
-      documentsState.status === "succeeded" ? documentsState.data : [];
-    return mappedDocuments.find((item) => item.documentId === documentId)!;
+    return mappedCaseDocuments.find((item) => item.documentId === documentId)!;
   };
 
   return (
@@ -119,21 +116,24 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
           item.redactionHighlights.length + item.pageDeleteRedactions.length >
           0,
         id: item.documentId,
-        versionId: getMappedDocument(documentsState, item.documentId)
+        versionId: getMappedDocument(mappedCaseDocuments, item.documentId)
           ?.versionId,
         label:
-          getMappedDocument(documentsState, item.documentId)
+          getMappedDocument(mappedCaseDocuments, item.documentId)
             ?.presentationTitle ?? "Deleted",
         panel: {
           children: (
             <PdfTab
-              mappedDocument={getMappedDocument(
-                documentsState,
-                item.documentId
-              )}
+              mappedDocument={
+                getMappedDocument(mappedCaseDocuments, item.documentId) ?? {} //passing in the default value in case of a document opened is been deleted.
+              }
               caseId={caseId}
               searchPIIDataItem={searchPIIData.find(
-                (data) => data.documentId === item.documentId
+                (data) =>
+                  data.documentId === item.documentId &&
+                  data.versionId ===
+                    getMappedDocument(mappedCaseDocuments, item.documentId)
+                      .versionId
               )}
               tabIndex={index}
               showOverRedactionLog={showOverRedactionLog}

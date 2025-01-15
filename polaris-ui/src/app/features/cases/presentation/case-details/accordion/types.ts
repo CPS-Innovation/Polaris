@@ -9,8 +9,3 @@ export type AccordionData = {
   isAllOpen: boolean;
   sections: AccordionDocumentSection[];
 };
-
-export type AsyncDataResult<T> = {
-  status: "loading" | "succeeded";
-  data?: T;
-};

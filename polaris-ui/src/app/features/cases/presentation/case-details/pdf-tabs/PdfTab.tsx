@@ -116,7 +116,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     areaOnlyRedactionMode,
     isDeleted,
     saveStatus,
-
     rotatePageMode,
     deletePageMode,
   } = caseDocumentViewModel;
@@ -127,7 +126,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     hasFailedAttachments,
     presentationFlags: { write: documentWriteStatus = "Ok" } = {},
     versionId,
-  } = mappedDocument ?? {};
+  } = mappedDocument;
 
   const showDeletePage = useMemo(
     () =>
@@ -376,7 +375,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         {!!attachments.length && (
           <HeaderAttachmentMode
             mappedDocument={mappedDocument}
-            caseDocumentViewModel={caseDocumentViewModel}
             handleOpenPdf={handleOpenPdf}
           />
         )}

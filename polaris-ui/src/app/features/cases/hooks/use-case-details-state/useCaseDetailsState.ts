@@ -63,7 +63,7 @@ export const useCaseDetailsState = (
     combinedState.storedUserData.status,
     dispatch
   );
-  useGetCaseData(urn, caseId, combinedState, dispatch, true, isUnMounting);
+  useGetCaseData(urn, caseId, combinedState, dispatch, isUnMounting);
   useDocumentSearch(urn, caseId, combinedState, dispatch);
   useDocumentRefreshPolling(dispatch, combinedState.featureFlags.notifications);
 
@@ -341,6 +341,7 @@ export const useCaseDetailsState = (
         type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
         payload: {
           documentId,
+          versionId,
           show: showSuggestion,
           getData: getData,
           defaultOption: defaultOption,

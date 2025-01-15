@@ -11,11 +11,10 @@ export const useGetCaseData = (
   caseId: number,
   combinedState: CombinedState,
   dispatch: DispatchType,
-  shouldTrigger: boolean,
   isUnMounting: () => boolean
 ) => {
   // Load case data
-  const caseState = useApi(getCaseDetails, [urn, caseId], shouldTrigger);
+  const caseState = useApi(getCaseDetails, [urn, caseId]);
   useEffect(() => {
     if (caseState.status !== "initial")
       dispatch({ type: "UPDATE_CASE_DETAILS", payload: caseState });
