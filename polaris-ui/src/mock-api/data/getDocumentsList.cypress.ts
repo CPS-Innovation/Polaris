@@ -386,6 +386,30 @@ export const getRefreshRenamedDocuments = (
   });
 };
 
+export const getUsedUnusedDocumentState = (
+  id: string,
+  isUnused: boolean,
+  trackerCalls: number
+) => {
+  const resultsArray = getDocumentsListResult(trackerCalls);
+
+  const filteredDocs = resultsArray[trackerCalls - 1].filter(
+    ({ documentId }) => documentId !== id
+  );
+  const selectedDoc = resultsArray[trackerCalls - 1].find(
+    ({ documentId }) => documentId === id
+  )!;
+  return resultsArray.map((result, index) => {
+    return [
+      ...filteredDocs,
+      {
+        ...selectedDoc,
+        isUnused,
+      },
+    ];
+  });
+};
+
 export const getRefreshReclassifyDocuments = (
   id: string,
   newDocTypeId: number,

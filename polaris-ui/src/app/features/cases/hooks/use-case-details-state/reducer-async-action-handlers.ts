@@ -776,6 +776,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, unused },
       } = action;
       const { caseId, urn } = getState();
+      try {
       const res = await toggleUsedDocumentState(
         urn,
         caseId,
@@ -788,6 +789,16 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           startDocumentRefresh: true,
         },
       });
+      } catch (err) {
+        dispatch({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            type: "addnote",
+            title: "Something went wrong!",
+            message: "Failed to change the document state.",
+          },
+        });
+      }
     },
 
   GET_SEARCH_PII_DATA:

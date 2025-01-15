@@ -216,18 +216,12 @@ export const AccordionDocument: React.FC<Props> = ({
         handleReclassifyDocument(caseDocument.documentId);
         break;
       case "3": {
-        handleToggleDocumentState &&
-          handleToggleDocumentState(
-            urn,
+        handleToggleDocumentState(
+          urn,
           +caseId,
-            caseDocument.documentId,
-            caseDocument.isUnused
-          );
-        // console.log(urn, caseId);
-        // // if (urn && caseId) {
-        // // urn && caseId && handleToggleDocumentState(urn as any, caseId as any);
-        // HandleToggle();
-        // }
+          caseDocument.documentId,
+          caseDocument.isUnused
+        );
 
         break;
       }

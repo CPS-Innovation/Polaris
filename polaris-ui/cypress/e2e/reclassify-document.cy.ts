@@ -7,7 +7,10 @@ import {
   GET_DOCUMENTS_LIST_ROUTE,
 } from "../../src/mock-api/routes";
 
-import { getRefreshReclassifyDocuments } from "../../src/mock-api/data/getDocumentsList.cypress";
+import {
+  getRefreshReclassifyDocuments,
+  getUsedUnusedDocumentState,
+} from "../../src/mock-api/data/getDocumentsList.cypress";
 
 describe("Feature Reclassify Document", () => {
   it("Should show reclassify document option if the document 'canReclassify' is true and presentationFlags, write property is not 'isDispatched' and should not show if it is not ", () => {
@@ -1531,7 +1534,9 @@ describe("Feature Reclassify Document", () => {
       .eq(2);
 
     lastElement.should("have.text", "Mark as unused").click();
-    const documentList = getRefreshReclassifyDocuments("10", 1015, 2);
+
+    const documentList = getUsedUnusedDocumentState("10", true, 1);
+
     cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
       body: documentList[0],
       timeMs: 1000,
