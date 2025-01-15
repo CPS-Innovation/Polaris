@@ -1,18 +1,1 @@
-{
-  "cypress/e2e/a11y.cy.ts": { "time": 24186, "weight": 6 },
-  "cypress/e2e/case-details-page.cy.ts": { "time": 115802, "weight": 28 },
-  "cypress/e2e/case-search-results.cy.ts": { "time": 6796, "weight": 1 },
-  "cypress/e2e/case-search.cy.ts": { "time": 2959, "weight": 0 },
-  "cypress/e2e/delete-page.cy.ts": { "time": 26977, "weight": 6 },
-  "cypress/e2e/landing-page.cy.ts": { "time": 1441, "weight": 0 },
-  "cypress/e2e/notes.cy.ts": { "time": 25414, "weight": 6 },
-  "cypress/e2e/reclassify-document.cy.ts": { "time": 54835, "weight": 13 },
-  "cypress/e2e/redaction-assurance.cy.ts": { "time": 120031, "weight": 30 },
-  "cypress/e2e/redaction-log.cy.ts": { "time": 53701, "weight": 13 },
-  "cypress/e2e/redaction.cy.ts": { "time": 37462, "weight": 9 },
-  "cypress/e2e/rename-document.cy.ts": { "time": 15473, "weight": 3 },
-  "cypress/e2e/rotate-page.cy.ts": { "time": 34167, "weight": 8 },
-  "cypress/e2e/saved-user-data.cy.ts": { "time": 44309, "weight": 11 },
-  "cypress/e2e/search-pii.cy.ts": { "time": 22514, "weight": 5 },
-  "cypress/e2e/search.cy.ts": { "time": 53871, "weight": 13 }
-}
+{"cypress/e2e/a11y.cy.ts":{"time":22128,"weight":5},"cypress/e2e/case-details-page.cy.ts":{"time":105300,"weight":28},"cypress/e2e/case-search-results.cy.ts":{"time":5481,"weight":1},"cypress/e2e/case-search.cy.ts":{"time":2735,"weight":0},"cypress/e2e/delete-page.cy.ts":{"time":28044,"weight":7},"cypress/e2e/landing-page.cy.ts":{"time":1253,"weight":0},"cypress/e2e/notes.cy.ts":{"time":23120,"weight":6},"cypress/e2e/reclassify-document.cy.ts":{"time":54652,"weight":14},"cypress/e2e/redaction-assurance.cy.ts":{"time":126001,"weight":33},"cypress/e2e/redaction-log.cy.ts":{"time":57442,"weight":15},"cypress/e2e/redaction.cy.ts":{"time":36581,"weight":9},"cypress/e2e/rename-document.cy.ts":{"time":12826,"weight":3},"cypress/e2e/rotate-page.cy.ts":{"time":32338,"weight":8},"cypress/e2e/saved-user-data.cy.ts":{"time":33812,"weight":9},"cypress/e2e/search-pii.cy.ts":{"time":16366,"weight":4},"cypress/e2e/search.cy.ts":{"time":63983,"weight":17},"cypress/e2e/state-retention.cy.ts":{"time":13393,"weight":3}}

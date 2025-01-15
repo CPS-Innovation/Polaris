@@ -183,8 +183,10 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     localDocumentState,
   } = combinedState;
   useEffect(() => {
-    saveStateToSessionStorage(combinedState);
-  }, [combinedState]);
+    if (featureFlags.stateRetention) {
+      saveStateToSessionStorage(combinedState);
+    }
+  }, [combinedState, featureFlags.stateRetention]);
 
   const {
     showAlert,

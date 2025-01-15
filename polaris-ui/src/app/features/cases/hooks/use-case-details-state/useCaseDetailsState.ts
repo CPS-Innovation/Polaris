@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useEffect } from "react";
 import { CombinedState, initialState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
@@ -57,7 +57,7 @@ export const useCaseDetailsState = (
     reducerAsyncActionHandlers
   );
 
-  useLoadAppLevelLookups(dispatch);
+  useLoadAppLevelLookups(dispatch, featureFlagData?.redactionLog);
   useHydrateFromLocalStorage(
     caseId,
     combinedState.storedUserData.status,
@@ -66,6 +66,13 @@ export const useCaseDetailsState = (
   useGetCaseData(urn, caseId, combinedState, dispatch, true, isUnMounting);
   useDocumentSearch(urn, caseId, combinedState, dispatch);
   useDocumentRefreshPolling(dispatch, combinedState.featureFlags.notifications);
+
+  useEffect(() => {
+    dispatch({
+      type: "UPDATE_FEATURE_FLAGS_DATA",
+      payload: featureFlagData,
+    });
+  }, [featureFlagData, dispatch]);
 
   const handleTabSelection = useCallback(
     (documentId: string) => {
