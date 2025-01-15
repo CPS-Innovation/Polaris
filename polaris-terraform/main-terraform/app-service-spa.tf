@@ -31,6 +31,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_FEATURE_FLAG_RECLASSIFY"                            = var.feature_flag_reclassify
     "REACT_APP_FEATURE_FLAG_PAGE_DELETE"                           = var.feature_flag_page_delete
     "REACT_APP_FEATURE_FLAG_PAGE_ROTATE"                           = var.feature_flag_page_rotate
+    "REACT_APP_FEATURE_FLAG_STATE_RETENTION"                       = var.feature_flag_state_retention
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP"     = var.feature_flag_external_redirect_case_review_app
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP"         = var.feature_flag_external_redirect_bulk_um_app
     "REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH"           = var.feature_flag_background_pipeline_refresh
@@ -138,6 +139,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["REACT_APP_FEATURE_FLAG_RECLASSIFY"],
       app_settings["REACT_APP_FEATURE_FLAG_PAGE_DELETE"],
       app_settings["REACT_APP_FEATURE_FLAG_PAGE_ROTATE"],
+      app_settings["REACT_APP_FEATURE_FLAG_STATE_RETENTION"],
       app_settings["REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP"],
       app_settings["REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP"],
       app_settings["REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH"],

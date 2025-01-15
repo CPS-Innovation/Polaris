@@ -4,12 +4,13 @@ import classes from "./Content.module.scss";
 import { SucceededApiResult } from "../../../../../common/types/SucceededApiResult";
 import { CaseDetails } from "../../../domain/gateway/CaseDetails";
 import { Results } from "./ready-mode/Results";
+import { CombinedState } from "../../../domain/CombinedState";
 import React from "react";
 
 type Props = {
   caseState: SucceededApiResult<CaseDetails>;
-  searchTerm: CaseDetailsState["searchTerm"];
-  searchState: CaseDetailsState["searchState"];
+  searchTerm: CombinedState["searchTerm"];
+  searchState: CombinedState["searchState"];
   handleSearchTermChange: CaseDetailsState["handleSearchTermChange"];
   handleLaunchSearchResults: CaseDetailsState["handleLaunchSearchResults"];
   handleChangeResultsOrder: CaseDetailsState["handleChangeResultsOrder"];

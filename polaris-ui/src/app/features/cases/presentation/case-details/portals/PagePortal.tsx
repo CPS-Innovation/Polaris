@@ -5,6 +5,7 @@ import React, {
   useState,
   ReactElement,
 } from "react";
+import { waitForElement } from "../utils/waitForElement";
 import ReactDOM from "react-dom";
 type PagePortalProps = {
   tabIndex: number;
@@ -72,13 +73,23 @@ export const PagePortal: React.FC<PagePortalProps> = ({
   }, [pageElements, observePageMutations]);
 
   useEffect(() => {
-    if (isUnmountedRef.current) return;
-    const pdfViewer = document?.querySelectorAll(".pdfViewer")[tabIndex];
-    if (!pdfViewer) return;
-    resizeObserverRef.current = new ResizeObserver((entries) => {
-      updatePortals();
-    });
-    resizeObserverRef.current?.observe(pdfViewer);
+    const fetchElement = async () => {
+      try {
+        const pdfViewer = await waitForElement(
+          () => document.querySelectorAll(".pdfViewer")[tabIndex]
+        );
+        if (isUnmountedRef.current) return;
+        if (!pdfViewer) return;
+        resizeObserverRef.current = new ResizeObserver((entries) => {
+          updatePortals();
+        });
+        resizeObserverRef.current?.observe(pdfViewer);
+      } catch (error) {
+        console.error("Error waiting for pdfViewer element:", error);
+      }
+    };
+
+    fetchElement();
 
     return () => {
       // Cleanup, disconnect observer and portal nodes

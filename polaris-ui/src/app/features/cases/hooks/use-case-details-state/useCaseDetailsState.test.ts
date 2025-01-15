@@ -175,13 +175,17 @@ describe("useCaseDetailsState", () => {
         handleUpdateConversionStatus,
         handleShowHidePageDeletion,
         handleHideSaveRotationModal,
+        handleAccordionOpenClose,
+        handleAccordionOpenCloseAll,
         ...stateProperties
       } = result.current;
 
       expect(stateProperties).toEqual({
-        caseId: 1,
-        urn: "bar",
-        ...initialState,
+        combinedState: {
+          caseId: 1,
+          urn: "bar",
+          ...initialState,
+        },
       });
     });
 

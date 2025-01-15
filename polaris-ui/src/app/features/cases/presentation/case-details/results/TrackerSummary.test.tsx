@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { TrackerSummary } from "./TrackerSummary";
-import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
+import { CombinedState } from "../../../domain/CombinedState";
 
 describe("TrackerSummary", () => {
   it("Should return null if the there is not documents data available", () => {
     render(
-      <TrackerSummary pipelineState={{} as CaseDetailsState["pipelineState"]} />
+      <TrackerSummary pipelineState={{} as CombinedState["pipelineState"]} />
     );
     expect(screen.queryByTestId("tracker-summary")).not.toBeInTheDocument();
   });
@@ -28,7 +28,7 @@ describe("TrackerSummary", () => {
     };
     render(
       <TrackerSummary
-        pipelineState={pipelineState as CaseDetailsState["pipelineState"]}
+        pipelineState={pipelineState as CombinedState["pipelineState"]}
       />
     );
 
@@ -62,7 +62,7 @@ describe("TrackerSummary", () => {
     };
     render(
       <TrackerSummary
-        pipelineState={pipelineState as CaseDetailsState["pipelineState"]}
+        pipelineState={pipelineState as CombinedState["pipelineState"]}
       />
     );
 
@@ -99,7 +99,7 @@ describe("TrackerSummary", () => {
     };
     render(
       <TrackerSummary
-        pipelineState={pipelineState as CaseDetailsState["pipelineState"]}
+        pipelineState={pipelineState as CombinedState["pipelineState"]}
       />
     );
 
@@ -133,7 +133,7 @@ describe("TrackerSummary", () => {
     };
     render(
       <TrackerSummary
-        pipelineState={pipelineState as CaseDetailsState["pipelineState"]}
+        pipelineState={pipelineState as CombinedState["pipelineState"]}
       />
     );
     expect(screen.queryByTestId("tracker-summary")).toBeInTheDocument();

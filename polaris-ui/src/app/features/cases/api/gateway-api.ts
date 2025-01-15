@@ -95,16 +95,6 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
   return (await response.json()) as CaseDetails;
 };
 
-export const getDocuments = async (urn: string, caseId: number) => {
-  const url = fullUrl(`/api/urns/${urn}/cases/${caseId}/documents`);
-
-  const response = await fetchImplementation("reauth", url, {
-    headers: await buildHeaders(),
-  });
-
-  return (await response.json()) as PresentationDocumentProperties[];
-};
-
 export const initiatePipeline = async (
   urn: string,
   caseId: number,
