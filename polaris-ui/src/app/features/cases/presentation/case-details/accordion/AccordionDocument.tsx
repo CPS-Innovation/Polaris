@@ -34,7 +34,6 @@ import {
   DropdownButtonItem,
 } from "../../../../../common/presentation/components/DropdownButton";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
-import { toggleUsedDocumentState } from "../../../api/gateway-api";
 
 type Props = {
   activeDocumentId: string;
@@ -56,7 +55,12 @@ type Props = {
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
   conversionStatus?: ConversionStatus | GroupedConversionStatus;
-  handleToggleDocumentState?: (urn: string, caseId: number) => void | undefined;
+  handleToggleDocumentState: (
+    urn: string,
+    caseId: number,
+    documentId: string,
+    isUnsed: boolean
+  ) => void;
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -213,7 +217,12 @@ export const AccordionDocument: React.FC<Props> = ({
         break;
       case "3": {
         handleToggleDocumentState &&
-          handleToggleDocumentState(urn, parseInt(caseId));
+          handleToggleDocumentState(
+            urn,
+          +caseId,
+            caseDocument.documentId,
+            caseDocument.isUnused
+          );
         // console.log(urn, caseId);
         // // if (urn && caseId) {
         // // urn && caseId && handleToggleDocumentState(urn as any, caseId as any);

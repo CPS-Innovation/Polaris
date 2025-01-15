@@ -507,15 +507,16 @@ export const toggleUsedDocumentState = async (
   documentId?: string,
   isUnused?: boolean
 ) => {
-  const isDocumentUsed = isUnused ? "used" : "unused";
+  const isDocumentId = documentId;
+  const isDocumentUsed = isUnused ? "unused" : "used";
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/toggle/${isDocumentUsed}`
+    `/api/urns/${urn}/cases/${caseId}/documents/${isDocumentId}/toggle/${isDocumentUsed}`
   );
 
   const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(),
     method: "POST",
-    body: JSON.stringify({ isUsed: "isUsed" }),
+    body: JSON.stringify({ isUsed: isDocumentUsed }),
   });
 
   if (!response.ok) {

@@ -33,7 +33,12 @@ type Props = {
   handleGetNotes: (documentId: string) => void;
   handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
-  handleToggleDocumentState?: (urn: string, caseId: number) => void | undefined;
+  handleToggleDocumentState: (
+    urn: string,
+    caseId: number,
+    documentId: string,
+    isUnused: boolean
+  ) => void;
 };
 const formatTestIdText = (id: string) => {
   return id

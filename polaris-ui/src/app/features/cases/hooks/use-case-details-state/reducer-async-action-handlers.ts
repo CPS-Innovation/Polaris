@@ -132,6 +132,8 @@ type AsyncActions =
       payload: {
         urn: any;
         caseId: any;
+        documentId?: any;
+        unused?: any;
       };
     };
 
@@ -770,9 +772,16 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
   TOGGLE_DOCUMENT_STATE:
     ({ dispatch, getState }) =>
     async (action) => {
-      console.log(action);
+      const {
+        payload: { documentId, unused },
+      } = action;
       const { caseId, urn } = getState();
-      const res = await toggleUsedDocumentState(urn, caseId);
+      const res = await toggleUsedDocumentState(
+        urn,
+        caseId,
+        documentId,
+        unused
+      );
       dispatch({
         type: "UPDATE_DOCUMENT_REFRESH",
         payload: {

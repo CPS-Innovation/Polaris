@@ -13,7 +13,12 @@ import { LocalDocumentState } from "../../../domain/LocalDocumentState";
 
 type Props = {
   initialState: AccordionReducerState | null;
-  handleToggleDocumentState?: (urn: string, caseId: number) => void;
+  handleToggleDocumentState: (
+    urn: string,
+    caseId: number,
+    documentId: string,
+    isUnused: boolean
+  ) => void;
   activeDocumentId: string;
   readUnreadData: string[];
   accordionState: AccordionDocumentSection[];
