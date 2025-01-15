@@ -11,6 +11,7 @@ jest.mock("./document-category-helpers", () => {
   const originalModule = jest.requireActual("./document-category-helpers");
   return { ...originalModule };
 });
+const docCategoryHelpers = require("./document-category-helpers");
 
 type Row = { docTypeId: string; category: string; docTypeCategory: string };
 
@@ -128,8 +129,44 @@ describe("documentCategoryDefinitions", () => {
 
     expect(result.category).toBe("Uncategorised");
   });
+  it(`can resolve document with documentTypeId 1029 under "Unused material", if isUnusedCommunicationMaterial returns true `, () => {
+    docCategoryHelpers.isUnusedCommunicationMaterial = () => true;
+    const result1 = getCategory({
+      cmsDocType: { documentTypeId: 1029 },
+      presentationTitle: "UM CM01",
+    } as PresentationDocumentProperties);
+
+    const result2 = getCategory({
+      cmsDocType: { documentTypeId: 1029 },
+      presentationTitle: "CM01 Item 4 a",
+    } as PresentationDocumentProperties);
+
+    expect(result1.category).toBe("Unused material");
+    expect(result2.category).toBe("Unused material");
+    expect(result2.subCategory).toBe(null);
+  });
+
+  it(`can resolve document with documentTypeId 1029 under "Communications" category if isUnusedCommunicationMaterial returns false`, () => {
+    docCategoryHelpers.isUnusedCommunicationMaterial = () => false;
+    const result1 = getCategory({
+      cmsDocType: { documentTypeId: 1029 },
+      presentationTitle: "CM01",
+    } as PresentationDocumentProperties);
+
+    const result2 = getCategory({
+      cmsDocType: { documentTypeId: 1029 },
+      presentationTitle: " CM01 Typea 4 a",
+      cmsOriginalFileName: "foo.hte",
+    } as PresentationDocumentProperties);
+
+    expect(result1.category).toBe("Communications");
+    expect(result1.subCategory).toBe("Communication files");
+    expect(result2.category).toBe("Communications");
+    expect(result2.subCategory).toBe("Emails");
+  });
 
   it(`can resolve document  under "Unused material" category if documentCategory is "Statement" and isUnused == true `, () => {
+    docCategoryHelpers.isUnusedCommunicationMaterial = () => false;
     const result1 = getCategory({
       cmsDocType: { documentTypeId: 1031, documentCategory: "Statement" },
       presentationTitle: "CM01",
@@ -148,6 +185,7 @@ describe("documentCategoryDefinitions", () => {
   });
 
   it(`can resolve document  under "Unused material" category if documentCategory is "Unused" `, () => {
+    docCategoryHelpers.isUnusedCommunicationMaterial = () => false;
     const result1 = getCategory({
       cmsDocType: { documentTypeId: 1031, documentCategory: "Exhibit" },
       presentationTitle: "CM01",
