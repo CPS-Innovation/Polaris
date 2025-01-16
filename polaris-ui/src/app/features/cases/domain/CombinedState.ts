@@ -161,6 +161,7 @@ export const initialState = {
     pageDelete: false,
     pageRotate: false,
     notifications: false,
+    isUnused: true,
   },
   storedUserData: { status: "loading" },
   notes: [],

@@ -516,7 +516,7 @@ export const toggleUsedDocumentState = async (
   const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(),
     method: "POST",
-    body: JSON.stringify({ isUsed: isDocumentUsed }),
+    body: JSON.stringify({ isUnused: isDocumentUsed }),
   });
 
   if (!response.ok) {
