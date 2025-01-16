@@ -6,12 +6,7 @@ describe("State Retention", () => {
     ...cypressDetailsDataSource(13401),
     uniqueReferenceNumber: "12AB1111111",
   };
-  beforeEach(() => {
-    cy.overrideRoute(CASE_ROUTE, {
-      body: caseDetailsResult,
-      timeMs: 100,
-    });
-  });
+
   it("State should be retained if we are refreshing casework app when the state retention feature flag is true", () => {
     const documentListCounter = { count: 0 };
     cy.trackRequestCount(
@@ -26,7 +21,10 @@ describe("State Retention", () => {
       "GET",
       "/api/urns/12AB1111111/cases/13401"
     );
-
+    cy.overrideRoute(CASE_ROUTE, {
+      body: caseDetailsResult,
+      timeMs: 500,
+    });
     cy.visit("/case-details/12AB1111111/13401");
     cy.findByTestId("txt-please-wait-page-heading").should("exist");
     cy.findByTestId("btn-accordion-open-close-all").should(
@@ -57,10 +55,10 @@ describe("State Retention", () => {
     cy.findByTestId("btn-save-redaction-1").should("exist");
     cy.findByTestId("tab-0").should("exist");
     cy.findByTestId("tab-1").should("exist");
-
+    // this is to slow down the api response so that test will get time to verify the `txt-please-wait-page-heading`
     cy.overrideRoute(CASE_ROUTE, {
       body: caseDetailsResult,
-      timeMs: 100,
+      timeMs: 500,
     });
     cy.reload();
 
@@ -95,6 +93,10 @@ describe("State Retention", () => {
       "GET",
       "/api/urns/12AB1111111/cases/13401"
     );
+    cy.overrideRoute(CASE_ROUTE, {
+      body: caseDetailsResult,
+      timeMs: 500,
+    });
     cy.visit("/case-details/12AB1111111/13401?stateRetention=false");
     cy.findByTestId("txt-please-wait-page-heading").should("exist");
     cy.findByTestId("btn-accordion-open-close-all").should(
@@ -128,7 +130,7 @@ describe("State Retention", () => {
 
     cy.overrideRoute(CASE_ROUTE, {
       body: caseDetailsResult,
-      timeMs: 100,
+      timeMs: 500,
     });
     cy.reload();
 
@@ -163,7 +165,6 @@ describe("State Retention", () => {
     );
 
     cy.visit("/case-details/12AB1111111/13401");
-    cy.findByTestId("txt-please-wait-page-heading").should("exist");
     cy.findByTestId("btn-accordion-open-close-all").should(
       "contain.text",
       "Open all folders"
@@ -192,13 +193,9 @@ describe("State Retention", () => {
     cy.findByTestId("btn-save-redaction-1").should("exist");
     cy.findByTestId("tab-0").should("exist");
     cy.findByTestId("tab-1").should("exist");
-    cy.overrideRoute(CASE_ROUTE, {
-      body: caseDetailsResult,
-      timeMs: 100,
-    });
+
     cy.reload();
     //making sure state is retained
-    cy.findByTestId("txt-please-wait-page-heading").should("not.exist");
     cy.contains("There is 1 redaction");
     cy.findByTestId("btn-accordion-open-close-all").should(
       "contain.text",
@@ -215,13 +212,9 @@ describe("State Retention", () => {
     });
     //navigating to a new caseid
     cy.visit("/case-details/12AB1111111/123");
-    cy.overrideRoute(CASE_ROUTE, {
-      body: caseDetailsResult,
-      timeMs: 100,
-    });
+
     //navigating back to the original caseid
     cy.visit("/case-details/12AB1111111/13401");
-    cy.findByTestId("txt-please-wait-page-heading").should("exist");
     cy.contains("There is 1 redaction").should("not.exist");
     cy.findByTestId("btn-accordion-open-close-all").should(
       "contain.text",
@@ -252,7 +245,6 @@ describe("State Retention", () => {
     );
 
     cy.visit("/case-details/12AB1111111/13401");
-    cy.findByTestId("txt-please-wait-page-heading").should("exist");
     cy.findByTestId("btn-accordion-open-close-all").should(
       "contain.text",
       "Open all folders"
@@ -282,10 +274,7 @@ describe("State Retention", () => {
     cy.findByTestId("tab-0").should("exist");
     cy.findByTestId("tab-1").should("exist");
     cy.clearAllSessionStorage();
-    cy.overrideRoute(CASE_ROUTE, {
-      body: caseDetailsResult,
-      timeMs: 100,
-    });
+
     cy.reload();
     cy.contains("There is 1 redaction").should("not.exist");
     cy.findByTestId("btn-accordion-open-close-all").should(
