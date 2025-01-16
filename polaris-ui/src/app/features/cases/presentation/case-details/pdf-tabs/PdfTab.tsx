@@ -1,5 +1,4 @@
-import { useCallback } from "react";
-import { useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { PdfViewer } from "../pdf-viewer/PdfViewer";
@@ -20,6 +19,7 @@ import {
 } from "../modals/PageRotationDeletionWarningModal";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
 import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
+import { useAuthHeaderContext } from "../../../../../AuthHeaderProvider";
 import classes from "./PdfTab.module.scss";
 
 type PdfTabProps = {
@@ -97,6 +97,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   handleUpdateConversionStatus,
   handleHideSaveRotationModal,
 }) => {
+  const { buildHeaders } = useAuthHeaderContext();
   const trackEvent = useAppInsightsTrackEvent();
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
     useState<number>(0);
@@ -106,6 +107,10 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     useState<{ show: boolean; type: RotationDeletionWarningModal } | null>(
       null
     );
+  const [urlWithHeader, setUrlWithHeader] = useState<{
+    url: string;
+    headers: HeadersInit;
+  } | null>(null);
   const {
     url,
     mode,
@@ -127,6 +132,25 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     presentationFlags: { write: documentWriteStatus = "Ok" } = {},
     versionId,
   } = mappedDocument;
+  const isDocumentRefreshing = useMemo(() => {
+    return savedDocumentDetails.find(
+      (document) => document.documentId === caseDocumentViewModel.documentId
+    );
+  }, [savedDocumentDetails, caseDocumentViewModel.documentId]);
+
+  useEffect(() => {
+    const updateNewUrlWithHeader = async (url: string) => {
+      const headers = await buildHeaders();
+      setUrlWithHeader({ url: url, headers: headers });
+    };
+    if (isDocumentRefreshing) {
+      setUrlWithHeader(null);
+      return;
+    }
+    if (url && url !== urlWithHeader?.url) {
+      updateNewUrlWithHeader(url);
+    }
+  }, [url, urlWithHeader, buildHeaders, isDocumentRefreshing]);
 
   const showDeletePage = useMemo(
     () =>
@@ -278,11 +302,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     handleShowHidePageDeletion(documentId, newDeletePageMode);
   };
 
-  const isDocumentRefreshing = () => {
-    return savedDocumentDetails.find(
-      (document) => document.documentId === caseDocumentViewModel.documentId
-    );
-  };
   const isSearchPIIOn = useMemo(() => {
     return !!searchPIIDataItem?.show;
   }, [searchPIIDataItem]);
@@ -395,14 +414,14 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           </div>
         )}
 
-        {url && !isDocumentRefreshing() ? (
+        {urlWithHeader?.url ? (
           <PdfViewer
             redactionTypesData={redactionTypesData}
-            url={url}
+            url={urlWithHeader?.url}
             tabIndex={tabIndex}
             activeTabId={activeTabId}
             tabId={tabId}
-            headers={headers}
+            headers={urlWithHeader?.headers}
             searchHighlights={searchHighlights}
             isSearchPIIOn={isSearchPIIOn}
             isSearchPIIDefaultOptionOn={!!searchPIIDataItem?.defaultOption}
