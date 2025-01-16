@@ -16,7 +16,7 @@ export const useGetCaseData = (
   // Load case data
   const caseState = useApi(getCaseDetails, [urn, caseId]);
   useEffect(() => {
-    if (caseState.status !== "initial")
+    if (caseState.status === "failed" || caseState.status === "succeeded")
       dispatch({ type: "UPDATE_CASE_DETAILS", payload: caseState });
   }, [caseState, dispatch]);
 

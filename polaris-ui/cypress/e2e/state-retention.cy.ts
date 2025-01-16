@@ -1,4 +1,17 @@
+import cypressDetailsDataSource from "../../src/mock-api/data/caseDetails.cypress";
+import { CASE_ROUTE } from "../../src/mock-api/routes";
+
 describe("State Retention", () => {
+  const caseDetailsResult = {
+    ...cypressDetailsDataSource(13401),
+    uniqueReferenceNumber: "12AB1111111",
+  };
+  beforeEach(() => {
+    cy.overrideRoute(CASE_ROUTE, {
+      body: caseDetailsResult,
+      timeMs: 100,
+    });
+  });
   it("State should be retained if we are refreshing casework app when the state retention feature flag is true", () => {
     const documentListCounter = { count: 0 };
     cy.trackRequestCount(
@@ -15,6 +28,7 @@ describe("State Retention", () => {
     );
 
     cy.visit("/case-details/12AB1111111/13401");
+    cy.findByTestId("txt-please-wait-page-heading").should("exist");
     cy.findByTestId("btn-accordion-open-close-all").should(
       "contain.text",
       "Open all folders"
@@ -44,7 +58,13 @@ describe("State Retention", () => {
     cy.findByTestId("tab-0").should("exist");
     cy.findByTestId("tab-1").should("exist");
 
+    cy.overrideRoute(CASE_ROUTE, {
+      body: caseDetailsResult,
+      timeMs: 100,
+    });
     cy.reload();
+
+    cy.findByTestId("txt-please-wait-page-heading").should("not.exist");
 
     cy.contains("There is 1 redaction");
     cy.findByTestId("btn-accordion-open-close-all").should(
@@ -76,6 +96,7 @@ describe("State Retention", () => {
       "/api/urns/12AB1111111/cases/13401"
     );
     cy.visit("/case-details/12AB1111111/13401?stateRetention=false");
+    cy.findByTestId("txt-please-wait-page-heading").should("exist");
     cy.findByTestId("btn-accordion-open-close-all").should(
       "contain.text",
       "Open all folders"
@@ -105,8 +126,13 @@ describe("State Retention", () => {
     cy.findByTestId("tab-0").should("exist");
     cy.findByTestId("tab-1").should("exist");
 
+    cy.overrideRoute(CASE_ROUTE, {
+      body: caseDetailsResult,
+      timeMs: 100,
+    });
     cy.reload();
 
+    cy.findByTestId("txt-please-wait-page-heading").should("exist");
     cy.contains("There is 1 redaction").should("not.exist");
     cy.findByTestId("btn-accordion-open-close-all").should(
       "contain.text",
@@ -137,6 +163,7 @@ describe("State Retention", () => {
     );
 
     cy.visit("/case-details/12AB1111111/13401");
+    cy.findByTestId("txt-please-wait-page-heading").should("exist");
     cy.findByTestId("btn-accordion-open-close-all").should(
       "contain.text",
       "Open all folders"
@@ -165,9 +192,13 @@ describe("State Retention", () => {
     cy.findByTestId("btn-save-redaction-1").should("exist");
     cy.findByTestId("tab-0").should("exist");
     cy.findByTestId("tab-1").should("exist");
-
+    cy.overrideRoute(CASE_ROUTE, {
+      body: caseDetailsResult,
+      timeMs: 100,
+    });
     cy.reload();
     //making sure state is retained
+    cy.findByTestId("txt-please-wait-page-heading").should("not.exist");
     cy.contains("There is 1 redaction");
     cy.findByTestId("btn-accordion-open-close-all").should(
       "contain.text",
@@ -184,8 +215,13 @@ describe("State Retention", () => {
     });
     //navigating to a new caseid
     cy.visit("/case-details/12AB1111111/123");
+    cy.overrideRoute(CASE_ROUTE, {
+      body: caseDetailsResult,
+      timeMs: 100,
+    });
     //navigating back to the original caseid
     cy.visit("/case-details/12AB1111111/13401");
+    cy.findByTestId("txt-please-wait-page-heading").should("exist");
     cy.contains("There is 1 redaction").should("not.exist");
     cy.findByTestId("btn-accordion-open-close-all").should(
       "contain.text",
@@ -216,6 +252,7 @@ describe("State Retention", () => {
     );
 
     cy.visit("/case-details/12AB1111111/13401");
+    cy.findByTestId("txt-please-wait-page-heading").should("exist");
     cy.findByTestId("btn-accordion-open-close-all").should(
       "contain.text",
       "Open all folders"
@@ -245,9 +282,11 @@ describe("State Retention", () => {
     cy.findByTestId("tab-0").should("exist");
     cy.findByTestId("tab-1").should("exist");
     cy.clearAllSessionStorage();
-
+    cy.overrideRoute(CASE_ROUTE, {
+      body: caseDetailsResult,
+      timeMs: 100,
+    });
     cy.reload();
-
     cy.contains("There is 1 redaction").should("not.exist");
     cy.findByTestId("btn-accordion-open-close-all").should(
       "contain.text",

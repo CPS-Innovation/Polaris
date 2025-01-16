@@ -221,7 +221,7 @@ describe("useCaseDetailsState", () => {
         wrapper: MemoryRouter,
       });
 
-      expect(reducerSpy).toBeCalledWith(expect.anything(), {
+      expect(reducerSpy).not.toBeCalledWith(expect.anything(), {
         type: "UPDATE_CASE_DETAILS",
         payload: { status: "loading" },
       });
