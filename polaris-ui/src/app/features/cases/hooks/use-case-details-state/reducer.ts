@@ -297,6 +297,7 @@ export const reducer = (
         type: "UPDATE_SEARCH_PII_DATA";
         payload: {
           documentId: string;
+          versionId: number;
           searchPIIResult: SearchPIIResultItem[];
           getSearchPIIStatus: "initial" | "failure" | "loading" | "success";
         };
@@ -1435,7 +1436,6 @@ export const reducer = (
             show: show,
             defaultOption: defaultOption,
             searchPIIHighlights: getData ? [] : newSearchPIIHighlights,
-            versionId: getData ? versionId : availablePIIData.versionId,
           }
         : {
             show: show,
@@ -1456,7 +1456,7 @@ export const reducer = (
     }
 
     case "UPDATE_SEARCH_PII_DATA": {
-      const { documentId, searchPIIResult, getSearchPIIStatus } =
+      const { documentId, versionId, searchPIIResult, getSearchPIIStatus } =
         action.payload;
       const filteredSearchPIIDatas = state.searchPII.filter(
         (searchPIIResult) => searchPIIResult.documentId !== documentId
@@ -1484,6 +1484,7 @@ export const reducer = (
           {
             ...activeSearchPIIData,
             documentId,
+            versionId,
             searchPIIHighlights: sortedSearchPIIHighlights,
             getSearchPIIStatus: getSearchPIIStatus,
           },

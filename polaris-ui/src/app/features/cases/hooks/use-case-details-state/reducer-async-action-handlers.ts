@@ -797,6 +797,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           type: "UPDATE_SEARCH_PII_DATA",
           payload: {
             documentId,
+            versionId,
             searchPIIResult,
             getSearchPIIStatus: "success",
           },
@@ -819,6 +820,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           type: "UPDATE_SEARCH_PII_DATA",
           payload: {
             documentId,
+            versionId,
             searchPIIResult: [],
             getSearchPIIStatus: "failure",
           },
