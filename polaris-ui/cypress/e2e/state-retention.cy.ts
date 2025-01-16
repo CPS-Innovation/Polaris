@@ -23,7 +23,7 @@ describe("State Retention", () => {
     );
     cy.overrideRoute(CASE_ROUTE, {
       body: caseDetailsResult,
-      timeMs: 500,
+      timeMs: 1000,
     });
     cy.visit("/case-details/12AB1111111/13401");
     cy.findByTestId("txt-please-wait-page-heading").should("exist");
@@ -58,7 +58,7 @@ describe("State Retention", () => {
     // this is to slow down the api response so that test will get time to verify the `txt-please-wait-page-heading`
     cy.overrideRoute(CASE_ROUTE, {
       body: caseDetailsResult,
-      timeMs: 500,
+      timeMs: 1000,
     });
     cy.reload();
 
@@ -95,7 +95,7 @@ describe("State Retention", () => {
     );
     cy.overrideRoute(CASE_ROUTE, {
       body: caseDetailsResult,
-      timeMs: 500,
+      timeMs: 1000,
     });
     cy.visit("/case-details/12AB1111111/13401?stateRetention=false");
     cy.findByTestId("txt-please-wait-page-heading").should("exist");
@@ -130,7 +130,7 @@ describe("State Retention", () => {
 
     cy.overrideRoute(CASE_ROUTE, {
       body: caseDetailsResult,
-      timeMs: 500,
+      timeMs: 1000,
     });
     cy.reload();
 
