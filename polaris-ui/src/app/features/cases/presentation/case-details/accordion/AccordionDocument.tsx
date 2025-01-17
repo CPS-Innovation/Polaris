@@ -175,7 +175,7 @@ export const AccordionDocument: React.FC<Props> = ({
         },
       ];
     }
-    if (featureFlags.isUnused) {
+    if (featureFlags.isUsed) {
       const isUnused = caseDocument.isUnused ? "used" : "unused";
       items = [
         ...items,

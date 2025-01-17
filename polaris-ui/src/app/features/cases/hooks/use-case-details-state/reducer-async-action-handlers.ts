@@ -777,18 +777,18 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       } = action;
       const { caseId, urn } = getState();
       try {
-      const res = await toggleUsedDocumentState(
-        urn,
-        caseId,
-        documentId,
-        unused
-      );
-      dispatch({
-        type: "UPDATE_DOCUMENT_REFRESH",
-        payload: {
-          startDocumentRefresh: true,
-        },
-      });
+        const res = await toggleUsedDocumentState(
+          urn,
+          caseId,
+          documentId,
+          unused
+        );
+        dispatch({
+          type: "UPDATE_DOCUMENT_REFRESH",
+          payload: {
+            startDocumentRefresh: true,
+          },
+        });
       } catch (err) {
         dispatch({
           type: "SHOW_ERROR_MODAL",

@@ -16,7 +16,7 @@ export type FeatureFlagData = {
   pageDelete: boolean;
   pageRotate: boolean;
   notifications: boolean;
-  isUnused: boolean;
+  isUsed: boolean;
 };
 
 export type FeatureFlagQueryParams = {
@@ -31,5 +31,5 @@ export type FeatureFlagQueryParams = {
   pageDelete: string;
   pageRotate: string;
   notifications: string;
-  isUnused: string;
+  isUsed: string;
 };

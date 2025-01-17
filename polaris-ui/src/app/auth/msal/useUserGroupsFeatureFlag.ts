@@ -81,7 +81,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     pageDelete,
     pageRotate,
     notifications,
-    isUnused,
+    isUsed,
   } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
@@ -149,11 +149,11 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         notifications,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
-      isUnused: shouldShowFeature(
+      isUsed: shouldShowFeature(
         FEATURE_FLAG_USED_DOCUMENT_STATE,
         userDetails?.username,
-        isUnused,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+        isUsed
+        // { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
     }),
     []
