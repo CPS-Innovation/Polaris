@@ -14,6 +14,7 @@
 
 | Event               | Description | Type                  |
 | ------------------- | ----------- | --------------------- |
+| `change`            |             | `CustomEvent<string>` |
 | `cpsGlobalNavEvent` |             | `CustomEvent<string>` |
 
 

@@ -1,4 +1,4 @@
-import { getAccessToken } from "../../auth/get-access-token";
+import { getAccessToken } from "../../ad-auth/get-access-token";
 import { CORRELATION_ID, GATEWAY_SCOPE } from "../../config";
 import { generateGuid } from "../../utils/generate-guid";
 

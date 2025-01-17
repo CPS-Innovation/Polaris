@@ -220,7 +220,7 @@ module "azurerm_app_reg_as_web_polaris" {
       }]
   }]
   single_page_application = {
-    redirect_uris = var.env != "prod" ? ["https://as-web-${local.global_resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "http://localhost:3000/${var.polaris_ui_sub_folder}", "https://${local.global_resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.global_resource_name}-notprod.cps.gov.uk/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.global_resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.global_resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.global_resource_name}.cps.gov.uk/${var.polaris_ui_sub_folder}"]
+    redirect_uris = var.env != "prod" ? ["https://as-web-${local.global_resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "http://localhost:3000/${var.polaris_ui_sub_folder}", "http://localhost:3333", "https://cps-global-nav-test-domain.com", "https://${local.global_resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.global_resource_name}-notprod.cps.gov.uk/${var.polaris_ui_sub_folder}"] : ["https://as-web-${local.global_resource_name}.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.global_resource_name}-cmsproxy.azurewebsites.net/${var.polaris_ui_sub_folder}", "https://${local.global_resource_name}.cps.gov.uk/${var.polaris_ui_sub_folder}"]
   }
   api = {
     mapped_claims_enabled          = true

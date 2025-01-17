@@ -1,2 +1,2 @@
 // https://publicsuffix.org/list/
-export const isSameSiteDomain = () => false;
+export const isSameSiteDomain = () => true;

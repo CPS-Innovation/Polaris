@@ -28,7 +28,7 @@
 </body>
 
 <script>
-  document.addEventListener("cpsGlobalNavEvent", (ev) => console.log(ev.detail));
+  document.querySelector("cps-global-nav").addEventListener("change", (ev) => console.log(ev.detail));
 </script>
 
 </html>

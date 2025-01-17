@@ -1,4 +1,4 @@
-@import 'node_modules/govuk-frontend/dist/govuk/index';
+@import "node_modules/govuk-frontend/dist/govuk/index";
 
 $level-height: 3.5rem;
 
@@ -7,9 +7,9 @@ $level-height: 3.5rem;
 }
 
 .background {
-  box-shadow: 0 0 0 100vmax govuk-colour('light-grey');
+  box-shadow: 0 0 0 100vmax govuk-colour("light-grey");
   clip-path: inset(0 -100vmax);
-  background-color: govuk-colour('light-grey');
+  background-color: govuk-colour("light-grey");
 }
 
 .background-divider {
@@ -20,14 +20,14 @@ $level-height: 3.5rem;
 }
 
 .background-left-only {
-  background-color: govuk-colour('light-grey');
+  background-color: govuk-colour("light-grey");
   position: relative;
   display: grid;
 }
 
 .background-left-only:before {
-  content: '';
-  background-color: govuk-colour('light-grey');
+  content: "";
+  background-color: govuk-colour("light-grey");
   position: absolute;
   height: 100%;
   width: 100vw;
@@ -56,7 +56,8 @@ $level-height: 3.5rem;
 
 .level-1 {
   height: $level-height;
-
+  display: flex;
+  align-items: center;
   ul {
     @include horizontal-list();
     li {
@@ -66,6 +67,9 @@ $level-height: 3.5rem;
       }
     }
   }
+  div:last-child {
+    margin-left: auto;
+  }
 }
 
 $arrow-length: $level-height/2;
@@ -74,23 +78,32 @@ $arrow-length: $level-height/2;
   height: $level-height;
   display: flex;
   align-items: center;
-  background-color: govuk-colour('white');
+  background-color: govuk-colour("white");
 
   div:first-child {
     @include govuk-font($size: 19);
     font-weight: bold;
-    background-color: govuk-colour('light-grey');
+    background-color: govuk-colour("light-grey");
     display: flex;
     align-items: center;
     height: $level-height;
 
+    .name {
+      display: block;
+      min-width: 12rem;
+    }
+
     &:after {
-      content: '';
-      background-color: govuk-colour('white');
+      content: "";
+      background-color: govuk-colour("white");
       display: inline-block;
-      border-left: $arrow-length solid govuk-colour('light-grey');
+      border-left: $arrow-length solid govuk-colour("light-grey");
       border-bottom: $arrow-length solid transparent;
       border-top: $arrow-length solid transparent;
+    }
+
+    &.please-wait {
+      color: govuk-colour("dark-grey");
     }
   }
 

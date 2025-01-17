@@ -62,13 +62,10 @@ import {
   TaggedContext,
 } from "../../../../inbound-handover/context";
 
-import "cps-global-nav";
-type CustomElement<T> = Partial<T & React.DOMAttributes<T> & { children: any }>;
-
 declare global {
-  namespace JSX {
+  export namespace JSX {
     interface IntrinsicElements {
-      ["cps-global-nav"]: CustomElement<any>;
+      ["cps-global-nav"]: any;
     }
   }
 }
@@ -457,7 +454,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     <div>
       <cps-global-nav
         name={
-          caseState.data.leadDefendantDetails?.type == "Organisation"
+          caseState.data.leadDefendantDetails?.type === "Organisation"
             ? caseState.data.leadDefendantDetails?.organisationName
             : caseState.data.leadDefendantDetails?.surname +
               ", " +

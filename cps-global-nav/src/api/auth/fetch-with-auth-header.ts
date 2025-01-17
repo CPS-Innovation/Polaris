@@ -1,7 +1,7 @@
 import { CMS_AUTH_VALUES_SESSION_KEY } from "../../config";
 import { FetchArgs } from "./core";
 
-export const fetchWithHeader = async (...args: FetchArgs) => {
+export const fetchWithAuthHeader = async (...args: FetchArgs) => {
   var requestInit = {
     ...args[1],
   } as RequestInit;

@@ -4,7 +4,7 @@
   "description": "Stencil Component Starter",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
-  "types": "dist/types/index.d.ts",
+  "types": "test.d.ts",
   "collection": "dist/collection/collection-manifest.json",
   "collection:main": "dist/collection/index.js",
   "unpkg": "dist/cps-global-nav/cps-global-nav.esm.js",
@@ -37,7 +37,8 @@
     "test": "stencil test --spec --e2e",
     "test.watch": "stencil test --spec --e2e --watchAll",
     "generate": "stencil generate",
-    "deployed": "http-server ./www-deployed"
+    "deployed": "http-server ./www-deployed",
+    "publish": "./publish.sh"
   },
   "devDependencies": {
     "@stencil/core": "^4.7.0",

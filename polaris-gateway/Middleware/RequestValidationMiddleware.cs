@@ -47,7 +47,7 @@ public sealed partial class RequestValidationMiddleware(
 
             if (!_nonCmsAuthenticatedRoutes.Any(requestData.Url.LocalPath.TrimEnd('/').Equals))
             {
-                var cmsAuthValues = requestData.EstablishCmsAuthValuesFromCookies();
+                var cmsAuthValues = requestData.EstablishCmsAuthValues();
                 var cmsUserId = cmsAuthValues.ExtractCmsUserId();
                 var isMockUser = cmsUserId == MockUserUserId;
 

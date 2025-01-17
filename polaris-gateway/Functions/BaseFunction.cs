@@ -28,7 +28,7 @@ public class BaseFunction(ITelemetryClient telemetryClient)
     protected static string EstablishCmsAuthValues(HttpRequest req)
     {
         if (req.Headers.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesFromHeaders) &&
-            cmsAuthValuesFromHeaders.Any() &&
+            cmsAuthValuesFromHeaders.Count > 0 &&
             !string.IsNullOrWhiteSpace(cmsAuthValuesFromHeaders.First()))
         {
             // traffic from production pipeline functions
@@ -36,10 +36,7 @@ public class BaseFunction(ITelemetryClient telemetryClient)
         }
 
         req.Cookies.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValues);
-        if (cmsAuthValues != null)
-        {
-            return cmsAuthValues;
-        }
-        return null;
+
+        return cmsAuthValues;
     }
 }

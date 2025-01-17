@@ -20,6 +20,7 @@ export interface CpsGlobalNavCustomEvent<T> extends CustomEvent<T> {
 declare global {
     interface HTMLCpsGlobalNavElementEventMap {
         "cpsGlobalNavEvent": string;
+        "change": string;
     }
     interface HTMLCpsGlobalNavElement extends Components.CpsGlobalNav, HTMLStencilElement {
         addEventListener<K extends keyof HTMLCpsGlobalNavElementEventMap>(type: K, listener: (this: HTMLCpsGlobalNavElement, ev: CpsGlobalNavCustomEvent<HTMLCpsGlobalNavElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -45,6 +46,7 @@ declare namespace LocalJSX {
           * The text to appear at the start of the second row
          */
         "name"?: string;
+        "onChange"?: (event: CpsGlobalNavCustomEvent<string>) => void;
         "onCpsGlobalNavEvent"?: (event: CpsGlobalNavCustomEvent<string>) => void;
     }
     interface IntrinsicElements {

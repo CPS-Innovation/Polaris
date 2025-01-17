@@ -10,7 +10,7 @@ import {
   REAUTH_REDIRECT_URL_OUTBOUND,
 } from "../../config";
 import { isSameSiteDomain } from "./is-same-site-domain";
-import { fetchWithHeader } from "./fetch-with-header";
+import { fetchWithAuthHeader } from "./fetch-with-auth-header";
 
 type InSituReauthResult = {
   isSuccess: boolean;
@@ -100,7 +100,7 @@ const tryObtainAuth = async (correlationId: string | null) => {
 };
 
 export const fetchWithInSituReauth = async (...args: FetchArgs): Promise<Response> => {
-  const response = isSameSiteDomain() ? await fetchWithCookies(...args) : await fetchWithHeader(...args);
+  const response = isSameSiteDomain() ? await fetchWithCookies(...args) : await fetchWithAuthHeader(...args);
   if (!isCmsAuthFail(response)) {
     // We can exit because things are ok, or if they are not it wasn't due to an auth concern
     return response;
