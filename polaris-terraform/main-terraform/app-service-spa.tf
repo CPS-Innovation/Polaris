@@ -249,7 +249,7 @@ resource "time_rotating" "schedule" {
 
 resource "azuread_application_password" "e2e_test_secret" {
   application_object_id = module.azurerm_app_reg_as_web_polaris.object_id
-  display_name   = "e2e-tests client secret"
+  display_name          = "e2e-tests client secret"
   rotate_when_changed = {
     rotation = time_rotating.schedule.id
   }

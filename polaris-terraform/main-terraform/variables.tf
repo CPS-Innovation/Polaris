@@ -279,36 +279,6 @@ variable "bulk_um_redirect_url" {
   type = string
 }
 
-
-variable "ssl_certificate_name" {
-  type        = string
-  default     = ""
-  description = "main app service SSL certificate name, as defined in the cert key vault"
-}
-
-variable "ssl_policy_name" {
-  type        = string
-  default     = ""
-  description = "name of predefined transport/comms security definitions to use"
-}
-
-variable "app_gateway_custom_error_pages" {
-  type = object({
-    HttpStatus502 = string
-    HttpStatus403 = string
-  })
-
-  default = {
-    HttpStatus502 = ""
-    HttpStatus403 = ""
-  }
-}
-
-variable "app_gateway_back_end_host_name" {
-  type    = string
-  default = ""
-}
-
 variable "pipeline_logging" {
   type = object({
     pdf_generator_scale_controller  = string
