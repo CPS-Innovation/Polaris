@@ -152,8 +152,8 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
       isUsed: shouldShowFeature(
         FEATURE_FLAG_USED_DOCUMENT_STATE,
         userDetails?.username,
-        isUsed
-        // { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+        isUsed,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
     }),
     []
