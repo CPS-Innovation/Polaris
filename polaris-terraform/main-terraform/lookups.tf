@@ -3,14 +3,6 @@ data "azuread_client_config" "current" {}
 # end: global config lookup
 
 # begin: ddei lookup
-data "azuread_application" "fa_ddei" {
-  display_name = "fa-${local.ddei_resource_name}-appreg"
-}
-
-data "azuread_service_principal" "fa_ddei_service_principal" {
-  client_id = data.azuread_application.fa_ddei.client_id
-}
-
 data "azurerm_function_app_host_keys" "fa_ddei_host_keys" {
   name                = "fa-${local.ddei_resource_name}"
   resource_group_name = "rg-${local.ddei_resource_name}"
@@ -68,14 +60,6 @@ data "azurerm_subnet" "polaris_apps2_subnet" {
 
 data "azurerm_subnet" "polaris_ci_subnet" {
   name                 = "${var.resource_name_prefix}-ci-subnet"
-  virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
-  resource_group_name  = "rg-${var.networking_resource_name_suffix}"
-}
-
-data "azurerm_subnet" "polaris_app_gateway_subnet" {
-  count = var.env == "dev" ? 1 : 0
-
-  name                 = "${var.resource_name_prefix}-app-gateway-subnet"
   virtual_network_name = data.azurerm_virtual_network.polaris_vnet.name
   resource_group_name  = "rg-${var.networking_resource_name_suffix}"
 }
@@ -182,20 +166,6 @@ data "azurerm_resource_group" "rg_analytics" {
 data "azurerm_container_registry" "polaris_container_registry" {
   name                = "polariscontainers${var.env}"
   resource_group_name = "rg-${var.networking_resource_name_suffix}"
-}
-
-data "azurerm_key_vault" "kv_polaris_cert" {
-  count = var.env == "dev" ? 1 : 0
-
-  name                = local.app_service_certificate_store
-  resource_group_name = "rg-${local.global_resource_name}"
-}
-
-data "azurerm_key_vault_secret" "kv_polaris_cert_ssl" {
-  count = var.env == "dev" ? 1 : 0
-
-  name         = var.ssl_certificate_name
-  key_vault_id = data.azurerm_key_vault.kv_polaris_cert[0].id
 }
 
 data "azurerm_key_vault" "terraform_key_vault" {
