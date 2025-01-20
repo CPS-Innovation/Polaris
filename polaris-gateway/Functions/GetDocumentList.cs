@@ -23,7 +23,7 @@ public class GetDocumentList : BaseFunction
         IDdeiOrchestrationService ddeiOrchestrationService,
         IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient)
-        : base(telemetryClient)
+        : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _ddeiOrchestrationService = ddeiOrchestrationService ?? throw new ArgumentNullException(nameof(ddeiOrchestrationService));

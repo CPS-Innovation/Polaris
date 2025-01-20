@@ -35,7 +35,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
-    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet"
+    "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Production"
     "LanguageServiceKey"                              = azurerm_cognitive_account.language_service.primary_access_key
     "LanguageServiceUrl"                              = azurerm_cognitive_account.language_service.endpoint
@@ -78,7 +78,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     always_on                              = true
     application_stack {
-      dotnet_version = "6.0"
+      dotnet_version              = "8.0"
+      use_dotnet_isolated_runtime = true
     }
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"

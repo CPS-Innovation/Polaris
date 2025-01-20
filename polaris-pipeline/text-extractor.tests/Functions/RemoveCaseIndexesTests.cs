@@ -26,7 +26,6 @@ namespace text_extractor.tests.Functions
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
         private readonly Mock<ILogger<RemoveCaseIndexes>> _mockLogger;
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
-        private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Guid _correlationId;
         private readonly int _caseId;
@@ -37,7 +36,6 @@ namespace text_extractor.tests.Functions
             _fixture = new Fixture();
             _mockSearchIndexService = new Mock<ISearchIndexService>();
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
-            _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _correlationId = _fixture.Create<Guid>();
             _caseId = _fixture.Create<int>();
@@ -55,32 +53,31 @@ namespace text_extractor.tests.Functions
             _removeCaseIndexes = new RemoveCaseIndexes(
                                 _mockLogger.Object,
                                 _mockSearchIndexService.Object,
-                                _mockTelemetryAugmentationWrapper.Object,
                                 _mockExceptionHandler.Object);
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndLoggerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(null, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(null, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndSearchIndexServiceIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(_mockLogger.Object, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(_mockLogger.Object, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndTelemetryAugmentationWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(_mockLogger.Object, _mockSearchIndexService.Object, null, null));
+            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndExceptionHandlerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(_mockLogger.Object, _mockSearchIndexService.Object, _mockTelemetryAugmentationWrapper.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]
