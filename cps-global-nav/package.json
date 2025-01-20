@@ -38,7 +38,8 @@
     "test.watch": "stencil test --spec --e2e --watchAll",
     "generate": "stencil generate",
     "deployed": "http-server ./www-deployed",
-    "publish": "./publish.sh"
+    "publish": "./publish.sh latest",
+    "publish-home-page": "./publish-home-page.sh latest"
   },
   "devDependencies": {
     "@stencil/core": "^4.7.0",

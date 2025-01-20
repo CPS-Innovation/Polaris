@@ -61,6 +61,7 @@ import {
   isTaggedTriageContext,
   TaggedContext,
 } from "../../../../inbound-handover/context";
+import "cps-global-nav";
 
 declare global {
   export namespace JSX {
