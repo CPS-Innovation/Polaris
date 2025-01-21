@@ -89,11 +89,7 @@ export const Notifications: React.FC<{
       <button
         ref={dropDownBtnRef}
         aria-expanded={isOpen}
-        aria-label={
-          !isOpen
-            ? `open ${liveEventCount} notifications`
-            : `close notifications`
-        }
+        aria-label={`open ${liveEventCount} notifications`}
         className={classes.btn}
         onClick={() => setIsOpen(!isOpen)}
       >
