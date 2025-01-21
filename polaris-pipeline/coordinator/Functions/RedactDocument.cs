@@ -16,7 +16,6 @@ using Ddei.Factories;
 using Ddei;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
-using Microsoft.DurableTask.Client;
 using Microsoft.Azure.Functions.Worker;
 using Common.Domain.Document;
 

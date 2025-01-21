@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
-using Newtonsoft.Json;
 
 namespace Common.Domain.SearchIndex;
 
@@ -26,49 +26,49 @@ public class SearchLine : Line, ISearchable
         Words = words;
     }
 
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public string Id { get; set; }
 
-    [JsonProperty("caseId")]
+    [JsonPropertyName("caseId")]
     public int CaseId { get; set; }
 
-    [JsonProperty("documentId")]
+    [JsonPropertyName("documentId")]
     public string DocumentId { get; set; }
 
-    [JsonProperty("versionId")]
+    [JsonPropertyName("versionId")]
     public long VersionId { get; set; }
 
-    [JsonProperty("fileName")]
+    [JsonPropertyName("fileName")]
     public string FileName { get; set; }
 
-    [JsonProperty("pageIndex")]
+    [JsonPropertyName("pageIndex")]
     public int PageIndex { get; set; }
 
-    [JsonProperty("lineIndex")]
+    [JsonPropertyName("lineIndex")]
     public int LineIndex { get; set; }
 
-    [JsonProperty("pageHeight")]
+    [JsonPropertyName("pageHeight")]
     public double PageHeight { get; set; }
 
-    [JsonProperty("pageWidth")]
+    [JsonPropertyName("pageWidth")]
     public double PageWidth { get; set; }
 }
 
 public class Line
 {
-    [JsonProperty(PropertyName = "language")]
+    [JsonPropertyName("language")]
     public string Language { get; set; }
 
-    [JsonProperty(PropertyName = "boundingBox")]
+    [JsonPropertyName("boundingBox")]
     public IList<double?> BoundingBox { get; set; }
 
-    [JsonProperty(PropertyName = "appearance")]
+    [JsonPropertyName("appearance")]
     public Appearance Appearance { get; set; }
 
-    [JsonProperty(PropertyName = "text")]
+    [JsonPropertyName("text")]
     public string Text { get; set; }
 
-    [JsonProperty(PropertyName = "words")]
+    [JsonPropertyName("words")]
     public IList<Word> Words { get; set; }
 
     public Line()

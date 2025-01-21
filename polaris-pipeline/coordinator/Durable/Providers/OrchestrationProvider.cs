@@ -117,7 +117,7 @@ public class OrchestrationProvider : IOrchestrationProvider
             result.IsSuccess = true;
             return result;
         }
-        catch (Exception)
+        catch (Exception exception)
         {
             return result;
         }

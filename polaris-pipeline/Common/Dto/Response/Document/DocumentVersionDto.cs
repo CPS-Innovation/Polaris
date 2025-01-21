@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Common.Validators;
-using Newtonsoft.Json;
 
 namespace Common.Dto.Response.Document;
 
@@ -17,12 +16,10 @@ public class DocumentVersionDto
         VersionId = versionId;
     }
 
-    [JsonProperty("documentId")]
     [JsonPropertyName("documentId")]
     [Required]
     public string DocumentId { get; set; }
 
-    [JsonProperty("versionId")]
     [JsonPropertyName("versionId")]
     [RequiredLongGreaterThanZero]
     public long VersionId { get; set; }

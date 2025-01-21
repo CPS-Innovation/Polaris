@@ -8,7 +8,6 @@ using Common.Dto.Request;
 using Common.Exceptions;
 using Common.Extensions;
 using Common.Handlers;
-using Common.Telemetry;
 using Common.Wrappers;
 using FluentValidation;
 using pdf_redactor.Services.DocumentManipulation;
