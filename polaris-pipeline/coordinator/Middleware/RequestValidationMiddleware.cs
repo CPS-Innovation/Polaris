@@ -35,11 +35,16 @@ public sealed partial class RequestValidationMiddleware(Microsoft.ApplicationIns
         }
         catch
         {
-            if (!((requestData.Url.LocalPath.Equals($"/api/{RestApi.Case}", StringComparison.InvariantCultureIgnoreCase) && requestData.Method.Equals("delete", StringComparison.InvariantCultureIgnoreCase)) ||
+            if (!(requestData.Method.Equals("delete", StringComparison.InvariantCultureIgnoreCase) ||
                 requestData.Url.LocalPath.Equals($"/api/{RestApi.Status}", StringComparison.InvariantCultureIgnoreCase)))
             {
                 throw;
             }
+        }
+
+        if (!requestData.Headers.TryGetValues(HttpHeaderKeys.CorrelationId,out var correlationIdHeaders))
+        {
+            requestData.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
         }
 
         var refreshCaseUrlRegex = RefreshCaseUrlRegex();
