@@ -82,8 +82,17 @@ export const Notifications: React.FC<{
 
   return (
     <div className={classes.root}>
+      <div
+        aria-live="polite"
+        className={classes.visuallyHidden}
+      >{`you have ${liveEventCount} notifications`}</div>
       <button
         ref={dropDownBtnRef}
+        aria-label={
+          !isOpen
+            ? `open ${liveEventCount} notifications`
+            : `close notifications`
+        }
         className={classes.btn}
         onClick={() => setIsOpen(!isOpen)}
       >
@@ -112,18 +121,24 @@ export const Notifications: React.FC<{
           </div>
           {!!eventsToDisplay.length && (
             <div className={classes.body}>
-              <ul ref={listRef} onScroll={handleScroll}>
-                {eventsToDisplay.map((evt) => (
-                  <Notification
-                    key={evt.id}
-                    evt={evt}
-                    handleOpenPdf={localHandleOpenPdf}
-                    handleClearNotification={(id) =>
-                      localHandleClearNotification(id, evt.documentId)
-                    }
-                  ></Notification>
-                ))}
-              </ul>
+              <div className={classes.wrapper}>
+                <ul
+                  className={classes.notificationsList}
+                  ref={listRef}
+                  onScroll={handleScroll}
+                >
+                  {eventsToDisplay.map((evt) => (
+                    <Notification
+                      key={evt.id}
+                      evt={evt}
+                      handleOpenPdf={localHandleOpenPdf}
+                      handleClearNotification={(id) =>
+                        localHandleClearNotification(id, evt.documentId)
+                      }
+                    ></Notification>
+                  ))}
+                </ul>
+              </div>
               <div className={classes.footer}>
                 <LinkButton onClick={localHandleClearAllNotifications}>
                   Clear all notifications
