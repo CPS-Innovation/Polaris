@@ -54,7 +54,9 @@ namespace pdf_redactor.Functions
                 request.EnableBuffering();
 
                 if (request.ContentLength == null || !request.Body.CanSeek)
+                {
                     throw new BadRequestException("Request body has no content", nameof(request));
+                }
 
                 request.Body.Seek(0, SeekOrigin.Begin);
                 string content;
@@ -72,7 +74,9 @@ namespace pdf_redactor.Functions
 
                 var validationResult = await _requestValidator.ValidateAsync(redactions);
                 if (!validationResult.IsValid)
+                {
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
+                }
 
                 var redactPdfStream = await _documentRedactionService.RedactAsync(caseId, documentId, redactions, currentCorrelationId);
 
