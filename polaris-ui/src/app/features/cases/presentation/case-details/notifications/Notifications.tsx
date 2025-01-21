@@ -88,6 +88,7 @@ export const Notifications: React.FC<{
       >{`you have ${liveEventCount} notifications`}</div>
       <button
         ref={dropDownBtnRef}
+        aria-expanded={isOpen}
         aria-label={
           !isOpen
             ? `open ${liveEventCount} notifications`
