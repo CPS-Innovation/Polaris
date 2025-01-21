@@ -212,13 +212,16 @@ export const AccordionDocument: React.FC<Props> = ({
         handleReclassifyDocument(caseDocument.documentId);
         break;
       case "3": {
+        trackEvent("Save Rotation", {
+          documentType: caseDocument.cmsDocType.documentTypeId,
+          documentDocumentType: caseDocument.cmsDocType.documentType,
+        });
         handleToggleDocumentState(
           urn,
           +caseId,
           caseDocument.documentId,
           caseDocument.isUnused
         );
-
         break;
       }
       default:
