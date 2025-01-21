@@ -194,6 +194,7 @@ export const AccordionDocument: React.FC<Props> = ({
     featureFlags.renameDocument,
     featureFlags.reclassify,
     caseDocument.presentationFlags.write,
+    featureFlags.isUsed,
   ]);
 
   const handleDocumentAction = (id: string) => {
