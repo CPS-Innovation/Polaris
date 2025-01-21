@@ -83,7 +83,7 @@ namespace PolarisGateway.Clients.Coordinator
                 RestApi.GetModifyDocumentPath(caseUrn, caseId, documentId, versionId),
                 correlationId,
                 cmsAuthValues,
-                new StringContent(JsonSerializer.Serialize(modifyDocumentRequest), Encoding.UTF8, ContentType.Json));
+                new StringContent(JsonSerializer.Serialize(modifyDocumentRequest, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }), Encoding.UTF8, ContentType.Json));
 
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)
         {

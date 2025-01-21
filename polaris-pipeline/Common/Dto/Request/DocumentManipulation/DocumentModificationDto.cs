@@ -8,9 +8,11 @@ namespace Common.Dto.Request.DocumentManipulation
         [JsonProperty("pageIndex")]
         [JsonPropertyName("pageIndex")]
         public int PageIndex { get; set; }
+
         [JsonProperty("operation")]
         [JsonPropertyName("operation")]
         public string Operation { get; set; }
+
         [JsonProperty("arg")]
         [JsonPropertyName("arg")]
         public object Arg { get; set; }
