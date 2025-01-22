@@ -11,9 +11,9 @@ describe("notifications", () => {
     cy.visit("/case-details/12AB1111111/13401?notifications=true");
 
     cy.findByTestId("btn-accordion-open-close-all").click();
-    cy.findAllByTestId("notifications_btn").should("exist");
-    cy.findAllByTestId("notifications_count").should("have.text", "0");
-    cy.findAllByTestId("notifications-panel").should("not.exist");
+    cy.findByTestId("notifications_btn").should("exist");
+    cy.findByTestId("notifications_count").should("have.text", "0");
+    cy.findByTestId("notifications-panel").should("not.exist");
     cy.findByTestId("link-document-1").click();
     cy.findByTestId("div-pdfviewer-0")
       .should("exist")
@@ -28,6 +28,7 @@ describe("notifications", () => {
       body: documentList[1],
       timeMs: 1000,
     });
+    //we are triggering a document refresh to get the updated documents by doing the redaction.
     cy.findByTestId("btn-save-redaction-0").click();
     cy.findByTestId("div-modal").should("be.visible");
     cy.findByTestId("rl-under-redaction-content").should("be.visible");
@@ -37,12 +38,12 @@ describe("notifications", () => {
     cy.findByTestId("pdfTab-spinner-0").should("not.exist");
     cy.findByTestId("div-pdfviewer-0").should("exist");
 
-    cy.findAllByTestId("notifications_count").should("have.text", "4");
-    cy.findAllByTestId("notifications-panel").should("not.exist");
-    cy.findAllByTestId("notifications_btn").click();
-    cy.findAllByTestId("notifications-panel").should("exist");
-    cy.findAllByTestId("clear-all-notifications-btn").should("exist");
-    cy.findAllByTestId("notifications-panel")
+    cy.findByTestId("notifications_count").should("have.text", "4");
+    cy.findByTestId("notifications-panel").should("not.exist");
+    cy.findByTestId("notifications_btn").click();
+    cy.findByTestId("notifications-panel").should("exist");
+    cy.findByTestId("clear-all-notifications-btn").should("exist");
+    cy.findByTestId("notifications-panel")
       .find("ul")
       .should("have.length", 1)
       .find("li")
@@ -103,7 +104,7 @@ describe("notifications", () => {
       .find("button")
       .contains("Clear")
       .click();
-    cy.findAllByTestId("notifications_count").should("have.text", "3");
+    cy.findByTestId("notifications_count").should("have.text", "3");
     cy.get("div")
       .find("ul")
       .find("li")
@@ -112,7 +113,7 @@ describe("notifications", () => {
       .find("button")
       .contains("Clear")
       .click();
-    cy.findAllByTestId("notifications_count").should("have.text", "2");
+    cy.findByTestId("notifications_count").should("have.text", "2");
     cy.get("div")
       .find("ul")
       .find("li")
@@ -121,7 +122,7 @@ describe("notifications", () => {
       .find("button")
       .contains("Clear")
       .click();
-    cy.findAllByTestId("notifications_count").should("have.text", "1");
+    cy.findByTestId("notifications_count").should("have.text", "1");
     cy.get("div")
       .find("ul")
       .find("li")
@@ -130,8 +131,8 @@ describe("notifications", () => {
       .find("button")
       .contains("Clear")
       .click();
-    cy.findAllByTestId("notifications_count").should("have.text", "0");
-    cy.findAllByTestId("notifications-panel").should("not.exist");
+    cy.findByTestId("notifications_count").should("have.text", "0");
+    cy.findByTestId("notifications-panel").should("not.exist");
   });
 
   it("Should show notifications and clear all notification button click should clear the notifications", () => {
@@ -143,9 +144,9 @@ describe("notifications", () => {
     cy.visit("/case-details/12AB1111111/13401?notifications=true");
 
     cy.findByTestId("btn-accordion-open-close-all").click();
-    cy.findAllByTestId("notifications_btn").should("exist");
-    cy.findAllByTestId("notifications_count").should("have.text", "0");
-    cy.findAllByTestId("notifications-panel").should("not.exist");
+    cy.findByTestId("notifications_btn").should("exist");
+    cy.findByTestId("notifications_count").should("have.text", "0");
+    cy.findByTestId("notifications-panel").should("not.exist");
     cy.findByTestId("link-document-1").click();
     cy.findByTestId("div-pdfviewer-0")
       .should("exist")
@@ -160,6 +161,7 @@ describe("notifications", () => {
       body: documentList[1],
       timeMs: 1000,
     });
+    //we are triggering a document refresh to get the updated documents by doing the redaction.
     cy.findByTestId("btn-save-redaction-0").click();
     cy.findByTestId("div-modal").should("be.visible");
     cy.findByTestId("rl-under-redaction-content").should("be.visible");
@@ -169,18 +171,76 @@ describe("notifications", () => {
     cy.findByTestId("pdfTab-spinner-0").should("not.exist");
     cy.findByTestId("div-pdfviewer-0").should("exist");
 
-    cy.findAllByTestId("notifications_count").should("have.text", "4");
-    cy.findAllByTestId("notifications-panel").should("not.exist");
-    cy.findAllByTestId("notifications_btn").click();
-    cy.findAllByTestId("notifications-panel").should("exist");
-    cy.findAllByTestId("clear-all-notifications-btn").should("exist");
-    cy.findAllByTestId("notifications-panel")
+    cy.findByTestId("notifications_count").should("have.text", "4");
+    cy.findByTestId("notifications-panel").should("not.exist");
+    cy.findByTestId("notifications_btn").click();
+    cy.findByTestId("notifications-panel").should("exist");
+    cy.findByTestId("clear-all-notifications-btn").should("exist");
+    cy.findByTestId("notifications-panel")
       .find("ul")
       .should("have.length", 1)
       .find("li")
       .should("have.length", 4);
-    cy.findAllByTestId("clear-all-notifications-btn").click();
-    cy.findAllByTestId("notifications_count").should("have.text", "0");
-    cy.findAllByTestId("notifications-panel").should("not.exist");
+    cy.findByTestId("clear-all-notifications-btn").click();
+    cy.findByTestId("notifications_count").should("have.text", "0");
+    cy.findByTestId("notifications-panel").should("not.exist");
+  });
+  it("Should be able to open the document and notification related to that document should be cleared", () => {
+    const documentList = getRefreshedDocumentsForNotification();
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[0],
+      timeMs: 1000,
+    });
+    cy.visit("/case-details/12AB1111111/13401?notifications=true");
+
+    cy.findByTestId("btn-accordion-open-close-all").click();
+    cy.findByTestId("notifications_btn").should("exist");
+    cy.findByTestId("notifications_count").should("have.text", "0");
+    cy.findByTestId("notifications-panel").should("not.exist");
+    cy.findByTestId("link-document-1").click();
+    cy.findByTestId("div-pdfviewer-0")
+      .should("exist")
+      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+    cy.findByTestId("btn-redact").should("have.length", 1);
+    cy.findByTestId("btn-redact").should("be.disabled");
+    cy.focused().should("have.id", "select-redaction-type");
+    cy.findByTestId("select-redaction-type").select("2");
+    cy.findByTestId("btn-redact").click({ force: true });
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[1],
+      timeMs: 1000,
+    });
+    //we are triggering a document refresh to get the updated documents by doing the redaction.
+    cy.findByTestId("btn-save-redaction-0").click();
+    cy.findByTestId("div-modal").should("be.visible");
+    cy.findByTestId("rl-under-redaction-content").should("be.visible");
+    cy.findByTestId("btn-save-redaction-log").click();
+    cy.findByTestId("pdfTab-spinner-0").should("exist");
+    cy.findByTestId("div-pdfviewer-0").should("not.exist");
+    cy.findByTestId("pdfTab-spinner-0").should("not.exist");
+    cy.findByTestId("div-pdfviewer-0").should("exist");
+
+    cy.findByTestId("notifications_count").should("have.text", "4");
+    cy.findByTestId("notifications-panel").should("not.exist");
+    cy.findByTestId("notifications_btn").click();
+    cy.findByTestId("notifications-panel").should("exist");
+    cy.findByTestId("clear-all-notifications-btn").should("exist");
+    cy.findByTestId("notifications-panel")
+      .find("ul")
+      .should("have.length", 1)
+      .find("li")
+      .should("have.length", 4);
+    cy.findByTestId("notifications-panel")
+      .find("ul")
+      .should("have.length", 1)
+      .find("li")
+      .eq(2)
+      .find("button")
+      .contains("CM01_1")
+      .click({ force: true });
+    cy.findByTestId("tab-active").should("have.text", "CM01_1");
+    cy.findByTestId("notifications_count").should("have.text", "3");
+    cy.findByTestId("notifications-panel").should("not.exist");
   });
 });

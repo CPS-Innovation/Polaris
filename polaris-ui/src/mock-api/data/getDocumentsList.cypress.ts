@@ -432,7 +432,10 @@ export const getRefreshRedactedDocument = (
     ];
   });
 };
-
+/* This is the documentList for notification testing which contains a new document, 
+    a renamed document, a new version document and 
+    a discarded document(deleted)to cover all the types of notifications
+*/
 export const getRefreshedDocumentsForNotification = () => {
   const resultsArray = getDocumentsListResult(2);
   const newDocument = {

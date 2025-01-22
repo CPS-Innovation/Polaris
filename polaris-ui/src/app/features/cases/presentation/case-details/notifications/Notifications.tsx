@@ -63,8 +63,11 @@ export const Notifications: React.FC<{
     ({ documentId, mode }) => {
       trackEvent("Document Opened from Notification", { documentId });
       handleOpenPdf({ documentId, mode });
+      if (isOpen) {
+        setIsOpen(false);
+      }
     },
-    [handleOpenPdf, trackEvent]
+    [handleOpenPdf, trackEvent, isOpen]
   );
 
   const localHandleClearNotification = useCallback(
