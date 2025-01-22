@@ -71,14 +71,22 @@ export const Notifications: React.FC<{
     (notificationId: number, documentId: string) => {
       trackEvent("Notification Cleared", { notificationId, documentId });
       handleClearNotification(notificationId);
+      if (isOpen && eventsToDisplay.length === 1) {
+        setIsOpen(false);
+        dropDownBtnRef.current?.focus();
+      }
     },
-    [handleClearNotification, trackEvent]
+    [handleClearNotification, trackEvent, eventsToDisplay, isOpen]
   );
 
   const localHandleClearAllNotifications = useCallback(() => {
     trackEvent("All Notifications Cleared");
     handleClearAllNotifications();
-  }, [handleClearAllNotifications, trackEvent]);
+    if (isOpen) {
+      setIsOpen(false);
+      dropDownBtnRef.current?.focus();
+    }
+  }, [handleClearAllNotifications, trackEvent, isOpen]);
 
   return (
     <div className={classes.root}>
@@ -87,6 +95,7 @@ export const Notifications: React.FC<{
         className={classes.visuallyHidden}
       >{`you have ${liveEventCount} notifications`}</div>
       <button
+        data-testid="notifications_btn"
         ref={dropDownBtnRef}
         aria-expanded={isOpen}
         aria-label={`open ${liveEventCount} notifications`}
@@ -98,12 +107,19 @@ export const Notifications: React.FC<{
             liveEventCount ? "" : classes.alertEmpty
           }`}
         >
-          <span className={classes.count}>{liveEventCount}</span>
+          <span data-testid="notifications_count" className={classes.count}>
+            {liveEventCount}
+          </span>
         </span>
         <span className={classes.label}>Notifications</span>
       </button>
       {isOpen && (
-        <div ref={panelRef} className={classes.panel} id="notifications-panel">
+        <div
+          ref={panelRef}
+          className={classes.panel}
+          id="notifications-panel"
+          data-testid="notifications-panel"
+        >
           <div
             className={`${classes.header} ${
               liveEventCount ? classes.headerPopulated : ""
@@ -137,7 +153,10 @@ export const Notifications: React.FC<{
                 </ul>
               </div>
               <div className={classes.footer}>
-                <LinkButton onClick={localHandleClearAllNotifications}>
+                <LinkButton
+                  dataTestId="clear-all-notifications-btn"
+                  onClick={localHandleClearAllNotifications}
+                >
                   Clear all notifications
                 </LinkButton>
               </div>
