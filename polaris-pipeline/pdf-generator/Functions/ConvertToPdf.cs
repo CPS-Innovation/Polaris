@@ -23,19 +23,16 @@ namespace pdf_generator.Functions
         private readonly IPdfOrchestratorService _pdfOrchestratorService;
         private readonly ILogger<ConvertToPdf> _logger;
         private readonly ITelemetryClient _telemetryClient;
-        private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
         private const string LoggingName = nameof(ConvertToPdf);
 
         public ConvertToPdf(
              IPdfOrchestratorService pdfOrchestratorService,
              ILogger<ConvertToPdf> logger,
-             ITelemetryClient telemetryClient,
-             ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+             ITelemetryClient telemetryClient)
         {
             _pdfOrchestratorService = pdfOrchestratorService;
             _logger = logger;
             _telemetryClient = telemetryClient;
-            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -47,22 +44,19 @@ namespace pdf_generator.Functions
         {
             Guid currentCorrelationId = default;
             currentCorrelationId = request.Headers.GetCorrelationId();
-            _telemetryAugmentationWrapper.RegisterCorrelationId(currentCorrelationId);
 
-            var telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId);
+            var telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId)
+            {
+                OperationName = nameof(ConvertToPdf),
+            };
             try
             {
                 var fileType = ConvertToPdfHelper.GetFileType(request.Headers);
 
                 telemetryEvent.FileType = fileType.ToString();
-
                 telemetryEvent.CaseId = caseId.ToString();
                 telemetryEvent.CaseUrn = caseUrn;
-
-                _telemetryAugmentationWrapper.RegisterDocumentId(documentId);
                 telemetryEvent.DocumentId = documentId;
-
-                _telemetryAugmentationWrapper.RegisterDocumentVersionId(versionId);
                 telemetryEvent.VersionId = versionId;
 
                 var startTime = DateTime.UtcNow;

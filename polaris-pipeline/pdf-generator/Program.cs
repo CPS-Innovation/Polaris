@@ -54,7 +54,6 @@ var host = new HostBuilder()
         services.AddPdfGenerator();
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
-        services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
         services.AddSingleton<Microsoft.ApplicationInsights.TelemetryClient, Microsoft.ApplicationInsights.TelemetryClient>();
     })
     .Build();
