@@ -354,6 +354,14 @@ export const reducer = (
           status: GroupedConversionStatus;
         };
       }
+    | {
+        type: "UPDATE_USED_UNUSED_DOCUMENT";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          saveStatus: "initial" | "saving" | "success" | "failure";
+          saveRefreshStatus: "initial" | "updating" | "updated";
+        };
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -1760,6 +1768,12 @@ export const reducer = (
         },
       };
       return newState;
+    }
+    case "UPDATE_USED_UNUSED_DOCUMENT": {
+      const { documentId, saveStatus, saveRefreshStatus } = action.payload;
+      alert(JSON.stringify(action.payload));
+      return state;
+      break;
     }
     default:
       throw new Error("Unknown action passed to case details reducer");

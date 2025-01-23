@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   CommonDateTimeFormats,
@@ -61,6 +61,11 @@ type Props = {
     documentId: string,
     isUnsed: boolean
   ) => void;
+  handleChangeUsedOrUnused: (
+    documentId: string,
+    saveStatus?: "initial" | "saving" | "failure" | "success",
+    saveRefreshStatus?: "initial" | "updating" | "updated"
+  ) => void;
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -75,6 +80,7 @@ export const AccordionDocument: React.FC<Props> = ({
   handleGetNotes,
   handleReclassifyDocument,
   handleToggleDocumentState,
+  handleChangeUsedOrUnused,
 }) => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
   const [usedOrUnusedProgress, setUsedOrUnusedProgress] = useState<
@@ -231,6 +237,8 @@ export const AccordionDocument: React.FC<Props> = ({
           caseDocument.documentId,
           caseDocument.isUnused
         );
+
+        handleChangeUsedOrUnused(caseDocument.documentId);
         break;
       }
       default:
@@ -249,6 +257,16 @@ export const AccordionDocument: React.FC<Props> = ({
   )
     .filter(([, shouldInclude]) => shouldInclude)
     .map(([className]) => classes[className]);
+
+  useEffect(() => {
+    // if (
+    //   usedOrUnusedProgress.saveStatus === "failure" ||
+    //   usedOrUnusedProgress.saveStatus === "initial"
+    // ) {
+    //   usedOrUnusedProgress.saveStatus("initial");
+    //   return;
+    // }
+  }, [usedOrUnusedProgress]);
 
   return (
     <li

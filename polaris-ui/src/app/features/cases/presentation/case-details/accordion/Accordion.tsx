@@ -41,6 +41,11 @@ type Props = {
   handleReclassifyDocument: (documentId: string) => void | undefined;
   notesData: NotesData[];
   localDocumentState: LocalDocumentState;
+  handleChangeUsedOrUnused: (
+    documentId: string,
+    saveStatus?: "initial" | "saving" | "failure" | "success",
+    saveRefreshStatus?: "initial" | "updating" | "updated"
+  ) => void;
 };
 export type AccordionRef = {
   handleOpenAccordion: (documentId: string) => void;
@@ -62,6 +67,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
       handleReclassifyDocument,
       handleGetNotes,
       handleToggleDocumentState,
+      handleChangeUsedOrUnused,
     },
     ref
   ) => {
@@ -136,6 +142,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
             notesData={notesData}
             localDocumentState={localDocumentState}
             handleToggleDocumentState={handleToggleDocumentState}
+            handleChangeUsedOrUnused={handleChangeUsedOrUnused}
           />
         ))}
       </div>

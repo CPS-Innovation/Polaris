@@ -178,6 +178,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleUpdateConversionStatus,
     handleShowHidePageDeletion,
     handleToggleDocumentState,
+    handleChangeUsedOrUnused,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
 
   const {
@@ -704,6 +705,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       handleReclassifyDocument={handleReclassifyDocument}
                       localDocumentState={localDocumentState}
                       handleToggleDocumentState={handleToggleDocumentState}
+                      handleChangeUsedOrUnused={handleChangeUsedOrUnused}
                     />
                   )}
                 </div>

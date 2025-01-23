@@ -135,8 +135,15 @@ type AsyncActions =
         documentId?: any;
         unused?: any;
       };
+    }
+  | {
+      type: "SAVE_USED_UNUSED_DOCUMENT";
+      payload: {
+        documentId: any;
+        saveStatus: any;
+        saveRefreshStatus: any;
+      };
     };
-
 export const CHECKOUT_BLOCKED_STATUS_CODE = 409;
 export const DOCUMENT_NOT_FOUND_STATUS_CODE = 410;
 export const DOCUMENT_TOO_LARGE_STATUS_CODE = 413;
@@ -766,6 +773,35 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             },
           },
         });
+      }
+    },
+
+  SAVE_USED_UNUSED_DOCUMENT:
+    ({ dispatch, getState }) =>
+    async (action) => {
+      const {
+        payload: { documentId, saveStatus, saveRefreshStatus },
+      } = action;
+      try {
+        console.log(action, getState);
+        dispatch({
+          type: "UPDATE_USED_UNUSED_DOCUMENT",
+          payload: {
+            documentId,
+            saveStatus: "saving",
+            saveRefreshStatus: "updating",
+          },
+        });
+        dispatch({
+          type: "UPDATE_USED_UNUSED_DOCUMENT",
+          payload: {
+            documentId,
+            saveStatus: "success",
+            saveRefreshStatus: "updated",
+          },
+        });
+      } catch (err) {
+        console.error("Error: ", JSON.stringify(err));
       }
     },
 
