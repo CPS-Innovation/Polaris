@@ -28,6 +28,11 @@ public class PollingHelper
                 pollingArgs.ActivityInput,
                 pollingArgs.ActivityOptions ?? DefaultActivityOptions);
 
+            if (pollingActivityResult is null)
+            {
+                continue;
+            }
+
             results.Add(pollingActivityResult.Result);
 
             if (pollingActivityResult.IsCompleted)

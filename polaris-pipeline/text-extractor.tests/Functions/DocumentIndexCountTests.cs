@@ -6,7 +6,6 @@ using AutoFixture;
 using Common.Exceptions;
 using Common.Dto.Response;
 using Common.Handlers;
-using Common.Telemetry;
 using Common.Wrappers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;

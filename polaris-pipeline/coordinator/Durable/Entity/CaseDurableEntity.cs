@@ -196,8 +196,7 @@ namespace coordinator.Durable.Entity
 
             foreach (var newDocument in createdDocuments)
             {
-                var trackerDocument = new CmsDocumentEntity
-                    (
+                var trackerDocument = new CmsDocumentEntity(
                         cmsDocumentId: newDocument.DocumentId,
                         versionId: newDocument.VersionId,
                         cmsDocType: newDocument.CmsDocType,

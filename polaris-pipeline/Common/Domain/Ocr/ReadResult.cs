@@ -1,26 +1,25 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
-
+using System.Text.Json.Serialization;
 namespace Common.Domain.Ocr
 {
   public class ReadResult
   {
-    [JsonProperty(PropertyName = "page")]
+    [JsonPropertyName("page")]
     public int Page { get; set; }
 
-    [JsonProperty(PropertyName = "language")]
+    [JsonPropertyName("language")]
     public string Language { get; set; }
 
-    [JsonProperty(PropertyName = "angle")]
+    [JsonPropertyName("angle")]
     public double Angle { get; set; }
 
-    [JsonProperty(PropertyName = "width")]
+    [JsonPropertyName("width")]
     public double Width { get; set; }
 
-    [JsonProperty(PropertyName = "height")]
+    [JsonPropertyName("height")]
     public double Height { get; set; }
 
-    [JsonProperty(PropertyName = "lines")]
+    [JsonPropertyName("lines")]
     public IList<Line> Lines { get; set; }
   }
 }

@@ -2,7 +2,6 @@ using Common.Configuration;
 using Common.Extensions;
 using Common.Handlers;
 using text_extractor.Services.CaseSearchService;
-using Common.Telemetry;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
