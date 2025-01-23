@@ -7,7 +7,7 @@ import { MappedTextSearchResult } from "./MappedTextSearchResult";
 import { AccordionDocumentSection } from "../presentation/case-details/accordion/types";
 import { MappedCaseDocument } from "./MappedCaseDocument";
 import { LocalDocumentState } from "./LocalDocumentState";
-import { FeatureFlagData } from "./FeatureFlagData";
+import { FeatureFlagData, UsedOrUnusedDocument } from "./FeatureFlagData";
 import { FilterOption } from "./FilterOption";
 import {
   RedactionLogLookUpsData,
@@ -91,6 +91,7 @@ export type CombinedState = {
     savedRedactionTypes: RedactionTypeData[];
   };
   featureFlags: FeatureFlagData;
+  usedOrUnused: UsedOrUnusedDocument;
   storedUserData: AsyncResult<StoredUserData>;
   notes: NotesData[];
   searchPII: SearchPIIData[];
@@ -162,6 +163,11 @@ export const initialState = {
     pageRotate: false,
     notifications: false,
     isUsed: false,
+  },
+  usedOrUnused: {
+    documentId: "",
+    saveStatus: "initial",
+    saveRefreshStatus: "initial",
   },
   storedUserData: { status: "loading" },
   notes: [],

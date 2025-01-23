@@ -33,3 +33,9 @@ export type FeatureFlagQueryParams = {
   notifications: string;
   isUsed: string;
 };
+
+export type UsedOrUnusedDocument = {
+  documentId: string;
+  saveStatus: "initial" | "saving" | "success" | "failure";
+  saveRefreshStatus: "initial" | "updating" | "updated";
+};

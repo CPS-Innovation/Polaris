@@ -304,6 +304,20 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleChangeUseOrUnused = useCallback(
+    (documentId: string, saveStatus: string, saveRefreshStatus: ) => {
+      dispatch({
+        type: "UPDATE_USED_UNUSED_DOCUMENT",
+        payload: {
+          documentId,
+          saveStatus,
+          saveRefreshStatus,
+        },
+      });
+    },
+    [dispatch]
+  );
+
   const handleToggleDocumentState = useCallback(
     (urn: string, caseId: number, documentId: string, unused: boolean) => {
       dispatch({
@@ -565,5 +579,6 @@ export const useCaseDetailsState = (
     handleClearNotification,
     handleUpdateConversionStatus,
     handleShowHidePageDeletion,
+    handleChangeUseOrUnused,
   };
 };

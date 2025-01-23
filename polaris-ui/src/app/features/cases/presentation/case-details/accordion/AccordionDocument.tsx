@@ -77,6 +77,9 @@ export const AccordionDocument: React.FC<Props> = ({
   handleToggleDocumentState,
 }) => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
+  const [usedOrUnusedProgress, setUsedOrUnusedProgress] = useState<
+    "initial" | "failed" | "saving" | "saved"
+  >("initial");
 
   const trackEvent = useAppInsightsTrackEvent();
   const canViewDocument = conversionStatus
@@ -175,7 +178,12 @@ export const AccordionDocument: React.FC<Props> = ({
         },
       ];
     }
-    if (featureFlags.isUsed) {
+    if (
+      featureFlags.reclassify &&
+      caseDocument.canReclassify &&
+      caseDocument.presentationFlags.write !== "IsDispatched" &&
+      featureFlags.isUsed
+    ) {
       const isUnused = caseDocument.isUnused ? "used" : "unused";
       items = [
         ...items,
