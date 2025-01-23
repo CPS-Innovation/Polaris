@@ -5,7 +5,6 @@ using Common.Dto.Response;
 using Common.Exceptions;
 using Common.Extensions;
 using Common.Handlers;
-using Common.Telemetry;
 using Common.Wrappers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

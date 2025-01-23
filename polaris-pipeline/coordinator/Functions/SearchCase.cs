@@ -14,6 +14,10 @@ using Microsoft.AspNetCore.Http;
 using coordinator.Clients.TextExtractor;
 using Microsoft.DurableTask.Client;
 using Microsoft.Azure.Functions.Worker;
+using coordinator.Domain;
+using Common.Services.BlobStorage;
+using System;
+using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Functions
 {
@@ -22,17 +26,21 @@ namespace coordinator.Functions
         private const string QueryStringSearchParam = "query";
         private readonly ITextExtractorClient _textExtractorClient;
         private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
+        private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly ITelemetryClient _telemetryClient;
         private readonly ILogger<SearchCase> _logger;
 
         public SearchCase(
+            IConfiguration configuration,
             ITextExtractorClient textExtractorClient,
             ISearchFilterDocumentMapper searchFilterDocumentMapper,
+            Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
             ITelemetryClient telemetryClient,
             ILogger<SearchCase> logger)
         {
             _textExtractorClient = textExtractorClient;
             _searchFilterDocumentMapper = searchFilterDocumentMapper;
+            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
             _telemetryClient = telemetryClient;
             _logger = logger;
         }
@@ -58,16 +66,19 @@ namespace coordinator.Functions
             var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
 
             var entityId = CaseDurableEntity.GetEntityId(caseId);
-            var stateResponse = await client.Entities.GetEntityAsync<CaseDurableEntity>(entityId);
+            var stateResponse = await client.Entities.GetEntityAsync<CaseDurableEntityState>(entityId);
+
+            var blobId = new BlobIdType(caseId, default, default, BlobType.DocumentList);
+            var documentsState = (await _polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityDocumentsState>(blobId)) ?? new CaseDurableEntityDocumentsState();
 
             if (stateResponse is not null && stateResponse?.IncludesState == true)
             {
                 var entityState = stateResponse.State;
                 // todo: temporary code, need an AllDocuments method as per first refactor
                 var documents =
-                    entityState.CmsDocuments.OfType<BaseDocumentEntity>()
-                        .Concat(entityState.PcdRequests)
-                        .Append(entityState.DefendantsAndCharges)
+                    documentsState.CmsDocuments.OfType<BaseDocumentEntity>()
+                        .Concat(documentsState.PcdRequests)
+                        .Append(documentsState.DefendantsAndCharges)
                         .Select(_searchFilterDocumentMapper.MapToSearchFilterDocument)
                         .ToList();
 

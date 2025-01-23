@@ -1,35 +1,35 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Common.Domain.Pii
 {
     public class PiiLine
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
-        [JsonProperty("fileName")]
+        [JsonPropertyName("fileName")]
         public string FileName { get; set; }
 
-        [JsonProperty("pageIndex")]
+        [JsonPropertyName("pageIndex")]
         public int PageIndex { get; set; }
 
-        [JsonProperty("lineIndex")]
+        [JsonPropertyName("lineIndex")]
         public int LineIndex { get; set; }
 
         [JsonIgnore]
         public int AccumulativeLineIndex { get; set; }
 
-        [JsonProperty("pageHeight")]
+        [JsonPropertyName("pageHeight")]
         public double PageHeight { get; set; }
 
-        [JsonProperty("pageWidth")]
+        [JsonPropertyName("pageWidth")]
         public double PageWidth { get; set; }
 
-        [JsonProperty(PropertyName = "text")]
+        [JsonPropertyName("text")]
         public string Text { get; set; }
 
-        [JsonProperty(PropertyName = "words")]
+        [JsonPropertyName("words")]
         public IList<PiiWord> Words { get; set; }
     }
 }

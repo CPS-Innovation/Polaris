@@ -1,12 +1,10 @@
-namespace Common.Dto.Response
-{
-    public class RefreshDocumentResult
-    {
-        public long OcrLineCount { get; set; }
+namespace Common.Dto.Response;
 
-        public static RefreshDocumentResult Empty() => new RefreshDocumentResult
-        {
-            OcrLineCount = 0
-        };
+public class RefreshDocumentResult
+{
+    public RefreshDocumentResult()
+    {
     }
+
+    public long OcrLineCount { get; set; }
 }

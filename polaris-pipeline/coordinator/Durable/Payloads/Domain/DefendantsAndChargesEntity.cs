@@ -9,7 +9,8 @@ namespace coordinator.Durable.Payloads.Domain
     public class DefendantsAndChargesEntity : BaseDocumentEntity
     {
         public DefendantsAndChargesEntity()
-        { }
+        {
+        }
 
         public DefendantsAndChargesEntity(long cmsDocumentId, long versionId, DefendantsAndChargesListDto defendantsAndCharges)
             : base(cmsDocumentId, versionId, defendantsAndCharges.PresentationFlags)

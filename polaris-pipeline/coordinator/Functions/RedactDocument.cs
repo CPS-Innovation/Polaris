@@ -16,7 +16,6 @@ using Ddei.Factories;
 using Ddei;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
-using Microsoft.DurableTask.Client;
 using Microsoft.Azure.Functions.Worker;
 using Common.Domain.Document;
 
@@ -32,14 +31,16 @@ namespace coordinator.Functions
         private readonly IDdeiArgFactory _ddeiArgFactory;
         private readonly ILogger<RedactDocument> _logger;
 
-        public RedactDocument(IJsonConvertWrapper jsonConvertWrapper,
-                              IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
-                              IPdfRedactorClient redactionClient,
-                              Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-                              IDdeiClient ddeiClient,
-                              IDdeiArgFactory ddeiArgFactory,
-                              ILogger<RedactDocument> logger,
-                              IConfiguration configuration)
+        public RedactDocument(
+            IJsonConvertWrapper jsonConvertWrapper,
+            IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
+            IPdfRedactorClient redactionClient,
+            Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
+            IDdeiClient ddeiClient,
+            IDdeiArgFactory ddeiArgFactory,
+            ILogger<RedactDocument> logger,
+            IConfiguration configuration)
+            : base(configuration, blobStorageServiceFactory)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;

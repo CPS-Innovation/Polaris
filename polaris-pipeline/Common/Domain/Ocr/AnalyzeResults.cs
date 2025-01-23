@@ -1,16 +1,17 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Common.Domain.Ocr
 {
   public class AnalyzeResults
   {
-    [JsonProperty(PropertyName = "version")]
+    [JsonPropertyName("version")]
     public string Version { get; set; }
-    [JsonProperty(PropertyName = "modelVersion")]
+
+    [JsonPropertyName("modelVersion")]
     public string ModelVersion { get; set; }
 
-    [JsonProperty(PropertyName = "readResults")]
+    [JsonPropertyName("readResults")]
     public IList<ReadResult> ReadResults { get; set; } = new List<ReadResult>();
 
     [JsonIgnore]

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using coordinator.Durable.Entity;
 using Common.Dto.Response.Documents;
 using Mapster;
+using coordinator.Domain;
 using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Mappers
@@ -12,45 +12,45 @@ namespace coordinator.Mappers
     {
         public static void RegisterCoordinatorMapsterConfiguration(this IServiceCollection services)
         {
-            TypeAdapterConfig<CaseDurableEntity, TrackerDto>
+            TypeAdapterConfig<(CaseDurableEntityState, CaseDurableEntityDocumentsState), TrackerDto>
                 .NewConfig()
                 .Map
                 (
                     dest => dest,
-                    src => src
+                    src => src.Item1
                 )
                 .Map
                 (
                     dest => dest.DocumentsRetrieved,
-                    src => GetDocumentsRetrieved(src)
+                    src => GetDocumentsRetrieved(src.Item1)
                 )
                 .Map
                 (
                     dest => dest.ProcessingCompleted,
-                    src => GetProcessingCompleted(src)
+                    src => GetProcessingCompleted(src.Item1)
                 )
                 .Map
                 (
                     dest => dest.Documents,
                     src => Enumerable.Empty<DocumentDto>()
-                        .Concat(src.CmsDocuments.Adapt<DocumentDto[]>())
-                        .Concat(src.PcdRequests.Adapt<DocumentDto[]>())
+                        .Concat(src.Item2.CmsDocuments.Adapt<DocumentDto[]>())
+                        .Concat(src.Item2.PcdRequests.Adapt<DocumentDto[]>())
                         .Concat(
-                            (src.DefendantsAndCharges != null && src.DefendantsAndCharges.HasMultipleDefendants
-                                    ? new[] { src.DefendantsAndCharges }
+                            (src.Item2.DefendantsAndCharges != null && src.Item2.DefendantsAndCharges.HasMultipleDefendants
+                                    ? new[] { src.Item2.DefendantsAndCharges }
                                     : Enumerable.Empty<DefendantsAndChargesEntity>())
                             .Adapt<DocumentDto[]>()
                         )
                 );
         }
 
-        private static DateTime? GetDocumentsRetrieved(CaseDurableEntity caseEntity) =>
+        private static DateTime? GetDocumentsRetrieved(CaseDurableEntityState caseEntity) =>
             caseEntity.Retrieved.HasValue && caseEntity.Running.HasValue
                 ? caseEntity.Running.Value.AddSeconds(caseEntity.Retrieved.Value).ToUniversalTime()
                 : null;
 
 
-        private static DateTime? GetProcessingCompleted(CaseDurableEntity caseEntity) =>
+        private static DateTime? GetProcessingCompleted(CaseDurableEntityState caseEntity) =>
             caseEntity.Retrieved.HasValue && caseEntity.Completed.HasValue
                 ? caseEntity.Running.Value.AddSeconds(caseEntity.Completed.Value).ToUniversalTime()
                 : null;
