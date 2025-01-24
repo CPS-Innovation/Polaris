@@ -143,7 +143,6 @@ public class CaseDurableEntity : TaskEntity<CaseDurableEntityState>, ICaseDurabl
              select incomingDocument).ToList();
 
         // todo: filetype check here
-
         var deletedCmsDocumentIdsToRemove
             = documentsState.CmsDocuments.Where(doc => !incomingDocuments.Any(incomingDoc => incomingDoc.DocumentId == doc.CmsDocumentId))
                 .Select(doc => doc.CmsDocumentId)
