@@ -36,6 +36,6 @@ export type FeatureFlagQueryParams = {
 
 export type UsedOrUnusedDocument = {
   documentId: string;
-  saveStatus: "initial" | "saving" | "success" | "failure";
+  saveStatus: "initial" | "saving" | "success" | "failure" | string;
   saveRefreshStatus: "initial" | "updating" | "updated";
 };

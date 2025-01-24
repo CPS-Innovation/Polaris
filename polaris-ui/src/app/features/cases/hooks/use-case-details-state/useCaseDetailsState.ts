@@ -304,23 +304,23 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
-  const handleChangeUsedOrUnused = useCallback(
-    (
-      documentId: string,
-      saveStatus?: "initial" | "saving" | "failure" | "success",
-      saveRefreshStatus?: "initial" | "updating" | "updated"
-    ) => {
-      dispatch({
-        type: "SAVE_USED_UNUSED_DOCUMENT",
-        payload: {
-          documentId,
-          saveStatus,
-          saveRefreshStatus,
-        },
-      });
-    },
-    [dispatch]
-  );
+  // const handleChangeUsedOrUnused = useCallback(
+  //   (
+  //     documentId: string,
+  //     saveStatus: "initial" | "saving" | "failure" | "success",
+  //     saveRefreshStatus: "initial" | "updating" | "updated"
+  //   ) => {
+  //     dispatch({
+  //       type: "UPDATE_USED_UNUSED_DOCUMENT",
+  //       payload: {
+  //         documentId,
+  //         saveStatus: "initial",
+  //         saveRefreshStatus: "initial",
+  //       },
+  //     });
+  //   },
+  //   [dispatch]
+  // );
 
   const handleToggleDocumentState = useCallback(
     (urn: string, caseId: number, documentId: string, unused: boolean) => {
@@ -583,6 +583,6 @@ export const useCaseDetailsState = (
     handleClearNotification,
     handleUpdateConversionStatus,
     handleShowHidePageDeletion,
-    handleChangeUsedOrUnused,
+    // handleChangeUsedOrUnused,
   };
 };

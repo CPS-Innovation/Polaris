@@ -14,8 +14,6 @@ import { ReactComponent as TimeIcon } from "../../../../../common/presentation/s
 import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
 import { ReactComponent as NotesIcon } from "../../../../../common/presentation/svgs/notesIcon.svg";
 import { ReactComponent as MoreIcon } from "../../../../../common/presentation/svgs/more.svg";
-import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
-
 import classes from "./Accordion.module.scss";
 import {
   witnessIndicatorNames,
@@ -61,11 +59,6 @@ type Props = {
     documentId: string,
     isUnsed: boolean
   ) => void;
-  handleChangeUsedOrUnused: (
-    documentId: string,
-    saveStatus?: "initial" | "saving" | "failure" | "success",
-    saveRefreshStatus?: "initial" | "updating" | "updated"
-  ) => void;
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -80,12 +73,8 @@ export const AccordionDocument: React.FC<Props> = ({
   handleGetNotes,
   handleReclassifyDocument,
   handleToggleDocumentState,
-  handleChangeUsedOrUnused,
 }) => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
-  const [usedOrUnusedProgress, setUsedOrUnusedProgress] = useState<
-    "initial" | "failed" | "saving" | "saved"
-  >("initial");
 
   const trackEvent = useAppInsightsTrackEvent();
   const canViewDocument = conversionStatus
@@ -231,6 +220,12 @@ export const AccordionDocument: React.FC<Props> = ({
           documentType: caseDocument.cmsDocType.documentTypeId,
           documentDocumentType: caseDocument.cmsDocType.documentType,
         });
+        console.log(
+          urn,
+          +caseId,
+          caseDocument.documentId,
+          caseDocument.isUnused
+        );
         handleToggleDocumentState(
           urn,
           +caseId,
@@ -238,7 +233,6 @@ export const AccordionDocument: React.FC<Props> = ({
           caseDocument.isUnused
         );
 
-        handleChangeUsedOrUnused(caseDocument.documentId);
         break;
       }
       default:
@@ -257,16 +251,6 @@ export const AccordionDocument: React.FC<Props> = ({
   )
     .filter(([, shouldInclude]) => shouldInclude)
     .map(([className]) => classes[className]);
-
-  useEffect(() => {
-    // if (
-    //   usedOrUnusedProgress.saveStatus === "failure" ||
-    //   usedOrUnusedProgress.saveStatus === "initial"
-    // ) {
-    //   usedOrUnusedProgress.saveStatus("initial");
-    //   return;
-    // }
-  }, [usedOrUnusedProgress]);
 
   return (
     <li

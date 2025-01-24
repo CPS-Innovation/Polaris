@@ -39,11 +39,6 @@ type Props = {
     documentId: string,
     isUnused: boolean
   ) => void;
-  handleChangeUsedOrUnused: (
-    documentId: string,
-    saveStatus?: "initial" | "saving" | "failure" | "success",
-    saveRefreshStatus?: "initial" | "updating" | "updated"
-  ) => void;
 };
 const formatTestIdText = (id: string) => {
   return id
@@ -69,7 +64,6 @@ export const AccordionSection: React.FC<Props> = ({
   handleGetNotes,
   handleReclassifyDocument,
   handleToggleDocumentState,
-  handleChangeUsedOrUnused,
 }) => {
   const groupIntoSubCategory = useCallback(() => {
     return docs.reduce((acc, doc) => {
@@ -131,7 +125,6 @@ export const AccordionSection: React.FC<Props> = ({
                     notesData={notesData}
                     handleReclassifyDocument={handleReclassifyDocument}
                     handleToggleDocumentState={handleToggleDocumentState}
-                    handleChangeUsedOrUnused={handleChangeUsedOrUnused}
                   />
                 ))}
               </ul>

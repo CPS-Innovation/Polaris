@@ -135,14 +135,6 @@ type AsyncActions =
         documentId?: any;
         unused?: any;
       };
-    }
-  | {
-      type: "SAVE_USED_UNUSED_DOCUMENT";
-      payload: {
-        documentId: any;
-        saveStatus: any;
-        saveRefreshStatus: any;
-      };
     };
 export const CHECKOUT_BLOCKED_STATUS_CODE = 409;
 export const DOCUMENT_NOT_FOUND_STATUS_CODE = 410;
@@ -776,35 +768,6 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       }
     },
 
-  SAVE_USED_UNUSED_DOCUMENT:
-    ({ dispatch, getState }) =>
-    async (action) => {
-      const {
-        payload: { documentId, saveStatus, saveRefreshStatus },
-      } = action;
-      try {
-        console.log(action, getState);
-        dispatch({
-          type: "UPDATE_USED_UNUSED_DOCUMENT",
-          payload: {
-            documentId,
-            saveStatus: "saving",
-            saveRefreshStatus: "updating",
-          },
-        });
-        dispatch({
-          type: "UPDATE_USED_UNUSED_DOCUMENT",
-          payload: {
-            documentId,
-            saveStatus: "success",
-            saveRefreshStatus: "updated",
-          },
-        });
-      } catch (err) {
-        console.error("Error: ", JSON.stringify(err));
-      }
-    },
-
   TOGGLE_DOCUMENT_STATE:
     ({ dispatch, getState }) =>
     async (action) => {
@@ -812,13 +775,28 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, unused },
       } = action;
       const { caseId, urn } = getState();
+      
       try {
-        const res = await toggleUsedDocumentState(
-          urn,
-          caseId,
-          documentId,
-          unused
-        );
+        dispatch({
+          type: "UPDATE_USED_UNUSED_DOCUMENT",
+          payload: {
+            documentId,
+            saveStatus: "saving",
+            saveRefreshStatus: "initial",
+          },
+        });
+
+        await toggleUsedDocumentState(urn, caseId, documentId, unused);
+
+        dispatch({
+          type: "UPDATE_USED_UNUSED_DOCUMENT",
+          payload: {
+            documentId,
+            saveStatus: "success",
+            saveRefreshStatus: "updating",
+          },
+        });
+
         dispatch({
           type: "UPDATE_DOCUMENT_REFRESH",
           payload: {
@@ -832,6 +810,14 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             type: "addnote",
             title: "Something went wrong!",
             message: "Failed to change the document state.",
+          },
+        });
+        dispatch({
+          type: "UPDATE_USED_UNUSED_DOCUMENT",
+          payload: {
+            documentId,
+            saveStatus: "failure",
+            saveRefreshStatus: "updated",
           },
         });
       }

@@ -105,6 +105,8 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const [accordionOldState, setAccordionOldState] =
     useState<AccordionReducerState | null>(null);
 
+  const [savingStateDescrition, setSavingStateDescrition] =
+    useState<string>("");
   const actionsSidePanelRef = useRef(null);
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
@@ -141,6 +143,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     reclassifyDocuments,
     notificationState,
     localDocumentState,
+    usedOrUnused,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -178,7 +181,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleUpdateConversionStatus,
     handleShowHidePageDeletion,
     handleToggleDocumentState,
-    handleChangeUsedOrUnused,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
 
   const {
@@ -222,6 +224,19 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accordionState.status]);
+
+  // eslint-disable-next-line
+  useEffect(() => {
+    if (usedOrUnused.saveStatus === "initial") {
+      setSavingStateDescrition("I am initial");
+    }
+    if (usedOrUnused.saveStatus === "saving") {
+      setSavingStateDescrition("I am saving");
+    }
+    if (usedOrUnused.saveStatus === "success") {
+      setSavingStateDescrition("I am success");
+    }
+  }, [usedOrUnused.saveStatus]);
 
   useEffect(() => {
     trackEvent("Open Documents Count", {
@@ -705,7 +720,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       handleReclassifyDocument={handleReclassifyDocument}
                       localDocumentState={localDocumentState}
                       handleToggleDocumentState={handleToggleDocumentState}
-                      handleChangeUsedOrUnused={handleChangeUsedOrUnused}
                     />
                   )}
                 </div>
@@ -807,6 +821,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   : "govuk-grid-column-three-quarters"
               }`}
             >
+              now {savingStateDescrition}
               {!tabsState.items.length ? (
                 <PdfTabsEmpty
                   pipelineState={pipelineState}

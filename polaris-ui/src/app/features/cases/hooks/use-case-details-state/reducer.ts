@@ -1771,9 +1771,15 @@ export const reducer = (
     }
     case "UPDATE_USED_UNUSED_DOCUMENT": {
       const { documentId, saveStatus, saveRefreshStatus } = action.payload;
-      alert(JSON.stringify(action.payload));
-      return state;
-      break;
+      const newState = {
+        ...state,
+        usedOrUnused: {
+          documentId: documentId,
+          saveStatus: saveStatus,
+          saveRefreshStatus: saveRefreshStatus,
+        },
+      };
+      return newState;
     }
     default:
       throw new Error("Unknown action passed to case details reducer");
