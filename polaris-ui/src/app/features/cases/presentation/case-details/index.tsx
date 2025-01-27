@@ -7,6 +7,7 @@ import {
   PageContentWrapper,
   WaitPage,
   Button,
+  Spinner,
 } from "../../../../common/presentation/components";
 import { Wait } from "./accordion/Wait";
 import { BackLinkingPageProps } from "../../../../common/presentation/types/BackLinkingPageProps";
@@ -42,6 +43,7 @@ import { AccordionReducerState } from "./accordion/reducer";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
+import { SaveUsedOrUnusedModal } from "./modals/SaveUsedOrUnusedModal";
 import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
 import { NotesPanel } from "./notes/NotesPanel";
 import { RenamePanel } from "./rename/RenamePanel";
@@ -225,16 +227,15 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accordionState.status]);
 
-  // eslint-disable-next-line
   useEffect(() => {
     if (usedOrUnused.saveStatus === "initial") {
-      setSavingStateDescrition("I am initial");
+      setSavingStateDescrition("initial");
     }
     if (usedOrUnused.saveStatus === "saving") {
-      setSavingStateDescrition("I am saving");
+      setSavingStateDescrition("saving");
     }
     if (usedOrUnused.saveStatus === "success") {
-      setSavingStateDescrition("I am success");
+      setSavingStateDescrition("success");
     }
   }, [usedOrUnused.saveStatus]);
 
@@ -821,7 +822,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   : "govuk-grid-column-three-quarters"
               }`}
             >
-              now {savingStateDescrition}
+              <SaveUsedOrUnusedModal savingState={savingStateDescrition} />
               {!tabsState.items.length ? (
                 <PdfTabsEmpty
                   pipelineState={pipelineState}

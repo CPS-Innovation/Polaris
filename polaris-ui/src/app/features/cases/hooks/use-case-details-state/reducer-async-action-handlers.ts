@@ -775,7 +775,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         payload: { documentId, unused },
       } = action;
       const { caseId, urn } = getState();
-      
+
       try {
         dispatch({
           type: "UPDATE_USED_UNUSED_DOCUMENT",

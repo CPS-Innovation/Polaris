@@ -1,0 +1,31 @@
+
+.savedBanner,
+.savingBanner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  font-size: 1.1875rem;
+  font-weight: bold;
+  padding-left: 0.9375rem;
+  height: 4rem;
+}
+.savingBanner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #1d70b8;
+}
+.savedBanner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #00703c;
+  overflow: hidden;
+  .whiteTickIcon {
+    width: 2.7rem;
+    fill: #fff;
+    float: left;
+    margin-right: 0.25rem;
+  }
+}
