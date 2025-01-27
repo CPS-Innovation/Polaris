@@ -19,6 +19,11 @@ describe("Checks if the used/unused functionality", () => {
 
     const documentList = getUsedUnusedDocumentState("10", true, 1);
 
+    cy.findByTestId("rl-saved-redactions").should(
+      "contains.text",
+      "state successfully saved to CMS success"
+    );
+
     cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
       body: documentList[0],
       timeMs: 1000,

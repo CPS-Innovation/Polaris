@@ -7,7 +7,6 @@ import {
   PageContentWrapper,
   WaitPage,
   Button,
-  Spinner,
 } from "../../../../common/presentation/components";
 import { Wait } from "./accordion/Wait";
 import { BackLinkingPageProps } from "../../../../common/presentation/types/BackLinkingPageProps";
@@ -823,6 +822,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
               }`}
             >
               <SaveUsedOrUnusedModal savingState={savingStateDescrition} />
+
               {!tabsState.items.length ? (
                 <PdfTabsEmpty
                   pipelineState={pipelineState}

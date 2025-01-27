@@ -26,12 +26,12 @@ export const SaveUsedOrUnusedModal: React.FC<Props> = ({ savingState }) => {
     <Modal
       isVisible={showModal ? true : false}
       handleClose={savingState === "saved" ? handleCloseModal : undefined}
-      type="data"
+      type="alert"
       ariaLabel="Saving document state alert modal"
       ariaDescription={"Document updated state successfully saved to CMS"}
+      className={classes.modalUsedUnusedModal}
     >
       <>
-        {showModal}
         {savingState === "saving" && (
           <div
             className={classes.savingBanner}
@@ -49,17 +49,17 @@ export const SaveUsedOrUnusedModal: React.FC<Props> = ({ savingState }) => {
             data-testid="rl-saved-redactions"
           >
             <WhiteTickIcon className={classes.whiteTickIcon} />
+            &nbsp; Document's state successfully saved to CMS {savingState}
             <LinkButton
-              dataTestId="btn-close-rename-panel"
+              dataTestId="btn-close-used-unused-state-panel"
               type="button"
               className={classes.renamePanelCloseBtn}
-              ariaLabel="close rename panel"
-              disabled={true}
+              ariaLabel="close panel"
+              disabled={false}
               onClick={handleCloseModal}
             >
-              <CloseIcon height={"2.5rem"} width={"2.5rem"} />
+              <CloseIcon height={"2.7rem"} width={"2.7rem"} />
             </LinkButton>
-            &nbsp; Document's state successfully saved to CMS {savingState}
           </div>
         )}
       </>
