@@ -8,7 +8,7 @@ namespace coordinator.Durable.Payloads.Domain
 {
     public class CmsDocumentEntity : BaseDocumentEntity
     {
-        public CmsDocumentEntity() : base()
+        public CmsDocumentEntity()
         {
         }
 
@@ -46,8 +46,8 @@ namespace coordinator.Durable.Payloads.Domain
         {
             CmsDocType = cmsDocType;
             Path = path;
-            CmsFileCreatedDate = cmsFileCreatedDate;
             CmsOriginalFileName = cmsOriginalFileName;
+            CmsFileCreatedDate = cmsFileCreatedDate;
             PresentationTitle = presentationTitle;
             IsOcrProcessed = isOcrProcessed;
             IsDispatched = isDispatched;

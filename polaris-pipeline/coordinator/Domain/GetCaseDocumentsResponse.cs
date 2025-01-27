@@ -6,6 +6,10 @@ namespace coordinator.Domain;
 
 public class GetCaseDocumentsResponse
 {
+    public GetCaseDocumentsResponse()
+    {
+    }
+
     public GetCaseDocumentsResponse(CmsDocumentDto[] cmsDocuments, PcdRequestCoreDto[] pcdRequests, DefendantsAndChargesListDto defendantAndCharges)
     {
         CmsDocuments = cmsDocuments;
@@ -13,9 +17,9 @@ public class GetCaseDocumentsResponse
         DefendantAndCharges = defendantAndCharges;
     }
 
-    public CmsDocumentDto[] CmsDocuments { get; set; }
+    public CmsDocumentDto[] CmsDocuments { get; set; } = [];
 
-    public PcdRequestCoreDto[] PcdRequests { get; set; }
+    public PcdRequestCoreDto[] PcdRequests { get; set; } = [];
 
     public DefendantsAndChargesListDto DefendantAndCharges { get; set; }
 }

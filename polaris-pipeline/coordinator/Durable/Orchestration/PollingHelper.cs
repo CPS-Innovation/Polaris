@@ -28,11 +28,6 @@ public class PollingHelper
                 pollingArgs.ActivityInput,
                 pollingArgs.ActivityOptions ?? DefaultActivityOptions);
 
-            if (pollingActivityResult is null)
-            {
-                continue;
-            }
-
             results.Add(pollingActivityResult.Result);
 
             if (pollingActivityResult.IsCompleted)
@@ -82,6 +77,10 @@ public class PollingHelper
 
 public class PollingResult<T>
 {
+    public PollingResult()
+    {
+    }
+
     public bool IsCompleted { get; set; }
     public List<T> Results { get; set; }
     public T FinalResult { get; set; }
@@ -90,6 +89,10 @@ public class PollingResult<T>
 
 public class PollingActivityResult<T>
 {
+    public PollingActivityResult()
+    {
+    }
+
     public bool IsCompleted { get; set; }
 
     public T Result { get; set; }

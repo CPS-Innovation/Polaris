@@ -40,6 +40,7 @@ namespace coordinator.Functions
             IDdeiArgFactory ddeiArgFactory,
             ILogger<ModifyDocument> logger,
             IConfiguration configuration)
+            : base(configuration, blobStorageServiceFactory)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;

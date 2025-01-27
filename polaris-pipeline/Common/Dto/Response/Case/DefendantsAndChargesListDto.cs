@@ -8,7 +8,6 @@ namespace Common.Dto.Response.Case
     {
         public DefendantsAndChargesListDto()
         {
-
         }
 
         [JsonPropertyName("caseId")]
@@ -18,7 +17,7 @@ namespace Common.Dto.Response.Case
         public long VersionId { get; set; }
 
         [JsonPropertyName("defendants")]
-        public IEnumerable<DefendantAndChargesDto> DefendantsAndCharges { get; set; } = new List<DefendantAndChargesDto>();
+        public IEnumerable<DefendantAndChargesDto> DefendantsAndCharges { get; set; } = [];
 
         public PresentationFlagsDto PresentationFlags { get; set; } = new PresentationFlagsDto();
     }

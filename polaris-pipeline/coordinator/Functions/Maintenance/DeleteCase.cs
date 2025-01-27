@@ -36,7 +36,6 @@ namespace coordinator.Functions.Maintenance
                 int caseId,
                 [DurableClient] DurableTaskClient orchestrationClient)
         {
-
             var currentCorrelationId = req.Headers.GetCorrelationId();
 
             await _clearDownService.DeleteCaseAsync(orchestrationClient,

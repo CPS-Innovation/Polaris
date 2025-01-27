@@ -7,6 +7,10 @@ using coordinator.Durable.Payloads.Domain;
 using Microsoft.Extensions.Logging;
 using Common.Logging;
 using Microsoft.DurableTask.Client;
+using coordinator.Domain;
+using Common.Services.BlobStorage;
+using Common.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Functions
 {
@@ -22,26 +26,31 @@ namespace coordinator.Functions
 
     public class BaseClient
     {
-        const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
+        private readonly IPolarisBlobStorageService _polarisBlobStorageService;
 
-        protected async Task<GetTrackerDocumentResponse> GetTrackerDocument
-        (
-                DurableTaskClient client,
-                int caseId,
-                string documentId,
-                ILogger logger,
-                Guid currentCorrelationId,
-                string loggerSource
-            )
+        public BaseClient(
+            IConfiguration configuration,
+            Func<string, IPolarisBlobStorageService> blobStorageServiceFactory)
+        {
+            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
+        }
+
+        protected async Task<GetTrackerDocumentResponse> GetTrackerDocument(
+            DurableTaskClient client,
+            int caseId,
+            string documentId,
+            ILogger logger,
+            Guid currentCorrelationId,
+            string loggerSource)
         {
             var response = new GetTrackerDocumentResponse { Success = false };
-            CaseDurableEntity entityState;
+            CaseDurableEntityState entityState;
 
             var entityId = CaseDurableEntity.GetEntityId(caseId);
 
             try
             {
-                var stateResponse = await client.Entities.GetEntityAsync<CaseDurableEntity>(entityId);
+                var stateResponse = await client.Entities.GetEntityAsync<CaseDurableEntityState>(entityId);
 
                 if (stateResponse is null || stateResponse?.IncludesState != true)
                 {
@@ -60,16 +69,19 @@ namespace coordinator.Functions
                 return response;
             }
 
-            response.CmsDocument = entityState.CmsDocuments.FirstOrDefault(doc => doc.DocumentId.Equals(documentId));
+            var blobId = new BlobIdType(caseId, default, default, BlobType.DocumentList);
+            var documentsState = (await _polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityDocumentsState>(blobId)) ?? new CaseDurableEntityDocumentsState();
+
+            response.CmsDocument = documentsState.CmsDocuments.FirstOrDefault(doc => doc.DocumentId.Equals(documentId));
             if (response.CmsDocument == null)
             {
-                response.PcdRequest = entityState.PcdRequests.FirstOrDefault(pcd => pcd.DocumentId.Equals(documentId));
+                response.PcdRequest = documentsState.PcdRequests.FirstOrDefault(pcd => pcd.DocumentId.Equals(documentId));
 
                 if (response.PcdRequest == null)
                 {
-                    if (documentId.Equals(entityState.DefendantsAndCharges.DocumentId))
+                    if (documentId.Equals(documentsState.DefendantsAndCharges.DocumentId))
                     {
-                        response.DefendantsAndCharges = entityState.DefendantsAndCharges;
+                        response.DefendantsAndCharges = documentsState.DefendantsAndCharges;
                     }
                     else
                     {
