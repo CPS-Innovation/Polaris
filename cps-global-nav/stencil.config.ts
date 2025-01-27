@@ -3,6 +3,7 @@ import { sass } from "@stencil/sass";
 
 export const config: Config = {
   namespace: "cps-global-nav",
+
   outputTargets: [
     {
       type: "dist",
@@ -20,6 +21,7 @@ export const config: Config = {
     {
       type: "www",
       serviceWorker: null, // disable service workers
+      empty: false,
     },
   ],
   testing: {

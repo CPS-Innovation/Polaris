@@ -27,24 +27,37 @@ export const InboundHandoverHandler: React.FC<RouteComponentProps> = ({
   };
 
   const navigate = useCallback(
-    (caseId: number, urn: string, contextObject: TaggedContext | undefined) =>
-      history.push(`/case-details/${urn}/${caseId}`, contextObject),
+    (
+      caseId: number,
+      urn: string,
+      contextObject: TaggedContext | undefined,
+      contextSearchParams: string
+    ) =>
+      history.push(
+        `/case-details/${urn}/${caseId}?${contextSearchParams}`,
+        contextObject
+      ),
     [history]
   );
 
   useEffect(() => {
     (async () => {
       try {
-        const { caseId, urn, contextObject } =
+        const { caseId, urn, contextObject, contextSearchParams } =
           buildContextFromQueryString(search);
 
         if (urn) {
           // we have not been passed a urn so no need to look up
-          navigate(caseId, urn, contextObject);
+          navigate(caseId, urn, contextObject, contextSearchParams);
         } else {
           const response = await getCaseIdentifiers(caseId);
           if (response) {
-            navigate(response.caseId, response.urn, contextObject);
+            navigate(
+              response.caseId,
+              response.urn,
+              contextObject,
+              contextSearchParams
+            );
           }
         }
       } catch (ex) {

@@ -4,8 +4,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
-  <title>Stencil Component Starter</title>
-
+  <title>CPS Global Nav development</title>
+  <link rel="stylesheet" href="/govuk-frontend.min.css" />
   <script type="module" src="/build/cps-global-nav.esm.js"></script>
 
   <style>
@@ -18,12 +18,23 @@
       max-width: 87.5rem;
       margin: 0 auto;
     }
+
+    body>div>div {
+      min-height: 1000px;
+      border-color: grey;
+      border-style: dotted;
+      border-width: 0 1px 1px 1px;
+    }
   </style>
 </head>
 
 <body>
   <div>
-    <cps-global-nav name="McLove, Eoin"></cps-global-nav>
+    <cps-global-nav name="McLove, Eoin">
+      <span style="border: 1px solid lightgrey; padding: 5px;"><a href="#" class="govuk-link">A link from the host
+          app</a></span>
+    </cps-global-nav>
+    <div></div>
   </div>
 </body>
 

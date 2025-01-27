@@ -63,14 +63,6 @@ import {
 } from "../../../../inbound-handover/context";
 import "cps-global-nav";
 
-declare global {
-  export namespace JSX {
-    interface IntrinsicElements {
-      ["cps-global-nav"]: any;
-    }
-  }
-}
-
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {

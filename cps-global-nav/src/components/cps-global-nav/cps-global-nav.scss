@@ -1,14 +1,18 @@
 @import "node_modules/govuk-frontend/dist/govuk/index";
-
-$level-height: 3.5rem;
+$level-height: 3rem;
 
 :host {
   display: block;
 }
 
-a {
+a.govuk-link {
   color: $govuk-brand-colour;
   @include govuk-font($size: 19);
+  text-decoration: none;
+
+  &:visited {
+    color: $govuk-brand-colour;
+  }
 }
 
 .background {
@@ -22,6 +26,7 @@ a {
   box-shadow: 0 0 0 100vmax $govuk-border-colour;
   clip-path: inset(0 -100vmax);
   background-color: $govuk-border-colour;
+  z-index: -1;
 }
 
 .background-left-only {
@@ -65,9 +70,6 @@ a {
       }
     }
   }
-  div:last-child {
-    margin-left: auto;
-  }
 }
 
 $arrow-length: $level-height/2;
@@ -88,7 +90,7 @@ $arrow-length: $level-height/2;
 
     .name {
       display: block;
-      min-width: 12rem;
+      //min-width: 12rem;
     }
 
     &:after {
@@ -109,86 +111,106 @@ $arrow-length: $level-height/2;
     @include horizontal-list();
     margin-left: 1rem;
 
-    & > li {
+    li {
       margin: 0 1.8rem 0 0;
-      position: relative;
+    }
+  }
 
-      &.selected {
-        &:before {
-          display: inline-block;
-          content: "";
-          height: 5px;
-          left: 0;
-          right: 0;
-          background: #1d70b8;
-          position: absolute;
-          bottom: -0.7em;
-        }
-      }
+  .slot-container {
+    margin-left: auto;
+  }
 
-      &.dropdown {
-        padding-right: 25px !important;
-        &:after {
-          left: inherit;
-          right: 0;
-          top: 10px;
-          content: "";
-          width: 0;
-          height: 0;
-          border-left: 8px solid transparent;
-          border-right: 8px solid transparent;
-          border-top: 8px solid #1d70b8;
-          position: absolute;
-        }
+  ul:last-child {
+    li {
+      margin-right: 0;
+    }
+  }
+}
 
-        ul {
-          display: none;
-        }
-      }
+.dropdown {
+  padding-right: 25px !important;
 
-      &.dropdown.active {
-        &:after {
-          transform: rotate(180deg);
-        }
+  &:after {
+    left: inherit;
+    right: 0;
+    top: 10px;
+    content: "";
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #1d70b8;
+    position: absolute;
+  }
 
-        ul {
-          display: block;
-          position: absolute !important;
-          z-index: 99;
-          top: 30px;
-          left: 0;
-          right: inherit;
-          background: #f5f5f5;
-          list-style: none;
-          padding: 0;
-          margin: 0;
-          min-width: 250px;
-          box-shadow: 10px 10px 10px 10px rgba(0, 0, 0, 0.2);
-          border-top: 5px solid #1d70b8;
+  ul {
+    display: none;
+  }
+}
 
-          li {
-            padding: 0 !important;
-            margin: 0 !important;
+.dropdown.active {
+  &:after {
+    transform: rotate(180deg);
+  }
 
-            a {
-              display: inline-block;
-              width: 92%;
-              font-size: 1.3rem;
-              padding: 2% 4%;
+  ul {
+    display: block;
+    position: absolute !important;
+    top: 35px;
+    background: #f5f5f5;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    min-width: 250px;
+    box-shadow: 10px 10px 10px 10px rgba(0, 0, 0, 0.2);
+    border-top: 5px solid #1d70b8;
 
-              &.disabled {
-                color: #b1b4b6;
-                pointer-events: none;
-                cursor: default;
-              }
-            }
-          }
+    &.align-right {
+      right: 0;
+    }
+
+    li {
+      padding: 0 !important;
+      margin: 0 !important;
+      a {
+        display: inline-block;
+        width: 92%;
+        font-size: 1.3rem;
+        padding: 2% 4%;
+
+        &.disabled {
+          color: #b1b4b6;
+          pointer-events: none;
+          cursor: default;
         }
       }
     }
   }
+}
 
-  div:last-child {
-    margin-left: auto;
+ul:has(.dropdown) {
+  @include horizontal-list();
+  margin-left: 1rem;
+  li {
+    position: relative;
+  }
+}
+
+.linkButton {
+  margin: 0.125rem;
+  display: inline;
+  background: transparent;
+  border-width: 0;
+  cursor: pointer;
+  font-size: 1.187rem;
+  width: fit-content;
+  color: #1d70b8;
+  @include govuk-font($size: 19);
+
+  &:focus {
+    color: #0b0c0c;
+    background-color: #ffdd00;
+    box-shadow: 0 0.25rem 0 #0b0c0c;
+    outline: 0.1875rem solid transparent;
   }
 }

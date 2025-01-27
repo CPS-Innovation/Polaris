@@ -5,6 +5,8 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { LinkProps } from "./components/cps-global-nav/links/LinkProps";
+export { LinkProps } from "./components/cps-global-nav/links/LinkProps";
 export namespace Components {
     interface CpsGlobalNav {
         "forceEnvironment": string;
@@ -13,10 +15,31 @@ export namespace Components {
          */
         "name": string;
     }
+    interface CpsGlobalNavExperimental {
+        "forceEnvironment": string;
+        /**
+          * The text to appear at the start of the second row
+         */
+        "name": string;
+    }
+    interface DropDown {
+        "label": string;
+        "links": LinkProps[];
+        "menuAlignment": "left" | "right";
+    }
+    interface NavLink {
+        "href": string;
+        "label": string;
+        "selected": boolean;
+    }
 }
 export interface CpsGlobalNavCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLCpsGlobalNavElement;
+}
+export interface CpsGlobalNavExperimentalCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLCpsGlobalNavExperimentalElement;
 }
 declare global {
     interface HTMLCpsGlobalNavElementEventMap {
@@ -36,8 +59,40 @@ declare global {
         prototype: HTMLCpsGlobalNavElement;
         new (): HTMLCpsGlobalNavElement;
     };
+    interface HTMLCpsGlobalNavExperimentalElementEventMap {
+        "cpsGlobalNavEvent": string;
+    }
+    interface HTMLCpsGlobalNavExperimentalElement extends Components.CpsGlobalNavExperimental, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLCpsGlobalNavExperimentalElementEventMap>(type: K, listener: (this: HTMLCpsGlobalNavExperimentalElement, ev: CpsGlobalNavExperimentalCustomEvent<HTMLCpsGlobalNavExperimentalElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLCpsGlobalNavExperimentalElementEventMap>(type: K, listener: (this: HTMLCpsGlobalNavExperimentalElement, ev: CpsGlobalNavExperimentalCustomEvent<HTMLCpsGlobalNavExperimentalElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    }
+    var HTMLCpsGlobalNavExperimentalElement: {
+        prototype: HTMLCpsGlobalNavExperimentalElement;
+        new (): HTMLCpsGlobalNavExperimentalElement;
+    };
+    interface HTMLDropDownElement extends Components.DropDown, HTMLStencilElement {
+    }
+    var HTMLDropDownElement: {
+        prototype: HTMLDropDownElement;
+        new (): HTMLDropDownElement;
+    };
+    interface HTMLNavLinkElement extends Components.NavLink, HTMLStencilElement {
+    }
+    var HTMLNavLinkElement: {
+        prototype: HTMLNavLinkElement;
+        new (): HTMLNavLinkElement;
+    };
     interface HTMLElementTagNameMap {
         "cps-global-nav": HTMLCpsGlobalNavElement;
+        "cps-global-nav-experimental": HTMLCpsGlobalNavExperimentalElement;
+        "drop-down": HTMLDropDownElement;
+        "nav-link": HTMLNavLinkElement;
     }
 }
 declare namespace LocalJSX {
@@ -49,8 +104,29 @@ declare namespace LocalJSX {
         "name"?: string;
         "onCpsGlobalNavEvent"?: (event: CpsGlobalNavCustomEvent<string>) => void;
     }
+    interface CpsGlobalNavExperimental {
+        "forceEnvironment"?: string;
+        /**
+          * The text to appear at the start of the second row
+         */
+        "name"?: string;
+        "onCpsGlobalNavEvent"?: (event: CpsGlobalNavExperimentalCustomEvent<string>) => void;
+    }
+    interface DropDown {
+        "label"?: string;
+        "links"?: LinkProps[];
+        "menuAlignment"?: "left" | "right";
+    }
+    interface NavLink {
+        "href"?: string;
+        "label"?: string;
+        "selected"?: boolean;
+    }
     interface IntrinsicElements {
         "cps-global-nav": CpsGlobalNav;
+        "cps-global-nav-experimental": CpsGlobalNavExperimental;
+        "drop-down": DropDown;
+        "nav-link": NavLink;
     }
 }
 export { LocalJSX as JSX };
@@ -58,6 +134,9 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "cps-global-nav": LocalJSX.CpsGlobalNav & JSXBase.HTMLAttributes<HTMLCpsGlobalNavElement>;
+            "cps-global-nav-experimental": LocalJSX.CpsGlobalNavExperimental & JSXBase.HTMLAttributes<HTMLCpsGlobalNavExperimentalElement>;
+            "drop-down": LocalJSX.DropDown & JSXBase.HTMLAttributes<HTMLDropDownElement>;
+            "nav-link": LocalJSX.NavLink & JSXBase.HTMLAttributes<HTMLNavLinkElement>;
         }
     }
 }

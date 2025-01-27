@@ -1,9 +1,7 @@
 import { Component, Prop, h, Event, EventEmitter, State } from "@stencil/core";
-// import { getCaseDetails, lookupUrn } from "../../api/polaris-client";
-// import { ensureMsalLoggedIn } from "../../ad-auth/ensure-msal-logged-in";
-//import { formatLeadDefendantName } from "../../utils/format-lead-defendant-name";
-import { getCaseId } from "../../context/get-case-id";
-//import { CaseDetails } from "../../domain/CaseDetails";
+import { getLocationConfig } from "../../context/get-location-config";
+import { LinkCode, MatchedPathMatcher } from "../../context/LocationConfig";
+
 @Component({
   tag: "cps-global-nav",
   styleUrl: "cps-global-nav.scss",
@@ -25,50 +23,13 @@ export class CpsGlobalNav {
   })
   cpsGlobalNavEvent: EventEmitter<string>;
 
-  @State() leadDefendantPresentationName: string = "Please wait...";
-
-  @State() leadDefendantClassName: string = "please-wait";
-
-  private caseId: number | null;
-  //private getCaseDatePromise: Promise<CaseDetails | null>;
-
-  // private async getCaseDate() {
-
-  //   try {
-  //     await ensureMsalLoggedIn();
-  //     const { urnRoot } = await lookupUrn(this.caseId);
-  //     return await getCaseDetails(urnRoot, this.caseId);
-  //   } catch (err) {
-  //     return null;
-  //   }
-  // }
+  @State() config: MatchedPathMatcher;
 
   async componentWillLoad() {
-    console.log(window.location.search);
-    this.caseId = getCaseId(window);
-    if (!this.caseId) {
-      this.leadDefendantPresentationName = "Error: no case id in address";
-      return;
-    }
-    //this.getCaseDatePromise = this.getCaseDate();
+    this.config = getLocationConfig(window);
   }
 
-  async componentDidLoad() {
-    // if (!this.caseId) {
-    //   return;
-    // }
-    // const caseDetails = await this.getCaseDatePromise;
-    // if (!caseDetails) {
-    //   this.leadDefendantPresentationName = `Error: could not retrieve case ${this.caseId}`;
-    //   return;
-    // }
-    // this.leadDefendantPresentationName = formatLeadDefendantName(caseDetails);
-  }
-
-  componentWillRender() {
-    this.leadDefendantPresentationName = this.name;
-    this.leadDefendantClassName = "";
-  }
+  linkHelper = (code: LinkCode, label: string) => ({ label, href: this.config?.onwardLinks[code], selected: this.config?.matchedLinkCode === code });
 
   emitWindowEvent() {
     this.cpsGlobalNavEvent.emit("foo");
@@ -79,51 +40,40 @@ export class CpsGlobalNav {
       <div>
         <div class="level-1 background">
           <ul>
-            <li>
-              <a>Home</a>
-            </li>
-            <li>
-              <a>Tasks</a>
-            </li>
-            <li>
-              <a>Cases</a>
-            </li>
+            <nav-link {...this.linkHelper("tasks", "Tasks")}></nav-link>
+            <nav-link {...this.linkHelper("cases", "Cases")}></nav-link>
           </ul>
-          <div>
-            <button onClick={() => this.emitWindowEvent()}>Fire an event</button>
-          </div>
         </div>
         <div class="background-divider"></div>
+
         <div class="level-2 background-left-only">
           <div>
-            <span class="name">{this.leadDefendantPresentationName}</span>
+            <span class="name">{this.name}</span>
           </div>
           <ul>
-            <li class="selected">
-              <a>Overview</a>
-            </li>
-            <li class="selected dropdown active">
-              <a>Materials</a>
-              <ul>
-                <li>
-                  <a class="disabled">Case materials</a>
-                </li>
-                <li>
-                  <a>Bulk UM classification</a>
-                </li>
-              </ul>
-            </li>
-            <li>
-              <a>Review</a>
-            </li>
-            <li>
-              <a>Triage</a>
-            </li>
+            <nav-link {...this.linkHelper("details", "Details")}></nav-link>
+            <drop-down
+              label="Materials"
+              links={[this.linkHelper("case-materials", "Case Materials"), this.linkHelper("bulk-um-classification", "Bulk UM classification")]}
+            ></drop-down>
+            <nav-link {...this.linkHelper("review", "Review")}></nav-link>
           </ul>
-          <div>
+          <div class="slot-container">
             <slot />
-            <a href="#">CMS Classic</a>
           </div>
+          <ul>
+            <drop-down
+              label="CMS Classic"
+              menuAlignment="right"
+              links={[
+                { label: "Task list", href: "/task-list" },
+                { label: "Cases", href: "/cases" },
+                { label: "Case review", href: "/case-review" },
+                { label: "Case materials", href: "/case-materials" },
+                { label: "Pre-charge triage", href: "/pre-charge-triage" },
+              ]}
+            ></drop-down>
+          </ul>
         </div>
         <div class="background-divider"></div>
       </div>

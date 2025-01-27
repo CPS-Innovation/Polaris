@@ -1,5 +1,9 @@
-dist/
-www/
+# dist/ keep dist so we can file:... link from the polaris-ui project 
+
+www/build/
+www/host.config.json
+www/index.html
+
 loader/
 
 *~
