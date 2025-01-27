@@ -76,7 +76,7 @@ describe("reducerAsyncActionHandlers", () => {
       ["unlocking", true, "locked"],
       ["locked-by-other-user", true, "locked"],
     ])(
-      "can add a redaction and lock the document if the document is unlocked or unlocking and document checkout is successfull",
+      "can add a redaction and lock the document if the document is unlocked or unlocking and document checkout is successful",
       async (
         clientLockedState,
         isLockSuccessful,
@@ -84,14 +84,18 @@ describe("reducerAsyncActionHandlers", () => {
       ) => {
         // arrange
         combinedStateMock = {
+          documentsState: {
+            status: "succeeded",
+            data: [{ documentId: "1", versionId: 11 }],
+          },
           tabsState: {
             items: [
-              { documentId: "1", versionId: 11, clientLockedState },
+              { documentId: "1", clientLockedState },
             ] as CaseDocumentViewModel[],
           },
           caseId: 2,
           urn: "foo",
-        } as CombinedState;
+        } as unknown as CombinedState;
 
         const checkoutSpy = jest
           .spyOn(api, "checkoutDocument")
@@ -157,14 +161,18 @@ describe("reducerAsyncActionHandlers", () => {
       ) => {
         // arrange
         combinedStateMock = {
+          documentsState: {
+            status: "succeeded",
+            data: [{ documentId: "1", versionId: 11 }],
+          },
           tabsState: {
             items: [
-              { documentId: "1", versionId: 11, clientLockedState },
+              { documentId: "1", clientLockedState },
             ] as CaseDocumentViewModel[],
           },
           caseId: 2,
           urn: "foo",
-        } as CombinedState;
+        } as unknown as CombinedState;
 
         const checkoutSpy = jest
           .spyOn(api, "checkoutDocument")
@@ -228,14 +236,18 @@ describe("reducerAsyncActionHandlers", () => {
       async (clientLockedState, expectedFinalDispatchedLockedState) => {
         // arrange
         combinedStateMock = {
+          documentsState: {
+            status: "succeeded",
+            data: [{ documentId: "1", versionId: 11 }],
+          },
           tabsState: {
             items: [
-              { documentId: "1", versionId: 11, clientLockedState },
+              { documentId: "1", clientLockedState },
             ] as CaseDocumentViewModel[],
           },
           caseId: 2,
           urn: "foo",
-        } as CombinedState;
+        } as unknown as CombinedState;
 
         const checkoutSpy = jest
           .spyOn(api, "checkoutDocument")
@@ -296,13 +308,17 @@ describe("reducerAsyncActionHandlers", () => {
       async (clientLockedState) => {
         // arrange
         combinedStateMock = {
+          documentsState: {
+            status: "succeeded",
+            data: [{ documentId: "1", versionId: 11 }],
+          },
           tabsState: {
             items: [
               { documentId: "1", clientLockedState },
             ] as CaseDocumentViewModel[],
           },
           caseId: 2,
-        } as CombinedState;
+        } as unknown as CombinedState;
 
         const checkoutSpy = jest
           .spyOn(api, "checkoutDocument")
@@ -350,6 +366,10 @@ describe("reducerAsyncActionHandlers", () => {
       async (clientLockedState) => {
         // arrange
         combinedStateMock = {
+          documentsState: {
+            status: "succeeded",
+            data: [{ documentId: "1", versionId: 11 }],
+          },
           tabsState: {
             items: [
               {
@@ -407,6 +427,10 @@ describe("reducerAsyncActionHandlers", () => {
       async (clientLockedState) => {
         // arrange
         combinedStateMock = {
+          documentsState: {
+            status: "succeeded",
+            data: [{ documentId: "1", versionId: 11 }],
+          },
           tabsState: {
             items: [
               {
@@ -460,11 +484,14 @@ describe("reducerAsyncActionHandlers", () => {
       async (clientLockedState) => {
         // arrange
         combinedStateMock = {
+          documentsState: {
+            status: "succeeded",
+            data: [{ documentId: "1", versionId: 11 }],
+          },
           tabsState: {
             items: [
               {
                 documentId: "1",
-                versionId: 11,
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
                 pageDeleteRedactions: [] as any,
@@ -528,6 +555,10 @@ describe("reducerAsyncActionHandlers", () => {
       async (clientLockedState) => {
         // arrange
         combinedStateMock = {
+          documentsState: {
+            status: "succeeded",
+            data: [{ documentId: "1", versionId: 11 }],
+          },
           tabsState: {
             items: [
               {
@@ -579,11 +610,14 @@ describe("reducerAsyncActionHandlers", () => {
       async (clientLockedState) => {
         // arrange
         combinedStateMock = {
+          documentsState: {
+            status: "succeeded",
+            data: [{ documentId: "1", versionId: 11 }],
+          },
           tabsState: {
             items: [
               {
                 documentId: "1",
-                versionId: 11,
                 clientLockedState,
                 redactionHighlights: [{ id: "bar" }],
                 pageDeleteRedactions: [{}],
@@ -641,11 +675,14 @@ describe("reducerAsyncActionHandlers", () => {
       const redactionHighlights = [{ id: "bar" }];
 
       combinedStateMock = {
+        documentsState: {
+          status: "succeeded",
+          data: [{ documentId: "1", versionId: 3 }],
+        },
         tabsState: {
           items: [
             {
               documentId: "1",
-              versionId: 3,
               redactionHighlights,
               pageDeleteRedactions: [{}],
               pageRotations: [{}],
@@ -712,12 +749,13 @@ describe("reducerAsyncActionHandlers", () => {
       combinedStateMock = {
         urn: "foo",
         caseId: 99,
-        tabsState: {
-          items: [
+        documentsState: {
+          status: "succeeded",
+          data: [
             { documentId: "1", versionId: 11 },
             { documentId: "2", versionId: 22 },
             { documentId: "3", versionId: 33 },
-          ] as CaseDocumentViewModel[],
+          ],
         },
       } as CombinedState;
 
@@ -750,12 +788,13 @@ describe("reducerAsyncActionHandlers", () => {
       combinedStateMock = {
         urn: "foo",
         caseId: 99,
-        tabsState: {
-          items: [
-            { documentId: "1" },
-            { documentId: "2" },
-            { documentId: "3" },
-          ] as CaseDocumentViewModel[],
+        documentsState: {
+          status: "succeeded",
+          data: [
+            { documentId: "1", versionId: 11 },
+            { documentId: "2", versionId: 22 },
+            { documentId: "3", versionId: 33 },
+          ],
         },
       } as CombinedState;
 
