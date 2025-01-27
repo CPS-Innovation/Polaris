@@ -446,6 +446,26 @@ export const reducer = (
         },
       };
 
+      const getRedactionHighlights = (
+        documentId: string,
+        versionId: number
+      ) => {
+        if (state.documentsState.status !== "succeeded") {
+          return [];
+        }
+
+        const hasDocumentVersionUpdated = state.documentsState.data.find(
+          (item) =>
+            item.documentId === documentId && item.versionId === versionId
+        );
+
+        if (hasDocumentVersionUpdated)
+          return (
+            state.tabsState.items.find((item) => item.documentId === documentId)
+              ?.redactionHighlights ?? []
+          );
+        return [];
+      };
       //Todo: Move this whole update of the open tabs into its own util function
       const openPdfsWeNeedToUpdate = data
         .filter((item) =>
@@ -482,6 +502,8 @@ export const reducer = (
           (item) => item.documentId === curr.documentId
         );
 
+        console.log("matchingFreshPdfRecord>>", matchingFreshPdfRecord);
+        console.log("documentsState>>", state.documentsState);
         if (matchingFreshPdfRecord) {
           const url = resolvePdfUrl(
             state.urn,
@@ -497,6 +519,10 @@ export const reducer = (
               url,
               versionId: matchingFreshPdfRecord.versionId,
               presentationTitle: matchingFreshPdfRecord.presentationTitle,
+              redactionHighlights: getRedactionHighlights(
+                matchingFreshPdfRecord.documentId,
+                matchingFreshPdfRecord.versionId
+              ),
             },
           ];
         }
@@ -1039,7 +1065,8 @@ export const reducer = (
       handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
-        state.caseId
+        state.caseId,
+        state.documentsState
       );
 
       return newState;
@@ -1102,7 +1129,8 @@ export const reducer = (
       handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
-        state.caseId
+        state.caseId,
+        state.documentsState
       );
       return newState;
     }
@@ -1147,7 +1175,8 @@ export const reducer = (
       handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
-        state.caseId
+        state.caseId,
+        state.documentsState
       );
 
       return newState;
@@ -1176,7 +1205,8 @@ export const reducer = (
       handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
-        state.caseId
+        state.caseId,
+        state.documentsState
       );
 
       return newState;
@@ -1203,7 +1233,8 @@ export const reducer = (
       handleSaveRedactionsLocally(
         newState.tabsState.items,
         documentId,
-        state.caseId
+        state.caseId,
+        state.documentsState
       );
 
       return newState;

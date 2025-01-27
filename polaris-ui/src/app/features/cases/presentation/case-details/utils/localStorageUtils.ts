@@ -8,6 +8,7 @@ export type LocalStorageKey = "redactions" | "readUnread";
 export type ReadUnreadData = string[];
 export type RedactionsData = {
   documentId: string;
+  versionId: number;
   redactionHighlights: IPdfHighlight[];
   pageDeleteRedactions: PageDeleteRedaction[];
 }[];

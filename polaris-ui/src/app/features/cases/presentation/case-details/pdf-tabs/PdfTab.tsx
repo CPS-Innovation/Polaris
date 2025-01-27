@@ -429,6 +429,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             documentWriteStatus={documentWriteStatus}
             contextData={{
               documentId,
+              versionId,
               documentType,
               saveStatus: saveStatus,
               caseId,

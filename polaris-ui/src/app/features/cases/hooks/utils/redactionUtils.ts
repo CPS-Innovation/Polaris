@@ -1,6 +1,8 @@
 import { IPdfHighlight } from "../../domain/IPdfHighlight";
 import { ISearchPIIHighlight } from "../../domain/NewPdfHighlight";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
+import { AsyncResult } from "../../../../common/types/AsyncResult";
+import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import {
   RedactionsData,
   readFromLocalStorage,
@@ -68,8 +70,21 @@ export const roundToFixedDecimalPlaces = (
 export const handleSaveRedactionsLocally = (
   items: CaseDocumentViewModel[],
   documentId: string,
-  caseId: number
+  caseId: number,
+  documentsState: AsyncResult<MappedCaseDocument[]>
 ) => {
+  if (documentsState.status !== "succeeded") {
+    console.log("hiiiii>>0000", documentsState.status);
+    return;
+  }
+
+  const document = documentsState.data.find(
+    (doc) => doc.documentId === documentId
+  );
+  if (!document?.versionId) {
+    console.log("hiiiii>>111", document?.versionId);
+    return;
+  }
   const locallySavedRedactions =
     (readFromLocalStorage(caseId, "redactions") as RedactionsData) ?? [];
 
@@ -83,6 +98,7 @@ export const handleSaveRedactionsLocally = (
   if (redactionHighlights?.length || pageDeleteRedactions?.length) {
     filteredRedactions.push({
       documentId: documentId,
+      versionId: document?.versionId,
       redactionHighlights: redactionHighlights ?? [],
       pageDeleteRedactions: pageDeleteRedactions ?? [],
     });
@@ -95,7 +111,8 @@ export const handleSaveRedactionsLocally = (
 
 export const getLocallySavedRedactionHighlights = (
   documentId: string,
-  caseId: number
+  caseId: number,
+  versionId: number
 ) => {
   const redactionsData = readFromLocalStorage(
     caseId,
@@ -104,7 +121,9 @@ export const getLocallySavedRedactionHighlights = (
   if (!redactionsData) {
     return;
   }
-  return redactionsData.find((data) => data.documentId === documentId);
+  return redactionsData.find(
+    (data) => data.documentId === documentId && data.versionId === versionId
+  );
 };
 
 export const handleRemoveLocallySavedRedactions = (

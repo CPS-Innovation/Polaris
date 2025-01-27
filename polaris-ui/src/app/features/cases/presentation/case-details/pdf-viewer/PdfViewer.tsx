@@ -48,6 +48,7 @@ type Props = {
   contextData: {
     documentType: string;
     documentId: string;
+    versionId: number;
     saveStatus: SaveStatus;
     caseId: number;
     showDeletePage: boolean;
@@ -494,6 +495,7 @@ export const PdfViewer: React.FC<Props> = ({
         {!(redactionHighlights.length + pageDeleteRedactions.length) && (
           <UnsavedRedactionModal
             documentId={contextData.documentId}
+            versionId={contextData.versionId}
             caseId={contextData.caseId}
             handleAddRedaction={handleAddRedaction}
           />

@@ -16,12 +16,14 @@ import classes from "./UnsavedRedactionModal.module.scss";
 type Props = {
   documentId: string;
   caseId: number;
+  versionId: number;
   handleAddRedaction: CaseDetailsState["handleAddRedaction"];
 };
 
 export const UnsavedRedactionModal: React.FC<Props> = ({
   documentId,
   caseId,
+  versionId,
   handleAddRedaction,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
@@ -29,9 +31,10 @@ export const UnsavedRedactionModal: React.FC<Props> = ({
   const { redactionHighlights = [], pageDeleteRedactions = [] } =
     useMemo(() => {
       return (
-        getLocallySavedRedactionHighlights(documentId, caseId) ?? ({} as any)
+        getLocallySavedRedactionHighlights(documentId, caseId, versionId) ??
+        ({} as any)
       );
-    }, [documentId, caseId]);
+    }, [documentId, caseId, versionId]);
 
   const redactionsCount = useMemo(
     () => redactionHighlights.length + pageDeleteRedactions.length,
