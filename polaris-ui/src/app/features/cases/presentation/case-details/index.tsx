@@ -162,6 +162,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
 
   const {
+    context: stateContext,
     caseState,
     accordionState,
     tabsState,
@@ -666,13 +667,13 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                     </div>
                   }
 
-                  {context && isTaggedTriageContext(context) && (
+                  {stateContext && isTaggedTriageContext(stateContext) && (
                     <div className={classes.externalRedirectBtnWrapper}>
                       <Button
                         disabled={false}
                         onClick={() => {
                           openInNewTab(
-                            `/api/navigate-cms?action=activate_task&screen=case_details&taskId=${context.taskId}&caseId=${caseId}&wId=MASTER`
+                            `/api/navigate-cms?action=activate_task&screen=case_details&taskId=${stateContext.taskId}&caseId=${caseId}&wId=MASTER`
                           );
                         }}
                         data-testid="btn-bulk-um-classification"
@@ -830,7 +831,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                 <PdfTabsEmpty
                   pipelineState={pipelineState}
                   isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
-                  context={context}
+                  context={stateContext}
                 />
               ) : (
                 <PdfTabs

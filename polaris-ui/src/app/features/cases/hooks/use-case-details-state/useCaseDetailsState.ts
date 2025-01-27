@@ -37,11 +37,22 @@ export const useCaseDetailsState = (
   const featureFlagData = useUserGroupsFeatureFlag();
   const retentionState = useMemo(
     () =>
-      featureFlagData?.stateRetention ? getStateFromSessionStorage(caseId) : {},
+      featureFlagData?.stateRetention
+        ? getStateFromSessionStorage(caseId)
+        : null,
     []
   );
   const trackEvent = useAppInsightsTrackEvent();
 
+  const getRouterContext = () => {
+    if (context) {
+      return context;
+    }
+    if (retentionState?.context) {
+      return retentionState.context;
+    }
+    return undefined;
+  };
   const [combinedState, dispatch] = useReducerAsync(
     reducer,
     {
@@ -52,7 +63,7 @@ export const useCaseDetailsState = (
       searchTerm: initialState.searchTerm,
       caseId,
       urn,
-      context,
+      context: getRouterContext(),
     },
     reducerAsyncActionHandlers
   );
