@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Dto.Request;
@@ -55,7 +56,7 @@ namespace coordinator.Clients.PdfRedactor
         {
             try
             {
-                var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(modifyDocumentDto), Encoding.UTF8, "application/json");
+                var requestMessage = new StringContent(JsonSerializer.Serialize(modifyDocumentDto, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }), Encoding.UTF8, "application/json");
 
                 var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetModifyDocumentPath(caseUrn, caseId, documentId, versionId)}", correlationId);
                 request.Content = requestMessage;

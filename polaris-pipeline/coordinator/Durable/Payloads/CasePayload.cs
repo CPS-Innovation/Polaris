@@ -6,6 +6,10 @@ namespace coordinator.Durable.Payloads;
 
 public class CasePayload
 {
+    public CasePayload()
+    {
+    }
+
     public CasePayload(string urn, int caseId, string cmsAuthValues, Guid correlationId)
     {
         Urn = urn;

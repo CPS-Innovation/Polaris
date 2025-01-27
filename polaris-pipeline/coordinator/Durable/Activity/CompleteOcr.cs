@@ -1,14 +1,13 @@
 using System;
 using System.Threading.Tasks;
 using Common.Services.BlobStorage;
-using Common.Wrappers;
 using Common.Services.OcrService;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Common.Domain.Ocr;
-using coordinator.Durable.Payloads;
 using Common.Configuration;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Azure.Functions.Worker;
+using coordinator.Domain;
+using coordinator.Durable.Orchestration;
 
 namespace coordinator.Durable.Activity
 {
@@ -17,27 +16,34 @@ namespace coordinator.Durable.Activity
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly IOcrService _ocrService;
 
-        public CompleteOcr(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOcrService ocrService, IJsonConvertWrapper jsonConvertWrapper, IConfiguration configuration)
+        public CompleteOcr(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOcrService ocrService, IConfiguration configuration)
         {
             _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
             _ocrService = ocrService;
         }
 
-        [FunctionName(nameof(CompleteOcr))]
-        public async Task<(bool, AnalyzeResultsStats)> Run([ActivityTrigger] IDurableActivityContext context)
+        [Function(nameof(CompleteOcr))]
+        public async Task<PollingActivityResult<CompleteOcrResponse>> Run([ActivityTrigger] CompleteOcrPayload completeOcrPayload)
         {
-            var (operationId, payload) = context.GetInput<(Guid, DocumentPayload)>();
-            var ocrOperationResult = await _ocrService.GetOperationResultsAsync(operationId, payload.CorrelationId);
+            var ocrOperationResult = await _ocrService.GetOperationResultsAsync(completeOcrPayload.OcrOperationId, completeOcrPayload.Payload.CorrelationId);
 
             if (!ocrOperationResult.IsSuccess)
             {
-                return (false, null);
+                return new PollingActivityResult<CompleteOcrResponse>
+                {
+                    Result = new CompleteOcrResponse { BlobAlreadyExists = false },
+                    IsCompleted = false,
+                };
             }
 
-            var blobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Ocr);
+            var blobId = new BlobIdType(completeOcrPayload.Payload.CaseId, completeOcrPayload.Payload.DocumentId, completeOcrPayload.Payload.VersionId, BlobType.Ocr);
             await _polarisBlobStorageService.UploadObjectAsync(ocrOperationResult.AnalyzeResults, blobId);
 
-            return (true, AnalyzeResultsStats.FromAnalyzeResults(ocrOperationResult.AnalyzeResults));
+            return new PollingActivityResult<CompleteOcrResponse>
+            {
+                Result = new CompleteOcrResponse { BlobAlreadyExists = true, OcrResult = AnalyzeResultsStats.FromAnalyzeResults(ocrOperationResult.AnalyzeResults) },
+                IsCompleted = true
+            };
         }
     }
 }

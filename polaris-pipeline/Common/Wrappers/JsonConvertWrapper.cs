@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Common.Wrappers
 {
@@ -9,9 +10,9 @@ namespace Common.Wrappers
         }
 
         public string SerializeObject(object objectToSerialize) =>
-            JsonConvert.SerializeObject(objectToSerialize, Formatting.None, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+            JsonSerializer.Serialize(objectToSerialize, new JsonSerializerOptions { WriteIndented = false, ReferenceHandler = ReferenceHandler.IgnoreCycles });
 
         public T DeserializeObject<T>(string value) =>
-            JsonConvert.DeserializeObject<T>(value);
+            JsonSerializer.Deserialize<T>(value, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
     }
 }

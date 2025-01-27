@@ -1,12 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Common.Telemetry;
 using coordinator.TelemetryEvents;
@@ -16,6 +12,12 @@ using coordinator.Mappers;
 using coordinator.Durable.Payloads.Domain;
 using Microsoft.AspNetCore.Http;
 using coordinator.Clients.TextExtractor;
+using Microsoft.DurableTask.Client;
+using Microsoft.Azure.Functions.Worker;
+using coordinator.Domain;
+using Common.Services.BlobStorage;
+using System;
+using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Functions
 {
@@ -24,22 +26,26 @@ namespace coordinator.Functions
         private const string QueryStringSearchParam = "query";
         private readonly ITextExtractorClient _textExtractorClient;
         private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
+        private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly ITelemetryClient _telemetryClient;
         private readonly ILogger<SearchCase> _logger;
 
         public SearchCase(
+            IConfiguration configuration,
             ITextExtractorClient textExtractorClient,
             ISearchFilterDocumentMapper searchFilterDocumentMapper,
+            Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
             ITelemetryClient telemetryClient,
             ILogger<SearchCase> logger)
         {
             _textExtractorClient = textExtractorClient;
             _searchFilterDocumentMapper = searchFilterDocumentMapper;
+            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
             _telemetryClient = telemetryClient;
             _logger = logger;
         }
 
-        [FunctionName(nameof(SearchCase))]
+        [Function(nameof(SearchCase))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -47,30 +53,32 @@ namespace coordinator.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearch)] HttpRequest req,
             string caseUrn,
             int caseId,
-            [DurableClient] IDurableEntityClient client)
+            [DurableClient] DurableTaskClient client)
         {
-            Guid currentCorrelationId = default;
+            var currentCorrelationId = req.Headers.GetCorrelationId();
+            var searchTerm = req.Query[QueryStringSearchParam];
 
-            try
+            if (string.IsNullOrWhiteSpace(searchTerm))
             {
-                currentCorrelationId = req.Headers.GetCorrelationId();
-                var searchTerm = req.Query[QueryStringSearchParam];
-                if (string.IsNullOrWhiteSpace(searchTerm))
-                {
-                    return new BadRequestObjectResult("Search term not supplied.");
-                }
+                return new BadRequestObjectResult("Search term not supplied.");
+            }
 
-                var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
+            var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
 
-                var entityId = CaseDurableEntity.GetEntityId(caseId);
-                var trackerState = await client.ReadEntityStateAsync<CaseDurableEntity>(entityId);
+            var entityId = CaseDurableEntity.GetEntityId(caseId);
+            var stateResponse = await client.Entities.GetEntityAsync<CaseDurableEntityState>(entityId);
 
-                var entityState = trackerState.EntityState;
+            var blobId = new BlobIdType(caseId, default, default, BlobType.DocumentList);
+            var documentsState = (await _polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityDocumentsState>(blobId)) ?? new CaseDurableEntityDocumentsState();
+
+            if (stateResponse is not null && stateResponse?.IncludesState == true)
+            {
+                var entityState = stateResponse.State;
                 // todo: temporary code, need an AllDocuments method as per first refactor
                 var documents =
-                    entityState.CmsDocuments.OfType<BaseDocumentEntity>()
-                        .Concat(entityState.PcdRequests)
-                        .Append(entityState.DefendantsAndCharges)
+                    documentsState.CmsDocuments.OfType<BaseDocumentEntity>()
+                        .Concat(documentsState.PcdRequests)
+                        .Append(documentsState.DefendantsAndCharges)
                         .Select(_searchFilterDocumentMapper.MapToSearchFilterDocument)
                         .ToList();
 
@@ -90,20 +98,19 @@ namespace coordinator.Functions
                 foreach (var documentIdsChunk in chunkedDocumentIds)
                 {
                     var telemetryEvent = new SearchCaseEvent(
-                        correlationId: currentCorrelationId,
+                        currentCorrelationId,
                         caseId,
-                        documentIds: documentIdsChunk
-                    );
+                        documentIdsChunk)
+                    {
+                        OperationName = nameof(SearchCase),
+                    };
                     _telemetryClient.TrackEvent(telemetryEvent);
                 }
 
                 return new OkObjectResult(filteredSearchResults);
             }
-            catch (Exception ex)
-            {
-                return UnhandledExceptionHelper.HandleUnhandledException(_logger, nameof(SearchCase), currentCorrelationId, ex);
-            }
 
+            return new BadRequestObjectResult("Could not get entity state.");
         }
     }
 }

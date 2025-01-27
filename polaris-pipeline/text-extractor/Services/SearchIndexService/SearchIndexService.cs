@@ -40,7 +40,6 @@ namespace text_extractor.Services.SearchIndexService
 
         public async Task<int> SendStoreResultsAsync(AnalyzeResults analyzeResults, int caseId, string documentId, long versionId, Guid correlationId)
         {
-
             var lines = new List<SearchLine>();
 
             foreach (var readResult in analyzeResults.ReadResults)

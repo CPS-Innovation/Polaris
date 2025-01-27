@@ -122,15 +122,6 @@ polaris_ui_reauth = {
   in_situ_termination_url = "/auth-refresh-termination"
 }
 
-ssl_certificate_name           = "polaris-qa-notprod59598f87-3bda-4304-9ed4-e9c143ee793e"
-ssl_policy_name                = "AppGwSslPolicy20220101"
-app_gateway_back_end_host_name = "polaris-qa-notprod.cps.gov.uk"
-
-app_gateway_custom_error_pages = {
-  HttpStatus502 = "https://cpsqastorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
-  HttpStatus403 = "https://cpsqastorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
-}
-
 overnight_clear_down = {
   disabled = 1
   schedule = "0 0 3 * * *"

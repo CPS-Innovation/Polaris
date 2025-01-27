@@ -3,7 +3,6 @@ using Common.Exceptions;
 using Common.Dto.Request.Search;
 using Common.Extensions;
 using text_extractor.Services.CaseSearchService;
-using Common.Telemetry;
 using Common.Wrappers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,23 +14,19 @@ namespace text_extractor.Functions
     {
         private readonly ISearchIndexService _searchIndexService;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
-        private readonly ITelemetryAugmentationWrapper _telemetryAugmentationWrapper;
 
         public SearchText(
             ISearchIndexService searchIndexService,
-            IJsonConvertWrapper jsonConvertWrapper,
-            ITelemetryAugmentationWrapper telemetryAugmentationWrapper)
+            IJsonConvertWrapper jsonConvertWrapper)
         {
             _searchIndexService = searchIndexService;
             _jsonConvertWrapper = jsonConvertWrapper;
-            _telemetryAugmentationWrapper = telemetryAugmentationWrapper;
         }
 
         [Function(nameof(SearchText))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.CaseSearch)] HttpRequest request, string caseUrn, int caseId)
         {
             var correlationId = request.Headers.GetCorrelationId();
-            _telemetryAugmentationWrapper.RegisterCorrelationId(correlationId);
 
             if (request.Body == null)
             {

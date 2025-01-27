@@ -160,13 +160,13 @@ namespace Ddei
                 _ddeiClientRequestFactory.CreateCheckoutDocumentRequest(arg),
                 HttpStatusCode.Conflict);
 
-            return response.StatusCode == HttpStatusCode.Conflict
-                ? new CheckoutDocumentDto
+            return response.StatusCode == HttpStatusCode.Conflict ?
+                new CheckoutDocumentDto
                 {
                     IsSuccess = false,
                     LockingUserName = await response.Content.ReadAsStringAsync()
-                }
-                : new CheckoutDocumentDto
+                } :
+                new CheckoutDocumentDto
                 {
                     IsSuccess = true
                 };
@@ -273,7 +273,9 @@ namespace Ddei
             try
             {
                 if (response.IsSuccessStatusCode || expectedUnhappyStatusCodes.Contains(response.StatusCode))
+                {
                     return response;
+                }
 
                 var content = await response.Content.ReadAsStringAsync();
                 throw new HttpRequestException(content);

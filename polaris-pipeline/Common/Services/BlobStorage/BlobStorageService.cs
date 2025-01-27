@@ -74,11 +74,13 @@ public class BlobStorageService : IBlobStorageService
         await blobClient.SetMetadataAsync(metadata);
     }
 
-    public async Task UploadObjectAsync<T>(T obj, string blobName)
+    public async Task<bool> UploadObjectAsync<T>(T obj, string blobName)
     {
         var objectString = _jsonConvertWrapper.SerializeObject(obj);
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(objectString ?? ""));
         await UploadBlobInternal(stream, blobName);
+
+        return true;
     }
 
     public async Task DeleteBlobsByPrefix(string prefix)
@@ -107,6 +109,7 @@ public class BlobStorageService : IBlobStorageService
         {
             throw new RequestFailedException((int)HttpStatusCode.NotFound, $"Blob container '{_blobServiceContainerName}' does not exist");
         }
+
         return blobContainerClient;
     }
 

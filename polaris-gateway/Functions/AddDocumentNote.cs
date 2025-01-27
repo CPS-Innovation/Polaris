@@ -31,7 +31,7 @@ public class AddDocumentNote : BaseFunction
         IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient,
         IJsonConvertWrapper jsonConvertWrapper)
-        : base(telemetryClient)
+        : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
@@ -47,7 +47,10 @@ public class AddDocumentNote : BaseFunction
         int caseId,
         string documentId)
     {
-        var telemetryEvent = new DocumentNoteRequestEvent(caseId, documentId.ToString());
+        var telemetryEvent = new DocumentNoteRequestEvent(caseId, documentId.ToString())
+        {
+            OperationName = nameof(AddDocumentNote),
+        };
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
