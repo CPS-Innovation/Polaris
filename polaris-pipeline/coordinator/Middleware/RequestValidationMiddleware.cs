@@ -42,7 +42,7 @@ public sealed partial class RequestValidationMiddleware(Microsoft.ApplicationIns
             }
         }
 
-        if (!requestData.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var correlationIdHeaders))
+        if (!requestData.Headers.TryGetValues(HttpHeaderKeys.CorrelationId, out var _))
         {
             requestData.Headers.Add(HttpHeaderKeys.CorrelationId, correlationId.ToString());
         }

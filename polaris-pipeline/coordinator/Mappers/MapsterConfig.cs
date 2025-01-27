@@ -10,7 +10,7 @@ namespace coordinator.Mappers
 {
     public static class MapsterConfig
     {
-        public static void RegisterCoordinatorMapsterConfiguration(this IServiceCollection services)
+        public static void RegisterCoordinatorMapsterConfiguration(this IServiceCollection _)
         {
             TypeAdapterConfig<(CaseDurableEntityState, CaseDurableEntityDocumentsState), TrackerDto>
                 .NewConfig()

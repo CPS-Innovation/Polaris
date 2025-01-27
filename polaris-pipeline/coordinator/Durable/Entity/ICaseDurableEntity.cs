@@ -19,6 +19,8 @@ namespace coordinator.Durable.Entity
 
         Task<DateTime> GetStartTime();
 
+        CaseDurableEntityState GetState();
+
         // vNext stuff
         Task<bool> SetDocumentPdfConversionSucceededAsync(string documentId);
 

@@ -37,6 +37,8 @@ public class CaseDurableEntity : TaskEntity<CaseDurableEntityState>, ICaseDurabl
 
     public Task<DateTime> GetStartTime() => Task.FromResult(State.Running.GetValueOrDefault());
 
+    public CaseDurableEntityState GetState() => State;
+
     public void SetCaseId(int caseId) => State.CaseId = caseId;
 
     public void Reset()
@@ -63,27 +65,7 @@ public class CaseDurableEntity : TaskEntity<CaseDurableEntityState>, ICaseDurabl
 
         return true;
     }
-    /*
-    public void Reset()
-    {
-        State.Status = CaseRefreshStatus.NotStarted;
-        State.Running = null;
-        State.Retrieved = null;
-        State.Completed = null;
-        State.Failed = null;
-        State.FailedReason = null;
-    }
 
-    public void Reset()
-    {
-        State.Status = CaseRefreshStatus.NotStarted;
-        State.Running = null;
-        State.Retrieved = null;
-        State.Completed = null;
-        State.Failed = null;
-        State.FailedReason = null;
-    }
-    */
     public async Task<CaseDeltasEntity> GetCaseDocumentChanges(GetCaseDocumentsResponse getCaseDocumentsResponse)
     {
         var cmsDocuments = getCaseDocumentsResponse.CmsDocuments;

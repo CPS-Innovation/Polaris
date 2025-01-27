@@ -8,7 +8,6 @@ namespace Common.Dto.Response.Case
     {
         public DefendantsAndChargesListDto()
         {
-
         }
 
         [JsonPropertyName("caseId")]
