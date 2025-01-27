@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Dto.Response.Case;
-using Common.Dto.Response.Case.PreCharge;
-using Common.Dto.Response.Document;
 using Common.Dto.Response;
 using Common.Dto.Response.Documents;
 using Common.Logging;
@@ -18,11 +15,13 @@ using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
 using coordinator.TelemetryEvents;
 using coordinator.Validators;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Common.Domain.Document;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask;
+using Microsoft.DurableTask.Entities;
+using coordinator.Domain;
 
 namespace coordinator.Durable.Orchestration
 {
@@ -47,19 +46,17 @@ namespace coordinator.Durable.Orchestration
             _timeout = TimeSpan.FromSeconds(double.Parse(_configuration[ConfigKeys.CoordinatorOrchestratorTimeoutSecs]));
         }
 
-        [FunctionName(nameof(RefreshCaseOrchestrator))]
-        public async Task Run([OrchestrationTrigger] IDurableOrchestrationContext context)
+        [Function(nameof(RefreshCaseOrchestrator))]
+        public async Task Run([OrchestrationTrigger] TaskOrchestrationContext context)
         {
             var payload = context.GetInput<CasePayload>()
                 ?? throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
 
-            var log = context.CreateReplaySafeLogger(_log);
+            var log = context.CreateReplaySafeLogger(nameof(RefreshCaseOrchestrator));
+            var caseEntityId = CaseDurableEntity.GetEntityId(payload.CaseId);
 
-            var caseEntity = context.CreateEntityProxy<ICaseDurableEntity>(
-                CaseDurableEntity.GetEntityId(payload.CaseId)
-            );
-
-            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
+            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetCaseStatus), new SetCaseStatusPayload { UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.Running, FailedReason = null });
+            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetCaseId), payload.CaseId);
 
             RefreshedCaseEvent telemetryEvent = default;
             try
@@ -67,10 +64,12 @@ namespace coordinator.Durable.Orchestration
                 telemetryEvent = new RefreshedCaseEvent(
                     correlationId: payload.CorrelationId,
                     caseId: payload.CaseId,
-                    startTime: await caseEntity.GetStartTime()
-                );
+                    startTime: await context.Entities.CallEntityAsync<DateTime>(caseEntityId, nameof(CaseDurableEntity.GetStartTime)))
+                {
+                    OperationName = nameof(RefreshCaseOrchestrator),
+                };
 
-                var orchestratorTask = RunCaseOrchestrator(context, caseEntity, payload, telemetryEvent);
+                var orchestratorTask = RunCaseOrchestrator(context, caseEntityId, payload, telemetryEvent, log);
 
                 using var cts = new CancellationTokenSource();
                 var deadline = context.CurrentUtcDateTime.Add(_timeout);
@@ -90,7 +89,7 @@ namespace coordinator.Durable.Orchestration
             }
             catch (Exception exception)
             {
-                caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Failed, exception.Message));
+                await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetCaseStatus), new SetCaseStatusPayload { UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.Failed, FailedReason = exception.Message });
 
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshCaseOrchestrator), $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 _telemetryClient.TrackEventFailure(telemetryEvent);
@@ -98,67 +97,61 @@ namespace coordinator.Durable.Orchestration
             }
         }
 
-        private async Task RunCaseOrchestrator(IDurableOrchestrationContext context, ICaseDurableEntity caseEntity, CasePayload payload, RefreshedCaseEvent telemetryEvent)
+        private async Task RunCaseOrchestrator(TaskOrchestrationContext context, EntityInstanceId caseEntityId, CasePayload payload, RefreshedCaseEvent telemetryEvent, ILogger logger)
         {
-            caseEntity.Reset();
-            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null));
+            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.Reset));
+            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetCaseStatus), new SetCaseStatusPayload { UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.Running, FailedReason = null });
 
             var documents = await GetDocuments(context, payload);
             telemetryEvent.CmsDocsCount = documents.CmsDocuments.Length;
-            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.DocumentsRetrieved, null));
+            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetCaseStatus), new SetCaseStatusPayload { UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.DocumentsRetrieved, FailedReason = null });
 
-            var log = context.CreateReplaySafeLogger(_log);
-            var (documentTasks, cmsDocsProcessedCount, pcdRequestsProcessedCount) = await GetDocumentTasks(context, caseEntity, payload, documents, log);
+            var (documentTasks, cmsDocsProcessedCount, pcdRequestsProcessedCount) = await GetDocumentTasks(context, caseEntityId, payload, documents);
             telemetryEvent.CmsDocsProcessedCount = cmsDocsProcessedCount;
             telemetryEvent.PcdRequestsProcessedCount = pcdRequestsProcessedCount;
             await Task.WhenAll(documentTasks.Select(BufferCall));
 
-            caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Completed, null));
-
+            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetCaseStatus), new SetCaseStatusPayload { UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.Completed, FailedReason = null });
             telemetryEvent.EndTime = context.CurrentUtcDateTime;
         }
 
-        private async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>
-        GetDocuments(IDurableOrchestrationContext context, CasePayload payload)
+        private async Task<GetCaseDocumentsResponse> GetDocuments(TaskOrchestrationContext context, CasePayload payload)
         {
-            var documents = await context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), payload);
+            var documents = await context.CallActivityAsync<GetCaseDocumentsResponse>(nameof(GetCaseDocuments), payload);
             if (!_cmsDocumentsResponseValidator.Validate(documents.CmsDocuments))
             {
                 throw new CaseOrchestrationException("Invalid cms documents response: duplicate document ids detected.");
             }
+
             return documents;
         }
 
-        private async Task<(List<Task<RefreshDocumentResult>>, int, int)> GetDocumentTasks
-            (
-                IDurableOrchestrationContext context,
-                ICaseDurableEntity caseTracker,
-                CasePayload casePayload,
-                (CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) documents,
-                ILogger log
-            )
+        private async Task<(List<Task<RefreshDocumentResult>>, int, int)> GetDocumentTasks(
+            TaskOrchestrationContext context,
+            EntityInstanceId caseEntityId,
+            CasePayload casePayload,
+            GetCaseDocumentsResponse documents)
         {
             var now = context.CurrentUtcDateTime;
-            var deltas = await caseTracker.GetCaseDocumentChanges((documents.CmsDocuments, documents.PcdRequests, documents.DefendantsAndCharges));
+            var deltas = await context.Entities.CallEntityAsync<CaseDeltasEntity>(caseEntityId, nameof(CaseDurableEntity.GetCaseDocumentChanges), documents);
 
             var createdOrUpdatedDocuments = deltas.CreatedCmsDocuments.Concat(deltas.UpdatedCmsDocuments).ToList();
             var createdOrUpdatedPcdRequests = deltas.CreatedPcdRequests.Concat(deltas.UpdatedPcdRequests).ToList();
             var createdOrUpdatedDefendantsAndCharges = deltas.CreatedDefendantsAndCharges ?? deltas.UpdatedDefendantsAndCharges;
 
-            var cmsDocumentPayloads
-                = createdOrUpdatedDocuments
-                    .Select(((CmsDocumentEntity doc, DocumentDeltaType delta) item) => new DocumentPayload(
+            var cmsDocumentPayloads = createdOrUpdatedDocuments
+                    .Select(documentDelta => new DocumentPayload(
                             casePayload.Urn,
                             casePayload.CaseId,
-                            item.doc.DocumentId,
-                            item.doc.VersionId,
-                            item.doc.Path,
-                            item.doc.CmsDocType,
+                            documentDelta.Document.DocumentId,
+                            documentDelta.Document.VersionId,
+                            documentDelta.Document.Path,
+                            documentDelta.Document.CmsDocType,
                             DocumentNature.Types.Document,
-                            item.delta,
+                            documentDelta.DeltaType,
                             casePayload.CmsAuthValues,
                             casePayload.CorrelationId,
-                            item.doc.IsOcrProcessed)
+                            documentDelta.Document.IsOcrProcessed)
                     ).ToList();
 
             var pcdRequestsPayloads
@@ -201,8 +194,8 @@ namespace coordinator.Durable.Orchestration
                         payload => context.CallSubOrchestratorAsync<RefreshDocumentResult>
                         (
                             nameof(RefreshDocumentOrchestrator),
-                            RefreshDocumentOrchestrator.GetKey(payload.CaseId, payload.DocumentId),
-                            payload
+                            payload,
+                            PollingHelper.DefaultActivityOptions
                         )
                     );
 

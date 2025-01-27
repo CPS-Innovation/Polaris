@@ -1,10 +1,10 @@
 ﻿using Common.Dto.Response.Documents;
-using coordinator.Durable.Entity;
+using coordinator.Domain;
 
 namespace coordinator.Functions.DurableEntity.Entity.Mapper
 {
     public interface ICaseDurableEntityMapper
     {
-        public TrackerDto MapCase(CaseDurableEntity caseEntity);
+        public TrackerDto MapCase(CaseDurableEntityState caseEntity, CaseDurableEntityDocumentsState documents);
     }
 }

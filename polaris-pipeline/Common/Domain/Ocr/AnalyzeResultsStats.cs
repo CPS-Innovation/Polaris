@@ -1,7 +1,11 @@
-namespace Common.Domain.Ocr
+namespace Common.Domain.Ocr;
+
+public class AnalyzeResultsStats
 {
-  public class AnalyzeResultsStats
-  {
+    public AnalyzeResultsStats()
+    {
+
+    }
 
     public long PageCount { get; set; }
 
@@ -10,14 +14,10 @@ namespace Common.Domain.Ocr
     public long WordCount { get; set; }
 
 
-    public static AnalyzeResultsStats FromAnalyzeResults(AnalyzeResults analyzeResults)
+    public static AnalyzeResultsStats FromAnalyzeResults(AnalyzeResults analyzeResults) => new ()
     {
-      return new AnalyzeResultsStats
-      {
         PageCount = analyzeResults.PageCount,
         LineCount = analyzeResults.LineCount,
         WordCount = analyzeResults.WordCount
-      };
-    }
-  }
+    };
 }

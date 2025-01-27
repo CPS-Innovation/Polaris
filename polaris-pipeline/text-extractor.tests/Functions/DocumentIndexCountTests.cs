@@ -6,7 +6,6 @@ using AutoFixture;
 using Common.Exceptions;
 using Common.Dto.Response;
 using Common.Handlers;
-using Common.Telemetry;
 using Common.Wrappers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +24,6 @@ namespace text_extractor.tests.Functions
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Mock<ILogger<DocumentIndexCount>> _mockLogger;
-        private readonly Mock<ITelemetryAugmentationWrapper> _mockTelemetryAugmentationWrapper;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Guid _correlationId;
         private readonly int _caseId;
@@ -39,7 +37,6 @@ namespace text_extractor.tests.Functions
 
             _mockSearchIndexService = new Mock<ISearchIndexService>();
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
-            _mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _correlationId = _fixture.Create<Guid>();
             _fixture.Create<Guid>();
@@ -55,7 +52,6 @@ namespace text_extractor.tests.Functions
             _documentIndexCount = new DocumentIndexCount(
                 _mockLogger.Object,
                 _mockSearchIndexService.Object,
-                _mockTelemetryAugmentationWrapper.Object,
                 _mockExceptionHandler.Object
             );
         }
@@ -63,31 +59,31 @@ namespace text_extractor.tests.Functions
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndLoggerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(null, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(null, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndSearchIndexServiceIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndJsonConvertWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndTelemetryAugmentationWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndExceptionHandlerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, _mockTelemetryAugmentationWrapper.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]

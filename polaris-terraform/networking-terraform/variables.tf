@@ -74,9 +74,6 @@ variable "polarisScaleSetSubnet" {
 variable "polarisApps2Subnet" {
 }
 
-variable "polarisAppGatewaySubnet" {
-}
-
 variable "polarisMaintenanceSubnet" {
 }
 

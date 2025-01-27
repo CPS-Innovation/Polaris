@@ -1,26 +1,26 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.DurableTask.Client;
 
 namespace coordinator.Durable.Providers;
 
 public class QueryConditionFactory : IQueryConditionFactory
 {
-    public OrchestrationStatusQueryCondition Create(IEnumerable<OrchestrationRuntimeStatus> runtimeStatuses, string instanceIdPrefix) =>
-    new OrchestrationStatusQueryCondition
+    public OrchestrationQuery Create(IEnumerable<OrchestrationRuntimeStatus> runtimeStatuses, string instanceIdPrefix) =>
+    new OrchestrationQuery
     {
         InstanceIdPrefix = instanceIdPrefix,
-        RuntimeStatus = runtimeStatuses,
+        Statuses = runtimeStatuses,
     };
 
-    public OrchestrationStatusQueryCondition Create(DateTime createdTimeTo, int batchSize) =>
-    new OrchestrationStatusQueryCondition
+    public OrchestrationQuery Create(DateTime createdTimeTo, int batchSize) =>
+    new OrchestrationQuery
     {
         // each case has a single entity, so if we target entities via @ prefix and use PageSize,
         //  this should be an efficient way to get unique cases that satisfy the createdTimeTo condition.
 
-        InstanceIdPrefix = "@",
-        CreatedTimeTo = createdTimeTo,
+        InstanceIdPrefix = "[",
+        CreatedTo = createdTimeTo,
         PageSize = batchSize,
     };
 }

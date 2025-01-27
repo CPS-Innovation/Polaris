@@ -1,19 +1,18 @@
 ﻿using Common.Dto.Response.Documents;
 using Mapster;
-using coordinator.Durable.Entity;
-using System.Collections.Generic;
+using coordinator.Domain;
 
 namespace coordinator.Functions.DurableEntity.Entity.Mapper
 {
     public class CaseDurableEntityMapper : ICaseDurableEntityMapper
     {
-        public TrackerDto MapCase(CaseDurableEntity caseEntity) =>
+        public TrackerDto MapCase(CaseDurableEntityState caseEntity, CaseDurableEntityDocumentsState documents) =>
             caseEntity == null
                 // todo: not certain that we need to handle a null caseEntity
                 ? new TrackerDto
                 {
-                    Documents = new List<DocumentDto>(),
+                    Documents = [],
                 }
-                : caseEntity.Adapt<TrackerDto>();
+                : (caseEntity, documents).Adapt<TrackerDto>();
     }
 }

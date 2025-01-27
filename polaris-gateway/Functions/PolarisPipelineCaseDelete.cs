@@ -20,7 +20,7 @@ public class PolarisPipelineCaseDelete : BaseFunction
         ILogger<PolarisPipelineCaseDelete> logger,
         ICoordinatorClient coordinatorClient,
         ITelemetryClient telemetryClient)
-        : base(telemetryClient)
+        : base()
     {
         _logger = logger;
         _coordinatorClient = coordinatorClient;
