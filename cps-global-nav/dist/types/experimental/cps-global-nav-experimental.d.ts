@@ -1,4 +1,4 @@
-import { EventEmitter } from "../../stencil-public-runtime";
+import { EventEmitter } from "../stencil-public-runtime";
 export declare class CpsGlobalNavExperimental {
     /**
      * The text to appear at the start of the second row

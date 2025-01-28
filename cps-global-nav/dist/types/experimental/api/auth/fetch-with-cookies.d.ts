@@ -1,1 +1,1 @@
-export declare const fetchWithCookies: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+export declare const fetchWithCookies: (input: URL | RequestInfo, init?: RequestInit) => Promise<Response>;

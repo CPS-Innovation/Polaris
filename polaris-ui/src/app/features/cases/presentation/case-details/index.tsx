@@ -61,7 +61,6 @@ import {
   isTaggedTriageContext,
   TaggedContext,
 } from "../../../../inbound-handover/context";
-import "cps-global-nav";
 
 export const path = "/case-details/:urn/:id";
 
@@ -277,7 +276,12 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
     //  (we are prepared to show page whilst waiting for docs to load though)
-    return <WaitPage />;
+    return (
+      <>
+        <cps-global-nav></cps-global-nav>
+        <WaitPage />
+      </>
+    );
   }
 
   const isMultipleDefendantsOrCharges = isMultipleChargeCase(caseState.data);
@@ -445,24 +449,26 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   return (
     <div>
-      <cps-global-nav
-        name={
-          caseState.data.leadDefendantDetails?.type === "Organisation"
-            ? caseState.data.leadDefendantDetails?.organisationName
-            : caseState.data.leadDefendantDetails?.surname +
-              ", " +
-              caseState.data.leadDefendantDetails?.firstNames
-        }
-      >
-        {featureFlags.notifications && (
-          <Notifications
-            state={notificationState}
-            handleOpenPdf={handleOpenPdf}
-            handleClearAllNotifications={handleClearAllNotifications}
-            handleClearNotification={handleClearNotification}
-          ></Notifications>
-        )}
-      </cps-global-nav>
+      {featureFlags.globalNav && (
+        <cps-global-nav
+          name={
+            caseState.data.leadDefendantDetails?.type === "Organisation"
+              ? caseState.data.leadDefendantDetails?.organisationName
+              : caseState.data.leadDefendantDetails?.surname +
+                ", " +
+                caseState.data.leadDefendantDetails?.firstNames
+          }
+        >
+          {featureFlags.notifications && (
+            <Notifications
+              state={notificationState}
+              handleOpenPdf={handleOpenPdf}
+              handleClearAllNotifications={handleClearAllNotifications}
+              handleClearNotification={handleClearNotification}
+            ></Notifications>
+          )}
+        </cps-global-nav>
+      )}
 
       <div className={reclassifyDetails.open ? classes.reclassifyMode : ""}>
         {errorModal.show && (
@@ -585,6 +591,14 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           >
             {backLinkProps.label}
           </BackLink>
+          {!featureFlags.globalNav && featureFlags.notifications && (
+            <Notifications
+              state={notificationState}
+              handleOpenPdf={handleOpenPdf}
+              handleClearAllNotifications={handleClearAllNotifications}
+              handleClearNotification={handleClearNotification}
+            ></Notifications>
+          )}
         </nav>
         <PageContentWrapper>
           <div

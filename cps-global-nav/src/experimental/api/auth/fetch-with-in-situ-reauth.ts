@@ -1,7 +1,7 @@
 import fetchJsonp from "fetch-jsonp";
 import { assembleRedirectUrl, AuthFailReason, FetchArgs, getCorrelationIdFromFetchArgs, isCmsAuthFail } from "./core";
 import { fetchWithCookies } from "./fetch-with-cookies";
-import { CmsAuthError } from "../../../errors/CmsAuthError";
+import { CmsAuthError } from "../../errors/CmsAuthError";
 import { REAUTH_IN_SITU_TERMINATION_URL, REAUTH_REDIRECT_URL_INBOUND, REAUTH_REDIRECT_URL_OUTBOUND } from "../../config";
 
 type InSituReauthResult = {

@@ -39,7 +39,7 @@
 </body>
 
 <script>
-  document.querySelector("cps-global-nav").addEventListener("change", (ev) => console.log(ev.detail));
+  document.addEventListener("cps-global-nav-event", (ev) => alert(`Event received with data: ${ev.detail}`));
 </script>
 
 </html>

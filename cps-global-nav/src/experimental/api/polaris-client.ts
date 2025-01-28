@@ -1,6 +1,6 @@
 import { buildHeaders } from "../ad-auth/header-factory";
 import { GATEWAY_BASE_URL } from "../config";
-import { ApiError } from "../../errors/ApiError";
+import { ApiError } from "../errors/ApiError";
 import { UrnLookupResult } from "../domain/UrnLookupResult";
 import { fetchWithInSituReauth } from "./auth/fetch-with-in-situ-reauth";
 import { CaseDetails } from "../domain/CaseDetails";

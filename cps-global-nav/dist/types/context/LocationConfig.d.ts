@@ -1,4 +1,4 @@
-export type LinkCode = "tasks" | "cases" | "details" | "case-materials" | "bulk-um-classification" | "review";
+export type LinkCode = "tasks" | "cases" | "details" | "case-materials" | "bulk-um-classification" | "review" | "cms-pre-charge-triage";
 export type OnwardLinkDefinitions = Partial<{
     [key in LinkCode]: string;
 }>;
@@ -9,6 +9,7 @@ export type PathMatcher = {
     onwardLinks: OnwardLinkDefinitions;
 };
 export type MatchedPathMatcher = Omit<PathMatcher, "paths"> & {
+    href: string;
     pathTags?: {
         [key: string]: string;
     };

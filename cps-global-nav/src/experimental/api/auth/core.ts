@@ -1,4 +1,4 @@
-import { CmsAuthError } from "../../../errors/CmsAuthError";
+import { CmsAuthError } from "../../errors/CmsAuthError";
 
 export const REAUTHENTICATION_INDICATOR_QUERY_PARAM = "auth-refresh";
 export const FAIL_CORRELATION_ID_QUERY_PARAM = "fail-correlation-id";

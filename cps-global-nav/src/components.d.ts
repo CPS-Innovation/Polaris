@@ -5,11 +5,10 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
-import { LinkProps } from "./components/cps-global-nav/links/LinkProps";
-export { LinkProps } from "./components/cps-global-nav/links/LinkProps";
+import { LinkProps } from "./components/cps-global-nav/internal/LinkProps";
+export { LinkProps } from "./components/cps-global-nav/internal/LinkProps";
 export namespace Components {
     interface CpsGlobalNav {
-        "forceEnvironment": string;
         /**
           * The text to appear at the start of the second row
          */
@@ -28,32 +27,23 @@ export namespace Components {
         "menuAlignment": "left" | "right";
     }
     interface NavLink {
+        "disabled": boolean;
         "href": string;
         "label": string;
+        "openInNewTab"?: boolean;
         "selected": boolean;
     }
-}
-export interface CpsGlobalNavCustomEvent<T> extends CustomEvent<T> {
-    detail: T;
-    target: HTMLCpsGlobalNavElement;
 }
 export interface CpsGlobalNavExperimentalCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLCpsGlobalNavExperimentalElement;
 }
+export interface NavLinkCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLNavLinkElement;
+}
 declare global {
-    interface HTMLCpsGlobalNavElementEventMap {
-        "cpsGlobalNavEvent": string;
-    }
     interface HTMLCpsGlobalNavElement extends Components.CpsGlobalNav, HTMLStencilElement {
-        addEventListener<K extends keyof HTMLCpsGlobalNavElementEventMap>(type: K, listener: (this: HTMLCpsGlobalNavElement, ev: CpsGlobalNavCustomEvent<HTMLCpsGlobalNavElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLCpsGlobalNavElementEventMap>(type: K, listener: (this: HTMLCpsGlobalNavElement, ev: CpsGlobalNavCustomEvent<HTMLCpsGlobalNavElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLCpsGlobalNavElement: {
         prototype: HTMLCpsGlobalNavElement;
@@ -82,7 +72,18 @@ declare global {
         prototype: HTMLDropDownElement;
         new (): HTMLDropDownElement;
     };
+    interface HTMLNavLinkElementEventMap {
+        "cps-global-nav-event": string;
+    }
     interface HTMLNavLinkElement extends Components.NavLink, HTMLStencilElement {
+        addEventListener<K extends keyof HTMLNavLinkElementEventMap>(type: K, listener: (this: HTMLNavLinkElement, ev: NavLinkCustomEvent<HTMLNavLinkElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+        addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLNavLinkElementEventMap>(type: K, listener: (this: HTMLNavLinkElement, ev: NavLinkCustomEvent<HTMLNavLinkElementEventMap[K]>) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+        removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
     }
     var HTMLNavLinkElement: {
         prototype: HTMLNavLinkElement;
@@ -97,12 +98,10 @@ declare global {
 }
 declare namespace LocalJSX {
     interface CpsGlobalNav {
-        "forceEnvironment"?: string;
         /**
           * The text to appear at the start of the second row
          */
         "name"?: string;
-        "onCpsGlobalNavEvent"?: (event: CpsGlobalNavCustomEvent<string>) => void;
     }
     interface CpsGlobalNavExperimental {
         "forceEnvironment"?: string;
@@ -118,8 +117,11 @@ declare namespace LocalJSX {
         "menuAlignment"?: "left" | "right";
     }
     interface NavLink {
+        "disabled"?: boolean;
         "href"?: string;
         "label"?: string;
+        "onCps-global-nav-event"?: (event: NavLinkCustomEvent<string>) => void;
+        "openInNewTab"?: boolean;
         "selected"?: boolean;
     }
     interface IntrinsicElements {

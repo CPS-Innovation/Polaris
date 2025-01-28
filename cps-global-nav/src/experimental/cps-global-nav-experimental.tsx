@@ -6,7 +6,7 @@ import { Component, Prop, h, Event, EventEmitter, State } from "@stencil/core";
 //import { CaseDetails } from "../../domain/CaseDetails";
 @Component({
   tag: "cps-global-nav-experimental",
-  styleUrl: "cps-global-nav.scss",
+  styleUrl: "../components/cps-global-nav/cps-global-nav.scss",
   shadow: true,
 })
 export class CpsGlobalNavExperimental {

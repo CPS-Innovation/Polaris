@@ -1,5 +1,5 @@
-import { B as BUILD, c as consoleDevInfo, H, d as doc, N as NAMESPACE, p as promiseResolve, b as bootstrapLazy } from './index-818db758.js';
-export { s as setNonce } from './index-818db758.js';
+import { B as BUILD, c as consoleDevInfo, H, d as doc, N as NAMESPACE, p as promiseResolve, b as bootstrapLazy } from './index-7a261123.js';
+export { s as setNonce } from './index-7a261123.js';
 import { g as globalScripts } from './app-globals-0f993ce5.js';
 
 /*
@@ -43,7 +43,7 @@ var patchCloneNodeFix = (HTMLElementPrototype) => {
 
 patchBrowser().then(async (options) => {
   await globalScripts();
-  return bootstrapLazy([["cps-global-nav",[[1,"cps-global-nav",{"name":[1],"forceEnvironment":[1,"force-environment"],"config":[32]}]]],["cps-global-nav-experimental",[[1,"cps-global-nav-experimental",{"name":[1],"forceEnvironment":[1,"force-environment"],"leadDefendantPresentationName":[32],"leadDefendantClassName":[32]}]]],["nav-link",[[0,"nav-link",{"label":[1],"href":[1],"selected":[4]}]]],["drop-down",[[0,"drop-down",{"label":[1],"links":[16],"menuAlignment":[1,"menu-alignment"],"opened":[32]},[[4,"click","checkForClickOutside"]]]]]], options);
+  return bootstrapLazy([["cps-global-nav",[[1,"cps-global-nav",{"name":[1],"config":[32]}]]],["cps-global-nav-experimental",[[1,"cps-global-nav-experimental",{"name":[1],"forceEnvironment":[1,"force-environment"],"leadDefendantPresentationName":[32],"leadDefendantClassName":[32]}]]],["nav-link",[[0,"nav-link",{"label":[1],"href":[1],"selected":[4],"disabled":[4],"openInNewTab":[4,"open-in-new-tab"]}]]],["drop-down",[[0,"drop-down",{"label":[1],"links":[16],"menuAlignment":[1,"menu-alignment"],"opened":[32]},[[4,"click","checkForClickOutside"]]]]]], options);
 });
 
 //# sourceMappingURL=cps-global-nav.esm.js.map

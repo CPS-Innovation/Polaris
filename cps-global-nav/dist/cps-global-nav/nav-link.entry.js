@@ -1,11 +1,31 @@
-import { r as registerInstance, h } from './index-818db758.js';
+import { r as registerInstance, a as createEvent, h } from './index-7a261123.js';
 
 const NavLink = class {
     constructor(hostRef) {
         registerInstance(this, hostRef);
+        this.cpsGlobalNavEvent = createEvent(this, "cps-global-nav-event", 7);
+        this.emitEvent = () => {
+            this.cpsGlobalNavEvent.emit(this.href);
+        };
+        this.launchNewTab = () => {
+            window.open(this.href, "_blank", "noopener,noreferrer");
+        };
     }
     render() {
-        return (h("li", { key: '9042e7e019268947a8bcb9fa5d458330fd8a7842', class: this.selected ? "selected" : "" }, h("a", { key: 'e3bbdd477367448ac41b1ec1833f8cdfa2762484', class: `govuk-link ${this.selected ? "disabled" : ""}`, "aria-disabled": this.selected, href: this.href }, this.label)));
+        const mode = this.disabled || !this.href ? "disabled" : this.openInNewTab ? "new-tab" : !this.href.startsWith("http") ? "emit-event" : "standard";
+        const renderLink = () => {
+            switch (mode) {
+                case "disabled":
+                    return (h("a", { class: "govuk-link disabled", "aria-disabled": true, href: this.href }, this.label));
+                case "new-tab":
+                    return (h("button", { class: "linkButton", onClick: this.launchNewTab }, this.label));
+                case "emit-event":
+                    return (h("button", { class: "linkButton", onClick: this.emitEvent }, this.label));
+                default:
+                    return (h("a", { class: "govuk-link", href: this.href }, this.label));
+            }
+        };
+        return h("li", { class: this.selected ? "selected" : "" }, renderLink());
     }
 };
 

@@ -1,4 +1,4 @@
-import { CmsAuthError } from "../../../errors/CmsAuthError";
+import { CmsAuthError } from "../../errors/CmsAuthError";
 export declare const REAUTHENTICATION_INDICATOR_QUERY_PARAM = "auth-refresh";
 export declare const FAIL_CORRELATION_ID_QUERY_PARAM = "fail-correlation-id";
 export declare const AUTH_FAIL_REASON_QUERY_PARAM = "auth-fail-reason";
@@ -22,7 +22,7 @@ export declare enum AuthFailReason {
 }
 export declare const buildCmsAuthError: (authFailReason: AuthFailReason | null | undefined) => CmsAuthError;
 export declare const isCmsAuthFail: (response: Response) => boolean;
-export declare const getCorrelationIdFromFetchArgs: (input: RequestInfo | URL, init?: RequestInit) => string;
+export declare const getCorrelationIdFromFetchArgs: (input: URL | RequestInfo, init?: RequestInit) => string;
 type AssembleRedirectUrlArg = {
     outboundUrl: string;
     inboundUrl: string;

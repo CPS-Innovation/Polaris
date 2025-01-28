@@ -1,4 +1,4 @@
-import { r as registerInstance, h } from './index-818db758.js';
+import { r as registerInstance, h } from './index-7a261123.js';
 
 const DropDown = class {
     constructor(hostRef) {
@@ -14,7 +14,7 @@ const DropDown = class {
         }
     }
     render() {
-        return (h("li", { key: '619c2909743b17efc381b3848104bd5e0c1d8234', class: `dropdown ${this.opened ? "active" : ""} ${this.links.some(link => link.selected) ? "selected" : ""}` }, h("button", { key: '12044cea249d4b421fdc0714b596610b01d0b1ee', class: "linkButton", onClick: this.handleLabelClick, ref: el => (this.topLevelHyperlink = el) }, this.label), h("ul", { key: 'c04739efb12e8154c2b3158c59e2f6ceb21d41c6', class: this.menuAlignment == "right" ? "align-right" : "" }, this.links.map(link => (h("nav-link", Object.assign({}, link)))))));
+        return (h("li", { key: '62413672c3116db30fc051f61b9c022bf80c45e6', class: `dropdown ${this.opened ? "active" : ""} ${this.links.some(link => link.selected) ? "selected" : ""}` }, h("button", { key: 'ae528c4ac9c0a3fa87c2ef63bb7a48e742249fcb', class: "linkButton", onClick: this.handleLabelClick, ref: el => (this.topLevelHyperlink = el) }, this.label), h("ul", { key: '25fd3a08deee7ecada03353cf230ca01abb1dbff', class: this.menuAlignment == "right" ? "align-right" : "" }, this.links.map(link => (h("nav-link", Object.assign({}, link)))))));
     }
 };
 

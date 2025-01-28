@@ -147,6 +147,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         notifications,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
+      globalNav: true,
     }),
     []
   );

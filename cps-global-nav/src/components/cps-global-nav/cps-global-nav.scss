@@ -29,21 +29,6 @@ a.govuk-link {
   z-index: -1;
 }
 
-.background-left-only {
-  background-color: govuk-colour("light-grey");
-  position: relative;
-  display: grid;
-}
-
-.background-left-only:before {
-  content: "";
-  background-color: govuk-colour("light-grey");
-  position: absolute;
-  height: 100%;
-  width: 100vw;
-  left: -100vw;
-}
-
 @mixin horizontal-list {
   list-style-type: none;
   margin: 0;
@@ -63,12 +48,43 @@ a.govuk-link {
   align-items: center;
   ul {
     @include horizontal-list();
-    li {
-      margin: 0 1.8rem 0 0;
-      a {
-        font-weight: bold;
+
+    nav-link {
+      align-self: stretch;
+
+      li {
+        height: 100%;
+
+        a {
+          display: inline-block;
+          padding: $level-height / 5;
+          font-weight: bold;
+        }
       }
     }
+    margin-left: -1 * $level-height / 5;
+  }
+
+  ul:last-child {
+    margin-left: auto;
+    li {
+      margin: 0;
+    }
+  }
+
+  li.selected:not(:has(:focus)):before {
+    background-color: #1d70b8;
+    content: "";
+    display: block;
+    height: 3px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  .selected {
+    position: relative;
   }
 }
 
@@ -81,6 +97,9 @@ $arrow-length: $level-height/2;
   background-color: govuk-colour("white");
 
   div:first-child {
+    position: relative;
+    display: grid;
+
     @include govuk-font($size: 19);
     font-weight: bold;
     background-color: govuk-colour("light-grey");
@@ -93,6 +112,15 @@ $arrow-length: $level-height/2;
       //min-width: 12rem;
     }
 
+    &::before {
+      content: "";
+      background-color: govuk-colour("light-grey");
+      position: absolute;
+      height: 100%;
+      width: 100vw;
+      left: -100vw;
+    }
+
     &:after {
       content: "";
       background-color: govuk-colour("white");
@@ -102,15 +130,14 @@ $arrow-length: $level-height/2;
       border-top: $arrow-length solid transparent;
     }
 
-    &.please-wait {
-      color: govuk-colour("dark-grey");
+    & + ul {
+      margin-left: 1rem;
     }
   }
 
   & > ul {
     @include horizontal-list();
-    margin-left: 1rem;
-
+    //margin-left: -0.5rem;
     li {
       margin: 0 1.8rem 0 0;
     }
@@ -123,6 +150,13 @@ $arrow-length: $level-height/2;
   ul:last-child {
     li {
       margin-right: 0;
+    }
+  }
+
+  .selected {
+    & > a,
+    & > button {
+      font-weight: bold;
     }
   }
 }
@@ -139,7 +173,7 @@ $arrow-length: $level-height/2;
     height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-top: 8px solid #1d70b8;
+    border-top: 8px solid $govuk-link-colour;
     position: absolute;
   }
 
@@ -163,7 +197,7 @@ $arrow-length: $level-height/2;
     margin: 0;
     min-width: 250px;
     box-shadow: 10px 10px 10px 10px rgba(0, 0, 0, 0.2);
-    border-top: 5px solid #1d70b8;
+    border-top: 5px solid $govuk-link-colour;
 
     &.align-right {
       right: 0;
@@ -177,15 +211,15 @@ $arrow-length: $level-height/2;
         width: 92%;
         font-size: 1.3rem;
         padding: 2% 4%;
-
-        &.disabled {
-          color: #b1b4b6;
-          pointer-events: none;
-          cursor: default;
-        }
       }
     }
   }
+}
+
+a.disabled {
+  color: #b1b4b6;
+  pointer-events: none;
+  cursor: default;
 }
 
 ul:has(.dropdown) {
@@ -206,11 +240,11 @@ ul:has(.dropdown) {
   width: fit-content;
   color: #1d70b8;
   @include govuk-font($size: 19);
-
+  padding: 0;
   &:focus {
     color: #0b0c0c;
-    background-color: #ffdd00;
-    box-shadow: 0 0.25rem 0 #0b0c0c;
+    background-color: $govuk-focus-colour;
+    box-shadow: 0 0.25rem 0 $govuk-input-border-colour;
     outline: 0.1875rem solid transparent;
   }
 }

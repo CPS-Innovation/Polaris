@@ -16,6 +16,7 @@ export type FeatureFlagData = {
   pageDelete: boolean;
   pageRotate: boolean;
   notifications: boolean;
+  globalNav: boolean;
 };
 
 export type FeatureFlagQueryParams = {
