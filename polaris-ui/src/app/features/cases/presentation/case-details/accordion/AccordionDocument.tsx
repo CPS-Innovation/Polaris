@@ -220,12 +220,6 @@ export const AccordionDocument: React.FC<Props> = ({
           documentType: caseDocument.cmsDocType.documentTypeId,
           documentDocumentType: caseDocument.cmsDocType.documentType,
         });
-        console.log(
-          urn,
-          +caseId,
-          caseDocument.documentId,
-          caseDocument.isUnused
-        );
         handleToggleDocumentState(
           urn,
           +caseId,
