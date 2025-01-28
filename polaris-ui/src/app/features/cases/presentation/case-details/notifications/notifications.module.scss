@@ -114,11 +114,13 @@
     }
 
     .body {
+      .wrapper {
+        max-height: 21.5em;
+        overflow-y: scroll;
+      }
       ul {
         padding: 0;
         margin: 0;
-        max-height: 21.5em;
-        overflow-y: scroll;
 
         li {
           padding: 0.5em 0.5em 0 0.5em;
@@ -176,5 +178,14 @@
         box-shadow: 0 0 0.526em 0 rgba(0, 0, 0, 0.3);
       }
     }
+  }
+  .visuallyHidden {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
   }
 }
