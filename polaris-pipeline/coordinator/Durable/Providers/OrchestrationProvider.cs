@@ -98,7 +98,7 @@ public class OrchestrationProvider : IOrchestrationProvider
             );
 
             var entityPurgeInstanceIds = new List<string>();
-            await foreach (var page in client.Entities.GetAllEntitiesAsync(new Microsoft.DurableTask.Client.Entities.EntityQuery { InstanceIdStartsWith = $"@{nameof(CaseDurableEntity).ToLower()}@{CaseDurableEntity.GetKey(caseId)}", }).AsPages())
+            await foreach (var page in client.Entities.GetAllEntitiesAsync(new Microsoft.DurableTask.Client.Entities.EntityQuery { InstanceIdStartsWith = $"@{nameof(CaseDurableEntity).ToLower()}@{CaseDurableEntity.GetKey(caseId)}", IncludeState = false }).AsPages())
             {
                 entityPurgeInstanceIds.AddRange(page.Values.Select(o => o.Id.ToString()));
             }
