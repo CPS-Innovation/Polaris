@@ -47,6 +47,10 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("div-pdfviewer-0").should("not.exist");
     cy.findByTestId("pdfTab-spinner-0").should("not.exist");
     cy.findByTestId("div-pdfviewer-0").should("exist");
+    cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
+      body: documentList[1],
+      timeMs: 1000,
+    });
 
     //saving for the second time
     cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
@@ -235,9 +239,13 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("div-pdfviewer-1").should("exist");
     cy.findByTestId("btn-tab-0").click();
     cy.findByTestId("div-pdfviewer-0").should("not.exist");
+    cy.findByTestId("tab-active").should("contains.text", "Deleted");
     cy.findAllByText(
       "This document has been deleted and is unavailable."
     ).should("exist");
+    cy.findByTestId("tab-remove").click();
+    cy.findByTestId("tab-active").should("contains.text", "MCLOVEMG3");
+    cy.findByTestId("div-pdfviewer-0").should("exist");
   });
 
   it("should show correct error message on unsuccessful checkout, due to the document is locked by another user", () => {

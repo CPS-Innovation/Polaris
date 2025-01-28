@@ -27,6 +27,7 @@ const mockConfig = configModule as {
   FEATURE_FLAG_RECLASSIFY: boolean;
   FEATURE_FLAG_PAGE_DELETE: boolean;
   FEATURE_FLAG_PAGE_ROTATE: boolean;
+  FEATURE_FLAG_STATE_RETENTION: boolean;
   PRIVATE_BETA_FEATURE_USER_GROUP: string;
   PRIVATE_BETA_FEATURE_USER_GROUP2: string;
 };

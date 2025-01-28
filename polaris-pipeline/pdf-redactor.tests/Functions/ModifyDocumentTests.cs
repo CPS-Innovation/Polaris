@@ -6,16 +6,15 @@ using AutoFixture;
 using Common.Dto.Request;
 using Common.Exceptions;
 using Common.Handlers;
-using Common.Telemetry;
 using Common.Wrappers;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
 using Moq;
-using Newtonsoft.Json;
 using pdf_redactor.Functions;
 using pdf_redactor.Services.DocumentManipulation;
 using Xunit;
+using System.Text.Json;
 
 namespace pdf_redactor.tests.Functions
 {
@@ -36,7 +35,7 @@ namespace pdf_redactor.tests.Functions
         {
             var request = _fixture.Create<ModifyDocumentWithDocumentDto>();
 
-            _serializedModifyPdfRequest = JsonConvert.SerializeObject(request);
+            _serializedModifyPdfRequest = JsonSerializer.Serialize(request);
 
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
@@ -57,14 +56,12 @@ namespace pdf_redactor.tests.Functions
             _caseId = _fixture.Create<int>();
             _documentId = _fixture.Create<string>();
 
-            var mockTelemetryAugmentationWrapper = new Mock<ITelemetryAugmentationWrapper>();
             _documentModifier = new ModifyDocument(
                 _mockExceptionHandler.Object,
                 _mockJsonConvertWrapper.Object,
                 mockDocumentManipulationService.Object,
                 _loggerMock.Object,
-                _mockValidator.Object,
-                mockTelemetryAugmentationWrapper.Object);
+                _mockValidator.Object);
         }
 
         [Fact]
@@ -167,7 +164,7 @@ namespace pdf_redactor.tests.Functions
             var ms = new MemoryStream();
             var sw = new StreamWriter(ms);
 
-            var json = JsonConvert.SerializeObject(body);
+            var json = JsonSerializer.Serialize(body);
 
             sw.Write(json);
             sw.Flush();

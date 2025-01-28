@@ -65,7 +65,7 @@ export const roundToFixedDecimalPlaces = (
   precisionCount: number = 2
 ) => round(num, precisionCount);
 
-export const getRedactionsToSaveLocally = (
+export const handleSaveRedactionsLocally = (
   items: CaseDocumentViewModel[],
   documentId: string,
   caseId: number
@@ -88,7 +88,9 @@ export const getRedactionsToSaveLocally = (
     });
   }
 
-  return filteredRedactions;
+  filteredRedactions.length
+    ? addToLocalStorage(caseId, "redactions", filteredRedactions)
+    : deleteFromLocalStorage(caseId, "redactions");
 };
 
 export const getLocallySavedRedactionHighlights = (

@@ -1,5 +1,4 @@
-import { useCallback } from "react";
-import { useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 import { PdfViewer } from "../pdf-viewer/PdfViewer";
@@ -8,7 +7,6 @@ import { HeaderReadMode } from "./HeaderReadMode";
 import { HeaderSearchMode } from "./HeaderSearchMode";
 import { HeaderAttachmentMode } from "./HeaderAttachmentMode";
 import { HeaderSearchPIIMode } from "./HeaderSearchPIIMode";
-import { PresentationFlags } from "../../../domain/gateway/PipelineDocument";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { SearchPIIRedactionWarningModal } from "../modals/SearchPIIRedactionWarningModal";
 import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
@@ -20,9 +18,12 @@ import {
   RotationDeletionWarningModal,
 } from "../modals/PageRotationDeletionWarningModal";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
+import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
+import { useAuthHeaderContext } from "../../../../../AuthHeaderProvider";
 import classes from "./PdfTab.module.scss";
 
 type PdfTabProps = {
+  mappedDocument: MappedCaseDocument;
   caseId: number;
   redactionTypesData: RedactionTypeData[];
   tabIndex: number;
@@ -32,9 +33,7 @@ type PdfTabProps = {
   featureFlags: FeatureFlagData;
   caseDocumentViewModel: CaseDocumentViewModel;
   headers: HeadersInit;
-  documentWriteStatus: PresentationFlags["write"];
   searchPIIDataItem: SearchPIIData | undefined;
-  versionId: number;
   savedDocumentDetails: {
     documentId: string;
     versionId: number;
@@ -61,19 +60,19 @@ type PdfTabProps = {
   handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
   handleSaveRotations: CaseDetailsState["handleSaveRotations"];
   handleUpdateConversionStatus: CaseDetailsState["handleUpdateConversionStatus"];
+  handleHideSaveRotationModal: CaseDetailsState["handleHideSaveRotationModal"];
 };
 
 export const PdfTab: React.FC<PdfTabProps> = ({
+  mappedDocument,
   tabIndex,
   caseId,
   redactionTypesData,
   activeTabId,
   tabId,
-  versionId,
   showOverRedactionLog,
   caseDocumentViewModel,
   headers,
-  documentWriteStatus,
   savedDocumentDetails,
   featureFlags,
   searchPIIDataItem,
@@ -96,7 +95,9 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   handleRemoveAllRotations,
   handleSaveRotations,
   handleUpdateConversionStatus,
+  handleHideSaveRotationModal,
 }) => {
+  const { buildHeaders } = useAuthHeaderContext();
   const trackEvent = useAppInsightsTrackEvent();
   const [focussedHighlightIndex, setFocussedHighlightIndex] =
     useState<number>(0);
@@ -106,6 +107,10 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     useState<{ show: boolean; type: RotationDeletionWarningModal } | null>(
       null
     );
+  const [urlWithHeader, setUrlWithHeader] = useState<{
+    url: string;
+    headers: HeadersInit;
+  } | null>(null);
   const {
     url,
     mode,
@@ -116,12 +121,36 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     areaOnlyRedactionMode,
     isDeleted,
     saveStatus,
-    cmsDocType: { documentType },
-    attachments,
-    hasFailedAttachments,
     rotatePageMode,
     deletePageMode,
   } = caseDocumentViewModel;
+
+  const {
+    cmsDocType: { documentType = "" } = {},
+    attachments,
+    hasFailedAttachments,
+    presentationFlags: { write: documentWriteStatus = "Ok" } = {},
+    versionId,
+  } = mappedDocument;
+  const isDocumentRefreshing = useMemo(() => {
+    return savedDocumentDetails.find(
+      (document) => document.documentId === caseDocumentViewModel.documentId
+    );
+  }, [savedDocumentDetails, caseDocumentViewModel.documentId]);
+
+  useEffect(() => {
+    const updateNewUrlWithHeader = async (url: string) => {
+      const headers = await buildHeaders();
+      setUrlWithHeader({ url: url, headers: headers });
+    };
+    if (isDocumentRefreshing) {
+      setUrlWithHeader(null);
+      return;
+    }
+    if (url && url !== urlWithHeader?.url) {
+      updateNewUrlWithHeader(url);
+    }
+  }, [url, urlWithHeader, buildHeaders, isDocumentRefreshing]);
 
   const showDeletePage = useMemo(
     () =>
@@ -273,11 +302,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
     handleShowHidePageDeletion(documentId, newDeletePageMode);
   };
 
-  const isDocumentRefreshing = () => {
-    return savedDocumentDetails.find(
-      (document) => document.documentId === caseDocumentViewModel.documentId
-    );
-  };
   const isSearchPIIOn = useMemo(() => {
     return !!searchPIIDataItem?.show;
   }, [searchPIIDataItem]);
@@ -336,6 +360,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
       <div>
         {mode === "search" ? (
           <HeaderSearchMode
+            mappedDocument={mappedDocument}
             caseDocumentViewModel={caseDocumentViewModel}
             handleLaunchSearchResults={handleLaunchSearchResults}
             focussedHighlightIndex={focussedHighlightIndex}
@@ -368,7 +393,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         )}
         {!!attachments.length && (
           <HeaderAttachmentMode
-            caseDocumentViewModel={caseDocumentViewModel}
+            mappedDocument={mappedDocument}
             handleOpenPdf={handleOpenPdf}
           />
         )}
@@ -389,14 +414,14 @@ export const PdfTab: React.FC<PdfTabProps> = ({
           </div>
         )}
 
-        {url && !isDocumentRefreshing() ? (
+        {urlWithHeader?.url ? (
           <PdfViewer
             redactionTypesData={redactionTypesData}
-            url={url}
+            url={urlWithHeader?.url}
             tabIndex={tabIndex}
             activeTabId={activeTabId}
             tabId={tabId}
-            headers={headers}
+            headers={urlWithHeader?.headers}
             searchHighlights={searchHighlights}
             isSearchPIIOn={isSearchPIIOn}
             isSearchPIIDefaultOptionOn={!!searchPIIDataItem?.defaultOption}
@@ -432,9 +457,12 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             ariaLabel="Refreshing document, please wait"
           />
         )}
-        {saveStatus.type === "rotation" && saveStatus.status !== "error" && (
-          <SaveRotationModal saveStatus={saveStatus.status} />
-        )}
+        <SaveRotationModal
+          saveStatus={saveStatus}
+          handleCloseSaveRotationModal={() =>
+            handleHideSaveRotationModal(documentId)
+          }
+        />
 
         {showRedactionWarning && (
           <SearchPIIRedactionWarningModal

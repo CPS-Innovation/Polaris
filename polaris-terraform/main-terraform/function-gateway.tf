@@ -78,7 +78,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     health_check_path                 = "/api/status"
     health_check_eviction_time_in_min = "2"
     application_stack {
-      dotnet_version = "8.0"
+      dotnet_version              = "8.0"
       use_dotnet_isolated_runtime = true
     }
   }

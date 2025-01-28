@@ -13,7 +13,8 @@ type Props = {
   activeDocumentId: string;
   sectionId: string;
   sectionLabel: string;
-  docs: MappedCaseDocument[];
+  documentsState: MappedCaseDocument[];
+  docs: { documentId: string }[];
   localDocumentState: LocalDocumentState;
   readUnreadData: string[];
   isOpen: boolean;
@@ -53,6 +54,7 @@ export const AccordionSection: React.FC<Props> = ({
   sectionId,
   sectionLabel,
   docs,
+  documentsState,
   localDocumentState,
   isOpen,
   readUnreadData,
@@ -65,8 +67,15 @@ export const AccordionSection: React.FC<Props> = ({
   handleReclassifyDocument,
   handleToggleDocumentState,
 }) => {
+  const mappedDocuments = useMemo(() => {
+    return docs.map(
+      ({ documentId }) =>
+        documentsState.find((doc) => doc.documentId === documentId)!
+    );
+  }, [documentsState, docs]);
+
   const groupIntoSubCategory = useCallback(() => {
-    return docs.reduce((acc, doc) => {
+    return mappedDocuments.reduce((acc, doc) => {
       if (doc.presentationSubCategory) {
         if (!acc[`${doc.presentationSubCategory}`]) {
           acc[`${doc.presentationSubCategory}`] = [doc];
@@ -76,18 +85,20 @@ export const AccordionSection: React.FC<Props> = ({
       }
       return acc;
     }, {} as Record<string, MappedCaseDocument[]>);
-  }, [docs]);
+  }, [mappedDocuments]);
 
   const subCategories = useMemo(() => {
     return groupIntoSubCategory();
   }, [groupIntoSubCategory]);
 
   const documentsWithLimitedView = () => {
-    return docs.filter((doc) => doc.presentationFlags?.read !== "Ok");
+    return mappedDocuments?.filter(
+      (doc) => doc.presentationFlags?.read !== "Ok"
+    );
   };
 
   const renderAccordionDocument = (
-    docs: MappedCaseDocument[],
+    mappedDocs: MappedCaseDocument[],
     subCategoryName?: string
   ) => {
     return (
@@ -101,14 +112,14 @@ export const AccordionSection: React.FC<Props> = ({
           </div>
         )}
         <div className={`${classes["accordion-section-document"]}`}>
-          {!docs.length ? (
+          {!mappedDocs.length ? (
             <div className={`${classes["accordion-section-no-document"]}`}>
               No Documents
             </div>
           ) : (
             <div>
               <ul className={`${classes["accordion-document-list"]}`}>
-                {docs.map((caseDocument) => (
+                {mappedDocs.map((caseDocument) => (
                   <AccordionDocument
                     key={caseDocument.documentId}
                     caseDocument={caseDocument}
@@ -151,10 +162,10 @@ export const AccordionSection: React.FC<Props> = ({
       >
         <h2
           className={`govuk-heading-s ${
-            !docs.length ? classes.zeroDocsCategory : ""
+            !mappedDocuments.length ? classes.zeroDocsCategory : ""
           }`}
         >
-          {`${sectionLabel} (${docs.length})`}
+          {`${sectionLabel} (${mappedDocuments.length})`}
         </h2>
         <span className={`${classes["icon"]}`}></span>
       </button>
@@ -178,7 +189,7 @@ export const AccordionSection: React.FC<Props> = ({
                   )}
                 </div>
               ))
-          : renderAccordionDocument(docs)}
+          : renderAccordionDocument(mappedDocuments)}
       </div>
     </div>
   );

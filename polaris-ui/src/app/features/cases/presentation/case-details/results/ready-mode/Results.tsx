@@ -11,7 +11,7 @@ type Props = {
   requestedSearchTerm: string;
   searchResult: MappedTextSearchResult;
   missingDocs: CombinedState["searchState"]["missingDocs"];
-  resultsOrder: CaseDetailsState["searchState"]["resultsOrder"];
+  resultsOrder: CombinedState["searchState"]["resultsOrder"];
   handleChangeResultsOrder: CaseDetailsState["handleChangeResultsOrder"];
   filterOptions: CombinedState["searchState"]["filterOptions"];
   handleUpdateFilter: CaseDetailsState["handleUpdateFilter"];

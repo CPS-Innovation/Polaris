@@ -17,6 +17,7 @@ export type FeatureFlagData = {
   pageRotate: boolean;
   notifications: boolean;
   isUsed: boolean;
+  stateRetention: boolean;
 };
 
 export type FeatureFlagQueryParams = {
@@ -32,6 +33,7 @@ export type FeatureFlagQueryParams = {
   pageRotate: string;
   notifications: string;
   isUsed: string;
+  stateRetention: string;
 };
 
 export type UsedOrUnusedDocument = {

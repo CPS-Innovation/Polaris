@@ -7,8 +7,10 @@ import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData
 import { SearchPIIData } from "../../../domain/gateway/SearchPIIData";
 import { LocalDocumentState } from "../../../domain/LocalDocumentState";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
+import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 
 type PdfTabsProps = {
+  mappedCaseDocuments: MappedCaseDocument[];
   redactionTypesData: RedactionTypeData[];
   tabsState: {
     items: CaseDocumentViewModel[];
@@ -49,9 +51,11 @@ type PdfTabsProps = {
   handleRemoveAllRotations: CaseDetailsState["handleRemoveAllRotations"];
   handleSaveRotations: CaseDetailsState["handleSaveRotations"];
   handleUpdateConversionStatus: CaseDetailsState["handleUpdateConversionStatus"];
+  handleHideSaveRotationModal: CaseDetailsState["handleHideSaveRotationModal"];
 };
 
 export const PdfTabs: React.FC<PdfTabsProps> = ({
+  mappedCaseDocuments,
   redactionTypesData,
   caseId,
   tabsState: { items, headers, activeTabId },
@@ -81,6 +85,7 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
   handleRemoveAllRotations,
   handleSaveRotations,
   handleUpdateConversionStatus,
+  handleHideSaveRotationModal,
 }) => {
   const localHandleClosePdf = useCallback(
     (documentId: string, versionId: number) => {
@@ -95,6 +100,14 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
     },
     [handleClosePdf, handleShowHideRedactionSuggestions]
   );
+
+  const getMappedDocument = (
+    mappedCaseDocuments: MappedCaseDocument[],
+    documentId: string
+  ) => {
+    return mappedCaseDocuments.find((item) => item.documentId === documentId)!;
+  };
+
   return (
     <Tabs
       idPrefix="pdf"
@@ -103,21 +116,30 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
           item.redactionHighlights.length + item.pageDeleteRedactions.length >
           0,
         id: item.documentId,
-        versionId: item.versionId,
-        label: item.presentationTitle,
+        versionId: getMappedDocument(mappedCaseDocuments, item.documentId)
+          ?.versionId,
+        label:
+          getMappedDocument(mappedCaseDocuments, item.documentId)
+            ?.presentationTitle ?? "Deleted",
         panel: {
           children: (
             <PdfTab
+              mappedDocument={
+                getMappedDocument(mappedCaseDocuments, item.documentId) ?? {} //passing in the default value in case of a document opened is been deleted.
+              }
               caseId={caseId}
               searchPIIDataItem={searchPIIData.find(
-                (data) => data.documentId === item.documentId
+                (data) =>
+                  data.documentId === item.documentId &&
+                  data.versionId ===
+                    getMappedDocument(mappedCaseDocuments, item.documentId)
+                      .versionId
               )}
               tabIndex={index}
               showOverRedactionLog={showOverRedactionLog}
               redactionTypesData={redactionTypesData}
               caseDocumentViewModel={item}
               savedDocumentDetails={savedDocumentDetails}
-              documentWriteStatus={item.presentationFlags.write}
               headers={headers}
               localDocumentState={localDocumentState}
               handleOpenPdf={handleOpenPdf}
@@ -142,10 +164,10 @@ export const PdfTabs: React.FC<PdfTabsProps> = ({
               activeTabId={activeTabId}
               tabId={item.documentId}
               featureFlags={featureFlags}
-              versionId={item.versionId}
               handleRemoveAllRotations={handleRemoveAllRotations}
               handleSaveRotations={handleSaveRotations}
               handleUpdateConversionStatus={handleUpdateConversionStatus}
+              handleHideSaveRotationModal={handleHideSaveRotationModal}
             />
           ),
         },

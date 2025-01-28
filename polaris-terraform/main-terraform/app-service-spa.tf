@@ -31,6 +31,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_FEATURE_FLAG_RECLASSIFY"                            = var.feature_flag_reclassify
     "REACT_APP_FEATURE_FLAG_PAGE_DELETE"                           = var.feature_flag_page_delete
     "REACT_APP_FEATURE_FLAG_PAGE_ROTATE"                           = var.feature_flag_page_rotate
+    "REACT_APP_FEATURE_FLAG_STATE_RETENTION"                       = var.feature_flag_state_retention
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP"     = var.feature_flag_external_redirect_case_review_app
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP"         = var.feature_flag_external_redirect_bulk_um_app
     "REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH"           = var.feature_flag_background_pipeline_refresh
@@ -138,6 +139,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["REACT_APP_FEATURE_FLAG_RECLASSIFY"],
       app_settings["REACT_APP_FEATURE_FLAG_PAGE_DELETE"],
       app_settings["REACT_APP_FEATURE_FLAG_PAGE_ROTATE"],
+      app_settings["REACT_APP_FEATURE_FLAG_STATE_RETENTION"],
       app_settings["REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP"],
       app_settings["REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP"],
       app_settings["REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH"],
@@ -242,6 +244,19 @@ resource "azuread_application_password" "asap_web_polaris_app_service" {
   end_date_relative     = "17520h"
 }
 
+# Create life cycle for e2e-tests' version of the client secret
+resource "time_rotating" "schedule" {
+  rotation_days = 90
+}
+
+resource "azuread_application_password" "e2e_test_secret" {
+  application_object_id = module.azurerm_app_reg_as_web_polaris.object_id
+  display_name          = "e2e-tests client secret"
+  rotate_when_changed = {
+    rotation = time_rotating.schedule.id
+  }
+}
+
 module "azurerm_service_principal_sp_polaris_web" {
   source                       = "./modules/terraform-azurerm-azuread_service_principal"
   application_id               = module.azurerm_app_reg_as_web_polaris.client_id
@@ -310,7 +325,7 @@ resource "azurerm_key_vault_secret" "kvs_spa_client_secret" {
   #checkov:skip=CKV_AZURE_41:Ensure that the expiration date is set on all secrets
   #checkov:skip=CKV_AZURE_114:Ensure that key vault secrets have "content_type" set
   name         = "polaris-spa-client-secret"
-  value        = azuread_application_password.asap_web_polaris_app_service.value
+  value        = azuread_application_password.e2e_test_secret.value
   key_vault_id = data.azurerm_key_vault.terraform_key_vault.id
   depends_on = [
     azurerm_role_assignment.kv_role_terraform_sp

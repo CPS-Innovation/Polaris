@@ -91,6 +91,7 @@ feature_flag_search_pii                            = "true"
 feature_flag_rename_document                       = "true"
 feature_flag_reclassify                            = "true"
 feature_flag_page_delete                           = "true"
+feature_flag_state_retention                       = "true"
 feature_flag_external_redirect_case_review_app     = "true"
 feature_flag_external_redirect_bulk_um_app         = "true"
 feature_flag_background_pipeline_refresh           = "true"
@@ -117,15 +118,6 @@ polaris_ui_reauth = {
   inbound_url             = "/auth-refresh-inbound"
   use_in_situ_refresh     = "false"
   in_situ_termination_url = "/auth-refresh-termination"
-}
-
-ssl_certificate_name           = "polaris-prod58a2bb2c-0fbb-416c-9d39-44423b2f42ac"
-ssl_policy_name                = "AppGwSslPolicy20220101"
-app_gateway_back_end_host_name = "polaris.cps.gov.uk"
-
-app_gateway_custom_error_pages = {
-  HttpStatus502 = "https://cpsprodstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
-  HttpStatus403 = "https://cpsprodstorageterraform.blob.core.windows.net/polaris-error-pages/CaseworkAppUnavailable.html"
 }
 
 overnight_clear_down = {

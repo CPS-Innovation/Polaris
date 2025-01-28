@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useUserGroupsFeatureFlag } from "../../../../auth/msal/useUserGroupsFeatureFlag";
 import { useApi } from "../../../../common/hooks/useApi";
 import {
   getRedactionLogLookUpsData,
@@ -9,21 +8,15 @@ import { DispatchType } from "./reducer";
 
 // todo: these calls should be made once per app initialisation,
 //  not once per case visit see #28170 for moving this out of here
-export const useLoadAppLevelLookups = (dispatch: DispatchType) => {
-  // Read feature flags in from MSAL-world
-  const featureFlagData = useUserGroupsFeatureFlag();
-  useEffect(() => {
-    dispatch({
-      type: "UPDATE_FEATURE_FLAGS_DATA",
-      payload: featureFlagData,
-    });
-  }, [featureFlagData, dispatch]);
-
+export const useLoadAppLevelLookups = (
+  dispatch: DispatchType,
+  featureFlagRedactionLog: boolean
+) => {
   // Load lookups
   const redactionLogLookUpsData = useApi(
     getRedactionLogLookUpsData,
     [],
-    featureFlagData.redactionLog
+    featureFlagRedactionLog
   );
   useEffect(() => {
     if (redactionLogLookUpsData.status !== "initial")
@@ -37,7 +30,7 @@ export const useLoadAppLevelLookups = (dispatch: DispatchType) => {
   const redactionLogMappingData = useApi(
     getRedactionLogMappingData,
     [],
-    featureFlagData.redactionLog
+    featureFlagRedactionLog
   );
   useEffect(() => {
     if (redactionLogMappingData.status !== "initial")

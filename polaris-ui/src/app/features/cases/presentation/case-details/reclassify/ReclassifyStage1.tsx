@@ -3,16 +3,33 @@ import {
   LinkButton,
   Select,
   ErrorSummary,
+  Spinner,
+  NotificationBanner,
 } from "../../../../../common/presentation/components";
-import { useReClassifyContext } from "./context/ReClassifyProvider";
-import { FormDataErrors } from "./data/FormDataErrors";
 import classes from "./Reclassify.module.scss";
+import { ReclassifyStage2 } from "./ReclassifyStage2";
+
+import { useReClassifyContext } from "./context/ReClassifyProvider";
+import { ExhibitProducer } from "./data/ExhibitProducer";
+import { StatementWitness } from "./data/StatementWitness";
+import { StatementWitnessNumber } from "./data/StatementWitnessNumber";
+import { FormDataErrors } from "./data/FormDataErrors";
 
 type ReclassifyStage1Props = {
   formDataErrors: FormDataErrors;
   presentationTitle: string;
   currentDocTypeId: number | null;
   handleBackBtnClick: () => void;
+  getExhibitProducers: () => Promise<ExhibitProducer[]>;
+  getStatementWitnessDetails: () => Promise<StatementWitness[]>;
+  getWitnessStatementNumbers: (
+    witnessId: number
+  ) => Promise<StatementWitnessNumber[]>;
+  handleLookUpDataError: (errorMessage: string) => void;
+  handleResetFormDataErrors: () => void;
+  reclassifiedDocumentUpdate?: boolean;
+  handleCheckContentLoaded: (value: boolean) => void;
+  contentLoaded: boolean;
 };
 
 export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
@@ -20,6 +37,14 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   formDataErrors,
   currentDocTypeId,
   handleBackBtnClick,
+  getExhibitProducers,
+  getStatementWitnessDetails,
+  getWitnessStatementNumbers,
+  handleLookUpDataError,
+  handleResetFormDataErrors,
+  reclassifiedDocumentUpdate,
+  handleCheckContentLoaded,
+  contentLoaded,
 }) => {
   const reclassifyContext = useReClassifyContext()!;
   const errorSummaryRef = useRef(null);
@@ -70,18 +95,52 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
   }, [state.materialTypeList, currentDocTypeId, currentClassificationVariant]);
 
   const handleDocTypeChange = (value: string) => {
+    dispatch({ type: "RESET_FORM_DATA", payload: { presentationTitle } });
+    handleResetFormDataErrors();
     dispatch({ type: "UPDATE_DOCUMENT_TYPE", payload: { id: value } });
   };
+
   return (
     <div role="main" aria-labelledby="main-description">
       <LinkButton
         className={classes.backBtn}
         onClick={handleBackBtnClick}
         ref={backButtonRef}
+        disabled={
+          contentLoaded ||
+          state.reClassifySaveStatus === "saving" ||
+          state.reClassifySaveStatus === "success"
+        }
       >
         Back
       </LinkButton>
-      <h1 id="main-description">What type of document is this?</h1>
+      <div aria-live="polite" className={classes.visuallyHidden}>
+        {(state.reClassifySaveStatus === "saving" ||
+          state.reClassifySaveStatus === "success") &&
+          !reclassifiedDocumentUpdate && (
+            <span>Saving to CMS. Please wait</span>
+          )}
+        {reclassifiedDocumentUpdate && <span>Successfully saved</span>}
+      </div>
+      {(state.reClassifySaveStatus === "saving" ||
+        state.reClassifySaveStatus === "success") && (
+        <NotificationBanner className={classes.notificationBanner}>
+          <div
+            className={classes.bannerContent}
+            data-testid="div-notification-banner"
+          >
+            <div className={classes.spinnerWrapper}>
+              <Spinner diameterPx={25} ariaLabel={"spinner-animation"} />
+            </div>
+            <p className={classes.notificationBannerText}>
+              Saving to CMS. Please wait.
+            </p>
+          </div>
+        </NotificationBanner>
+      )}
+      <h1 id="main-description" className="govuk-heading-l">
+        What type of document is this?
+      </h1>
       {formDataErrors.documentTypeErrorText && (
         <div
           ref={errorSummaryRef}
@@ -113,7 +172,7 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         label={{
           htmlFor: "reclassify-document-type",
           children: (
-            <span>
+            <span className={classes.labelMargin}>
               Select the document type for{" "}
               <strong className={classes.highlight}>{presentationTitle}</strong>
             </span>
@@ -124,7 +183,25 @@ export const ReclassifyStage1: React.FC<ReclassifyStage1Props> = ({
         items={docTypesValues}
         value={state.newDocTypeId}
         onChange={(ev) => handleDocTypeChange(ev.target.value)}
+        disabled={
+          state.reClassifySaveStatus === "saving" ||
+          state.reClassifySaveStatus === "success"
+        }
       />
+      {state?.newDocTypeId ? (
+        <ReclassifyStage2
+          presentationTitle={presentationTitle}
+          formDataErrors={formDataErrors}
+          getExhibitProducers={getExhibitProducers}
+          getStatementWitnessDetails={getStatementWitnessDetails}
+          getWitnessStatementNumbers={getWitnessStatementNumbers}
+          handleBackBtnClick={handleBackBtnClick}
+          handleLookUpDataError={handleLookUpDataError}
+          handleCheckContentLoaded={handleCheckContentLoaded}
+        />
+      ) : (
+        ""
+      )}
     </div>
   );
 };

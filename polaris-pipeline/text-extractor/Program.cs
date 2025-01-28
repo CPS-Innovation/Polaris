@@ -1,12 +1,12 @@
 ﻿using Common.Dto.Request;
 using Common.Extensions;
 using Common.Handlers;
+using Common.Middleware;
 using Common.Telemetry;
 using Common.Wrappers;
-using Microsoft.ApplicationInsights.WorkerService;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using text_extractor;
@@ -15,29 +15,28 @@ using text_extractor.Mappers.Contracts;
 
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
-    .ConfigureHostConfiguration(builder =>
+    .ConfigureFunctionsWebApplication(options =>
     {
-        builder.AddEnvironmentVariables();
-#if DEBUG
-        builder.SetBasePath(Directory.GetCurrentDirectory());
-#endif
-        builder.AddJsonFile("local.settings.json", optional: true, reloadOnChange: true);
-    })
-    .ConfigureServices((context, services) =>
-    {
-        services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions
-        {
-            EnableAdaptiveSampling = false,
-        });
-
-        services.ConfigureFunctionsApplicationInsights();
-        services.ConfigureLoggerFilterOptions();
-
-        services.Configure<WorkerOptions>(o =>
+        options.Services.Configure<WorkerOptions>(o =>
         {
             o.EnableUserCodeException = true;
         });
+
+        options.UseMiddleware<ExceptionHandlingMiddleware>();
+        options.UseMiddleware<RequestTelemetryMiddleware>();
+    })
+    .ConfigureHostConfiguration(builder => builder.AddConfigurationSettings())
+    .ConfigureServices((context, services) =>
+    {
+        services.AddApplicationInsightsTelemetryWorkerService();
+        services.ConfigureFunctionsApplicationInsights();
+        services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
+        {
+            telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder
+                .UseAdaptiveSampling(maxTelemetryItemsPerSecond: 20, excludedTypes: "Request;Exception;Event;Trace");
+            telemetryConfiguration.DisableTelemetry = false;
+        });
+        services.ConfigureLoggerFilterOptions();
 
         // bugfix: override .net core limitation of disallowing Synchronous IO for this function only
         services.Configure<KestrelServerOptions>(options =>
@@ -57,9 +56,9 @@ var host = new HostBuilder()
         services.AddTransient<IValidatorWrapper<StoreCaseIndexesRequestDto>, ValidatorWrapper<StoreCaseIndexesRequestDto>>();
         services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
-        services.AddSingleton<ITelemetryAugmentationWrapper, TelemetryAugmentationWrapper>();
         services.AddSingleton<IDtoHttpRequestHeadersMapper, DtoHttpRequestHeadersMapper>();
         services.AddSingleton<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
+        services.AddSingleton<Microsoft.ApplicationInsights.TelemetryClient, Microsoft.ApplicationInsights.TelemetryClient>();
     })
     .Build();
     

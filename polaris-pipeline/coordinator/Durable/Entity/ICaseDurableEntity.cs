@@ -1,8 +1,4 @@
-﻿using Common.Constants;
-using Common.Dto.Response.Case;
-using Common.Dto.Response.Case.PreCharge;
-using Common.Dto.Response.Document;
-using Common.Dto.Response.Documents;
+﻿using coordinator.Domain;
 using coordinator.Durable.Payloads.Domain;
 using System;
 using System.Threading.Tasks;
@@ -14,15 +10,24 @@ namespace coordinator.Durable.Entity
     public interface ICaseDurableEntity
     {
         void Reset();
-        Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
-        void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);
-        void SetPiiVersionId(string documentId);
+
+        Task<CaseDeltasEntity> GetCaseDocumentChanges(GetCaseDocumentsResponse getCaseDocumentsResponse);
+
+        void SetCaseStatus(SetCaseStatusPayload payload);
+
+        Task<bool> SetPiiVersionIdAsync(string documentId);
+
         Task<DateTime> GetStartTime();
 
+        CaseDurableEntityState GetState();
+
         // vNext stuff
-        void SetDocumentPdfConversionSucceeded(string documentId);
-        void SetDocumentPdfConversionFailed((string DocumentId, PdfConversionStatus PdfConversionStatus) arg);
-        void SetDocumentIndexingSucceeded(string documentId);
-        void SetDocumentIndexingFailed(string documentId);
+        Task<bool> SetDocumentPdfConversionSucceededAsync(string documentId);
+
+        Task<bool> SetDocumentPdfConversionFailedAsync(SetDocumentPdfConversionFailedPayload payload);
+
+        Task<bool> SetDocumentIndexingSucceededAsync(string documentId);
+
+        Task<bool> SetDocumentIndexingFailedAsync(string documentId);
     }
 }

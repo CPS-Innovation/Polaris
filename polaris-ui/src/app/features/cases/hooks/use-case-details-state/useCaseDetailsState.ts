@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo, useEffect } from "react";
 import { CombinedState, initialState } from "../../domain/CombinedState";
 import { reducer } from "./reducer";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
@@ -23,6 +23,8 @@ import {
   PresentationDocumentProperties,
   GroupedConversionStatus,
 } from "../../domain/gateway/PipelineDocument";
+import { useUserGroupsFeatureFlag } from "../../../../auth/msal/useUserGroupsFeatureFlag";
+import { getStateFromSessionStorage } from "../../presentation/case-details/utils/stateRetentionUtil";
 
 export type CaseDetailsState = ReturnType<typeof useCaseDetailsState>;
 
@@ -32,14 +34,41 @@ export const useCaseDetailsState = (
   context: TaggedContext | undefined,
   isUnMounting: () => boolean
 ) => {
+  const featureFlagData = useUserGroupsFeatureFlag();
+  const retentionState = useMemo(
+    () =>
+      featureFlagData?.stateRetention
+        ? getStateFromSessionStorage(caseId)
+        : null,
+    []
+  );
   const trackEvent = useAppInsightsTrackEvent();
+
+  const getRouterContext = () => {
+    if (context) {
+      return context;
+    }
+    if (retentionState?.context) {
+      return retentionState.context;
+    }
+    return undefined;
+  };
   const [combinedState, dispatch] = useReducerAsync(
     reducer,
-    { ...initialState, caseId, urn, context },
+    {
+      ...initialState,
+      ...retentionState,
+      documentRefreshData: initialState.documentRefreshData,
+      searchState: initialState.searchState,
+      searchTerm: initialState.searchTerm,
+      caseId,
+      urn,
+      context: getRouterContext(),
+    },
     reducerAsyncActionHandlers
   );
 
-  useLoadAppLevelLookups(dispatch);
+  useLoadAppLevelLookups(dispatch, featureFlagData?.redactionLog);
   useHydrateFromLocalStorage(
     caseId,
     combinedState.storedUserData.status,
@@ -48,6 +77,13 @@ export const useCaseDetailsState = (
   useGetCaseData(urn, caseId, combinedState, dispatch, isUnMounting);
   useDocumentSearch(urn, caseId, combinedState, dispatch);
   useDocumentRefreshPolling(dispatch, combinedState.featureFlags.notifications);
+
+  useEffect(() => {
+    dispatch({
+      type: "UPDATE_FEATURE_FLAGS_DATA",
+      payload: featureFlagData,
+    });
+  }, [featureFlagData, dispatch]);
 
   const handleTabSelection = useCallback(
     (documentId: string) => {
@@ -340,7 +376,7 @@ export const useCaseDetailsState = (
   const handleShowHideRedactionSuggestions = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
-      versionId: CaseDocumentViewModel["versionId"],
+      versionId: number,
       showSuggestion: boolean,
       getData: boolean,
       defaultOption: boolean
@@ -349,6 +385,7 @@ export const useCaseDetailsState = (
         type: "SHOW_HIDE_REDACTION_SUGGESTIONS",
         payload: {
           documentId,
+          versionId,
           show: showSuggestion,
           getData: getData,
           defaultOption: defaultOption,
@@ -543,8 +580,41 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleHideSaveRotationModal = useCallback(
+    (documentId: string) =>
+      dispatch({
+        type: "UPDATE_DOCUMENT_SAVE_STATUS",
+        payload: {
+          documentId,
+          saveStatus: {
+            type: "none",
+            status: "initial",
+          },
+        },
+      }),
+    [dispatch]
+  );
+
+  const handleAccordionOpenClose = useCallback(
+    (id: string, open: boolean) =>
+      dispatch({
+        type: "ACCORDION_OPEN_CLOSE",
+        payload: { id, open },
+      }),
+    [dispatch]
+  );
+
+  const handleAccordionOpenCloseAll = useCallback(
+    (value: boolean) =>
+      dispatch({
+        type: "ACCORDION_OPEN_CLOSE_ALL",
+        payload: value,
+      }),
+    [dispatch]
+  );
+
   return {
-    ...combinedState,
+    combinedState,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -584,5 +654,8 @@ export const useCaseDetailsState = (
     handleUpdateConversionStatus,
     handleShowHidePageDeletion,
     // handleChangeUsedOrUnused,
+    handleHideSaveRotationModal,
+    handleAccordionOpenClose,
+    handleAccordionOpenCloseAll,
   };
 };
