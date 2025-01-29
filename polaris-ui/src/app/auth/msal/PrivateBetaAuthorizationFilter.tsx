@@ -8,6 +8,7 @@ import {
 type Props = {
   msalInstance: IPublicClientApplication;
   window: Window;
+  children: React.ReactNode;
 };
 
 const proceedNotAuthorized = (window: Window) => {

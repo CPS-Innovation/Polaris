@@ -8,7 +8,7 @@ import {
   isCmsAuthFail,
 } from "./core";
 import { fetchWithCookies } from "./fetch-with-cookies";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import React from "react";
 import { CmsAuthError } from "../../../../common/errors/CmsAuthError";
 import { InSituReauthModal } from "./InSituReauthModal";
@@ -101,18 +101,18 @@ const inSituReauth = async (
 const askUserToLogInToCms = async (error: CmsAuthError) => {
   return new Promise<void>((resolve) => {
     const domRoot = document.body.appendChild(document.createElement("div"));
+    const root = createRoot(domRoot!);
 
     const handleClose = () => {
       document.body.removeChild(domRoot);
       resolve();
     };
 
-    ReactDOM.render(
+    root.render(
       React.createElement(InSituReauthModal, {
         error,
         handleClose,
-      }),
-      domRoot
+      })
     );
   });
 };

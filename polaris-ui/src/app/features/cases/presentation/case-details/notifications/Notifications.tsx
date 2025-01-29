@@ -60,7 +60,7 @@ export const Notifications: React.FC<{
   }, [isOpen, trackEvent]);
 
   const localHandleOpenPdf = useCallback(
-    ({ documentId, mode }) => {
+    ({ documentId, mode }: { documentId: string; mode: "read" | "search" }) => {
       trackEvent("Document Opened from Notification", { documentId });
       handleOpenPdf({ documentId, mode });
     },

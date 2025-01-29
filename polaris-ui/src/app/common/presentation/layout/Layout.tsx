@@ -6,6 +6,7 @@ import classes from "./Layout.module.scss";
 
 type LayoutProps = {
   isWide?: boolean;
+  children: React.ReactNode;
 };
 
 export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {

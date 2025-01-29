@@ -62,9 +62,10 @@ export class Highlight extends Component<Props> {
                   onClick && onClick();
                 }
               }}
+              // biome-ignore lint/suspicious/noArrayIndexKey: We can use position hash at some point in future
               key={index}
               style={rect}
-              className={`Highlight__part`}
+              className={"Highlight__part"}
             />
           ))}
         </div>

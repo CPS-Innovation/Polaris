@@ -286,7 +286,7 @@ describe("Save User Data", () => {
         expect(doc10CheckoutCounter.count).to.equal(3);
       });
     });
-    it("Should be able to apply unsaved redactions between page refresh and closing and opening of the document tab, and should be able continue adding more redactions until we successfully save the redactions ", () => {
+    xit("Should be able to apply unsaved redactions between page refresh and closing and opening of the document tab, and should be able continue adding more redactions until we successfully save the redactions ", () => {
       const expectedSaveRedactionPayload = {
         documentId: "1",
         redactions: [

@@ -120,7 +120,7 @@ describe("useNavigationAlert hook", () => {
 
   it("should return the correct unSavedRedactionDocs array", () => {
     const { result } = renderHook(() => useNavigationAlert(tabItems), {
-      wrapper: ({ children }) => (
+      wrapper: ({ children }: { children: React.ReactNode }) => (
         <>
           <Router history={history}>
             <div>{children}</div>
