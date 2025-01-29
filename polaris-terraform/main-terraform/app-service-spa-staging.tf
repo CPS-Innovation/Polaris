@@ -29,6 +29,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "REACT_APP_FEATURE_FLAG_PAGE_DELETE"                           = var.feature_flag_page_delete
     "REACT_APP_FEATURE_FLAG_PAGE_ROTATE"                           = var.feature_flag_page_rotate
     "REACT_APP_FEATURE_FLAG_STATE_RETENTION"                       = var.feature_flag_state_retention
+    "REACT_APP_FEATURE_FLAG_GLOBAL_NAV"                            = var.feature_flag_global_nav
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP"     = var.feature_flag_external_redirect_case_review_app
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP"         = var.feature_flag_external_redirect_bulk_um_app
     "REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH"           = var.feature_flag_background_pipeline_refresh
@@ -44,6 +45,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP2"                   = var.private_beta.feature_user_group2
     "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP3"                   = var.private_beta.feature_user_group3
     "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP4"                   = var.private_beta.feature_user_group4
+    "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP5"                   = var.private_beta.feature_user_group5
     "REACT_APP_CASE_REVIEW_APP_REDIRECT_URL"                       = var.case_review_app_redirect_url
     "REACT_APP_BULK_UM_REDIRECT_URL"                               = var.bulk_um_redirect_url
     "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND"                       = var.polaris_ui_reauth.outbound_live_url

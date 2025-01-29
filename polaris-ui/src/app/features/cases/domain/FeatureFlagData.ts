@@ -33,4 +33,5 @@ export type FeatureFlagQueryParams = {
   pageRotate: string;
   notifications: string;
   stateRetention: string;
+  globalNav: string;
 };
