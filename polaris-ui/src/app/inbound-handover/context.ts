@@ -119,9 +119,10 @@ export const buildContextFromQueryString = (
       return prev;
     }, {} as Record<string, string>);
 
-  const contextSearchParams = new URLSearchParams(
-    contextObjectAsRecord
-  ).toString();
+  const searchParams = new URLSearchParams(contextObjectAsRecord);
+  searchParams.sort();
+  const searchParamsQuery = searchParams.toString();
+  const contextSearchParams = searchParamsQuery ? `?${searchParamsQuery}` : "";
 
   let contextObject: TaggedContext | undefined;
   if (isTriageContext(ctx)) {
@@ -143,5 +144,10 @@ export const buildContextFromQueryString = (
     );
   }
 
-  return { caseId, urn, contextObject, contextSearchParams };
+  return {
+    caseId,
+    urn,
+    contextObject,
+    contextSearchParams,
+  };
 };

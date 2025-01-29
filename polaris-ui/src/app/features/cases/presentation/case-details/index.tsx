@@ -447,18 +447,14 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     window.open(url, "_self");
   };
 
+  const name =
+    caseState.data.leadDefendantDetails?.type === "Organisation"
+      ? caseState.data.leadDefendantDetails?.organisationName
+      : `${caseState.data.leadDefendantDetails?.surname}, ${caseState.data.leadDefendantDetails?.firstNames}`;
   return (
     <div>
       {featureFlags.globalNav && (
-        <cps-global-nav
-          name={
-            caseState.data.leadDefendantDetails?.type === "Organisation"
-              ? caseState.data.leadDefendantDetails?.organisationName
-              : caseState.data.leadDefendantDetails?.surname +
-                ", " +
-                caseState.data.leadDefendantDetails?.firstNames
-          }
-        >
+        <cps-global-nav name={name}>
           {featureFlags.notifications && (
             <Notifications
               state={notificationState}

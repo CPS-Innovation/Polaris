@@ -34,7 +34,7 @@ export const InboundHandoverHandler: React.FC<RouteComponentProps> = ({
       contextSearchParams: string
     ) =>
       history.push(
-        `/case-details/${urn}/${caseId}?${contextSearchParams}`,
+        `/case-details/${urn}/${caseId}${contextSearchParams}`,
         contextObject
       ),
     [history]
