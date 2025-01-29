@@ -49,7 +49,7 @@ export const SaveUsedOrUnusedModal: React.FC<Props> = ({ savingState }) => {
             data-testid="rl-saved-redactions"
           >
             <WhiteTickIcon className={classes.whiteTickIcon} />
-            &nbsp; Document's state successfully saved to CMS {savingState}
+            &nbsp; Document's state successfully saved to CMS
             <LinkButton
               dataTestId="btn-close-used-unused-state-panel"
               type="button"
