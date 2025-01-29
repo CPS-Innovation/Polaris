@@ -69,7 +69,7 @@ namespace coordinator.Durable.Orchestration
                 return;
             }
 
-            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentPdfConversionSucceeded), payload.DocumentId);
+            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentPdfConversionSucceededAsync), payload.DocumentId);
 
             var telemetryEvent = new IndexedDocumentEvent(payload.CorrelationId)
             {
@@ -89,9 +89,9 @@ namespace coordinator.Durable.Orchestration
             {
                 var getOcrResultsResponse = await EnsureOcrExists(payload, context, log);
                 telemetryEvent.OcrCompletedTime = context.CurrentUtcDateTime;
-                telemetryEvent.PageCount = getOcrResultsResponse.OcrPollingResult.FinalResult.PageCount;
-                telemetryEvent.LineCount = getOcrResultsResponse.OcrPollingResult.FinalResult.LineCount;
-                telemetryEvent.WordCount = getOcrResultsResponse.OcrPollingResult.FinalResult.WordCount;
+                telemetryEvent.PageCount = getOcrResultsResponse.OcrPollingResult?.FinalResult?.PageCount ?? 0;
+                telemetryEvent.LineCount = getOcrResultsResponse.OcrPollingResult?.FinalResult?.LineCount ?? 0;
+                telemetryEvent.WordCount = getOcrResultsResponse.OcrPollingResult?.FinalResult?.WordCount ?? 0;
 
                 var (indexStoredTime, indexStoredResult, indexPollingResult) = await IndexDocument(context, payload, log, telemetryEvent);
 
@@ -101,7 +101,7 @@ namespace coordinator.Durable.Orchestration
                 telemetryEvent.IndexSettleTargetCount = indexStoredResult.LineCount;
                 telemetryEvent.EndTime = context.CurrentUtcDateTime;
 
-                await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentIndexingSucceeded), payload.DocumentId);
+                await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentIndexingSucceededAsync), payload.DocumentId);
 
                 // by this point we may be replaying, so good to keep a record
                 telemetryEvent.DidOrchestratorReplay = context.IsReplaying;
@@ -115,7 +115,7 @@ namespace coordinator.Durable.Orchestration
                 // todo: there is no durable replay protection here, and there is evidence of several failure event records for the same failure event in our analytics.
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
-                await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentIndexingFailed), payload.DocumentId);
+                await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentIndexingFailedAsync), payload.DocumentId);
 
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
                 return;
@@ -141,14 +141,14 @@ namespace coordinator.Durable.Orchestration
 
                 if (pdfConversionResponse.PdfConversionStatus != PdfConversionStatus.DocumentConverted)
                 {
-                    await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentPdfConversionFailed), new SetDocumentPdfConversionFailedPayload { DocumentId = payload.DocumentId, PdfConversionStatus = pdfConversionResponse.PdfConversionStatus });
+                    await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentPdfConversionFailedAsync), new SetDocumentPdfConversionFailedPayload { DocumentId = payload.DocumentId, PdfConversionStatus = pdfConversionResponse.PdfConversionStatus });
 
                     return false;
                 }
             }
             catch (Exception exception)
             {
-                await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentPdfConversionFailed), new SetDocumentPdfConversionFailedPayload { DocumentId = payload.DocumentId, PdfConversionStatus = PdfConversionStatus.UnexpectedError });
+                await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentPdfConversionFailedAsync), new SetDocumentPdfConversionFailedPayload { DocumentId = payload.DocumentId, PdfConversionStatus = PdfConversionStatus.UnexpectedError });
 
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error calling {nameof(RefreshDocumentOrchestrator)}: {exception.Message}", exception);
                 return false;

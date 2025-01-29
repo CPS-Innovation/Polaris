@@ -9,6 +9,7 @@ import {
   FEATURE_FLAG_RECLASSIFY,
   FEATURE_FLAG_PAGE_DELETE,
   FEATURE_FLAG_PAGE_ROTATE,
+  FEATURE_FLAG_STATE_RETENTION,
   PRIVATE_BETA_FEATURE_USER_GROUP,
   PRIVATE_BETA_FEATURE_USER_GROUP2,
   FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP,
@@ -80,6 +81,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     pageDelete,
     pageRotate,
     notifications,
+    stateRetention,
   } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
@@ -146,6 +148,11 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         userDetails?.username,
         notifications,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+      ),
+      stateRetention: shouldShowFeature(
+        FEATURE_FLAG_STATE_RETENTION,
+        userDetails?.username,
+        stateRetention
       ),
       globalNav: true,
     }),

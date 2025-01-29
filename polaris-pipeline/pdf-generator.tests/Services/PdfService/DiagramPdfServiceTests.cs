@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 // using Aspose.Diagram;
 using FluentAssertions;
 using Moq;

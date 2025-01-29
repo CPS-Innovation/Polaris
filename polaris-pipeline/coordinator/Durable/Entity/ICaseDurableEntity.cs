@@ -15,17 +15,19 @@ namespace coordinator.Durable.Entity
 
         void SetCaseStatus(SetCaseStatusPayload payload);
 
-        void SetPiiVersionId(string documentId);
+        Task<bool> SetPiiVersionIdAsync(string documentId);
 
         Task<DateTime> GetStartTime();
 
+        CaseDurableEntityState GetState();
+
         // vNext stuff
-        void SetDocumentPdfConversionSucceeded(string documentId);
+        Task<bool> SetDocumentPdfConversionSucceededAsync(string documentId);
 
-        void SetDocumentPdfConversionFailed(SetDocumentPdfConversionFailedPayload payload);
+        Task<bool> SetDocumentPdfConversionFailedAsync(SetDocumentPdfConversionFailedPayload payload);
 
-        void SetDocumentIndexingSucceeded(string documentId);
+        Task<bool> SetDocumentIndexingSucceededAsync(string documentId);
 
-        void SetDocumentIndexingFailed(string documentId);
+        Task<bool> SetDocumentIndexingFailedAsync(string documentId);
     }
 }

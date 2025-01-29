@@ -28,7 +28,7 @@ namespace Common.Services.RenderHtmlService
             using (StreamReader reader = new StreamReader(stream))
             {
                 var model = reader.ReadToEnd();
-                string html = await _engine.CompileRenderStringAsync<T>(name, model, data);
+                string html = await _engine.CompileRenderStringAsync(name, model, data);
                 return new MemoryStream(Encoding.UTF8.GetBytes(html));
             }
         }

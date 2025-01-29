@@ -56,6 +56,7 @@ namespace coordinator.Durable.Orchestration
             var caseEntityId = CaseDurableEntity.GetEntityId(payload.CaseId);
 
             await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetCaseStatus), new SetCaseStatusPayload { UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.Running, FailedReason = null });
+            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetCaseId), payload.CaseId);
 
             RefreshedCaseEvent telemetryEvent = default;
             try

@@ -8,7 +8,6 @@ using Common.Dto.Request;
 using Common.Handlers;
 using Common.Dto.Response;
 using text_extractor.Services.CaseSearchService;
-using Common.Telemetry;
 using Common.Wrappers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;

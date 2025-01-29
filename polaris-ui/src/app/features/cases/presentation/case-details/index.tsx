@@ -38,7 +38,6 @@ import {
   CASE_REVIEW_APP_REDIRECT_URL,
   FEATURE_FLAG_REDACTION_LOG_UNDER_OVER,
 } from "../../../../config";
-import { AccordionReducerState } from "./accordion/reducer";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
 import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
@@ -61,7 +60,7 @@ import {
   isTaggedTriageContext,
   TaggedContext,
 } from "../../../../inbound-handover/context";
-
+import { saveStateToSessionStorage } from "./utils/stateRetentionUtil";
 export const path = "/case-details/:urn/:id";
 
 type Props = BackLinkingPageProps & {
@@ -69,7 +68,7 @@ type Props = BackLinkingPageProps & {
 };
 
 export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
-  const [reclassifyDetails, setInReclassifyDetails] = useState<{
+  const [reclassifyDetails, setReclassifyDetails] = useState<{
     open: boolean;
     documentId: string;
     presentationTitle: string;
@@ -103,9 +102,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   const accordionRef = useRef<AccordionRef>(null);
 
-  const [accordionOldState, setAccordionOldState] =
-    useState<AccordionReducerState | null>(null);
-
   const actionsSidePanelRef = useRef(null);
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
@@ -123,25 +119,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   }, []);
 
   const {
-    caseState,
-    accordionState,
-    tabsState,
-    searchState,
-    searchTerm,
-    pipelineState,
-    documentsState,
-    documentRefreshData,
-    errorModal,
-    documentIssueModal,
-    redactionLog,
-    featureFlags,
-    storedUserData,
-    notes,
-    searchPII,
-    renameDocuments,
-    reclassifyDocuments,
-    notificationState,
-    localDocumentState,
+    combinedState,
     handleOpenPdf,
     handleClosePdf,
     handleTabSelection,
@@ -179,7 +157,37 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleUpdateConversionStatus,
     handleShowHidePageDeletion,
     handleHideSaveRotationModal,
+    handleAccordionOpenClose,
+    handleAccordionOpenCloseAll,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
+
+  const {
+    context: stateContext,
+    caseState,
+    accordionState,
+    tabsState,
+    searchState,
+    searchTerm,
+    pipelineState,
+    documentsState,
+    documentRefreshData,
+    errorModal,
+    documentIssueModal,
+    redactionLog,
+    featureFlags,
+    storedUserData,
+    notes,
+    searchPII,
+    renameDocuments,
+    reclassifyDocuments,
+    notificationState,
+    localDocumentState,
+  } = combinedState;
+  useEffect(() => {
+    if (featureFlags.stateRetention) {
+      saveStateToSessionStorage(combinedState);
+    }
+  }, [combinedState, featureFlags.stateRetention]);
 
   const {
     showAlert,
@@ -187,14 +195,14 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     newPath,
     navigationUnblockHandle,
     unSavedRedactionDocs,
-  } = useNavigationAlert(tabsState.items);
+  } = useNavigationAlert(tabsState.items, documentsState);
 
   useSwitchContentArea();
   useDocumentFocus(tabsState.activeTabId);
 
   useEffect(() => {
     if (accordionState.status === "succeeded") {
-      const categorisedData = accordionState.data.reduce(
+      const categorisedData = accordionState.data.sections.reduce(
         (acc: { [key: string]: number }, curr) => {
           acc[`${curr.sectionId}`] = curr.docs.length;
           return acc;
@@ -206,11 +214,16 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
         ...categorisedData,
       });
 
-      const unCategorisedDocs = accordionState.data.find(
+      const unCategorisedDocs = accordionState.data.sections.find(
         (accordionState) => accordionState.sectionId === "Uncategorised"
       );
-      if (unCategorisedDocs) {
-        unCategorisedDocs.docs.forEach((doc: MappedCaseDocument) => {
+
+      if (unCategorisedDocs && documentsState.status === "succeeded") {
+        const mappedUnCategorisedDocs = unCategorisedDocs.docs.map(
+          ({ documentId }) =>
+            documentsState.data.find((doc) => doc.documentId === documentId)!
+        );
+        mappedUnCategorisedDocs.forEach((doc: MappedCaseDocument) => {
           trackEvent("Uncategorised Document", {
             documentId: doc.documentId,
             documentTypeId: doc.cmsDocType.documentTypeId,
@@ -239,7 +252,15 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     }
   }, [actionsSidePanel.open]);
 
-  const getActiveTabDocument = useMemo(() => {
+  const activeTabMappedDocument = useMemo(() => {
+    const mappedDocuments =
+      documentsState.status === "succeeded" ? documentsState.data : [];
+    return mappedDocuments.find(
+      (item) => item.documentId === tabsState.activeTabId
+    )!;
+  }, [tabsState.activeTabId, documentsState]);
+
+  const activeTabItem = useMemo(() => {
     return tabsState.items.find(
       (item) => item.documentId === tabsState.activeTabId
     )!;
@@ -255,12 +276,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     [reclassifyDocuments]
   );
 
-  const accordionStateChangeCallback = useCallback(
-    (state: AccordionReducerState) => {
-      setAccordionOldState(state);
-    },
-    []
-  );
   const handleClosePanel = useCallback(() => {
     setActionsSidePanel({
       ...actionsSidePanel,
@@ -318,7 +333,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     if (selectedDocument) {
       handleResetReclassifyData(documentId);
 
-      setInReclassifyDetails({
+      setReclassifyDetails({
         open: true,
         documentId,
         presentationTitle: selectedDocument.presentationTitle,
@@ -335,7 +350,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   };
 
   const handleCloseReclassify = (documentId: string) => {
-    setInReclassifyDetails({
+    setReclassifyDetails({
       open: false,
       documentId: "",
       presentationTitle: "",
@@ -487,7 +502,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   errorModal.type === "addnote" ||
                   errorModal.type === "saverenamedocument"
                     ? actionsSidePanel.documentId
-                    : getActiveTabDocument?.documentId,
+                    : activeTabMappedDocument?.documentId,
               }}
             />
           </Modal>
@@ -524,10 +539,10 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
         {documentIssueModal.show && (
           <ReportAnIssueModal
-            documentTypeId={getActiveTabDocument?.cmsDocType?.documentTypeId}
-            documentId={getActiveTabDocument?.documentId!}
-            presentationTitle={getActiveTabDocument?.presentationTitle!}
-            versionId={getActiveTabDocument?.versionId!}
+            documentTypeId={activeTabMappedDocument?.cmsDocType?.documentTypeId}
+            documentId={activeTabMappedDocument?.documentId!}
+            presentationTitle={activeTabMappedDocument?.presentationTitle!}
+            versionId={activeTabMappedDocument?.versionId!}
             correlationId={pipelineState?.correlationId}
             handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
           />
@@ -558,16 +573,18 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
               caseUrn={caseState.data.uniqueReferenceNumber}
               isCaseCharged={caseState.data.isCaseCharged}
               owningUnit={caseState.data.owningUnit}
-              documentName={getActiveTabDocument.presentationTitle}
-              cmsDocumentTypeId={getActiveTabDocument.cmsDocType.documentTypeId}
+              documentName={activeTabMappedDocument.presentationTitle}
+              cmsDocumentTypeId={
+                activeTabMappedDocument.cmsDocType.documentTypeId
+              }
               additionalData={{
-                originalFileName: getActiveTabDocument.cmsOriginalFileName,
-                documentId: getActiveTabDocument.documentId,
-                documentType: getActiveTabDocument.cmsDocType.documentType,
-                fileCreatedDate: getActiveTabDocument.cmsFileCreatedDate,
+                originalFileName: activeTabMappedDocument.cmsOriginalFileName,
+                documentId: activeTabMappedDocument.documentId,
+                documentType: activeTabMappedDocument.cmsDocType.documentType,
+                fileCreatedDate: activeTabMappedDocument.cmsFileCreatedDate,
               }}
               savedRedactionTypes={redactionLog.savedRedactionTypes}
-              saveStatus={getActiveTabDocument.saveStatus}
+              saveStatus={activeTabItem.saveStatus}
               redactionLogLookUpsData={
                 redactionLog.redactionLogLookUpsData.data
               }
@@ -672,13 +689,13 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                     </div>
                   }
 
-                  {context && isTaggedTriageContext(context) && (
+                  {stateContext && isTaggedTriageContext(stateContext) && (
                     <div className={classes.externalRedirectBtnWrapper}>
                       <Button
                         disabled={false}
                         onClick={() => {
                           openInNewTab(
-                            `/api/navigate-cms?action=activate_task&screen=case_details&taskId=${context.taskId}&caseId=${caseId}&wId=MASTER`
+                            `/api/navigate-cms?action=activate_task&screen=case_details&taskId=${stateContext.taskId}&caseId=${caseId}&wId=MASTER`
                           );
                         }}
                         data-testid="btn-bulk-um-classification"
@@ -706,7 +723,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   ) : (
                     <Accordion
                       ref={accordionRef}
-                      initialState={accordionOldState}
+                      documentsState={
+                        documentsState.status === "succeeded"
+                          ? documentsState.data
+                          : []
+                      }
                       readUnreadData={
                         storedUserData.status === "succeeded"
                           ? storedUserData.data.readUnread
@@ -716,16 +737,17 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       handleOpenPdf={(caseDoc) => {
                         handleOpenPdf({ ...caseDoc, mode: "read" });
                       }}
-                      activeDocumentId={getActiveTabDocument?.documentId ?? ""}
+                      activeDocumentId={
+                        activeTabMappedDocument?.documentId ?? ""
+                      }
                       handleOpenPanel={handleOpenPanel}
                       featureFlags={featureFlags}
-                      accordionStateChangeCallback={
-                        accordionStateChangeCallback
-                      }
                       handleGetNotes={handleGetNotes}
                       notesData={notes}
                       handleReclassifyDocument={handleReclassifyDocument}
                       localDocumentState={localDocumentState}
+                      handleAccordionOpenClose={handleAccordionOpenClose}
+                      handleAccordionOpenCloseAll={handleAccordionOpenCloseAll}
                     />
                   )}
                 </div>
@@ -752,7 +774,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                         {`Notes panel, you can add and read notes for the document ${actionsSidePanel.presentationTitle}.`}
                       </span>
                       <NotesPanel
-                        activeDocumentId={getActiveTabDocument?.documentId}
+                        activeDocumentId={activeTabMappedDocument?.documentId}
                         documentName={actionsSidePanel.presentationTitle}
                         documentCategory={actionsSidePanel.documentCategory}
                         documentId={actionsSidePanel.documentId}
@@ -804,12 +826,12 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                     onClick={() => {
                       if (inFullScreen) {
                         trackEvent("Exit Full Screen", {
-                          documentId: getActiveTabDocument.documentId,
+                          documentId: activeTabMappedDocument.documentId,
                         });
                         setInFullScreen(false);
                       } else {
                         trackEvent("View Full Screen", {
-                          documentId: getActiveTabDocument.documentId,
+                          documentId: activeTabMappedDocument.documentId,
                         });
                         setInFullScreen(true);
                       }
@@ -831,10 +853,15 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                 <PdfTabsEmpty
                   pipelineState={pipelineState}
                   isMultipleDefendantsOrCharges={isMultipleDefendantsOrCharges}
-                  context={context}
+                  context={stateContext}
                 />
               ) : (
                 <PdfTabs
+                  mappedCaseDocuments={
+                    documentsState.status === "succeeded"
+                      ? documentsState.data
+                      : []
+                  }
                   searchPIIData={searchPII}
                   redactionTypesData={
                     redactionLog.redactionLogLookUpsData.status === "succeeded"

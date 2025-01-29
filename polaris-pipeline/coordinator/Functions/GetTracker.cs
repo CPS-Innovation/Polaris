@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Wrappers;
 using Microsoft.AspNetCore.Mvc;
@@ -10,25 +9,32 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
 using Microsoft.DurableTask.Client.Entities;
+using System;
+using Common.Services.BlobStorage;
+using coordinator.Domain;
+using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Functions
 {
     public class GetTracker
     {
         const string loggingName = $"{nameof(GetTracker)} - {nameof(HttpStart)}";
-        const string correlationErrorMessage = "Invalid correlationId. A valid GUID is required.";
 
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ICaseDurableEntityMapper _caseDurableEntityMapper;
+        private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly ILogger<GetTracker> _logger;
 
         public GetTracker(
             IJsonConvertWrapper jsonConvertWrapper,
+            IConfiguration configuration,
             ICaseDurableEntityMapper caseDurableEntityMapper,
+            Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
             ILogger<GetTracker> logger)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _caseDurableEntityMapper = caseDurableEntityMapper;
+            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
             _logger = logger;
         }
 
@@ -44,10 +50,10 @@ namespace coordinator.Functions
         {
             // todo: temporary code
             var entityId = CaseDurableEntity.GetEntityId(caseId);
-            EntityMetadata<CaseDurableEntity> caseEntity;
+            EntityMetadata<CaseDurableEntityState> caseEntity;
             try
             {
-                caseEntity = await client.Entities.GetEntityAsync<CaseDurableEntity>(entityId, true);
+                caseEntity = await client.Entities.GetEntityAsync<CaseDurableEntityState>(entityId, true);
             }
             catch (Exception ex)
             {
@@ -66,7 +72,10 @@ namespace coordinator.Functions
                 return new NotFoundObjectResult($"No Case Entity found with id '{caseId}'");
             }
 
-            var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity.State);
+            var blobId = new BlobIdType(caseId, default, default, BlobType.DocumentList);
+            var documentsList = (await _polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityDocumentsState>(blobId)) ?? new CaseDurableEntityDocumentsState();
+
+            var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity.State, documentsList);
             return new OkObjectResult(trackerDto);
         }
     }

@@ -18,15 +18,9 @@ namespace coordinator.Durable.Payloads.Domain
 
         public override string DocumentId => DocumentNature.ToQualifiedStringDocumentId(CmsDocumentId, DocumentNature.Types.PreChargeDecisionRequest);
 
-        public string PresentationTitle
-        {
-            get => DocumentId;
-        }
+        public string PresentationTitle => DocumentId;
 
-        public string CmsOriginalFileName
-        {
-            get => $"{DocumentId}.pdf";
-        }
+        public string CmsOriginalFileName => $"{DocumentId}.pdf";
 
         public string CmsFileCreatedDate { get; set; }
 

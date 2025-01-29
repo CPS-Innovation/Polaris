@@ -16,6 +16,7 @@ export type FeatureFlagData = {
   pageDelete: boolean;
   pageRotate: boolean;
   notifications: boolean;
+  stateRetention: boolean;
   globalNav: boolean;
 };
 
@@ -31,4 +32,5 @@ export type FeatureFlagQueryParams = {
   pageDelete: string;
   pageRotate: string;
   notifications: string;
+  stateRetention: string;
 };

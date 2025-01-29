@@ -9,7 +9,7 @@ describe("Save User Data", () => {
         body: documentList[0],
       });
     });
-    it("Should identify the document as read if the user has opened the document and should persist that state when user comes back and clear it if we clear local storage", () => {
+    it("Should identify the document as read if the user has opened the document and should persist that state when user comes back in a new session and clear it if we clear local storage", () => {
       cy.clearLocalStorage();
       cy.visit("/case-details/12AB1111111/13401");
       cy.window().then((window) => {
@@ -42,6 +42,9 @@ describe("Save User Data", () => {
       cy.findByTestId("link-document-2")
         .closest("li")
         .should("have.attr", "data-read", "true");
+      cy.window().then((win) => {
+        win.sessionStorage.clear();
+      });
       cy.visit("/case-details/12AB1111111/13401");
       cy.window().then((window) => {
         const storedData = JSON.parse(
@@ -66,6 +69,9 @@ describe("Save User Data", () => {
       });
 
       cy.clearLocalStorage();
+      cy.window().then((win) => {
+        win.sessionStorage.clear();
+      });
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-10")
@@ -83,9 +89,12 @@ describe("Save User Data", () => {
       cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
         body: documentList[0],
       });
-    });
-    it("Should be able to apply and ignore unsaved redaction data if the user chose to refresh the page or close the document tab in the middle of redaction", () => {
       cy.clearLocalStorage();
+      cy.window().then((win) => {
+        win.sessionStorage.clear();
+      });
+    });
+    it("Should be able to apply and ignore unsaved redaction data if the user chose new sessions by closing the tab in the middle of redaction", () => {
       const doc10CheckoutCounter = { count: 0 };
       cy.trackRequestCount(
         doc10CheckoutCounter,
@@ -148,7 +157,10 @@ describe("Save User Data", () => {
         expect(doc10CheckoutCounter.count).to.equal(1);
       });
 
-      //refresh,comeback and apply
+      //comeback in a new session and apply
+      cy.window().then((win) => {
+        win.sessionStorage.clear();
+      });
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -286,7 +298,7 @@ describe("Save User Data", () => {
         expect(doc10CheckoutCounter.count).to.equal(3);
       });
     });
-    it("Should be able to apply unsaved redactions between page refresh and closing and opening of the document tab, and should be able continue adding more redactions until we successfully save the redactions ", () => {
+    it("Should be able to apply unsaved redactions between new sessions, closing and opening of the document tab, and should be able continue adding more redactions until we successfully save the redactions ", () => {
       const expectedSaveRedactionPayload = {
         documentId: "1",
         redactions: [
@@ -310,7 +322,6 @@ describe("Save User Data", () => {
         "PUT",
         "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/redact"
       );
-      cy.clearLocalStorage();
       const doc1CheckoutCounter = { count: 0 };
       cy.trackRequestCount(
         doc1CheckoutCounter,
@@ -348,6 +359,9 @@ describe("Save User Data", () => {
       });
       cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
         body: documentList[0],
+      });
+      cy.window().then((win) => {
+        win.sessionStorage.clear();
       });
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -422,7 +436,7 @@ describe("Save User Data", () => {
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.findAllByTestId("div-modal").should("not.exist");
     });
-    it("Clearing of the localstorage should clear the unsaved redactions data", () => {
+    it("Clearing of the localstorage should clear the unsaved redactions data on a new session", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -465,6 +479,9 @@ describe("Save User Data", () => {
 
       // clear local storage and check
       cy.clearLocalStorage();
+      cy.window().then((win) => {
+        win.sessionStorage.clear();
+      });
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
