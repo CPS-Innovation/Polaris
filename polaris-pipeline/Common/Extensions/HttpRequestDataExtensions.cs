@@ -28,16 +28,17 @@ public static class HttpRequestDataExtensions
         }
     }
 
-    public static string EstablishCmsAuthValues(this HttpRequestData req)
+    public static string EstablishCmsAuthValuesFromCookies(this HttpRequestData req)
     {
-        if (req.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var cmsAuthValuesFromHeaders) &&
-            cmsAuthValuesFromHeaders.Any() &&
-            !string.IsNullOrWhiteSpace(cmsAuthValuesFromHeaders.First()))
-        {
-            return cmsAuthValuesFromHeaders.First();
-        }
-
         var cmsAuthValues = req.Cookies.FirstOrDefault(c => c.Name.Equals(HttpHeaderKeys.CmsAuthValues));
         return cmsAuthValues?.Value;
+    }
+
+    public static string EstablishCmsAuthValuesFromHeaders(this HttpRequestData req)
+    {
+        ArgumentNullException.ThrowIfNull(req.Headers);
+
+        _ = req.Headers.TryGetValues(HttpHeaderKeys.CmsAuthValues, out var values);
+        return values.First();
     }
 }

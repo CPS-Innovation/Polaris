@@ -70,9 +70,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
         "https://as-web-${local.global_resource_name}.azurewebsites.net",
         "https://${local.global_resource_name}-cmsproxy.azurewebsites.net",
         "https://${local.global_resource_name}-notprod.cps.gov.uk",
-        var.env != "prod" ? "http://localhost:3000" : "",
-        var.env != "prod" ? "http://localhost:3333" : "",
-        var.env != "prod" ? "https://cps-global-nav-test-domain.com" : ""
+        var.env == "dev" ? "http://localhost:3000" : ""
       ]
       support_credentials = true
     }

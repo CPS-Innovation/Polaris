@@ -63,9 +63,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
         "https://as-web-${local.global_resource_name}.azurewebsites.net",
         "https://${local.global_resource_name}-cmsproxy.azurewebsites.net",
         "https://${local.global_resource_name}-notprod.cps.gov.uk",
-        var.env == "dev" || var.env == "uat" ? "http://localhost:3000" : "",
-        var.env == "dev" || var.env == "uat" ? "http://localhost:3333" : "",
-        var.env == "dev" || var.env == "uat" ? "https://cps-global-nav-test-domain.com" : ""
+        var.env == "dev" ? "http://localhost:3000" : ""
       ]
       support_credentials = true
     }

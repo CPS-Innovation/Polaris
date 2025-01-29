@@ -25,9 +25,6 @@ var host = new HostBuilder()
     .ConfigureServices((context, services) =>
     {
         StartupHelpers.SetAsposeLicence();
-        // services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
-        // {
-        //     var telemetryProcessorChainBuilder = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
 
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
