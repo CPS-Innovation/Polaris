@@ -154,7 +154,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         userDetails?.username,
         stateRetention
       ),
-      globalNav: true,
+      globalNav: false,
     }),
     []
   );
