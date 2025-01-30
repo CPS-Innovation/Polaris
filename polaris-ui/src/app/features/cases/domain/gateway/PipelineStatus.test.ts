@@ -9,9 +9,6 @@ describe("PipelineStatus", () => {
     it("returns the expected SummaryPipelineStatus for each InProgressPipelineStatus", () => {
       expect(getPipelineCompletionStatus("NotStarted")).toBe("NotCompleted");
       expect(getPipelineCompletionStatus("Running")).toBe("NotCompleted");
-      // expect(getPipelineCompletionStatus("DocumentsRetrieved")).toBe(
-      //   "NotCompleted"
-      // );
       expect(getPipelineCompletionStatus("Completed")).toBe("Completed");
       expect(getPipelineCompletionStatus("Failed")).toBe("Failed");
     });

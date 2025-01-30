@@ -2,7 +2,6 @@
 using Newtonsoft.Json.Converters;
 using Common.Dto.Response.Documents;
 using Common.Constants;
-//using Common.Dto.Response.Document.FeatureFlags;
 
 namespace coordinator.Durable.Payloads.Domain
 {
@@ -13,13 +12,10 @@ namespace coordinator.Durable.Payloads.Domain
 
         protected BaseDocumentEntity(
             long cmsDocumentId,
-            long versionId//,
-                          //PresentationFlagsDto presentationFlags
-            )
+            long versionId)
         {
             CmsDocumentId = cmsDocumentId;
             VersionId = versionId;
-            //PresentationFlags = presentationFlags;
             Status = DocumentStatus.New;
         }
 
@@ -36,14 +32,6 @@ namespace coordinator.Durable.Payloads.Domain
 
         [JsonProperty("versionId")]
         public long VersionId { get; set; }
-
-        // [JsonProperty("presentationFlags")]
-        // public PresentationFlagsDto PresentationFlags { get; set; }
-        // [JsonConverter(typeof(StringEnumConverter))]
-        // [JsonProperty("conversionStatus")]
         public PdfConversionStatus ConversionStatus { get; set; }
-
-        // [JsonProperty("piiVersionId")]
-        // public long? PiiVersionId { get; set; }
     }
 }

@@ -80,11 +80,7 @@ namespace coordinator.tests.Durable.Activity
 
             _getCaseDocuments = new GetCaseDocuments(
                 mockDdeiClient.Object,
-                mockDdeiArgFactory.Object
-                // mockDocumentToggleService.Object,
-                // mockLogger.Object,
-                // _mockConfiguration.Object
-                );
+                mockDdeiArgFactory.Object);
         }
 
         [Fact]

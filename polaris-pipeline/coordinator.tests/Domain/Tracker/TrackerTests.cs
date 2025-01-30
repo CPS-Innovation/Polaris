@@ -30,7 +30,6 @@ namespace coordinator.tests.Domain.Response.Documents
         private readonly List<CmsDocumentDto> _cmsDocuments;
         private readonly List<PcdRequestDto> _pcdRequests;
         private readonly DefendantsAndChargesListDto _defendantsAndChargesList;
-        private readonly string _pdfBlobName;
         private readonly (CmsDocumentDto[] CmsDocuments, PcdRequestDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) _synchroniseDocumentsArg;
         private readonly List<CmsDocumentEntity> _trackerCmsDocuments;
         private readonly List<PcdRequestEntity> _trackerPcdRequests;
@@ -52,20 +51,11 @@ namespace coordinator.tests.Domain.Response.Documents
             _pcdRequests = _fixture.CreateMany<PcdRequestDto>(2).ToList();
             _defendantsAndChargesList = _fixture.Create<DefendantsAndChargesListDto>();
             _correlationId = _fixture.Create<Guid>();
-
-            // // (At least on a mac) this test suite crashes unless we control the format of CmsDocumentEntity.CmsOriginalFileName so that it
-            // //  matches the regex attribute that decorates it.
-            // _fixture.Customize<CmsDocumentEntity>(c =>
-            //     c.With(doc => doc.CmsOriginalFileName, $"{_fixture.Create<string>()}.{_fixture.Create<string>().Substring(0, 3)}"));
             _trackerCmsDocuments = _fixture.Create<List<CmsDocumentEntity>>();
-
             _trackerPcdRequests = _fixture.Create<List<PcdRequestEntity>>();
             _caseUrn = _fixture.Create<string>();
             _caseId = _fixture.Create<int>();
             _caseEntity = _fixture.Create<CaseDurableEntity>();
-
-            _pdfBlobName = _fixture.Create<string>();
-
             _synchroniseDocumentsArg = (_cmsDocuments.ToArray(), _pcdRequests.ToArray(), _defendantsAndChargesList);
             _entityStateResponse = new EntityStateResponse<CaseDurableEntity>() { EntityExists = true, EntityState = _caseEntity };
             _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();

@@ -75,9 +75,6 @@ namespace coordinator.Durable.Orchestration
                 CaseUrn = payload.Urn,
                 CaseId = payload.CaseId,
                 DocumentId = payload.DocumentId,
-                // DocumentTypeId = payload.DocumentType.DocumentTypeId,
-                // DocumentType = payload.DocumentType.DocumentType,
-                // DocumentCategory = payload.DocumentType.DocumentCategory,
                 VersionId = payload.VersionId,
                 StartTime = context.CurrentUtcDateTime
             };

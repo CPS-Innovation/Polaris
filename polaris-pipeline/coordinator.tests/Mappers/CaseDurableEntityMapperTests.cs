@@ -28,14 +28,12 @@ public class CaseDurableEntityMapperTests
     {
         // Arrange
         var caseEntity = _fixture.Create<CaseDurableEntity>();
-        //caseEntity.CmsDocuments[0].CategoryListOrder = 1;
         caseEntity.DefendantsAndCharges.HasMultipleDefendants = true;
         // Act
         var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity);
 
         // Assert
         trackerDto.Documents.Count.Should().Be(caseEntity.CmsDocuments.Count + caseEntity.PcdRequests.Count + 1);
-        //trackerDto.Documents.Count(d => d.CategoryListOrder != null).Should().BeGreaterThan(0);
     }
 
     [Fact]

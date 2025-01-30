@@ -19,11 +19,6 @@ namespace coordinator.Mappers
                     dest => dest,
                     src => src
                 )
-                // .Map
-                // (
-                //     dest => dest.DocumentsRetrieved,
-                //     src => GetDocumentsRetrieved(src)
-                // )
                 .Map
                 (
                     dest => dest.ProcessingCompleted,
@@ -44,14 +39,8 @@ namespace coordinator.Mappers
                 );
         }
 
-        // private static DateTime? GetDocumentsRetrieved(CaseDurableEntity caseEntity) =>
-        //     caseEntity.Retrieved.HasValue && caseEntity.Running.HasValue
-        //         ? caseEntity.Running.Value.AddSeconds(caseEntity.Retrieved.Value).ToUniversalTime()
-        //         : null;
-
-
         private static DateTime? GetProcessingCompleted(CaseDurableEntity caseEntity) =>
-            /*caseEntity.Retrieved.HasValue && */ caseEntity.Completed.HasValue
+            caseEntity.Completed.HasValue
                 ? caseEntity.Running.Value.AddSeconds(caseEntity.Completed.Value).ToUniversalTime()
                 : null;
     }

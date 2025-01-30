@@ -9,7 +9,6 @@ namespace coordinator.Durable.Payloads.Domain
         public List<CmsDocumentEntity> DeletedCmsDocuments { get; set; }
 
         public List<PcdRequestEntity> CreatedPcdRequests { get; set; }
-        //public List<PcdRequestEntity> UpdatedPcdRequests { get; set; }
         public List<PcdRequestEntity> DeletedPcdRequests { get; set; }
 
         public DefendantsAndChargesEntity CreatedDefendantsAndCharges { get; set; }

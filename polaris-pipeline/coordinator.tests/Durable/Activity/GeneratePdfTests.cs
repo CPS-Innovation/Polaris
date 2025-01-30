@@ -18,7 +18,6 @@ using FluentAssertions;
 using Ddei.Factories;
 using Common.Clients.PdfGeneratorDomain.Domain;
 using Common.Configuration;
-using Common.Dto.Response.Document;
 using Microsoft.Extensions.Configuration;
 
 namespace pdf_generator.tests.Durable.Activity
@@ -45,7 +44,6 @@ namespace pdf_generator.tests.Durable.Activity
                     _fixture.Create<string>(),
                     _fixture.Create<long>(),
                     _fixture.Create<string>(),
-                    //_fixture.Create<DocumentTypeDto>(),
                     DocumentNature.Types.Document,
                     DocumentDeltaType.RequiresIndexing,
                     _fixture.Create<string>(),

@@ -1,6 +1,5 @@
 ﻿using System;
 using Common.Domain.Document;
-//using Common.Dto.Response.Document;
 using coordinator.Durable.Payloads.Domain;
 
 namespace coordinator.Durable.Payloads
@@ -14,7 +13,6 @@ namespace coordinator.Durable.Payloads
             string documentId,
             long versionId,
             string path,
-            //DocumentTypeDto documentType,
             DocumentNature.Types documentNatureType,
             DocumentDeltaType documentDeltaType,
             string cmsAuthValues,
@@ -25,7 +23,6 @@ namespace coordinator.Durable.Payloads
         {
             DocumentId = documentId;
             VersionId = versionId;
-            //DocumentType = documentType;
             Path = path;
             DocumentNatureType = documentNatureType;
             DocumentDeltaType = documentDeltaType;
@@ -37,8 +34,6 @@ namespace coordinator.Durable.Payloads
         public long VersionId { get; set; }
 
         public string Path { get; set; }
-
-        //public DocumentTypeDto DocumentType { get; set; } = new DocumentTypeDto();
 
         public DocumentNature.Types DocumentNatureType { get; set; }
 

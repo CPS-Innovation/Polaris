@@ -59,8 +59,6 @@ namespace coordinator.Durable.Orchestration
                 CaseDurableEntity.GetEntityId(payload.CaseId)
             );
 
-            // caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.Running, null)); // duplicated later
-
             RefreshedCaseEvent telemetryEvent = default;
             try
             {
@@ -105,7 +103,6 @@ namespace coordinator.Durable.Orchestration
 
             var documents = await GetDocuments(context, payload);
             telemetryEvent.CmsDocsCount = documents.CmsDocuments.Length;
-            // caseEntity.SetCaseStatus((context.CurrentUtcDateTime, CaseRefreshStatus.DocumentsRetrieved, null));
 
             var log = context.CreateReplaySafeLogger(_log);
             var (documentTasks, cmsDocsProcessedCount, pcdRequestsProcessedCount) = await GetDocumentTasks(context, caseEntity, payload, documents, log);
@@ -121,7 +118,7 @@ namespace coordinator.Durable.Orchestration
         private async Task<(CmsDocumentCoreDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListCoreDto DefendantsAndCharges)>
         GetDocuments(IDurableOrchestrationContext context, CasePayload payload)
         {
-            var documents = await context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListCoreDto DefendantsAndCharges)>(nameof(GetCaseDocuments), payload);
+            var documents = await context.CallActivityAsync<(CmsDocumentCoreDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListCoreDto DefendantsAndCharges)>(nameof(GetCaseDocuments), payload);
             if (!_cmsDocumentsResponseValidator.Validate(documents.CmsDocuments))
             {
                 throw new CaseOrchestrationException("Invalid cms documents response: duplicate document ids detected.");
@@ -153,13 +150,10 @@ namespace coordinator.Durable.Orchestration
                             item.doc.DocumentId,
                             item.doc.VersionId,
                             item.doc.Path,
-                            //item.doc.CmsDocType,
                             DocumentNature.Types.Document,
                             item.delta,
                             casePayload.CmsAuthValues,
-                            casePayload.CorrelationId
-                            //item.doc.IsOcrProcessed
-                            )
+                            casePayload.CorrelationId)
                     ).ToList();
 
             var pcdRequestsPayloads
@@ -170,7 +164,6 @@ namespace coordinator.Durable.Orchestration
                             pcd.DocumentId,
                             pcd.VersionId,
                             null,
-                            //pcd.CmsDocType,
                             DocumentNature.Types.PreChargeDecisionRequest,
                             DocumentDeltaType.RequiresIndexing,
                             casePayload.CmsAuthValues,
@@ -187,7 +180,6 @@ namespace coordinator.Durable.Orchestration
                     createdOrUpdatedDefendantsAndCharges.DocumentId,
                     createdOrUpdatedDefendantsAndCharges.VersionId,
                     null,
-                    //createdOrUpdatedDefendantsAndCharges.CmsDocType,
                     DocumentNature.Types.DefendantsAndCharges,
                     DocumentDeltaType.RequiresIndexing,
                     casePayload.CmsAuthValues,
