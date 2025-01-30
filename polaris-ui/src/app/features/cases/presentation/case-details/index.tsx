@@ -293,7 +293,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     //  (we are prepared to show page whilst waiting for docs to load though)
     return (
       <>
-        <cps-global-nav></cps-global-nav>
+        {featureFlags.globalNav && <cps-global-nav></cps-global-nav>}
         <WaitPage />
       </>
     );
