@@ -68,8 +68,6 @@ namespace coordinator.Durable.Orchestration
                 return;
             }
 
-            //caseEntity.SetDocumentPdfConversionSucceeded(payload.DocumentId);
-
             var telemetryEvent = new IndexedDocumentEvent(payload.CorrelationId)
             {
                 CaseUrn = payload.Urn,
