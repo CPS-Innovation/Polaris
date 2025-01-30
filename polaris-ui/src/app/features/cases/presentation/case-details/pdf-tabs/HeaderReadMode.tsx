@@ -1,6 +1,5 @@
 import { useMemo, useCallback } from "react";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
-import { REPORT_ISSUE } from "../../../../../config";
 import {
   DropdownButton,
   DropdownButtonItem,
@@ -105,17 +104,6 @@ export const HeaderReadMode: React.FC<Props> = ({
           disabled: false,
         },
         ...items,
-      ];
-    }
-    if (REPORT_ISSUE) {
-      items = [
-        ...items,
-        {
-          id: "2",
-          label: disableReportBtn ? "Issue reported" : "Report an issue",
-          ariaLabel: "report an issue",
-          disabled: disableReportBtn,
-        },
       ];
     }
     if (contextData.showSearchPII) {
