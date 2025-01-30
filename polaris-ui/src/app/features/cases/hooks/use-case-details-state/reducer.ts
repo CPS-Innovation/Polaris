@@ -1818,10 +1818,6 @@ export const reducer = (
       };
       return newState;
     }
-    default:
-      throw new Error("Unknown action passed to case details reducer");
-  }
-};
 
     default:
       throw new Error("Unknown action passed to case details reducer");
