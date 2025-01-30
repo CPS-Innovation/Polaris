@@ -71,7 +71,7 @@ describe("Feature Delete Page", () => {
     });
   });
 
-  xit("Should successfully complete deleting pages with other redaction", () => {
+  it("Should successfully complete deleting pages with other redaction", () => {
     const expectedSaveRequest = {
       redactions: [
         {
@@ -227,7 +227,7 @@ describe("Feature Delete Page", () => {
     cy.selectPDFTextElement("CIRCUMSTANCES:");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    // cy.focused().should("have.id", "select-redaction-type");
+    cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
     cy.findByTestId(`redaction-count-text-0`).should(
@@ -286,7 +286,7 @@ describe("Feature Delete Page", () => {
     cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    // cy.focused().should("have.id", "select-redaction-type");
+    cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
     cy.findByTestId(`redaction-count-text-0`).should(
@@ -296,7 +296,7 @@ describe("Feature Delete Page", () => {
     cy.selectPDFTextElement("MCLOVE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    // cy.focused().should("have.id", "select-redaction-type");
+    cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
     cy.findByTestId(`redaction-count-text-0`).should(

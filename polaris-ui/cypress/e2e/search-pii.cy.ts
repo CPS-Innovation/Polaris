@@ -61,7 +61,7 @@ describe("Search PII", () => {
       });
     });
 
-    xit("Should show suggested redaction warning message if there are redaction suggestions accepted through acceptAll and redaction log correctly", () => {
+    it("Should show suggested redaction warning message if there are redaction suggestions accepted through acceptAll and redaction log correctly", () => {
       cy.visit("/case-details/12AB1111111/13401?searchPII=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-12").click();
@@ -135,7 +135,7 @@ describe("Search PII", () => {
       cy.findByTestId("div-modal").contains("li", "7 - Named individual");
     });
 
-    xit("Should not show suggested redaction warning message if there are no redaction suggestions accepted through acceptAll", () => {
+    it("Should not show suggested redaction warning message if there are no redaction suggestions accepted through acceptAll", () => {
       cy.visit("/case-details/12AB1111111/13401?searchPII=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-12").click();
@@ -179,7 +179,7 @@ describe("Search PII", () => {
       cy.findByTestId("div-modal").contains("li", "1 - Named individual");
     });
 
-    xit("Should be able to perform accept, acceptAll,ignore,ignoreAll actions on the redaction suggestions", () => {
+    it("Should be able to perform accept, acceptAll,ignore,ignoreAll actions on the redaction suggestions", () => {
       cy.visit("/case-details/12AB1111111/13401?searchPII=true");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-12").click();
@@ -290,7 +290,7 @@ describe("Search PII", () => {
       );
     });
 
-    xit("Should have the correct redaction save request", () => {
+    it("Should have the correct redaction save request", () => {
       const expectedSaveRedactionPayload = {
         redactions: [
           {

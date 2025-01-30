@@ -538,7 +538,7 @@ describe("case details page", () => {
     };
 
     //Todo: add the test case delete page button is available and same with rotation page button is available
-    xit("Should be able to tab forward through each of the unsaved redactions in multiple pages", () => {
+    it("Should be able to tab forward through each of the unsaved redactions in multiple pages", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -594,6 +594,7 @@ describe("case details page", () => {
       cy.get("#document-actions-dropdown-0").focus();
       cy.wait(500);
       cy.realPress("Tab");
+      cy.realPress("Tab");
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress("Enter");
       cy.focused().should("have.id", "remove-btn");
@@ -603,6 +604,8 @@ describe("case details page", () => {
       cy.realPress("Enter");
       cy.focused().should("have.id", "remove-btn");
       cy.realPress("Escape");
+      cy.realPress("Tab");
+      cy.realPress("Tab");
       cy.realPress("Tab");
       cy.realPress("Tab");
       cy.realPress("Tab");
@@ -619,6 +622,7 @@ describe("case details page", () => {
       cy.realPress("Tab");
       cy.realPress("Tab");
       cy.realPress("Tab");
+      cy.realPress("Tab");
       verifyAriaDescriptionTextContent("Approved for referral to CPS:");
       cy.realPress("Enter");
       cy.focused().should("have.id", "remove-btn");
@@ -626,10 +630,12 @@ describe("case details page", () => {
       cy.realPress("Tab");
       cy.realPress("Tab");
       cy.realPress("Tab");
+      cy.realPress("Tab");
       verifyAriaDescriptionTextContent("Instructions to Court Prosecutor:");
       cy.realPress("Enter");
       cy.focused().should("have.id", "remove-btn");
       cy.realPress("Escape");
+      cy.realPress("Tab");
       cy.realPress("Tab");
       cy.realPress("Tab");
       cy.realPress("Tab");
@@ -644,7 +650,7 @@ describe("case details page", () => {
       cy.findByTestId("btn-link-removeAll-0").click();
     });
 
-    xit("Should be able to tab + shift backward through each of the unsaved redactions added in different order but sorted by top left - bottom right", () => {
+    it("Should be able to tab + shift backward through each of the unsaved redactions added in different order but sorted by top left - bottom right", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -707,13 +713,16 @@ describe("case details page", () => {
       cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]);
       verifyAriaDescriptionTextContent("Instructions to Court Prosecutor:");
 
       cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]);
       verifyAriaDescriptionTextContent("Approved for referral to CPS:");
 
+      cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
@@ -726,17 +735,20 @@ describe("case details page", () => {
       cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]);
       verifyAriaDescriptionTextContent("NORTH MARSH");
 
       cy.realPress(["Shift", "Tab"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
 
       cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "document-actions-dropdown-0");
       cy.findByTestId("btn-link-removeAll-0").click();
     });
 
-    xit("Should be able to tab through each of the unsaved redactions added in different order but sorted by top left - bottom right", () => {
+    it("Should be able to tab through each of the unsaved redactions added in different order but sorted by top left - bottom right", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -784,6 +796,7 @@ describe("case details page", () => {
 
       cy.get("#document-actions-dropdown-0").focus();
       cy.realPress(["Tab"]);
+      cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("Date of birth:");
@@ -798,7 +811,7 @@ describe("case details page", () => {
       cy.findByTestId("btn-link-removeAll-0").click();
     });
 
-    xit("When pressing enter from an unsaved redaction button,should show the remove redaction modal alert and pressing escape should bring the focus corresponding unsaved redaction button", () => {
+    it("When pressing enter from an unsaved redaction button,should show the remove redaction modal alert and pressing escape should bring the focus corresponding unsaved redaction button", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -814,6 +827,7 @@ describe("case details page", () => {
       cy.findByTestId("btn-redact").click();
       cy.get("#document-actions-dropdown-0").focus();
       cy.realPress(["Tab"]);
+      cy.realPress(["Tab"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
       cy.realPress(["Enter"]);
       cy.focused().should("have.id", "remove-btn");
@@ -823,6 +837,7 @@ describe("case details page", () => {
       cy.focused().should("have.id", "remove-btn");
       cy.realPress(["Escape"]);
       verifyAriaDescriptionTextContent("WEST YORKSHIRE POLICE");
+      cy.realPress(["Shift", "Tab"]);
       cy.realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "document-actions-dropdown-0");
       cy.findByTestId("btn-link-removeAll-0").click();
@@ -865,7 +880,7 @@ describe("case details page", () => {
       keyPressAndVerifySelection("backward", "W");
     });
 
-    xit("Should be able to select and redact using keyboard", () => {
+    it("Should be able to select and redact using keyboard", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -901,13 +916,13 @@ describe("case details page", () => {
       cy.findByTestId("btn-link-removeAll-0").click();
     });
 
-    xit("Should lock the focus on the redact btn if the btn is present, when pressing both 'shift+tab' and 'tab' and release if the redact btn is not present", () => {
+    it("Should lock the focus on the redact btn if the btn is present, when pressing both 'shift+tab' and 'tab' and release if the redact btn is not present", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-4").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
-        .contains("CASE FILE EVIDENCE and INFORMATION ");
+        .contains("CASE FILE EVIDENCE and INFORMATION");
       cy.wait(500);
       cy.realPress(["Control", ","]);
       cy.findByTestId("btn-redact").should("have.length", 1);

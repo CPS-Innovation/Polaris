@@ -32,7 +32,7 @@ describe("redaction refresh flow", () => {
     cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    // cy.focused().should("have.id", "select-redaction-type");
+    cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
     cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
@@ -52,7 +52,7 @@ describe("redaction refresh flow", () => {
     cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    // cy.focused().should("have.id", "select-redaction-type");
+    cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
 
@@ -71,7 +71,7 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("div-pdfviewer-0").should("exist");
   });
 
-  xit("should successfully complete the redaction refresh flow for saving redaction of two different documents", () => {
+  it.only("should successfully complete the redaction refresh flow for saving redaction of two different documents", () => {
     const documentList = getRefreshRedactedDocument("1", 3);
     cy.visit("/case-details/12AB1111111/13401?redactionLog");
     cy.findByTestId("btn-accordion-open-close-all").click();
@@ -87,7 +87,7 @@ describe("redaction refresh flow", () => {
     cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    // cy.focused().should("have.id", "select-redaction-type");
+    cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
     //open the second document and save redaction
@@ -97,10 +97,10 @@ describe("redaction refresh flow", () => {
       .should("exist")
       .contains("CASE FILE EVIDENCE and INFORMATION");
     cy.wait(500);
-    cy.selectPDFTextElement("MCLOVE");
+    cy.selectPDFTextElement("MCLOVE", "div-pdfviewer-1");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    // cy.focused().should("have.id", "select-redaction-type");
+    cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
     //save both redaction simultaneously
@@ -146,7 +146,7 @@ describe("redaction refresh flow", () => {
     cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    // cy.focused().should("have.id", "select-redaction-type");
+    cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
     cy.findByTestId("btn-save-redaction-0").click();
@@ -173,7 +173,7 @@ describe("redaction refresh flow", () => {
     cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    // cy.focused().should("have.id", "select-redaction-type");
+    cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
     cy.findByTestId("btn-save-redaction-0").click();
@@ -222,7 +222,7 @@ describe("redaction refresh flow", () => {
     );
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    // cy.focused().should("have.id", "select-redaction-type");
+    cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click();
     cy.findByTestId("btn-save-redaction-1").click();
@@ -259,7 +259,7 @@ describe("redaction refresh flow", () => {
     cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    // cy.focused().should("have.id", "select-redaction-type");
+    cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
     cy.findByTestId("div-modal")
@@ -288,7 +288,7 @@ describe("redaction refresh flow", () => {
     cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    // cy.focused().should("have.id", "select-redaction-type");
+    cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
     cy.findByTestId("div-modal")
@@ -297,7 +297,7 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("btn-save-redaction-0").should("have.length", 0);
   });
 
-  xit("Should not hide the redaction tip if we hover over an unsaved redaction in the middle of doing a text selection(linear) redaction", () => {
+  it.only("Should not hide the redaction tip if we hover over an unsaved redaction in the middle of doing a text selection(linear) redaction", () => {
     cy.visit("/case-details/12AB1111111/13401");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
@@ -307,13 +307,13 @@ describe("redaction refresh flow", () => {
     cy.selectPDFTextElement("Not disclosable");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    // cy.focused().should("have.id", "select-redaction-type");
+    cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
     cy.selectPDFTextElement("MCLOVE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    // cy.focused().should("have.id", "select-redaction-type");
+    cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     //hovering over unsaved redaction to verify redaction tip is not removed.
     cy.get('[data-testid^="unsaved-redaction-"]').eq(0).trigger("mouseover");
