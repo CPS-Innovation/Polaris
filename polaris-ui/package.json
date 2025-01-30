@@ -25,6 +25,7 @@
     "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.3.2",
     "@types/uuid": "^8.3.4",
+    "cps-global-nav": "file:../cps-global-nav",
     "cypress": "^12.5.1",
     "cypress-hmr-restarter": "^2.0.3",
     "cypress-real-events": "^1.9.1",
