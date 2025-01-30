@@ -144,7 +144,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         FEATURE_FLAG_PAGE_ROTATE,
         userDetails?.username,
         pageRotate,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP5 }
       ),
       notifications: shouldShowFeature(
         FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
