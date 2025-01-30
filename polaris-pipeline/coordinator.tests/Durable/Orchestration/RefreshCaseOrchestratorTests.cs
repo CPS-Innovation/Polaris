@@ -63,11 +63,6 @@ namespace coordinator.tests.Durable.Orchestration
             _caseDocuments = fixture.Create<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>();
             _transactionId = $"[{_caseId}]";
 
-            // (At least on a mac) this test suite crashes unless we control the format of CmsDocumentEntity.CmsOriginalFileName so that it
-            //  matches the regex attribute that decorates it.
-            fixture.Customize<CmsDocumentEntity>(c =>
-                c.With(doc => doc.CmsOriginalFileName, $"{fixture.Create<string>()}.{fixture.Create<string>().Substring(0, 3)}"));
-
             _trackerCmsDocuments = fixture.CreateMany<(CmsDocumentEntity, DocumentDeltaType)>(11)
                 .ToList();
 
@@ -77,7 +72,6 @@ namespace coordinator.tests.Durable.Orchestration
                 UpdatedCmsDocuments = fixture.Create<(CmsDocumentEntity, DocumentDeltaType)[]>().ToList(),
                 DeletedCmsDocuments = fixture.Create<CmsDocumentEntity[]>().ToList(),
                 CreatedPcdRequests = new List<PcdRequestEntity> { },
-                UpdatedPcdRequests = new List<PcdRequestEntity> { },
                 DeletedPcdRequests = new List<PcdRequestEntity> { },
                 CreatedDefendantsAndCharges = fixture.Create<DefendantsAndChargesEntity>(),
                 UpdatedDefendantsAndCharges = fixture.Create<DefendantsAndChargesEntity>(),
@@ -105,7 +99,7 @@ namespace coordinator.tests.Durable.Orchestration
                 .Returns(int.MaxValue.ToString());
 
             _mockCaseEntity
-                .Setup(tracker => tracker.GetCaseDocumentChanges(((CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges))It.IsAny<object>()))
+                .Setup(tracker => tracker.GetCaseDocumentChanges(((CmsDocumentCoreDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListCoreDto DefendantsAndCharges))It.IsAny<object>()))
                 .ReturnsAsync(_deltaDocuments);
 
             _mockDurableOrchestrationContext
@@ -131,7 +125,7 @@ namespace coordinator.tests.Durable.Orchestration
             var durableResponse = new DurableHttpResponse(HttpStatusCode.OK, content: JsonConvert.SerializeObject(redactPdfResponse));
             _mockDurableOrchestrationContext.Setup(context => context.CallHttpAsync(durableRequest)).ReturnsAsync(durableResponse);
 
-            _mockCmsDocumentsResponseValidator.Setup(validator => validator.Validate(It.IsAny<CmsDocumentDto[]>())).Returns(true);
+            _mockCmsDocumentsResponseValidator.Setup(validator => validator.Validate(It.IsAny<CmsDocumentCoreDto[]>())).Returns(true);
 
             _coordinatorOrchestrator = new RefreshCaseOrchestrator(
                 mockLogger.Object,
@@ -161,18 +155,17 @@ namespace coordinator.tests.Durable.Orchestration
         public async Task Run_DoesntCallDocumentTasksWhenCaseDocumentsIsEmpty()
         {
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<CasePayload>()))
+                .Setup(context => context.CallActivityAsync<(CmsDocumentCoreDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListCoreDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<CasePayload>()))
                 .ReturnsAsync((new CmsDocumentDto[0], new PcdRequestCoreDto[0], new DefendantsAndChargesListDto()));
 
             _mockCaseEntity
-                .Setup(tracker => tracker.GetCaseDocumentChanges(It.IsAny<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>()))
+                .Setup(tracker => tracker.GetCaseDocumentChanges(It.IsAny<(CmsDocumentCoreDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListCoreDto DefendantsAndCharges)>()))
                 .ReturnsAsync(new CaseDeltasEntity
                 {
                     CreatedCmsDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>(),
                     UpdatedCmsDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>(),
                     DeletedCmsDocuments = new List<CmsDocumentEntity>(),
                     CreatedPcdRequests = new List<PcdRequestEntity>(),
-                    UpdatedPcdRequests = new List<PcdRequestEntity>(),
                     DeletedPcdRequests = new List<PcdRequestEntity>(),
                     CreatedDefendantsAndCharges = null,
                     UpdatedDefendantsAndCharges = null,
@@ -233,7 +226,7 @@ namespace coordinator.tests.Durable.Orchestration
         public async Task Run_ThrowsExceptionWhenExceptionOccurs()
         {
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<CasePayload>()))
+                .Setup(context => context.CallActivityAsync<(CmsDocumentCoreDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListCoreDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<CasePayload>()))
                 .ThrowsAsync(new Exception("Test Exception"));
 
             await Assert.ThrowsAsync<Exception>(() => _coordinatorOrchestrator.Run(_mockDurableOrchestrationContext.Object));
@@ -244,7 +237,7 @@ namespace coordinator.tests.Durable.Orchestration
         {
             // Arrange
             _mockDurableOrchestrationContext
-                .Setup(context => context.CallActivityAsync<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<CasePayload>()))
+                .Setup(context => context.CallActivityAsync<(CmsDocumentCoreDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListCoreDto DefendantsAndCharges)>(nameof(GetCaseDocuments), It.IsAny<CasePayload>()))
                 .ThrowsAsync(new Exception("Test Exception"));
 
             try

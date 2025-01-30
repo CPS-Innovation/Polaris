@@ -12,7 +12,7 @@ namespace coordinator.Functions.DurableEntity.Entity.Mapper
                 // todo: not certain that we need to handle a null caseEntity
                 ? new TrackerDto
                 {
-                    Documents = new List<DocumentDto>(),
+                    Documents = new List<TrackerDocumentDto>(),
                 }
                 : caseEntity.Adapt<TrackerDto>();
     }

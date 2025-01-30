@@ -4,12 +4,9 @@ using System.Threading.Tasks;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
-using Common.Services.DocumentToggle;
 using Ddei;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using coordinator.Durable.Payloads;
 using Ddei.Factories;
 
@@ -19,26 +16,18 @@ namespace coordinator.Durable.Activity
     {
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
-        private readonly IDocumentToggleService _documentToggleService;
-        private readonly ILogger<GetCaseDocuments> _log;
-        private readonly IConfiguration _configuration;
 
         public GetCaseDocuments(
                  IDdeiClient ddeiClient,
-                 IDdeiArgFactory ddeiArgFactory,
-                 IDocumentToggleService documentToggleService,
-                 ILogger<GetCaseDocuments> logger,
-                 IConfiguration configuration)
+                 IDdeiArgFactory ddeiArgFactory)
         {
             _ddeiClient = ddeiClient;
             _ddeiArgFactory = ddeiArgFactory;
-            _documentToggleService = documentToggleService;
-            _log = logger;
-            _configuration = configuration;
+
         }
 
         [FunctionName(nameof(GetCaseDocuments))]
-        public async Task<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
+        public async Task<(CmsDocumentCoreDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListCoreDto DefendantAndCharges)> Run([ActivityTrigger] IDurableActivityContext context)
         {
             var payload = context.GetInput<CasePayload>();
 
@@ -63,42 +52,7 @@ namespace coordinator.Durable.Activity
 
             await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 
-            var cmsDocuments = getDocumentsTask.Result
-                .Select(doc => MapPresentationFlags(doc))
-                .ToArray();
-
-
-            var pcdRequests = getPcdRequestsTask.Result
-                .Select(corePcd => MapPresentationFlags(corePcd))
-                .ToArray();
-
-            var defendantsAndCharges = getDefendantsAndChargesTask.Result;
-            MapPresentationFlags(defendantsAndCharges);
-
-            return (cmsDocuments, pcdRequests, defendantsAndCharges);
-        }
-
-        private CmsDocumentDto MapPresentationFlags(CmsDocumentDto document)
-        {
-            document.PresentationFlags = _documentToggleService.GetDocumentPresentationFlags(document);
-            return document;
-        }
-
-        private PcdRequestCoreDto MapPresentationFlags(PcdRequestCoreDto pcdRequest)
-        {
-            pcdRequest.PresentationFlags = _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
-            return pcdRequest;
-        }
-
-        private DefendantsAndChargesListDto MapPresentationFlags(DefendantsAndChargesListDto defendantsAndCharges)
-        {
-            if (defendantsAndCharges == null)
-            {
-                return null;
-            }
-
-            defendantsAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantsAndCharges);
-            return defendantsAndCharges;
+            return (getDocumentsTask.Result.ToArray(), getPcdRequestsTask.Result.ToArray(), getDefendantsAndChargesTask.Result);
         }
     }
 }

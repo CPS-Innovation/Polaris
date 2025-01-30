@@ -1,7 +1,7 @@
 const InProgressPipelineStatusesArray = [
   "NotStarted",
   "Running",
-  "DocumentsRetrieved",
+  //"DocumentsRetrieved",
   "Completed",
   "Failed",
 ] as const;
@@ -17,7 +17,7 @@ const pipelineSucceededStatuses: InProgressPipelineStatus[] = ["Completed"];
 const pipelineFailedStatuses: InProgressPipelineStatus[] = ["Failed"];
 
 const pipelineDocumentsPresentStatuses: InProgressPipelineStatus[] = [
-  "DocumentsRetrieved",
+  //"DocumentsRetrieved",
   "Completed",
   "Failed",
 ];

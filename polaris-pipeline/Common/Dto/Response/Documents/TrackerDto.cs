@@ -15,17 +15,13 @@ namespace Common.Dto.Response.Documents
         [JsonPropertyName("status")]
         public CaseRefreshStatus Status { get; set; }
 
-        [JsonProperty("documentsRetrieved")]
-        [JsonPropertyName("documentsRetrieved")]
-        public DateTime? DocumentsRetrieved { get; set; }
-
         [JsonProperty("processingCompleted")]
         [JsonPropertyName("processingCompleted")]
         public DateTime? ProcessingCompleted { get; set; }
 
         [JsonProperty("documents")]
         [JsonPropertyName("documents")]
-        public List<DocumentDto> Documents { get; set; }
+        public List<TrackerDocumentDto> Documents { get; set; }
 
     }
 }

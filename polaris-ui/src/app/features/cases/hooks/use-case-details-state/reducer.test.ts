@@ -118,7 +118,7 @@ describe("useCaseDetailsState reducer", () => {
         data: {
           processingCompleted: "time_pc1",
           documentsRetrieved: "time_dc1",
-          status: "DocumentsRetrieved",
+          status: "Running",
           documents: [
             {
               documentId: "1",
@@ -174,9 +174,9 @@ describe("useCaseDetailsState reducer", () => {
                   status: "Indexed",
                 },
               ],
-              documentsRetrieved: "time_dc2",
+              //documentsRetrieved: "time_dc2",
               processingCompleted: "time_pc2",
-              status: "DocumentsRetrieved",
+              status: "Running",
             },
             correlationId: "abc",
           },
@@ -234,7 +234,7 @@ describe("useCaseDetailsState reducer", () => {
         data: {
           processingCompleted: "time_pc1",
           documentsRetrieved: "time_dc1",
-          status: "DocumentsRetrieved",
+          status: "Running",
           documents: [
             {
               documentId: "1",
@@ -290,7 +290,7 @@ describe("useCaseDetailsState reducer", () => {
                   status: "Indexed",
                 },
               ],
-              documentsRetrieved: "time_dc2",
+              //documentsRetrieved: "time_dc2",
               processingCompleted: "time_pc2",
               status: "Completed",
             },

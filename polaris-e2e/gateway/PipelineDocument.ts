@@ -1,7 +1,8 @@
 import { CmsDocType } from "./CmsDocType";
 
-export type PipelineDocumentProperties = {
+export type PipelineDocument = {
   documentId: string;
+  conversionStatus: ConversionStatus;
   status:
     | "New"
     | "PdfUploadedToBlob"
@@ -36,8 +37,13 @@ export type ConversionStatus =
   | "AsposeImagingCannotLoad"
   | "UnexpectedError";
 
+export type GroupedConversionStatus =
+  | "EncryptionOrPasswordProtection"
+  | "UnsupportedFileTypeOrContent"
+  | "OtherReasons";
+
 export const mapConversionStatusToMessage = (
-  status: ConversionStatus
+  status: ConversionStatus | GroupedConversionStatus
 ): string => {
   switch (status) {
     case "DocumentConverted":
@@ -51,10 +57,7 @@ export const mapConversionStatusToMessage = (
     case "AsposeWordsUnsupportedFileFormat":
     case "AsposePdfInvalidFileFormat":
       return "document type unsupported";
-    case "AsposeCellsGeneralError":
-    case "AsposeImagingCannotLoad":
-    case "UnexpectedError":
-    case "AsposePdfException":
+    default:
       return "";
   }
 };
@@ -80,7 +83,7 @@ export type PresentationDocumentProperties = {
   witnessId: number | null;
   hasFailedAttachments: boolean;
   hasNotes: boolean;
-  conversionStatus: ConversionStatus;
+  isOcrProcessed: boolean;
   isUnused: boolean;
   isInbox: boolean;
   classification: Classification;
@@ -95,6 +98,3 @@ export type PresentationDocumentProperties = {
     | "IsDefenceStatement";
   reference: string | null;
 };
-
-export type PipelineDocument = PipelineDocumentProperties &
-  PresentationDocumentProperties;

@@ -4,5 +4,5 @@ namespace coordinator.Validators;
 
 public interface ICmsDocumentsResponseValidator
 {
-    public bool Validate(CmsDocumentDto[] cmsDocuments);
+    public bool Validate(CmsDocumentCoreDto[] cmsDocuments);
 }
