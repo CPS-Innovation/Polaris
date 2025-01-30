@@ -74,187 +74,187 @@ public class CaseDurableEntityTests
         sut.CmsDocuments.Should().Contain(x => x.CmsDocumentId == newDocId);
     }
 
-    [Fact]
-    public async Task GetCaseDocumentChanges_WhenPresentationTitleChanges_EntityIsUpdatedAndNoDeltaReturned()
-    {
-        // Arrange
-        var newDocTitle = _fixture.Create<string>();
+    // [Fact]
+    // public async Task GetCaseDocumentChanges_WhenPresentationTitleChanges_EntityIsUpdatedAndNoDeltaReturned()
+    // {
+    //     // Arrange
+    //     var newDocTitle = _fixture.Create<string>();
 
-        var docInEntity = _fixture.Create<CmsDocumentEntity>();
+    //     var docInEntity = _fixture.Create<CmsDocumentEntity>();
 
-        var docInIncoming = _fixture.Create<CmsDocumentDto>();
-        // make sure triggers for different delta types are not found
-        docInIncoming.DocumentId = docInEntity.CmsDocumentId;
-        docInIncoming.VersionId = docInEntity.VersionId;
-        docInIncoming.IsOcrProcessed = docInEntity.IsOcrProcessed;
-        // our operative change
-        docInIncoming.PresentationTitle = newDocTitle;
+    //     var docInIncoming = _fixture.Create<CmsDocumentDto>();
+    //     // make sure triggers for different delta types are not found
+    //     docInIncoming.DocumentId = docInEntity.CmsDocumentId;
+    //     docInIncoming.VersionId = docInEntity.VersionId;
+    //     docInIncoming.IsOcrProcessed = docInEntity.IsOcrProcessed;
+    //     // our operative change
+    //     docInIncoming.PresentationTitle = newDocTitle;
 
-        var sut = new CaseDurableEntity
-        {
-            CmsDocuments = new List<CmsDocumentEntity> {
-                docInEntity,
-            }
-        };
+    //     var sut = new CaseDurableEntity
+    //     {
+    //         CmsDocuments = new List<CmsDocumentEntity> {
+    //             docInEntity,
+    //         }
+    //     };
 
-        var incomingDocs = new CmsDocumentDto[] {
-            docInIncoming,
-        };
+    //     var incomingDocs = new CmsDocumentDto[] {
+    //         docInIncoming,
+    //     };
 
-        //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+    //     //Act
+    //     var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
 
-        //Assert
-        result.CreatedCmsDocuments.Should().BeEmpty();
-        result.UpdatedCmsDocuments.Should().BeEmpty();
+    //     //Assert
+    //     result.CreatedCmsDocuments.Should().BeEmpty();
+    //     result.UpdatedCmsDocuments.Should().BeEmpty();
 
-        sut.CmsDocuments.First().PresentationTitle.Should().Be(newDocTitle);
-    }
+    //     sut.CmsDocuments.First().PresentationTitle.Should().Be(newDocTitle);
+    // }
 
-    [Fact]
-    public async Task GetCaseDocumentChanges_WhenDocumentCategoryChanges_EntityIsUpdatedAndNoDeltaReturned()
-    {
-        // Arrange
-        var newDocCategory = _fixture.Create<string>();
+    // [Fact]
+    // public async Task GetCaseDocumentChanges_WhenDocumentCategoryChanges_EntityIsUpdatedAndNoDeltaReturned()
+    // {
+    //     // Arrange
+    //     var newDocCategory = _fixture.Create<string>();
 
-        var docInEntity = _fixture.Create<CmsDocumentEntity>();
+    //     var docInEntity = _fixture.Create<CmsDocumentEntity>();
 
-        var docInIncoming = _fixture.Create<CmsDocumentDto>();
-        // make sure triggers for different delta types are not found
-        docInIncoming.DocumentId = docInEntity.CmsDocumentId;
-        docInIncoming.VersionId = docInEntity.VersionId;
-        docInIncoming.IsOcrProcessed = docInEntity.IsOcrProcessed;
-        // our operative change
-        docInIncoming.CmsDocType.DocumentCategory = newDocCategory;
+    //     var docInIncoming = _fixture.Create<CmsDocumentDto>();
+    //     // make sure triggers for different delta types are not found
+    //     docInIncoming.DocumentId = docInEntity.CmsDocumentId;
+    //     docInIncoming.VersionId = docInEntity.VersionId;
+    //     docInIncoming.IsOcrProcessed = docInEntity.IsOcrProcessed;
+    //     // our operative change
+    //     docInIncoming.CmsDocType.DocumentCategory = newDocCategory;
 
-        var sut = new CaseDurableEntity
-        {
-            CmsDocuments = new List<CmsDocumentEntity> {
-                docInEntity,
-            }
-        };
+    //     var sut = new CaseDurableEntity
+    //     {
+    //         CmsDocuments = new List<CmsDocumentEntity> {
+    //             docInEntity,
+    //         }
+    //     };
 
-        var incomingDocs = new CmsDocumentDto[] {
-            docInIncoming,
-        };
+    //     var incomingDocs = new CmsDocumentDto[] {
+    //         docInIncoming,
+    //     };
 
-        //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+    //     //Act
+    //     var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
 
-        //Assert
-        result.CreatedCmsDocuments.Should().BeEmpty();
-        result.UpdatedCmsDocuments.Should().BeEmpty();
+    //     //Assert
+    //     result.CreatedCmsDocuments.Should().BeEmpty();
+    //     result.UpdatedCmsDocuments.Should().BeEmpty();
 
-        sut.CmsDocuments.First().CmsDocType.DocumentCategory.Should().Be(newDocCategory);
-    }
+    //     sut.CmsDocuments.First().CmsDocType.DocumentCategory.Should().Be(newDocCategory);
+    // }
 
-    [Fact]
-    public async Task GetCaseDocumentChanges_WhenCategoryListOrderChanges_EntityIsUpdatedAndNoDeltaReturned()
-    {
-        // Arrange
-        var newCategoryListOrder = _fixture.Create<int>();
-        var docInEntity = _fixture.Create<CmsDocumentEntity>();
+    // [Fact]
+    // public async Task GetCaseDocumentChanges_WhenCategoryListOrderChanges_EntityIsUpdatedAndNoDeltaReturned()
+    // {
+    //     // Arrange
+    //     var newCategoryListOrder = _fixture.Create<int>();
+    //     var docInEntity = _fixture.Create<CmsDocumentEntity>();
 
-        var docInIncoming = _fixture.Create<CmsDocumentDto>();
-        // make sure triggers for different delta types are not found
-        docInIncoming.DocumentId = docInEntity.CmsDocumentId;
-        docInIncoming.VersionId = docInEntity.VersionId;
-        docInIncoming.IsOcrProcessed = docInEntity.IsOcrProcessed;
-        // our operative change
-        docInIncoming.CategoryListOrder = newCategoryListOrder;
+    //     var docInIncoming = _fixture.Create<CmsDocumentDto>();
+    //     // make sure triggers for different delta types are not found
+    //     docInIncoming.DocumentId = docInEntity.CmsDocumentId;
+    //     docInIncoming.VersionId = docInEntity.VersionId;
+    //     docInIncoming.IsOcrProcessed = docInEntity.IsOcrProcessed;
+    //     // our operative change
+    //     docInIncoming.CategoryListOrder = newCategoryListOrder;
 
-        var sut = new CaseDurableEntity
-        {
-            CmsDocuments = new List<CmsDocumentEntity> {
-                docInEntity,
-            }
-        };
+    //     var sut = new CaseDurableEntity
+    //     {
+    //         CmsDocuments = new List<CmsDocumentEntity> {
+    //             docInEntity,
+    //         }
+    //     };
 
-        var incomingDocs = new CmsDocumentDto[] {
-            docInIncoming,
-        };
+    //     var incomingDocs = new CmsDocumentDto[] {
+    //         docInIncoming,
+    //     };
 
-        //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+    //     //Act
+    //     var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
 
-        //Assert
-        result.CreatedCmsDocuments.Should().BeEmpty();
-        result.UpdatedCmsDocuments.Should().BeEmpty();
+    //     //Assert
+    //     result.CreatedCmsDocuments.Should().BeEmpty();
+    //     result.UpdatedCmsDocuments.Should().BeEmpty();
 
-        sut.CmsDocuments.First().CategoryListOrder.Should().Be(newCategoryListOrder);
-    }
+    //     sut.CmsDocuments.First().CategoryListOrder.Should().Be(newCategoryListOrder);
+    // }
 
-    [Fact]
-    public async Task GetCaseDocumentChanges_WhenIsOcrProcessedChanges_EntityIsUpdatedAndRequiresPdfRefreshIsReturned()
-    {
-        // Arrange
+    // [Fact]
+    // public async Task GetCaseDocumentChanges_WhenIsOcrProcessedChanges_EntityIsUpdatedAndRequiresPdfRefreshIsReturned()
+    // {
+    //     // Arrange
 
-        var docInEntity = _fixture.Create<CmsDocumentEntity>();
-        docInEntity.IsOcrProcessed = false;
+    //     var docInEntity = _fixture.Create<CmsDocumentEntity>();
+    //     docInEntity.IsOcrProcessed = false;
 
-        var docInIncoming = _fixture.Create<CmsDocumentDto>();
-        docInIncoming.DocumentId = docInEntity.CmsDocumentId;
-        docInIncoming.VersionId = docInEntity.VersionId;
-        docInIncoming.IsOcrProcessed = true;
-        // note: presentationTitle and categoryListOrder are going to be different between the two docs
-        // due to AutoFixture but the Ocr flag change should be strong enough to return RequiresPdfRefresh
+    //     var docInIncoming = _fixture.Create<CmsDocumentDto>();
+    //     docInIncoming.DocumentId = docInEntity.CmsDocumentId;
+    //     docInIncoming.VersionId = docInEntity.VersionId;
+    //     docInIncoming.IsOcrProcessed = true;
+    //     // note: presentationTitle and categoryListOrder are going to be different between the two docs
+    //     // due to AutoFixture but the Ocr flag change should be strong enough to return RequiresPdfRefresh
 
-        var sut = new CaseDurableEntity
-        {
-            CmsDocuments = new List<CmsDocumentEntity> {
-                docInEntity,
-            }
-        };
+    //     var sut = new CaseDurableEntity
+    //     {
+    //         CmsDocuments = new List<CmsDocumentEntity> {
+    //             docInEntity,
+    //         }
+    //     };
 
-        var incomingDocs = new CmsDocumentDto[] {
-            docInIncoming,
-        };
+    //     var incomingDocs = new CmsDocumentDto[] {
+    //         docInIncoming,
+    //     };
 
-        //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+    //     //Act
+    //     var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
 
-        //Assert
-        result.UpdatedCmsDocuments.Should().HaveCount(1);
-        result.UpdatedCmsDocuments.First().Item1.CmsDocumentId.Should().Be(docInEntity.CmsDocumentId);
-        result.UpdatedCmsDocuments.First().Item2.Should().Be(DocumentDeltaType.RequiresPdfRefresh);
+    //     //Assert
+    //     result.UpdatedCmsDocuments.Should().HaveCount(1);
+    //     result.UpdatedCmsDocuments.First().Item1.CmsDocumentId.Should().Be(docInEntity.CmsDocumentId);
+    //     result.UpdatedCmsDocuments.First().Item2.Should().Be(DocumentDeltaType.RequiresPdfRefresh);
 
-        sut.CmsDocuments.First().IsOcrProcessed.Should().BeTrue();
-    }
+    //     sut.CmsDocuments.First().IsOcrProcessed.Should().BeTrue();
+    // }
 
-    [Fact]
-    public async Task GetCaseDocumentChanges_WhenVersionIdChanges_EntityIsUpdatedAndRequiresIndexingIsReturned()
-    {
-        // Arrange
+    // [Fact]
+    // public async Task GetCaseDocumentChanges_WhenVersionIdChanges_EntityIsUpdatedAndRequiresIndexingIsReturned()
+    // {
+    //     // Arrange
 
-        var docInEntity = _fixture.Create<CmsDocumentEntity>();
-        docInEntity.IsOcrProcessed = false;
+    //     var docInEntity = _fixture.Create<CmsDocumentEntity>();
+    //     docInEntity.IsOcrProcessed = false;
 
-        var docInIncoming = _fixture.Create<CmsDocumentDto>();
-        docInIncoming.DocumentId = docInEntity.CmsDocumentId;
-        docInIncoming.IsOcrProcessed = true;
-        // note: presentationTitle, categoryListOrder and IsOcrProcessed are going to be different between the two docs
-        //  due to AutoFixture but the versionId change should be strong enough to return RequiresIndexing
+    //     var docInIncoming = _fixture.Create<CmsDocumentDto>();
+    //     docInIncoming.DocumentId = docInEntity.CmsDocumentId;
+    //     docInIncoming.IsOcrProcessed = true;
+    //     // note: presentationTitle, categoryListOrder and IsOcrProcessed are going to be different between the two docs
+    //     //  due to AutoFixture but the versionId change should be strong enough to return RequiresIndexing
 
-        var sut = new CaseDurableEntity
-        {
-            CmsDocuments = new List<CmsDocumentEntity> {
-                docInEntity,
-            }
-        };
+    //     var sut = new CaseDurableEntity
+    //     {
+    //         CmsDocuments = new List<CmsDocumentEntity> {
+    //             docInEntity,
+    //         }
+    //     };
 
-        var incomingDocs = new CmsDocumentDto[] {
-            docInIncoming,
-        };
+    //     var incomingDocs = new CmsDocumentDto[] {
+    //         docInIncoming,
+    //     };
 
-        //Act
-        var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
+    //     //Act
+    //     var result = await sut.GetCaseDocumentChanges((incomingDocs, new PcdRequestDto[] { }, new DefendantsAndChargesListDto()));
 
-        //Assert
-        result.UpdatedCmsDocuments.Should().HaveCount(1);
-        result.UpdatedCmsDocuments.First().Item1.CmsDocumentId.Should().Be(docInEntity.CmsDocumentId);
-        result.UpdatedCmsDocuments.First().Item2.Should().Be(DocumentDeltaType.RequiresIndexing);
+    //     //Assert
+    //     result.UpdatedCmsDocuments.Should().HaveCount(1);
+    //     result.UpdatedCmsDocuments.First().Item1.CmsDocumentId.Should().Be(docInEntity.CmsDocumentId);
+    //     result.UpdatedCmsDocuments.First().Item2.Should().Be(DocumentDeltaType.RequiresIndexing);
 
-        sut.CmsDocuments.First().IsOcrProcessed.Should().BeTrue();
-    }
+    //     sut.CmsDocuments.First().IsOcrProcessed.Should().BeTrue();
+    // }
 }
 

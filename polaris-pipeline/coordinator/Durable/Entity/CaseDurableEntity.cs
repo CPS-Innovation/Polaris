@@ -37,8 +37,8 @@ namespace coordinator.Durable.Entity
         [JsonProperty("running")]
         public DateTime? Running { get; set; }
 
-        [JsonProperty("Retrieved")]
-        public float? Retrieved { get; set; }
+        // [JsonProperty("Retrieved")]
+        // public float? Retrieved { get; set; }
 
         [JsonProperty("completed")]
         public float? Completed { get; set; }
@@ -67,18 +67,18 @@ namespace coordinator.Durable.Entity
         {
             Status = CaseRefreshStatus.NotStarted;
             Running = null;
-            Retrieved = null;
+            //Retrieved = null;
             Completed = null;
             Failed = null;
             FailedReason = null;
         }
 
-        public async Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args)
+        public async Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentCoreDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListCoreDto DefendantsAndCharges) args)
         {
             var (cmsDocuments, pcdRequests, defendantsAndCharges) = args;
 
             var (createdDocuments, updatedDocuments, deletedDocuments) = GetDeltaCmsDocuments(cmsDocuments.ToList());
-            var (createdPcdRequests, updatedPcdRequests, deletedPcdRequests) = GetDeltaPcdRequests(pcdRequests.ToList());
+            var (createdPcdRequests, /* updatedPcdRequests,*/ deletedPcdRequests) = GetDeltaPcdRequests(pcdRequests.ToList());
             var (createdDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges) = GetDeltaDefendantsAndCharges(defendantsAndCharges);
 
             var deltas = new CaseDeltasEntity
@@ -87,7 +87,7 @@ namespace coordinator.Durable.Entity
                 UpdatedCmsDocuments = UpdateTrackerCmsDocuments(updatedDocuments),
                 DeletedCmsDocuments = DeleteTrackerCmsDocuments(deletedDocuments),
                 CreatedPcdRequests = CreateTrackerPcdRequests(createdPcdRequests),
-                UpdatedPcdRequests = UpdateTrackerPcdRequests(updatedPcdRequests),
+                //UpdatedPcdRequests = UpdateTrackerPcdRequests(updatedPcdRequests),
                 DeletedPcdRequests = DeleteTrackerPcdRequests(deletedPcdRequests),
                 CreatedDefendantsAndCharges = CreateTrackerDefendantsAndCharges(createdDefendantsAndCharges),
                 UpdatedDefendantsAndCharges = UpdateTrackerDefendantsAndCharges(updatedDefendantsAndCharges),
@@ -97,7 +97,7 @@ namespace coordinator.Durable.Entity
             return await Task.FromResult(deltas);
         }
 
-        private (List<CmsDocumentDto>, List<CmsDocumentDto>, List<long>) GetDeltaCmsDocuments(List<CmsDocumentDto> incomingDocuments)
+        private (List<CmsDocumentCoreDto>, List<CmsDocumentCoreDto>, List<long>) GetDeltaCmsDocuments(List<CmsDocumentCoreDto> incomingDocuments)
         {
             var newDocuments =
                 (from incomingDocument in incomingDocuments
@@ -112,20 +112,21 @@ namespace coordinator.Durable.Entity
                  (
                      cmsDocument != null &&
                      (
-                         cmsDocument.VersionId != incomingDocument.VersionId ||
-                         cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed ||
-                         cmsDocument.CmsDocType?.DocumentTypeId != incomingDocument.CmsDocType?.DocumentTypeId ||
-                         cmsDocument.CmsDocType?.DocumentCategory != incomingDocument.CmsDocType?.DocumentCategory ||
-                         cmsDocument.PresentationTitle != incomingDocument.PresentationTitle ||
-                         cmsDocument.CategoryListOrder != incomingDocument.CategoryListOrder ||
-                         cmsDocument.WitnessId != incomingDocument.WitnessId ||
-                         cmsDocument.CmsFileCreatedDate != incomingDocument.DocumentDate ||
-                         cmsDocument.IsDispatched != incomingDocument.IsDispatched ||
-                         cmsDocument.HasNotes != incomingDocument.HasNotes ||
-                         cmsDocument.IsUnused != incomingDocument.IsUnused ||
-                         cmsDocument.IsInbox != incomingDocument.IsInbox ||
-                         cmsDocument.CanReclassify != incomingDocument.CanReclassify ||
-                         cmsDocument.Reference != incomingDocument.Reference
+                         cmsDocument.VersionId != incomingDocument.VersionId
+                     //||
+                     // cmsDocument.IsOcrProcessed != incomingDocument.IsOcrProcessed ||
+                     //  cmsDocument.CmsDocType?.DocumentTypeId != incomingDocument.CmsDocType?.DocumentTypeId ||
+                     //  cmsDocument.CmsDocType?.DocumentCategory != incomingDocument.CmsDocType?.DocumentCategory ||
+                     //  cmsDocument.PresentationTitle != incomingDocument.PresentationTitle ||
+                     //  cmsDocument.CategoryListOrder != incomingDocument.CategoryListOrder ||
+                     //  cmsDocument.WitnessId != incomingDocument.WitnessId ||
+                     //  cmsDocument.CmsFileCreatedDate != incomingDocument.DocumentDate ||
+                     //  cmsDocument.IsDispatched != incomingDocument.IsDispatched ||
+                     //  cmsDocument.HasNotes != incomingDocument.HasNotes ||
+                     //  cmsDocument.IsUnused != incomingDocument.IsUnused ||
+                     //  cmsDocument.IsInbox != incomingDocument.IsInbox ||
+                     //  cmsDocument.CanReclassify != incomingDocument.CanReclassify ||
+                     //  cmsDocument.Reference != incomingDocument.Reference
                      )
                  )
                  select incomingDocument).ToList();
@@ -140,7 +141,7 @@ namespace coordinator.Durable.Entity
             return (newDocuments, updatedDocuments, deletedCmsDocumentIdsToRemove);
         }
 
-        private (List<PcdRequestCoreDto> createdPcdRequests, List<PcdRequestCoreDto> updatedPcdRequests, List<long> deletedPcdRequests) GetDeltaPcdRequests(List<PcdRequestCoreDto> incomingPcdRequests)
+        private (List<PcdRequestCoreDto> createdPcdRequests, /*List<PcdRequestCoreDto> updatedPcdRequests,*/ List<long> deletedPcdRequests) GetDeltaPcdRequests(List<PcdRequestCoreDto> incomingPcdRequests)
         {
             var newPcdRequests =
                 incomingPcdRequests
@@ -151,19 +152,19 @@ namespace coordinator.Durable.Entity
             //     .Where(incomingPcd => PcdRequests.Any(pcd => pcd.PcdRequest.Id == incomingPcd.Id && pcd.Status != DocumentStatus.Indexed))
             // which did nothing.  We could be doing some sort of hash comparison here on pcd requests to see if they've changed, but this would
             // involve always having to request the full pcd request from DDEI on every refresh, which would be costly.
-            var updatedPcdRequests = Enumerable.Empty<PcdRequestCoreDto>().ToList();
+            //var updatedPcdRequests = Enumerable.Empty<PcdRequestCoreDto>().ToList();
 
             var deletedPcdRequestIds
                 = PcdRequests.Where(pcd => !incomingPcdRequests.Exists(incomingPcd => incomingPcd.Id == pcd.CmsDocumentId))
                     .Select(pcd => pcd.CmsDocumentId)
                     .ToList();
 
-            return (newPcdRequests, updatedPcdRequests, deletedPcdRequestIds);
+            return (newPcdRequests, /*updatedPcdRequests,*/ deletedPcdRequestIds);
         }
 
-        private (DefendantsAndChargesListDto createdDefendantsAndCharges, DefendantsAndChargesListDto updatedDefendantsAndCharges, bool deletedDefendantsAndCharges) GetDeltaDefendantsAndCharges(DefendantsAndChargesListDto incomingDefendantsAndCharges)
+        private (DefendantsAndChargesListCoreDto createdDefendantsAndCharges, DefendantsAndChargesListCoreDto updatedDefendantsAndCharges, bool deletedDefendantsAndCharges) GetDeltaDefendantsAndCharges(DefendantsAndChargesListCoreDto incomingDefendantsAndCharges)
         {
-            DefendantsAndChargesListDto newDefendantsAndCharges = null, updatedDefendantsAndCharges = null;
+            DefendantsAndChargesListCoreDto newDefendantsAndCharges = null, updatedDefendantsAndCharges = null;
 
             if (DefendantsAndCharges == null && incomingDefendantsAndCharges != null)
                 newDefendantsAndCharges = incomingDefendantsAndCharges;
@@ -179,7 +180,7 @@ namespace coordinator.Durable.Entity
             return (newDefendantsAndCharges, updatedDefendantsAndCharges, deletedDefendantsAndCharges);
         }
 
-        private List<(CmsDocumentEntity, DocumentDeltaType)> CreateTrackerCmsDocuments(List<CmsDocumentDto> createdDocuments)
+        private List<(CmsDocumentEntity, DocumentDeltaType)> CreateTrackerCmsDocuments(List<CmsDocumentCoreDto> createdDocuments)
         {
             var newDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>();
 
@@ -190,27 +191,27 @@ namespace coordinator.Durable.Entity
                     (
                         cmsDocumentId: newDocument.DocumentId,
                         versionId: newDocument.VersionId,
-                        cmsDocType: newDocument.CmsDocType,
-                        path: newDocument.Path,
-                        cmsFileCreatedDate: newDocument.DocumentDate,
-                        cmsOriginalFileName: newDocument.FileName,
-                        presentationTitle: newDocument.PresentationTitle,
-                        isOcrProcessed: newDocument.IsOcrProcessed,
-                        isDispatched: newDocument.IsDispatched,
-                        categoryListOrder: newDocument.CategoryListOrder,
-                        cmsParentDocumentId: newDocument.ParentDocumentId,
-                        witnessId: newDocument.WitnessId,
-                        presentationFlags: newDocument.PresentationFlags,
-                        hasFailedAttachments: newDocument.HasFailedAttachments,
-                        hasNotes: newDocument.HasNotes,
-                        isUnused: newDocument.IsUnused,
-                        isInbox: newDocument.IsInbox,
-                        classification: newDocument.Classification,
-                        isWitnessManagement: newDocument.IsWitnessManagement,
-                        canReclassify: newDocument.CanReclassify,
-                        canRename: newDocument.CanRename,
-                        renameStatus: newDocument.RenameStatus,
-                        reference: newDocument.Reference
+                        // cmsDocType: newDocument.CmsDocType,
+                        path: newDocument.Path
+                    // cmsFileCreatedDate: newDocument.DocumentDate,
+                    // cmsOriginalFileName: newDocument.FileName,
+                    // presentationTitle: newDocument.PresentationTitle,
+                    // isOcrProcessed: newDocument.IsOcrProcessed,
+                    // isDispatched: newDocument.IsDispatched,
+                    // categoryListOrder: newDocument.CategoryListOrder,
+                    // cmsParentDocumentId: newDocument.ParentDocumentId,
+                    // witnessId: newDocument.WitnessId,
+                    // presentationFlags: newDocument.PresentationFlags,
+                    // hasFailedAttachments: newDocument.HasFailedAttachments,
+                    // hasNotes: newDocument.HasNotes,
+                    // isUnused: newDocument.IsUnused,
+                    // isInbox: newDocument.IsInbox,
+                    // classification: newDocument.Classification,
+                    // isWitnessManagement: newDocument.IsWitnessManagement,
+                    // canReclassify: newDocument.CanReclassify,
+                    // canRename: newDocument.CanRename,
+                    // renameStatus: newDocument.RenameStatus,
+                    // reference: newDocument.Reference
                     );
 
                 CmsDocuments.Add(trackerDocument);
@@ -220,7 +221,7 @@ namespace coordinator.Durable.Entity
             return newDocuments;
         }
 
-        private List<(CmsDocumentEntity, DocumentDeltaType)> UpdateTrackerCmsDocuments(List<CmsDocumentDto> updatedDocuments)
+        private List<(CmsDocumentEntity, DocumentDeltaType)> UpdateTrackerCmsDocuments(List<CmsDocumentCoreDto> updatedDocuments)
         {
             var changedDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>();
 
@@ -228,45 +229,46 @@ namespace coordinator.Durable.Entity
             {
                 var trackerDocument = CmsDocuments.Find(d => d.CmsDocumentId == updatedDocument.DocumentId);
 
-                trackerDocument.CmsDocType = updatedDocument.CmsDocType;
+                //trackerDocument.CmsDocType = updatedDocument.CmsDocType;
+                //trackerDocument.Path = updatedDocument.Path;
+                // trackerDocument.CmsFileCreatedDate = updatedDocument.DocumentDate;
+                // trackerDocument.PresentationTitle = updatedDocument.PresentationTitle;
+                // trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;
+                // trackerDocument.IsDispatched = updatedDocument.IsDispatched;
+                // trackerDocument.CmsParentDocumentId = updatedDocument.ParentDocumentId;
+                // trackerDocument.WitnessId = updatedDocument.WitnessId;
+                // trackerDocument.CategoryListOrder = updatedDocument.CategoryListOrder;
+                // trackerDocument.HasNotes = updatedDocument.HasNotes;
+                // trackerDocument.IsInbox = updatedDocument.IsInbox;
+                // trackerDocument.IsUnused = updatedDocument.IsUnused;
+                // trackerDocument.Classification = updatedDocument.Classification;
+                // trackerDocument.IsWitnessManagement = updatedDocument.IsWitnessManagement;
+                // trackerDocument.CanReclassify = updatedDocument.CanReclassify;
+                // trackerDocument.CanRename = updatedDocument.CanRename;
+                // trackerDocument.RenameStatus = updatedDocument.RenameStatus;
+                // trackerDocument.Reference = updatedDocument.Reference;
+
+                //var caseDeltaType = DocumentDeltaType.DoesNotRequireRefresh;
+
+                // if (trackerDocument.IsOcrProcessed != updatedDocument.IsOcrProcessed)
+                // {
+                //     trackerDocument.IsOcrProcessed = updatedDocument.IsOcrProcessed;
+                //     caseDeltaType = DocumentDeltaType.RequiresPdfRefresh;
+                // }
+
+                // if (trackerDocument.VersionId != updatedDocument.VersionId)
+                // {
+                trackerDocument.VersionId = updatedDocument.VersionId;
                 trackerDocument.Path = updatedDocument.Path;
-                trackerDocument.CmsFileCreatedDate = updatedDocument.DocumentDate;
-                trackerDocument.PresentationTitle = updatedDocument.PresentationTitle;
-                trackerDocument.PresentationFlags = updatedDocument.PresentationFlags;
-                trackerDocument.IsDispatched = updatedDocument.IsDispatched;
-                trackerDocument.CmsParentDocumentId = updatedDocument.ParentDocumentId;
-                trackerDocument.WitnessId = updatedDocument.WitnessId;
-                trackerDocument.CategoryListOrder = updatedDocument.CategoryListOrder;
-                trackerDocument.HasNotes = updatedDocument.HasNotes;
-                trackerDocument.IsInbox = updatedDocument.IsInbox;
-                trackerDocument.IsUnused = updatedDocument.IsUnused;
-                trackerDocument.Classification = updatedDocument.Classification;
-                trackerDocument.IsWitnessManagement = updatedDocument.IsWitnessManagement;
-                trackerDocument.CanReclassify = updatedDocument.CanReclassify;
-                trackerDocument.CanRename = updatedDocument.CanRename;
-                trackerDocument.RenameStatus = updatedDocument.RenameStatus;
-                trackerDocument.Reference = updatedDocument.Reference;
-
-                var caseDeltaType = DocumentDeltaType.DoesNotRequireRefresh;
-
-                if (trackerDocument.IsOcrProcessed != updatedDocument.IsOcrProcessed)
-                {
-                    trackerDocument.IsOcrProcessed = updatedDocument.IsOcrProcessed;
-                    caseDeltaType = DocumentDeltaType.RequiresPdfRefresh;
-                }
-
-                if (trackerDocument.VersionId != updatedDocument.VersionId)
-                {
-                    trackerDocument.VersionId = updatedDocument.VersionId;
-                    caseDeltaType = DocumentDeltaType.RequiresIndexing;
-                }
+                var caseDeltaType = DocumentDeltaType.RequiresIndexing;
+                //}
 
                 changedDocuments.Add((trackerDocument, caseDeltaType));
             }
 
-            return changedDocuments
-                .Where(d => d.Item2 != DocumentDeltaType.DoesNotRequireRefresh)
-                .ToList();
+            return changedDocuments;
+            // .Where(d => d.Item2 != DocumentDeltaType.DoesNotRequireRefresh)
+            // .ToList();
         }
 
         private List<CmsDocumentEntity> DeleteTrackerCmsDocuments(List<long> documentIdsToDelete)
@@ -291,7 +293,9 @@ namespace coordinator.Durable.Entity
             foreach (var newPcdRequest in createdPcdRequests)
             {
 
-                var trackerPcdRequest = new PcdRequestEntity(newPcdRequest.Id, 1, newPcdRequest);
+                var trackerPcdRequest = new PcdRequestEntity(newPcdRequest.Id, 1
+                //, newPcdRequest
+                );
                 PcdRequests.Add(trackerPcdRequest);
                 newPcdRequests.Add(trackerPcdRequest);
             }
@@ -299,20 +303,20 @@ namespace coordinator.Durable.Entity
             return newPcdRequests;
         }
 
-        private List<PcdRequestEntity> UpdateTrackerPcdRequests(List<PcdRequestCoreDto> updatedPcdRequests)
-        {
-            var changedPcdRequests = new List<PcdRequestEntity>();
+        // private List<PcdRequestEntity> UpdateTrackerPcdRequests(List<PcdRequestCoreDto> updatedPcdRequests)
+        // {
+        //     var changedPcdRequests = new List<PcdRequestEntity>();
 
-            foreach (var updatedPcdRequest in updatedPcdRequests)
-            {
-                var trackerPcdRequest = PcdRequests.Find(pcd => pcd.CmsDocumentId == updatedPcdRequest.Id);
-                trackerPcdRequest.PresentationFlags = updatedPcdRequest.PresentationFlags;
+        //     foreach (var updatedPcdRequest in updatedPcdRequests)
+        //     {
+        //         var trackerPcdRequest = PcdRequests.Find(pcd => pcd.CmsDocumentId == updatedPcdRequest.Id);
+        //         //trackerPcdRequest.PresentationFlags = updatedPcdRequest.PresentationFlags;
 
-                changedPcdRequests.Add(trackerPcdRequest);
-            }
+        //         changedPcdRequests.Add(trackerPcdRequest);
+        //     }
 
-            return changedPcdRequests;
-        }
+        //     return changedPcdRequests;
+        // }
 
         private List<PcdRequestEntity> DeleteTrackerPcdRequests(List<long> deletedPcdRequestIds)
         {
@@ -329,7 +333,7 @@ namespace coordinator.Durable.Entity
             return deletePcdRequests;
         }
 
-        private DefendantsAndChargesEntity CreateTrackerDefendantsAndCharges(DefendantsAndChargesListDto createdDefendantsAndCharges)
+        private DefendantsAndChargesEntity CreateTrackerDefendantsAndCharges(DefendantsAndChargesListCoreDto createdDefendantsAndCharges)
         {
             if (createdDefendantsAndCharges != null)
             {
@@ -345,12 +349,12 @@ namespace coordinator.Durable.Entity
             return null;
         }
 
-        private DefendantsAndChargesEntity UpdateTrackerDefendantsAndCharges(DefendantsAndChargesListDto updatedDefendantsAndCharges)
+        private DefendantsAndChargesEntity UpdateTrackerDefendantsAndCharges(DefendantsAndChargesListCoreDto updatedDefendantsAndCharges)
         {
             if (updatedDefendantsAndCharges != null)
             {
                 // todo: encapsulate this logic into DefendantsAndChargesEntity
-                DefendantsAndCharges.HasMultipleDefendants = updatedDefendantsAndCharges?.DefendantsAndCharges.Count() > 1;
+                DefendantsAndCharges.HasMultipleDefendants = updatedDefendantsAndCharges.DefendantCount > 1;
                 return DefendantsAndCharges;
             }
 
@@ -399,10 +403,10 @@ namespace coordinator.Durable.Entity
                     Running = t;
                     break;
 
-                case CaseRefreshStatus.DocumentsRetrieved:
-                    if (Running != null)
-                        Retrieved = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
-                    break;
+                // case CaseRefreshStatus.DocumentsRetrieved:
+                //     if (Running != null)
+                //         Retrieved = (float)((t - Running).Value.TotalMilliseconds / 1000.0);
+                //     break;
 
                 case CaseRefreshStatus.Completed:
                     if (Running != null)
@@ -419,11 +423,11 @@ namespace coordinator.Durable.Entity
             }
         }
 
-        public void SetDocumentPdfConversionSucceeded(string documentId)
-        {
-            var document = GetDocument(documentId);
-            document.Status = DocumentStatus.PdfUploadedToBlob;
-        }
+        // public void SetDocumentPdfConversionSucceeded(string documentId)
+        // {
+        //     var document = GetDocument(documentId);
+        //     document.Status = DocumentStatus.PdfUploadedToBlob;
+        // }
 
         public void SetDocumentPdfConversionFailed((string DocumentId, PdfConversionStatus PdfConversionStatus) arg)
         {
@@ -444,11 +448,11 @@ namespace coordinator.Durable.Entity
             document.Status = DocumentStatus.OcrAndIndexFailure;
         }
 
-        public void SetPiiVersionId(string documentId)
-        {
-            var document = GetDocument(documentId);
+        // public void SetPiiVersionId(string documentId)
+        // {
+        //     var document = GetDocument(documentId);
 
-            document.PiiVersionId = document.VersionId;
-        }
+        //     document.PiiVersionId = document.VersionId;
+        // }
     }
 }

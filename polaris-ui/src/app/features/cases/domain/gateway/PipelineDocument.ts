@@ -1,6 +1,6 @@
 import { CmsDocType } from "./CmsDocType";
 
-export type PipelineDocumentProperties = {
+export type PipelineDocument = {
   documentId: string;
   conversionStatus: ConversionStatus;
   status:
@@ -98,5 +98,3 @@ export type PresentationDocumentProperties = {
     | "IsDefenceStatement";
   reference: string | null;
 };
-
-export type PipelineDocument = PipelineDocumentProperties;

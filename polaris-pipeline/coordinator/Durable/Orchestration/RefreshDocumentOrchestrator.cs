@@ -68,16 +68,16 @@ namespace coordinator.Durable.Orchestration
                 return;
             }
 
-            caseEntity.SetDocumentPdfConversionSucceeded(payload.DocumentId);
+            //caseEntity.SetDocumentPdfConversionSucceeded(payload.DocumentId);
 
             var telemetryEvent = new IndexedDocumentEvent(payload.CorrelationId)
             {
                 CaseUrn = payload.Urn,
                 CaseId = payload.CaseId,
                 DocumentId = payload.DocumentId,
-                DocumentTypeId = payload.DocumentType.DocumentTypeId,
-                DocumentType = payload.DocumentType.DocumentType,
-                DocumentCategory = payload.DocumentType.DocumentCategory,
+                // DocumentTypeId = payload.DocumentType.DocumentTypeId,
+                // DocumentType = payload.DocumentType.DocumentType,
+                // DocumentCategory = payload.DocumentType.DocumentCategory,
                 VersionId = payload.VersionId,
                 StartTime = context.CurrentUtcDateTime
             };

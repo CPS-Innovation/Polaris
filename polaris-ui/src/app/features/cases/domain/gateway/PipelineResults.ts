@@ -4,6 +4,6 @@ import { InProgressPipelineStatus } from "./PipelineStatus";
 export type PipelineResults = {
   documents: PipelineDocument[];
   processingCompleted: string;
-  documentsRetrieved: string;
+  //documentsRetrieved: string;
   status: InProgressPipelineStatus;
 };

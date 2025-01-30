@@ -45,7 +45,7 @@ namespace pdf_generator.tests.Durable.Activity
                     _fixture.Create<string>(),
                     _fixture.Create<long>(),
                     _fixture.Create<string>(),
-                    _fixture.Create<DocumentTypeDto>(),
+                    //_fixture.Create<DocumentTypeDto>(),
                     DocumentNature.Types.Document,
                     DocumentDeltaType.RequiresIndexing,
                     _fixture.Create<string>(),

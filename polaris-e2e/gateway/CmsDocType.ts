@@ -1,7 +1,7 @@
 import { CmsDocCategory } from "./CmsDocCategory";
 
 export type CmsDocType = {
-  documentTypeId: number;
+  documentTypeId: number | null;
   documentType: string;
   documentCategory: CmsDocCategory;
 };

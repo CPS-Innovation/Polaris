@@ -10,27 +10,31 @@ namespace coordinator.Durable.Payloads.Domain
         public PcdRequestEntity()
         { }
 
-        public PcdRequestEntity(long cmsDocumentId, long versionId, PcdRequestCoreDto pcdRequest)
-            : base(cmsDocumentId, versionId, pcdRequest.PresentationFlags)
+        public PcdRequestEntity(long cmsDocumentId, long versionId
+        //, PcdRequestCoreDto pcdRequest
+        )
+            : base(cmsDocumentId, versionId
+            //, pcdRequest.PresentationFlags
+            )
         {
-            CmsFileCreatedDate = pcdRequest.DecisionRequested;
+            //CmsFileCreatedDate = pcdRequest.DecisionRequested;
         }
 
         public override string DocumentId => DocumentNature.ToQualifiedStringDocumentId(CmsDocumentId, DocumentNature.Types.PreChargeDecisionRequest);
 
-        public string PresentationTitle
-        {
-            get => DocumentId;
-        }
+        // public string PresentationTitle
+        // {
+        //     get => DocumentId;
+        // }
 
-        public string CmsOriginalFileName
-        {
-            get => $"{DocumentId}.pdf";
-        }
+        // public string CmsOriginalFileName
+        // {
+        //     get => $"{DocumentId}.pdf";
+        // }
 
-        public string CmsFileCreatedDate { get; set; }
+        // public string CmsFileCreatedDate { get; set; }
 
 
-        public DocumentTypeDto CmsDocType { get; } = new DocumentTypeDto("PCD", null, "Review");
+        // public DocumentTypeDto CmsDocType { get; } = new DocumentTypeDto("PCD", null, "Review");
     }
 }

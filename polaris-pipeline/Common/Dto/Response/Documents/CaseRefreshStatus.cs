@@ -4,7 +4,7 @@
     {
         NotStarted,
         Running,
-        DocumentsRetrieved,
+        // DocumentsRetrieved,
         Completed,
         Failed
     }

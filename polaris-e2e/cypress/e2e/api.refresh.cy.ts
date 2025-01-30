@@ -5,6 +5,7 @@ import { ApiTextSearchResult } from "../../gateway/ApiTextSearchResult";
 import { ApiRoutes, makeApiRoutes } from "../support/helpers/make-routes";
 import { WAIT_UNTIL_OPTIONS } from "../support/options";
 import { isTrackerReady } from "../support/helpers/tracker-helpers";
+import { PresentationDocumentProperties } from "../../gateway/PipelineDocument";
 
 const { REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID, PRE_SEARCH_DELAY_MS } =
   Cypress.env();
@@ -50,28 +51,45 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
       )
       .its("body")
       .then(({ documents, processingCompleted }) => {
-        cy.wrap(saveVariablesHelper({ documents, processingCompleted })).as(
-          "phase1Vars"
-        );
+        cy.api<PresentationDocumentProperties[]>(
+          routes.GET_DOCUMENTS(
+            REFRESH_TARGET_URN,
+            REFRESH_TARGET_CASE_ID,
+            "PHASE_1"
+          )
+        )
+          .its("body")
+          .then((documentsList) => {
+            cy.wrap(
+              saveVariablesHelper({
+                processingCompleted,
+                documentsList,
+              })
+            ).as("phase1Vars");
 
-        expect(
-          documents.every(({ status }) => status === "Indexed"),
-          "All documents are indexed in PHASE_1"
-        ).to.be.true;
-        expect(
-          documents.some(
-            ({ cmsDocType }) => cmsDocType.documentType === "MG 5"
-          ),
-          "MG 5 is present in PHASE_1"
-        ).to.be.true;
-        expect(
-          documents.some(({ cmsDocType }) => cmsDocType.documentType === "PCD"),
-          "PCD is present in PHASE_1"
-        ).to.be.true;
-        expect(
-          documents.some(({ cmsDocType }) => cmsDocType.documentType === "DAC"),
-          "DAC is present in PHASE_1"
-        ).to.be.false;
+            expect(
+              documents.every(({ status }) => status === "Indexed"),
+              "All documents are indexed in PHASE_1"
+            ).to.be.true;
+            expect(
+              documentsList.some(
+                ({ cmsDocType }) => cmsDocType.documentType === "MG 5"
+              ),
+              "MG 5 is present in PHASE_1"
+            ).to.be.true;
+            expect(
+              documentsList.some(
+                ({ cmsDocType }) => cmsDocType.documentType === "PCD"
+              ),
+              "PCD is present in PHASE_1"
+            ).to.be.true;
+            expect(
+              documentsList.some(
+                ({ cmsDocType }) => cmsDocType.documentType === "DAC"
+              ),
+              "DAC is present in PHASE_1"
+            ).to.be.false;
+          });
       });
 
     cy.wait(PRE_SEARCH_DELAY_MS);
@@ -191,31 +209,45 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
           )
           .its("body")
           .then(({ documents, processingCompleted }) => {
-            cy.wrap(saveVariablesHelper({ documents, processingCompleted })).as(
-              "phase2Vars"
-            );
-            expect(
-              documents.every(({ status }) => status === "Indexed"),
-              "All documents are indexed in PHASE_2"
-            ).to.be.true;
-            expect(
-              documents.some(
-                ({ cmsDocType }) => cmsDocType.documentType === "MG 5"
-              ),
-              "MG 5 is present in PHASE_2"
-            ).to.be.true;
-            expect(
-              documents.some(
-                ({ cmsDocType }) => cmsDocType.documentType === "PCD"
-              ),
-              "PCD is present in PHASE_2"
-            ).to.be.true;
-            expect(
-              documents.some(
-                ({ cmsDocType }) => cmsDocType.documentType === "DAC"
-              ),
-              "DAC is present in PHASE_2"
-            ).to.be.false;
+            cy.api<PresentationDocumentProperties[]>(
+              routes.GET_DOCUMENTS(
+                REFRESH_TARGET_URN,
+                REFRESH_TARGET_CASE_ID,
+                "PHASE_2"
+              )
+            )
+              .its("body")
+              .then((documentsList) => {
+                cy.wrap(
+                  saveVariablesHelper({
+                    processingCompleted,
+                    documentsList,
+                  })
+                ).as("phase2Vars");
+
+                expect(
+                  documents.every(({ status }) => status === "Indexed"),
+                  "All documents are indexed in PHASE_2"
+                ).to.be.true;
+                expect(
+                  documentsList.some(
+                    ({ cmsDocType }) => cmsDocType.documentType === "MG 5"
+                  ),
+                  "MG 5 is present in PHASE_2"
+                ).to.be.true;
+                expect(
+                  documentsList.some(
+                    ({ cmsDocType }) => cmsDocType.documentType === "PCD"
+                  ),
+                  "PCD is present in PHASE_2"
+                ).to.be.true;
+                expect(
+                  documentsList.some(
+                    ({ cmsDocType }) => cmsDocType.documentType === "DAC"
+                  ),
+                  "DAC is present in PHASE_2"
+                ).to.be.false;
+              });
           });
       }
     );
@@ -376,13 +408,15 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
 
 type SavedVariables = ReturnType<typeof saveVariablesHelper>;
 const saveVariablesHelper = ({
-  documents,
   processingCompleted,
-}: Pick<PipelineResults, "documents" | "processingCompleted">) => {
-  const peopleDoc = documents.find((doc) =>
+  documentsList,
+}: Pick<PipelineResults, "processingCompleted"> & {
+  documentsList: PresentationDocumentProperties[];
+}) => {
+  const peopleDoc = documentsList.find((doc) =>
     doc.cmsOriginalFileName.includes("people")
   );
-  const numbersDoc = documents.find((doc) =>
+  const numbersDoc = documentsList.find((doc) =>
     doc.cmsOriginalFileName.includes("numbers")
   );
   return {

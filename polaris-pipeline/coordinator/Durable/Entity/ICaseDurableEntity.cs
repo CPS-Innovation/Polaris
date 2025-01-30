@@ -14,13 +14,13 @@ namespace coordinator.Durable.Entity
     public interface ICaseDurableEntity
     {
         void Reset();
-        Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges) args);
+        Task<CaseDeltasEntity> GetCaseDocumentChanges((CmsDocumentCoreDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListCoreDto DefendantsAndCharges) args);
         void SetCaseStatus((DateTime T, CaseRefreshStatus Status, string Info) args);
-        void SetPiiVersionId(string documentId);
+        //void SetPiiVersionId(string documentId);
         Task<DateTime> GetStartTime();
 
         // vNext stuff
-        void SetDocumentPdfConversionSucceeded(string documentId);
+        // void SetDocumentPdfConversionSucceeded(string documentId);
         void SetDocumentPdfConversionFailed((string DocumentId, PdfConversionStatus PdfConversionStatus) arg);
         void SetDocumentIndexingSucceeded(string documentId);
         void SetDocumentIndexingFailed(string documentId);

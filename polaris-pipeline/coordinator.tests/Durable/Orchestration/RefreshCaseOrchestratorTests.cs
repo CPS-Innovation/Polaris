@@ -63,10 +63,10 @@ namespace coordinator.tests.Durable.Orchestration
             _caseDocuments = fixture.Create<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>();
             _transactionId = $"[{_caseId}]";
 
-            // (At least on a mac) this test suite crashes unless we control the format of CmsDocumentEntity.CmsOriginalFileName so that it
-            //  matches the regex attribute that decorates it.
-            fixture.Customize<CmsDocumentEntity>(c =>
-                c.With(doc => doc.CmsOriginalFileName, $"{fixture.Create<string>()}.{fixture.Create<string>().Substring(0, 3)}"));
+            // // (At least on a mac) this test suite crashes unless we control the format of CmsDocumentEntity.CmsOriginalFileName so that it
+            // //  matches the regex attribute that decorates it.
+            // fixture.Customize<CmsDocumentEntity>(c =>
+            //     c.With(doc => doc.CmsOriginalFileName, $"{fixture.Create<string>()}.{fixture.Create<string>().Substring(0, 3)}"));
 
             _trackerCmsDocuments = fixture.CreateMany<(CmsDocumentEntity, DocumentDeltaType)>(11)
                 .ToList();
@@ -77,7 +77,7 @@ namespace coordinator.tests.Durable.Orchestration
                 UpdatedCmsDocuments = fixture.Create<(CmsDocumentEntity, DocumentDeltaType)[]>().ToList(),
                 DeletedCmsDocuments = fixture.Create<CmsDocumentEntity[]>().ToList(),
                 CreatedPcdRequests = new List<PcdRequestEntity> { },
-                UpdatedPcdRequests = new List<PcdRequestEntity> { },
+                //UpdatedPcdRequests = new List<PcdRequestEntity> { },
                 DeletedPcdRequests = new List<PcdRequestEntity> { },
                 CreatedDefendantsAndCharges = fixture.Create<DefendantsAndChargesEntity>(),
                 UpdatedDefendantsAndCharges = fixture.Create<DefendantsAndChargesEntity>(),
@@ -105,7 +105,7 @@ namespace coordinator.tests.Durable.Orchestration
                 .Returns(int.MaxValue.ToString());
 
             _mockCaseEntity
-                .Setup(tracker => tracker.GetCaseDocumentChanges(((CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges))It.IsAny<object>()))
+                .Setup(tracker => tracker.GetCaseDocumentChanges(((CmsDocumentCoreDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListCoreDto DefendantsAndCharges))It.IsAny<object>()))
                 .ReturnsAsync(_deltaDocuments);
 
             _mockDurableOrchestrationContext
@@ -165,14 +165,14 @@ namespace coordinator.tests.Durable.Orchestration
                 .ReturnsAsync((new CmsDocumentDto[0], new PcdRequestCoreDto[0], new DefendantsAndChargesListDto()));
 
             _mockCaseEntity
-                .Setup(tracker => tracker.GetCaseDocumentChanges(It.IsAny<(CmsDocumentDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListDto DefendantsAndCharges)>()))
+                .Setup(tracker => tracker.GetCaseDocumentChanges(It.IsAny<(CmsDocumentCoreDto[] CmsDocuments, PcdRequestCoreDto[] PcdRequests, DefendantsAndChargesListCoreDto DefendantsAndCharges)>()))
                 .ReturnsAsync(new CaseDeltasEntity
                 {
                     CreatedCmsDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>(),
                     UpdatedCmsDocuments = new List<(CmsDocumentEntity, DocumentDeltaType)>(),
                     DeletedCmsDocuments = new List<CmsDocumentEntity>(),
                     CreatedPcdRequests = new List<PcdRequestEntity>(),
-                    UpdatedPcdRequests = new List<PcdRequestEntity>(),
+                    //UpdatedPcdRequests = new List<PcdRequestEntity>(),
                     DeletedPcdRequests = new List<PcdRequestEntity>(),
                     CreatedDefendantsAndCharges = null,
                     UpdatedDefendantsAndCharges = null,

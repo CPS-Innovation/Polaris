@@ -47,7 +47,7 @@ namespace Ddei.Mappers
             return new DefendantsAndChargesListDto
             {
                 CaseId = caseId,
-                DefendantsAndCharges = defendantsAndCharges.OrderBy(dac => dac.ListOrder),
+                DefendantsAndCharges = defendantsAndCharges.OrderBy(dac => dac.ListOrder).ToList(),
                 VersionId = GetVersionIdFromEtag(etag) ?? 1
             };
         }

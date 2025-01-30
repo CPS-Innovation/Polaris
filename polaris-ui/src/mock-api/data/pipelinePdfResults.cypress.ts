@@ -9,7 +9,7 @@ export default dataSource;
 const pipelinePdfResult: PipelineResults = {
   status: "Completed",
   processingCompleted: new Date().toISOString(),
-  documentsRetrieved: new Date().toISOString(),
+  //documentsRetrieved: new Date().toISOString(),
   documents: [
     {
       documentId: "1",
@@ -88,7 +88,7 @@ export const getPipelinePdfResults = (resultsCount: number) => {
 export const missingDocsPipelinePdfResults: PipelineResults = {
   status: "Completed",
   processingCompleted: new Date().toISOString(),
-  documentsRetrieved: new Date().toISOString(),
+  //documentsRetrieved: new Date().toISOString(),
   documents: [
     {
       documentId: "1",
@@ -121,7 +121,7 @@ export const missingDocsPipelinePdfResults: PipelineResults = {
 export const allMissingDocsPipelinePdfResults: PipelineResults = {
   status: "Completed",
   processingCompleted: new Date().toISOString(),
-  documentsRetrieved: new Date().toISOString(),
+  //documentsRetrieved: new Date().toISOString(),
   documents: [
     {
       documentId: "1",

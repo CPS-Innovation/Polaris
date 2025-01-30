@@ -8,7 +8,7 @@ export default dataSource;
 const pipelinePdfResult: PipelineResults = {
   status: "Completed",
   processingCompleted: new Date().toISOString(),
-  documentsRetrieved: new Date().toISOString(),
+  //documentsRetrieved: new Date().toISOString(),
   documents: [
     {
       documentId: "1",

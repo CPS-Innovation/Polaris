@@ -2,17 +2,11 @@
 
 namespace Common.Dto.Response.Document
 {
-    public class CmsDocumentDto
+    public class CmsDocumentDto : CmsDocumentCoreDto
     {
         public CmsDocumentDto()
         {
         }
-
-        public long DocumentId { get; set; }
-
-        public long VersionId { get; set; }
-
-        public string Path { get; set; } /* DO NOT LEAK */
 
         public string FileName { get; set; } /* CmsOriginalFileName */
 
