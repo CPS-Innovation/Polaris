@@ -6,5 +6,8 @@ public enum BlobType
     Ocr,
     Pii,
     Thumbnail,
-    DocumentList,
+    DocumentState,
+    CaseState,
+    CaseDelta,
+    DocumentsList,
 }

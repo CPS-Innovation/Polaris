@@ -4,15 +4,14 @@ using Common.Wrappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
-using coordinator.Durable.Entity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
-using Microsoft.DurableTask.Client.Entities;
 using System;
 using Common.Services.BlobStorage;
 using coordinator.Domain;
 using Microsoft.Extensions.Configuration;
+using coordinator.Durable.Providers;
 
 namespace coordinator.Functions
 {
@@ -23,18 +22,21 @@ namespace coordinator.Functions
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly ICaseDurableEntityMapper _caseDurableEntityMapper;
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
+        private readonly IOrchestrationProvider _orchestrationProvider;
         private readonly ILogger<GetTracker> _logger;
 
         public GetTracker(
             IJsonConvertWrapper jsonConvertWrapper,
             IConfiguration configuration,
             ICaseDurableEntityMapper caseDurableEntityMapper,
+            IOrchestrationProvider orchestrationProvider,
             Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
             ILogger<GetTracker> logger)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _caseDurableEntityMapper = caseDurableEntityMapper;
             _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
+            _orchestrationProvider = orchestrationProvider; 
             _logger = logger;
         }
 
@@ -48,12 +50,12 @@ namespace coordinator.Functions
             int caseId,
             [DurableClient] DurableTaskClient client)
         {
-            // todo: temporary code
-            var entityId = CaseDurableEntity.GetEntityId(caseId);
-            EntityMetadata<CaseDurableEntityState> caseEntity;
+            CaseDurableEntityState caseEntity;
+
             try
             {
-                caseEntity = await client.Entities.GetEntityAsync<CaseDurableEntityState>(entityId, true);
+                var caseBlobId = new BlobIdType(caseId, default, default, BlobType.CaseState);
+                caseEntity = (await _polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityState>(caseBlobId)) ?? new CaseDurableEntityState();
             }
             catch (Exception ex)
             {
@@ -67,15 +69,10 @@ namespace coordinator.Functions
                 return new NotFoundObjectResult($"No Case Entity found with id '{caseId}' with exception '{ex.GetType().Name}: {ex.Message}");
             }
 
-            if (caseEntity is null || caseEntity?.IncludesState != true)
-            {
-                return new NotFoundObjectResult($"No Case Entity found with id '{caseId}'");
-            }
-
-            var blobId = new BlobIdType(caseId, default, default, BlobType.DocumentList);
+            var blobId = new BlobIdType(caseId, default, default, BlobType.DocumentState);
             var documentsList = (await _polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityDocumentsState>(blobId)) ?? new CaseDurableEntityDocumentsState();
 
-            var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity.State, documentsList);
+            var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity, documentsList);
             return new OkObjectResult(trackerDto);
         }
     }

@@ -57,7 +57,10 @@ public class PolarisBlobStorageService : IPolarisBlobStorageService
             BlobType.Ocr => $"{caseId}/ocrs/{documentId}-{versionId}.json",
             BlobType.Pii => $"{caseId}/pii/{documentId}-{versionId}.json",
             BlobType.Thumbnail => $"{caseId}/thumbnails/{documentId}-{versionId}/{maxDimensionPixel}px{pageIndex}.jpg",
-            BlobType.DocumentList => $"{caseId}/caseDocuments/caseDocuments-{caseId}.json",
+            BlobType.DocumentsList => $"{caseId}/caseState/caseDocuments-{caseId}.json",
+            BlobType.CaseState => $"{caseId}/caseState/caseState-{caseId}.json",
+            BlobType.CaseDelta => $"{caseId}/caseState/caseDelta-{caseId}.json",
+            BlobType.DocumentState => $"{caseId}/caseState/caseDocumentsState-{caseId}.json",
             _ => throw new NotImplementedException()
         };
     }

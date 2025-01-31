@@ -32,6 +32,7 @@ using TextExtractor = coordinator.Clients.TextExtractor;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
 using Common.Services.PiiService;
 using Common.Services.RenderHtmlService;
+using coordinator.Services;
 
 namespace coordinator.ApplicationStartup;
 
@@ -102,6 +103,7 @@ public static class ServiceExtensions
 
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
+        services.AddSingleton<IStateStorageService, StateStorageService>();
 
         return services;
     }
