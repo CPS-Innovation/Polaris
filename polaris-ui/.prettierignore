@@ -12,7 +12,7 @@ report-cypress
 
 public/*.js
 src/react-pdf-highlighter
-src/react-pdf-highlighter1
+src/react-pdf-highlighter2
 src/mock-api/data/pdfs/pdf-strings.json
 deploy-pipeline.yml
 multi-reporter-config.json
