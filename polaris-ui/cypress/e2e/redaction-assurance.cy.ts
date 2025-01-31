@@ -2,7 +2,8 @@ import { redactionRequestAssertionValidator } from "../utils/redactionAssuranceU
 import { GET_DOCUMENTS_LIST_ROUTE } from "../../src/mock-api/routes";
 import { getDocumentsListResult } from "../../src/mock-api/data/getDocumentsList.cypress";
 describe("Redaction Assurance", () => {
-  const expectedSaveRedactionPayload = {
+  //old expected payload for pdfViewer width 900px before upgrade this can now be remove but just kept for reference as it is a Spike
+  const expectedSaveRedactionPayloadOLD = {
     documentId: "1",
     redactions: [
       {
@@ -23,6 +24,32 @@ describe("Redaction Assurance", () => {
         redactionCoordinates: [
           { x1: 50.97, y1: 674.31, x2: 595.85, y2: 656.58 },
           { x1: 50.97, y1: 507.23, x2: 663.8, y2: 489.5 },
+        ],
+      },
+    ],
+    documentModifications: [],
+  };
+  // New expected payload with pdfViewer width 900px, taken  viewport cy.viewport(1306, 1000), this gives .pdfViewer width 900px.;
+  const expectedSaveRedactionPayload = {
+    redactions: [
+      {
+        pageIndex: 1,
+        height: 1272.81,
+        width: 900,
+        redactionCoordinates: [
+          { x1: 361.92, y1: 1251.03, x2: 557.86, y2: 1233.33 },
+          { x1: 150.91, y1: 1005.75, x2: 214.62, y2: 988.05 },
+          { x1: 350.67, y1: 976.19, x2: 383.33, y2: 958.49 },
+          { x1: 185.58, y1: 304.04, x2: 237.52, y2: 286.34 },
+        ],
+      },
+      {
+        pageIndex: 3,
+        height: 1272.81,
+        width: 900,
+        redactionCoordinates: [
+          { x1: 50.61, y1: 674.68, x2: 586.53, y2: 656.97 },
+          { x1: 50.61, y1: 507.59, x2: 658.48, y2: 489.89 },
         ],
       },
     ],
