@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Button,
   LinkButton,
@@ -16,8 +17,23 @@ export const Notification: React.FC<{
   handleOpenPdf: ReturnType<typeof useCaseDetailsState>["handleOpenPdf"];
   handleClearNotification: (id: number) => void;
 }> = ({ evt, handleOpenPdf, handleClearNotification }) => {
+  const notificationListItemLabel = useMemo(() => {
+    switch (evt.reason) {
+      case "New":
+        return `new document ${evt.presentationTitle} under ${evt.narrative} is available`;
+      case "New Version":
+        return `new version for the document ${evt.presentationTitle} under ${evt.narrative} is available`;
+      case "Updated":
+        return `updated document ${evt.presentationTitle} under ${evt.narrative}`;
+      case "Reclassified":
+        return `reclassified document ${evt.presentationTitle} under ${evt.narrative}`;
+      case "Discarded":
+        return `discarded document ${evt.presentationTitle}`;
+    }
+  }, [evt]);
   return (
     <li
+      aria-label={notificationListItemLabel}
       key={evt.id}
       className={evt.status === "Live" ? classes.live : classes.read}
     >
@@ -35,6 +51,7 @@ export const Notification: React.FC<{
             evt.presentationTitle
           ) : (
             <LinkButton
+              ariaLabel={`open ${evt.presentationTitle}`}
               className={classes.docLink}
               onClick={() =>
                 handleOpenPdf({
@@ -49,9 +66,6 @@ export const Notification: React.FC<{
         </div>
         <div className={`govuk-body-s ${classes.narrative}`}>
           <span>{evt.narrative}</span>
-          {evt.reasonToIgnore ? (
-            <span className={classes.reasonToIgnore}>{evt.reasonToIgnore}</span>
-          ) : undefined}
         </div>
         <span className={`${classes.dateTime} govuk-body-s`}>
           <Time dateTime={evt.dateTime} />
@@ -59,6 +73,7 @@ export const Notification: React.FC<{
       </div>
       <div>
         <Button
+          aria-label={"clear notification"}
           data-prevent-global-close
           onClick={() => handleClearNotification(evt.id)}
           className={`${classes.clear} govuk-button--secondary`}

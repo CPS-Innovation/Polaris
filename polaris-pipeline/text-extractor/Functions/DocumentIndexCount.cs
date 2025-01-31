@@ -1,7 +1,6 @@
 using Common.Configuration;
 using Common.Extensions;
 using Common.Handlers;
-using Common.Telemetry;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;

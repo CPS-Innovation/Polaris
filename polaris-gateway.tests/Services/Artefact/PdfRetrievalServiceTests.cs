@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 using Common.Domain.Document;
 using Common.Clients.PdfGeneratorDomain.Domain;
 using FluentAssertions;
-using System.Text;
 using Ddei.Domain.CaseData.Args.Core;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Case;

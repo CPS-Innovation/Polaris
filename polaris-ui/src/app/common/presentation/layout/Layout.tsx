@@ -37,20 +37,22 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
         role="banner"
         data-module="govuk-header"
       >
-        <div className={`govuk-header__container ${containerCssClass}`}>
-          <div className={`govuk-header__logo ${classes.logo}`}>
-            <a
-              href="/"
-              className="govuk-header__link govuk-header__link--homepage"
-              data-testid="link-homepage"
-            >
-              <span className="govuk-header__logotype">
-                <span className="govuk-header__logotype-text">
-                  Crown Prosecution Service
+        <div className={`govuk-header__container`}>
+          <div className={containerCssClass}>
+            <div className={`govuk-header__logo ${classes.logo} `}>
+              <a
+                href="/"
+                className="govuk-header__link govuk-header__link--homepage"
+                data-testid="link-homepage"
+              >
+                <span className="govuk-header__logotype">
+                  <span className="govuk-header__logotype-text">
+                    Crown Prosecution Service
+                  </span>
                 </span>
-              </span>
-            </a>
-            <span className="govuk-header__link--homepage">Casework App</span>
+              </a>
+              <span className="govuk-header__link--homepage">Casework App</span>
+            </div>
           </div>
         </div>
       </header>

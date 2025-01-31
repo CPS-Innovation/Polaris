@@ -1,10 +1,10 @@
-import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
 import { LinkButton } from "../../../../../common/presentation/components";
+import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import classes from "./HeaderAttachmentMode.module.scss";
 
 type Props = {
-  caseDocumentViewModel: CaseDocumentViewModel;
+  mappedDocument: MappedCaseDocument;
   handleOpenPdf: (caseDocument: {
     documentId: string;
     mode: "read" | "search";
@@ -12,7 +12,7 @@ type Props = {
 };
 
 export const HeaderAttachmentMode: React.FC<Props> = ({
-  caseDocumentViewModel: { attachments },
+  mappedDocument: { attachments },
   handleOpenPdf,
 }) => {
   const handleAttachmentClick = (documentId: string) => {

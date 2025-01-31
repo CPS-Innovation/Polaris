@@ -12,7 +12,6 @@ using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Exceptions;
 using Common.Handlers;
-using Common.Telemetry;
 using Common.Wrappers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;

@@ -5,5 +5,6 @@ public enum BlobType
     Pdf,
     Ocr,
     Pii,
-    Thumbnail
+    Thumbnail,
+    DocumentList,
 }
