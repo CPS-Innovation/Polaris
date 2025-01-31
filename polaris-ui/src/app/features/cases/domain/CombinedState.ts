@@ -164,6 +164,7 @@ export const initialState = {
     notifications: false,
     isUsed: false,
     stateRetention: false,
+    globalNav: false,
   },
   usedOrUnused: {
     documentId: "",

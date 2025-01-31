@@ -86,6 +86,7 @@ export const buildContextFromQueryString = (
   caseId: number;
   urn: string | undefined;
   contextObject: TaggedContext | undefined;
+  contextSearchParams: string;
 } => {
   const ctxJson = new URLSearchParams(queryString).get("ctx");
   if (!ctxJson) {
@@ -110,6 +111,19 @@ export const buildContextFromQueryString = (
   }
 
   const { caseId, urn, ...ctx } = ctxWithCaseIdentifiers;
+
+  const contextObjectAsRecord =
+    ctx &&
+    Object.keys(ctx).reduce((prev, curr) => {
+      prev[curr] = String(ctx[curr]);
+      return prev;
+    }, {} as Record<string, string>);
+
+  const searchParams = new URLSearchParams(contextObjectAsRecord);
+  searchParams.sort();
+  const searchParamsQuery = searchParams.toString();
+  const contextSearchParams = searchParamsQuery ? `?${searchParamsQuery}` : "";
+
   let contextObject: TaggedContext | undefined;
   if (isTriageContext(ctx)) {
     contextObject = {
@@ -130,5 +144,10 @@ export const buildContextFromQueryString = (
     );
   }
 
-  return { caseId, urn, contextObject };
+  return {
+    caseId,
+    urn,
+    contextObject,
+    contextSearchParams,
+  };
 };

@@ -18,6 +18,7 @@ export type FeatureFlagData = {
   notifications: boolean;
   isUsed: boolean;
   stateRetention: boolean;
+  globalNav: boolean;
 };
 
 export type FeatureFlagQueryParams = {
@@ -34,6 +35,7 @@ export type FeatureFlagQueryParams = {
   notifications: string;
   isUsed: string;
   stateRetention: string;
+  globalNav: string;
 };
 
 export type UsedOrUnusedDocument = {

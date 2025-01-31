@@ -308,7 +308,12 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   if (caseState.status === "loading") {
     // if we are waiting on the main case details call, show holding message
     //  (we are prepared to show page whilst waiting for docs to load though)
-    return <WaitPage />;
+    return (
+      <>
+        {featureFlags.globalNav && <cps-global-nav></cps-global-nav>}
+        <WaitPage />
+      </>
+    );
   }
 
   const isMultipleDefendantsOrCharges = isMultipleChargeCase(caseState.data);
@@ -474,8 +479,25 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     window.open(url, "_self");
   };
 
+  const name =
+    caseState.data.leadDefendantDetails?.type === "Organisation"
+      ? caseState.data.leadDefendantDetails?.organisationName
+      : `${caseState.data.leadDefendantDetails?.surname}, ${caseState.data.leadDefendantDetails?.firstNames}`;
   return (
     <div>
+      {featureFlags.globalNav && (
+        <cps-global-nav name={name}>
+          {featureFlags.notifications && (
+            <Notifications
+              state={notificationState}
+              handleOpenPdf={handleOpenPdf}
+              handleClearAllNotifications={handleClearAllNotifications}
+              handleClearNotification={handleClearNotification}
+            ></Notifications>
+          )}
+        </cps-global-nav>
+      )}
+
       <div className={reclassifyDetails.open ? classes.reclassifyMode : ""}>
         {errorModal.show && (
           <Modal
@@ -599,7 +621,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           >
             {backLinkProps.label}
           </BackLink>
-          {featureFlags.notifications && (
+          {!featureFlags.globalNav && featureFlags.notifications && (
             <Notifications
               state={notificationState}
               handleOpenPdf={handleOpenPdf}
@@ -911,7 +933,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           </div>
         </PageContentWrapper>
       </div>
-
       {reclassifyDetails.open && (
         <div>
           <Reclassify

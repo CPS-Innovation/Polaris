@@ -456,6 +456,61 @@ export const getRefreshRedactedDocument = (
     ];
   });
 };
+/* This is the documentList for notification testing which contains a new document, 
+    a renamed document, a new version document and 
+    a discarded document(deleted)to cover all the types of notifications
+*/
+export const getRefreshedDocumentsForNotification = () => {
+  const resultsArray = getDocumentsListResult(2);
+  const newDocument = {
+    documentId: "15",
+    canReclassify: false,
+    canRename: false,
+    categoryListOrder: null,
+    classification: null,
+    cmsDocType: {
+      documentTypeId: 1012,
+      documentType: "MG13",
+      documentCategory: "MGForm",
+    },
+    cmsFileCreatedDate: "2020-06-03",
+    cmsOriginalFileName: "MG05MCLOVE.pdf",
+
+    hasFailedAttachments: false,
+    hasNotes: false,
+    isInbox: false,
+    isOcrProcessed: false,
+    isUnused: false,
+    isWitnessManagement: false,
+    parentDocumentId: null,
+    presentationFlags: { read: "OnlyAvailableInCms", write: "Ok" },
+    presentationTitle: "New Document_1",
+    reference: null,
+    renameStatus: "CanRename",
+    versionId: 1,
+    witnessId: null,
+  };
+
+  const documents = resultsArray[0];
+  const newDocuments = [...documents, newDocument]
+    .filter((document) => document.documentId !== "13")
+    .map((document) => {
+      switch (document.documentId) {
+        case "1":
+        case "3":
+          return { ...document, versionId: document.versionId + 1 };
+        case "2":
+          return {
+            ...document,
+            presentationTitle: `${document.presentationTitle}_1`,
+          };
+        default:
+          return document;
+      }
+    });
+
+  return [documents, newDocuments];
+};
 
 // export const missingDocsPipelinePdfResults: PipelineResults = {
 //   status: "Completed",

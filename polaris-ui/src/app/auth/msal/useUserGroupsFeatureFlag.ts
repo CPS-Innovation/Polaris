@@ -10,12 +10,14 @@ import {
   FEATURE_FLAG_PAGE_DELETE,
   FEATURE_FLAG_PAGE_ROTATE,
   FEATURE_FLAG_STATE_RETENTION,
+  FEATURE_FLAG_GLOBAL_NAV,
   PRIVATE_BETA_FEATURE_USER_GROUP,
   PRIVATE_BETA_FEATURE_USER_GROUP2,
   FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP,
   FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP,
   PRIVATE_BETA_FEATURE_USER_GROUP3,
   PRIVATE_BETA_FEATURE_USER_GROUP4,
+  PRIVATE_BETA_FEATURE_USER_GROUP5,
   FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
   FEATURE_FLAG_USED_DOCUMENT_STATE,
 } from "../../config";
@@ -83,6 +85,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     pageRotate,
     notifications,
     stateRetention,
+    globalNav,
     isUsed,
   } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
@@ -143,7 +146,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         FEATURE_FLAG_PAGE_ROTATE,
         userDetails?.username,
         pageRotate,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP5 }
       ),
       notifications: shouldShowFeature(
         FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
@@ -161,6 +164,12 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         FEATURE_FLAG_STATE_RETENTION,
         userDetails?.username,
         stateRetention
+      ),
+      globalNav: shouldShowFeature(
+        FEATURE_FLAG_GLOBAL_NAV,
+        userDetails?.username,
+        globalNav,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP5 }
       ),
     }),
     []

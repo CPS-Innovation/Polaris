@@ -63,27 +63,49 @@ export const Notifications: React.FC<{
     ({ documentId, mode }) => {
       trackEvent("Document Opened from Notification", { documentId });
       handleOpenPdf({ documentId, mode });
+      if (isOpen) {
+        setIsOpen(false);
+      }
     },
-    [handleOpenPdf, trackEvent]
+    [handleOpenPdf, trackEvent, isOpen]
   );
 
   const localHandleClearNotification = useCallback(
     (notificationId: number, documentId: string) => {
       trackEvent("Notification Cleared", { notificationId, documentId });
       handleClearNotification(notificationId);
+      if (isOpen && eventsToDisplay.length === 1) {
+        setIsOpen(false);
+        dropDownBtnRef.current?.focus();
+      }
     },
-    [handleClearNotification, trackEvent]
+    [handleClearNotification, trackEvent, eventsToDisplay, isOpen]
   );
 
   const localHandleClearAllNotifications = useCallback(() => {
     trackEvent("All Notifications Cleared");
     handleClearAllNotifications();
-  }, [handleClearAllNotifications, trackEvent]);
+    if (isOpen) {
+      setIsOpen(false);
+      dropDownBtnRef.current?.focus();
+    }
+  }, [handleClearAllNotifications, trackEvent, isOpen]);
 
   return (
     <div className={classes.root}>
+      <div
+        aria-live="polite"
+        className={classes.visuallyHidden}
+      >{`you have ${liveEventCount} notifications`}</div>
       <button
+        data-testid="notifications_btn"
         ref={dropDownBtnRef}
+        aria-expanded={isOpen}
+        aria-label={
+          liveEventCount > 0
+            ? `open ${liveEventCount} notifications`
+            : "open notifications"
+        }
         className={classes.btn}
         onClick={() => setIsOpen(!isOpen)}
       >
@@ -92,12 +114,19 @@ export const Notifications: React.FC<{
             liveEventCount ? "" : classes.alertEmpty
           }`}
         >
-          <span className={classes.count}>{liveEventCount}</span>
+          <span data-testid="notifications_count" className={classes.count}>
+            {liveEventCount}
+          </span>
         </span>
         <span className={classes.label}>Notifications</span>
       </button>
       {isOpen && (
-        <div ref={panelRef} className={classes.panel} id="notifications-panel">
+        <div
+          ref={panelRef}
+          className={classes.panel}
+          id="notifications-panel"
+          data-testid="notifications-panel"
+        >
           <div
             className={`${classes.header} ${
               liveEventCount ? classes.headerPopulated : ""
@@ -112,20 +141,29 @@ export const Notifications: React.FC<{
           </div>
           {!!eventsToDisplay.length && (
             <div className={classes.body}>
-              <ul ref={listRef} onScroll={handleScroll}>
-                {eventsToDisplay.map((evt) => (
-                  <Notification
-                    key={evt.id}
-                    evt={evt}
-                    handleOpenPdf={localHandleOpenPdf}
-                    handleClearNotification={(id) =>
-                      localHandleClearNotification(id, evt.documentId)
-                    }
-                  ></Notification>
-                ))}
-              </ul>
+              <div className={classes.wrapper}>
+                <ul
+                  className={classes.notificationsList}
+                  ref={listRef}
+                  onScroll={handleScroll}
+                >
+                  {eventsToDisplay.map((evt) => (
+                    <Notification
+                      key={evt.id}
+                      evt={evt}
+                      handleOpenPdf={localHandleOpenPdf}
+                      handleClearNotification={(id) =>
+                        localHandleClearNotification(id, evt.documentId)
+                      }
+                    ></Notification>
+                  ))}
+                </ul>
+              </div>
               <div className={classes.footer}>
-                <LinkButton onClick={localHandleClearAllNotifications}>
+                <LinkButton
+                  dataTestId="clear-all-notifications-btn"
+                  onClick={localHandleClearAllNotifications}
+                >
                   Clear all notifications
                 </LinkButton>
               </div>
