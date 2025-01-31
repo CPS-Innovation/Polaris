@@ -23,16 +23,16 @@ export const SaveUsedOrUnusedModal: React.FC<Props> = ({ savingState }) => {
   };
 
   return (
-    <Modal
-      isVisible={showModal ? true : false}
-      handleClose={savingState === "saved" ? handleCloseModal : undefined}
-      type="alert"
-      ariaLabel="Saving document state alert modal"
-      ariaDescription={"Document updated state successfully saved to CMS"}
-      className={classes.modalUsedUnusedModal}
-    >
-      <>
-        {savingState === "saving" && (
+    <>
+      {savingState === "saving" && (
+        <Modal
+          isVisible={showModal}
+          handleClose={savingState === "saving" ? handleCloseModal : undefined}
+          type="alert"
+          ariaLabel="Saving document state alert modal"
+          ariaDescription={"Document updated state successfully saved to CMS"}
+          className={classes.modalUsedUnusedModal}
+        >
           <div
             className={classes.savingBanner}
             data-testid="rl-saving-redactions"
@@ -42,8 +42,17 @@ export const SaveUsedOrUnusedModal: React.FC<Props> = ({ savingState }) => {
             </div>
             &nbsp; Saving document's state to CMS
           </div>
-        )}
-        {savingState === "success" && (
+        </Modal>
+      )}
+      {savingState === "success" && (
+        <Modal
+          isVisible={showModal}
+          handleClose={savingState === "success" ? handleCloseModal : undefined}
+          type="alert"
+          ariaLabel="Saving document state alert modal"
+          ariaDescription={"Document updated state successfully saved to CMS"}
+          className={classes.modalUsedUnusedModal}
+        >
           <div
             className={classes.savedBanner}
             data-testid="rl-saved-redactions"
@@ -61,8 +70,8 @@ export const SaveUsedOrUnusedModal: React.FC<Props> = ({ savingState }) => {
               <CloseIcon height={"2.7rem"} width={"2.7rem"} />
             </LinkButton>
           </div>
-        )}
-      </>
-    </Modal>
+        </Modal>
+      )}
+    </>
   );
 };
