@@ -73,6 +73,7 @@ describe("State Retention", () => {
     cy.findByTestId("btn-save-redaction-1").should("exist");
     cy.findByTestId("tab-0").should("exist");
     cy.findByTestId("tab-1").should("exist");
+    cy.wait(1000);
     //making sure the getCasedetails and the getDocumentlist apis are called even if the state is retained
     cy.window().then(() => {
       expect(documentListCounter.count).to.equal(2);
@@ -144,6 +145,7 @@ describe("State Retention", () => {
     cy.findByTestId("btn-save-redaction-1").should("not.exist");
     cy.findByTestId("tab-0").should("not.exist");
     cy.findByTestId("tab-1").should("not.exist");
+    cy.wait(1000);
     cy.window().then(() => {
       expect(documentListCounter.count).to.equal(2);
       expect(caseDetailsCounter.count).to.equal(2);
@@ -205,6 +207,7 @@ describe("State Retention", () => {
     cy.findByTestId("btn-save-redaction-1").should("exist");
     cy.findByTestId("tab-0").should("exist");
     cy.findByTestId("tab-1").should("exist");
+    cy.wait(1000);
     //making sure the getCasedetails and the getDocumentlist apis are called even if the state is retained
     cy.window().then(() => {
       expect(documentListCounter.count).to.equal(2);
@@ -224,6 +227,7 @@ describe("State Retention", () => {
     cy.findByTestId("btn-save-redaction-1").should("not.exist");
     cy.findByTestId("tab-0").should("not.exist");
     cy.findByTestId("tab-1").should("not.exist");
+    cy.wait(1000);
     cy.window().then(() => {
       expect(documentListCounter.count).to.equal(3);
       expect(caseDetailsCounter.count).to.equal(3);
@@ -285,6 +289,7 @@ describe("State Retention", () => {
     cy.findByTestId("btn-save-redaction-1").should("not.exist");
     cy.findByTestId("tab-0").should("not.exist");
     cy.findByTestId("tab-1").should("not.exist");
+    cy.wait(1000);
     cy.window().then(() => {
       expect(documentListCounter.count).to.equal(2);
       expect(caseDetailsCounter.count).to.equal(2);
