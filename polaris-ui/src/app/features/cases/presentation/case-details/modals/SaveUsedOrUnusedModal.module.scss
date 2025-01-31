@@ -1,7 +1,7 @@
 [data-module="govuk-header"] {
-height: 0px;
-width: 0px;
-overflow: hidden;
+  height: 0px;
+  width: 0px;
+  overflow: hidden;
 }
 .savedBanner,
 .savingBanner {
@@ -35,38 +35,37 @@ overflow: hidden;
 }
 
 .modalUsedUnusedModal {
-    background: transparent;
-    overflow-x: hidden;
+  background: transparent;
+  overflow-x: hidden;
 }
 
-
 .renamePanelCloseBtn {
-    position: static;
-  
-    box-sizing: content-box;
-    padding: 0;
-    border: 0;
-    background: #000;
-    color: #fff;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 2.875rem;
-    height: 2.875rem;
-    margin: 0 10px;
-  
-    &:hover:not(:disabled):not(:focus) {
-      background: #00703c;
-    }
-    &:focus {
-      background: #ffdd00;
-      color: #000;
-      outline: none;
-    }
-    &:disabled {
-      opacity: 0.5;
-      pointer-events: none;
-    }
+  position: static;
+
+  box-sizing: content-box;
+  padding: 0;
+  border: 0;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 2.875rem;
+  height: 2.875rem;
+  margin: 0 10px;
+
+  &:hover:not(:disabled):not(:focus) {
+    background: #00703c;
   }
+  &:focus {
+    background: #ffdd00;
+    color: #000;
+    outline: none;
+  }
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}

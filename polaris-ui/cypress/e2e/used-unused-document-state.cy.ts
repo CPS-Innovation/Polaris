@@ -21,7 +21,7 @@ describe("Checks if the used/unused functionality", () => {
 
     cy.findByTestId("rl-saved-redactions").should(
       "contains.text",
-      "state successfully saved to CMS success"
+      "state successfully saved to CMS"
     );
 
     cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
