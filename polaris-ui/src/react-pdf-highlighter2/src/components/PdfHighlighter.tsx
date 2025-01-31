@@ -2,13 +2,14 @@ import React, { PointerEventHandler, PureComponent } from "react";
 import ReactDom from "react-dom";
 import debounce from "lodash.debounce";
 
+// added .mjs extension to avoid linting error with new module
 import {
   EventBus,
   PDFViewer,
   PDFLinkService,
   // Note: for our purposes switch this away from leagcy to mainstream,
   //  we only have modern browsers at CPS
-} from "pdfjs-dist/web/pdf_viewer"; //"pdfjs-dist/legacy/web/pdf_viewer";
+} from "pdfjs-dist/web/pdf_viewer.mjs"; //"pdfjs-dist/legacy/web/pdf_viewer";
 
 import "pdfjs-dist/web/pdf_viewer.css";
 import "../style/pdf_viewer.css";
@@ -225,8 +226,8 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         // enhanceTextSelection: true, // deprecated. https://github.com/mozilla/pdf.js/issues/9943#issuecomment-409369485
         textLayerMode: 2,
         linkService: this.linkService,
-        renderer: "canvas",
-        l10n: null,
+        // renderer: "canvas", // commented this to avoid linting error with new module
+        // l10n: null,// commented this to avoid linting  with new module
       });
 
     this.linkService.setDocument(pdfDocument);

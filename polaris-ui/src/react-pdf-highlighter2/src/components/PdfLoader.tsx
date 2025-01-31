@@ -1,6 +1,9 @@
 import React, { Component } from "react";
-
-import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf";
+// added .mjs extension to avoid linting error with new module
+import {
+  getDocument,
+  GlobalWorkerOptions,
+} from "pdfjs-dist/legacy/build/pdf.mjs";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 
 interface Props {
