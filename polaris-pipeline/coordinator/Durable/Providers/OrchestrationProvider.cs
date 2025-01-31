@@ -48,6 +48,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         _queryConditionFactory = queryConditionFactory;
         _logger = logger;
     }
+
     public static string GetKey(int caseId) => $"[{caseId}]";
 
     public async Task<List<int>> FindCaseInstancesByDateAsync(DurableTaskClient orchestrationClient, DateTime createdTimeTo, int batchSize)
