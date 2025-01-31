@@ -23,11 +23,7 @@ export class Popup extends Component<Props, State> {
 
   render() {
     const { onMouseOver, popupContent, onMouseOut, onClick } = this.props;
-    const newProp = {
-      onClick: () => {
-        onClick(popupContent);
-      },
-    };
+    const newProp = { onClick: () => onClick(popupContent) };
 
     return (
       <div
