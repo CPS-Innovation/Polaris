@@ -162,6 +162,7 @@ export const initialState = {
     pageRotate: false,
     notifications: false,
     stateRetention: false,
+    globalNav: false,
   },
   storedUserData: { status: "loading" },
   notes: [],

@@ -94,6 +94,7 @@ feature_flag_rename_document                       = "true"
 feature_flag_reclassify                            = "true"
 feature_flag_page_delete                           = "true"
 feature_flag_state_retention                       = "true"
+feature_flag_global_nav                            = "true"
 feature_flag_external_redirect_case_review_app     = "true"
 feature_flag_external_redirect_bulk_um_app         = "true"
 feature_flag_background_pipeline_refresh           = "true"
@@ -109,6 +110,7 @@ private_beta = {
   feature_user_group2 = "1663cea9-062e-4f6e-a7ac-26f0942724f3"
   feature_user_group3 = "e9abbdb6-b6e9-4972-90fb-79d3140df840"
   feature_user_group4 = "1e5874e3-1c88-4506-8b9f-4f469acc1a42"
+  feature_user_group5 = "a5bcc0a5-50e4-49c4-89e0-fad3dced6235"
 }
 
 case_review_app_redirect_url = "https://cps-tst.outsystemsenterprise.com/CaseReview/RedirectCW"
