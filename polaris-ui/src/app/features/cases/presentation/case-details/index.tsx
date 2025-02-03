@@ -170,7 +170,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     documentsState,
     documentRefreshData,
     errorModal,
-    documentIssueModal,
     redactionLog,
     featureFlags,
     storedUserData,
