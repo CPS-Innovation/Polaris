@@ -40,7 +40,6 @@ import {
 } from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
-import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
 import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
 import { NotesPanel } from "./notes/NotesPanel";
 import { RenamePanel } from "./rename/RenamePanel";
@@ -135,7 +134,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleSaveRedactionLog,
     handleCloseErrorModal,
     handleUnLockDocuments,
-    handleShowHideDocumentIssueModal,
     handleShowRedactionLogModal,
     handleHideRedactionLogModal,
     handleAreaOnlyRedaction,
@@ -515,16 +513,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           </Modal>
         )}
 
-        {documentIssueModal.show && (
-          <ReportAnIssueModal
-            documentTypeId={activeTabMappedDocument?.cmsDocType?.documentTypeId}
-            documentId={activeTabMappedDocument?.documentId!}
-            presentationTitle={activeTabMappedDocument?.presentationTitle!}
-            versionId={activeTabMappedDocument?.versionId!}
-            correlationId={pipelineState?.correlationId}
-            handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
-          />
-        )}
         {searchState.isResultsVisible && (
           <ResultsModal
             {...{
@@ -861,9 +849,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   handleSavedRedactions={handleSavedRedactions}
                   handleOpenPdf={handleOpenPdf}
                   handleUnLockDocuments={handleUnLockDocuments}
-                  handleShowHideDocumentIssueModal={
-                    handleShowHideDocumentIssueModal
-                  }
                   handleShowRedactionLogModal={handleShowRedactionLogModal}
                   handleShowHideRedactionSuggestions={
                     handleShowHideRedactionSuggestions
