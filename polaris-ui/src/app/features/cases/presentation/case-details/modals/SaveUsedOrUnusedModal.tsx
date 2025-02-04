@@ -24,13 +24,18 @@ export const SaveUsedOrUnusedModal: React.FC<Props> = ({ savingState }) => {
 
   return (
     <>
+      <div aria-live="polite" className={classes.visuallyHidden}>
+        {savingState === "saving" && (
+          <span>Saving updated document to CMS</span>
+        )}
+      </div>
       {savingState === "saving" && (
         <Modal
           isVisible={showModal}
           handleClose={savingState === "saving" ? handleCloseModal : undefined}
           type="alert"
-          ariaLabel="Saving document state alert modal"
-          ariaDescription={"Document updated state successfully saved to CMS"}
+          ariaLabel="Saving updated alert modal"
+          ariaDescription={"Saving updated document to CMS"}
           className={classes.modalUsedUnusedModal}
         >
           <div
@@ -40,7 +45,7 @@ export const SaveUsedOrUnusedModal: React.FC<Props> = ({ savingState }) => {
             <div className={classes.spinnerWrapper}>
               <Spinner diameterPx={15} ariaLabel={"spinner-animation"} />
             </div>
-            &nbsp; Saving document's state to CMS
+            &nbsp; Saving updated document to CMS
           </div>
         </Modal>
       )}
@@ -49,8 +54,8 @@ export const SaveUsedOrUnusedModal: React.FC<Props> = ({ savingState }) => {
           isVisible={showModal}
           handleClose={savingState === "success" ? handleCloseModal : undefined}
           type="alert"
-          ariaLabel="Saving document state alert modal"
-          ariaDescription={"Document updated state successfully saved to CMS"}
+          ariaLabel="Document saved alert modal"
+          ariaDescription={"Document successfully saved to CMS"}
           className={classes.modalUsedUnusedModal}
         >
           <div
@@ -58,7 +63,7 @@ export const SaveUsedOrUnusedModal: React.FC<Props> = ({ savingState }) => {
             data-testid="rl-saved-redactions"
           >
             <WhiteTickIcon className={classes.whiteTickIcon} />
-            &nbsp; Document's state successfully saved to CMS
+            &nbsp; Document successfully saved to CMS
             <LinkButton
               dataTestId="btn-close-used-unused-state-panel"
               type="button"

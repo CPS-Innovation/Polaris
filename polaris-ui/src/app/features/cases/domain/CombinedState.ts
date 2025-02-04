@@ -7,7 +7,8 @@ import { MappedTextSearchResult } from "./MappedTextSearchResult";
 import { AccordionData } from "../presentation/case-details/accordion/types";
 import { MappedCaseDocument } from "./MappedCaseDocument";
 import { LocalDocumentState } from "./LocalDocumentState";
-import { FeatureFlagData, UsedOrUnusedDocument } from "./FeatureFlagData";
+import { FeatureFlagData } from "./FeatureFlagData";
+import { UsedOrUnusedDocument } from "./gateway/UsedOrUnusedDocument";
 import { FilterOption } from "./FilterOption";
 import {
   RedactionLogLookUpsData,

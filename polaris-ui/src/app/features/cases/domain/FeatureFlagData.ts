@@ -37,9 +37,3 @@ export type FeatureFlagQueryParams = {
   stateRetention: string;
   globalNav: string;
 };
-
-export type UsedOrUnusedDocument = {
-  documentId: string;
-  saveStatus: "initial" | "saving" | "success" | "failure" | string;
-  saveRefreshStatus: "initial" | "updating" | "updated";
-};

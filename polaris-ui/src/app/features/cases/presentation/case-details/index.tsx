@@ -103,8 +103,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   const accordionRef = useRef<AccordionRef>(null);
 
-  const [savingStateDescrition, setSavingStateDescrition] =
-    useState<string>("");
   const actionsSidePanelRef = useRef(null);
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
@@ -240,18 +238,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accordionState.status]);
-
-  useEffect(() => {
-    if (usedOrUnused.saveStatus === "initial") {
-      setSavingStateDescrition("initial");
-    }
-    if (usedOrUnused.saveStatus === "saving") {
-      setSavingStateDescrition("saving");
-    }
-    if (usedOrUnused.saveStatus === "success") {
-      setSavingStateDescrition("success");
-    }
-  }, [usedOrUnused.saveStatus]);
 
   useEffect(() => {
     trackEvent("Open Documents Count", {
@@ -867,7 +853,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   : "govuk-grid-column-three-quarters"
               }`}
             >
-              <SaveUsedOrUnusedModal savingState={savingStateDescrition} />
+              <SaveUsedOrUnusedModal savingState={usedOrUnused.saveStatus} />
 
               {!tabsState.items.length ? (
                 <PdfTabsEmpty

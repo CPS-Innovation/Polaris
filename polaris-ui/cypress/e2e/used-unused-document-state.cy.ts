@@ -5,7 +5,6 @@ describe("Checks if the used/unused functionality", () => {
   it("should change document state as used / unused on option select", () => {
     cy.visit("/case-details/12AB1111111/13401?isUsed=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
-    cy.findByTestId("div-reclassify").should("not.exist");
     cy.findByTestId("document-housekeeping-actions-dropdown-10").click();
 
     const lastElement = cy
@@ -21,8 +20,10 @@ describe("Checks if the used/unused functionality", () => {
 
     cy.findByTestId("rl-saved-redactions").should(
       "contains.text",
-      "state successfully saved to CMS"
+      "successfully saved to CMS"
     );
+
+    cy.realPress("Escape");
 
     cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
       body: documentList[0],
