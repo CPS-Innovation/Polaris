@@ -24,7 +24,6 @@ type AppInsightsTrackEventNames =
   | "Remove Redact Content"
   | "Remove All Redactions"
   | "Save All Redactions"
-  | "Report Document Issue"
   | "Uncategorised Document"
   | "Categorised Documents Count"
   | "Open Documents Count"
@@ -112,8 +111,6 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
     "User has clicked the 'Remove All Redactions' link in a document tab.",
   "Save All Redactions":
     "User has clicked the 'Save All Redactions' green button in a document tab.",
-  "Report Document Issue":
-    "User has clicked to report an issue with a document.",
   "Uncategorised Document":
     "Action auto-triggered. Action not initiated by a user. Log an Uncategorised document after loading the Case Details screen.",
   "Categorised Documents Count":
