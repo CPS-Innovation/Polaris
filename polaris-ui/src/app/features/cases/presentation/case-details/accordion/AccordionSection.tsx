@@ -34,6 +34,12 @@ type Props = {
   handleGetNotes: (documentId: string) => void;
   handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
+  handleToggleDocumentState: (
+    urn: string,
+    caseId: number,
+    documentId: string,
+    isUnused: boolean
+  ) => void;
 };
 const formatTestIdText = (id: string) => {
   return id
@@ -59,6 +65,7 @@ export const AccordionSection: React.FC<Props> = ({
   handleOpenPanel,
   handleGetNotes,
   handleReclassifyDocument,
+  handleToggleDocumentState,
 }) => {
   const mappedDocuments = useMemo(() => {
     return docs.map(
@@ -128,6 +135,7 @@ export const AccordionSection: React.FC<Props> = ({
                     handleGetNotes={handleGetNotes}
                     notesData={notesData}
                     handleReclassifyDocument={handleReclassifyDocument}
+                    handleToggleDocumentState={handleToggleDocumentState}
                   />
                 ))}
               </ul>

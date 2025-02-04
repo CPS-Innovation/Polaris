@@ -1,4 +1,5 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import {
   CommonDateTimeFormats,
   formatDate,
@@ -13,7 +14,6 @@ import { ReactComponent as TimeIcon } from "../../../../../common/presentation/s
 import { ReactComponent as AttachmentIcon } from "../../../../../common/presentation/svgs/attachment.svg";
 import { ReactComponent as NotesIcon } from "../../../../../common/presentation/svgs/notesIcon.svg";
 import { ReactComponent as MoreIcon } from "../../../../../common/presentation/svgs/more.svg";
-
 import classes from "./Accordion.module.scss";
 import {
   witnessIndicatorNames,
@@ -53,6 +53,12 @@ type Props = {
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
   conversionStatus?: ConversionStatus | GroupedConversionStatus;
+  handleToggleDocumentState: (
+    urn: string,
+    caseId: number,
+    documentId: string,
+    isUnsed: boolean
+  ) => void;
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -66,9 +72,11 @@ export const AccordionDocument: React.FC<Props> = ({
   handleOpenPanel,
   handleGetNotes,
   handleReclassifyDocument,
+  handleToggleDocumentState,
 }) => {
-  const trackEvent = useAppInsightsTrackEvent();
+  const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
 
+  const trackEvent = useAppInsightsTrackEvent();
   const canViewDocument = conversionStatus
     ? caseDocument.presentationFlags?.read === "Ok" &&
       conversionStatus === "DocumentConverted"
@@ -133,7 +141,6 @@ export const AccordionDocument: React.FC<Props> = ({
         } more`
       : `${notes[notes.length - 1].text} (+${notes.length - 1} more)`;
   };
-
   const dropDownItems = useMemo(() => {
     let items: DropdownButtonItem[] = [];
     if (
@@ -166,7 +173,23 @@ export const AccordionDocument: React.FC<Props> = ({
         },
       ];
     }
-
+    if (
+      featureFlags.reclassify &&
+      caseDocument.canReclassify &&
+      caseDocument.presentationFlags.write !== "IsDispatched" &&
+      featureFlags.isUsed
+    ) {
+      const isUnused = caseDocument.isUnused ? "used" : "unused";
+      items = [
+        ...items,
+        {
+          id: `3`,
+          label: `Mark as ${isUnused}`,
+          ariaLabel: `Mark as ${isUnused}`,
+          disabled: false,
+        },
+      ];
+    }
     return items;
   }, [
     caseDocument.canReclassify,
@@ -174,6 +197,7 @@ export const AccordionDocument: React.FC<Props> = ({
     featureFlags.renameDocument,
     featureFlags.reclassify,
     caseDocument.presentationFlags.write,
+    featureFlags.isUsed,
   ]);
 
   const handleDocumentAction = (id: string) => {
@@ -187,12 +211,25 @@ export const AccordionDocument: React.FC<Props> = ({
           caseDocument.cmsDocType.documentType,
           caseDocument.classification
         );
-        return;
+        break;
       case "2":
         handleReclassifyDocument(caseDocument.documentId);
-        return;
-      default:
         break;
+      case "3": {
+        trackEvent("Update Document Evidential Status", {
+          documentType: caseDocument.cmsDocType.documentTypeId,
+          documentDocumentType: caseDocument.cmsDocType.documentType,
+        });
+        handleToggleDocumentState(
+          urn,
+          +caseId,
+          caseDocument.documentId,
+          caseDocument.isUnused
+        );
+
+        break;
+      }
+      default:
     }
   };
 

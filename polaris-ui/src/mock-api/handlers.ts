@@ -280,6 +280,13 @@ export const setupHandlers = ({
         ctx.json(results[callStack["GET_DOCUMENTS_LIST_ROUTE"] - 1])
       );
     }),
+
+    rest.post(
+      makeApiPath(routes.TOGGLE_USED_DOCUMENT_ROUTE),
+      (req, res, ctx) => {
+        return res(delay(ctx), ctx.json({}));
+      }
+    ),
   ];
 };
 

@@ -11,6 +11,7 @@ import {
   saveDocumentRename,
   getSearchPIIData,
   saveRotations,
+  toggleUsedDocumentState,
 } from "../../api/gateway-api";
 import { CaseDocumentViewModel } from "../../domain/CaseDocumentViewModel";
 import { NewPdfHighlight } from "../../domain/NewPdfHighlight";
@@ -127,8 +128,16 @@ type AsyncActions =
       payload: {
         documentId: CaseDocumentViewModel["documentId"];
       };
+    }
+  | {
+      type: "TOGGLE_DOCUMENT_STATE";
+      payload: {
+        urn: any;
+        caseId: any;
+        documentId?: any;
+        unused?: any;
+      };
     };
-
 export const CHECKOUT_BLOCKED_STATUS_CODE = 409;
 export const DOCUMENT_NOT_FOUND_STATUS_CODE = 410;
 export const DOCUMENT_TOO_LARGE_STATUS_CODE = 413;
@@ -774,6 +783,61 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
               documentId,
               saveRenameStatus: "failure",
             },
+          },
+        });
+      }
+    },
+
+  TOGGLE_DOCUMENT_STATE:
+    ({ dispatch, getState }) =>
+    async (action) => {
+      const {
+        payload: { documentId, unused },
+      } = action;
+      const { caseId, urn } = getState();
+
+      try {
+        dispatch({
+          type: "UPDATE_USED_UNUSED_DOCUMENT",
+          payload: {
+            documentId,
+            saveStatus: "saving",
+            saveRefreshStatus: "initial",
+          },
+        });
+
+        await toggleUsedDocumentState(urn, caseId, documentId, unused);
+
+        dispatch({
+          type: "UPDATE_USED_UNUSED_DOCUMENT",
+          payload: {
+            documentId,
+            saveStatus: "success",
+            saveRefreshStatus: "updating",
+          },
+        });
+
+        dispatch({
+          type: "UPDATE_DOCUMENT_REFRESH",
+          payload: {
+            startDocumentRefresh: true,
+          },
+        });
+      } catch (err) {
+        dispatch({
+          type: "SHOW_ERROR_MODAL",
+          payload: {
+            type: "addnote",
+            title: "Something went wrong!",
+            message: "Failed to change the document state.",
+          },
+        });
+        dispatch({
+          type: "UPDATE_USED_UNUSED_DOCUMENT",
+          payload: {
+            documentId,
+            saveStatus: "failure",
+            saveRefreshStatus: "updated",
           },
         });
       }
