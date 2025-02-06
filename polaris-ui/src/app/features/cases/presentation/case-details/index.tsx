@@ -853,7 +853,10 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   : "govuk-grid-column-three-quarters"
               }`}
             >
-              <SaveUsedOrUnusedModal savingState={usedOrUnused.saveStatus} />
+              <SaveUsedOrUnusedModal
+                savingState={usedOrUnused.saveStatus}
+                documentId={dacDocumentId}
+              />
 
               {!tabsState.items.length ? (
                 <PdfTabsEmpty

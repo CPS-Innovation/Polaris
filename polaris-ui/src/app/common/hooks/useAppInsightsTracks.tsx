@@ -68,7 +68,8 @@ type AppInsightsTrackEventNames =
   | "Undo Rotate Page"
   | "Rotate Page Right"
   | "Rotate Page Left"
-  | "Update Document Evidential Status";
+  | "Update Document Evidential Status"
+  | "Ignore Saved Or Unsaved Redactions Modal Window";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -185,6 +186,8 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Rotate Page Left": "User clicked 'Rotate page left' button",
   "Update Document Evidential Status":
     "User has changed the evidential status between used and unused",
+  "Ignore Saved Or Unsaved Redactions Modal Window":
+    "User has closed used or unused modal window",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();

@@ -7,18 +7,28 @@ import {
 import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentation/svgs/whiteTick.svg";
 import { ReactComponent as CloseIcon } from "../../../../../common/presentation/svgs/closeIconBold.svg";
 import classes from "./SaveUsedOrUnusedModal.module.scss";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 
 type Props = {
   savingState?: string;
+  documentId: string;
 };
-export const SaveUsedOrUnusedModal: React.FC<Props> = ({ savingState }) => {
+export const SaveUsedOrUnusedModal: React.FC<Props> = ({
+  savingState,
+  documentId,
+}) => {
   const [showModal, setShowModal] = useState(false);
+
+  const trackEvent = useAppInsightsTrackEvent();
 
   useEffect(() => {
     if (savingState === "saving") setShowModal(true);
   }, [savingState]);
 
   const handleCloseModal = () => {
+    trackEvent("Ignore Saved Or Unsaved Redactions Modal Window", {
+      documentId: documentId,
+    });
     setShowModal(false);
   };
 
