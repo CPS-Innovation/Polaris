@@ -54,7 +54,7 @@ describe("useNavigationAlert hook", () => {
     const { result } = renderHook(
       () => useNavigationAlert(tabItems, documentsState),
       {
-        wrapper: ({ children }) => (
+        wrapper: ({ children }: { children: React.ReactNode }) => (
           <Router history={history}>
             <div>{children}</div>
           </Router>
@@ -77,7 +77,7 @@ describe("useNavigationAlert hook", () => {
     const { result: resultOne } = renderHook(
       () => useNavigationAlert([], documentsState),
       {
-        wrapper: ({ children }) => (
+        wrapper: ({ children }: { children: React.ReactNode }) => (
           <>
             <Router history={history}>
               <div>{children}</div>

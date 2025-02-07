@@ -3,6 +3,7 @@ import * as GDS from "govuk-react-jsx";
 
 export type BackLinkProps = {
   to: string;
+  children?: React.ReactNode;
   label?: ReactNode;
   onClick?: () => void;
 };

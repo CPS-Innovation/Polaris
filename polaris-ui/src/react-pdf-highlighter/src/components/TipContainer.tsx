@@ -66,23 +66,24 @@ class TipContainer extends Component<Props, State> {
     );
 
     const childrenWithProps = React.Children.map(children, (child) =>
-      // @ts-ignore
-      React.cloneElement(child, {
-        onUpdate: () => {
-          this.setState(
-            {
-              width: 0,
-              height: 0,
+      child != null
+        ? React.cloneElement(child, {
+            onUpdate: () => {
+              this.setState(
+                {
+                  width: 0,
+                  height: 0,
+                },
+                () => {
+                  setTimeout(this.updatePosition, 0);
+                }
+              );
             },
-            () => {
-              setTimeout(this.updatePosition, 0);
-            }
-          );
-        },
-        popup: {
-          position: shouldMove ? "below" : "above",
-        },
-      })
+            popup: {
+              position: shouldMove ? "below" : "above",
+            },
+          })
+        : null
     );
 
     return (

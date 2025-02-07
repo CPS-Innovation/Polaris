@@ -105,7 +105,8 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
-  const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
+  const params = useParams<{ id: string; urn: string }>();
+  const { id: caseId, urn } = params as any;
 
   const unMounting = useRef(false);
   useEffect(() => {
