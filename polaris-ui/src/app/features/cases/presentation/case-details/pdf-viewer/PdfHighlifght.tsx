@@ -40,7 +40,7 @@ export const PdfHighlight: React.FC<Props> = ({
     );
 
   return highlight.type === "search" || highlight.type === "searchPII" ? (
-    { ...component, key: index }
+    ({ ...component, key: index } as any)
   ) : (
     <Popup
       popupContent={

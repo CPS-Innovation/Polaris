@@ -69,26 +69,34 @@ Cypress.Commands.add(
     });
   }
 );
-Cypress.Commands.add("selectPDFTextElement", (matchString: string) => {
-  cy.wait(100);
-  cy.get(`.textLayer span:contains(${matchString})`)
-    .filter(":not(:has(*))")
-    .first()
-    .then((element) => {
-      cy.wrap(element)
-        .trigger("mousedown")
-        .then(() => {
-          const el = element[0];
-          const document = el.ownerDocument;
-          const range = document.createRange();
-          range.selectNodeContents(el);
-          document.getSelection()?.removeAllRanges();
-          document.getSelection()?.addRange(range);
-        })
-        .trigger("mouseup");
-      cy.document().trigger("selectionchange");
-    });
-});
+Cypress.Commands.add(
+  "selectPDFTextElement",
+  (matchString: string, parentTestId?: string) => {
+    cy.wait(100);
+    const getParent = parentTestId
+      ? cy
+          .findByTestId(parentTestId)
+          .find(`.textLayer span:contains(${matchString})`)
+      : cy.get(`.textLayer span:contains(${matchString})`);
+    getParent
+      .filter(":not(:has(*))")
+      .first()
+      .then((element) => {
+        cy.wrap(element)
+          .trigger("mousedown")
+          .then(() => {
+            const el = element[0];
+            const document = el.ownerDocument;
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            document.getSelection()?.removeAllRanges();
+            document.getSelection()?.addRange(range);
+          })
+          .trigger("mouseup");
+        cy.document().trigger("selectionchange");
+      });
+  }
+);
 
 Cypress.Commands.add(
   "trackRequestCount",

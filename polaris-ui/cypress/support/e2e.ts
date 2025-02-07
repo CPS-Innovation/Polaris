@@ -47,7 +47,7 @@ declare global {
       /**
        * Custom command to select first span element matching the given string
        */
-      selectPDFTextElement(matchString: string): void;
+      selectPDFTextElement(matchString: string, parentTestId?: string): void;
 
       overrideRoute(
         apiRoute: string,

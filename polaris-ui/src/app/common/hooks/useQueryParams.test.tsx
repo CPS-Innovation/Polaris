@@ -11,7 +11,7 @@ describe("useQueryParams", () => {
     const { result } = renderHook(
       () => useQueryParamsState<{ foo: string; bar: string }>(),
       {
-        wrapper: ({ children }) => (
+        wrapper: ({ children }: { children: React.ReactNode }) => (
           <Router history={history}>{children}</Router>
         ),
       }
@@ -30,7 +30,7 @@ describe("useQueryParams", () => {
     const { result } = renderHook(
       () => useQueryParamsState<{ foo: string[] }>(),
       {
-        wrapper: ({ children }) => (
+        wrapper: ({ children }: { children: React.ReactNode }) => (
           <Router history={history}>{children}</Router>
         ),
       }
@@ -48,7 +48,7 @@ describe("useQueryParams", () => {
     const { result } = renderHook(
       () => useQueryParamsState<{ foo: string }>(),
       {
-        wrapper: ({ children }) => (
+        wrapper: ({ children }: { children: React.ReactNode }) => (
           <Router history={history}>{children}</Router>
         ),
       }
@@ -66,7 +66,7 @@ describe("useQueryParams", () => {
     const { result } = renderHook(
       () => useQueryParamsState<{ foo: string }>(),
       {
-        wrapper: ({ children }) => (
+        wrapper: ({ children }: { children: React.ReactNode }) => (
           <Router history={history}>{children}</Router>
         ),
       }
@@ -82,7 +82,7 @@ describe("useQueryParams", () => {
     const { result } = renderHook(
       () => useQueryParamsState<{ foo: string; bar: string }>(),
       {
-        wrapper: ({ children }) => (
+        wrapper: ({ children }: { children: React.ReactNode }) => (
           <Router history={history}>{children}</Router>
         ),
       }
@@ -98,7 +98,7 @@ describe("useQueryParams", () => {
     const { result } = renderHook(
       () => useQueryParamsState<{ foo: string[] }>(),
       {
-        wrapper: ({ children }) => (
+        wrapper: ({ children }: { children: React.ReactNode }) => (
           <Router history={history}>{children}</Router>
         ),
       }
@@ -114,7 +114,7 @@ describe("useQueryParams", () => {
     const { result } = renderHook(
       () => useQueryParamsState<{ foo: string[] }>(),
       {
-        wrapper: ({ children }) => (
+        wrapper: ({ children }: { children: React.ReactNode }) => (
           <Router history={history}>{children}</Router>
         ),
       }
@@ -130,7 +130,7 @@ describe("useQueryParams", () => {
     const { result } = renderHook(
       () => useQueryParamsState<{ foo: string[] }>(),
       {
-        wrapper: ({ children }) => (
+        wrapper: ({ children }: { children: React.ReactNode }) => (
           <Router history={history}>{children}</Router>
         ),
       }

@@ -725,6 +725,7 @@ describe("Case Details Search", () => {
       });
       //user typing second letter
       cy.findByTestId("input-search-case").type("b");
+      cy.wait(1000);
       cy.window().then(() => {
         expect(initiatePipelineCounter.count).to.equal(1);
         expect(trackerCounter.count).to.equal(1);

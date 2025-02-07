@@ -246,7 +246,7 @@ export const PdfViewer: React.FC<Props> = ({
   };
 
   const enableAreaSelection = useCallback(
-    (event) => {
+    (event: MouseEvent) => {
       return areaOnlyRedactionMode
         ? true
         : (event.target as HTMLElement).className === "textLayer";
@@ -263,6 +263,7 @@ export const PdfViewer: React.FC<Props> = ({
   };
 
   const handlePdfLoaderError = (error: any) => {
+    console.log("loading pdf error", error);
     if (!error?.status) return;
     let status: GroupedConversionStatus = "OtherReasons";
     if (error.status === 403) status = "EncryptionOrPasswordProtection";
@@ -283,7 +284,7 @@ export const PdfViewer: React.FC<Props> = ({
           beforeLoad={<Wait ariaLabel="Pdf loading, please wait" />}
           // To avoid reaching out to an internet-hosted asset we have taken a local copy
           //  of the library that PdfHighlighter links to and put that in our `public` folder.
-          workerSrc={`${process.env.PUBLIC_URL}/pdf.worker.min.2.11.338.js`}
+          workerSrc={`${process.env.PUBLIC_URL}/pdf.worker.min.4.4.168.mjs`}
           onError={handlePdfLoaderError}
         >
           {(pdfDocument) => (

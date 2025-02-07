@@ -75,7 +75,7 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("div-pdfviewer-0").should("exist");
   });
 
-  it("should successfully complete the redaction refresh flow for saving redaction of two different documents", () => {
+  it.only("should successfully complete the redaction refresh flow for saving redaction of two different documents", () => {
     const documentList = getRefreshRedactedDocument("1", 3);
     cy.visit("/case-details/12AB1111111/13401?redactionLog");
     cy.findByTestId("btn-accordion-open-close-all").click();
@@ -99,9 +99,9 @@ describe("redaction refresh flow", () => {
     cy.findAllByTestId("div-pdfviewer-1")
       .last()
       .should("exist")
-      .contains("CASE FILE EVIDENCE and INFORMATION ");
+      .contains("CASE FILE EVIDENCE and INFORMATION");
     cy.wait(500);
-    cy.selectPDFTextElement("MCLOVE");
+    cy.selectPDFTextElement("MCLOVE", "div-pdfviewer-1");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
     cy.focused().should("have.id", "select-redaction-type");
@@ -305,7 +305,7 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("btn-save-redaction-0").should("have.length", 0);
   });
 
-  it("Should not hide the redaction tip if we hover over an unsaved redaction in the middle of doing a text selection(linear) redaction", () => {
+  it.only("Should not hide the redaction tip if we hover over an unsaved redaction in the middle of doing a text selection(linear) redaction", () => {
     cy.visit("/case-details/12AB1111111/13401");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();

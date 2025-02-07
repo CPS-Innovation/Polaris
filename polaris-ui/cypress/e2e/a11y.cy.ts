@@ -118,14 +118,14 @@ describe("Accessibility testing using cypress-axe", () => {
       cy.findAllByTestId("div-pdfviewer-1")
         .last()
         .should("exist")
-        .contains("CASE FILE EVIDENCE and INFORMATION ");
+        .contains("CASE FILE EVIDENCE and INFORMATION");
       cy.selectPDFTextElement("Not Disclosable");
       cy.findByTestId("btn-redact").should("be.disabled");
       cy.findByTestId("select-redaction-type").should("have.length", 1);
       cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click({ force: true });
       cy.wait(200);
-      cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
+      cy.checkA11y({ exclude: [".PdfHighlighter"] }, undefined, terminalLog);
     });
 
     it("Has no violations unsaved redaction popup", () => {
@@ -149,7 +149,7 @@ describe("Accessibility testing using cypress-axe", () => {
           .contains("MCLOVEMG3")
           .click();
       });
-      cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
+      cy.checkA11y({ exclude: [".PdfHighlighter"] }, undefined, terminalLog);
     });
 
     it("Has no violations while saving a redaction and when spinner screen is shown", () => {
@@ -171,7 +171,7 @@ describe("Accessibility testing using cypress-axe", () => {
       cy.findByTestId("btn-redact").click({ force: true });
       cy.findByTestId("btn-save-redaction-0").click();
       cy.findByTestId("pdfTab-spinner-0").should("exist");
-      cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
+      cy.checkA11y({ exclude: [".PdfHighlighter"] }, undefined, terminalLog);
     });
   });
 });
