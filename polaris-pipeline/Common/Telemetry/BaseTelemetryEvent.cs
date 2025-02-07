@@ -12,6 +12,10 @@ namespace Common.Telemetry
 
         public string OperationName { get; set; }
 
+        public string ErrorMessage { get; set; }
+
+        public string IsReplay { get; set; }
+
         abstract public (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps();
 
         public static double? GetDurationSeconds(DateTime startTime, DateTime endTime) =>

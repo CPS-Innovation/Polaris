@@ -12,6 +12,7 @@ using coordinator.Durable.Payloads;
 using Ddei.Factories;
 using Microsoft.Azure.Functions.Worker;
 using coordinator.Domain;
+using coordinator.Services;
 
 namespace coordinator.Durable.Activity
 {
@@ -20,6 +21,7 @@ namespace coordinator.Durable.Activity
         private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
         private readonly IDocumentToggleService _documentToggleService;
+        private readonly IStateStorageService _stateStorageService;
         private readonly ILogger<GetCaseDocuments> _log;
         private readonly IConfiguration _configuration;
 
@@ -27,12 +29,14 @@ namespace coordinator.Durable.Activity
                  IDdeiClient ddeiClient,
                  IDdeiArgFactory ddeiArgFactory,
                  IDocumentToggleService documentToggleService,
+                 IStateStorageService stateStorageService,
                  ILogger<GetCaseDocuments> logger,
                  IConfiguration configuration)
         {
             _ddeiClient = ddeiClient;
             _ddeiArgFactory = ddeiArgFactory;
             _documentToggleService = documentToggleService;
+            _stateStorageService = stateStorageService;
             _log = logger;
             _configuration = configuration;
         }
@@ -76,7 +80,6 @@ namespace coordinator.Durable.Activity
                 .Select(MapPresentationFlags)
                 .ToArray();
 
-
             var pcdRequests = getPcdRequestsTask.Result
                 .Select(MapPresentationFlags)
                 .ToArray();
@@ -84,7 +87,10 @@ namespace coordinator.Durable.Activity
             var defendantsAndCharges = getDefendantsAndChargesTask.Result;
             MapPresentationFlags(defendantsAndCharges);
 
-            return new(cmsDocuments, pcdRequests, defendantsAndCharges);
+            var documents = new GetCaseDocumentsResponse(cmsDocuments, pcdRequests, defendantsAndCharges);
+            await _stateStorageService.UpdateCaseDocumentsAsync(payload.CaseId, documents);
+
+            return documents;
         }
 
         private CmsDocumentDto MapPresentationFlags(CmsDocumentDto document)
