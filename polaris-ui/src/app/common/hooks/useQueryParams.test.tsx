@@ -12,6 +12,7 @@ describe("useQueryParams", () => {
       () => useQueryParamsState<{ foo: string; bar: string }>(),
       {
         wrapper: ({ children }: { children: React.ReactNode }) => (
+          //  @ts-ignore
           <Router history={history}>{children}</Router>
         ),
       }
@@ -31,6 +32,7 @@ describe("useQueryParams", () => {
       () => useQueryParamsState<{ foo: string[] }>(),
       {
         wrapper: ({ children }: { children: React.ReactNode }) => (
+          //  @ts-ignore
           <Router history={history}>{children}</Router>
         ),
       }
@@ -49,6 +51,7 @@ describe("useQueryParams", () => {
       () => useQueryParamsState<{ foo: string }>(),
       {
         wrapper: ({ children }: { children: React.ReactNode }) => (
+          //  @ts-ignore
           <Router history={history}>{children}</Router>
         ),
       }
@@ -67,6 +70,7 @@ describe("useQueryParams", () => {
       () => useQueryParamsState<{ foo: string }>(),
       {
         wrapper: ({ children }: { children: React.ReactNode }) => (
+          //  @ts-ignore
           <Router history={history}>{children}</Router>
         ),
       }
@@ -83,6 +87,7 @@ describe("useQueryParams", () => {
       () => useQueryParamsState<{ foo: string; bar: string }>(),
       {
         wrapper: ({ children }: { children: React.ReactNode }) => (
+          //  @ts-ignore
           <Router history={history}>{children}</Router>
         ),
       }
@@ -99,6 +104,7 @@ describe("useQueryParams", () => {
       () => useQueryParamsState<{ foo: string[] }>(),
       {
         wrapper: ({ children }: { children: React.ReactNode }) => (
+          //  @ts-ignore
           <Router history={history}>{children}</Router>
         ),
       }
@@ -115,6 +121,7 @@ describe("useQueryParams", () => {
       () => useQueryParamsState<{ foo: string[] }>(),
       {
         wrapper: ({ children }: { children: React.ReactNode }) => (
+          //  @ts-ignore
           <Router history={history}>{children}</Router>
         ),
       }
@@ -131,6 +138,7 @@ describe("useQueryParams", () => {
       () => useQueryParamsState<{ foo: string[] }>(),
       {
         wrapper: ({ children }: { children: React.ReactNode }) => (
+          //  @ts-ignore
           <Router history={history}>{children}</Router>
         ),
       }
