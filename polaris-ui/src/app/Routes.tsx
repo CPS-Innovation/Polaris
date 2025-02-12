@@ -97,7 +97,7 @@ export const Routes: FC = () => {
         </Route>
         <Route
           path={inboundHandoverPath}
-          Component={InboundHandoverHandler}
+          component={InboundHandoverHandler}
         ></Route>
         <Route>
           <Redirect to={caseSearchPath} />
