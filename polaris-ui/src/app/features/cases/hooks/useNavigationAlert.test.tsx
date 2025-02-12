@@ -55,7 +55,6 @@ describe("useNavigationAlert hook", () => {
       () => useNavigationAlert(tabItems, documentsState),
       {
         wrapper: ({ children }: { children: React.ReactNode }) => (
-          // @ts-ignore
           <Router history={history}>
             <div>{children}</div>
           </Router>
@@ -79,7 +78,6 @@ describe("useNavigationAlert hook", () => {
       () => useNavigationAlert([], documentsState),
       {
         wrapper: ({ children }: { children: React.ReactNode }) => (
-          // @ts-ignore
           <Router history={history}>
             <div>{children}</div>
           </Router>
