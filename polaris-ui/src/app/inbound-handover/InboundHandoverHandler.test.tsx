@@ -86,7 +86,7 @@ describe("InboundHandoverHandler", () => {
     });
 
     expect(mockPush).toBeCalledWith(
-      "/case-details/foo/44", // will prefer the caseId returned by the api call
+      "/case-details/foo/44?taskId=2&taskTypeId=3", // will prefer the caseId returned by the api call
       expectedContextObject
     );
   });
@@ -113,7 +113,7 @@ describe("InboundHandoverHandler", () => {
     });
 
     expect(mockPush).toBeCalledWith(
-      "/case-details/bar/1",
+      "/case-details/bar/1?taskId=2&taskTypeId=3",
       expectedContextObject
     );
   });

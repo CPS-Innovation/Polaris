@@ -9,12 +9,15 @@ import {
   FEATURE_FLAG_RECLASSIFY,
   FEATURE_FLAG_PAGE_DELETE,
   FEATURE_FLAG_PAGE_ROTATE,
+  FEATURE_FLAG_STATE_RETENTION,
+  FEATURE_FLAG_GLOBAL_NAV,
   PRIVATE_BETA_FEATURE_USER_GROUP,
   PRIVATE_BETA_FEATURE_USER_GROUP2,
   FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP,
   FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP,
   PRIVATE_BETA_FEATURE_USER_GROUP3,
   PRIVATE_BETA_FEATURE_USER_GROUP4,
+  PRIVATE_BETA_FEATURE_USER_GROUP5,
   FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
@@ -80,6 +83,8 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     pageDelete,
     pageRotate,
     notifications,
+    stateRetention,
+    globalNav,
   } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
@@ -139,13 +144,24 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         FEATURE_FLAG_PAGE_ROTATE,
         userDetails?.username,
         pageRotate,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP5 }
       ),
       notifications: shouldShowFeature(
         FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
         userDetails?.username,
         notifications,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+      ),
+      stateRetention: shouldShowFeature(
+        FEATURE_FLAG_STATE_RETENTION,
+        userDetails?.username,
+        stateRetention
+      ),
+      globalNav: shouldShowFeature(
+        FEATURE_FLAG_GLOBAL_NAV,
+        userDetails?.username,
+        globalNav,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP5 }
       ),
     }),
     []

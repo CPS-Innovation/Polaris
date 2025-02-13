@@ -1,6 +1,5 @@
 import { useMemo, useCallback } from "react";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
-import { REPORT_ISSUE } from "../../../../../config";
 import {
   DropdownButton,
   DropdownButtonItem,
@@ -17,7 +16,6 @@ import classes from "./HeaderReadMode.module.scss";
 
 type Props = {
   showOverRedactionLog: boolean;
-  handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   handleShowHidePageRotation: CaseDetailsState["handleShowHidePageRotation"];
@@ -43,7 +41,6 @@ type Props = {
 
 export const HeaderReadMode: React.FC<Props> = ({
   showOverRedactionLog,
-  handleShowHideDocumentIssueModal,
   handleShowRedactionLogModal,
   handleAreaOnlyRedaction,
   handleShowHideRedactionSuggestions,
@@ -61,9 +58,6 @@ export const HeaderReadMode: React.FC<Props> = ({
         trackEvent("Open Under Over Redaction Log", {
           documentId: contextData.documentId,
         });
-        break;
-      case "2":
-        handleShowHideDocumentIssueModal(true);
         break;
       case "3":
         handleShowHideRedactionSuggestions(
@@ -105,17 +99,6 @@ export const HeaderReadMode: React.FC<Props> = ({
           disabled: false,
         },
         ...items,
-      ];
-    }
-    if (REPORT_ISSUE) {
-      items = [
-        ...items,
-        {
-          id: "2",
-          label: disableReportBtn ? "Issue reported" : "Report an issue",
-          ariaLabel: "report an issue",
-          disabled: disableReportBtn,
-        },
       ];
     }
     if (contextData.showSearchPII) {

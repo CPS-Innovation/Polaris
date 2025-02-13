@@ -2,7 +2,7 @@ import { mapAccordionState } from "./map-accordion-state";
 import { ApiResult } from "../../../../common/types/ApiResult";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { PresentationDocumentProperties } from "../../domain/gateway/PipelineDocument";
-
+import { AccordionData } from "../../presentation/case-details/accordion/types";
 const mapUnSortedDocsToCategory = (
   categories: string[],
   docs: Record<string, any>[]
@@ -17,13 +17,9 @@ const mapUnSortedDocsToCategory = (
   }, [] as any);
 };
 
-const mapSortedDocToCategory = (
-  docs: Record<string, any>[],
-  category: string
-) => {
+const mapSortedDocToCategory = (docs: Record<string, any>[]) => {
   const newDocs = docs.map((document) => ({
-    ...document,
-    presentationCategory: category,
+    documentId: document.documentId,
   }));
 
   return newDocs;
@@ -35,7 +31,7 @@ describe("mapAccordionState", () => {
       status: "loading",
     };
 
-    const result = mapAccordionState(apiResult);
+    const result = mapAccordionState(apiResult, {} as any);
 
     expect(result).toEqual({ status: "loading" });
   });
@@ -47,7 +43,7 @@ describe("mapAccordionState", () => {
       httpStatusCode: undefined,
     };
 
-    const result = mapAccordionState(apiResult);
+    const result = mapAccordionState(apiResult, {} as any);
 
     expect(result).toEqual({ status: "loading" });
   });
@@ -121,63 +117,78 @@ describe("mapAccordionState", () => {
       ) as MappedCaseDocument[],
     };
 
-    const result = mapAccordionState(apiResult);
+    const result = mapAccordionState(apiResult, {} as any);
 
     expect(result).toEqual({
       status: "succeeded",
-      data: [
-        {
-          sectionId: "Reviews",
-          sectionLabel: "Reviews",
-          docs: mapSortedDocToCategory(sortedDocuments, "Reviews"),
+      data: {
+        sectionsOpenStatus: {
+          Reviews: false,
+          "Case overview": false,
+          Statements: false,
+          Exhibits: false,
+          Forensics: false,
+          "Unused material": false,
+          Defendant: false,
+          "Court preparation": false,
+          Communications: false,
+          Uncategorised: false,
         },
-        {
-          sectionId: "Case overview",
-          sectionLabel: "Case overview",
-          docs: [],
-        },
-        {
-          sectionId: "Statements",
-          sectionLabel: "Statements",
-          docs: [],
-        },
-        {
-          sectionId: "Exhibits",
-          sectionLabel: "Exhibits",
-          docs: [],
-        },
-        {
-          sectionId: "Forensics",
-          sectionLabel: "Forensics",
-          docs: mapSortedDocToCategory(sortedDocuments, "Forensics"),
-        },
-        {
-          sectionId: "Unused material",
-          sectionLabel: "Unused material",
-          docs: [],
-        },
-        {
-          sectionId: "Defendant",
-          sectionLabel: "Defendant",
-          docs: mapSortedDocToCategory(sortedDocuments, "Defendant"),
-        },
-        {
-          sectionId: "Court preparation",
-          sectionLabel: "Court preparation",
-          docs: [],
-        },
-        {
-          sectionId: "Communications",
-          sectionLabel: "Communications",
-          docs: mapSortedDocToCategory(sortedDocuments, "Communications"),
-        },
-        {
-          sectionId: "Uncategorised",
-          sectionLabel: "Uncategorised",
-          docs: mapSortedDocToCategory(sortedDocuments, "Uncategorised"),
-        },
-      ],
-    } as ReturnType<typeof mapAccordionState>);
+        isAllOpen: false,
+        sections: [
+          {
+            sectionId: "Reviews",
+            sectionLabel: "Reviews",
+            docs: mapSortedDocToCategory(sortedDocuments),
+          },
+          {
+            sectionId: "Case overview",
+            sectionLabel: "Case overview",
+            docs: [],
+          },
+          {
+            sectionId: "Statements",
+            sectionLabel: "Statements",
+            docs: [],
+          },
+          {
+            sectionId: "Exhibits",
+            sectionLabel: "Exhibits",
+            docs: [],
+          },
+          {
+            sectionId: "Forensics",
+            sectionLabel: "Forensics",
+            docs: mapSortedDocToCategory(sortedDocuments),
+          },
+          {
+            sectionId: "Unused material",
+            sectionLabel: "Unused material",
+            docs: [],
+          },
+          {
+            sectionId: "Defendant",
+            sectionLabel: "Defendant",
+            docs: mapSortedDocToCategory(sortedDocuments),
+          },
+          {
+            sectionId: "Court preparation",
+            sectionLabel: "Court preparation",
+            docs: [],
+          },
+          {
+            sectionId: "Communications",
+            sectionLabel: "Communications",
+            docs: mapSortedDocToCategory(sortedDocuments),
+          },
+          {
+            sectionId: "Uncategorised",
+            sectionLabel: "Uncategorised",
+            docs: mapSortedDocToCategory(sortedDocuments),
+          },
+        ],
+      } as unknown as AccordionData,
+    });
   });
 
   it("can map from an api result to accordion input shape and sort it correctly based on documentType and cmsFileCreatedDate ascending ", () => {
@@ -247,62 +258,77 @@ describe("mapAccordionState", () => {
       ) as MappedCaseDocument[],
     };
 
-    const result = mapAccordionState(apiResult);
+    const result = mapAccordionState(apiResult, {} as any);
 
     expect(result).toEqual({
       status: "succeeded",
-      data: [
-        {
-          sectionId: "Reviews",
-          sectionLabel: "Reviews",
-          docs: [],
+      data: {
+        sectionsOpenStatus: {
+          Reviews: false,
+          "Case overview": false,
+          Statements: false,
+          Exhibits: false,
+          Forensics: false,
+          "Unused material": false,
+          Defendant: false,
+          "Court preparation": false,
+          Communications: false,
+          Uncategorised: false,
         },
-        {
-          sectionId: "Case overview",
-          sectionLabel: "Case overview",
-          docs: mapSortedDocToCategory(sortedDocuments, "Case overview"),
-        },
-        {
-          sectionId: "Statements",
-          sectionLabel: "Statements",
-          docs: [],
-        },
-        {
-          sectionId: "Exhibits",
-          sectionLabel: "Exhibits",
-          docs: [],
-        },
-        {
-          sectionId: "Forensics",
-          sectionLabel: "Forensics",
-          docs: [],
-        },
-        {
-          sectionId: "Unused material",
-          sectionLabel: "Unused material",
-          docs: mapSortedDocToCategory(sortedDocuments, "Unused material"),
-        },
-        {
-          sectionId: "Defendant",
-          sectionLabel: "Defendant",
-          docs: [],
-        },
-        {
-          sectionId: "Court preparation",
-          sectionLabel: "Court preparation",
-          docs: mapSortedDocToCategory(sortedDocuments, "Court preparation"),
-        },
-        {
-          sectionId: "Communications",
-          sectionLabel: "Communications",
-          docs: [],
-        },
-        {
-          sectionId: "Uncategorised",
-          sectionLabel: "Uncategorised",
-          docs: [],
-        },
-      ],
+        isAllOpen: false,
+        sections: [
+          {
+            sectionId: "Reviews",
+            sectionLabel: "Reviews",
+            docs: [],
+          },
+          {
+            sectionId: "Case overview",
+            sectionLabel: "Case overview",
+            docs: mapSortedDocToCategory(sortedDocuments),
+          },
+          {
+            sectionId: "Statements",
+            sectionLabel: "Statements",
+            docs: [],
+          },
+          {
+            sectionId: "Exhibits",
+            sectionLabel: "Exhibits",
+            docs: [],
+          },
+          {
+            sectionId: "Forensics",
+            sectionLabel: "Forensics",
+            docs: [],
+          },
+          {
+            sectionId: "Unused material",
+            sectionLabel: "Unused material",
+            docs: mapSortedDocToCategory(sortedDocuments),
+          },
+          {
+            sectionId: "Defendant",
+            sectionLabel: "Defendant",
+            docs: [],
+          },
+          {
+            sectionId: "Court preparation",
+            sectionLabel: "Court preparation",
+            docs: mapSortedDocToCategory(sortedDocuments),
+          },
+          {
+            sectionId: "Communications",
+            sectionLabel: "Communications",
+            docs: [],
+          },
+          {
+            sectionId: "Uncategorised",
+            sectionLabel: "Uncategorised",
+            docs: [],
+          },
+        ],
+      },
     } as ReturnType<typeof mapAccordionState>);
   });
 
@@ -375,62 +401,77 @@ describe("mapAccordionState", () => {
       ) as MappedCaseDocument[],
     };
 
-    const result = mapAccordionState(apiResult);
+    const result = mapAccordionState(apiResult, {} as any);
 
     expect(result).toEqual({
       status: "succeeded",
-      data: [
-        {
-          sectionId: "Reviews",
-          sectionLabel: "Reviews",
-          docs: [],
+      data: {
+        sectionsOpenStatus: {
+          Reviews: false,
+          "Case overview": false,
+          Statements: false,
+          Exhibits: false,
+          Forensics: false,
+          "Unused material": false,
+          Defendant: false,
+          "Court preparation": false,
+          Communications: false,
+          Uncategorised: false,
         },
-        {
-          sectionId: "Case overview",
-          sectionLabel: "Case overview",
-          docs: [],
-        },
-        {
-          sectionId: "Statements",
-          sectionLabel: "Statements",
-          docs: mapSortedDocToCategory(sortedDocuments, "Statements"),
-        },
-        {
-          sectionId: "Exhibits",
-          sectionLabel: "Exhibits",
-          docs: mapSortedDocToCategory(sortedDocuments, "Exhibits"),
-        },
-        {
-          sectionId: "Forensics",
-          sectionLabel: "Forensics",
-          docs: [],
-        },
-        {
-          sectionId: "Unused material",
-          sectionLabel: "Unused material",
-          docs: [],
-        },
-        {
-          sectionId: "Defendant",
-          sectionLabel: "Defendant",
-          docs: [],
-        },
-        {
-          sectionId: "Court preparation",
-          sectionLabel: "Court preparation",
-          docs: [],
-        },
-        {
-          sectionId: "Communications",
-          sectionLabel: "Communications",
-          docs: [],
-        },
-        {
-          sectionId: "Uncategorised",
-          sectionLabel: "Uncategorised",
-          docs: [],
-        },
-      ],
+        isAllOpen: false,
+        sections: [
+          {
+            sectionId: "Reviews",
+            sectionLabel: "Reviews",
+            docs: [],
+          },
+          {
+            sectionId: "Case overview",
+            sectionLabel: "Case overview",
+            docs: [],
+          },
+          {
+            sectionId: "Statements",
+            sectionLabel: "Statements",
+            docs: mapSortedDocToCategory(sortedDocuments),
+          },
+          {
+            sectionId: "Exhibits",
+            sectionLabel: "Exhibits",
+            docs: mapSortedDocToCategory(sortedDocuments),
+          },
+          {
+            sectionId: "Forensics",
+            sectionLabel: "Forensics",
+            docs: [],
+          },
+          {
+            sectionId: "Unused material",
+            sectionLabel: "Unused material",
+            docs: [],
+          },
+          {
+            sectionId: "Defendant",
+            sectionLabel: "Defendant",
+            docs: [],
+          },
+          {
+            sectionId: "Court preparation",
+            sectionLabel: "Court preparation",
+            docs: [],
+          },
+          {
+            sectionId: "Communications",
+            sectionLabel: "Communications",
+            docs: [],
+          },
+          {
+            sectionId: "Uncategorised",
+            sectionLabel: "Uncategorised",
+            docs: [],
+          },
+        ],
+      },
     } as ReturnType<typeof mapAccordionState>);
   });
   it("can filter out the DAC doc type, from any accordion category", () => {
@@ -510,98 +551,81 @@ describe("mapAccordionState", () => {
       ],
     };
 
-    const result = mapAccordionState(apiResult);
+    const result = mapAccordionState(apiResult, {} as any);
 
     expect(result).toEqual({
       status: "succeeded",
-      data: [
-        {
-          sectionId: "Reviews",
-          sectionLabel: "Reviews",
-          docs: [
-            {
-              documentId: "2",
-              presentationCategory: "Reviews",
-              presentationSubCategory: null,
-              cmsOriginalFileName: "bar.pdf",
-              presentationTitle: "bar!",
-              versionId: 2,
-              categoryListOrder: null,
-              attachments: [],
-              cmsDocType: {
-                documentTypeId: 2,
-                documentType: "MG12",
-                documentCategory: "MGForm",
+      data: {
+        sectionsOpenStatus: {
+          Reviews: false,
+          "Case overview": false,
+          Statements: false,
+          Exhibits: false,
+          Forensics: false,
+          "Unused material": false,
+          Defendant: false,
+          "Court preparation": false,
+          Communications: false,
+          Uncategorised: false,
+        },
+        isAllOpen: false,
+        sections: [
+          {
+            sectionId: "Reviews",
+            sectionLabel: "Reviews",
+            docs: [
+              {
+                documentId: "2",
               },
-              cmsFileCreatedDate: "2020-01-02",
-              presentationFlags: {
-                read: "Ok",
-                write: "Ok",
-              },
-              parentDocumentId: null,
-              witnessId: null,
-              witnessIndicators: [],
-              hasFailedAttachments: false,
-              hasNotes: false,
-              isUnused: false,
-              isInbox: false,
-              isOcrProcessed: false,
-              classification: null,
-              isWitnessManagement: false,
-              canReclassify: false,
-              canRename: false,
-              renameStatus: "CanRename",
-              reference: null,
-              tags: [],
-            },
-          ],
-        },
-        {
-          sectionId: "Case overview",
-          sectionLabel: "Case overview",
-          docs: [],
-        },
-        {
-          sectionId: "Statements",
-          sectionLabel: "Statements",
-          docs: [],
-        },
-        {
-          sectionId: "Exhibits",
-          sectionLabel: "Exhibits",
-          docs: [],
-        },
-        {
-          sectionId: "Forensics",
-          sectionLabel: "Forensics",
-          docs: [],
-        },
-        {
-          sectionId: "Unused material",
-          sectionLabel: "Unused material",
-          docs: [],
-        },
-        {
-          sectionId: "Defendant",
-          sectionLabel: "Defendant",
-          docs: [],
-        },
-        {
-          sectionId: "Court preparation",
-          sectionLabel: "Court preparation",
-          docs: [],
-        },
-        {
-          sectionId: "Communications",
-          sectionLabel: "Communications",
-          docs: [],
-        },
-        {
-          sectionId: "Uncategorised",
-          sectionLabel: "Uncategorised",
-          docs: [],
-        },
-      ],
+            ],
+          },
+          {
+            sectionId: "Case overview",
+            sectionLabel: "Case overview",
+            docs: [],
+          },
+          {
+            sectionId: "Statements",
+            sectionLabel: "Statements",
+            docs: [],
+          },
+          {
+            sectionId: "Exhibits",
+            sectionLabel: "Exhibits",
+            docs: [],
+          },
+          {
+            sectionId: "Forensics",
+            sectionLabel: "Forensics",
+            docs: [],
+          },
+          {
+            sectionId: "Unused material",
+            sectionLabel: "Unused material",
+            docs: [],
+          },
+          {
+            sectionId: "Defendant",
+            sectionLabel: "Defendant",
+            docs: [],
+          },
+          {
+            sectionId: "Court preparation",
+            sectionLabel: "Court preparation",
+            docs: [],
+          },
+          {
+            sectionId: "Communications",
+            sectionLabel: "Communications",
+            docs: [],
+          },
+          {
+            sectionId: "Uncategorised",
+            sectionLabel: "Uncategorised",
+            docs: [],
+          },
+        ],
+      },
     } as ReturnType<typeof mapAccordionState>);
   });
 });

@@ -8,7 +8,7 @@ import { CaseDetailsState } from "../../../../hooks/use-case-details-state/useCa
 import { MissingDocs } from "./MissingDocs";
 import classes from "./Header.module.scss";
 
-type ResultsOrder = CaseDetailsState["searchState"]["resultsOrder"];
+type ResultsOrder = CombinedState["searchState"]["resultsOrder"];
 
 type Props = {
   submittedSearchTerm: string;
