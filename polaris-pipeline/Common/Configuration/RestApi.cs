@@ -22,6 +22,7 @@
         public const string Ocr = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/ocr";
         public const string Pii = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/pii";
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/checkout";
+        public const string ToggleIsUnusedDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/toggle/{isUnused}";
 
         // Internal Pipeline
         public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";
@@ -35,73 +36,40 @@
         public const string Health = "health";
         public const string GetHostName = "gethostname";
 
-        public static string GetCasePath(string caseUrn, int caseId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}";
-        }
+        public static string GetCasePath(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}";
 
-        public static string GetCaseTrackerPath(string caseUrn, int caseId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/tracker";
-        }
+        public static string GetCaseTrackerPath(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}/tracker";
 
-        public static string GetCaseSearchQueryPath(string caseUrn, int caseId, string searchTerm)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";
-        }
+        public static string GetCaseSearchQueryPath(string caseUrn, int caseId, string searchTerm) =>
+            $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";
 
-        public static string GetRedactDocumentPath(string caseUrn, int caseId, string documentId, long versionId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/redact";
-        }
+        public static string GetRedactDocumentPath(string caseUrn, int caseId, string documentId, long versionId) =>
+            $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/redact";
 
-        public static string GetConvertToPdfPath(string caseUrn, int caseId, string documentId, long versionId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
-        }
+        public static string GetConvertToPdfPath(string caseUrn, int caseId, string documentId, long versionId) =>
+            $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
 
-        public static string GetExtractPath(string caseUrn, int caseId, string documentId, long versionId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/extract";
-        }
+        public static string GetExtractPath(string caseUrn, int caseId, string documentId, long versionId) =>
+            $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/extract";
 
-        public static string GetRemoveCaseIndexesPath(string caseUrn, int caseId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/remove-case-indexes";
-        }
+        public static string GetRemoveCaseIndexesPath(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}/remove-case-indexes";
 
-        public static string GetSearchPath(string caseUrn, int caseId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/search";
-        }
+        public static string GetSearchPath(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}/search";
 
-        public static string GetRedactPdfPath(string caseUrn, int caseId, string documentId, long versionId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/redact";
-        }
+        public static string GetRedactPdfPath(string caseUrn, int caseId, string documentId, long versionId) =>
+            $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/redact";
 
-        public static string GetCaseIndexCountResultsPath(string caseUrn, int caseId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/case-index-count";
-        }
+        public static string GetCaseIndexCountResultsPath(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}/case-index-count";
 
-        public static string GetDocumentIndexCountResultsPath(string caseUrn, int caseId, string documentId, long versionId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/document-index-count";
-        }
+        public static string GetDocumentIndexCountResultsPath(string caseUrn, int caseId, string documentId, long versionId) =>
+            $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/document-index-count";
 
-        public static string GetModifyDocumentPath(string caseUrn, int caseId, string documentId, long versionId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/modify";
-        }
+        public static string GetModifyDocumentPath(string caseUrn, int caseId, string documentId, long versionId) =>
+            $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/modify";
 
-        public static string CaseSearchCountPath(string caseUrn, int caseId)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/search/count";
-        }
-        public static string GetThumbnailPath(string caseUrn, int caseId, string documentId, int versionId, int maxDimensionPixel, int? pageIndex)
-        {
-            return $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
-        }
+        public static string CaseSearchCountPath(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}/search/count";
+
+        public static string GetThumbnailPath(string caseUrn, int caseId, string documentId, int versionId, int maxDimensionPixel, int? pageIndex) =>
+            $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
     }
 }

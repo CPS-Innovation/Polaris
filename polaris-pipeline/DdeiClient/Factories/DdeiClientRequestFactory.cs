@@ -6,6 +6,7 @@ using Common.Constants;
 using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
+using DdeiClient.Domain.Args;
 
 namespace Ddei.Factories.Contracts
 {
@@ -73,6 +74,14 @@ namespace Ddei.Factories.Contracts
         {
             var request = new HttpRequestMessage(HttpMethod.Post, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/documents/{arg.DocumentId}/versions/{arg.VersionId}/checkout");
             AddAuthHeaders(request, arg);
+            return request;
+        }
+
+        public HttpRequestMessage CreateToggleIsUnusedDocumentRequest(DdeiToggleIsUnusedDocumentDto dto)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, $"api/urns/{Encode(dto.Urn)}/cases/{dto.CaseId}/documents/{dto.DocumentId}/toggle/{dto.IsUnused}");
+            AddAuthHeaders(request, dto);
+
             return request;
         }
 
