@@ -34,7 +34,12 @@ public class ToggleIsUnusedDocument : BaseFunction
 
     [Function(nameof(ToggleIsUnusedDocument))]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ToggleIsUnusedDocument)] HttpRequest req, string caseUrn, int caseId, long documentId, string isUnused)
+    public async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ToggleIsUnusedDocument)] HttpRequest req,
+        string caseUrn,
+        int caseId,
+        long documentId,
+        string isUnused)
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
