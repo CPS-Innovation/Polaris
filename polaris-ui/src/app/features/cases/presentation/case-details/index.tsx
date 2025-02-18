@@ -60,7 +60,7 @@ import {
   TaggedContext,
 } from "../../../../inbound-handover/context";
 import { saveStateToSessionStorage } from "./utils/stateRetentionUtil";
-export const path = "/case-details/:urn/:id";
+export const path = "/case-details/:urn/:id/:documentId";
 
 type Props = BackLinkingPageProps & {
   context: TaggedContext | undefined;
@@ -105,8 +105,13 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
-  const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
+  const {
+    id: caseId,
+    urn,
+    documentId,
+  } = useParams<{ id: string; urn: string; documentId: string }>();
 
+  console.log("documentId: ", documentId);
   const unMounting = useRef(false);
   useEffect(() => {
     return () => {
@@ -694,13 +699,13 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       </Button>
                     </div>
                   )}
-                  <div className={classes.externalRedirectBtnWrapper}>
+                  {/* <div className={classes.externalRedirectBtnWrapper}>
                     <Button
                       disabled={false}
                       onClick={() => {
-                        window.location.href =
-                          "/case-details/12AB1111111/13401/checkmeout";
-                        // openInNewTab(`https://www.google.com`);
+                        openInNewTab(
+                          `${window.location.pathname}?URN=${urn}&caseId=${caseId}`
+                        );
                       }}
                       data-testid="btn-housekeep-link"
                       id="btn-housekeep-link"
@@ -709,7 +714,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                     >
                       Housekeeping link <NewWindow />
                     </Button>
-                  </div>
+                  </div> */}
                   <SearchBox
                     id="case-details-search"
                     data-testid="search-case"

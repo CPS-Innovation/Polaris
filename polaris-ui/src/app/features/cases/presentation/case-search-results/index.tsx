@@ -170,6 +170,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                         pathname: generatePath(casePath, {
                           urn: urnFromSearchParams,
                           id: item.id,
+                          documentId: "",
                         }),
                         state: search,
                         search: `${linkParams}`,

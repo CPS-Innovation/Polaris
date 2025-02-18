@@ -65,15 +65,18 @@ describe("case details page", () => {
       });
     });
 
-    it.only("should find a houskeeping deeplinking button ", () => {
-      cy.visit("/case-details/12AB1111111/13401");
-      const button = cy.findByTestId("btn-housekeep-link");
-      button.click();
+    // it.only("should find a houskeeping deeplinking button ", () => {
+    //   cy.visit("/case-details/12AB1111111/13401");
+    //   const button = cy.findByTestId("btn-housekeep-link");
+    //   const t = button.contains("Housekeeping link");
+    //   expect(t).contain("Housekeeping link");
 
-      cy.location().should((loc) => {
-        expect(loc.pathname).contain("checkmeout");
-      });
-    });
+    //   // button.click();
+
+    //   // cy.location().should((loc) => {
+    //   //   expect(loc.pathname).contain("checkmeout");
+    //   // });
+    // });
 
     it("For null LeadDefendant, shouldn't show defendant details", () => {
       cy.visit("/case-search-results?urn=12AB2222244");

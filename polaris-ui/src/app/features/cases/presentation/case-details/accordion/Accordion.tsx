@@ -35,6 +35,7 @@ type Props = {
   localDocumentState: LocalDocumentState;
   handleAccordionOpenClose: CaseDetailsState["handleAccordionOpenClose"];
   handleAccordionOpenCloseAll: CaseDetailsState["handleAccordionOpenCloseAll"];
+  accordionDocumentId?: string;
 };
 export type AccordionRef = {
   handleOpenAccordion: (documentId: string) => void;
@@ -56,6 +57,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
       handleGetNotes,
       handleAccordionOpenClose,
       handleAccordionOpenCloseAll,
+      accordionDocumentId,
     },
     ref
   ) => {
@@ -114,6 +116,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
             handleReclassifyDocument={handleReclassifyDocument}
             notesData={notesData}
             localDocumentState={localDocumentState}
+            accordionDocumentId={accordionDocumentId}
           />
         ))}
       </div>
