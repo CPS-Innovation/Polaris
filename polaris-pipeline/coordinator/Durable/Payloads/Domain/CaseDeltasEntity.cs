@@ -15,6 +15,7 @@ namespace coordinator.Durable.Payloads.Domain
 
         public DefendantsAndChargesEntity CreatedDefendantsAndCharges { get; set; }
         public DefendantsAndChargesEntity UpdatedDefendantsAndCharges { get; set; }
+
         public bool IsDeletedDefendantsAndCharges { get; set; }
     }
 }

@@ -21,7 +21,7 @@ using Common.Domain.Document;
 
 namespace coordinator.Functions
 {
-    public class RedactDocument : BaseClient
+    public class RedactDocument
     {
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidator<RedactPdfRequestWithDocumentDto> _requestValidator;
@@ -40,7 +40,6 @@ namespace coordinator.Functions
             IDdeiArgFactory ddeiArgFactory,
             ILogger<RedactDocument> logger,
             IConfiguration configuration)
-            : base(configuration, blobStorageServiceFactory)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;

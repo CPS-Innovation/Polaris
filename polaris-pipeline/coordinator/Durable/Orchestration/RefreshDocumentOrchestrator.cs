@@ -9,12 +9,10 @@ using Common.Logging;
 using Common.Telemetry;
 using coordinator.Domain;
 using coordinator.Durable.Activity;
-using coordinator.Durable.Entity;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
-using Microsoft.DurableTask.Entities;
 using Microsoft.Extensions.Logging;
 using text_extractor.coordinator;
 
@@ -36,11 +34,6 @@ namespace coordinator.Durable.Orchestration
             maxNumberOfAttempts: 3
         )));
 
-        public static string GetKey(int caseId, string documentId)
-        {
-            return $"[{caseId}]-{documentId}";
-        }
-
         public RefreshDocumentOrchestrator(ILogger<RefreshDocumentOrchestrator> log, ITelemetryClient telemetryClient)
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));
@@ -48,16 +41,15 @@ namespace coordinator.Durable.Orchestration
         }
 
         [Function(nameof(RefreshDocumentOrchestrator))]
-        public async Task Run([OrchestrationTrigger] TaskOrchestrationContext context)
+        public async Task<RefreshDocumentOrchestratorResponse> Run([OrchestrationTrigger] TaskOrchestrationContext context)
         {
             var payload = context.GetInput<DocumentPayload>();
             var log = context.CreateReplaySafeLogger(nameof(RefreshDocumentOrchestrator));
-            var caseEntityId = CaseDurableEntity.GetEntityId(payload.CaseId);
 
-            var shouldProceed = await EnsurePdfExists(payload, context, caseEntityId, log);
-            if (!shouldProceed)
+            var pdfConversionResponse = await EnsurePdfExists(payload, context, log);
+            if (!pdfConversionResponse.BlobAlreadyExists)
             {
-                return;
+                return new RefreshDocumentOrchestratorResponse { PdfConversionResponse = pdfConversionResponse, DocumentId = payload.DocumentId };
             }
 
             // todo: this is temporary code until the coordinator refactor exercise is done.
@@ -66,10 +58,10 @@ namespace coordinator.Durable.Orchestration
                 // return and DO NOT call SetDocumentPdfConversionSucceeded.  If we are refreshing the PDF it is because thr OCR flag has changed.
                 //  The document will already either be at PdfUploadedToBlob or Indexed status.  If it is at Indexed status then we do not want to set the
                 //  the flag back to PdfUploadedToBlob as Indexed is still correct.  As per comment above, all of this is to be rebuilt in pipeline refresh.
-                return;
+                return new RefreshDocumentOrchestratorResponse { PdfConversionResponse = pdfConversionResponse, DocumentId = payload.DocumentId };
             }
 
-            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentPdfConversionSucceededAsync), payload.DocumentId);
+            await context.CallActivityAsync(nameof(SetDocumentPdfConversionSucceeded), new CaseIdAndDocumentIPayload { CaseId = payload.CaseId, DocumentId = payload.DocumentId });
 
             var telemetryEvent = new IndexedDocumentEvent(payload.CorrelationId)
             {
@@ -93,7 +85,7 @@ namespace coordinator.Durable.Orchestration
                 telemetryEvent.LineCount = getOcrResultsResponse.OcrPollingResult?.FinalResult?.LineCount ?? 0;
                 telemetryEvent.WordCount = getOcrResultsResponse.OcrPollingResult?.FinalResult?.WordCount ?? 0;
 
-                var (indexStoredTime, indexStoredResult, indexPollingResult) = await IndexDocument(context, payload, log, telemetryEvent);
+                var (indexStoredTime, indexStoredResult, indexPollingResult) = await IndexDocument(context, payload, log);
 
                 telemetryEvent.IndexStoredTime = indexStoredTime;
                 telemetryEvent.DidIndexSettle = indexPollingResult.IsCompleted;
@@ -101,7 +93,7 @@ namespace coordinator.Durable.Orchestration
                 telemetryEvent.IndexSettleTargetCount = indexStoredResult.LineCount;
                 telemetryEvent.EndTime = context.CurrentUtcDateTime;
 
-                await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentIndexingSucceededAsync), payload.DocumentId);
+                await context.CallActivityAsync(nameof(SetDocumentIndexingSucceeded),new CaseIdAndDocumentIPayload { CaseId = payload.CaseId, DocumentId = payload.DocumentId });
 
                 // by this point we may be replaying, so good to keep a record
                 telemetryEvent.DidOrchestratorReplay = context.IsReplaying;
@@ -109,20 +101,23 @@ namespace coordinator.Durable.Orchestration
                 // assumption here that this will not be called multiple times as a result of replaying
                 //  as there should be no replaying after we've got to this point (and completed the orchestration)
                 _telemetryClient.TrackEvent(telemetryEvent);
+
+                return new RefreshDocumentOrchestratorResponse { PdfConversionResponse = pdfConversionResponse, StoreCaseIndexesResponse = indexStoredResult, DocumentId = payload.DocumentId };
             }
             catch (Exception exception)
             {
                 // todo: there is no durable replay protection here, and there is evidence of several failure event records for the same failure event in our analytics.
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
-                await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentIndexingFailedAsync), payload.DocumentId);
+                await context.CallActivityAsync(nameof(SetDocumentIndexingFailed), new CaseIdAndDocumentIPayload { DocumentId = payload.DocumentId, CaseId = payload.CaseId });
 
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
-                return;
+
+                return new RefreshDocumentOrchestratorResponse { PdfConversionResponse = pdfConversionResponse, StoreCaseIndexesResponse = new StoreCaseIndexesResult { IsSuccess = false }, DocumentId = payload.DocumentId };
             }
         }
 
-        private async Task<bool> EnsurePdfExists(DocumentPayload payload, TaskOrchestrationContext context, EntityInstanceId caseEntityId, ILogger log)
+        private async Task<PdfConversionResponse> EnsurePdfExists(DocumentPayload payload, TaskOrchestrationContext context, ILogger log)
         {
             try
             {
@@ -136,25 +131,25 @@ namespace coordinator.Durable.Orchestration
                 var pdfConversionResponse = await context.CallActivityAsync<PdfConversionResponse>(activityName, payload);
                 if (pdfConversionResponse.BlobAlreadyExists)
                 {
-                    return true;
+                    return pdfConversionResponse;
                 }
 
                 if (pdfConversionResponse.PdfConversionStatus != PdfConversionStatus.DocumentConverted)
                 {
-                    await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentPdfConversionFailedAsync), new SetDocumentPdfConversionFailedPayload { DocumentId = payload.DocumentId, PdfConversionStatus = pdfConversionResponse.PdfConversionStatus });
+                    await context.CallActivityAsync(nameof(SetDocumentPdfConversionFailed), new SetDocumentPdfConversionStatusPayload { CaseId = payload.CaseId, DocumentId = payload.DocumentId, PdfConversionStatus = pdfConversionResponse.PdfConversionStatus });
 
-                    return false;
+                    return pdfConversionResponse;
                 }
             }
             catch (Exception exception)
             {
-                await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetDocumentPdfConversionFailedAsync), new SetDocumentPdfConversionFailedPayload { DocumentId = payload.DocumentId, PdfConversionStatus = PdfConversionStatus.UnexpectedError });
+                await context.CallActivityAsync(nameof(SetDocumentPdfConversionFailed), new SetDocumentPdfConversionStatusPayload { CaseId = payload.CaseId, DocumentId = payload.DocumentId, PdfConversionStatus = PdfConversionStatus.UnexpectedError });
 
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error calling {nameof(RefreshDocumentOrchestrator)}: {exception.Message}", exception);
-                return false;
+                return new PdfConversionResponse { BlobAlreadyExists = false, PdfConversionStatus = PdfConversionStatus.UnexpectedError };
             }
 
-            return true;
+            return new PdfConversionResponse { BlobAlreadyExists = true, PdfConversionStatus = PdfConversionStatus.DocumentConverted };
         }
 
         private async Task<OcrOperationPollingResult> EnsureOcrExists(DocumentPayload payload, TaskOrchestrationContext context, ILogger log)
@@ -212,7 +207,7 @@ namespace coordinator.Durable.Orchestration
             return new OcrOperationPollingResult { BlobAlreadyExists = false, OcrPollingResult = pollingResult };
         }
 
-        private async Task<(DateTime IndexStoredTime, StoreCaseIndexesResult StoreCaseIndexesResult, PollingResult<CompleteIndexResponse> PollingResult)> IndexDocument(TaskOrchestrationContext context, DocumentPayload payload, ILogger log, IndexedDocumentEvent telemetryEvent)
+        private async Task<(DateTime IndexStoredTime, StoreCaseIndexesResult StoreCaseIndexesResult, PollingResult<CompleteIndexResponse> PollingResult)> IndexDocument(TaskOrchestrationContext context, DocumentPayload payload, ILogger log)
         {
             var indexStoredResult = await context.CallActivityAsync<StoreCaseIndexesResult>(nameof(InitiateIndex), payload);
             var indexStoredTime = context.CurrentUtcDateTime;
