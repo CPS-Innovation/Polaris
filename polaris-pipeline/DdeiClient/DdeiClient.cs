@@ -48,8 +48,7 @@ namespace Ddei
             ICmsMaterialTypeMapper cmsMaterialTypeMapper,
             ICaseWitnessStatementMapper caseWitnessStatementMapper,
             IJsonConvertWrapper jsonConvertWrapper,
-            ILogger<DdeiClient> logger
-            )
+            ILogger<DdeiClient> logger)
         {
             _caseDataServiceArgFactory = caseDataServiceArgFactory ?? throw new ArgumentNullException(nameof(caseDataServiceArgFactory));
             _caseDetailsMapper = caseDetailsMapper ?? throw new ArgumentNullException(nameof(caseDetailsMapper));
@@ -67,14 +66,13 @@ namespace Ddei
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
-        public async Task VerifyCmsAuthAsync(DdeiBaseArgDto arg)
-        {
+        public async Task VerifyCmsAuthAsync(DdeiBaseArgDto arg) =>
             // Will throw in the same way as any other call if auth is not correct.
             await CallDdei(_ddeiClientRequestFactory.CreateVerifyCmsAuthRequest(arg));
-        }
 
         public async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCaseIdOnlyArgDto arg)
         {
+            _ = _logger;
             var result = await CallDdei<DdeiCaseIdentifiersDto>(_ddeiClientRequestFactory.CreateUrnLookupRequest(arg));
             return _caseIdentifiersMapper.MapCaseIdentifiers(result);
         }
@@ -179,11 +177,11 @@ namespace Ddei
 
         public async Task<HttpResponseMessage> UploadPdfAsync(DdeiDocumentIdAndVersionIdArgDto arg, Stream stream)
         {
-            return await CallDdei(_ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream), new HttpStatusCode[]
-            {
+            return await CallDdei(_ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream),
+            [
                 HttpStatusCode.Gone,
                 HttpStatusCode.RequestEntityTooLarge
-            });
+            ]);
         }
 
         public async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotesAsync(DdeiDocumentArgDto arg)

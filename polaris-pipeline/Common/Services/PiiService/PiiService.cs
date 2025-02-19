@@ -79,7 +79,7 @@ namespace Common.Services.PiiService
 
         private IEnumerable<PiiLine> ReconcilePiiResults(IList<PiiChunk> piiChunks, PiiEntitiesWrapper piiResults)
         {
-            if (piiChunks == null || piiResults == null) return new List<PiiLine>();
+            if (piiChunks == null || piiResults == null) return [];
 
             var results = new List<ReconciledPiiEntity>();
 
@@ -137,7 +137,7 @@ namespace Common.Services.PiiService
                         PageWidth = entity.PageWidth,
                         Text = entity.LineText,
                         Id = Guid.NewGuid().ToString(),
-                        Words = new List<PiiWord>()
+                        Words = []
                     };
 
                     var lineWords = entity.LineText.Split(' ');

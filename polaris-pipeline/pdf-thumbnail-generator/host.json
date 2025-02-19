@@ -3,7 +3,7 @@
   "logging": {
     "fileLoggingMode": "debugOnly",
     "logLevel": {
-      "default": "Warning",
+      "default": "Information",
       "Function": "Information",
       "Host.Aggregator": "Error",
       "Host.Results": "Information",
@@ -15,6 +15,14 @@
     "applicationInsights": {
       "logLevel": {
         "default": "Information"
+      },
+      "enableLiveMetrics": true,
+      "enableDependencyTracking": true,
+      "enablePerformanceCountersCollection": true,
+      "httpAutoCollectionOptions": {
+        "enableHttpTriggerExtendedInfoCollection": true,
+        "enableW3CDistributedTracing": true,
+        "enableResponseHeaderInjection": true
       },
       "enableLiveMetricsFilters": true
     }

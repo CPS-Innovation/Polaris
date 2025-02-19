@@ -16,7 +16,7 @@ namespace Common.Services.PiiService.TextAnalytics
 
         public async Task<RecognizePiiEntitiesResultCollection> CheckForPii(PiiRequestDto piiRequest)
         {
-            List<TextDocumentInput> batchedDocuments = new();
+            List<TextDocumentInput> batchedDocuments = [];
 
             foreach (var document in piiRequest.AnalysisInput.Documents)
             {

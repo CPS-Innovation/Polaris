@@ -12,7 +12,7 @@ namespace Common.Domain.Ocr
     public string ModelVersion { get; set; }
 
     [JsonPropertyName("readResults")]
-    public IList<ReadResult> ReadResults { get; set; } = new List<ReadResult>();
+    public IList<ReadResult> ReadResults { get; set; } = [];
 
     [JsonIgnore]
     public long PageCount { get { return ReadResults.Count; } }

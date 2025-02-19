@@ -19,10 +19,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
 
         public ImageConversionImplementation(IOptions<ImageConversionOptions> options, ILogger<ImageConversionImplementation> logger, IJsonConvertWrapper jsonConvertWrapper)
         {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
+            ArgumentNullException.ThrowIfNull(options);
 
             _imageConversionOptions = options.Value;
             _imageDevice = new JpegDevice(
@@ -49,7 +46,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
             {
                 var stopwatch = Stopwatch.StartNew();
 
-                RedactionAnnotationsEntity redactionAnnotationsEntity = new RedactionAnnotationsEntity
+                var redactionAnnotationsEntity = new RedactionAnnotationsEntity
                 {
                     PageNumber = pageNumber,
                 };
@@ -114,7 +111,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
             }
         }
 
-        public (ProviderType, string) GetProviderType()
+        public (ProviderType, string?) GetProviderType()
         {
             return (ProviderType.ImageConversion, null);
         }
