@@ -60,7 +60,18 @@ import {
   TaggedContext,
 } from "../../../../inbound-handover/context";
 import { saveStateToSessionStorage } from "./utils/stateRetentionUtil";
-export const path = "/case-details/:urn/:id/:documentId";
+
+export const path = "/case-details/:urn/:id/:hkDocumentId?";
+// export const path = (() => {
+//   let p: string = "";
+//   const flag = true;
+//   if (flag) {
+//     p = "/case-details/:urn/:id?/:hkDocumentId?";
+//   } else {
+//     p = "/case-details/:urn/:id";
+//   }
+//   return p;
+// })();
 
 type Props = BackLinkingPageProps & {
   context: TaggedContext | undefined;
@@ -108,10 +119,10 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const {
     id: caseId,
     urn,
-    documentId,
-  } = useParams<{ id: string; urn: string; documentId: string }>();
+    hkDocumentId,
+  } = useParams<{ id: string; urn: string; hkDocumentId: string }>();
 
-  console.log("documentId: ", documentId);
+  console.log("documentID: ", hkDocumentId);
   const unMounting = useRef(false);
   useEffect(() => {
     return () => {

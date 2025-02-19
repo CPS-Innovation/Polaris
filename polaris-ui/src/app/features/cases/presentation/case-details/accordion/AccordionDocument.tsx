@@ -53,7 +53,7 @@ type Props = {
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
   conversionStatus?: ConversionStatus | GroupedConversionStatus;
-  accordionDocumentId?: string;
+  accordionDocumentId?: string | undefined;
 };
 
 export const AccordionDocument: React.FC<Props> = ({

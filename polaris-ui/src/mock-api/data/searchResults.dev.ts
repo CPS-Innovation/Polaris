@@ -21,6 +21,7 @@ const searchResults: Omit<CaseSearchResult, "uniqueReferenceNumber">[] = [
     isCaseCharged: true,
     owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
+    hkDocumentId: "",
     leadDefendantDetails: {
       id: 901,
       listOrder: 0,

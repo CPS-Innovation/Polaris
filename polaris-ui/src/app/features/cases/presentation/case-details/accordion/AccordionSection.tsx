@@ -34,7 +34,7 @@ type Props = {
   handleGetNotes: (documentId: string) => void;
   handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
-  accordionDocumentId?: string;
+  accordionDocumentId?: string | undefined;
 };
 const formatTestIdText = (id: string) => {
   return id

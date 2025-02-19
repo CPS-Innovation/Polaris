@@ -159,6 +159,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
 
               {data.map((item, index) => (
                 <div key={item.id} className={classes.result}>
+                  {console.log("item: ", item)}
                   <h2 className="govuk-heading-m ">
                     <Link
                       onClick={() => {
@@ -170,7 +171,7 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                         pathname: generatePath(casePath, {
                           urn: urnFromSearchParams,
                           id: item.id,
-                          documentId: "",
+                          hkDocumentId: undefined,
                         }),
                         state: search,
                         search: `${linkParams}`,
