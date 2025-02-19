@@ -6,7 +6,7 @@ namespace Common.Services.PiiService.Domain
     {
         public PiiEntitiesWrapper()
         {
-            PiiResultCollection = new List<PiiEntitiesResultCollection>();
+            PiiResultCollection = [];
         }
 
         public IEnumerable<PiiEntitiesResultCollection> PiiResultCollection { get; set; }

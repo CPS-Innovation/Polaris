@@ -38,7 +38,7 @@ public class DocumentNatureTests
     [InlineData("")]
     [InlineData(null)]
     [InlineData(" ")]
-    public void DocumentNature_ToNumericDocumentId_ThrowsExceptionForEmptyDocumentId(string documentId)
+    public void DocumentNature_ToNumericDocumentId_ThrowsExceptionForEmptyDocumentId(string? documentId)
     {
         Assert.Throws<ArgumentNullException>(() => DocumentNature.ToNumericDocumentId(documentId, DocumentNature.Types.PreChargeDecisionRequest));
     }
@@ -72,7 +72,7 @@ public class DocumentNatureTests
     [InlineData("")]
     [InlineData(null)]
     [InlineData(" ")]
-    public void DocumentNature_GetDocumentNatureType_ThrowsExceptionForEmptyDocumentId(string documentId)
+    public void DocumentNature_GetDocumentNatureType_ThrowsExceptionForEmptyDocumentId(string? documentId)
     {
         Assert.Throws<ArgumentNullException>(() => DocumentNature.GetDocumentNatureType(documentId));
     }

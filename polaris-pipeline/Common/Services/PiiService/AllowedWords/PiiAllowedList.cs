@@ -8,8 +8,8 @@ namespace Common.Services.PiiService.AllowedWords
 
         public List<PiiAllowedWord> GetWords()
         {
-            return new()
-            {
+            return
+            [
                 new("colleague",    PiiCategory.PersonType),
                 new("customer",     PiiCategory.PersonType),
                 new("customers",    PiiCategory.PersonType),
@@ -22,7 +22,7 @@ namespace Common.Services.PiiService.AllowedWords
                 new("prosecutor",   PiiCategory.PersonType),
                 new("victim",       PiiCategory.PersonType),
                 new("witness",      PiiCategory.PersonType)
-            };
+            ];
         }
     }
 }

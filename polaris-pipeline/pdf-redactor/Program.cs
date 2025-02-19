@@ -13,6 +13,7 @@ using pdf_redactor;
 using pdf_redactor.Services.Extensions;
 using Microsoft.ApplicationInsights.Extensibility;
 using Common.Middleware;
+using Microsoft.ApplicationInsights.WorkerService;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication(options =>
@@ -30,14 +31,18 @@ var host = new HostBuilder()
     {
         StartupHelpers.SetAsposeLicence();
 
-        services.AddApplicationInsightsTelemetryWorkerService();
+        services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions
+        {
+            EnableAdaptiveSampling = false,
+        });
         services.ConfigureFunctionsApplicationInsights();
-        services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
+        // Commented out to match WMA instance of DDEI configuration and see if it improves log visibility
+        /* services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
         {
             telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder
                 .UseAdaptiveSampling(maxTelemetryItemsPerSecond: 20, excludedTypes: "Request;Exception;Event;Trace");
             telemetryConfiguration.DisableTelemetry = false;
-        });
+        }); */
         services.ConfigureLoggerFilterOptions();
 
         // bugfix: override .net core limitation of disallowing Synchronous IO for this function only

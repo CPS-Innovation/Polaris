@@ -9,15 +9,8 @@ using Common.Constants;
 
 namespace pdf_generator.Services.PdfService
 {
-    public class CellsPdfService : IPdfService
+    public class CellsPdfService(IAsposeItemFactory asposeItemFactory) : IPdfService
     {
-        private readonly IAsposeItemFactory _asposeItemFactory;
-
-        public CellsPdfService(IAsposeItemFactory asposeItemFactory)
-        {
-            _asposeItemFactory = asposeItemFactory ?? throw new ArgumentNullException(nameof(asposeItemFactory));
-        }
-
         public PdfConversionResult ReadToPdfStream(Stream inputStream, string documentId, Guid correlationId)
         {
             var conversionResult = new PdfConversionResult(documentId, PdfConverterType.AsposeCells);
@@ -25,7 +18,7 @@ namespace pdf_generator.Services.PdfService
 
             try
             {
-                using var workbook = _asposeItemFactory.CreateWorkbook(inputStream, correlationId);
+                using var workbook = asposeItemFactory.CreateWorkbook(inputStream, correlationId);
                 workbook.Save(pdfStream, new PdfSaveOptions { OnePagePerSheet = true });
                 pdfStream.Seek(0, SeekOrigin.Begin);
 

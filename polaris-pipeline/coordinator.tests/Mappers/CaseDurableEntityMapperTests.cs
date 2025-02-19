@@ -3,7 +3,6 @@ using Xunit;
 using coordinator.Mappers;
 using AutoFixture;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
-using coordinator.Durable.Entity;
 using FluentAssertions;
 using System.Linq;
 using Common.Dto.Response.Documents;

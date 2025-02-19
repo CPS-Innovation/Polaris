@@ -16,7 +16,7 @@ namespace Common.Services.PiiService.Domain.Chunking
         }
 
         public int ChunkId { get; protected set; }
-        public IList<OcrLineResult> Lines { get; set; } = new List<OcrLineResult>();
+        public IList<OcrLineResult> Lines { get; set; } = [];
         public int LineCount => Lines.Count;
         public int WordCount => Lines.Sum(x => x.WordCount);
         public string Text

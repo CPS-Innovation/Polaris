@@ -84,7 +84,9 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
                 requestTelemetry.Context.Cloud.RoleName = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
                 requestTelemetry.Context.Operation.Name = context.FunctionDefinition.Name;
                 requestTelemetry.Name = context.FunctionDefinition.Name;
+#pragma warning disable CS0618 // Type or member is obsolete
                 requestTelemetry.HttpMethod = httpRequestData.Method;
+#pragma warning restore CS0618 // Type or member is obsolete
                 requestTelemetry.ResponseCode = ((int)statusCode).ToString();
                 requestTelemetry.Success = false;
                 requestTelemetry.Url = httpRequestData.Url;
