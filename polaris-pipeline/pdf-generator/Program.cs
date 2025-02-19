@@ -9,6 +9,7 @@ using pdf_generator.Services.Extensions;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.ApplicationInsights.Extensibility;
 using Common.Middleware;
+using Microsoft.ApplicationInsights.WorkerService;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication(options =>
