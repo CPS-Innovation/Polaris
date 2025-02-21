@@ -14,6 +14,7 @@ using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Domain.Response.Defendant;
 using Ddei.Domain.Response.Document;
 using Common.Exceptions;
+using DdeiClient.Domain.Args;
 
 namespace Ddei
 {
@@ -248,15 +249,15 @@ namespace Ddei
             return ddeiResults.Select(ddeiResult => _caseWitnessStatementMapper.Map(ddeiResult)).ToArray();
         }
 
-        private async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiUrnArgDto arg)
-        {
-            return await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
-        }
+        public async Task<bool> ToggleIsUnusedDocumentAsync(DdeiToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto) =>
+            (await CallDdei(_ddeiClientRequestFactory.CreateToggleIsUnusedDocumentRequest(toggleIsUnusedDocumentDto)))
+                .IsSuccessStatusCode;
 
-        private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg)
-        {
-            return await CallDdei<DdeiCaseDetailsDto>(_ddeiClientRequestFactory.CreateGetCaseRequest(arg));
-        }
+        private async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiUrnArgDto arg) =>
+            await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
+
+        private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg) =>
+            await CallDdei<DdeiCaseDetailsDto>(_ddeiClientRequestFactory.CreateGetCaseRequest(arg));
 
         private async Task<T> CallDdei<T>(HttpRequestMessage request)
         {
