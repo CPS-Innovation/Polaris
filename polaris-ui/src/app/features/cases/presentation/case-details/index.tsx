@@ -122,7 +122,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     hkDocumentId,
   } = useParams<{ id: string; urn: string; hkDocumentId: string }>();
 
-  console.log("documentID: ", hkDocumentId);
   const unMounting = useRef(false);
   useEffect(() => {
     return () => {
@@ -766,6 +765,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       localDocumentState={localDocumentState}
                       handleAccordionOpenClose={handleAccordionOpenClose}
                       handleAccordionOpenCloseAll={handleAccordionOpenCloseAll}
+                      hkDocumentId={hkDocumentId}
                     />
                   )}
                 </div>
