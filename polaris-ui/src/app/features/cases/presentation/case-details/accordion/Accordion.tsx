@@ -94,16 +94,28 @@ export const Accordion = forwardRef<AccordionRef, Props>(
 
     useEffect(() => {
       handleOpenAccordion(hkDocumentId as string);
-
-      const panel = document.querySelector("#side-panel") as HTMLElement;
-      if (panel) {
-        panel.scrollIntoView({
-          behavior: "smooth",
-          block: "end",
-          inline: "end",
-        });
-      }
     }, [hkDocumentId]);
+
+    useEffect(() => {
+      const scrollFn = () => {};
+
+      const st = setTimeout(() => {
+        const panel = document.querySelector(
+          '[data-document-active="true"]'
+        ) as HTMLElement;
+        if (panel) {
+          panel.scrollIntoView({
+            behavior: "smooth",
+            block: "end",
+            inline: "end",
+          });
+        }
+      }, 0);
+
+      () => {
+        clearTimeout(st);
+      };
+    }, []);
 
     return (
       <div className={`${classes.accordion}`}>
