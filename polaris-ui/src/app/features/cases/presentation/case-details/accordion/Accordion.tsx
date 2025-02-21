@@ -97,9 +97,8 @@ export const Accordion = forwardRef<AccordionRef, Props>(
     }, [hkDocumentId]);
 
     useEffect(() => {
-      const scrollFn = () => {};
 
-      const st = setTimeout(() => {
+      setTimeout(() => {
         const panel = document.querySelector(
           '[data-document-active="true"]'
         ) as HTMLElement;
@@ -112,9 +111,6 @@ export const Accordion = forwardRef<AccordionRef, Props>(
         }
       }, 0);
 
-      () => {
-        clearTimeout(st);
-      };
     }, []);
 
     return (
