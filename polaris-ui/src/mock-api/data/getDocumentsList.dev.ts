@@ -63,7 +63,7 @@ const documentsList: PresentationDocumentProperties[] = [
     reference: "Reference 2",
   },
   {
-    documentId: "3331",
+    documentId: "3",
     versionId: 1,
     cmsOriginalFileName: "MG05MCLOVE.pdf",
     presentationTitle: "MG05MCLOVE very long",
@@ -273,7 +273,7 @@ const documentsList: PresentationDocumentProperties[] = [
     reference: null,
   },
   {
-    documentId: "101",
+    documentId: "10",
     versionId: 1,
     cmsOriginalFileName: "MG06_10june.pdf",
     presentationTitle: "MG06_10june very long",

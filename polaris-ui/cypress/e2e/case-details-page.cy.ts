@@ -65,19 +65,6 @@ describe("case details page", () => {
       });
     });
 
-    // it.only("should find a houskeeping deeplinking button ", () => {
-    //   cy.visit("/case-details/12AB1111111/13401");
-    //   const button = cy.findByTestId("btn-housekeep-link");
-    //   const t = button.contains("Housekeeping link");
-    //   expect(t).contain("Housekeeping link");
-
-    //   // button.click();
-
-    //   // cy.location().should((loc) => {
-    //   //   expect(loc.pathname).contain("checkmeout");
-    //   // });
-    // });
-
     it("For null LeadDefendant, shouldn't show defendant details", () => {
       cy.visit("/case-search-results?urn=12AB2222244");
       cy.visit("/case-details/12AB2222244/13701");
@@ -381,7 +368,7 @@ describe("case details page", () => {
       cy.findByTestId("btn-redact").should("have.length", 0);
       cy.findByTestId("redaction-warning").should("have.length", 1);
       cy.findByTestId("redaction-warning").contains(
-        "Redaction is not supported for this document type. !!!"
+        "Redaction is not supported for this document type."
       );
     });
 
