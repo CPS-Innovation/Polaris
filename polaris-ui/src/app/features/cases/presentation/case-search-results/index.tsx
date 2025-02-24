@@ -159,7 +159,6 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
 
               {data.map((item, index) => (
                 <div key={item.id} className={classes.result}>
-                  {console.log("item: ", item)}
                   <h2 className="govuk-heading-m ">
                     <Link
                       onClick={() => {
