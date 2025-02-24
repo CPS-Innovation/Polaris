@@ -9,15 +9,8 @@ using Common.Telemetry;
 
 namespace Common.Middleware;
 
-public class RequestTelemetryMiddleware : IFunctionsWorkerMiddleware
+public class RequestTelemetryMiddleware(Microsoft.ApplicationInsights.TelemetryClient telemetryClient) : IFunctionsWorkerMiddleware
 {
-    private readonly Microsoft.ApplicationInsights.TelemetryClient _telemetryClient;
-
-    public RequestTelemetryMiddleware(Microsoft.ApplicationInsights.TelemetryClient telemetryClient)
-    {
-        _telemetryClient = telemetryClient;
-    }
-
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
         var requestTelemetry = new RequestTelemetry();
@@ -56,13 +49,15 @@ public class RequestTelemetryMiddleware : IFunctionsWorkerMiddleware
         requestTelemetry.Context.Cloud.RoleName = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
         requestTelemetry.Context.Operation.Name = context.FunctionDefinition.Name;
         requestTelemetry.Name = context.FunctionDefinition.Name;
+#pragma warning disable CS0618 // Type or member is obsolete
         requestTelemetry.HttpMethod = requestData.Method;
+#pragma warning restore CS0618 // Type or member is obsolete
         requestTelemetry.ResponseCode = context.GetHttpResponseData()?.StatusCode.ToString() ?? string.Empty;
         requestTelemetry.Success = true;
         requestTelemetry.Url = requestData.Url;
         requestTelemetry.Stop();
 
-        _telemetryClient.TrackRequest(requestTelemetry);
+        telemetryClient.TrackRequest(requestTelemetry);
 
         context.GetHttpResponseData()?.Headers.Add("Correlation-Id", correlationId.ToString());
     }

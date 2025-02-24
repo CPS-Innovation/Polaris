@@ -1,6 +1,7 @@
 using Common.Extensions;
 using Common.Middleware;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.WorkerService;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,14 +28,18 @@ var host = new HostBuilder()
         IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 #endif
         services.ConfigureServices();
-        services.AddApplicationInsightsTelemetryWorkerService();
+        services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions
+        {
+            EnableAdaptiveSampling = false,
+        });
         services.ConfigureFunctionsApplicationInsights();
-        services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
+        // Commented out to match WMA instance of DDEI configuration and see if it improves log visibility
+        /* services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
         {
             telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder
                 .UseAdaptiveSampling(maxTelemetryItemsPerSecond: 20, excludedTypes: "Request;Exception;Event;Trace");
             telemetryConfiguration.DisableTelemetry = false;
-        });
+        }); */
         services.ConfigureLoggerFilterOptions();
     })
     .Build();

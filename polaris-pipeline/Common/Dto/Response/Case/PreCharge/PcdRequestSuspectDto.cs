@@ -6,7 +6,7 @@ namespace Common.Dto.Response.Case.PreCharge
     {
         public PcdRequestSuspectDto()
         {
-            ProposedCharges = new List<PcdProposedChargeDto>();
+            ProposedCharges = [];
         }
 
         public string Surname { get; set; }

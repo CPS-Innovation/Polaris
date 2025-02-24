@@ -56,7 +56,7 @@ namespace Common.Dto.Request
     public class AnalysisInput
     {
         [JsonPropertyName("documents")]
-        public List<AnalysisDocument> Documents { get; set; } = new List<AnalysisDocument>();
+        public List<AnalysisDocument> Documents { get; set; } = [];
     }
 
     public class AnalysisDocument

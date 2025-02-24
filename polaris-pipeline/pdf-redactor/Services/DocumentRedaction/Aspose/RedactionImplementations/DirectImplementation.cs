@@ -18,7 +18,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementation
 
         public void FinaliseAnnotations(ref Document doc, Guid correlationId) { }
 
-        public (ProviderType, string) GetProviderType()
+        public (ProviderType, string?) GetProviderType()
         {
             return (ProviderType.DirectRedaction, null);
         }

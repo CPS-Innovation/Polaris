@@ -14,6 +14,7 @@ using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Domain.Response.Defendant;
 using Ddei.Domain.Response.Document;
 using Common.Exceptions;
+using DdeiClient.Domain.Args;
 
 namespace Ddei
 {
@@ -48,8 +49,7 @@ namespace Ddei
             ICmsMaterialTypeMapper cmsMaterialTypeMapper,
             ICaseWitnessStatementMapper caseWitnessStatementMapper,
             IJsonConvertWrapper jsonConvertWrapper,
-            ILogger<DdeiClient> logger
-            )
+            ILogger<DdeiClient> logger)
         {
             _caseDataServiceArgFactory = caseDataServiceArgFactory ?? throw new ArgumentNullException(nameof(caseDataServiceArgFactory));
             _caseDetailsMapper = caseDetailsMapper ?? throw new ArgumentNullException(nameof(caseDetailsMapper));
@@ -67,14 +67,13 @@ namespace Ddei
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
-        public async Task VerifyCmsAuthAsync(DdeiBaseArgDto arg)
-        {
+        public async Task VerifyCmsAuthAsync(DdeiBaseArgDto arg) =>
             // Will throw in the same way as any other call if auth is not correct.
             await CallDdei(_ddeiClientRequestFactory.CreateVerifyCmsAuthRequest(arg));
-        }
 
         public async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCaseIdOnlyArgDto arg)
         {
+            _ = _logger;
             var result = await CallDdei<DdeiCaseIdentifiersDto>(_ddeiClientRequestFactory.CreateUrnLookupRequest(arg));
             return _caseIdentifiersMapper.MapCaseIdentifiers(result);
         }
@@ -179,11 +178,11 @@ namespace Ddei
 
         public async Task<HttpResponseMessage> UploadPdfAsync(DdeiDocumentIdAndVersionIdArgDto arg, Stream stream)
         {
-            return await CallDdei(_ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream), new HttpStatusCode[]
-            {
+            return await CallDdei(_ddeiClientRequestFactory.CreateUploadPdfRequest(arg, stream),
+            [
                 HttpStatusCode.Gone,
                 HttpStatusCode.RequestEntityTooLarge
-            });
+            ]);
         }
 
         public async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotesAsync(DdeiDocumentArgDto arg)
@@ -250,15 +249,15 @@ namespace Ddei
             return ddeiResults.Select(ddeiResult => _caseWitnessStatementMapper.Map(ddeiResult)).ToArray();
         }
 
-        private async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiUrnArgDto arg)
-        {
-            return await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
-        }
+        public async Task<bool> ToggleIsUnusedDocumentAsync(DdeiToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto) =>
+            (await CallDdei(_ddeiClientRequestFactory.CreateToggleIsUnusedDocumentRequest(toggleIsUnusedDocumentDto)))
+                .IsSuccessStatusCode;
 
-        private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg)
-        {
-            return await CallDdei<DdeiCaseDetailsDto>(_ddeiClientRequestFactory.CreateGetCaseRequest(arg));
-        }
+        private async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiUrnArgDto arg) =>
+            await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(_ddeiClientRequestFactory.CreateListCasesRequest(arg));
+
+        private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg) =>
+            await CallDdei<DdeiCaseDetailsDto>(_ddeiClientRequestFactory.CreateGetCaseRequest(arg));
 
         private async Task<T> CallDdei<T>(HttpRequestMessage request)
         {

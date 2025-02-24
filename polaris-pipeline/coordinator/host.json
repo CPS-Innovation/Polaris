@@ -3,7 +3,7 @@
   "logging": {
     "fileLoggingMode": "debugOnly",
     "logLevel": {
-      "default": "Warning",
+      "default": "Information",
       "Function": "Information",
       "coordinator.Durable.Orchestration.RefreshCaseOrchestrator": "Information",
       "coordinator.Functions.Maintenance.SlidingCaseClearDown": "Information",
@@ -11,15 +11,13 @@
       "Host.Aggregator": "Information",
       "Host.Results": "Information",
       "Host.Triggers.DurableTask": "Information",
-      "DurableTask.AzureStorage": "Warning",
-      "DurableTask.Core": "Warning",
+      "DurableTask.AzureStorage": "Information",
+      "DurableTask.Core": "Information",
       "Microsoft.Azure.WebJobs.Host.Scale": "Information"
     },
     "applicationInsights": {
-      "samplingSettings": {
-        "isEnabled": true,
-        "maxTelemetryItemsPerSecond": 20,
-        "excludedTypes": "Request;Exception;Event;Trace"
+      "logLevel": {
+        "default": "Information"
       },
       "enableLiveMetrics": true,
       "enableDependencyTracking": true,
