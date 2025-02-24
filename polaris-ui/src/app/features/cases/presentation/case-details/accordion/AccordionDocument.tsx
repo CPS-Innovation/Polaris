@@ -53,7 +53,7 @@ type Props = {
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
   conversionStatus?: ConversionStatus | GroupedConversionStatus;
-  hkDocumentId?: string | undefined;
+  hkDocumentId: string | undefined;
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -224,7 +224,7 @@ export const AccordionDocument: React.FC<Props> = ({
       className={listItemClasses.join(" ")}
       data-read={`${readUnreadData.includes(caseDocument.documentId)}`}
       data-document-active={
-        activeDocumentId === caseDocument.documentId ? true : false
+        activeDocumentId === caseDocument.documentId
       }
     >
       <div className={classes.listItemWrapper}>

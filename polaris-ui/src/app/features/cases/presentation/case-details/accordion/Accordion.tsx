@@ -35,7 +35,7 @@ type Props = {
   localDocumentState: LocalDocumentState;
   handleAccordionOpenClose: CaseDetailsState["handleAccordionOpenClose"];
   handleAccordionOpenCloseAll: CaseDetailsState["handleAccordionOpenCloseAll"];
-  hkDocumentId?: string | undefined;
+  hkDocumentId: string | undefined;
 };
 export type AccordionRef = {
   handleOpenAccordion: (documentId: string) => void;

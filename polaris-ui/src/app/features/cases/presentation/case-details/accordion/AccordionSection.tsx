@@ -34,7 +34,7 @@ type Props = {
   handleGetNotes: (documentId: string) => void;
   handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
-  hkDocumentId?: string | undefined;
+  hkDocumentId: string | undefined;
 };
 const formatTestIdText = (id: string) => {
   return id
