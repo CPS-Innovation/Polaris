@@ -223,9 +223,7 @@ export const AccordionDocument: React.FC<Props> = ({
     <li
       className={listItemClasses.join(" ")}
       data-read={`${readUnreadData.includes(caseDocument.documentId)}`}
-      data-document-active={
-        activeDocumentId === caseDocument.documentId
-      }
+      data-document-active={activeDocumentId === caseDocument.documentId}
     >
       <div className={classes.listItemWrapper}>
         {activeDocumentId === caseDocument.documentId && (
