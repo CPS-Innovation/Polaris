@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import {
   CommonDateTimeFormats,
   formatDate,
@@ -53,6 +53,7 @@ type Props = {
   handleGetNotes: (documentId: string) => void;
   notesData: NotesData[];
   conversionStatus?: ConversionStatus | GroupedConversionStatus;
+  hkDocumentId: string | undefined;
 };
 
 export const AccordionDocument: React.FC<Props> = ({
@@ -66,9 +67,9 @@ export const AccordionDocument: React.FC<Props> = ({
   handleOpenPanel,
   handleGetNotes,
   handleReclassifyDocument,
+  hkDocumentId,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
-
   const canViewDocument = conversionStatus
     ? caseDocument.presentationFlags?.read === "Ok" &&
       conversionStatus === "DocumentConverted"
@@ -201,18 +202,28 @@ export const AccordionDocument: React.FC<Props> = ({
       ["accordion-document-list-item", true],
       ["docRead", readUnreadData.includes(caseDocument.documentId)],
       // Not perfect, but its enough to say if the tag is green then the background
-      //  should be green
+      // should be green
       ["docNew", caseDocument.tags.some((tag) => tag.color === "green")],
       ["docActive", activeDocumentId === caseDocument.documentId],
+      ["docActive", hkDocumentId === caseDocument.documentId],
     ] as [string, boolean][]
   )
     .filter(([, shouldInclude]) => shouldInclude)
     .map(([className]) => classes[className]);
 
+  useEffect(() => {
+    // opens document for HouseKeeping
+    // document ID is retrieved from URL
+    if (hkDocumentId) {
+      handleOpenPdf({ documentId: hkDocumentId });
+    }
+  }, [hkDocumentId]);
+
   return (
     <li
       className={listItemClasses.join(" ")}
       data-read={`${readUnreadData.includes(caseDocument.documentId)}`}
+      data-document-active={activeDocumentId === caseDocument.documentId}
     >
       <div className={classes.listItemWrapper}>
         {activeDocumentId === caseDocument.documentId && (

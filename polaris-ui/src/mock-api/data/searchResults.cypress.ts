@@ -15,6 +15,7 @@ const searchResults: CaseSearchResult[] = [
     isCaseCharged: true,
     owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
+    hkDocumentId: "",
     leadDefendantDetails: {
       id: 901,
       listOrder: 0,
@@ -38,6 +39,7 @@ const searchResults: CaseSearchResult[] = [
     isCaseCharged: true,
     owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
+    hkDocumentId: "",
     leadDefendantDetails: {
       id: 901,
       listOrder: 0,
@@ -61,6 +63,7 @@ const searchResults: CaseSearchResult[] = [
     isCaseCharged: true,
     owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
+    hkDocumentId: "",
     leadDefendantDetails: {
       id: 901,
       listOrder: 0,
@@ -85,6 +88,7 @@ const searchResults: CaseSearchResult[] = [
     isCaseCharged: true,
     owningUnit: "Guildford Mags",
     numberOfDefendants: 2,
+    hkDocumentId: "",
     leadDefendantDetails: {
       id: 901,
       listOrder: 0,
@@ -108,6 +112,7 @@ const searchResults: CaseSearchResult[] = [
     isCaseCharged: true,
     owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
+    hkDocumentId: "",
     leadDefendantDetails: null,
     headlineCharge: {
       charge: faker.lorem.sentence(),

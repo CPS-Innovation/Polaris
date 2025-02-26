@@ -29,6 +29,7 @@ const caseDetails: CaseDetails[] = [
       date: "2022-02-01",
       nextHearingDate: "2023-01-02",
     },
+    hkDocumentId: "",
     defendants: [
       {
         defendantDetails: {
@@ -57,6 +58,7 @@ const caseDetails: CaseDetails[] = [
     isCaseCharged: true,
     owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
+    hkDocumentId: "",
     leadDefendantDetails: {
       id: 901,
       listOrder: 0,
@@ -137,6 +139,7 @@ const caseDetails: CaseDetails[] = [
     isCaseCharged: true,
     owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
+    hkDocumentId: "",
     leadDefendantDetails: {
       id: 901,
       listOrder: 0,
@@ -214,6 +217,7 @@ const caseDetails: CaseDetails[] = [
     isCaseCharged: true,
     owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
+    hkDocumentId: "",
     leadDefendantDetails: {
       id: 901,
       listOrder: 0,
@@ -258,6 +262,7 @@ const caseDetails: CaseDetails[] = [
     isCaseCharged: true,
     owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
+    hkDocumentId: "",
     leadDefendantDetails: {
       id: 901,
       listOrder: 0,
@@ -319,6 +324,7 @@ const caseDetails: CaseDetails[] = [
     isCaseCharged: true,
     owningUnit: "Guildford Mags",
     numberOfDefendants: 1,
+    hkDocumentId: "",
     leadDefendantDetails: null,
     headlineCharge: {
       charge: faker.lorem.sentence(),

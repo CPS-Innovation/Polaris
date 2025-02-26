@@ -8,6 +8,7 @@ export type CaseDetails = {
   headlineCharge: HeadlineCharge;
   defendants: Defendant[];
   witnesses: Witness[];
+  hkDocumentId: string | null;
 };
 
 export type Defendant = {

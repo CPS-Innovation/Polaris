@@ -60,7 +60,8 @@ import {
   TaggedContext,
 } from "../../../../inbound-handover/context";
 import { saveStateToSessionStorage } from "./utils/stateRetentionUtil";
-export const path = "/case-details/:urn/:id";
+
+export const path = "/case-details/:urn/:id/:hkDocumentId?";
 
 type Props = BackLinkingPageProps & {
   context: TaggedContext | undefined;
@@ -105,7 +106,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
-  const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
+  const {
+    id: caseId,
+    urn,
+    hkDocumentId,
+  } = useParams<{ id: string; urn: string; hkDocumentId: string }>();
 
   const unMounting = useRef(false);
   useEffect(() => {
@@ -694,7 +699,22 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       </Button>
                     </div>
                   )}
-
+                  {/* <div className={classes.externalRedirectBtnWrapper}>
+                    <Button
+                      disabled={false}
+                      onClick={() => {
+                        openInNewTab(
+                          `${window.location.pathname}?URN=${urn}&caseId=${caseId}`
+                        );
+                      }}
+                      data-testid="btn-housekeep-link"
+                      id="btn-housekeep-link"
+                      className={`${classes.newWindowBtn} govuk-button--secondary`}
+                      name="secondary"
+                    >
+                      Housekeeping link <NewWindow />
+                    </Button>
+                  </div> */}
                   <SearchBox
                     id="case-details-search"
                     data-testid="search-case"
@@ -735,6 +755,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       localDocumentState={localDocumentState}
                       handleAccordionOpenClose={handleAccordionOpenClose}
                       handleAccordionOpenCloseAll={handleAccordionOpenCloseAll}
+                      hkDocumentId={hkDocumentId}
                     />
                   )}
                 </div>
