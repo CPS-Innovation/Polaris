@@ -5,6 +5,8 @@ namespace coordinator.Domain;
 
 public class SetCaseStatusPayload
 {
+    required public int CaseId { get; set; }
+
     public DateTime UpdatedAt { get; set; }
 
     public CaseRefreshStatus Status { get; set; }

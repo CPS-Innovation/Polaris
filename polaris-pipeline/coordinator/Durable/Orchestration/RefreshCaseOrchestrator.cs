@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Dto.Response;
 using Common.Dto.Response.Documents;
 using Common.Logging;
 using Common.Telemetry;
 using coordinator.Constants;
 using coordinator.Domain.Exceptions;
 using coordinator.Durable.Activity;
-using coordinator.Durable.Entity;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
 using coordinator.TelemetryEvents;
@@ -20,7 +18,6 @@ using Microsoft.Extensions.Logging;
 using Common.Domain.Document;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
-using Microsoft.DurableTask.Entities;
 using coordinator.Domain;
 
 namespace coordinator.Durable.Orchestration
@@ -53,23 +50,21 @@ namespace coordinator.Durable.Orchestration
                 ?? throw new ArgumentException("Orchestration payload cannot be null.", nameof(context));
 
             var log = context.CreateReplaySafeLogger(nameof(RefreshCaseOrchestrator));
-            var caseEntityId = CaseDurableEntity.GetEntityId(payload.CaseId);
-
-            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetCaseStatus), new SetCaseStatusPayload { UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.Running, FailedReason = null });
-            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetCaseId), payload.CaseId);
 
             RefreshedCaseEvent telemetryEvent = default;
             try
             {
+                await context.CallActivityAsync(nameof(SetCaseStatus), new SetCaseStatusPayload { CaseId = payload.CaseId, UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.Running, FailedReason = null });
+
                 telemetryEvent = new RefreshedCaseEvent(
                     correlationId: payload.CorrelationId,
                     caseId: payload.CaseId,
-                    startTime: await context.Entities.CallEntityAsync<DateTime>(caseEntityId, nameof(CaseDurableEntity.GetStartTime)))
+                    startTime: await context.CallActivityAsync<DateTime>(nameof(GetStartTime), payload.CaseId))
                 {
                     OperationName = nameof(RefreshCaseOrchestrator),
                 };
 
-                var orchestratorTask = RunCaseOrchestrator(context, caseEntityId, payload, telemetryEvent, log);
+                var orchestratorTask = RunCaseOrchestrator(context, payload, telemetryEvent, log);
 
                 using var cts = new CancellationTokenSource();
                 var deadline = context.CurrentUtcDateTime.Add(_timeout);
@@ -89,7 +84,7 @@ namespace coordinator.Durable.Orchestration
             }
             catch (Exception exception)
             {
-                await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetCaseStatus), new SetCaseStatusPayload { UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.Failed, FailedReason = exception.Message });
+                await context.CallActivityAsync(nameof(SetCaseStatus), new SetCaseStatusPayload { CaseId = payload.CaseId, UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.Failed, FailedReason = exception.Message });
 
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshCaseOrchestrator), $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
                 _telemetryClient.TrackEventFailure(telemetryEvent);
@@ -97,21 +92,19 @@ namespace coordinator.Durable.Orchestration
             }
         }
 
-        private async Task RunCaseOrchestrator(TaskOrchestrationContext context, EntityInstanceId caseEntityId, CasePayload payload, RefreshedCaseEvent telemetryEvent, ILogger logger)
+        private async Task RunCaseOrchestrator(TaskOrchestrationContext context, CasePayload payload, RefreshedCaseEvent telemetryEvent, ILogger logger)
         {
-            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.Reset));
-            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetCaseStatus), new SetCaseStatusPayload { UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.Running, FailedReason = null });
+            await context.CallActivityAsync(nameof(Reset), payload.CaseId);
+            await context.CallActivityAsync(nameof(SetCaseStatus), new SetCaseStatusPayload { CaseId = payload.CaseId, UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.Running, FailedReason = null });
 
             var documents = await GetDocuments(context, payload);
             telemetryEvent.CmsDocsCount = documents.CmsDocuments.Length;
-            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetCaseStatus), new SetCaseStatusPayload { UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.DocumentsRetrieved, FailedReason = null });
+            await context.CallActivityAsync<bool>(nameof(SetCaseStatus), new SetCaseStatusPayload { CaseId = payload.CaseId, UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.DocumentsRetrieved, FailedReason = null });
 
-            var (documentTasks, cmsDocsProcessedCount, pcdRequestsProcessedCount) = await GetDocumentTasks(context, caseEntityId, payload, documents);
-            telemetryEvent.CmsDocsProcessedCount = cmsDocsProcessedCount;
-            telemetryEvent.PcdRequestsProcessedCount = pcdRequestsProcessedCount;
-            await Task.WhenAll(documentTasks.Select(BufferCall));
+            await ScheduleDocumentTasks(context, payload, telemetryEvent);
 
-            await context.Entities.SignalEntityAsync(caseEntityId, nameof(CaseDurableEntity.SetCaseStatus), new SetCaseStatusPayload { UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.Completed, FailedReason = null });
+            await context.CallActivityAsync(nameof(SetCaseStatus), new SetCaseStatusPayload { CaseId = payload.CaseId, UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.Completed, FailedReason = null });
+
             telemetryEvent.EndTime = context.CurrentUtcDateTime;
         }
 
@@ -126,14 +119,13 @@ namespace coordinator.Durable.Orchestration
             return documents;
         }
 
-        private async Task<(List<Task<RefreshDocumentResult>>, int, int)> GetDocumentTasks(
+        private async Task<bool> ScheduleDocumentTasks(
             TaskOrchestrationContext context,
-            EntityInstanceId caseEntityId,
             CasePayload casePayload,
-            GetCaseDocumentsResponse documents)
+            RefreshedCaseEvent telemetryEvent)
         {
             var now = context.CurrentUtcDateTime;
-            var deltas = await context.Entities.CallEntityAsync<CaseDeltasEntity>(caseEntityId, nameof(CaseDurableEntity.GetCaseDocumentChanges), documents);
+            var deltas = await context.CallActivityAsync<CaseDeltasEntity>(nameof(GetCaseDocumentChanges), casePayload.CaseId);
 
             var createdOrUpdatedDocuments = deltas.CreatedCmsDocuments.Concat(deltas.UpdatedCmsDocuments).ToList();
             var createdOrUpdatedPcdRequests = deltas.CreatedPcdRequests.Concat(deltas.UpdatedPcdRequests).ToList();
@@ -151,8 +143,8 @@ namespace coordinator.Durable.Orchestration
                             documentDelta.DeltaType,
                             casePayload.CmsAuthValues,
                             casePayload.CorrelationId,
-                            documentDelta.Document.IsOcrProcessed)
-                    ).ToList();
+                            documentDelta.Document.IsOcrProcessed))
+                    .ToList();
 
             var pcdRequestsPayloads
                 = createdOrUpdatedPcdRequests
@@ -166,14 +158,14 @@ namespace coordinator.Durable.Orchestration
                             DocumentNature.Types.PreChargeDecisionRequest,
                             DocumentDeltaType.RequiresIndexing,
                             casePayload.CmsAuthValues,
-                            casePayload.CorrelationId)
-                    ).ToList();
+                            casePayload.CorrelationId))
+                    .ToList();
 
             var defendantsAndChargesPayloads = new List<DocumentPayload>();
             if (createdOrUpdatedDefendantsAndCharges != null)
             {
-                defendantsAndChargesPayloads.Add(new DocumentPayload
-                (
+                defendantsAndChargesPayloads.Add(
+                    new DocumentPayload(
                     casePayload.Urn,
                     casePayload.CaseId,
                     createdOrUpdatedDefendantsAndCharges.DocumentId,
@@ -183,23 +175,25 @@ namespace coordinator.Durable.Orchestration
                     DocumentNature.Types.DefendantsAndCharges,
                     DocumentDeltaType.RequiresIndexing,
                     casePayload.CmsAuthValues,
-                    casePayload.CorrelationId
-                ));
+                    casePayload.CorrelationId));
             }
 
             var allPayloads = cmsDocumentPayloads.Concat(pcdRequestsPayloads).Concat(defendantsAndChargesPayloads);
 
-            var allTasks = allPayloads.Select
-                    (
-                        payload => context.CallSubOrchestratorAsync<RefreshDocumentResult>
-                        (
-                            nameof(RefreshDocumentOrchestrator),
-                            payload,
-                            PollingHelper.DefaultActivityOptions
-                        )
-                    );
+            telemetryEvent.CmsDocsProcessedCount = createdOrUpdatedDocuments.Count;
+            telemetryEvent.PcdRequestsProcessedCount = createdOrUpdatedPcdRequests.Count;
 
-            return (allTasks.ToList(), createdOrUpdatedDocuments.Count, createdOrUpdatedPcdRequests.Count);
+            var allTasks = allPayloads.Select(payload => context.CallSubOrchestratorAsync<RefreshDocumentOrchestratorResponse>(
+                nameof(RefreshDocumentOrchestrator),
+                payload,
+                PollingHelper.DefaultActivityOptions)).ToList();
+
+            await Task.WhenAll(allTasks);
+
+            return await context.CallActivityAsync<bool>(
+                    nameof(SetDocumentRefreshStatuses),
+                    new SetDocumentRefreshStatusesPayload { CaseId = casePayload.CaseId, DocumentRefreshStatuses = allTasks.Select(t => t.Result).ToList() },
+                    PollingHelper.DefaultActivityOptions);
         }
 
         private static async Task<T> BufferCall<T>(Task<T> task)
