@@ -2,7 +2,7 @@ import { useDocumentSearch } from "./useDocumentSearch";
 import * as useApi from "../../../../common/hooks/useApi";
 import { CombinedState } from "../../domain/CombinedState";
 import * as shouldTriggerPipelineRefresh from "../utils/shouldTriggerPipelineRefresh";
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, act } from "@testing-library/react";
 
 describe("useDocumentSearch", () => {
   it("should fetch new search results and dispatch UPDATE_SEARCH_RESULTS action with correct payload", async () => {
