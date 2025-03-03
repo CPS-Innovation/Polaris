@@ -73,6 +73,7 @@ describe("Tabs", () => {
 
   it("can highlight the active tab", async () => {
     const props: TabsProps = {
+      key: Math.random(),
       idPrefix: "foo",
       title: "Tabs-title",
       activeTabId: "",

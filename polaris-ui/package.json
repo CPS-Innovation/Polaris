@@ -12,7 +12,7 @@
     "@microsoft/microsoft-graph-client": "^3.0.0",
     "@testing-library/cypress": "^9.0.0",
     "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
+    "@testing-library/react-hooks": "^7.0.2",
     "@testing-library/user-event": "^12.1.10",
     "@types/faker": "^5.5.9",
     "@types/jest": "^26.0.15",
@@ -125,12 +125,15 @@
     "outputDirectory": "report"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@testing-library/react": "^16.2.0",
     "@types/react-helmet": "^6.1.8",
     "@types/sinon": "^10.0.13",
     "cypress-axe": "^1.5.0",
     "cypress-parallel": "^0.14.0",
     "cypress-wait-until": "^3.0.1",
     "jest-fetch-mock": "^3.0.3",
+    "react-helmet": "^6.1.0",
     "sinon": "^15.0.3"
   }
 }
