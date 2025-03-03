@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/mouse-events-have-key-events */
-/** Cant do onFocus adn onBlur as the implementation depends on the mouse events **/
+/** Cant do onFocus and onBlur as the implementation depends on the mouse events **/
 import React, { Component } from "react";
 
 import MouseMonitor from "./MouseMonitor";
@@ -42,14 +42,13 @@ export class Popup extends Component<Props, State> {
               paddingX={60}
               paddingY={30}
               children={popupContent}
-            />
+            ></MouseMonitor>
           );
         }}
         onMouseOut={() => {
           this.setState({ mouseIn: false });
         }}
       >
-        {/* {this.props.children} */}
         {React.Children.map(this.props.children, (child) => {
           // Clone each child and add new props to it
           return React.cloneElement(child, { ...newProp });
