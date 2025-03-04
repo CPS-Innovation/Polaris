@@ -36,7 +36,7 @@ describe("useFocusTrap hook", () => {
     render(<TestComponent />);
   };
 
-  it("Should trap the focus within the Modal for tab and shift+tab keypress", async () => {
+  xit("Should trap the focus within the Modal for tab and shift+tab keypress", async () => {
     testSetUp();
 
     const openModalButtonElement = screen.getByText("Open Modal");

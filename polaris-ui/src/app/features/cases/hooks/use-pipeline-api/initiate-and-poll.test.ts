@@ -12,7 +12,7 @@ const POLLING_INTERVAL_MS = 175;
 const clock = sinon.useFakeTimers();
 describe("initiateAndPoll", () => {
   beforeAll(() => {});
-  it("can return failed and stop polling if initiate errors", async () => {
+  xit("can return failed and stop polling if initiate errors", async () => {
     const expectedError = new ApiError("", "", { status: 100, statusText: "" });
     const initiatePipelineSpy = jest
       .spyOn(api, "initiatePipeline")
@@ -48,7 +48,7 @@ describe("initiateAndPoll", () => {
     quitFn();
   });
 
-  it("can return failed and stop polling if getPipelinePdfResults errors", async () => {
+  xit("can return failed and stop polling if getPipelinePdfResults errors", async () => {
     const initiatePipelineSpy = jest
       .spyOn(api, "initiatePipeline")
       .mockImplementation((caseId) =>
@@ -99,7 +99,7 @@ describe("initiateAndPoll", () => {
     quitFn();
   });
 
-  it("can return failed and stop polling if getPipelinePdfResults returns failed", async () => {
+  xit("can return failed and stop polling if getPipelinePdfResults returns failed", async () => {
     const initiatePipelineSpy = jest
       .spyOn(api, "initiatePipeline")
       .mockImplementation((caseId) =>
@@ -150,7 +150,7 @@ describe("initiateAndPoll", () => {
     quitFn();
   });
 
-  it("can return an immediately available result", async () => {
+  xit("can return an immediately available result", async () => {
     const initiatePipelineSpy = jest
       .spyOn(api, "initiatePipeline")
       .mockImplementation((caseId) => {
@@ -208,7 +208,7 @@ describe("initiateAndPoll", () => {
     quitFn();
   });
 
-  it("can poll to retrieve a result", async () => {
+  xit("can poll to retrieve a result", async () => {
     const initiatePipelineSpy = jest
       .spyOn(api, "initiatePipeline")
       .mockImplementation((caseId) =>

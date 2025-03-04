@@ -72,7 +72,14 @@ describe("Tabs", () => {
   });
 
   it("can highlight the active tab", async () => {
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let keyStr = "";
+    for (let i = 0; i < 10; i++) {
+      keyStr += chars[Math.floor(Math.random() * chars.length)];
+    }
+
     const props: TabsProps = {
+      key: `${keyStr}`,
       idPrefix: "foo",
       title: "Tabs-title",
       activeTabId: "",

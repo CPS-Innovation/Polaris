@@ -1,10 +1,10 @@
 import { MsalProvider } from "@azure/msal-react";
-import { FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { msalInstance } from "./msalInstance";
 import { PrivateBetaAuthorizationFilter } from "./PrivateBetaAuthorizationFilter";
 
-export const Auth: FC = ({ children }) => {
+export const Auth = ({ children }: { children: React.ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>();
 
   useEffect(() => {

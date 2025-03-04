@@ -20,7 +20,7 @@ class MouseMonitor extends Component<Props> {
 
     const { clientX, clientY } = event;
 
-    // todo: see if possible to optimize
+    // TODO: see if possible to optimize
     const { left, top, width, height } = this.container.getBoundingClientRect();
 
     const inBoundsX =
