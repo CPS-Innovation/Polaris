@@ -214,8 +214,16 @@ export const AccordionDocument: React.FC<Props> = ({
   useEffect(() => {
     // opens document for HouseKeeping
     // document ID is retrieved from URL
-    if (hkDocumentId) {
-      handleOpenPdf({ documentId: hkDocumentId });
+    const stringsOnlyPattern = /^[a-zA-Z]*-/;
+
+    const isDocumentIdClean = caseDocument?.documentId?.replace(
+      stringsOnlyPattern,
+      ""
+    );
+    const isDocumentValueEqual = hkDocumentId === isDocumentIdClean;
+
+    if (isDocumentValueEqual) {
+      handleOpenPdf({ documentId: caseDocument.documentId });
     }
   }, [hkDocumentId]);
 
