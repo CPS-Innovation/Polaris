@@ -11,5 +11,4 @@ describe("case details page", () => {
     const pdfContainer = cy.findByTestId("div-pdfviewer-0");
     pdfContainer.should("exist");
   });
-
 });
