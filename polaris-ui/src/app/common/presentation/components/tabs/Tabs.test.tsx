@@ -68,11 +68,18 @@ describe("Tabs", () => {
 
     render(<Tabs {...props} />);
     await screen.findByTestId("tabs");
-    expect(screen.queryAllByRole("tab")).toHaveLength(3);
+    expect(screen.queryAllByRole("tab")).toHaveLength(4);
   });
 
   it("can highlight the active tab", async () => {
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let keyStr = "";
+    for (let i = 0; i < 10; i++) {
+      keyStr += chars[Math.floor(Math.random() * chars.length)];
+    }
+
     const props: TabsProps = {
+      key: `${keyStr}`,
       idPrefix: "foo",
       title: "Tabs-title",
       activeTabId: "",
@@ -237,7 +244,7 @@ describe("Tabs", () => {
         ]}
       />
     );
-    expect(screen.queryAllByRole("tab")).toHaveLength(1);
+    expect(screen.queryAllByRole("tab")).toHaveLength(2);
     // going from no tabs to one tab we expect the new tab to get focus
     expect(screen.getByTestId("tab-active")).toHaveTextContent("tab-1");
     rerender(
@@ -261,7 +268,7 @@ describe("Tabs", () => {
         ]}
       />
     );
-    expect(screen.queryAllByRole("tab")).toHaveLength(2);
+    expect(screen.queryAllByRole("tab")).toHaveLength(3);
     // going from some tabs to one more tab we expect the new tab NOT to get focus
     expect(screen.getByTestId("tab-active")).toHaveTextContent("tab-1");
   });
