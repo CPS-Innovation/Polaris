@@ -220,9 +220,8 @@ export const AccordionDocument: React.FC<Props> = ({
       stringsOnlyPattern,
       ""
     );
-    const isDocumentValueEqual = hkDocumentId === isDocumentIdClean;
 
-    if (isDocumentValueEqual) {
+    if (hkDocumentId === isDocumentIdClean) {
       handleOpenPdf({ documentId: caseDocument.documentId });
     }
   }, [hkDocumentId]);
