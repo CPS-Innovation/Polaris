@@ -58,7 +58,7 @@ stages:
               storageAccount: $(innovation-development-build-agent-storage-account)
               versionSha: $(versionSha)
               baseImage: $(base-agent-image)
-              additionalBuilderParams: '{"vm_size":"Standard_D4_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-development","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
+              additionalBuilderParams: '{"vm_size":"Standard_D2s_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-development","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
 #  - stage: image_builder_qa
 #    displayName: QA - Build VM Image
