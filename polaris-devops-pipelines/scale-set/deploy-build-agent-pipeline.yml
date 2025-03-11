@@ -14,7 +14,7 @@ variables:
   - group: polaris-build-agent
   - group: polaris-global
   - name: base-agent-image
-    value: "Canonical:ubuntu-24_04-lts:server:latest"
+    value: "Canonical:UbuntuServer:24.04-LTS:linux"
 
 pool:
   vmImage: ubuntu-latest
