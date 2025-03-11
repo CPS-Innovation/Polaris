@@ -14,7 +14,7 @@ variables:
   - group: polaris-build-agent
   - group: polaris-global
   - name: base-agent-image
-    value: "Canonical:ubuntu-24_04-lts:server-gen1:linux"
+    value: "Canonical:ubuntu-24_04-lts:server:latest"
 
 pool:
   vmImage: ubuntu-latest
@@ -60,102 +60,102 @@ stages:
               baseImage: $(base-agent-image)
               additionalBuilderParams: '{"vm_size":"Standard_D4_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-development","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
-  - stage: image_builder_qa
-    displayName: QA - Build VM Image
-    dependsOn: create_version
-    pool:
-      name: $(qa-build-agent)
-    variables:
-      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-    jobs:
-      - job: build
-        displayName: QA - Build Image
-        steps:
-          - template: steps/check-package-sources.yml
-            parameters:
-              taskDisplayName: 'Check Package Sources'
-              
-          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
-            parameters:
-              azureSubscription: $(qa-azure-subscription)
-              
-          - template: steps/create-build-agent-image.yml
-            parameters:
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              subscriptionName: $(qa-azure-subscription)
-              resourceGroup: $(innovation-qa-build-agent-resource-group)
-              storageAccount: $(innovation-qa-build-agent-storage-account)
-              versionSha: $(versionSha)
-              baseImage: $(base-agent-image)
-              additionalBuilderParams: '{"vm_size":"Standard_D4_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-qa","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
+#  - stage: image_builder_qa
+#    displayName: QA - Build VM Image
+#    dependsOn: create_version
+#    pool:
+#      name: $(qa-build-agent)
+#    variables:
+#      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+#    jobs:
+#      - job: build
+#        displayName: QA - Build Image
+#        steps:
+#          - template: steps/check-package-sources.yml
+#            parameters:
+#              taskDisplayName: 'Check Package Sources'
+#              
+#          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
+#            parameters:
+#              azureSubscription: $(qa-azure-subscription)
+#              
+#          - template: steps/create-build-agent-image.yml
+#            parameters:
+#              clientId: $(clientId)
+#              clientSecret: $(clientSecret)
+#              tenantId: $(tenantId)
+#              subscriptionId: $(subscriptionId)
+#              subscriptionName: $(qa-azure-subscription)
+#              resourceGroup: $(innovation-qa-build-agent-resource-group)
+#              storageAccount: $(innovation-qa-build-agent-storage-account)
+#              versionSha: $(versionSha)
+#              baseImage: $(base-agent-image)
+#              additionalBuilderParams: '{"vm_size":"Standard_D4_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-qa","virtual_network_subnet_name":"polaris-scale-set-subnet#"}'
 
-  - stage: image_builder_uat
-    displayName: UAT - Build VM Image
-    dependsOn: create_version
-    pool:
-      name: $(uat-build-agent)
-    variables:
-      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-    jobs:
-      - job: build
-        displayName: UAT - Build Image
-        steps:
-          - template: steps/check-package-sources.yml
-            parameters:
-              taskDisplayName: 'Check Package Sources'
-              
-          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
-            parameters:
-              azureSubscription: $(uat-azure-subscription)
-              
-          - template: steps/create-build-agent-image.yml
-            parameters:
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              subscriptionName: $(uat-azure-subscription)
-              resourceGroup: $(innovation-uat-build-agent-resource-group)
-              storageAccount: $(innovation-uat-build-agent-storage-account)
-              versionSha: $(versionSha)
-              baseImage: $(base-agent-image)
-              additionalBuilderParams: '{"vm_size":"Standard_D4_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-uat","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
+#  - stage: image_builder_uat
+#    displayName: UAT - Build VM Image
+#    dependsOn: create_version
+#    pool:
+#      name: $(uat-build-agent)
+#    variables:
+#      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+#    jobs:
+#      - job: build
+#        displayName: UAT - Build Image
+#        steps:
+#          - template: steps/check-package-sources.yml
+#            parameters:
+#              taskDisplayName: 'Check Package Sources'
+#              
+#          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
+#            parameters:
+#              azureSubscription: $(uat-azure-subscription)
+#              
+#          - template: steps/create-build-agent-image.yml
+#            parameters:
+#              clientId: $(clientId)
+#              clientSecret: $(clientSecret)
+#              tenantId: $(tenantId)
+#              subscriptionId: $(subscriptionId)
+#              subscriptionName: $(uat-azure-subscription)
+#              resourceGroup: $(innovation-uat-build-agent-resource-group)
+#              storageAccount: $(innovation-uat-build-agent-storage-account)
+#              versionSha: $(versionSha)
+#              baseImage: $(base-agent-image)
+#              additionalBuilderParams: '{"vm_size":"Standard_D4_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-uat","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
 
-  - stage: image_builder_prod
-    displayName: PROD - Build VM Image
-    dependsOn: create_version
-    pool:
-      name: $(prod-build-agent)
-    variables:
-      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-    jobs:
-      - job: build
-        displayName: PROD - Build Image
-        steps:
-          - template: steps/check-package-sources.yml
-            parameters:
-              taskDisplayName: 'Check Package Sources'
-              
-          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
-            parameters:
-              azureSubscription: $(prod-azure-subscription)
-              
-          - template: steps/create-build-agent-image.yml
-            parameters:
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              subscriptionName: $(prod-azure-subscription)
-              resourceGroup: $(innovation-prod-build-agent-resource-group)
-              storageAccount: $(innovation-prod-build-agent-storage-account)
-              versionSha: $(versionSha)
-              baseImage: $(base-agent-image)
-              additionalBuilderParams: '{"vm_size":"Standard_D4_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-production","virtual_network_subnet_name":"polaris-scale-set-subnet"}'
-
+#  - stage: image_builder_prod
+#    displayName: PROD - Build VM Image
+#    dependsOn: create_version
+#    pool:
+#      name: $(prod-build-agent)
+#    variables:
+#      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+#    jobs:
+#      - job: build
+#        displayName: PROD - Build Image
+#        steps:
+#          - template: steps/check-package-sources.yml
+#            parameters:
+#              taskDisplayName: 'Check Package Sources'
+#              
+#          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
+#            parameters:
+#              azureSubscription: $(prod-azure-subscription)
+#              
+#          - template: steps/create-build-agent-image.yml
+#            parameters:
+#              clientId: $(clientId)
+#              clientSecret: $(clientSecret)
+#              tenantId: $(tenantId)
+#              subscriptionId: $(subscriptionId)
+#              subscriptionName: $(prod-azure-subscription)
+#              resourceGroup: $(innovation-prod-build-agent-resource-group)
+#              storageAccount: $(innovation-prod-build-agent-storage-account)
+#              versionSha: $(versionSha)
+#              baseImage: $(base-agent-image)
+#              additionalBuilderParams: '{"vm_size":"Standard_D4_v3","virtual_network_resource_group_name":"rg-networking","virtual_network_name":"vnet-innovation-production","virtual_network_subnet_name":"polaris-scale-set-subnet"}'#
+#
   - stage: update_scale_set_dev
     displayName: Update DEV
     dependsOn:
@@ -185,89 +185,90 @@ stages:
               agentPoolName: $(innovation-development-agent-pool-name)
               versionSha: $(versionSha)
 
-  - stage: update_scale_set_qa
-    displayName: Update QA Resources
-    dependsOn:
-      - create_version
-      - image_builder_qa
-    variables:
-      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-    jobs:
-      - job: update
-        displayName: Update QA
-        steps:
-          - template: steps/check-package-sources.yml
-            parameters:
-              taskDisplayName: 'Re-Check Package Sources'
-              
-          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
-            parameters:
-              azureSubscription: $(qa-azure-subscription)
-
-          - template: steps/update-image-version.yml
-            parameters:
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              resourceGroup: $(innovation-qa-build-agent-resource-group)
-              agentPoolName: $(innovation-qa-agent-pool-name)
-              versionSha: $(versionSha)
-
-  - stage: update_scale_set_uat
-    displayName: Update UAT Resources
-    dependsOn:
-      - create_version
-      - image_builder_uat
-    variables:
-      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-    jobs:
-      - job: update
-        displayName: Update UAT
-        steps:
-          - template: steps/check-package-sources.yml
-            parameters:
-              taskDisplayName: 'Re-Check Package Sources'
-              
-          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
-            parameters:
-              azureSubscription: $(uat-azure-subscription)
-
-          - template: steps/update-image-version.yml
-            parameters:
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              resourceGroup: $(innovation-uat-build-agent-resource-group)
-              agentPoolName: $(innovation-uat-agent-pool-name)
-              versionSha: $(versionSha)
-
-  - stage: update_scale_set_prod
-    displayName: Update PROD Resources
-    dependsOn:
-      - create_version
-      - image_builder_prod
-    variables:
-      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
-    jobs:
-      - job: update
-        displayName: Update PROD
-        steps:
-          - template: steps/check-package-sources.yml
-            parameters:
-              taskDisplayName: 'Re-Check Package Sources'
-              
-          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
-            parameters:
-              azureSubscription: $(prod-azure-subscription)
-
-          - template: steps/update-image-version.yml
-            parameters:
-              clientId: $(clientId)
-              clientSecret: $(clientSecret)
-              tenantId: $(tenantId)
-              subscriptionId: $(subscriptionId)
-              resourceGroup: $(innovation-prod-build-agent-resource-group)
-              agentPoolName: $(innovation-prod-agent-pool-name)
-              versionSha: $(versionSha)
+#  - stage: update_scale_set_qa
+#    displayName: Update QA Resources
+#    dependsOn:
+#      - create_version
+#      - image_builder_qa
+#    variables:
+#      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+#    jobs:
+#      - job: update
+#        displayName: Update QA
+#        steps:
+#          - template: steps/check-package-sources.yml
+#            parameters:
+#              taskDisplayName: 'Re-Check Package Sources'
+#              
+#          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
+#            parameters:
+#              azureSubscription: $(qa-azure-subscription)
+#
+#          - template: steps/update-image-version.yml
+#            parameters:
+#              clientId: $(clientId)
+#              clientSecret: $(clientSecret)
+#              tenantId: $(tenantId)
+#              subscriptionId: $(subscriptionId)
+#              resourceGroup: $(innovation-qa-build-agent-resource-group)
+#              agentPoolName: $(innovation-qa-agent-pool-name)
+#              versionSha: $(versionSha)
+#
+#  - stage: update_scale_set_uat
+#    displayName: Update UAT Resources
+#    dependsOn:
+#      - create_version
+#      - image_builder_uat
+#    variables:
+#      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+#    jobs:
+#      - job: update
+#        displayName: Update UAT
+#        steps:
+#          - template: steps/check-package-sources.yml
+#            parameters:
+#              taskDisplayName: 'Re-Check Package Sources'
+#              
+#          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
+#            parameters:
+#              azureSubscription: $(uat-azure-subscription)
+#
+#          - template: steps/update-image-version.yml
+#            parameters:
+#              clientId: $(clientId)
+#              clientSecret: $(clientSecret)
+#              tenantId: $(tenantId)
+#              subscriptionId: $(subscriptionId)
+#              resourceGroup: $(innovation-uat-build-agent-resource-group)
+#              agentPoolName: $(innovation-uat-agent-pool-name)
+#              versionSha: $(versionSha)
+#
+#  - stage: update_scale_set_prod
+#    displayName: Update PROD Resources
+#    dependsOn:
+#      - create_version
+#      - image_builder_prod
+#    variables:
+#      versionSha: $[format('{0}{1}',stageDependencies.create_version.determine_version.outputs['versioning.versionShortSha'], variables['Build.BuildId']) ]
+#    jobs:
+#      - job: update
+#        displayName: Update PROD
+#        steps:
+#          - template: steps/check-package-sources.yml
+#            parameters:
+#              taskDisplayName: 'Re-Check Package Sources'
+#              
+#          - template: ../deployments_v2/stages/jobs/tasks/task_get-credentials.yml
+#            parameters:
+#              azureSubscription: $(prod-azure-subscription)
+#
+#          - template: steps/update-image-version.yml
+#            parameters:
+#              clientId: $(clientId)
+#              clientSecret: $(clientSecret)
+#              tenantId: $(tenantId)
+#              subscriptionId: $(subscriptionId)
+#              resourceGroup: $(innovation-prod-build-agent-resource-group)
+#              agentPoolName: $(innovation-prod-agent-pool-name)
+#              versionSha: $(versionSha)
+#
