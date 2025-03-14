@@ -14,7 +14,7 @@ variables:
   - group: polaris-build-agent
   - group: polaris-global
   - name: base-agent-image
-    value: "Canonical:0001-com-ubuntu-server-jammy:22_04-lts-gen2:linux"
+    value: "Canonical:0001-com-ubuntu-server-jammy:22_04-lts:linux"
 
 pool:
   vmImage: ubuntu-latest
