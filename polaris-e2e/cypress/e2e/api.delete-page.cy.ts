@@ -14,7 +14,6 @@ describe("Delete Page", { tags: ["@ci", "@ci-chunk-4"] }, () => {
   })
 
   it("can delete a page for a Document", () => {
-    console.log(DELETE_PAGE_TARGET_URN);
     cy.api(routes.DELETE_PAGE(DELETE_PAGE_TARGET_URN, DELETE_PAGE_CASE_ID, DELETE_PAGE_DOCUMENT_ID, DELETE_PAGE_VERSION_ID, "PHASE_1"))
       .then(({ body }) => {
         console.log(body);
