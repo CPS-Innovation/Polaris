@@ -5,6 +5,7 @@ parameters:
 
 jobs:
   - job: Run_Cypress_Tests_A
+    dependsOn: Run_Cypress_Tests_B
     displayName: Run Cypress Tests A
     steps:
       - checkout: ${{ parameters.checkoutRef }}
