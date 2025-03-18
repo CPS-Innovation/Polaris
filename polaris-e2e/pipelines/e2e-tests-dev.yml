@@ -41,7 +41,8 @@ resources:
       type: github
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
-      ref: refs/tags/$(cypress-environment)
+#      ref: refs/tags/$(cypress-environment)
+      ref: refs/heads/test/AP-mimic-old-404-tracker-response
       
 pool:
   name: $(dev-build-agent)
