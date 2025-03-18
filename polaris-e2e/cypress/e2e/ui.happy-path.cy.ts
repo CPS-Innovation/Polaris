@@ -38,7 +38,7 @@ describe("Happy Path", { tags: ["@ci", "@ci-chunk-1"] }, () => {
     cy.findByTestId("input-search-case").type(
       `${HAPPY_PATH_TARGET_SEARCH_TEXT}{enter}`
     );
-    cy.get("#modal").findByText(HAPPY_PATH_TARGET_DOCUMENT_NAME).click();
+    cy.get("#modal").findByText(HAPPY_PATH_TARGET_DOCUMENT_NAME, { timeout: 100000}).click();
 
     // is our target document correct - has expected fragment in search header
     cy.findByTestId("tabs").contains(

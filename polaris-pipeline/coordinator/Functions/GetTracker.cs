@@ -13,6 +13,7 @@ using coordinator.Domain;
 using Microsoft.Extensions.Configuration;
 using coordinator.Durable.Providers;
 using coordinator.Services;
+using Common.Dto.Response.Documents;
 
 namespace coordinator.Functions;
 
@@ -52,6 +53,12 @@ public class GetTracker
             var documentsList = await _stateStorageService.GetDurableEntityDocumentsStateAsync(caseId);
 
             var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity, documentsList);
+
+            if(trackerDto.Status == CaseRefreshStatus.NotStarted)
+            {
+                return new NotFoundResult();
+            }
+
             return new OkObjectResult(trackerDto);
         }
         catch (Exception ex)

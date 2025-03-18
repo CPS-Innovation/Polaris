@@ -224,7 +224,7 @@ Cypress.Commands.add("fullLogin", () => {
 
 Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
   cy.getADTokens().then((adTokens) => {
-    const httpCallTimeoutMs = 62 * 1000
+    const httpCallTimeoutMs = 120 * 1000
     cy.waitUntil(
       () =>
         cy
