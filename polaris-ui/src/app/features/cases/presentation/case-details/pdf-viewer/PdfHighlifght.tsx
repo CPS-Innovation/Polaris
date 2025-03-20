@@ -18,6 +18,7 @@ type Props = {
   hideTip: () => void;
   isScrolledTo: boolean;
   handleRemoveRedaction: (id: string) => void;
+  children?: React.ReactNode;
 };
 
 export const PdfHighlight: React.FC<Props> = ({
@@ -27,6 +28,7 @@ export const PdfHighlight: React.FC<Props> = ({
   hideTip,
   isScrolledTo,
   handleRemoveRedaction,
+  children,
 }) => {
   const component =
     highlight.highlightType === "linear" ? (
@@ -40,7 +42,7 @@ export const PdfHighlight: React.FC<Props> = ({
     );
 
   return highlight.type === "search" || highlight.type === "searchPII" ? (
-    { ...component, key: index }
+    ({ ...component, key: index } as any)
   ) : (
     <Popup
       popupContent={

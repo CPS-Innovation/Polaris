@@ -35,30 +35,27 @@ export interface ScaledPosition {
   usePdfCoordinates?: boolean;
 }
 
-// Note: for Polaris we have no interest in content or comments etc for our
-  //  search highlihgts or redactions 
+export interface Content {
+  text?: string;
+  image?: string;
+}
 
-  // export interface Content {
-  //   text?: string;
-  //   image?: string;
-  // }
+export interface HighlightContent {
+  content: Content;
+}
 
-  // export interface HighlightContent {
-  //   content: Content;
-  // }
+export interface Comment {
+  text: string;
+  emoji: string;
+}
 
-  // export interface Comment {
-  //   text: string;
-  //   emoji: string;
-  // }
-
-  // export interface HighlightComment {
-  //   comment: Comment;
-  // }
+export interface HighlightComment {
+  comment: Comment;
+}
 
 export interface NewHighlight /*extends HighlightContent, HighlightComment*/ {
   position: ScaledPosition;
-  highlightType: "linear" | "area"
+  highlightType: "linear" | "area";
 }
 
 export interface IHighlight extends NewHighlight {
