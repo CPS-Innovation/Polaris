@@ -272,8 +272,7 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
                 "correlation-id": correlationIds.BLANK,
               },
             })
-            .its("status")
-            .then((status) => status === 404),
+            .then((response) => response.status === 200 && response.body.status === "NotStarted"),
         WAIT_UNTIL_OPTIONS
       )
   })
