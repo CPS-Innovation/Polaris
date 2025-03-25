@@ -99,9 +99,9 @@ describe("redaction refresh flow", () => {
     cy.findAllByTestId("div-pdfviewer-1")
       .last()
       .should("exist")
-      .contains("CASE FILE EVIDENCE and INFORMATION ");
+      .contains("CASE FILE EVIDENCE and INFORMATION");
     cy.wait(500);
-    cy.selectPDFTextElement("MCLOVE");
+    cy.selectPDFTextElement("R v MCLOVE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
     cy.focused().should("have.id", "select-redaction-type");
