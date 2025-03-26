@@ -71,7 +71,7 @@ Cypress.Commands.add(
 );
 Cypress.Commands.add("selectPDFTextElement", (matchString: string) => {
   cy.wait(100);
-  cy.get(`.textLayer span:contains(${matchString})`)
+  cy.get(`#active-tab-panel .textLayer span:contains(${matchString})`)
     .filter(":not(:has(*))")
     .first()
     .then((element) => {
