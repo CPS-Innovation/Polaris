@@ -5,6 +5,7 @@ using Common.Middleware;
 using Common.Telemetry;
 using Common.Wrappers;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.WorkerService;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,14 +29,18 @@ var host = new HostBuilder()
     .ConfigureHostConfiguration(builder => builder.AddConfigurationSettings())
     .ConfigureServices((context, services) =>
     {
-        services.AddApplicationInsightsTelemetryWorkerService();
+        services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions
+        {
+            EnableAdaptiveSampling = false,
+        });
         services.ConfigureFunctionsApplicationInsights();
-        services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
+        // Commented out to match WMA instance of DDEI configuration and see if it improves log visibility
+        /* services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
         {
             telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder
                 .UseAdaptiveSampling(maxTelemetryItemsPerSecond: 20, excludedTypes: "Request;Exception;Event;Trace");
             telemetryConfiguration.DisableTelemetry = false;
-        });
+        }); */
         services.ConfigureLoggerFilterOptions();
 
         // bugfix: override .net core limitation of disallowing Synchronous IO for this function only

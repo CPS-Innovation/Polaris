@@ -16,7 +16,6 @@ import classes from "./HeaderReadMode.module.scss";
 
 type Props = {
   showOverRedactionLog: boolean;
-  handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   handleShowHidePageRotation: CaseDetailsState["handleShowHidePageRotation"];
@@ -42,7 +41,6 @@ type Props = {
 
 export const HeaderReadMode: React.FC<Props> = ({
   showOverRedactionLog,
-  handleShowHideDocumentIssueModal,
   handleShowRedactionLogModal,
   handleAreaOnlyRedaction,
   handleShowHideRedactionSuggestions,
@@ -60,9 +58,6 @@ export const HeaderReadMode: React.FC<Props> = ({
         trackEvent("Open Under Over Redaction Log", {
           documentId: contextData.documentId,
         });
-        break;
-      case "2":
-        handleShowHideDocumentIssueModal(true);
         break;
       case "3":
         handleShowHideRedactionSuggestions(

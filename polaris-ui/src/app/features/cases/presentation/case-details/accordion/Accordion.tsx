@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle } from "react";
+import { forwardRef, useEffect, useImperativeHandle } from "react";
 import { CaseDocumentViewModel } from "../../../domain/CaseDocumentViewModel";
 import { NotesData } from "../../../domain/gateway/NotesData";
 import classes from "./Accordion.module.scss";
@@ -41,6 +41,7 @@ type Props = {
   localDocumentState: LocalDocumentState;
   handleAccordionOpenClose: CaseDetailsState["handleAccordionOpenClose"];
   handleAccordionOpenCloseAll: CaseDetailsState["handleAccordionOpenCloseAll"];
+  hkDocumentId: string | undefined;
 };
 export type AccordionRef = {
   handleOpenAccordion: (documentId: string) => void;
@@ -63,6 +64,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
       handleToggleDocumentState,
       handleAccordionOpenClose,
       handleAccordionOpenCloseAll,
+      hkDocumentId,
     },
     ref
   ) => {
@@ -97,6 +99,27 @@ export const Accordion = forwardRef<AccordionRef, Props>(
       handleOpenAccordion,
     }));
 
+    useEffect(() => {
+      handleOpenAccordion(hkDocumentId as string);
+    }, [hkDocumentId]);
+
+    useEffect(() => {
+      const st = setTimeout(() => {
+        const panel = document.querySelector(
+          '[data-document-active="true"]'
+        ) as HTMLElement;
+        if (panel) {
+          panel.scrollIntoView({
+            behavior: "smooth",
+            block: "end",
+            inline: "end",
+          });
+        }
+      }, 0);
+
+      return () => clearTimeout(st);
+    }, []);
+
     return (
       <div className={`${classes.accordion}`}>
         <AccordionHeader
@@ -121,6 +144,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
             handleReclassifyDocument={handleReclassifyDocument}
             notesData={notesData}
             localDocumentState={localDocumentState}
+            hkDocumentId={hkDocumentId}
             handleToggleDocumentState={handleToggleDocumentState}
           />
         ))}

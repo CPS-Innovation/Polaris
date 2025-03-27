@@ -21,7 +21,7 @@ using Common.Domain.Document;
 
 namespace coordinator.Functions
 {
-    public class ModifyDocument : BaseClient
+    public class ModifyDocument
     {
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidator<ModifyDocumentWithDocumentDto> _requestValidator;
@@ -40,7 +40,6 @@ namespace coordinator.Functions
             IDdeiArgFactory ddeiArgFactory,
             ILogger<ModifyDocument> logger,
             IConfiguration configuration)
-            : base(configuration, blobStorageServiceFactory)
         {
             _jsonConvertWrapper = jsonConvertWrapper;
             _requestValidator = requestValidator;

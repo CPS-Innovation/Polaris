@@ -35,7 +35,7 @@ namespace pdf_generator.Services.Extensions
                 var loggingService = provider.GetService<ILogger<PdfOrchestratorService>>();
 
                 return new PdfOrchestratorService(wordsPdfService, cellsPdfService, slidesPdfService, imagingPdfService,
-                    diagramPdfService, emailPdfService, pdfRendererService, xpsPdfRendererService, loggingService);
+                    diagramPdfService, emailPdfService, pdfRendererService, xpsPdfRendererService, loggingService!);
             });
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
             services.AddTransient<IAsposeItemFactory, AsposeItemFactory>();

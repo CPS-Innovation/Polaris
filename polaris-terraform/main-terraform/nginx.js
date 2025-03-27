@@ -14,7 +14,7 @@ function _argsShim(args) {
   const serializedArgs = qs.stringify(args)
   const clonedArgsToMutate = qs.parse(serializedArgs)
   delete clonedArgsToMutate["cookie"]
-  // do not serialize cookie into our manufactured r param because cookie will be attached as the __cc param later on
+  // do not serialize cookie into our manufactured r param because cookie will be attached as the cc param later on
   const queryStringWithoutCookie = qs.stringify(clonedArgsToMutate)
 
   const clonedArgs = qs.parse(serializedArgs)
@@ -53,7 +53,7 @@ function appAuthRedirect(r) {
       r,
       `${redirectUrl}${
         redirectUrl.includes("?") ? "&" : "?"
-      }cc=${encodeURIComponent(args["cookie"] ?? "")}&__cc=${encodeURIComponent(args["cookie"] ?? "")}`
+      }cc=${encodeURIComponent(args["cookie"] ?? "")}`
     )
   } else {
     r.return(

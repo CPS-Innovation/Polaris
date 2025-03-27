@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using coordinator.Durable.Payloads;
 using Ddei.Factories;
 using Ddei.Domain.CaseData.Args.Core;
+using coordinator.Services;
 
 namespace coordinator.tests.Durable.Activity
 {
@@ -26,6 +27,7 @@ namespace coordinator.tests.Durable.Activity
         private readonly CasePayload _payload;
         private readonly GetCaseDocuments _getCaseDocuments;
         private readonly Mock<IConfiguration> _mockConfiguration;
+        private readonly Mock<IStateStorageService> _mockStateStorageService;
 
         public GetCaseDocumentsTests()
         {
@@ -44,6 +46,7 @@ namespace coordinator.tests.Durable.Activity
 
             var mockDdeiClient = new Mock<IDdeiClient>();
 
+            _mockStateStorageService = new Mock<IStateStorageService>();
             _mockConfiguration = new Mock<IConfiguration>();
 
             mockDdeiClient
@@ -75,6 +78,7 @@ namespace coordinator.tests.Durable.Activity
                 mockDdeiClient.Object,
                 mockDdeiArgFactory.Object,
                 mockDocumentToggleService.Object,
+                _mockStateStorageService.Object,
                 mockLogger.Object,
                 _mockConfiguration.Object);
         }

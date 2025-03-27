@@ -31,7 +31,7 @@ namespace Common.Services.PiiService.Domain.Chunking
         public int WordCount { get; protected set; }
         public int TextLength => Text.Length;
         public (int Min, int Max) OffsetRange { get; protected set; }
-        public List<OcrWord> Words { get; set; } = new List<OcrWord>();
+        public List<OcrWord> Words { get; set; } = [];
 
         public bool ContainsOffset(int offset)
         {

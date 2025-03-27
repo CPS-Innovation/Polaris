@@ -2,10 +2,10 @@ namespace Common.Services.PiiService.TextSanitization
 {
   public class TextSanitizationService : ITextSanitizationService
   {
-    private static readonly char[] ASCII_CHARS = new char[]
-    {
+    private static readonly char[] ASCII_CHARS =
+    [
       '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', '`', '{', '|', '}', '~'
-    };
+    ];
 
     public string SanitizeText(string text)
     {

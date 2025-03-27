@@ -4,7 +4,7 @@ namespace Ddei.Domain.Response.PreCharge
     {
         public DdeiPcdRequestSuspectDto()
         {
-            ProposedCharges = new List<DdeiPcdProposedChargeDto>();
+            ProposedCharges = [];
         }
 
         public string Surname { get; set; }

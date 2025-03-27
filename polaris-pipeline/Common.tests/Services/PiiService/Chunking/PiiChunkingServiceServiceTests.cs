@@ -66,14 +66,14 @@ namespace Common.tests.Services.OcrResultsServiceTests
             var readResult = new ReadResult
             {
                 Page = pageNumber,
-                Lines = new List<Line> {
+                Lines = [
                     _ocrLine1,
                     _ocrLine2
-                }
+                ]
             };
             var analyzeResults = new AnalyzeResults
             {
-                ReadResults = new List<ReadResult> { readResult }
+                ReadResults = [readResult]
             };
 
             var expectedResult = $"{readResult.Lines[0].Text} {readResult.Lines[1].Text}";
@@ -96,16 +96,16 @@ namespace Common.tests.Services.OcrResultsServiceTests
             {
                 new() {
                     Page = 1,
-                    Lines = new List<Line> {
+                    Lines = [
                         _ocrLine1,
                         _ocrLine2
-                    }
+                    ]
                 },
                 new() {
                     Page = 2,
-                    Lines = new List<Line> {
+                    Lines = [
                         _ocrLine3
-                    }
+                    ]
                 }
             };
             var analyzeResults = new AnalyzeResults
@@ -130,15 +130,15 @@ namespace Common.tests.Services.OcrResultsServiceTests
             var readResult = new ReadResult
             {
                 Page = 1,
-                Lines = new List<Line> {
+                Lines = [
                     _ocrLine1,
                     _ocrLine2,
                     _ocrLine3
-                }
+                ]
             };
             var analyzeResults = new AnalyzeResults
             {
-                ReadResults = new List<ReadResult> { readResult }
+                ReadResults = [readResult]
             };
 
             var results = _piiChunkingService.GetDocumentTextPiiChunks(analyzeResults, characterLimit);
@@ -161,16 +161,16 @@ namespace Common.tests.Services.OcrResultsServiceTests
             {
                 new() {
                     Page = 1,
-                    Lines = new List<Line> {
+                    Lines = [
                         _ocrLine1,
                         _ocrLine2
-                    }
+                    ]
                 },
                 new() {
                     Page = 2,
-                    Lines = new List<Line> {
+                    Lines = [
                         _ocrLine3
-                    }
+                    ]
                 }
             };
             var analyzeResults = new AnalyzeResults
@@ -208,14 +208,14 @@ namespace Common.tests.Services.OcrResultsServiceTests
             var readResult = new ReadResult
             {
                 Page = pageNumber,
-                Lines = new List<Line> {
+                Lines = [
                     _ocrLine1,
                     _ocrLine2
-                }
+                ]
             };
             var analyzeResults = new AnalyzeResults
             {
-                ReadResults = new List<ReadResult> { readResult }
+                ReadResults = [readResult]
             };
 
             var result = new PiiChunk(1, 100);
@@ -238,13 +238,13 @@ namespace Common.tests.Services.OcrResultsServiceTests
             var readResult = new ReadResult
             {
                 Page = 1,
-                Lines = new List<Line> {
+                Lines = [
                     _ocrLine1,
-                }
+                ]
             };
             var analyzeResults = new AnalyzeResults
             {
-                ReadResults = new List<ReadResult> { readResult }
+                ReadResults = [readResult]
             };
 
             var expectedProcessedCount = readResult.Lines.Count;
