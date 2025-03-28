@@ -5,6 +5,7 @@
   opacity: 1;
   mix-blend-mode: multiply;
   display: flex;
+  cursor: crosshair;
 }
 
 .annotationLayer {

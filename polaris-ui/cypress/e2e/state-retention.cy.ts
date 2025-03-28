@@ -61,6 +61,7 @@ describe("State Retention", () => {
       timeMs: 1000,
     });
     cy.reload();
+    cy.wait(1000);
 
     cy.findByTestId("txt-please-wait-page-heading").should("not.exist");
 
@@ -195,6 +196,8 @@ describe("State Retention", () => {
     cy.findByTestId("tab-1").should("exist");
 
     cy.reload();
+    cy.wait(1000);
+    
     //making sure state is retained
     cy.contains("There is 1 redaction");
     cy.findByTestId("btn-accordion-open-close-all").should(

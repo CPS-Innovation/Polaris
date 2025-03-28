@@ -43,7 +43,7 @@ export const useFocusTrap = (id: string = "#modal") => {
   useEffect(() => {
     const setFirstElementFocus = () => {
       const tabbableElements = getTabbableElements();
-      if (tabbableElements) {
+      if (tabbableElements?.length) {
         setTimeout(() => {
           (tabbableElements[0] as HTMLElement).focus();
         }, 10);
