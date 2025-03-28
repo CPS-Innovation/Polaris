@@ -31,6 +31,7 @@ const mockConfig = configModule as {
   FEATURE_FLAG_GLOBAL_NAV: boolean;
   PRIVATE_BETA_FEATURE_USER_GROUP: string;
   PRIVATE_BETA_FEATURE_USER_GROUP2: string;
+  FEATURE_FLAG_USED_DOCUMENT_STATE: boolean;
 };
 
 describe("useUserGroupsFeatureFlag", () => {

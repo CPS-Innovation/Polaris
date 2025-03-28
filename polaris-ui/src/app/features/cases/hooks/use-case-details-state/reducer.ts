@@ -362,6 +362,14 @@ export const reducer = (
         payload: { id: string; open: boolean };
       }
     | { type: "ACCORDION_OPEN_CLOSE_ALL"; payload: boolean }
+    | {
+        type: "UPDATE_USED_UNUSED_DOCUMENT";
+        payload: {
+          documentId: CaseDocumentViewModel["documentId"];
+          saveStatus: "initial" | "saving" | "success" | "failure";
+          saveRefreshStatus: "initial" | "updating" | "updated";
+        };
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -1798,6 +1806,19 @@ export const reducer = (
         },
       };
     }
+    case "UPDATE_USED_UNUSED_DOCUMENT": {
+      const { documentId, saveStatus, saveRefreshStatus } = action.payload;
+      const newState = {
+        ...state,
+        usedOrUnused: {
+          documentId: documentId,
+          saveStatus: saveStatus,
+          saveRefreshStatus: saveRefreshStatus,
+        },
+      };
+      return newState;
+    }
+
     default:
       throw new Error("Unknown action passed to case details reducer");
   }
