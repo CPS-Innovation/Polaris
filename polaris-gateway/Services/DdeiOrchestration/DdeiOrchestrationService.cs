@@ -49,7 +49,7 @@ public class DdeiOrchestrationService : IDdeiOrchestrationService
         return Enumerable.Empty<DocumentDto>()
             .Concat(cmsDocuments.Select(MapDocument))
             .Concat(pcdRequests.Select(MapPcdRequest))
-            .Concat(defendantAndCharges.DefendantsAndCharges.Count() > 1
+            .Concat(defendantAndCharges.DefendantsAndCharges.Count() > 1 || defendantAndCharges.DefendantsAndCharges.Any(x => x.Charges.Count() > 1)
                 ? [MapDefendantAndCharges(defendantAndCharges)]
                 : []
             );
