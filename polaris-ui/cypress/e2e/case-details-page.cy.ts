@@ -790,7 +790,7 @@ describe("case details page", () => {
       cy.findByTestId("link-document-4").click();
       cy.findByTestId("div-pdfviewer-0")
         .should("exist")
-        .contains("CASE FILE EVIDENCE and INFORMATION ");
+        .contains("CASE FILE EVIDENCE and INFORMATION");
       cy.wait(500);
       cy.realPress(["Control", ","]);
       cy.findByTestId("btn-redact").should("have.length", 1);

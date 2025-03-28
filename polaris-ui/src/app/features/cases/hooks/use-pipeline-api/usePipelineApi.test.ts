@@ -1,9 +1,10 @@
 import { usePipelineApi } from "./usePipelineApi";
 import * as polling from "./initiate-and-poll";
 import { PipelineResults } from "../../domain/gateway/PipelineResults";
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, act } from "@testing-library/react";
 import { AsyncPipelineResult } from "./AsyncPipelineResult";
 import * as shouldTriggerPipelineRefresh from "../utils/shouldTriggerPipelineRefresh";
+import { waitFor } from "@testing-library/react";
 
 describe("usePipelineApi", () => {
   it("should trigger pipeline refresh and dispatch UPDATE_PIPELINE with correct payload", async () => {
@@ -38,7 +39,7 @@ describe("usePipelineApi", () => {
         }
       );
     const mockDispatch = jest.fn();
-    const { waitForNextUpdate } = renderHook(() =>
+    renderHook(() =>
       usePipelineApi(
         "0",
         1,
@@ -59,14 +60,15 @@ describe("usePipelineApi", () => {
       payload: { correlationId: "", status: "initiating" },
     });
 
-    await waitForNextUpdate();
-    expect(mockDispatch).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(mockDispatch).toHaveBeenCalledTimes(2);
 
-    expect(mockDispatch).toHaveBeenNthCalledWith(2, {
-      type: "UPDATE_PIPELINE",
-      payload: expectedPipelineResults,
+      expect(mockDispatch).toHaveBeenNthCalledWith(2, {
+        type: "UPDATE_PIPELINE",
+        payload: expectedPipelineResults,
+      });
+      expect(polling.initiateAndPoll).toHaveBeenCalledTimes(1);
     });
-    expect(polling.initiateAndPoll).toHaveBeenCalledTimes(1);
   });
 
   it("should not trigger pipeline refresh and should not dispatch UPDATE_PIPELINE if shouldTriggerPipelineRefresh is false ", async () => {

@@ -3,7 +3,7 @@ import * as useApi from "../../../../common/hooks/useApi";
 import * as refreshCycleDataUpdate from "../utils/refreshCycleDataUpdate";
 import { RenameDocumentData } from "../../domain/gateway/RenameDocumentData";
 import { ReclassifyDocumentData } from "../../domain/gateway/ReclassifyDocumentData";
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react";
 
 describe("useGetDocumentsListApi", () => {
   it("should fetch new documents and dispatch actions with correct payload", async () => {

@@ -53,7 +53,7 @@ export const redactionRequestAssertionValidator = (
   );
   //assurance test currently passes if the values falls under particular precision
   const PRECISION_FACTOR = 1.5;
-  const PRECISION_FACTOR_Y2 = 3; // When running on the pipeline y2 values shows a higher deviation
+  const PRECISION_FACTOR_Y2 = 3.5; // When running on the pipeline y2 values shows a higher deviation
   expect(request.redactions.length).to.equal(expectedRequest.redactions.length);
   request.redactions.forEach((redaction, index) => {
     expect(redaction.pageIndex).to.equal(

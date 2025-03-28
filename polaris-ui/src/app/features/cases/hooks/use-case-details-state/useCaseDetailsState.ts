@@ -281,7 +281,7 @@ export const useCaseDetailsState = (
   );
 
   const handleSaveReadUnreadData = useCallback(
-    (documentId) =>
+    (documentId: string) =>
       dispatch({
         type: "SAVE_READ_UNREAD_DATA",
         payload: { documentId },
