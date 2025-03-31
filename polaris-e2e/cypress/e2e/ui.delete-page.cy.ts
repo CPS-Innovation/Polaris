@@ -28,12 +28,23 @@ describe("Delete Page", { tags: ["@ci", "@ci-chunk-1"] }, () => {
       "Timothy"
     ).click();
 
+    cy.wait(1000);
+
     // Delete page
     cy.findByTestId("btn-delete-1").click();
-
+    cy.findByTestId("delete-page-modal").should("exist");
     cy.findByTestId("select-redaction-type").select("MG11 Backsheet");
     cy.findByTestId("delete-page-modal-btn-redact").click();
     cy.findByTestId("btn-save-redaction-0").click();
+    cy.findByTestId("div-modal").should("be.visible");
+    cy.findByTestId("rl-saving-redactions").should(
+      "have.text",
+      "Saving redactions..."
+    );
+    cy.findByTestId("rl-saved-redactions").should(
+      "have.text",
+      "Redactions successfully saved"
+    );
 
   });
 });
