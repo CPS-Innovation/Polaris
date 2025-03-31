@@ -4,7 +4,6 @@ const {
   DELETE_PAGE_TARGET_URN,
   DELETE_PAGE_CASE_ID,
   DELETE_PAGE_DOCUMENT_ID,
-  PRE_SEARCH_DELAY_MS,
 } = Cypress.env();
 
 describe("Delete Page", { tags: ["@ci", "@ci-chunk-1"] }, () => {
@@ -28,7 +27,7 @@ describe("Delete Page", { tags: ["@ci", "@ci-chunk-1"] }, () => {
       "Timothy"
     ).click();
 
-    cy.wait(1000);
+    cy.wait(3000);
 
     // Delete page
     cy.findByTestId("btn-delete-1").click();
