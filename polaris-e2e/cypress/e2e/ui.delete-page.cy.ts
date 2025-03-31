@@ -13,7 +13,7 @@ describe("Delete Page", { tags: ["@ci", "@ci-chunk-1"] }, () => {
 
     cy.fullLogin();
 
-    // cy.clearCaseTracker(DELETE_PAGE_TARGET_URN, DELETE_PAGE_CASE_ID);
+    cy.clearCaseTracker(DELETE_PAGE_TARGET_URN, DELETE_PAGE_CASE_ID);
     cy.visit("/polaris-ui");
 
     cy.findByTestId("input-search-urn").type(`${DELETE_PAGE_TARGET_URN}{enter}`);
