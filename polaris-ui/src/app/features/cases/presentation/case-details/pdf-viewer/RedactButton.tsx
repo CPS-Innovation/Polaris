@@ -17,6 +17,7 @@ type Props = {
     redactionType: { id: string; name: string },
     actionType: PIIRedactionStatus | "redact"
   ) => void;
+  onRedactionCopy: () => void;
 };
 
 const getMappedRedactionTypes = (data: RedactionTypeData[]) => {
@@ -39,6 +40,7 @@ export const RedactButton: React.FC<Props> = ({
   onConfirm,
   redactionTypesData,
   searchPIIData,
+  onRedactionCopy,
 }) => {
   const [redactionType, setRedactionType] = useState<string>("");
   useFocusTrap("#redact-modal");
@@ -46,6 +48,12 @@ export const RedactButton: React.FC<Props> = ({
 
   const handleSearchPIIBtnClick = (actionType: PIIRedactionStatus) => {
     onConfirm({ id: "", name: "" }, actionType);
+  };
+
+  const handleCopyRedactionText = () => {
+    const selectionText = window.getSelection()?.toString();
+    if (selectionText) navigator.clipboard.writeText(selectionText);
+    onRedactionCopy();
   };
 
   const handleRedactBtnClick = () => {
@@ -120,6 +128,14 @@ export const RedactButton: React.FC<Props> = ({
             Redact
           </Button>
         )}
+        <Button
+          onClick={handleCopyRedactionText}
+          data-testid="btn-copy"
+          id="btn-copy"
+        >
+          Copy
+        </Button>
+
         {searchPIIData && (
           <>
             <Button
