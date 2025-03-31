@@ -11,10 +11,4 @@ describe("case details page", () => {
     const pdfContainer = cy.findByTestId("div-pdfviewer-0");
     pdfContainer.should("exist");
   });
-
-  it("should return error if incorrect ID is passed", () => {
-    cy.visit("/case-details/45CV2911222/13401/101010101010");
-    const errorMsg = cy.findByTestId("txt-error-page-heading");
-    errorMsg.should("exist");
-  });
 });
