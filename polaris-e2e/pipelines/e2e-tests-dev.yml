@@ -41,7 +41,7 @@ resources:
       type: github
       endpoint: CPS-Innovation
       name: CPS-Innovation/Polaris
-      ref: refs/heads/test/sh_FCT2_4797_delete-page_e2e
+      ref: refs/tags/$(cypress-environment)
       
 pool:
   name: $(dev-build-agent)

@@ -7,7 +7,7 @@ const {
 } = Cypress.env();
 
 describe("Delete Page", { tags: ["@ci", "@ci-chunk-1"] }, () => {
-  it("can view a case", () => {
+  it("can delete a page", () => {
     cy.on("uncaught:exception", () => false);
 
     cy.fullLogin();
