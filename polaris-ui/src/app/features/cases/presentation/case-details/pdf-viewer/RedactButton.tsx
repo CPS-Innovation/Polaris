@@ -5,6 +5,7 @@ import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
 import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { PIIRedactionStatus } from "../../../domain/NewPdfHighlight";
+import { ACCEPT, REDACT, COPY } from "../utils/constants";
 
 type Props = {
   searchPIIData?: {
@@ -125,7 +126,7 @@ export const RedactButton: React.FC<Props> = ({
             data-testid="btn-redact"
             id="btn-redact"
           >
-            Redact
+            {REDACT}
           </Button>
         )}
         <Button
@@ -133,7 +134,7 @@ export const RedactButton: React.FC<Props> = ({
           data-testid="btn-copy"
           id="btn-copy"
         >
-          Copy
+          {COPY}
         </Button>
 
         {searchPIIData && (
@@ -144,7 +145,7 @@ export const RedactButton: React.FC<Props> = ({
               data-testid="btn-accept"
               id="btn-accept"
             >
-              Accept
+              {ACCEPT}
             </Button>
             {searchPIIData.count > 1 && (
               <Button
