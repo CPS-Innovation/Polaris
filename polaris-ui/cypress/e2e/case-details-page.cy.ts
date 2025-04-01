@@ -758,7 +758,7 @@ describe("case details page", () => {
       keyPressAndVerifySelection("forward", "W");
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.findByTestId("btn-redact").should("be.disabled");
-      cy.realPress("Tab");
+      cy.realPress("Tab").realPress("Tab");
       cy.focused().should("have.id", "select-redaction-type");
       cy.findByTestId("select-redaction-type").select("2");
       cy.realPress("Tab");
@@ -772,7 +772,9 @@ describe("case details page", () => {
       keyPressAndVerifySelection("forward", "Y");
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.findByTestId("btn-redact").should("be.disabled");
-      cy.realPress(["Shift", "Tab"]);
+      cy.findByTestId("btn-copy").should("be.enabled");
+      cy.findByTestId("btn-copy").should("have.length", 1);
+      // cy.realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "select-redaction-type");
       cy.findByTestId("select-redaction-type").select("2");
       cy.realPress("Tab");
@@ -794,7 +796,7 @@ describe("case details page", () => {
       cy.wait(500);
       cy.realPress(["Control", ","]);
       cy.findByTestId("btn-redact").should("have.length", 1);
-      cy.realPress("Tab");
+      cy.realPress("Tab").realPress("Tab");
       cy.focused().should("have.id", "select-redaction-type");
       cy.findByTestId("select-redaction-type").select("2");
       cy.realPress("Tab");
