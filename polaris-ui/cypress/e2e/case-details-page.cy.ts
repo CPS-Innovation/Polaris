@@ -774,7 +774,7 @@ describe("case details page", () => {
       cy.findByTestId("btn-redact").should("be.disabled");
       cy.findByTestId("btn-copy").should("be.enabled");
       cy.findByTestId("btn-copy").should("have.length", 1);
-      // cy.realPress(["Shift", "Tab"]);
+      cy.realPress(["Shift", "Tab"]).realPress(["Shift", "Tab"]);
       cy.focused().should("have.id", "select-redaction-type");
       cy.findByTestId("select-redaction-type").select("2");
       cy.realPress("Tab");
