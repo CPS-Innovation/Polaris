@@ -5,6 +5,7 @@ import { useFocusTrap } from "../../../../../common/hooks/useFocusTrap";
 import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { PIIRedactionStatus } from "../../../domain/NewPdfHighlight";
+import { ACCEPT, REDACT, COPY } from "../utils/constants";
 
 type Props = {
   searchPIIData?: {
@@ -17,6 +18,7 @@ type Props = {
     redactionType: { id: string; name: string },
     actionType: PIIRedactionStatus | "redact"
   ) => void;
+  onRedactionCopy: () => void;
 };
 
 const getMappedRedactionTypes = (data: RedactionTypeData[]) => {
@@ -39,6 +41,7 @@ export const RedactButton: React.FC<Props> = ({
   onConfirm,
   redactionTypesData,
   searchPIIData,
+  onRedactionCopy,
 }) => {
   const [redactionType, setRedactionType] = useState<string>("");
   useFocusTrap("#redact-modal");
@@ -46,6 +49,12 @@ export const RedactButton: React.FC<Props> = ({
 
   const handleSearchPIIBtnClick = (actionType: PIIRedactionStatus) => {
     onConfirm({ id: "", name: "" }, actionType);
+  };
+
+  const handleCopyRedactionText = () => {
+    const selectionText = window.getSelection()?.toString();
+    if (selectionText) navigator.clipboard.writeText(selectionText);
+    onRedactionCopy();
   };
 
   const handleRedactBtnClick = () => {
@@ -117,9 +126,17 @@ export const RedactButton: React.FC<Props> = ({
             data-testid="btn-redact"
             id="btn-redact"
           >
-            Redact
+            {REDACT}
           </Button>
         )}
+        <Button
+          onClick={handleCopyRedactionText}
+          data-testid="btn-copy"
+          id="btn-copy"
+        >
+          {COPY}
+        </Button>
+
         {searchPIIData && (
           <>
             <Button
@@ -128,7 +145,7 @@ export const RedactButton: React.FC<Props> = ({
               data-testid="btn-accept"
               id="btn-accept"
             >
-              Accept
+              {ACCEPT}
             </Button>
             {searchPIIData.count > 1 && (
               <Button
