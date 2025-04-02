@@ -556,7 +556,7 @@ describe("Case Details Search", () => {
         cy.findByTestId("div-pdfviewer-0")
           .should("exist")
           .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-        cy.get(".PdfLinearHighlight_Highlight__part__search__KLMnH")
+        cy.get("[class^='PdfLinearHighlight_Highlight__part__search__']")
           .first()
           .click({ force: true });
         cy.findByTestId("btn-save-redaction-0").should("not.exist");

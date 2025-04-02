@@ -1,6 +1,5 @@
 import "@testing-library/jest-dom";
-import "@testing-library/jest-dom/extend-expect";
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react";
 import { useIsMounted } from "./useIsMounted";
 
 describe("useIsMounted", () => {

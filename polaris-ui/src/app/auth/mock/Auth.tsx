@@ -1,5 +1,5 @@
 import { FC } from "react";
 
-export const Auth: FC = ({ children }) => {
+export const Auth = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
