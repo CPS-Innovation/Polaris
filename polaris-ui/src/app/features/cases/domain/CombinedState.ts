@@ -164,6 +164,7 @@ export const initialState = {
     stateRetention: false,
     globalNav: false,
     copyRedactionTextButton: false,
+    documentNameSearch: false,
   },
   storedUserData: { status: "loading" },
   notes: [],
