@@ -6,6 +6,7 @@ import { CaseDetails } from "../../../domain/gateway/CaseDetails";
 import { Results } from "./ready-mode/Results";
 import { CombinedState } from "../../../domain/CombinedState";
 import React from "react";
+import { NotificationBanner } from "../../../../../common/presentation/components";
 
 type Props = {
   caseState: SucceededApiResult<CaseDetails>;
@@ -48,6 +49,41 @@ export const Content: React.FC<Props> = ({
       className={`govuk-width-container ${classes.content}`}
       data-testid="div-search-results"
     >
+      <div className={classes.notificationContainer}>
+        {submittedSearchTerm &&
+          requestedSearchTerm &&
+          results.status === "loading" ? (
+          <NotificationBanner className={classes.notificationBanner} >
+            <div
+              className={classes.bannerContent}
+              data-testid="div-notification-information-banner"
+            >
+              <p className={classes.notificationBannerHeading}>
+                The full search results are being prepared and will be available soon
+              </p>
+              <p>In the meantime search results on material filenames are displayed below.</p>
+            </div>
+          </NotificationBanner>
+
+        ) : null}
+        {submittedSearchTerm &&
+          requestedSearchTerm &&
+          results.status === "succeeded" ? (
+          <NotificationBanner  {... { type: 'success' }}  >
+            <div
+              className={classes.bannerContent}
+              data-testid="div-notification-success-banner"
+            >
+              <p className={classes.notificationBannerHeading}>
+                The full search results are now available - update this page
+              </p>
+            </div>
+          </NotificationBanner>
+
+        ) : null}
+      </div>
+
+
       <div className="govuk-grid-row">
         <div className="govuk-!-width-one-half">
           <SearchBox
@@ -61,8 +97,8 @@ export const Content: React.FC<Props> = ({
 
       <div className="govuk-grid-row">
         {submittedSearchTerm &&
-        requestedSearchTerm &&
-        results.status === "succeeded" ? (
+          requestedSearchTerm &&
+          results.status === "succeeded" ? (
           <MemoizedResults
             {...{
               missingDocs,
