@@ -546,6 +546,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
               searchTerm,
               searchState,
               pipelineState,
+              featureFlags,
               handleSearchTermChange,
               handleLaunchSearchResults,
               handleCloseSearchResults,

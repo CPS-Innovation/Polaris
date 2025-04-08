@@ -18,6 +18,7 @@ type Props = {
   searchTerm: CombinedState["searchTerm"];
   searchState: CombinedState["searchState"];
   pipelineState: CombinedState["pipelineState"];
+  featureFlags: CombinedState["featureFlags"];
   handleSearchTermChange: CaseDetailsState["handleSearchTermChange"];
   handleCloseSearchResults: CaseDetailsState["handleCloseSearchResults"];
   handleLaunchSearchResults: CaseDetailsState["handleLaunchSearchResults"];
@@ -89,7 +90,28 @@ export const ResultsModal: React.FC<Props> = ({
       ariaLabel="Search Modal"
       ariaDescription="Find your search results"
     >
-      <Content {...restProps} />
+      {restProps.featureFlags.documentNameSearch ? (
+        <Content {...restProps} />
+      ) : (
+        <>
+          {waitStatus === "wait" &&
+            searchState.submittedSearchTerm !==
+            searchState.lastSubmittedSearchTerm ? (
+            <div className={classes.loadingContent}>
+              <PleaseWait
+                percentageCompleted={loadingPercentage}
+                showLoadingPercentage={showLoadingPercentage}
+              />
+
+              {showLoadingPercentage && (
+                <TrackerSummary pipelineState={restProps.pipelineState} />
+              )}
+            </div>
+          ) : (
+            <Content {...restProps} />
+          )}
+        </>
+      )}
     </Modal>
   );
 };

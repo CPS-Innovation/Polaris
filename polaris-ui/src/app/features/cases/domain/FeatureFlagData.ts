@@ -18,6 +18,8 @@ export type FeatureFlagData = {
   notifications: boolean;
   stateRetention: boolean;
   globalNav: boolean;
+  documentNameSearch: boolean;
+
 };
 
 export type FeatureFlagQueryParams = {
@@ -34,4 +36,5 @@ export type FeatureFlagQueryParams = {
   notifications: string;
   stateRetention: string;
   globalNav: string;
+  documentNameSearch: string;
 };

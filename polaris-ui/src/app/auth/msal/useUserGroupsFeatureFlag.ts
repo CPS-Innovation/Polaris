@@ -19,6 +19,7 @@ import {
   PRIVATE_BETA_FEATURE_USER_GROUP4,
   PRIVATE_BETA_FEATURE_USER_GROUP5,
   FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
+  FEATURE_FLAG_DOCUMENT_NAME_SEARCH,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
 import {
@@ -85,6 +86,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     notifications,
     stateRetention,
     globalNav,
+    documentNameSearch,
   } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
@@ -162,6 +164,11 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         userDetails?.username,
         globalNav,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP5 }
+      ),
+      documentNameSearch: shouldShowFeature(
+        FEATURE_FLAG_DOCUMENT_NAME_SEARCH,
+        userDetails?.username,
+        documentNameSearch,
       ),
     }),
     []
