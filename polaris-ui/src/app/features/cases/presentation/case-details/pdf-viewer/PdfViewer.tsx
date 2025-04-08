@@ -346,6 +346,7 @@ export const PdfViewer: React.FC<Props> = ({
                           : undefined
                       }
                       redactionTypesData={redactionTypesData}
+                      onRedactionCopy={() => hideTipAndSelection()}
                       onConfirm={(
                         redactionType: RedactionTypeData,
                         actionType: PIIRedactionStatus | "redact"
