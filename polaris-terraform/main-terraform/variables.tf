@@ -231,6 +231,11 @@ variable "feature_flag_background_pipeline_refresh" {
   type = string
 }
 
+variable "feature_flag_redaction_toggle_copy_button" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
 variable "background_pipeline_refresh_interval_ms" {
   type = number
 }

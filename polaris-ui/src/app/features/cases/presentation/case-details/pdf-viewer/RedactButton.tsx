@@ -6,6 +6,7 @@ import { useLastFocus } from "../../../../../common/hooks/useLastFocus";
 import { RedactionTypeData } from "../../../domain/redactionLog/RedactionLogData";
 import { PIIRedactionStatus } from "../../../domain/NewPdfHighlight";
 import { ACCEPT, REDACT, COPY } from "../utils/constants";
+import { useUserGroupsFeatureFlag } from "../../../../../auth/msal/useUserGroupsFeatureFlag";
 
 type Props = {
   searchPIIData?: {
@@ -46,6 +47,8 @@ export const RedactButton: React.FC<Props> = ({
   const [redactionType, setRedactionType] = useState<string>("");
   useFocusTrap("#redact-modal");
   useLastFocus();
+
+  const flagFeature = useUserGroupsFeatureFlag();
 
   const handleSearchPIIBtnClick = (actionType: PIIRedactionStatus) => {
     onConfirm({ id: "", name: "" }, actionType);
@@ -129,14 +132,15 @@ export const RedactButton: React.FC<Props> = ({
             {REDACT}
           </Button>
         )}
-        <Button
-          onClick={handleCopyRedactionText}
-          data-testid="btn-copy"
-          id="btn-copy"
-        >
-          {COPY}
-        </Button>
-
+        {flagFeature.copyRedactionTextButton && (
+          <Button
+            onClick={handleCopyRedactionText}
+            data-testid="btn-copy"
+            id="btn-copy"
+          >
+            {COPY}
+          </Button>
+        )}
         {searchPIIData && (
           <>
             <Button

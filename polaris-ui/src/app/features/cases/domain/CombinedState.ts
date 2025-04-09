@@ -163,6 +163,7 @@ export const initialState = {
     notifications: false,
     stateRetention: false,
     globalNav: false,
+    copyRedactionTextButton: false,
   },
   storedUserData: { status: "loading" },
   notes: [],
