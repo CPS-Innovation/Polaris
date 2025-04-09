@@ -12,6 +12,7 @@ type Props = {
   searchResult: MappedTextSearchResult;
   missingDocs: CombinedState["searchState"]["missingDocs"];
   resultsOrder: CombinedState["searchState"]["resultsOrder"];
+  previouslyIndexed: boolean;
   handleChangeResultsOrder: CaseDetailsState["handleChangeResultsOrder"];
   filterOptions: CombinedState["searchState"]["filterOptions"];
   handleUpdateFilter: CaseDetailsState["handleUpdateFilter"];
@@ -24,6 +25,7 @@ export const Results: React.FC<Props> = ({
   requestedSearchTerm,
   missingDocs,
   resultsOrder,
+  previouslyIndexed,
   handleChangeResultsOrder,
   filterOptions,
   handleUpdateFilter,
@@ -59,6 +61,7 @@ export const Results: React.FC<Props> = ({
             requestedSearchTerm,
             missingDocs,
             resultsOrder,
+            previouslyIndexed,
             handleChangeResultsOrder,
           }}
         />

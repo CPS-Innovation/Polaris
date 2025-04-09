@@ -54,7 +54,9 @@ export const ListItem: React.FC<Props> = ({
         </div>
       </div>
 
-      <ContextText contextTextChunks={firstOccurrence.contextTextChunks} />
+      {firstOccurrence && (
+        <ContextText contextTextChunks={firstOccurrence.contextTextChunks} />
+      )}
 
       {subsequentOccurrences.length ? (
         <Details
@@ -67,10 +69,9 @@ export const ListItem: React.FC<Props> = ({
                 firstOccurrence.occurrencesInLine.length,
             });
           }}
-          summaryChildren={`View ${
-            occurrencesInDocumentCount -
+          summaryChildren={`View ${occurrencesInDocumentCount -
             firstOccurrence.occurrencesInLine.length
-          } more`}
+            } more`}
           children={subsequentOccurrences.map((occurrence) => (
             <span key={occurrence.id}>
               <ContextText contextTextChunks={occurrence.contextTextChunks} />

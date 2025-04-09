@@ -16,6 +16,7 @@ type Props = {
   searchResult: MappedTextSearchResult;
   missingDocs: CombinedState["searchState"]["missingDocs"];
   resultsOrder: ResultsOrder;
+  previouslyIndexed: boolean;
   handleChangeResultsOrder: CaseDetailsState["handleChangeResultsOrder"];
 };
 
@@ -24,6 +25,7 @@ export const Header: React.FC<Props> = ({
   missingDocs,
   submittedSearchTerm,
   requestedSearchTerm,
+  previouslyIndexed,
   handleChangeResultsOrder,
   resultsOrder,
 }) => {
@@ -33,15 +35,15 @@ export const Header: React.FC<Props> = ({
     children: string;
     value: ResultsOrder;
   }[] = [
-    {
-      children: "Date added",
-      value: "byDateDesc" as const,
-    },
-    {
-      children: "Results per document",
-      value: "byOccurancesPerDocumentDesc" as const,
-    },
-  ];
+      {
+        children: "Date added",
+        value: "byDateDesc" as const,
+      },
+      {
+        children: "Results per document",
+        value: "byOccurancesPerDocumentDesc" as const,
+      },
+    ];
 
   return (
     <>
@@ -77,7 +79,7 @@ export const Header: React.FC<Props> = ({
               <>No documents found matching '{submittedSearchTerm}'</>
             )}
           </div>
-          {isMissingDocsMode && (
+          {isMissingDocsMode && previouslyIndexed && (
             <div>
               Search may not have found all instances of '{submittedSearchTerm}'
               in this case
@@ -105,12 +107,16 @@ export const Header: React.FC<Props> = ({
         )}
       </div>
 
-      <SectionBreak noTopMargin />
-
-      {isMissingDocsMode && (
+      {previouslyIndexed && (
         <>
-          <MissingDocs missingDocs={missingDocs} />
-          <SectionBreak />
+          <SectionBreak noTopMargin />
+
+          {isMissingDocsMode && (
+            <>
+              <MissingDocs missingDocs={missingDocs} />
+              <SectionBreak />
+            </>
+          )}
         </>
       )}
     </>
