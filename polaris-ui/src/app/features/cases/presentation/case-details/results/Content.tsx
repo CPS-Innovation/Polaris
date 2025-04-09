@@ -7,10 +7,12 @@ import { Results } from "./ready-mode/Results";
 import { CombinedState } from "../../../domain/CombinedState";
 import React, { useState } from "react";
 import { LinkButton, NotificationBanner } from "../../../../../common/presentation/components";
+
 type Props = {
   caseState: SucceededApiResult<CaseDetails>;
   searchTerm: CombinedState["searchTerm"];
   searchState: CombinedState["searchState"];
+  loadingPercentage?: number;
   handleSearchTermChange: CaseDetailsState["handleSearchTermChange"];
   handleLaunchSearchResults: CaseDetailsState["handleLaunchSearchResults"];
   handleChangeResultsOrder: CaseDetailsState["handleChangeResultsOrder"];
@@ -34,6 +36,7 @@ export const Content: React.FC<Props> = ({
     filterOptions,
     documentNameMatches,
   },
+  loadingPercentage,
   handleSearchTermChange: handleChange,
   handleLaunchSearchResults: handleSubmit,
   handleChangeResultsOrder,
@@ -65,7 +68,7 @@ export const Content: React.FC<Props> = ({
                   data-testid="div-notification-information-banner"
                 >
                   <p className={classes.notificationBannerHeading}>
-                    The full search results are being prepared and will be available soon
+                    The full search results are being prepared - {loadingPercentage}% complete
                   </p>
                   <p>In the meantime search results on material filenames are displayed below.</p>
                 </div>

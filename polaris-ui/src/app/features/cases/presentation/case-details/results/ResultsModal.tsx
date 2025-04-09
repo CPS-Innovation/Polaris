@@ -91,7 +91,7 @@ export const ResultsModal: React.FC<Props> = ({
       ariaDescription="Find your search results"
     >
       {restProps.featureFlags.documentNameSearch ? (
-        <Content {...restProps} />
+        <Content {...restProps} loadingPercentage={loadingPercentage} />
       ) : (
         <>
           {waitStatus === "wait" &&
