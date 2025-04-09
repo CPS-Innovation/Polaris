@@ -134,7 +134,7 @@ describe("useUserGroupsFeatureFlag", () => {
   });
 
   describe("redaction copy button flag", () => {
-    test("Should show the button if REACT_APP_FEATURE_FLAG_TOGGLE_COPY_BUTTON is set to true", () => {
+    test("Should show the button if REACT_APP_FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON is set to true", () => {
       (authModule.useUserDetails as jest.Mock).mockReturnValue({
         username: "test",
       });
