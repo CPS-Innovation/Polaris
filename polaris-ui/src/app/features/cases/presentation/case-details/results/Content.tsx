@@ -6,7 +6,7 @@ import { CaseDetails } from "../../../domain/gateway/CaseDetails";
 import { Results } from "./ready-mode/Results";
 import { CombinedState } from "../../../domain/CombinedState";
 import React, { useState } from "react";
-import { NotificationBanner } from "../../../../../common/presentation/components";
+import { LinkButton, NotificationBanner } from "../../../../../common/presentation/components";
 type Props = {
   caseState: SucceededApiResult<CaseDetails>;
   searchTerm: CombinedState["searchTerm"];
@@ -40,7 +40,11 @@ export const Content: React.FC<Props> = ({
   handleUpdateFilter,
   handleOpenPdf,
 }) => {
-  const [previouslyIndexed] = useState(results.status === 'succeeded');
+  const [previouslyIndexed, setPreviouslyIndexed] = useState(results.status === 'succeeded');
+
+  const handleRefresh = () => {
+    setPreviouslyIndexed(true);
+  };
 
   const labelText = leadDefendantDetails
     ? `Search ${leadDefendantDetails.surname}, ${uniqueReferenceNumber}`
@@ -74,7 +78,15 @@ export const Content: React.FC<Props> = ({
                   data-testid="div-notification-success-banner"
                 >
                   <p className={classes.notificationBannerHeading}>
-                    The full search results are now available - update this page
+                    The full search results are now available -
+                    <LinkButton
+                      onClick={handleRefresh}
+                      ariaLabel={'Search Results Available Link'}
+                      dataTestId={'search-results-available-link'}
+                      className={classes.searchResultsAvailableLink}
+                    >
+                      update this page
+                    </LinkButton>
                   </p>
                 </div>
               </NotificationBanner>
