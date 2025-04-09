@@ -7,8 +7,6 @@ import { Results } from "./ready-mode/Results";
 import { CombinedState } from "../../../domain/CombinedState";
 import React, { useState } from "react";
 import { NotificationBanner } from "../../../../../common/presentation/components";
-import { MappedTextSearchResult } from "../../../domain/MappedTextSearchResult";
-
 type Props = {
   caseState: SucceededApiResult<CaseDetails>;
   searchTerm: CombinedState["searchTerm"];
@@ -34,6 +32,7 @@ export const Content: React.FC<Props> = ({
     missingDocs,
     resultsOrder,
     filterOptions,
+    documentNameMatches,
   },
   handleSearchTermChange: handleChange,
   handleLaunchSearchResults: handleSubmit,
@@ -46,14 +45,6 @@ export const Content: React.FC<Props> = ({
   const labelText = leadDefendantDetails
     ? `Search ${leadDefendantDetails.surname}, ${uniqueReferenceNumber}`
     : `Search ${uniqueReferenceNumber}`;
-
-    // TODO SH - Temporary code
-    const defaultData: MappedTextSearchResult = {
-    totalOccurrencesCount: 0,
-    filteredOccurrencesCount: 0,
-    filteredDocumentCount: 0,
-    documentResults: [],
-  };
 
   return (
     <div
@@ -105,27 +96,47 @@ export const Content: React.FC<Props> = ({
 
       <div className="govuk-grid-row">
         {submittedSearchTerm &&
-          requestedSearchTerm ? (
-          <MemoizedResults
-            {...{
-              missingDocs,
-              searchResult: results.status === "succeeded" ? results.data : defaultData,
-              submittedSearchTerm,
-              requestedSearchTerm,
-              resultsOrder,
-              filterOptions,
-              handleChangeResultsOrder,
-              handleUpdateFilter,
-              handleOpenPdf,
-            }}
-          />
-        ) : null}
+          requestedSearchTerm && (
+            <>
+              {previouslyIndexed && results.status === "succeeded" ? (
+                <MemoizedResults
+                  {...{
+                    missingDocs,
+                    searchResult: results.data,
+                    submittedSearchTerm,
+                    requestedSearchTerm,
+                    resultsOrder,
+                    filterOptions,
+                    previouslyIndexed,
+                    handleChangeResultsOrder,
+                    handleUpdateFilter,
+                    handleOpenPdf,
+                  }}
+                />
+              ) : (
+                <MemoizedResults
+                  {...{
+                    missingDocs,
+                    searchResult: documentNameMatches,
+                    submittedSearchTerm,
+                    requestedSearchTerm,
+                    resultsOrder,
+                    filterOptions,
+                    previouslyIndexed,
+                    handleChangeResultsOrder,
+                    handleUpdateFilter,
+                    handleOpenPdf,
+                  }}
+                />
+              )}
+            </>
+          )}
         <div>
           {!submittedSearchTerm && !requestedSearchTerm && (
             <p> Please enter your search term.</p>
           )}
         </div>
       </div>
-    </div>
+    </div >
   );
 };

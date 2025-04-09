@@ -59,6 +59,7 @@ import {
 } from "../../domain/gateway/PipelineDocument";
 import { LocalDocumentState } from "../../domain/LocalDocumentState";
 import { shouldTriggerPipelineRefresh } from "../utils/shouldTriggerPipelineRefresh";
+import { MappedTextSearchResult } from "../../domain/MappedTextSearchResult";
 
 export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
 
@@ -66,301 +67,301 @@ export const reducer = (
   state: CombinedState,
   action:
     | {
-        type: "UPDATE_CASE_DETAILS";
-        payload: ApiResult<CaseDetails>;
-      }
+      type: "UPDATE_CASE_DETAILS";
+      payload: ApiResult<CaseDetails>;
+    }
     | {
-        type: "UPDATE_DOCUMENTS";
-        payload: ApiResult<PresentationDocumentProperties[]>;
-      }
+      type: "UPDATE_DOCUMENTS";
+      payload: ApiResult<PresentationDocumentProperties[]>;
+    }
     | {
-        type: "UPDATE_PIPELINE";
-        payload: AsyncPipelineResult<PipelineResults>;
-      }
+      type: "UPDATE_PIPELINE";
+      payload: AsyncPipelineResult<PipelineResults>;
+    }
     | {
-        type: "UPDATE_DOCUMENT_REFRESH";
-        payload: {
-          startDocumentRefresh: boolean;
-          savedDocumentDetails?: {
-            documentId: string;
-            versionId: number;
-          };
-        };
-      }
-    | {
-        type: "UPDATE_PIPELINE_REFRESH";
-        payload: {
-          startPipelineRefresh: boolean;
-        };
-      }
-    | {
-        type: "OPEN_PDF";
-        payload: {
-          documentId: CaseDocumentViewModel["documentId"];
-          mode: CaseDocumentViewModel["mode"];
-          headers: HeadersInit;
-        };
-      }
-    | {
-        type: "CLOSE_PDF";
-        payload: { pdfId: string };
-      }
-    | {
-        type: "SET_ACTIVE_TAB";
-        payload: {
-          pdfId: string;
-        };
-      }
-    | {
-        type: "UPDATE_SEARCH_TERM";
-        payload: { searchTerm: string };
-      }
-    | {
-        type: "LAUNCH_SEARCH_RESULTS";
-      }
-    | {
-        type: "UPDATE_SEARCH_RESULTS";
-        payload: ApiResult<undefined | ApiTextSearchResult[]>;
-      }
-    | {
-        type: "CLOSE_SEARCH_RESULTS";
-      }
-    | {
-        type: "CHANGE_RESULTS_ORDER";
-        payload: CombinedState["searchState"]["resultsOrder"];
-      }
-    | {
-        type: "UPDATE_FILTER";
-        payload: {
-          filter: keyof CombinedState["searchState"]["filterOptions"];
-          id: string;
-          isSelected: boolean;
-        };
-      }
-    | {
-        type: "ADD_REDACTION";
-        payload: {
-          documentId: CaseDocumentViewModel["documentId"];
-          redactions: NewPdfHighlight[];
-        };
-      }
-    | {
-        type: "ADD_PAGE_DELETE_REDACTION";
-        payload: {
-          documentId: CaseDocumentViewModel["documentId"];
-          pageDeleteRedactions: PageDeleteRedaction[];
-        };
-      }
-    | {
-        type: "UPDATE_DOCUMENT_SAVE_STATUS";
-        payload: {
-          documentId: CaseDocumentViewModel["documentId"];
-          saveStatus: SaveStatus;
-        };
-      }
-    | {
-        type: "REMOVE_REDACTION";
-        payload: {
-          documentId: CaseDocumentViewModel["documentId"];
-          redactionId: string;
-        };
-      }
-    | {
-        type: "REMOVE_PAGE_DELETE_REDACTION";
-        payload: {
-          documentId: CaseDocumentViewModel["documentId"];
-          redactionId: string;
-        };
-      }
-    | {
-        type: "REMOVE_ALL_REDACTIONS";
-        payload: {
-          documentId: CaseDocumentViewModel["documentId"];
-        };
-      }
-    | {
-        type: "UPDATE_DOCUMENT_LOCK_STATE";
-        payload: {
-          documentId: CaseDocumentViewModel["documentId"];
-          lockedState: CaseDocumentViewModel["clientLockedState"];
-        };
-      }
-    | {
-        type: "SHOW_ERROR_MODAL";
-        payload: {
-          message: string;
-          title: string;
-          type: ErrorModalTypes;
-        };
-      }
-    | {
-        type: "HIDE_ERROR_MODAL";
-      }
-    | {
-        type: "SHOW_HIDE_DOCUMENT_ISSUE_MODAL";
-        payload: boolean;
-      }
-    | {
-        type: "SHOW_REDACTION_LOG_MODAL";
-        payload: {
-          type: RedactionLogTypes;
-          savedRedactionTypes: RedactionTypeData[];
-        };
-      }
-    | {
-        type: "HIDE_REDACTION_LOG_MODAL";
-      }
-    | {
-        type: "UPDATE_REDACTION_LOG_LOOK_UPS_DATA";
-        payload: ApiResult<RedactionLogLookUpsData>;
-      }
-    | {
-        type: "UPDATE_REDACTION_LOG_MAPPING_DATA";
-        payload: ApiResult<RedactionLogMappingData>;
-      }
-    | {
-        type: "UPDATE_FEATURE_FLAGS_DATA";
-        payload: FeatureFlagData;
-      }
-    | {
-        type: "ENABLE_AREA_REDACTION_MODE";
-        payload: {
-          documentId: CaseDocumentViewModel["documentId"];
-          enableAreaOnlyMode: boolean;
-        };
-      }
-    | {
-        type: "UPDATE_STORED_USER_DATA";
-        payload: {
-          storedUserData: StoredUserData;
-        };
-      }
-    | {
-        type: "UPDATE_NOTES_DATA";
-        payload:
-          | {
-              documentId: string;
-              addNoteStatus: "saving" | "failure" | "success";
-              getNoteStatus: "initial";
-            }
-          | {
-              documentId: string;
-              notesData: Note[];
-              addNoteStatus: "initial";
-              getNoteStatus: "initial" | "success" | "loading" | "failure";
-            };
-      }
-    | {
-        type: "UPDATE_RENAME_DATA";
-        payload: {
-          properties:
-            | {
-                documentId: string;
-                saveRenameStatus?: "failure" | "success";
-                saveRenameRefreshStatus?: "updating" | "updated";
-              }
-            | {
-                documentId: string;
-                newName: string;
-                saveRenameStatus: "saving" | "initial";
-                saveRenameRefreshStatus: "initial";
-              };
-        };
-      }
-    | {
-        type: "UPDATE_RECLASSIFY_DATA";
-        payload: {
-          properties:
-            | {
-                documentId: string;
-                saveReclassifyRefreshStatus: "initial" | "updated";
-              }
-            | {
-                documentId: string;
-                newDocTypeId: number;
-                reclassified: boolean;
-                saveReclassifyRefreshStatus: "updating";
-              };
-        };
-      }
-    | {
-        type: "SHOW_HIDE_REDACTION_SUGGESTIONS";
-        payload: {
+      type: "UPDATE_DOCUMENT_REFRESH";
+      payload: {
+        startDocumentRefresh: boolean;
+        savedDocumentDetails?: {
           documentId: string;
           versionId: number;
-          show: boolean;
-          getData: boolean;
-          defaultOption?: boolean;
         };
-      }
+      };
+    }
     | {
-        type: "UPDATE_SEARCH_PII_DATA";
-        payload: {
+      type: "UPDATE_PIPELINE_REFRESH";
+      payload: {
+        startPipelineRefresh: boolean;
+      };
+    }
+    | {
+      type: "OPEN_PDF";
+      payload: {
+        documentId: CaseDocumentViewModel["documentId"];
+        mode: CaseDocumentViewModel["mode"];
+        headers: HeadersInit;
+      };
+    }
+    | {
+      type: "CLOSE_PDF";
+      payload: { pdfId: string };
+    }
+    | {
+      type: "SET_ACTIVE_TAB";
+      payload: {
+        pdfId: string;
+      };
+    }
+    | {
+      type: "UPDATE_SEARCH_TERM";
+      payload: { searchTerm: string };
+    }
+    | {
+      type: "LAUNCH_SEARCH_RESULTS";
+    }
+    | {
+      type: "UPDATE_SEARCH_RESULTS";
+      payload: ApiResult<undefined | ApiTextSearchResult[]>;
+    }
+    | {
+      type: "CLOSE_SEARCH_RESULTS";
+    }
+    | {
+      type: "CHANGE_RESULTS_ORDER";
+      payload: CombinedState["searchState"]["resultsOrder"];
+    }
+    | {
+      type: "UPDATE_FILTER";
+      payload: {
+        filter: keyof CombinedState["searchState"]["filterOptions"];
+        id: string;
+        isSelected: boolean;
+      };
+    }
+    | {
+      type: "ADD_REDACTION";
+      payload: {
+        documentId: CaseDocumentViewModel["documentId"];
+        redactions: NewPdfHighlight[];
+      };
+    }
+    | {
+      type: "ADD_PAGE_DELETE_REDACTION";
+      payload: {
+        documentId: CaseDocumentViewModel["documentId"];
+        pageDeleteRedactions: PageDeleteRedaction[];
+      };
+    }
+    | {
+      type: "UPDATE_DOCUMENT_SAVE_STATUS";
+      payload: {
+        documentId: CaseDocumentViewModel["documentId"];
+        saveStatus: SaveStatus;
+      };
+    }
+    | {
+      type: "REMOVE_REDACTION";
+      payload: {
+        documentId: CaseDocumentViewModel["documentId"];
+        redactionId: string;
+      };
+    }
+    | {
+      type: "REMOVE_PAGE_DELETE_REDACTION";
+      payload: {
+        documentId: CaseDocumentViewModel["documentId"];
+        redactionId: string;
+      };
+    }
+    | {
+      type: "REMOVE_ALL_REDACTIONS";
+      payload: {
+        documentId: CaseDocumentViewModel["documentId"];
+      };
+    }
+    | {
+      type: "UPDATE_DOCUMENT_LOCK_STATE";
+      payload: {
+        documentId: CaseDocumentViewModel["documentId"];
+        lockedState: CaseDocumentViewModel["clientLockedState"];
+      };
+    }
+    | {
+      type: "SHOW_ERROR_MODAL";
+      payload: {
+        message: string;
+        title: string;
+        type: ErrorModalTypes;
+      };
+    }
+    | {
+      type: "HIDE_ERROR_MODAL";
+    }
+    | {
+      type: "SHOW_HIDE_DOCUMENT_ISSUE_MODAL";
+      payload: boolean;
+    }
+    | {
+      type: "SHOW_REDACTION_LOG_MODAL";
+      payload: {
+        type: RedactionLogTypes;
+        savedRedactionTypes: RedactionTypeData[];
+      };
+    }
+    | {
+      type: "HIDE_REDACTION_LOG_MODAL";
+    }
+    | {
+      type: "UPDATE_REDACTION_LOG_LOOK_UPS_DATA";
+      payload: ApiResult<RedactionLogLookUpsData>;
+    }
+    | {
+      type: "UPDATE_REDACTION_LOG_MAPPING_DATA";
+      payload: ApiResult<RedactionLogMappingData>;
+    }
+    | {
+      type: "UPDATE_FEATURE_FLAGS_DATA";
+      payload: FeatureFlagData;
+    }
+    | {
+      type: "ENABLE_AREA_REDACTION_MODE";
+      payload: {
+        documentId: CaseDocumentViewModel["documentId"];
+        enableAreaOnlyMode: boolean;
+      };
+    }
+    | {
+      type: "UPDATE_STORED_USER_DATA";
+      payload: {
+        storedUserData: StoredUserData;
+      };
+    }
+    | {
+      type: "UPDATE_NOTES_DATA";
+      payload:
+      | {
+        documentId: string;
+        addNoteStatus: "saving" | "failure" | "success";
+        getNoteStatus: "initial";
+      }
+      | {
+        documentId: string;
+        notesData: Note[];
+        addNoteStatus: "initial";
+        getNoteStatus: "initial" | "success" | "loading" | "failure";
+      };
+    }
+    | {
+      type: "UPDATE_RENAME_DATA";
+      payload: {
+        properties:
+        | {
           documentId: string;
-          versionId: number;
-          searchPIIResult: SearchPIIResultItem[];
-          getSearchPIIStatus: "initial" | "failure" | "loading" | "success";
-        };
-      }
-    | {
-        type: "HANDLE_SEARCH_PII_ACTION";
-        payload: {
+          saveRenameStatus?: "failure" | "success";
+          saveRenameRefreshStatus?: "updating" | "updated";
+        }
+        | {
           documentId: string;
-          highlightGroupIds: string[];
-          type: PIIRedactionStatus;
+          newName: string;
+          saveRenameStatus: "saving" | "initial";
+          saveRenameRefreshStatus: "initial";
         };
-      }
+      };
+    }
     | {
-        type: "REGISTER_NOTIFIABLE_EVENT";
-        payload: { documentId: string; reason: NotificationReason };
-      }
-    | {
-        type: "CLEAR_ALL_NOTIFICATIONS";
-      }
-    | {
-        type: "CLEAR_NOTIFICATION";
-        payload: { notificationId: number };
-      }
-    | {
-        type: "CLEAR_DOCUMENT_NOTIFICATIONS";
-        payload: { documentId: string };
-      }
-    | {
-        type: "SHOW_HIDE_PAGE_ROTATION";
-        payload: { documentId: string; rotatePageMode: boolean };
-      }
-    | {
-        type: "SHOW_HIDE_PAGE_DELETION";
-        payload: { documentId: string; deletePageMode: boolean };
-      }
-    | {
-        type: "ADD_PAGE_ROTATION";
-        payload: { documentId: string; pageRotations: PageRotation[] };
-      }
-    | {
-        type: "REMOVE_PAGE_ROTATION";
-        payload: {
+      type: "UPDATE_RECLASSIFY_DATA";
+      payload: {
+        properties:
+        | {
           documentId: string;
-          rotationId: string;
+          saveReclassifyRefreshStatus: "initial" | "updated";
+        }
+        | {
+          documentId: string;
+          newDocTypeId: number;
+          reclassified: boolean;
+          saveReclassifyRefreshStatus: "updating";
         };
-      }
+      };
+    }
     | {
-        type: "REMOVE_ALL_ROTATIONS";
-        payload: {
-          documentId: CaseDocumentViewModel["documentId"];
-        };
-      }
+      type: "SHOW_HIDE_REDACTION_SUGGESTIONS";
+      payload: {
+        documentId: string;
+        versionId: number;
+        show: boolean;
+        getData: boolean;
+        defaultOption?: boolean;
+      };
+    }
     | {
-        type: "UPDATE_CONVERSION_STATUS";
-        payload: {
-          documentId: CaseDocumentViewModel["documentId"];
-          status: GroupedConversionStatus;
-        };
-      }
+      type: "UPDATE_SEARCH_PII_DATA";
+      payload: {
+        documentId: string;
+        versionId: number;
+        searchPIIResult: SearchPIIResultItem[];
+        getSearchPIIStatus: "initial" | "failure" | "loading" | "success";
+      };
+    }
     | {
-        type: "ACCORDION_OPEN_CLOSE";
-        payload: { id: string; open: boolean };
-      }
+      type: "HANDLE_SEARCH_PII_ACTION";
+      payload: {
+        documentId: string;
+        highlightGroupIds: string[];
+        type: PIIRedactionStatus;
+      };
+    }
+    | {
+      type: "REGISTER_NOTIFIABLE_EVENT";
+      payload: { documentId: string; reason: NotificationReason };
+    }
+    | {
+      type: "CLEAR_ALL_NOTIFICATIONS";
+    }
+    | {
+      type: "CLEAR_NOTIFICATION";
+      payload: { notificationId: number };
+    }
+    | {
+      type: "CLEAR_DOCUMENT_NOTIFICATIONS";
+      payload: { documentId: string };
+    }
+    | {
+      type: "SHOW_HIDE_PAGE_ROTATION";
+      payload: { documentId: string; rotatePageMode: boolean };
+    }
+    | {
+      type: "SHOW_HIDE_PAGE_DELETION";
+      payload: { documentId: string; deletePageMode: boolean };
+    }
+    | {
+      type: "ADD_PAGE_ROTATION";
+      payload: { documentId: string; pageRotations: PageRotation[] };
+    }
+    | {
+      type: "REMOVE_PAGE_ROTATION";
+      payload: {
+        documentId: string;
+        rotationId: string;
+      };
+    }
+    | {
+      type: "REMOVE_ALL_ROTATIONS";
+      payload: {
+        documentId: CaseDocumentViewModel["documentId"];
+      };
+    }
+    | {
+      type: "UPDATE_CONVERSION_STATUS";
+      payload: {
+        documentId: CaseDocumentViewModel["documentId"];
+        status: GroupedConversionStatus;
+      };
+    }
+    | {
+      type: "ACCORDION_OPEN_CLOSE";
+      payload: { id: string; open: boolean };
+    }
     | { type: "ACCORDION_OPEN_CLOSE_ALL"; payload: boolean }
 ): CombinedState => {
   switch (action.type) {
@@ -412,7 +413,7 @@ export const reducer = (
         data,
         (state.caseState?.status === "succeeded" &&
           state.caseState.data.witnesses) ||
-          []
+        []
       );
 
       const notificationState = mapNotificationState(
@@ -580,9 +581,9 @@ export const reducer = (
 
       const savedDocumentDetails = payloadSavedDocumentDetails
         ? [
-            ...state.documentRefreshData.savedDocumentDetails,
-            payloadSavedDocumentDetails,
-          ]
+          ...state.documentRefreshData.savedDocumentDetails,
+          payloadSavedDocumentDetails,
+        ]
         : state.documentRefreshData.savedDocumentDetails;
 
       return {
@@ -662,8 +663,8 @@ export const reducer = (
 
       const document = !!state.documentsState.data
         ? state.documentsState.data.find(
-            (item) => item.documentId === documentId
-          )
+          (item) => item.documentId === documentId
+        )
         : undefined;
 
       const url =
@@ -706,39 +707,39 @@ export const reducer = (
 
         const pageOccurrences = foundDocumentSearchResult
           ? foundDocumentSearchResult.occurrences.reduce(
-              (
-                acc,
-                { pageIndex, pageHeight, pageWidth, occurrencesInLine }
-              ) => {
-                let foundPage = acc.find(
-                  (item) => item.pageIndex === pageIndex
-                );
+            (
+              acc,
+              { pageIndex, pageHeight, pageWidth, occurrencesInLine }
+            ) => {
+              let foundPage = acc.find(
+                (item) => item.pageIndex === pageIndex
+              );
 
-                if (!foundPage) {
-                  foundPage = {
-                    pageIndex,
-                    pageHeight,
-                    pageWidth,
-                    boundingBoxes: [],
-                  };
-                  acc.push(foundPage);
-                }
+              if (!foundPage) {
+                foundPage = {
+                  pageIndex,
+                  pageHeight,
+                  pageWidth,
+                  boundingBoxes: [],
+                };
+                acc.push(foundPage);
+              }
 
-                foundPage.boundingBoxes = [
-                  ...foundPage.boundingBoxes,
-                  ...occurrencesInLine,
-                ];
+              foundPage.boundingBoxes = [
+                ...foundPage.boundingBoxes,
+                ...occurrencesInLine,
+              ];
 
-                return acc;
-              },
-              [] as {
-                pageIndex: number;
-                pageHeight: number;
-                pageWidth: number;
-                boundingBoxes: number[][];
-              }[]
-            )
-          : /* istanbul ignore next */ [];
+              return acc;
+            },
+            [] as {
+              pageIndex: number;
+              pageHeight: number;
+              pageWidth: number;
+              boundingBoxes: number[][];
+            }[]
+          )
+          : /* istanbul ignore next */[];
 
         const unsortedSearchHighlights = mapSearchHighlights(pageOccurrences);
 
@@ -759,14 +760,14 @@ export const reducer = (
       const nextItemsArray =
         alreadyOpenedTabIndex === -1
           ? // this is the first time we are opening this tab
-            [...state.tabsState.items, item]
+          [...state.tabsState.items, item]
           : // this is a subsequent time, and the tab is now different (maybe going from
-            //  read to search mode or maybe a different search term)
-            state.tabsState.items.map((existingItem, index) =>
-              index === alreadyOpenedTabIndex
-                ? { ...existingItem, ...item }
-                : existingItem
-            );
+          //  read to search mode or maybe a different search term)
+          state.tabsState.items.map((existingItem, index) =>
+            index === alreadyOpenedTabIndex
+              ? { ...existingItem, ...item }
+              : existingItem
+          );
 
       const isUnread =
         state.storedUserData?.status === "succeeded" &&
@@ -784,17 +785,17 @@ export const reducer = (
         },
         ...(isUnread && state.storedUserData?.status === "succeeded"
           ? {
-              storedUserData: {
-                ...state.storedUserData,
-                data: {
-                  ...state.storedUserData.data,
-                  readUnread: [
-                    ...state.storedUserData.data.readUnread,
-                    documentId,
-                  ],
-                },
+            storedUserData: {
+              ...state.storedUserData,
+              data: {
+                ...state.storedUserData.data,
+                readUnread: [
+                  ...state.storedUserData.data.readUnread,
+                  documentId,
+                ],
               },
-            }
+            },
+          }
           : {}),
       };
     }
@@ -849,6 +850,31 @@ export const reducer = (
       const requestedSearchTerm = searchTerm.trim();
       const submittedSearchTerm = sanitizeSearchTerm(requestedSearchTerm);
 
+      console.log('state.searchState', state.searchState);
+      console.log('state.documentsState', state.documentsState);
+
+      let matches: MappedDocumentResult[] = [];
+
+      if (state.documentsState.status === 'succeeded') {
+        console.log('submittedSearchTerm', submittedSearchTerm);
+        const baseCaseDocuments = state.documentsState.data.filter(document => document.presentationTitle.toLowerCase().includes(submittedSearchTerm.toLowerCase()));
+        console.log('baseCaseDocuments', baseCaseDocuments);
+
+        type TDocument = MappedTextSearchResult["documentResults"][number];
+
+        const documentResults: TDocument[] = baseCaseDocuments.map(document => ({
+          ...document,
+          occurrencesInDocumentCount: 0,
+          occurrences: [],
+          isVisible: true,
+        }));
+
+
+        console.log('documentResult', documentResults);
+
+        matches = documentResults;
+      }
+
       return {
         ...state,
         searchState: {
@@ -859,6 +885,12 @@ export const reducer = (
           lastSubmittedSearchTerm: shouldWaitForNewPipelineRefresh
             ? ""
             : state.searchState.submittedSearchTerm ?? "",
+          documentNameMatches: {
+            totalOccurrencesCount: 0,
+            filteredOccurrencesCount: matches.length,
+            filteredDocumentCount: matches.length,
+            documentResults: matches,
+          },
         },
       };
     }
@@ -932,15 +964,15 @@ export const reducer = (
           results:
             state.searchState.results.status === "loading"
               ? // if loading, then there are no stable results to search,
-                //  also required for type checking :)
-                state.searchState.results
+              //  also required for type checking :)
+              state.searchState.results
               : {
-                  ...state.searchState.results,
-                  data: sortMappedTextSearchResult(
-                    state.searchState.results.data,
-                    action.payload
-                  ),
-                },
+                ...state.searchState.results,
+                data: sortMappedTextSearchResult(
+                  state.searchState.results.data,
+                  action.payload
+                ),
+              },
         },
       };
 
@@ -1025,12 +1057,12 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                  ...item,
-                  redactionHighlights: [
-                    ...item.redactionHighlights,
-                    ...newRedactions,
-                  ],
-                }
+                ...item,
+                redactionHighlights: [
+                  ...item.redactionHighlights,
+                  ...newRedactions,
+                ],
+              }
               : item
           ),
         },
@@ -1085,15 +1117,15 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                  ...item,
-                  pageDeleteRedactions: filterDuplicates([
-                    ...item.pageDeleteRedactions,
-                    ...newRedactions,
-                  ]),
-                  redactionHighlights: [
-                    ...clearPageUnsavedRedactions(item.redactionHighlights),
-                  ],
-                }
+                ...item,
+                pageDeleteRedactions: filterDuplicates([
+                  ...item.pageDeleteRedactions,
+                  ...newRedactions,
+                ]),
+                redactionHighlights: [
+                  ...clearPageUnsavedRedactions(item.redactionHighlights),
+                ],
+              }
               : item
           ),
         },
@@ -1116,9 +1148,9 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                  ...item,
-                  saveStatus: saveStatus,
-                }
+                ...item,
+                saveStatus: saveStatus,
+              }
               : item
           ),
         },
@@ -1134,11 +1166,11 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                  ...item,
-                  redactionHighlights: item.redactionHighlights.filter(
-                    (redaction) => redaction.id !== redactionId
-                  ),
-                }
+                ...item,
+                redactionHighlights: item.redactionHighlights.filter(
+                  (redaction) => redaction.id !== redactionId
+                ),
+              }
               : item
           ),
         },
@@ -1163,11 +1195,11 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                  ...item,
-                  pageDeleteRedactions: item.pageDeleteRedactions.filter(
-                    (redaction) => redaction.id !== redactionId
-                  ),
-                }
+                ...item,
+                pageDeleteRedactions: item.pageDeleteRedactions.filter(
+                  (redaction) => redaction.id !== redactionId
+                ),
+              }
               : item
           ),
         },
@@ -1191,10 +1223,10 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                  ...item,
-                  redactionHighlights: [],
-                  pageDeleteRedactions: [],
-                }
+                ...item,
+                redactionHighlights: [],
+                pageDeleteRedactions: [],
+              }
               : item
           ),
         },
@@ -1218,9 +1250,9 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                  ...item,
-                  clientLockedState: lockedState,
-                }
+                ...item,
+                clientLockedState: lockedState,
+              }
               : item
           ),
         },
@@ -1296,9 +1328,9 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                  ...item,
-                  areaOnlyRedactionMode: enableAreaOnlyMode,
-                }
+                ...item,
+                areaOnlyRedactionMode: enableAreaOnlyMode,
+              }
               : item
           ),
         },
@@ -1425,26 +1457,26 @@ export const reducer = (
           ...highlight,
           redactionStatus:
             highlight.redactionStatus === "ignored" ||
-            highlight.redactionStatus === "ignoredAll"
+              highlight.redactionStatus === "ignoredAll"
               ? ("initial" as const)
               : highlight.redactionStatus,
         })) ?? [];
 
       const newData = availablePIIData
         ? {
-            ...availablePIIData,
-            show: show,
-            defaultOption: defaultOption,
-            searchPIIHighlights: getData ? [] : newSearchPIIHighlights,
-          }
+          ...availablePIIData,
+          show: show,
+          defaultOption: defaultOption,
+          searchPIIHighlights: getData ? [] : newSearchPIIHighlights,
+        }
         : {
-            show: show,
-            defaultOption: defaultOption,
-            documentId: documentId,
-            versionId,
-            searchPIIHighlights: [],
-            getSearchPIIStatus: "initial" as const,
-          };
+          show: show,
+          defaultOption: defaultOption,
+          documentId: documentId,
+          versionId,
+          searchPIIHighlights: [],
+          getSearchPIIStatus: "initial" as const,
+        };
 
       return {
         ...state,
@@ -1627,10 +1659,10 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                  ...item,
-                  deletePageMode: deletePageMode,
-                  rotatePageMode: deletePageMode ? false : item.rotatePageMode,
-                }
+                ...item,
+                deletePageMode: deletePageMode,
+                rotatePageMode: deletePageMode ? false : item.rotatePageMode,
+              }
               : item
           ),
         },
@@ -1648,9 +1680,9 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                  ...item,
-                  rotatePageMode: rotatePageMode,
-                }
+                ...item,
+                rotatePageMode: rotatePageMode,
+              }
               : item
           ),
         },
@@ -1682,9 +1714,9 @@ export const reducer = (
                 pageRotations: item.pageRotations.map((rotation) =>
                   rotation.pageNumber === pageRotations[0].pageNumber
                     ? {
-                        ...rotation,
-                        rotationAngle: pageRotations[0].rotationAngle,
-                      }
+                      ...rotation,
+                      rotationAngle: pageRotations[0].rotationAngle,
+                    }
                     : rotation
                 ),
               };
@@ -1709,11 +1741,11 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                  ...item,
-                  pageRotations: item.pageRotations.filter(
-                    (rotation) => rotation.id !== rotationId
-                  ),
-                }
+                ...item,
+                pageRotations: item.pageRotations.filter(
+                  (rotation) => rotation.id !== rotationId
+                ),
+              }
               : item
           ),
         },
@@ -1730,9 +1762,9 @@ export const reducer = (
           items: state.tabsState.items.map((item) =>
             item.documentId === documentId
               ? {
-                  ...item,
-                  pageRotations: [],
-                }
+                ...item,
+                pageRotations: [],
+              }
               : item
           ),
         },

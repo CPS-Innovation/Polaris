@@ -73,6 +73,7 @@ export type CombinedState = {
       fileName: string;
     }[];
     results: AsyncResult<MappedTextSearchResult>;
+    documentNameMatches: MappedTextSearchResult;
   };
   errorModal: {
     show: boolean;
@@ -128,6 +129,12 @@ export const initialState = {
     },
     missingDocs: [],
     results: { status: "loading" },
+    documentNameMatches: {
+      totalOccurrencesCount: 0,
+      filteredOccurrencesCount: 0,
+      filteredDocumentCount: 0,
+      documentResults: [],
+    },
   },
   errorModal: {
     show: false,
