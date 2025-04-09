@@ -29,6 +29,7 @@ const mockConfig = configModule as {
   FEATURE_FLAG_PAGE_ROTATE: boolean;
   FEATURE_FLAG_STATE_RETENTION: boolean;
   FEATURE_FLAG_GLOBAL_NAV: boolean;
+  FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON: boolean;
   PRIVATE_BETA_FEATURE_USER_GROUP: string;
   PRIVATE_BETA_FEATURE_USER_GROUP2: string;
 };
@@ -129,6 +130,17 @@ describe("useUserGroupsFeatureFlag", () => {
 
       const { result } = renderHook(() => useUserGroupsFeatureFlag());
       expect(result?.current?.redactionLog).toStrictEqual(true);
+    });
+  });
+
+  describe("redaction copy button flag", () => {
+    test("Should show the button if REACT_APP_FEATURE_FLAG_TOGGLE_COPY_BUTTON is set to true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "test",
+      });
+      mockConfig.FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON = true;
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.copyRedactionTextButton).toStrictEqual(true);
     });
   });
 

@@ -18,6 +18,7 @@ export type FeatureFlagData = {
   notifications: boolean;
   stateRetention: boolean;
   globalNav: boolean;
+  copyRedactionTextButton: boolean;
 };
 
 export type FeatureFlagQueryParams = {
@@ -34,4 +35,5 @@ export type FeatureFlagQueryParams = {
   notifications: string;
   stateRetention: string;
   globalNav: string;
+  copyRedactionTextButton: string;
 };
