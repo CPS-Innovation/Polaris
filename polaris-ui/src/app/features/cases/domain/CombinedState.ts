@@ -73,7 +73,14 @@ export type CombinedState = {
       fileName: string;
     }[];
     results: AsyncResult<MappedTextSearchResult>;
-    documentNameMatches: MappedTextSearchResult;
+    documentNameSearch: {
+      resultsOrder: "byDateDesc" | "byOccurancesPerDocumentDesc";
+      filterOptions: {
+        docType: { [key: string]: FilterOption };
+        category: { [key: string]: FilterOption };
+      };
+      results: MappedTextSearchResult;
+    };
   };
   errorModal: {
     show: boolean;
@@ -129,12 +136,19 @@ export const initialState = {
     },
     missingDocs: [],
     results: { status: "loading" },
-    documentNameMatches: {
-      totalOccurrencesCount: 0,
-      filteredOccurrencesCount: 0,
-      filteredDocumentCount: 0,
-      documentResults: [],
-    },
+    documentNameSearch: {
+      resultsOrder: "byDateDesc",
+      filterOptions: {
+        docType: {},
+        category: {},
+      },
+      results: {
+        totalOccurrencesCount: 0,
+        filteredOccurrencesCount: 0,
+        filteredDocumentCount: 0,
+        documentResults: [],
+      },
+    }
   },
   errorModal: {
     show: false,
