@@ -96,6 +96,7 @@ feature_flag_global_nav                            = "false"
 feature_flag_external_redirect_case_review_app     = "true"
 feature_flag_external_redirect_bulk_um_app         = "true"
 feature_flag_background_pipeline_refresh           = "true"
+feature_flag_redaction_toggle_copy_button          = "false"
 background_pipeline_refresh_interval_ms            = 5 * 60 * 1000
 background_pipeline_refresh_show_own_notifications = "false"
 feature_flag_page_rotate                           = "true"
