@@ -20,6 +20,7 @@ type Props = {
   pipelineState: CombinedState["pipelineState"];
   featureFlags: CombinedState["featureFlags"];
   handleSearchTermChange: CaseDetailsState["handleSearchTermChange"];
+  handleSearchTypeChange: CaseDetailsState["handleSearchTypeChange"];
   handleCloseSearchResults: CaseDetailsState["handleCloseSearchResults"];
   handleLaunchSearchResults: CaseDetailsState["handleLaunchSearchResults"];
   handleChangeResultsOrder: CaseDetailsState["handleChangeResultsOrder"];

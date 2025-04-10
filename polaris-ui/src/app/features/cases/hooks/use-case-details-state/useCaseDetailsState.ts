@@ -129,6 +129,16 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleSearchTypeChange = useCallback(
+    (searchType: CombinedState["searchState"]["searchType"]) => {
+      dispatch({
+        type: "UPDATE_SEARCH_TYPE",
+        payload: searchType,
+      });
+    },
+    [dispatch]
+  );
+
   const handleLaunchSearchResults = useCallback(() => {
     dispatch({
       type: "UPDATE_PIPELINE_REFRESH",
@@ -586,6 +596,7 @@ export const useCaseDetailsState = (
     handleClosePdf,
     handleTabSelection,
     handleSearchTermChange,
+    handleSearchTypeChange,
     handleLaunchSearchResults,
     handleCloseSearchResults,
     handleChangeResultsOrder,

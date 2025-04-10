@@ -14,6 +14,7 @@ type Props = {
   searchState: CombinedState["searchState"];
   loadingPercentage?: number;
   handleSearchTermChange: CaseDetailsState["handleSearchTermChange"];
+  handleSearchTypeChange: CaseDetailsState["handleSearchTypeChange"];
   handleLaunchSearchResults: CaseDetailsState["handleLaunchSearchResults"];
   handleChangeResultsOrder: CaseDetailsState["handleChangeResultsOrder"];
   handleUpdateFilter: CaseDetailsState["handleUpdateFilter"];
@@ -43,6 +44,7 @@ export const Content: React.FC<Props> = ({
   },
   loadingPercentage,
   handleSearchTermChange: handleChange,
+  handleSearchTypeChange,
   handleLaunchSearchResults: handleSubmit,
   handleChangeResultsOrder,
   handleUpdateFilter,
@@ -52,6 +54,7 @@ export const Content: React.FC<Props> = ({
     lastSubmittedSearchTerm);
 
   const handleRefresh = () => {
+    handleSearchTypeChange("DocumentContent");
     setPreviouslyIndexed(true);
   };
 

@@ -117,6 +117,10 @@ export const reducer = (
       payload: { searchTerm: string };
     }
     | {
+      type: "UPDATE_SEARCH_TYPE";
+      payload: CombinedState["searchState"]["searchType"];
+    }
+    | {
       type: "LAUNCH_SEARCH_RESULTS";
     }
     | {
@@ -825,6 +829,8 @@ export const reducer = (
       };
     }
     case "UPDATE_SEARCH_TERM":
+      console.log('UPDATE_SEARCH_TERM');
+
       return {
         ...state,
         searchTerm: action.payload.searchTerm,
@@ -833,7 +839,18 @@ export const reducer = (
           lastSubmittedSearchTerm: state.searchState.submittedSearchTerm,
         },
       };
+    case "UPDATE_SEARCH_TYPE":
+      console.log('UPDATE_SEARCH_TYPE');
+
+      return {
+        ...state,
+        searchState: {
+          ...state.searchState,
+          searchType: action.payload,
+        },
+      };
     case "CLOSE_SEARCH_RESULTS":
+      console.log('CLOSE_SEARCH_RESULTS');
       return {
         ...state,
         searchState: {
@@ -842,6 +859,7 @@ export const reducer = (
         },
       };
     case "LAUNCH_SEARCH_RESULTS": {
+      console.log('LAUNCH_SEARCH_RESULTS');
       const shouldWaitForNewPipelineRefresh = shouldTriggerPipelineRefresh(
         state.notificationState?.lastModifiedDateTime ?? "",
         state.pipelineRefreshData?.localLastRefreshTime
@@ -850,15 +868,15 @@ export const reducer = (
       const requestedSearchTerm = searchTerm.trim();
       const submittedSearchTerm = sanitizeSearchTerm(requestedSearchTerm);
 
-      console.log('state.searchState', state.searchState);
-      console.log('state.documentsState', state.documentsState);
+   //   console.log('state.searchState', state.searchState);
+   //   console.log('state.documentsState', state.documentsState);
 
       let matches: MappedDocumentResult[] = [];
 
       if (state.documentsState.status === 'succeeded') {
-        console.log('submittedSearchTerm', submittedSearchTerm);
+      //  console.log('submittedSearchTerm', submittedSearchTerm);
         const baseCaseDocuments = state.documentsState.data.filter(document => document.presentationTitle.toLowerCase().includes(submittedSearchTerm.toLowerCase()));
-        console.log('baseCaseDocuments', baseCaseDocuments);
+     //   console.log('baseCaseDocuments', baseCaseDocuments);
 
         type TDocument = MappedTextSearchResult["documentResults"][number];
 
@@ -870,7 +888,7 @@ export const reducer = (
         }));
 
 
-        console.log('documentResult', documentResults);
+      //  console.log('documentResult', documentResults);
 
         matches = documentResults;
 
@@ -915,6 +933,9 @@ export const reducer = (
     }
 
     case "UPDATE_SEARCH_RESULTS": {
+      console.log('UPDATE_SEARCH_RESULTS');
+
+
       if (action.payload.status === "failed") {
         throw action.payload.error;
       }
@@ -975,6 +996,8 @@ export const reducer = (
     }
 
     case "CHANGE_RESULTS_ORDER":
+      console.log('CHANGE_RESULTS_ORDER');
+
       return {
         ...state,
         searchState: {
@@ -998,32 +1021,105 @@ export const reducer = (
     case "UPDATE_FILTER": {
       const { isSelected, filter, id } = action.payload;
 
+
+      console.log('UPDATE_FILTER', action.payload);
+
+      if (state.searchState.searchType === "DocumentContent") {
+
+        const nextState = {
+          ...state,
+          searchState: {
+            ...state.searchState,
+            filterOptions: {
+              ...state.searchState.filterOptions,
+              [filter]: {
+                ...state.searchState.filterOptions[filter],
+                [id]: {
+                  ...state.searchState.filterOptions[filter][id],
+                  isSelected,
+                },
+              },
+            },
+          },
+        };
+
+        if (state.searchState.results.status !== "succeeded") {
+          return nextState;
+        }
+
+        const nextResults = state.searchState.results.data.documentResults.reduce(
+          (acc, curr) => {
+            const { isVisible, hasChanged } = isDocumentVisible(
+              curr,
+              nextState.searchState.filterOptions
+            );
+
+            acc.push(hasChanged ? { ...curr, isVisible } : curr);
+            return acc;
+          },
+          [] as MappedDocumentResult[]
+        );
+
+        const { filteredDocumentCount, filteredOccurrencesCount } =
+          nextResults.reduce(
+            (acc, curr) => {
+              if (curr.isVisible) {
+                acc.filteredDocumentCount += 1;
+                acc.filteredOccurrencesCount += curr.occurrencesInDocumentCount;
+              }
+
+              return acc;
+            },
+            { filteredDocumentCount: 0, filteredOccurrencesCount: 0 }
+          );
+
+        return {
+          ...nextState,
+          searchState: {
+            ...nextState.searchState,
+            results: {
+              ...state.searchState.results,
+              data: {
+                ...state.searchState.results.data,
+                documentResults: nextResults,
+                filteredDocumentCount,
+                filteredOccurrencesCount,
+              },
+            },
+          },
+        };
+      }
+
+
+
+
       const nextState = {
         ...state,
         searchState: {
           ...state.searchState,
-          filterOptions: {
-            ...state.searchState.filterOptions,
-            [filter]: {
-              ...state.searchState.filterOptions[filter],
-              [id]: {
-                ...state.searchState.filterOptions[filter][id],
-                isSelected,
+          documentNameSearch: {
+            ...state.searchState.documentNameSearch,
+            filterOptions: {
+              ...state.searchState.documentNameSearch.filterOptions,
+              [filter]: {
+                ...state.searchState.documentNameSearch.filterOptions[filter],
+                [id]: {
+                  ...state.searchState.documentNameSearch.filterOptions[filter][id],
+                  isSelected,
+                },
               },
-            },
+            }
           },
         },
       };
 
-      if (state.searchState.results.status !== "succeeded") {
-        return nextState;
-      }
+      console.log('nextState', nextState.searchState.documentNameSearch.filterOptions);
 
-      const nextResults = state.searchState.results.data.documentResults.reduce(
+      const nextResults = state.searchState.documentNameSearch.results.documentResults.reduce(
         (acc, curr) => {
           const { isVisible, hasChanged } = isDocumentVisible(
             curr,
-            nextState.searchState.filterOptions
+            nextState.searchState.documentNameSearch.filterOptions
           );
 
           acc.push(hasChanged ? { ...curr, isVisible } : curr);
@@ -1032,34 +1128,44 @@ export const reducer = (
         [] as MappedDocumentResult[]
       );
 
-      const { filteredDocumentCount, filteredOccurrencesCount } =
-        nextResults.reduce(
-          (acc, curr) => {
-            if (curr.isVisible) {
-              acc.filteredDocumentCount += 1;
-              acc.filteredOccurrencesCount += curr.occurrencesInDocumentCount;
-            }
+      console.log('nextResults', nextResults);
 
-            return acc;
-          },
-          { filteredDocumentCount: 0, filteredOccurrencesCount: 0 }
-        );
+      // const { filteredDocumentCount, filteredOccurrencesCount } =
+      //   nextResults.reduce(
+      //     (acc, curr) => {
+      //       if (curr.isVisible) {
+      //         acc.filteredDocumentCount += 1;
+      //         acc.filteredOccurrencesCount += curr.occurrencesInDocumentCount;
+      //       }
+
+      //       return acc;
+      //     },
+      //     { filteredDocumentCount: 0, filteredOccurrencesCount: 0 }
+      //   );
 
       return {
         ...nextState,
         searchState: {
           ...nextState.searchState,
-          results: {
-            ...state.searchState.results,
-            data: {
-              ...state.searchState.results.data,
-              documentResults: nextResults,
-              filteredDocumentCount,
-              filteredOccurrencesCount,
-            },
+          documentNameSearch: {
+            ...nextState.searchState.documentNameSearch,
+            results: {
+              ...state.searchState.documentNameSearch.results,
+              documentResults: nextResults
+            }
           },
+          // results: {
+          //   ...state.searchState.results,
+          //   data: {
+          //     ...state.searchState.documentNameSearch.results,
+          //     documentResults: nextResults,
+          //     filteredDocumentCount,
+          //     filteredOccurrencesCount,
+          //   },
+          // },
         },
       };
+
     }
     case "ADD_REDACTION": {
       const { documentId, redactions } = action.payload;
