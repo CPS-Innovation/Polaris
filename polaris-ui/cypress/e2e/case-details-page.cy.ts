@@ -166,7 +166,9 @@ describe("case details page", () => {
       cy.findByTestId("btn-redact").should("be.disabled");
       cy.findByTestId("select-redaction-type").should("have.length", 1);
       cy.findByTestId("select-redaction-type").select("2");
+      cy.findByTestId("btn-redact").should("be.enabled");
       cy.findByTestId("btn-redact").click({ force: true });
+      cy.wait(500);
       cy.findByTestId("tab-remove").click();
       cy.findByTestId("div-modal")
         .should("exist")
@@ -220,7 +222,7 @@ describe("case details page", () => {
       cy.on("window:before:load", (win) => {
         Object.defineProperty(win, "onbeforeunload", {
           set(cb) {
-            if (cb !== null) {
+            if (typeof cb !== "undefined") {
               win.addEventListener("beforeunload", beforeunloadCallbackStub);
             }
           },
