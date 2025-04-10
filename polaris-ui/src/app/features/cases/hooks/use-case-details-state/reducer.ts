@@ -887,19 +887,23 @@ export const reducer = (
           ...state,
           searchState: {
             ...searchState,
-            filterOptions,
             isResultsVisible: true,
             requestedSearchTerm,
             submittedSearchTerm,
             lastSubmittedSearchTerm: shouldWaitForNewPipelineRefresh
               ? ""
               : state.searchState.submittedSearchTerm ?? "",
-            documentNameMatches: {
-              totalOccurrencesCount: 0,
-              filteredOccurrencesCount: matches.length,
-              filteredDocumentCount: matches.length,
-              documentResults: matches,
-            },
+            documentNameSearch: {
+              resultsOrder: "byDateDesc",
+              filterOptions,
+              results: {
+                totalOccurrencesCount: 0,
+                filteredOccurrencesCount: matches.length,
+                filteredDocumentCount: matches.length,
+                documentResults: matches,
+              },
+            }
+
           },
         };
       }

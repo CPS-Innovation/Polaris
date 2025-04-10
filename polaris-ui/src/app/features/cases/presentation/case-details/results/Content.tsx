@@ -31,10 +31,15 @@ export const Content: React.FC<Props> = ({
     results,
     submittedSearchTerm,
     requestedSearchTerm,
+    lastSubmittedSearchTerm,
     missingDocs,
     resultsOrder,
     filterOptions,
-    documentNameMatches,
+    documentNameSearch: {
+      filterOptions: documentNameSearchFilterOptions,
+      resultsOrder: documentNameSearchResultsOrder,
+      results: documentNameSearchResults,
+    },
   },
   loadingPercentage,
   handleSearchTermChange: handleChange,
@@ -43,7 +48,8 @@ export const Content: React.FC<Props> = ({
   handleUpdateFilter,
   handleOpenPdf,
 }) => {
-  const [previouslyIndexed, setPreviouslyIndexed] = useState(results.status === 'succeeded');
+  const [previouslyIndexed, setPreviouslyIndexed] = useState(results.status === 'succeeded' && submittedSearchTerm ===
+    lastSubmittedSearchTerm);
 
   const handleRefresh = () => {
     setPreviouslyIndexed(true);
@@ -131,12 +137,12 @@ export const Content: React.FC<Props> = ({
               ) : (
                 <MemoizedResults
                   {...{
-                    missingDocs,
-                    searchResult: documentNameMatches,
+                    missingDocs: [],
+                    searchResult: documentNameSearchResults,
                     submittedSearchTerm,
                     requestedSearchTerm,
-                    resultsOrder,
-                    filterOptions,
+                    resultsOrder: documentNameSearchResultsOrder,
+                    filterOptions: documentNameSearchFilterOptions,
                     previouslyIndexed,
                     handleChangeResultsOrder,
                     handleUpdateFilter,
