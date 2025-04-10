@@ -73,6 +73,7 @@ export type CombinedState = {
       fileName: string;
     }[];
     results: AsyncResult<MappedTextSearchResult>;
+    searchType: "DocumentName" | "DocumentContent",
     documentNameSearch: {
       resultsOrder: "byDateDesc" | "byOccurancesPerDocumentDesc";
       filterOptions: {
@@ -136,6 +137,7 @@ export const initialState = {
     },
     missingDocs: [],
     results: { status: "loading" },
+    searchType: "DocumentName",
     documentNameSearch: {
       resultsOrder: "byDateDesc",
       filterOptions: {
