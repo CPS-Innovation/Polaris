@@ -197,7 +197,7 @@ describe("State Retention", () => {
 
     cy.reload();
     cy.wait(1000);
-    
+
     //making sure state is retained
     cy.contains("There is 1 redaction");
     cy.findByTestId("btn-accordion-open-close-all").should(
