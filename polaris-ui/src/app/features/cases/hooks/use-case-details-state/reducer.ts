@@ -873,25 +873,40 @@ export const reducer = (
         console.log('documentResult', documentResults);
 
         matches = documentResults;
+
+        const documentNameMatches: MappedTextSearchResult = {
+          totalOccurrencesCount: 0,
+          filteredOccurrencesCount: matches.length,
+          filteredDocumentCount: matches.length,
+          documentResults: matches,
+        };
+
+        const filterOptions = mapFilters(documentNameMatches);
+
+        return {
+          ...state,
+          searchState: {
+            ...searchState,
+            filterOptions,
+            isResultsVisible: true,
+            requestedSearchTerm,
+            submittedSearchTerm,
+            lastSubmittedSearchTerm: shouldWaitForNewPipelineRefresh
+              ? ""
+              : state.searchState.submittedSearchTerm ?? "",
+            documentNameMatches: {
+              totalOccurrencesCount: 0,
+              filteredOccurrencesCount: matches.length,
+              filteredDocumentCount: matches.length,
+              documentResults: matches,
+            },
+          },
+        };
       }
 
+      // TODO SH Temp
       return {
         ...state,
-        searchState: {
-          ...searchState,
-          isResultsVisible: true,
-          requestedSearchTerm,
-          submittedSearchTerm,
-          lastSubmittedSearchTerm: shouldWaitForNewPipelineRefresh
-            ? ""
-            : state.searchState.submittedSearchTerm ?? "",
-          documentNameMatches: {
-            totalOccurrencesCount: 0,
-            filteredOccurrencesCount: matches.length,
-            filteredDocumentCount: matches.length,
-            documentResults: matches,
-          },
-        },
       };
     }
 
