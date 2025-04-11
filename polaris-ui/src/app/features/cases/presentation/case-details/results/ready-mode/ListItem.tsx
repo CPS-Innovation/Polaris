@@ -60,7 +60,9 @@ export const ListItem: React.FC<Props> = ({
       </div>
 
       {isDocumentNameMatch && (
-        <p>Filename contains {submittedSearchTerm} </p>
+        <div className="govuk-details__text">
+          <span>Filename contains <b>{submittedSearchTerm}</b></span>
+        </div>
       )}
 
       {firstOccurrence && (

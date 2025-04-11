@@ -1156,34 +1156,18 @@ export const reducer = (
         [] as MappedDocumentResult[]
       );
 
-      // const { filteredDocumentCount, filteredOccurrencesCount } =
-      //   nextResults.reduce(
-      //     (acc, curr) => {
-      //       if (curr.isVisible) {
-      //         acc.filteredDocumentCount += 1;
-      //         acc.filteredOccurrencesCount += curr.occurrencesInDocumentCount;
-      //       }
+      const { filteredDocumentCount, filteredOccurrencesCount } =
+        nextResults.reduce(
+          (acc, curr) => {
+            if (curr.isVisible) {
+              acc.filteredDocumentCount += 1;
+              acc.filteredOccurrencesCount += 1;
+            }
 
-      //       return acc;
-      //     },
-      //     { filteredDocumentCount: 0, filteredOccurrencesCount: 0 }
-      //   );
-
-      // return {
-      //   ...nextState,
-      //   searchState: {
-      //     ...nextState.searchState,
-      //     results: {
-      //       ...state.searchState.results,
-      //       data: {
-      //         ...state.searchState.results.data,
-      //         documentResults: nextResults,
-      //         filteredDocumentCount,
-      //         filteredOccurrencesCount,
-      //       },
-      //     },
-      //   },
-      // };
+            return acc;
+          },
+          { filteredDocumentCount: 0, filteredOccurrencesCount: 0 }
+        );
 
       return {
         ...nextState,
@@ -1198,8 +1182,8 @@ export const reducer = (
                 data: {
                   ...state.searchState.searchConfigs.documentName.results.data,
                   documentResults: nextResults,
-                  // filteredDocumentCount,
-                  // filteredOccurrencesCount,
+                  filteredDocumentCount,
+                  filteredOccurrencesCount,
                 },
               },
             }
