@@ -11,10 +11,10 @@ type Props = {
   requestedSearchTerm: string;
   searchResult: MappedTextSearchResult;
   missingDocs: CombinedState["searchState"]["missingDocs"];
-  resultsOrder: CombinedState["searchState"]["resultsOrder"];
+  resultsOrder: CombinedState["searchState"]["searchConfigs"]["DocumentContent"]["resultsOrder"];
   previouslyIndexed: boolean;
   handleChangeResultsOrder: CaseDetailsState["handleChangeResultsOrder"];
-  filterOptions: CombinedState["searchState"]["filterOptions"];
+  filterOptions: CombinedState["searchState"]["searchConfigs"]["DocumentContent"]["filterOptions"];
   handleUpdateFilter: CaseDetailsState["handleUpdateFilter"];
   handleOpenPdf: CaseDetailsState["handleOpenPdf"];
 };

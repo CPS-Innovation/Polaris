@@ -63,26 +63,23 @@ export type CombinedState = {
     requestedSearchTerm: string | undefined;
     submittedSearchTerm: string | undefined;
     lastSubmittedSearchTerm: string | undefined;
-    resultsOrder: "byDateDesc" | "byOccurancesPerDocumentDesc";
-    filterOptions: {
-      docType: { [key: string]: FilterOption };
-      category: { [key: string]: FilterOption };
+    searchType: "DocumentName" | "DocumentContent",
+    searchConfigs: {
+      [key in "DocumentName" | "DocumentContent"]: {
+        resultsOrder: "byDateDesc" | "byOccurancesPerDocumentDesc";
+        filterOptions: {
+          docType: { [key: string]: FilterOption };
+          category: { [key: string]: FilterOption };
+        };
+        results: AsyncResult<MappedTextSearchResult>;
+      };
     };
     missingDocs: {
       documentId: CaseDocumentViewModel["documentId"];
       fileName: string;
     }[];
-    results: AsyncResult<MappedTextSearchResult>;
-    searchType: "DocumentName" | "DocumentContent",
-    documentNameSearch: {
-      resultsOrder: "byDateDesc" | "byOccurancesPerDocumentDesc";
-      filterOptions: {
-        docType: { [key: string]: FilterOption };
-        category: { [key: string]: FilterOption };
-      };
-      results: AsyncResult<MappedTextSearchResult>;
-    };
   };
+
   errorModal: {
     show: boolean;
     message: string;
@@ -130,22 +127,26 @@ export const initialState = {
     requestedSearchTerm: undefined,
     submittedSearchTerm: undefined,
     lastSubmittedSearchTerm: undefined,
-    resultsOrder: "byDateDesc",
-    filterOptions: {
-      docType: {},
-      category: {},
+    searchType: "DocumentName",
+    searchConfigs: {
+      DocumentName: {
+        resultsOrder: "byDateDesc",
+        filterOptions: {
+          docType: {},
+          category: {},
+        },
+        results: { status: "loading" },
+      },
+      DocumentContent: {
+        resultsOrder: "byDateDesc",
+        filterOptions: {
+          docType: {},
+          category: {},
+        },
+        results: { status: "loading" },
+      },
     },
     missingDocs: [],
-    results: { status: "loading" },
-    searchType: "DocumentName",
-    documentNameSearch: {
-      resultsOrder: "byDateDesc",
-      filterOptions: {
-        docType: {},
-        category: {},
-      },
-      results: { status: "loading" },
-    }
   },
   errorModal: {
     show: false,

@@ -160,7 +160,7 @@ export const useCaseDetailsState = (
   );
 
   const handleChangeResultsOrder = useCallback(
-    (newResultsOrder: CombinedState["searchState"]["resultsOrder"]) =>
+    (newResultsOrder: CombinedState["searchState"]["searchConfigs"]["DocumentContent"]["resultsOrder"]) =>
       dispatch({
         type: "CHANGE_RESULTS_ORDER",
         payload: newResultsOrder,
@@ -170,7 +170,7 @@ export const useCaseDetailsState = (
 
   const handleUpdateFilter = useCallback(
     (payload: {
-      filter: keyof CombinedState["searchState"]["filterOptions"];
+      filter: keyof CombinedState["searchState"]["searchConfigs"]["DocumentContent"]["filterOptions"];
       id: string;
       isSelected: boolean;
     }) => dispatch({ type: "UPDATE_FILTER", payload }),

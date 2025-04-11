@@ -132,12 +132,12 @@ export const reducer = (
     }
     | {
       type: "CHANGE_RESULTS_ORDER";
-      payload: CombinedState["searchState"]["resultsOrder"];
+      payload: CombinedState["searchState"]["searchConfigs"]["DocumentContent"]["resultsOrder"];
     }
     | {
       type: "UPDATE_FILTER";
       payload: {
-        filter: keyof CombinedState["searchState"]["filterOptions"];
+        filter: keyof CombinedState["searchState"]["searchConfigs"]["DocumentContent"]["filterOptions"];
         id: string;
         isSelected: boolean;
       };
@@ -704,8 +704,8 @@ export const reducer = (
         };
       } else {
         const foundDocumentSearchResult =
-          state.searchState.results.status === "succeeded" &&
-          state.searchState.results.data.documentResults.find(
+          state.searchState.searchConfigs["DocumentContent"].results.status === "succeeded" &&
+          state.searchState.searchConfigs["DocumentContent"].results.data.documentResults.find(
             (item) => item.documentId === documentId
           )!;
 
@@ -906,12 +906,15 @@ export const reducer = (
             lastSubmittedSearchTerm: shouldWaitForNewPipelineRefresh
               ? ""
               : state.searchState.submittedSearchTerm ?? "",
-            documentNameSearch: {
-              resultsOrder: "byDateDesc",
-              filterOptions,
-              results: {
-                status: "succeeded",
-                data: documentNameMatches,
+            searchConfigs: {
+              ...state.searchState.searchConfigs,
+              DocumentName: {
+                resultsOrder: "byDateDesc",
+                filterOptions,
+                results: {
+                  status: "succeeded",
+                  data: documentNameMatches,
+                },
               },
             }
 
@@ -935,7 +938,14 @@ export const reducer = (
           ...state,
           searchState: {
             ...state.searchState,
-            results: { status: "loading" },
+            searchConfigs: {
+              ...state.searchState.searchConfigs,
+              DocumentContent: {
+                ...state.searchState.searchConfigs.DocumentContent,
+                results: { status: "loading" },
+              }
+            }
+
           },
         };
       }
@@ -958,7 +968,7 @@ export const reducer = (
 
         const sortedData = sortMappedTextSearchResult(
           unsortedData,
-          state.searchState.resultsOrder
+          state.searchState.searchConfigs.DocumentName.resultsOrder
         );
 
         const missingDocs = mapMissingDocuments(
@@ -973,10 +983,16 @@ export const reducer = (
           searchState: {
             ...state.searchState,
             missingDocs,
-            filterOptions,
-            results: {
-              status: "succeeded",
-              data: sortedData,
+            searchConfigs: {
+              ...state.searchState.searchConfigs,
+              DocumentContent: {
+                ...state.searchState.searchConfigs.DocumentContent,
+                filterOptions,
+                results: {
+                  status: "succeeded",
+                  data: sortedData,
+                },
+              }
             },
           },
         };
@@ -992,19 +1008,24 @@ export const reducer = (
         ...state,
         searchState: {
           ...state.searchState,
-          resultsOrder: action.payload,
-          results:
-            state.searchState.results.status === "loading"
-              ? // if loading, then there are no stable results to search,
-              //  also required for type checking :)
-              state.searchState.results
-              : {
-                ...state.searchState.results,
-                data: sortMappedTextSearchResult(
-                  state.searchState.results.data,
-                  action.payload
-                ),
-              },
+          searchConfigs: {
+            ...state.searchState.searchConfigs,
+            DocumentContent: {
+              ...state.searchState.searchConfigs.DocumentContent,
+              resultsOrder: action.payload,
+              results: state.searchState.searchConfigs.DocumentContent.results.status === "loading"
+                ? // if loading, then there are no stable results to search,
+                //  also required for type checking :)
+                state.searchState.searchConfigs.DocumentContent.results
+                : {
+                  ...state.searchState.searchConfigs.DocumentContent.results,
+                  data: sortMappedTextSearchResult(
+                    state.searchState.searchConfigs.DocumentContent.results.data,
+                    action.payload
+                  ),
+                },
+            }
+          },
         },
       };
 
@@ -1019,28 +1040,34 @@ export const reducer = (
           ...state,
           searchState: {
             ...state.searchState,
-            filterOptions: {
-              ...state.searchState.filterOptions,
-              [filter]: {
-                ...state.searchState.filterOptions[filter],
-                [id]: {
-                  ...state.searchState.filterOptions[filter][id],
-                  isSelected,
+            searchConfigs: {
+              ...state.searchState.searchConfigs,
+              DocumentContent: {
+                ...state.searchState.searchConfigs.DocumentContent,
+                filterOptions: {
+                  ...state.searchState.searchConfigs.DocumentContent.filterOptions,
+                  [filter]: {
+                    ...state.searchState.searchConfigs.DocumentContent.filterOptions[filter],
+                    [id]: {
+                      ...state.searchState.searchConfigs.DocumentContent.filterOptions[filter][id],
+                      isSelected,
+                    },
+                  },
                 },
-              },
-            },
+              }
+            }
           },
         };
 
-        if (state.searchState.results.status !== "succeeded") {
+        if (state.searchState.searchConfigs.DocumentContent.results.status !== "succeeded") {
           return nextState;
         }
 
-        const nextResults = state.searchState.results.data.documentResults.reduce(
+        const nextResults = state.searchState.searchConfigs.DocumentContent.results.data.documentResults.reduce(
           (acc, curr) => {
             const { isVisible, hasChanged } = isDocumentVisible(
               curr,
-              nextState.searchState.filterOptions
+              nextState.searchState.searchConfigs.DocumentContent.filterOptions
             );
 
             acc.push(hasChanged ? { ...curr, isVisible } : curr);
@@ -1066,53 +1093,60 @@ export const reducer = (
           ...nextState,
           searchState: {
             ...nextState.searchState,
-            results: {
-              ...state.searchState.results,
-              data: {
-                ...state.searchState.results.data,
-                documentResults: nextResults,
-                filteredDocumentCount,
-                filteredOccurrencesCount,
-              },
+            searchConfigs: {
+              ...nextState.searchState.searchConfigs,
+              DocumentContent: {
+                ...nextState.searchState.searchConfigs.DocumentContent,
+                results: {
+                  ...state.searchState.searchConfigs.DocumentContent.results,
+                  data: {
+                    ...state.searchState.searchConfigs.DocumentContent.results.data,
+                    documentResults: nextResults,
+                    filteredDocumentCount,
+                    filteredOccurrencesCount,
+                  },
+                },
+              }
             },
+
           },
         };
       }
-
-
-
 
       const nextState = {
         ...state,
         searchState: {
           ...state.searchState,
-          documentNameSearch: {
-            ...state.searchState.documentNameSearch,
-            filterOptions: {
-              ...state.searchState.documentNameSearch.filterOptions,
-              [filter]: {
-                ...state.searchState.documentNameSearch.filterOptions[filter],
-                [id]: {
-                  ...state.searchState.documentNameSearch.filterOptions[filter][id],
-                  isSelected,
+          searchConfigs: {
+            ...state.searchState.searchConfigs,
+            DocumentName: {
+              ...state.searchState.searchConfigs.DocumentName,
+              filterOptions: {
+                ...state.searchState.searchConfigs.DocumentName.filterOptions,
+                [filter]: {
+                  ...state.searchState.searchConfigs.DocumentName.filterOptions[filter],
+                  [id]: {
+                    ...state.searchState.searchConfigs.DocumentName.filterOptions[filter][id],
+                    isSelected,
+                  },
                 },
               },
             }
-          },
+          }
         },
       };
 
-      console.log('nextState', nextState.searchState.documentNameSearch.filterOptions);
+      console.log('nextState', nextState.searchState);
 
-      if (state.searchState.documentNameSearch.results.status !== "succeeded") {
+      if (state.searchState.searchConfigs.DocumentName.results.status !== "succeeded") {
         return nextState;
       }
 
-      const nextResults = state.searchState.documentNameSearch.results.data.documentResults.reduce(
+      const nextResults = state.searchState.searchConfigs.DocumentName.results.data.documentResults.reduce(
         (acc, curr) => {
           const { isVisible, hasChanged } = isDocumentVisible(
             curr,
-            nextState.searchState.documentNameSearch.filterOptions
+            nextState.searchState.searchConfigs.DocumentName.filterOptions
           );
 
           acc.push(hasChanged ? { ...curr, isVisible } : curr);
@@ -1120,8 +1154,6 @@ export const reducer = (
         },
         [] as MappedDocumentResult[]
       );
-
-      console.log('nextResults', nextResults);
 
       // const { filteredDocumentCount, filteredOccurrencesCount } =
       //   nextResults.reduce(
@@ -1152,36 +1184,30 @@ export const reducer = (
       //   },
       // };
 
-
       return {
         ...nextState,
         searchState: {
           ...nextState.searchState,
-          documentNameSearch: {
-            ...nextState.searchState.documentNameSearch,
-            results: {
-              ...state.searchState.documentNameSearch.results,
-              data: {
-                ...state.searchState.documentNameSearch.results.data,
-                documentResults: nextResults,
-                //     filteredDocumentCount,
-                //     filteredOccurrencesCount,
-              }
+          searchConfigs: {
+            ...nextState.searchState.searchConfigs,
+            DocumentName: {
+              ...nextState.searchState.searchConfigs.DocumentName,
+              results: {
+                ...state.searchState.searchConfigs.DocumentName.results,
+                data: {
+                  ...state.searchState.searchConfigs.DocumentName.results.data,
+                  documentResults: nextResults,
+                  // filteredDocumentCount,
+                  // filteredOccurrencesCount,
+                },
+              },
             }
           },
-          // results: {
-          //   ...state.searchState.results,
-          //   data: {
-          //     ...state.searchState.documentNameSearch.results,
-          //     documentResults: nextResults,
-          //     filteredDocumentCount,
-          //     filteredOccurrencesCount,
-          //   },
-          // },
+
         },
       };
-
     }
+
     case "ADD_REDACTION": {
       const { documentId, redactions } = action.payload;
 
