@@ -828,6 +828,7 @@ export const reducer = (
         },
       };
     }
+
     case "UPDATE_SEARCH_TERM":
       console.log('UPDATE_SEARCH_TERM');
 
@@ -839,6 +840,7 @@ export const reducer = (
           lastSubmittedSearchTerm: state.searchState.submittedSearchTerm,
         },
       };
+
     case "UPDATE_SEARCH_TYPE":
       console.log('UPDATE_SEARCH_TYPE');
 
@@ -849,8 +851,10 @@ export const reducer = (
           searchType: action.payload,
         },
       };
+
     case "CLOSE_SEARCH_RESULTS":
       console.log('CLOSE_SEARCH_RESULTS');
+
       return {
         ...state,
         searchState: {
@@ -858,8 +862,10 @@ export const reducer = (
           isResultsVisible: false,
         },
       };
+
     case "LAUNCH_SEARCH_RESULTS": {
       console.log('LAUNCH_SEARCH_RESULTS');
+
       const shouldWaitForNewPipelineRefresh = shouldTriggerPipelineRefresh(
         state.notificationState?.lastModifiedDateTime ?? "",
         state.pipelineRefreshData?.localLastRefreshTime
@@ -868,15 +874,9 @@ export const reducer = (
       const requestedSearchTerm = searchTerm.trim();
       const submittedSearchTerm = sanitizeSearchTerm(requestedSearchTerm);
 
-   //   console.log('state.searchState', state.searchState);
-   //   console.log('state.documentsState', state.documentsState);
-
-      let matches: MappedDocumentResult[] = [];
 
       if (state.documentsState.status === 'succeeded') {
-      //  console.log('submittedSearchTerm', submittedSearchTerm);
         const baseCaseDocuments = state.documentsState.data.filter(document => document.presentationTitle.toLowerCase().includes(submittedSearchTerm.toLowerCase()));
-     //   console.log('baseCaseDocuments', baseCaseDocuments);
 
         type TDocument = MappedTextSearchResult["documentResults"][number];
 
@@ -887,16 +887,11 @@ export const reducer = (
           isVisible: true,
         }));
 
-
-      //  console.log('documentResult', documentResults);
-
-        matches = documentResults;
-
         const documentNameMatches: MappedTextSearchResult = {
           totalOccurrencesCount: 0,
-          filteredOccurrencesCount: matches.length,
-          filteredDocumentCount: matches.length,
-          documentResults: matches,
+          filteredOccurrencesCount: documentResults.length,
+          filteredDocumentCount: documentResults.length,
+          documentResults,
         };
 
         const filterOptions = mapFilters(documentNameMatches);
@@ -915,10 +910,8 @@ export const reducer = (
               resultsOrder: "byDateDesc",
               filterOptions,
               results: {
-                totalOccurrencesCount: 0,
-                filteredOccurrencesCount: matches.length,
-                filteredDocumentCount: matches.length,
-                documentResults: matches,
+                status: "succeeded",
+                data: documentNameMatches,
               },
             }
 
@@ -926,10 +919,7 @@ export const reducer = (
         };
       }
 
-      // TODO SH Temp
-      return {
-        ...state,
-      };
+      return state;
     }
 
     case "UPDATE_SEARCH_RESULTS": {
@@ -1019,10 +1009,9 @@ export const reducer = (
       };
 
     case "UPDATE_FILTER": {
+      console.log('UPDATE_FILTER');
+
       const { isSelected, filter, id } = action.payload;
-
-
-      console.log('UPDATE_FILTER', action.payload);
 
       if (state.searchState.searchType === "DocumentContent") {
 
@@ -1115,7 +1104,11 @@ export const reducer = (
 
       console.log('nextState', nextState.searchState.documentNameSearch.filterOptions);
 
-      const nextResults = state.searchState.documentNameSearch.results.documentResults.reduce(
+      if (state.searchState.documentNameSearch.results.status !== "succeeded") {
+        return nextState;
+      }
+
+      const nextResults = state.searchState.documentNameSearch.results.data.documentResults.reduce(
         (acc, curr) => {
           const { isVisible, hasChanged } = isDocumentVisible(
             curr,
@@ -1143,6 +1136,23 @@ export const reducer = (
       //     { filteredDocumentCount: 0, filteredOccurrencesCount: 0 }
       //   );
 
+      // return {
+      //   ...nextState,
+      //   searchState: {
+      //     ...nextState.searchState,
+      //     results: {
+      //       ...state.searchState.results,
+      //       data: {
+      //         ...state.searchState.results.data,
+      //         documentResults: nextResults,
+      //         filteredDocumentCount,
+      //         filteredOccurrencesCount,
+      //       },
+      //     },
+      //   },
+      // };
+
+
       return {
         ...nextState,
         searchState: {
@@ -1151,7 +1161,12 @@ export const reducer = (
             ...nextState.searchState.documentNameSearch,
             results: {
               ...state.searchState.documentNameSearch.results,
-              documentResults: nextResults
+              data: {
+                ...state.searchState.documentNameSearch.results.data,
+                documentResults: nextResults,
+                //     filteredDocumentCount,
+                //     filteredOccurrencesCount,
+              }
             }
           },
           // results: {
