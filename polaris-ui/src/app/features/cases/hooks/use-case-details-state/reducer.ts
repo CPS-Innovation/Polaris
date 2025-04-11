@@ -60,6 +60,7 @@ import {
 import { LocalDocumentState } from "../../domain/LocalDocumentState";
 import { shouldTriggerPipelineRefresh } from "../utils/shouldTriggerPipelineRefresh";
 import { MappedTextSearchResult } from "../../domain/MappedTextSearchResult";
+import { mapDocumentNameSearch } from "./map-document-name-search";
 
 export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
 
@@ -876,26 +877,15 @@ export const reducer = (
 
 
       if (state.documentsState.status === 'succeeded') {
-        const baseCaseDocuments = state.documentsState.data.filter(document => document.presentationTitle.toLowerCase().includes(submittedSearchTerm.toLowerCase()));
 
-        type TDocument = MappedTextSearchResult["documentResults"][number];
+        const unsortedData = mapDocumentNameSearch(submittedSearchTerm, state.documentsState.data);
 
-        const documentResults: TDocument[] = baseCaseDocuments.map(document => ({
-          ...document,
-          occurrencesInDocumentCount: 0,
-          occurrences: [],
-          isVisible: true,
-          isDocumentNameMatch: true,
-        }));
+        const sortedData = sortMappedTextSearchResult(
+          unsortedData,
+          state.searchState.searchConfigs.documentContent.resultsOrder
+        );
 
-        const documentNameMatches: MappedTextSearchResult = {
-          totalOccurrencesCount: 0,
-          filteredOccurrencesCount: documentResults.length,
-          filteredDocumentCount: documentResults.length,
-          documentResults,
-        };
-
-        const filterOptions = mapFilters(documentNameMatches);
+        const filterOptions = mapFilters(unsortedData);
 
         return {
           ...state,
@@ -914,7 +904,7 @@ export const reducer = (
                 filterOptions,
                 results: {
                   status: "succeeded",
-                  data: documentNameMatches,
+                  data: sortedData,
                 },
               },
             }
@@ -969,7 +959,7 @@ export const reducer = (
 
         const sortedData = sortMappedTextSearchResult(
           unsortedData,
-          state.searchState.searchConfigs.documentName.resultsOrder
+          state.searchState.searchConfigs.documentContent.resultsOrder
         );
 
         const missingDocs = mapMissingDocuments(
@@ -1022,6 +1012,20 @@ export const reducer = (
                   ...state.searchState.searchConfigs.documentContent.results,
                   data: sortMappedTextSearchResult(
                     state.searchState.searchConfigs.documentContent.results.data,
+                    action.payload
+                  ),
+                },
+            },
+            documentName: {
+              ...state.searchState.searchConfigs.documentName,
+              resultsOrder: action.payload,
+              results: state.searchState.searchConfigs.documentName.results.status === "loading"
+                ?
+                state.searchState.searchConfigs.documentName.results
+                : {
+                  ...state.searchState.searchConfigs.documentName.results,
+                  data: sortMappedTextSearchResult(
+                    state.searchState.searchConfigs.documentName.results.data,
                     action.payload
                   ),
                 },
