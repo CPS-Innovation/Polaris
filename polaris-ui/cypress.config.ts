@@ -1,8 +1,8 @@
 import { defineConfig } from "cypress";
 
 export default defineConfig({
-  defaultCommandTimeout: 60000,
-  video: true,
+  defaultCommandTimeout: 4000,
+  video: false,
   reporter: "junit",
   reporterOptions: {
     mochaFile: "report-cypress/test-results-[hash].xml",
@@ -11,6 +11,7 @@ export default defineConfig({
   viewportHeight: 1000,
   viewportWidth: 1500,
   e2e: {
+    excludeSpecPattern: ["*/**/__coverage__", "*/**/mockServiceWorker.js"],
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {
