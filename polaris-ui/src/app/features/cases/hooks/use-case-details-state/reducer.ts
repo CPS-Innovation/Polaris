@@ -885,6 +885,7 @@ export const reducer = (
           occurrencesInDocumentCount: 0,
           occurrences: [],
           isVisible: true,
+          isDocumentNameMatch: true,
         }));
 
         const documentNameMatches: MappedTextSearchResult = {

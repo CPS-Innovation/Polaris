@@ -11,4 +11,5 @@ export type MappedDocumentResult = MappedCaseDocument & {
     occurrencesInLine: number[][];
   }[];
   isVisible: boolean;
+  isDocumentNameMatch: boolean;
 };
