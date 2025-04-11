@@ -59,8 +59,8 @@ import {
 } from "../../domain/gateway/PipelineDocument";
 import { LocalDocumentState } from "../../domain/LocalDocumentState";
 import { shouldTriggerPipelineRefresh } from "../utils/shouldTriggerPipelineRefresh";
-import { MappedTextSearchResult } from "../../domain/MappedTextSearchResult";
 import { mapDocumentNameSearch } from "./map-document-name-search";
+import { addDocumentNameMatches as combineDocumentNameMatches } from "./combine-document-name-matches";
 
 export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
 
@@ -877,7 +877,6 @@ export const reducer = (
 
 
       if (state.documentsState.status === 'succeeded') {
-
         const unsortedData = mapDocumentNameSearch(submittedSearchTerm, state.documentsState.data);
 
         const sortedData = sortMappedTextSearchResult(
@@ -945,6 +944,7 @@ export const reducer = (
         state.documentsState.status === "succeeded" &&
         state.pipelineState.status === "complete" &&
         state.searchState.submittedSearchTerm &&
+        state.searchState.searchConfigs.documentName.results.status === "succeeded" &&
         action.payload.data
       ) {
         const filteredSearchResults = filterApiResults(
@@ -952,10 +952,12 @@ export const reducer = (
           state.documentsState.data
         );
 
-        const unsortedData = mapTextSearch(
+        const textSearchResults = mapTextSearch(
           filteredSearchResults,
           state.documentsState.data
         );
+
+        const unsortedData = combineDocumentNameMatches(textSearchResults, state.searchState.searchConfigs.documentName.results.data.documentResults);
 
         const sortedData = sortMappedTextSearchResult(
           unsortedData,
