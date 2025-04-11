@@ -8,12 +8,13 @@ export const addDocumentNameMatches = (
 
   documentNameMatches.map(documentNameMatch => {
     const documentIndex = mappedTextSearchResult.documentResults.findIndex(document => document.documentId === documentNameMatch.documentId);
-    if (documentIndex) {
+    if (documentIndex !== -1) {
       mappedTextSearchResult.documentResults[documentIndex].isDocumentNameMatch = true;
     } else {
       mappedTextSearchResult.documentResults.splice(0, 0, documentNameMatch);
     }
   })
+
   return {
     ...mappedTextSearchResult
   };
