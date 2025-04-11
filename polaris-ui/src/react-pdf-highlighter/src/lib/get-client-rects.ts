@@ -1,7 +1,6 @@
 import type { LTWHP, Page } from "../types.js";
 
 import optimizeClientRects from "./optimize-client-rects";
-
 export const PAGE_BORDER_WIDTH = 9;
 
 const isClientRectInsidePageRect = (clientRect: DOMRect, pageRect: DOMRect) => {
@@ -24,7 +23,7 @@ const isClientRectInsidePageRect = (clientRect: DOMRect, pageRect: DOMRect) => {
 const getClientRects = (
   range: Range,
   pages: Page[],
-  shouldOptimize: boolean = true
+  shouldOptimize = true
 ): Array<LTWHP> => {
   const clientRects = Array.from(range.getClientRects());
 
@@ -36,8 +35,6 @@ const getClientRects = (
 
       if (
         isClientRectInsidePageRect(clientRect, pageRect) &&
-        clientRect.top >= 0 &&
-        clientRect.bottom >= 0 &&
         clientRect.width > 0 &&
         clientRect.height > 0 &&
         clientRect.width < pageRect.width &&
