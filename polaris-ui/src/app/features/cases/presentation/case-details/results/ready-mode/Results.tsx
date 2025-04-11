@@ -66,7 +66,7 @@ export const Results: React.FC<Props> = ({
           }}
         />
 
-        <List searchResult={searchResult} handleOpenPdf={handleOpenPdf} />
+        <List searchResult={searchResult} handleOpenPdf={handleOpenPdf} submittedSearchTerm={submittedSearchTerm} />
       </div>
     </>
   );

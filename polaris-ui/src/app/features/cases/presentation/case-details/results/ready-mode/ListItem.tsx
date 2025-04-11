@@ -10,8 +10,11 @@ import { CaseDetailsState } from "../../../../hooks/use-case-details-state/useCa
 import { ContextText } from "./ContextText";
 import { useAppInsightsTrackEvent } from "../../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./ListItem.module.scss";
+import { CombinedState } from "../../../../domain/CombinedState";
+
 type Props = {
   documentResult: MappedDocumentResult;
+  submittedSearchTerm: CombinedState["searchState"]["submittedSearchTerm"];
   handleOpenPdf: CaseDetailsState["handleOpenPdf"];
 };
 
@@ -21,9 +24,11 @@ export const ListItem: React.FC<Props> = ({
     documentId,
     cmsFileCreatedDate: createdDate,
     cmsDocType,
+    isDocumentNameMatch,
     occurrences: [firstOccurrence, ...subsequentOccurrences],
     occurrencesInDocumentCount,
   },
+  submittedSearchTerm,
   handleOpenPdf,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
@@ -53,6 +58,10 @@ export const ListItem: React.FC<Props> = ({
           {cmsDocType.documentType}
         </div>
       </div>
+
+      {isDocumentNameMatch && (
+        <p>Filename contains {submittedSearchTerm} </p>
+      )}
 
       {firstOccurrence && (
         <ContextText contextTextChunks={firstOccurrence.contextTextChunks} />
