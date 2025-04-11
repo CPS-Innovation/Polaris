@@ -80,7 +80,7 @@ export type CombinedState = {
         docType: { [key: string]: FilterOption };
         category: { [key: string]: FilterOption };
       };
-      results: MappedTextSearchResult;
+      results: AsyncResult<MappedTextSearchResult>;
     };
   };
   errorModal: {
@@ -144,12 +144,7 @@ export const initialState = {
         docType: {},
         category: {},
       },
-      results: {
-        totalOccurrencesCount: 0,
-        filteredOccurrencesCount: 0,
-        filteredDocumentCount: 0,
-        documentResults: [],
-      },
+      results: { status: "loading" },
     }
   },
   errorModal: {

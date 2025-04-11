@@ -138,20 +138,26 @@ export const Content: React.FC<Props> = ({
                   }}
                 />
               ) : (
-                <MemoizedResults
-                  {...{
-                    missingDocs: [],
-                    searchResult: documentNameSearchResults,
-                    submittedSearchTerm,
-                    requestedSearchTerm,
-                    resultsOrder: documentNameSearchResultsOrder,
-                    filterOptions: documentNameSearchFilterOptions,
-                    previouslyIndexed,
-                    handleChangeResultsOrder,
-                    handleUpdateFilter,
-                    handleOpenPdf,
-                  }}
-                />
+                <>
+                  {
+                    documentNameSearchResults.status === "succeeded" && (
+                      <MemoizedResults
+                        {...{
+                          missingDocs: [],
+                          searchResult: documentNameSearchResults.data,
+                          submittedSearchTerm,
+                          requestedSearchTerm,
+                          resultsOrder: documentNameSearchResultsOrder,
+                          filterOptions: documentNameSearchFilterOptions,
+                          previouslyIndexed,
+                          handleChangeResultsOrder,
+                          handleUpdateFilter,
+                          handleOpenPdf,
+                        }}
+                      />
+                    )
+                  }
+                </>
               )}
             </>
           )}
