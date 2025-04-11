@@ -132,12 +132,12 @@ export const reducer = (
     }
     | {
       type: "CHANGE_RESULTS_ORDER";
-      payload: CombinedState["searchState"]["searchConfigs"]["DocumentContent"]["resultsOrder"];
+      payload: CombinedState["searchState"]["searchConfigs"]["documentContent"]["resultsOrder"];
     }
     | {
       type: "UPDATE_FILTER";
       payload: {
-        filter: keyof CombinedState["searchState"]["searchConfigs"]["DocumentContent"]["filterOptions"];
+        filter: keyof CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"];
         id: string;
         isSelected: boolean;
       };
@@ -704,8 +704,8 @@ export const reducer = (
         };
       } else {
         const foundDocumentSearchResult =
-          state.searchState.searchConfigs["DocumentContent"].results.status === "succeeded" &&
-          state.searchState.searchConfigs["DocumentContent"].results.data.documentResults.find(
+          state.searchState.searchConfigs["documentContent"].results.status === "succeeded" &&
+          state.searchState.searchConfigs["documentContent"].results.data.documentResults.find(
             (item) => item.documentId === documentId
           )!;
 
@@ -908,7 +908,7 @@ export const reducer = (
               : state.searchState.submittedSearchTerm ?? "",
             searchConfigs: {
               ...state.searchState.searchConfigs,
-              DocumentName: {
+              documentName: {
                 resultsOrder: "byDateDesc",
                 filterOptions,
                 results: {
@@ -940,8 +940,8 @@ export const reducer = (
             ...state.searchState,
             searchConfigs: {
               ...state.searchState.searchConfigs,
-              DocumentContent: {
-                ...state.searchState.searchConfigs.DocumentContent,
+              documentContent: {
+                ...state.searchState.searchConfigs.documentContent,
                 results: { status: "loading" },
               }
             }
@@ -968,7 +968,7 @@ export const reducer = (
 
         const sortedData = sortMappedTextSearchResult(
           unsortedData,
-          state.searchState.searchConfigs.DocumentName.resultsOrder
+          state.searchState.searchConfigs.documentName.resultsOrder
         );
 
         const missingDocs = mapMissingDocuments(
@@ -985,8 +985,8 @@ export const reducer = (
             missingDocs,
             searchConfigs: {
               ...state.searchState.searchConfigs,
-              DocumentContent: {
-                ...state.searchState.searchConfigs.DocumentContent,
+              documentContent: {
+                ...state.searchState.searchConfigs.documentContent,
                 filterOptions,
                 results: {
                   status: "succeeded",
@@ -1010,17 +1010,17 @@ export const reducer = (
           ...state.searchState,
           searchConfigs: {
             ...state.searchState.searchConfigs,
-            DocumentContent: {
-              ...state.searchState.searchConfigs.DocumentContent,
+            documentContent: {
+              ...state.searchState.searchConfigs.documentContent,
               resultsOrder: action.payload,
-              results: state.searchState.searchConfigs.DocumentContent.results.status === "loading"
+              results: state.searchState.searchConfigs.documentContent.results.status === "loading"
                 ? // if loading, then there are no stable results to search,
                 //  also required for type checking :)
-                state.searchState.searchConfigs.DocumentContent.results
+                state.searchState.searchConfigs.documentContent.results
                 : {
-                  ...state.searchState.searchConfigs.DocumentContent.results,
+                  ...state.searchState.searchConfigs.documentContent.results,
                   data: sortMappedTextSearchResult(
-                    state.searchState.searchConfigs.DocumentContent.results.data,
+                    state.searchState.searchConfigs.documentContent.results.data,
                     action.payload
                   ),
                 },
@@ -1034,7 +1034,7 @@ export const reducer = (
 
       const { isSelected, filter, id } = action.payload;
 
-      if (state.searchState.searchType === "DocumentContent") {
+      if (state.searchState.searchType === "documentContent") {
 
         const nextState = {
           ...state,
@@ -1043,13 +1043,13 @@ export const reducer = (
             searchConfigs: {
               ...state.searchState.searchConfigs,
               DocumentContent: {
-                ...state.searchState.searchConfigs.DocumentContent,
+                ...state.searchState.searchConfigs.documentContent,
                 filterOptions: {
-                  ...state.searchState.searchConfigs.DocumentContent.filterOptions,
+                  ...state.searchState.searchConfigs.documentContent.filterOptions,
                   [filter]: {
-                    ...state.searchState.searchConfigs.DocumentContent.filterOptions[filter],
+                    ...state.searchState.searchConfigs.documentContent.filterOptions[filter],
                     [id]: {
-                      ...state.searchState.searchConfigs.DocumentContent.filterOptions[filter][id],
+                      ...state.searchState.searchConfigs.documentContent.filterOptions[filter][id],
                       isSelected,
                     },
                   },
@@ -1059,11 +1059,11 @@ export const reducer = (
           },
         };
 
-        if (state.searchState.searchConfigs.DocumentContent.results.status !== "succeeded") {
+        if (state.searchState.searchConfigs.documentContent.results.status !== "succeeded") {
           return nextState;
         }
 
-        const nextResults = state.searchState.searchConfigs.DocumentContent.results.data.documentResults.reduce(
+        const nextResults = state.searchState.searchConfigs.documentContent.results.data.documentResults.reduce(
           (acc, curr) => {
             const { isVisible, hasChanged } = isDocumentVisible(
               curr,
@@ -1095,12 +1095,12 @@ export const reducer = (
             ...nextState.searchState,
             searchConfigs: {
               ...nextState.searchState.searchConfigs,
-              DocumentContent: {
+              documentContent: {
                 ...nextState.searchState.searchConfigs.DocumentContent,
                 results: {
-                  ...state.searchState.searchConfigs.DocumentContent.results,
+                  ...state.searchState.searchConfigs.documentContent.results,
                   data: {
-                    ...state.searchState.searchConfigs.DocumentContent.results.data,
+                    ...state.searchState.searchConfigs.documentContent.results.data,
                     documentResults: nextResults,
                     filteredDocumentCount,
                     filteredOccurrencesCount,
@@ -1119,14 +1119,14 @@ export const reducer = (
           ...state.searchState,
           searchConfigs: {
             ...state.searchState.searchConfigs,
-            DocumentName: {
-              ...state.searchState.searchConfigs.DocumentName,
+            documentName: {
+              ...state.searchState.searchConfigs.documentName,
               filterOptions: {
-                ...state.searchState.searchConfigs.DocumentName.filterOptions,
+                ...state.searchState.searchConfigs.documentName.filterOptions,
                 [filter]: {
-                  ...state.searchState.searchConfigs.DocumentName.filterOptions[filter],
+                  ...state.searchState.searchConfigs.documentName.filterOptions[filter],
                   [id]: {
-                    ...state.searchState.searchConfigs.DocumentName.filterOptions[filter][id],
+                    ...state.searchState.searchConfigs.documentName.filterOptions[filter][id],
                     isSelected,
                   },
                 },
@@ -1138,15 +1138,15 @@ export const reducer = (
 
       console.log('nextState', nextState.searchState);
 
-      if (state.searchState.searchConfigs.DocumentName.results.status !== "succeeded") {
+      if (state.searchState.searchConfigs.documentName.results.status !== "succeeded") {
         return nextState;
       }
 
-      const nextResults = state.searchState.searchConfigs.DocumentName.results.data.documentResults.reduce(
+      const nextResults = state.searchState.searchConfigs.documentName.results.data.documentResults.reduce(
         (acc, curr) => {
           const { isVisible, hasChanged } = isDocumentVisible(
             curr,
-            nextState.searchState.searchConfigs.DocumentName.filterOptions
+            nextState.searchState.searchConfigs.documentName.filterOptions
           );
 
           acc.push(hasChanged ? { ...curr, isVisible } : curr);
@@ -1190,12 +1190,12 @@ export const reducer = (
           ...nextState.searchState,
           searchConfigs: {
             ...nextState.searchState.searchConfigs,
-            DocumentName: {
-              ...nextState.searchState.searchConfigs.DocumentName,
+            documentName: {
+              ...nextState.searchState.searchConfigs.documentName,
               results: {
-                ...state.searchState.searchConfigs.DocumentName.results,
+                ...state.searchState.searchConfigs.documentName.results,
                 data: {
-                  ...state.searchState.searchConfigs.DocumentName.results.data,
+                  ...state.searchState.searchConfigs.documentName.results.data,
                   documentResults: nextResults,
                   // filteredDocumentCount,
                   // filteredOccurrencesCount,
