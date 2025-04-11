@@ -36,7 +36,7 @@ const sortByOccurancesPerDocumentDesc: SortFn = (a, b) =>
 
 export const sortMappedTextSearchResult = (
   mappedTextSearchResult: MappedTextSearchResult,
-  sortOrder: CombinedState["searchState"]["searchConfigs"]["DocumentContent"]["resultsOrder"]
+  sortOrder: CombinedState["searchState"]["searchConfigs"]["documentContent"]["resultsOrder"]
 ): MappedTextSearchResult => {
   return {
     ...mappedTextSearchResult,

@@ -63,9 +63,9 @@ export type CombinedState = {
     requestedSearchTerm: string | undefined;
     submittedSearchTerm: string | undefined;
     lastSubmittedSearchTerm: string | undefined;
-    searchType: "DocumentName" | "DocumentContent",
+    searchType: "documentName" | "documentContent",
     searchConfigs: {
-      [key in "DocumentName" | "DocumentContent"]: {
+      [key in "documentName" | "documentContent"]: {
         resultsOrder: "byDateDesc" | "byOccurancesPerDocumentDesc";
         filterOptions: {
           docType: { [key: string]: FilterOption };
@@ -127,9 +127,9 @@ export const initialState = {
     requestedSearchTerm: undefined,
     submittedSearchTerm: undefined,
     lastSubmittedSearchTerm: undefined,
-    searchType: "DocumentName",
+    searchType: "documentName",
     searchConfigs: {
-      DocumentName: {
+      documentName: {
         resultsOrder: "byDateDesc",
         filterOptions: {
           docType: {},
@@ -137,7 +137,7 @@ export const initialState = {
         },
         results: { status: "loading" },
       },
-      DocumentContent: {
+      documentContent: {
         resultsOrder: "byDateDesc",
         filterOptions: {
           docType: {},

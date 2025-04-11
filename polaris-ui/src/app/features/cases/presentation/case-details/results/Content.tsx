@@ -33,8 +33,8 @@ export const Content: React.FC<Props> = ({
     requestedSearchTerm,
     lastSubmittedSearchTerm,
     searchConfigs: {
-      DocumentName,
-      DocumentContent
+      documentName,
+      documentContent
     },
     missingDocs,
   },
@@ -46,11 +46,11 @@ export const Content: React.FC<Props> = ({
   handleUpdateFilter,
   handleOpenPdf,
 }) => {
-  const [previouslyIndexed, setPreviouslyIndexed] = useState(DocumentContent.results.status === 'succeeded' && submittedSearchTerm ===
+  const [previouslyIndexed, setPreviouslyIndexed] = useState(documentContent.results.status === 'succeeded' && submittedSearchTerm ===
     lastSubmittedSearchTerm);
 
   const handleRefresh = () => {
-    handleSearchTypeChange("DocumentContent");
+    handleSearchTypeChange("documentContent");
     setPreviouslyIndexed(true);
   };
 
@@ -66,7 +66,7 @@ export const Content: React.FC<Props> = ({
       <div className={classes.notificationContainer}>
         {submittedSearchTerm && requestedSearchTerm && !previouslyIndexed && (
           <>
-            {DocumentContent.results.status === "loading" ? (
+            {documentContent.results.status === "loading" ? (
               <NotificationBanner className={classes.notificationBanner}>
                 <div
                   className={classes.bannerContent}
@@ -79,7 +79,7 @@ export const Content: React.FC<Props> = ({
                 </div>
               </NotificationBanner>
             ) : null}
-            {DocumentContent.results.status === "succeeded" ? (
+            {documentContent.results.status === "succeeded" ? (
               <NotificationBanner {...{ type: 'success' }}>
                 <div
                   className={classes.bannerContent}
@@ -118,15 +118,15 @@ export const Content: React.FC<Props> = ({
         {submittedSearchTerm &&
           requestedSearchTerm && (
             <>
-              {previouslyIndexed && DocumentContent.results.status === "succeeded" ? (
+              {previouslyIndexed && documentContent.results.status === "succeeded" ? (
                 <MemoizedResults
                   {...{
                     missingDocs,
-                    searchResult: DocumentContent.results.data,
+                    searchResult: documentContent.results.data,
                     submittedSearchTerm,
                     requestedSearchTerm,
-                    resultsOrder: DocumentContent.resultsOrder,
-                    filterOptions: DocumentContent.filterOptions,
+                    resultsOrder: documentContent.resultsOrder,
+                    filterOptions: documentContent.filterOptions,
                     previouslyIndexed,
                     handleChangeResultsOrder,
                     handleUpdateFilter,
@@ -136,15 +136,15 @@ export const Content: React.FC<Props> = ({
               ) : (
                 <>
                   {
-                    DocumentName.results.status === "succeeded" && (
+                    documentName.results.status === "succeeded" && (
                       <MemoizedResults
                         {...{
                           missingDocs: [],
-                          searchResult: DocumentName.results.data,
+                          searchResult: documentName.results.data,
                           submittedSearchTerm,
                           requestedSearchTerm,
-                          resultsOrder: DocumentName.resultsOrder,
-                          filterOptions: DocumentName.filterOptions,
+                          resultsOrder: documentName.resultsOrder,
+                          filterOptions: documentName.filterOptions,
                           previouslyIndexed,
                           handleChangeResultsOrder,
                           handleUpdateFilter,

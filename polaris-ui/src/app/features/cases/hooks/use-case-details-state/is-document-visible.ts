@@ -7,7 +7,7 @@ export const isDocumentVisible = (
     presentationCategory: docCategory,
     isVisible: existingIsVisible,
   }: MappedDocumentResult,
-  { docType, category }: CombinedState["searchState"]["searchConfigs"]["DocumentContent"]["filterOptions"]
+  { docType, category }: CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"]
 ) => {
   const isAnyFilterActive =
     Object.values(docType).some((item) => item.isSelected) ||
