@@ -958,7 +958,7 @@ export const reducer = (
         );
 
         const unsortedData = combineDocumentNameMatches(
-          textSearchResults, 
+          textSearchResults,
           state.searchState.searchConfigs.documentName.results.data.documentResults
         );
 
@@ -1000,27 +1000,39 @@ export const reducer = (
     case "CHANGE_RESULTS_ORDER":
       console.log('CHANGE_RESULTS_ORDER');
 
+      if (state.searchState.searchType === "documentContent") {
+        return {
+          ...state,
+          searchState: {
+            ...state.searchState,
+            searchConfigs: {
+              ...state.searchState.searchConfigs,
+              documentContent: {
+                ...state.searchState.searchConfigs.documentContent,
+                resultsOrder: action.payload,
+                results: state.searchState.searchConfigs.documentContent.results.status === "loading"
+                  ? // if loading, then there are no stable results to search,
+                  //  also required for type checking :)
+                  state.searchState.searchConfigs.documentContent.results
+                  : {
+                    ...state.searchState.searchConfigs.documentContent.results,
+                    data: sortMappedTextSearchResult(
+                      state.searchState.searchConfigs.documentContent.results.data,
+                      action.payload
+                    ),
+                  },
+              },
+            },
+          },
+        };
+      }
+
       return {
         ...state,
         searchState: {
           ...state.searchState,
           searchConfigs: {
             ...state.searchState.searchConfigs,
-            documentContent: {
-              ...state.searchState.searchConfigs.documentContent,
-              resultsOrder: action.payload,
-              results: state.searchState.searchConfigs.documentContent.results.status === "loading"
-                ? // if loading, then there are no stable results to search,
-                //  also required for type checking :)
-                state.searchState.searchConfigs.documentContent.results
-                : {
-                  ...state.searchState.searchConfigs.documentContent.results,
-                  data: sortMappedTextSearchResult(
-                    state.searchState.searchConfigs.documentContent.results.data,
-                    action.payload
-                  ),
-                },
-            },
             documentName: {
               ...state.searchState.searchConfigs.documentName,
               resultsOrder: action.payload,
