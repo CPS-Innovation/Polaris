@@ -1035,46 +1035,46 @@ export const reducer = (
       return updateResultsOrder("documentName");
     }
 
-
     case "UPDATE_FILTER": {
       console.log('UPDATE_FILTER');
 
       const { isSelected, filter, id } = action.payload;
 
-      if (state.searchState.searchType === "documentContent") {
-
-        const nextState = {
-          ...state,
-          searchState: {
-            ...state.searchState,
-            searchConfigs: {
-              ...state.searchState.searchConfigs,
-              DocumentContent: {
-                ...state.searchState.searchConfigs.documentContent,
-                filterOptions: {
-                  ...state.searchState.searchConfigs.documentContent.filterOptions,
-                  [filter]: {
-                    ...state.searchState.searchConfigs.documentContent.filterOptions[filter],
-                    [id]: {
-                      ...state.searchState.searchConfigs.documentContent.filterOptions[filter][id],
-                      isSelected,
-                    },
+      const updateFilterOptions = (searchType: CombinedState["searchState"]["searchType"]) => ({
+        ...state,
+        searchState: {
+          ...state.searchState,
+          searchConfigs: {
+            ...state.searchState.searchConfigs,
+            [searchType]: {
+              ...state.searchState.searchConfigs[searchType],
+              filterOptions: {
+                ...state.searchState.searchConfigs[searchType].filterOptions,
+                [filter]: {
+                  ...state.searchState.searchConfigs[searchType].filterOptions[filter],
+                  [id]: {
+                    ...state.searchState.searchConfigs[searchType].filterOptions[filter][id],
+                    isSelected,
                   },
                 },
-              }
-            }
+              },
+            },
           },
-        };
+        },
+      });
 
-        if (state.searchState.searchConfigs.documentContent.results.status !== "succeeded") {
+      const updateResults = (nextState: typeof state, searchType: CombinedState["searchState"]["searchType"]) => {
+        const results = nextState.searchState.searchConfigs[searchType].results;
+
+        if (results.status !== "succeeded") {
           return nextState;
         }
 
-        const nextResults = state.searchState.searchConfigs.documentContent.results.data.documentResults.reduce(
+        const nextResults = results.data.documentResults.reduce(
           (acc, curr) => {
             const { isVisible, hasChanged } = isDocumentVisible(
               curr,
-              nextState.searchState.searchConfigs.DocumentContent.filterOptions
+              nextState.searchState.searchConfigs[searchType].filterOptions
             );
 
             acc.push(hasChanged ? { ...curr, isVisible } : curr);
@@ -1083,21 +1083,19 @@ export const reducer = (
           [] as MappedDocumentResult[]
         );
 
-        const { filteredDocumentCount, filteredOccurrencesCount } =
-          nextResults.reduce(
-            (acc, curr) => {
-              if (curr.isVisible) {
-                acc.filteredDocumentCount += 1;
-                acc.filteredOccurrencesCount += curr.occurrencesInDocumentCount;
-                if (curr.isDocumentNameMatch) {
-                  acc.filteredOccurrencesCount += 1;
-                }
+        const { filteredDocumentCount, filteredOccurrencesCount } = nextResults.reduce(
+          (acc, curr) => {
+            if (curr.isVisible) {
+              acc.filteredDocumentCount += 1;
+              acc.filteredOccurrencesCount += curr.occurrencesInDocumentCount;
+              if (curr.isDocumentNameMatch) {
+                acc.filteredOccurrencesCount += 1;
               }
-
-              return acc;
-            },
-            { filteredDocumentCount: 0, filteredOccurrencesCount: 0 }
-          );
+            }
+            return acc;
+          },
+          { filteredDocumentCount: 0, filteredOccurrencesCount: 0 }
+        );
 
         return {
           ...nextState,
@@ -1105,101 +1103,34 @@ export const reducer = (
             ...nextState.searchState,
             searchConfigs: {
               ...nextState.searchState.searchConfigs,
-              documentContent: {
-                ...nextState.searchState.searchConfigs.DocumentContent,
+              [searchType]: {
+                ...nextState.searchState.searchConfigs[searchType],
                 results: {
-                  ...state.searchState.searchConfigs.documentContent.results,
+                  ...results,
                   data: {
-                    ...state.searchState.searchConfigs.documentContent.results.data,
+                    ...results.data,
                     documentResults: nextResults,
                     filteredDocumentCount,
                     filteredOccurrencesCount,
                   },
                 },
-              }
+              },
             },
-
           },
         };
-      }
-
-      const nextState = {
-        ...state,
-        searchState: {
-          ...state.searchState,
-          searchConfigs: {
-            ...state.searchState.searchConfigs,
-            documentName: {
-              ...state.searchState.searchConfigs.documentName,
-              filterOptions: {
-                ...state.searchState.searchConfigs.documentName.filterOptions,
-                [filter]: {
-                  ...state.searchState.searchConfigs.documentName.filterOptions[filter],
-                  [id]: {
-                    ...state.searchState.searchConfigs.documentName.filterOptions[filter][id],
-                    isSelected,
-                  },
-                },
-              },
-            }
-          }
-        },
       };
 
-      console.log('nextState', nextState.searchState);
 
-      if (state.searchState.searchConfigs.documentName.results.status !== "succeeded") {
+      const searchType = state.searchState.searchType;
+      const nextState = updateFilterOptions(searchType);
+
+      if (state.searchState.searchConfigs[searchType].results.status !== "succeeded") {
         return nextState;
       }
 
-      const nextResults = state.searchState.searchConfigs.documentName.results.data.documentResults.reduce(
-        (acc, curr) => {
-          const { isVisible, hasChanged } = isDocumentVisible(
-            curr,
-            nextState.searchState.searchConfigs.documentName.filterOptions
-          );
+      return updateResults(nextState, searchType);
 
-          acc.push(hasChanged ? { ...curr, isVisible } : curr);
-          return acc;
-        },
-        [] as MappedDocumentResult[]
-      );
 
-      const { filteredDocumentCount, filteredOccurrencesCount } =
-        nextResults.reduce(
-          (acc, curr) => {
-            if (curr.isVisible) {
-              acc.filteredDocumentCount += 1;
-              acc.filteredOccurrencesCount += 1;
-            }
-
-            return acc;
-          },
-          { filteredDocumentCount: 0, filteredOccurrencesCount: 0 }
-        );
-
-      return {
-        ...nextState,
-        searchState: {
-          ...nextState.searchState,
-          searchConfigs: {
-            ...nextState.searchState.searchConfigs,
-            documentName: {
-              ...nextState.searchState.searchConfigs.documentName,
-              results: {
-                ...state.searchState.searchConfigs.documentName.results,
-                data: {
-                  ...state.searchState.searchConfigs.documentName.results.data,
-                  documentResults: nextResults,
-                  filteredDocumentCount,
-                  filteredOccurrencesCount,
-                },
-              },
-            }
-          },
-
-        },
-      };
     }
 
     case "ADD_REDACTION": {
