@@ -957,7 +957,10 @@ export const reducer = (
           state.documentsState.data
         );
 
-        const unsortedData = combineDocumentNameMatches(textSearchResults, state.searchState.searchConfigs.documentName.results.data.documentResults);
+        const unsortedData = combineDocumentNameMatches(
+          textSearchResults, 
+          state.searchState.searchConfigs.documentName.results.data.documentResults
+        );
 
         const sortedData = sortMappedTextSearchResult(
           unsortedData,

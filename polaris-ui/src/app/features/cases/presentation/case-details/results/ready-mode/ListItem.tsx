@@ -25,13 +25,15 @@ export const ListItem: React.FC<Props> = ({
     cmsFileCreatedDate: createdDate,
     cmsDocType,
     isDocumentNameMatch,
-    occurrences: [firstOccurrence, ...subsequentOccurrences],
+    occurrences,
     occurrencesInDocumentCount,
   },
   submittedSearchTerm,
   handleOpenPdf,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
+  const [firstOccurrence, ...subsequentOccurrences] = occurrences;
+
   return (
     <div data-testid={`div-search-result-${documentId}`}>
       <LinkButton
@@ -65,11 +67,11 @@ export const ListItem: React.FC<Props> = ({
         </div>
       )}
 
-      {firstOccurrence && (
+      {!isDocumentNameMatch && firstOccurrence && (
         <ContextText contextTextChunks={firstOccurrence.contextTextChunks} />
       )}
 
-      {subsequentOccurrences.length ? (
+      {(isDocumentNameMatch && occurrences.length) || subsequentOccurrences.length ? (
         <Details
           data-testid="details-expand-search-results"
           isDefaultLeftBorderHidden
@@ -83,11 +85,17 @@ export const ListItem: React.FC<Props> = ({
           summaryChildren={`View ${occurrencesInDocumentCount -
             firstOccurrence.occurrencesInLine.length
             } more`}
-          children={subsequentOccurrences.map((occurrence) => (
-            <span key={occurrence.id}>
-              <ContextText contextTextChunks={occurrence.contextTextChunks} />
-            </span>
-          ))}
+          children={isDocumentNameMatch ?
+            occurrences.map((occurrence) => (
+              <span key={occurrence.id}>
+                <ContextText contextTextChunks={occurrence.contextTextChunks} />
+              </span>
+            )) :
+            subsequentOccurrences.map((occurrence) => (
+              <span key={occurrence.id}>
+                <ContextText contextTextChunks={occurrence.contextTextChunks} />
+              </span>
+            ))}
         />
       ) : null}
 
