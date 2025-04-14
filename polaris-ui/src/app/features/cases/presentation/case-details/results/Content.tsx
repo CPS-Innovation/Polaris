@@ -5,7 +5,7 @@ import { SucceededApiResult } from "../../../../../common/types/SucceededApiResu
 import { CaseDetails } from "../../../domain/gateway/CaseDetails";
 import { Results } from "./ready-mode/Results";
 import { CombinedState } from "../../../domain/CombinedState";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { LinkButton, NotificationBanner } from "../../../../../common/presentation/components";
 
 type Props = {
@@ -48,6 +48,14 @@ export const Content: React.FC<Props> = ({
 }) => {
   const [previouslyIndexed, setPreviouslyIndexed] = useState(documentContent.results.status === 'succeeded' && submittedSearchTerm ===
     lastSubmittedSearchTerm);
+
+
+  useEffect(() => {
+    if (documentContent.results.status === 'succeeded') {
+      handleSearchTypeChange("documentContent");
+    }
+  }, []);
+
 
   const handleRefresh = () => {
     handleSearchTypeChange("documentContent");

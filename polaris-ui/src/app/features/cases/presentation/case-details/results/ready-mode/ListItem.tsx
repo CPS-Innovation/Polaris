@@ -79,11 +79,14 @@ export const ListItem: React.FC<Props> = ({
             trackEvent("View 'x' More", {
               viewMoreCount:
                 occurrencesInDocumentCount -
-                firstOccurrence.occurrencesInLine.length,
+                firstOccurrence.occurrencesInLine.length +
+                (isDocumentNameMatch ? 1 : 0)
+              ,
             });
           }}
           summaryChildren={`View ${occurrencesInDocumentCount -
-            firstOccurrence.occurrencesInLine.length
+            firstOccurrence.occurrencesInLine.length +
+            (isDocumentNameMatch ? 1 : 0)
             } more`}
           children={isDocumentNameMatch ?
             occurrences.map((occurrence) => (

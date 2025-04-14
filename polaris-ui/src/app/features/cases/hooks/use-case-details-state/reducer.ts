@@ -1092,6 +1092,9 @@ export const reducer = (
               if (curr.isVisible) {
                 acc.filteredDocumentCount += 1;
                 acc.filteredOccurrencesCount += curr.occurrencesInDocumentCount;
+                if (curr.isDocumentNameMatch) {
+                  acc.filteredOccurrencesCount += 1;
+                }
               }
 
               return acc;
