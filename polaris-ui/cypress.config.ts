@@ -28,6 +28,6 @@ export default defineConfig({
       });
       return require("./cypress/plugins/index.js")(on, config);
     },
-    baseUrl: "http://127.0.0.1:3000",
+    baseUrl: "http://localhost:3000",
   },
 });

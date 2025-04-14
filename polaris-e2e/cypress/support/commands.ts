@@ -261,7 +261,8 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
 						.then((response) => response.body.lineCount === 0),
 				SLOW_WAIT_UNTIL_OPTIONS
 			)
-			.waitUntil(() =>
+			.waitUntil(
+				() =>
 					cy
 						.request({
 							url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/tracker`,
@@ -273,6 +274,11 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
 						})
 						.its("status")
 						.then((status) => status === 404)
+				// .then(
+				// 	(response) =>
+				// 		response.status === 200 && response.body.status === "NotStarted"
+				// )
+				// WAIT_UNTIL_OPTIONS
 			);
 	});
 });
