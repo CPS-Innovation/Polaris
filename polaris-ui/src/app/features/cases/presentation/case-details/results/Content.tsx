@@ -57,9 +57,14 @@ export const Content: React.FC<Props> = ({
   }, []);
 
 
-  const handleRefresh = () => {
+  const handleUpdateResults = () => {
     handleSearchTypeChange("documentContent");
     setPreviouslyIndexed(true);
+  };
+
+  const handleResetSearch  = () => {
+    setPreviouslyIndexed(false);
+    handleSubmit();
   };
 
   const labelText = leadDefendantDetails
@@ -96,7 +101,7 @@ export const Content: React.FC<Props> = ({
                   <p className={classes.notificationBannerHeading}>
                     The full search results are now available -
                     <LinkButton
-                      onClick={handleRefresh}
+                      onClick={handleUpdateResults}
                       ariaLabel={'Search Results Available Link'}
                       dataTestId={'search-results-available-link'}
                       className={classes.searchResultsAvailableLink}
@@ -114,7 +119,7 @@ export const Content: React.FC<Props> = ({
       <div className="govuk-grid-row">
         <div className="govuk-!-width-one-half">
           <SearchBox
-            {...{ labelText, value, handleChange, handleSubmit }}
+            {...{ labelText, value, handleChange, handleSubmit: handleResetSearch }}
             data-testid="results-search-case"
             id="case-details-result-search"
             trackEventKey="Search Case Documents From Document Search"
