@@ -6,42 +6,42 @@ export const getAgeFromIsoDate = (isoDateString: string) =>
 
 describe("case details page", () => {
   describe("case page navigation", () => {
-  it("can navigate back from case page, having not previously visited results page, and land on search page", () => {
-    cy.visit("/case-details/12AB1111111/13401");
+    it("can navigate back from case page, having not previously visited results page, and land on search page", () => {
+      cy.visit("/case-details/12AB1111111/13401");
 
-    cy.findAllByTestId("link-back-link").should("have.attr", "href", "/");
+      cy.findAllByTestId("link-back-link").should("have.attr", "href", "/");
 
-    cy.findAllByTestId("link-back-link").click();
-    cy.location("pathname").should("eq", "/case-search");
-  });
-
-  it("can navigate back from case page, having previously visited results page, and land on results page", () => {
-    cy.visit("/case-search-results?urn=12AB1111111");
-    cy.findByTestId("link-12AB1111111").click();
-
-    cy.findAllByTestId("link-back-link").should(
-      "have.attr",
-      "href",
-      "/case-search-results?urn=12AB1111111"
-    );
-
-    cy.findAllByTestId("link-back-link").click();
-
-    cy.location("pathname").should("eq", "/case-search-results");
-    cy.location("search").should("eq", "?urn=12AB1111111");
-  });
-
-  it("shows the unhandled error page if an unexpected error occurs with the api", () => {
-    cy.visit("/case-search-results?urn=12AB1111111");
-    cy.overrideRoute(CASE_ROUTE, {
-      type: "break",
-      httpStatusCode: 500,
+      cy.findAllByTestId("link-back-link").click();
+      cy.location("pathname").should("eq", "/case-search");
     });
 
-    cy.findByTestId("link-12AB1111111").click();
+    it("can navigate back from case page, having previously visited results page, and land on results page", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.findByTestId("link-12AB1111111").click();
 
-    // we are showing the error page
-    cy.findByTestId("txt-error-page-heading");
+      cy.findAllByTestId("link-back-link").should(
+        "have.attr",
+        "href",
+        "/case-search-results?urn=12AB1111111"
+      );
+
+      cy.findAllByTestId("link-back-link").click();
+
+      cy.location("pathname").should("eq", "/case-search-results");
+      cy.location("search").should("eq", "?urn=12AB1111111");
+    });
+
+    it("shows the unhandled error page if an unexpected error occurs with the api", () => {
+      cy.visit("/case-search-results?urn=12AB1111111");
+      cy.overrideRoute(CASE_ROUTE, {
+        type: "break",
+        httpStatusCode: 500,
+      });
+
+      cy.findByTestId("link-12AB1111111").click();
+
+      // we are showing the error page
+      cy.findByTestId("txt-error-page-heading");
     });
   });
 
@@ -149,58 +149,58 @@ describe("case details page", () => {
   });
 
   describe("Document navigation away alert modal", () => {
-  it("Should show an alert modal when closing a document with active redactions", () => {
-    cy.visit("/case-details/12AB1111111/13401");
-    cy.findByTestId("btn-accordion-open-close-all").click();
-    cy.findByTestId("link-document-1").click();
-    cy.findByTestId("div-pdfviewer-0")
-      .should("exist")
-      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-    cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
-    cy.findByTestId("btn-redact").should("be.disabled");
-    cy.findByTestId("select-redaction-type").should("have.length", 1);
-    cy.findByTestId("select-redaction-type").select("2");
-    cy.findByTestId("btn-redact").should("be.enabled");
-    cy.findByTestId("btn-redact").click({ force: true });
-    cy.wait(500);
-    cy.findByTestId("tab-remove").click();
-    cy.findByTestId("div-modal")
-      .should("exist")
-      .contains("You have unsaved redactions");
-    // click on return to case file btn
-    cy.findByTestId("btn-nav-return").click();
-    cy.findByTestId("div-modal").should("not.exist");
-    cy.findByTestId("tab-remove").click();
-    cy.findByTestId("div-modal")
-      .should("exist")
-      .contains("You have unsaved redactions");
-    const doc1CheckInCounter = { count: 0 };
-    cy.trackRequestCount(
-      doc1CheckInCounter,
-      "DELETE",
-      "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/checkout"
-    );
-    // click on ignore btn
-    cy.findByTestId("btn-nav-ignore").click();
-    cy.findByTestId("div-modal").should("not.exist");
-    cy.findByTestId("div-pdfviewer-0").should("not.exist");
-    cy.waitUntil(() => {
-      return doc1CheckInCounter.count;
-    }).then(() => {
-      expect(doc1CheckInCounter.count).to.equal(1);
+    it("Should show an alert modal when closing a document with active redactions", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
+      cy.findByTestId("btn-redact").should("be.disabled");
+      cy.findByTestId("select-redaction-type").should("have.length", 1);
+      cy.findByTestId("select-redaction-type").select("2");
+      cy.findByTestId("btn-redact").should("be.enabled");
+      cy.findByTestId("btn-redact").click({ force: true });
+      cy.wait(500);
+      cy.findByTestId("tab-remove").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains("You have unsaved redactions");
+      // click on return to case file btn
+      cy.findByTestId("btn-nav-return").click();
+      cy.findByTestId("div-modal").should("not.exist");
+      cy.findByTestId("tab-remove").click();
+      cy.findByTestId("div-modal")
+        .should("exist")
+        .contains("You have unsaved redactions");
+      const doc1CheckInCounter = { count: 0 };
+      cy.trackRequestCount(
+        doc1CheckInCounter,
+        "DELETE",
+        "/api/urns/12AB1111111/cases/13401/documents/1/versions/1/checkout"
+      );
+      // click on ignore btn
+      cy.findByTestId("btn-nav-ignore").click();
+      cy.findByTestId("div-modal").should("not.exist");
+      cy.findByTestId("div-pdfviewer-0").should("not.exist");
+      cy.waitUntil(() => {
+        return doc1CheckInCounter.count;
+      }).then(() => {
+        expect(doc1CheckInCounter.count).to.equal(1);
+      });
     });
-  });
 
-  it("Should not show an alert modal when closing a document when there are no active redactions", () => {
-    cy.visit("/case-details/12AB1111111/13401");
-    cy.findByTestId("btn-accordion-open-close-all").click();
-    cy.findByTestId("link-document-1").click();
-    cy.findByTestId("div-pdfviewer-0")
-      .should("exist")
-      .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-    cy.findByTestId("tab-remove").click();
-    cy.findByTestId("div-modal").should("not.exist");
-    cy.findByTestId("div-pdfviewer-0").should("not.exist");
+    it("Should not show an alert modal when closing a document when there are no active redactions", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("btn-accordion-open-close-all").click();
+      cy.findByTestId("link-document-1").click();
+      cy.findByTestId("div-pdfviewer-0")
+        .should("exist")
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+      cy.findByTestId("tab-remove").click();
+      cy.findByTestId("div-modal").should("not.exist");
+      cy.findByTestId("div-pdfviewer-0").should("not.exist");
     });
   });
 
