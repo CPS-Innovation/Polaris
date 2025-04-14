@@ -997,27 +997,27 @@ export const reducer = (
       return state;
     }
 
-    case "CHANGE_RESULTS_ORDER":
+    case "CHANGE_RESULTS_ORDER": {
       console.log('CHANGE_RESULTS_ORDER');
 
-      if (state.searchState.searchType === "documentContent") {
+      const updateResultsOrder = (searchType: CombinedState["searchState"]["searchType"]) => {
+        const results = state.searchState.searchConfigs[searchType].results;
+
         return {
           ...state,
           searchState: {
             ...state.searchState,
             searchConfigs: {
               ...state.searchState.searchConfigs,
-              documentContent: {
-                ...state.searchState.searchConfigs.documentContent,
+              [searchType]: {
+                ...state.searchState.searchConfigs[searchType],
                 resultsOrder: action.payload,
-                results: state.searchState.searchConfigs.documentContent.results.status === "loading"
-                  ? // if loading, then there are no stable results to search,
-                  //  also required for type checking :)
-                  state.searchState.searchConfigs.documentContent.results
+                results: results.status === "loading"
+                  ? results
                   : {
-                    ...state.searchState.searchConfigs.documentContent.results,
+                    ...results,
                     data: sortMappedTextSearchResult(
-                      state.searchState.searchConfigs.documentContent.results.data,
+                      results.data,
                       action.payload
                     ),
                   },
@@ -1025,31 +1025,16 @@ export const reducer = (
             },
           },
         };
+      };
+
+
+      if (state.searchState.searchType === "documentContent") {
+        return updateResultsOrder("documentContent");
       }
 
-      return {
-        ...state,
-        searchState: {
-          ...state.searchState,
-          searchConfigs: {
-            ...state.searchState.searchConfigs,
-            documentName: {
-              ...state.searchState.searchConfigs.documentName,
-              resultsOrder: action.payload,
-              results: state.searchState.searchConfigs.documentName.results.status === "loading"
-                ?
-                state.searchState.searchConfigs.documentName.results
-                : {
-                  ...state.searchState.searchConfigs.documentName.results,
-                  data: sortMappedTextSearchResult(
-                    state.searchState.searchConfigs.documentName.results.data,
-                    action.payload
-                  ),
-                },
-            }
-          },
-        },
-      };
+      return updateResultsOrder("documentName");
+    }
+
 
     case "UPDATE_FILTER": {
       console.log('UPDATE_FILTER');
