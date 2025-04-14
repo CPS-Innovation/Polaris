@@ -10,8 +10,13 @@ export const addDocumentNameMatches = (
     const documentIndex = mappedTextSearchResult.documentResults.findIndex(document => document.documentId === documentNameMatch.documentId);
     if (documentIndex !== -1) {
       mappedTextSearchResult.documentResults[documentIndex].isDocumentNameMatch = true;
+      mappedTextSearchResult.totalOccurrencesCount += 1;
+      mappedTextSearchResult.filteredOccurrencesCount += 1;
     } else {
       mappedTextSearchResult.documentResults.splice(0, 0, documentNameMatch);
+      mappedTextSearchResult.filteredDocumentCount += 1;
+      mappedTextSearchResult.totalOccurrencesCount += 1;
+      mappedTextSearchResult.filteredOccurrencesCount += 1;
     }
   })
 
