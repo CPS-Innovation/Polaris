@@ -13,6 +13,7 @@ import * as documentVisibility from "./is-document-visible";
 import { ApiTextSearchResult } from "../../domain/gateway/ApiTextSearchResult";
 import * as textSearchMapper from "./map-text-search";
 import * as documentNameSearchMapper from "./map-document-name-search";
+import * as combineDocumentNameMatches from "./combine-document-name-matches";
 import * as filters from "./map-filters";
 import * as missingDocuments from "./map-missing-documents";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
@@ -2083,325 +2084,389 @@ describe("useCaseDetailsState reducer", () => {
       expect(nextState).toBe(existingState);
     });
 
-    // it("can update search results, update missing documents and build filter options", () => {
-    //   const existingState = {
-    //     documentsState: {
-    //       status: "succeeded",
-    //       data: [] as MappedCaseDocument[],
-    //     },
-    //     pipelineState: { status: "complete", data: {} },
-    //     searchState: { submittedSearchTerm: "foo", resultsOrder: "byDateDesc" },
-    //   } as CombinedState;
+    it("can update search results, update missing documents and build filter options", () => {
+      const existingState = {
+        documentsState: {
+          status: "succeeded",
+          data: [] as MappedCaseDocument[],
+        },
+        pipelineState: { status: "complete", data: {} },
+        featureFlags: {
+          documentNameSearch: false,
+        },
+        searchState: {
+          submittedSearchTerm: "foo", searchConfigs: {
+            documentName: {
+              resultsOrder: "byDateDesc",
+              results: { status: "succeeded", data: {} }
+            },
+            documentContent: {
+              resultsOrder: "byDateDesc",
+              results: { status: "succeeded" }
+            }
+          }
+        },
+      } as CombinedState;
 
-    //   const inputPayload = {
-    //     status: "succeeded",
-    //     data: [],
-    //   } as ApiResult<undefined | ApiTextSearchResult[]>;
+      const inputPayload = {
+        status: "succeeded",
+        data: [],
+      } as ApiResult<undefined | ApiTextSearchResult[]>;
 
-    //   const mockFilteredApiResults = [] as ApiTextSearchResult[];
+      const mockFilteredApiResults = [] as ApiTextSearchResult[];
 
-    //   const mockUnsortedData = {} as MappedTextSearchResult;
-    //   const mockData = {} as MappedTextSearchResult;
-    //   const mockMissingDocs = {} as CombinedState["searchState"]["missingDocs"];
-    //   const mockFilterOptions =
-    //     {} as CombinedState["searchState"]["filterOptions"];
+      const mockUnsortedData = {} as MappedTextSearchResult;
+      const mockData = {} as MappedTextSearchResult;
+      const mockMissingDocs = {} as CombinedState["searchState"]["missingDocs"];
+      const mockFilterOptions =
+        {} as CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"];
 
-    //   jest
-    //     .spyOn(filterApiResults, "filterApiResults")
-    //     .mockImplementation((apiResults, existingDocuments) => {
-    //       if (
-    //         inputPayload.status === "succeeded" &&
-    //         apiResults === inputPayload.data &&
-    //         existingState.documentsState.status === "succeeded" &&
-    //         existingDocuments === existingState.documentsState.data
-    //       ) {
-    //         return mockFilteredApiResults;
-    //       }
-    //       throw new Error("Unexpected mock function arguments");
-    //     });
+      jest
+        .spyOn(filterApiResults, "filterApiResults")
+        .mockImplementation((apiResults, existingDocuments) => {
+          if (
+            inputPayload.status === "succeeded" &&
+            apiResults === inputPayload.data &&
+            existingState.documentsState.status === "succeeded" &&
+            existingDocuments === existingState.documentsState.data
+          ) {
+            return mockFilteredApiResults;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
 
-    //   jest
-    //     .spyOn(textSearchMapper, "mapTextSearch")
-    //     .mockImplementation((textSearchResult, mappedCaseDocuments) => {
-    //       if (
-    //         textSearchResult === mockFilteredApiResults &&
-    //         existingState.documentsState.status === "succeeded" &&
-    //         mappedCaseDocuments === existingState.documentsState.data
-    //       ) {
-    //         return mockUnsortedData;
-    //       }
-    //       throw new Error("Unexpected mock function arguments");
-    //     });
+      jest
+        .spyOn(textSearchMapper, "mapTextSearch")
+        .mockImplementation((textSearchResult, mappedCaseDocuments) => {
+          if (
+            textSearchResult === mockFilteredApiResults &&
+            existingState.documentsState.status === "succeeded" &&
+            mappedCaseDocuments === existingState.documentsState.data
+          ) {
+            return mockUnsortedData;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
 
-    //   jest
-    //     .spyOn(sorter, "sortMappedTextSearchResult")
-    //     .mockImplementation((mappedTextSearchResult, resultOrder) => {
-    //       if (
-    //         mappedTextSearchResult === mockUnsortedData &&
-    //         resultOrder === existingState.searchState.resultsOrder
-    //       ) {
-    //         return mockData;
-    //       }
-    //       throw new Error("Unexpected mock function arguments");
-    //     });
+      jest
+        .spyOn(combineDocumentNameMatches, "combineDocumentNameMatches")
+        .mockImplementation((mappedTextSearchResult, documentNameMatches, documentNameSearchFeatureEnabled) => {
+          if (
+            mappedTextSearchResult === mockUnsortedData &&
+            existingState.documentsState.status === "succeeded" &&
+            existingState.searchState.searchConfigs.documentName.results.status === "succeeded" &&
+            documentNameMatches === existingState.searchState.searchConfigs.documentName.results.data.documentResults &&
+            !documentNameSearchFeatureEnabled
+          ) {
+            return mockUnsortedData;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
 
-    //   jest
-    //     .spyOn(missingDocuments, "mapMissingDocuments")
-    //     .mockImplementation((pipelineResults, mappedCaseDocuments) => {
-    //       if (
-    //         pipelineResults === existingState.pipelineState.data &&
-    //         existingState.documentsState.status === "succeeded" &&
-    //         mappedCaseDocuments === existingState.documentsState.data
-    //       ) {
-    //         return mockMissingDocs;
-    //       }
-    //       throw new Error("Unexpected mock function arguments");
-    //     });
+      jest
+        .spyOn(sorter, "sortMappedTextSearchResult")
+        .mockImplementation((mappedTextSearchResult, resultOrder) => {
+          if (
+            mappedTextSearchResult === mockUnsortedData &&
+            resultOrder === existingState.searchState.searchConfigs.documentContent.resultsOrder
+          ) {
+            return mockData;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
 
-    //   jest
-    //     .spyOn(filters, "mapFilters")
-    //     .mockImplementation((mappedTextSearchResult) => {
-    //       if (mappedTextSearchResult === mockUnsortedData) {
-    //         return mockFilterOptions;
-    //       }
-    //       throw new Error("Unexpected mock function arguments");
-    //     });
+      jest
+        .spyOn(missingDocuments, "mapMissingDocuments")
+        .mockImplementation((pipelineResults, mappedCaseDocuments) => {
+          if (
+            pipelineResults === existingState.pipelineState.data &&
+            existingState.documentsState.status === "succeeded" &&
+            mappedCaseDocuments === existingState.documentsState.data
+          ) {
+            return mockMissingDocs;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
 
-    //   const nextState = reducer(existingState, {
-    //     type: "UPDATE_SEARCH_RESULTS",
-    //     payload: inputPayload,
-    //   });
+      jest
+        .spyOn(filters, "mapFilters")
+        .mockImplementation((mappedTextSearchResult) => {
+          if (mappedTextSearchResult === mockUnsortedData) {
+            return mockFilterOptions;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
 
-    //   expect(nextState).toEqual({
-    //     ...existingState,
-    //     searchState: {
-    //       ...existingState.searchState,
-    //       missingDocs: mockMissingDocs,
-    //       filterOptions: mockFilterOptions,
-    //       results: {
-    //         status: "succeeded",
-    //         data: mockData,
-    //       },
-    //     },
-    //   });
+      const nextState = reducer(existingState, {
+        type: "UPDATE_SEARCH_RESULTS",
+        payload: inputPayload,
+      });
 
-    //   expect(nextState.searchState.missingDocs).toBe(mockMissingDocs);
-    //   expect(nextState.searchState.filterOptions).toBe(mockFilterOptions);
+      expect(nextState).toEqual({
+        ...existingState,
+        searchState: {
+          ...existingState.searchState,
+          missingDocs: mockMissingDocs,
+          searchConfigs: {
+            ...existingState.searchState.searchConfigs,
+            documentContent: {
+              ...existingState.searchState.searchConfigs.documentName,
+              filterOptions: mockFilterOptions,
+              results: {
+                status: "succeeded",
+                data: mockData,
+              },
+            }
+          }
 
-    //   expect(
-    //     nextState.searchState.results.status === "succeeded" &&
-    //       nextState.searchState.results.data
-    //   ).toBe(mockData);
-    // });
+        },
+      });
+
+      expect(nextState.searchState.missingDocs).toBe(mockMissingDocs);
+      expect(nextState.searchState.searchConfigs.documentContent.filterOptions).toBe(mockFilterOptions);
+
+      expect(
+        nextState.searchState.searchConfigs.documentContent.results.status === "succeeded" &&
+        nextState.searchState.searchConfigs.documentContent.results.data
+      ).toBe(mockData);
+    });
   });
 
   describe("CHANGE_RESULTS_ORDER", () => {
-    // it("can update the stored results order but not change search results ordering if the search state is still loading", () => {
-    //   const existingState = {
-    //     searchState: {
-    //       results: { status: "loading" },
-    //       resultsOrder: "byOccurancesPerDocumentDesc",
-    //     },
-    //   } as CombinedState;
+    it("can update the stored results order but not change search results ordering if the search state is still loading", () => {
+      const existingState = {
+        searchState: {
+          searchType: "documentContent",
+          searchConfigs: {
+            documentContent: {
+              resultsOrder: "byOccurancesPerDocumentDesc",
+              results: { status: "loading" }
+            }
+          }
+        },
 
-    //   const nextState = reducer(existingState, {
-    //     type: "CHANGE_RESULTS_ORDER",
-    //     payload: "byDateDesc",
-    //   });
+      } as CombinedState;
 
-    //   expect(nextState).toEqual({
-    //     searchState: {
-    //       results: {
-    //         status: "loading",
-    //       },
-    //       resultsOrder: "byDateDesc",
-    //     },
-    //   });
-    // });
+      const nextState = reducer(existingState, {
+        type: "CHANGE_RESULTS_ORDER",
+        payload: "byDateDesc",
+      });
 
-    // it("can update results ordering if search state is ready", () => {
-    //   const existingMappedTextSearchResult = {} as MappedTextSearchResult;
-    //   const expectedMappedTextSearchResult = {} as MappedTextSearchResult;
+      expect(nextState).toEqual({
+        searchState: {
+          searchType: "documentContent",
+          searchConfigs: {
+            documentContent: {
+              resultsOrder: "byDateDesc",
+              results: { status: "loading" }
+            }
+          }
+        },
+      });
+    });
 
-    //   jest
-    //     .spyOn(sorter, "sortMappedTextSearchResult")
-    //     .mockImplementation((mappedTextSearchResult, sortOrder) => {
-    //       if (mappedTextSearchResult !== existingMappedTextSearchResult)
-    //         throw new Error();
-    //       if (sortOrder !== "byDateDesc") throw new Error();
-    //       return expectedMappedTextSearchResult;
-    //     });
+    it("can update results ordering if search state is ready", () => {
+      const existingMappedTextSearchResult = {} as MappedTextSearchResult;
+      const expectedMappedTextSearchResult = {} as MappedTextSearchResult;
 
-    //   const existingState = {
-    //     searchState: {
-    //       results: {
-    //         status: "succeeded",
-    //         data: existingMappedTextSearchResult,
-    //       },
-    //       resultsOrder: "byOccurancesPerDocumentDesc",
-    //     },
-    //   } as CombinedState;
+      jest
+        .spyOn(sorter, "sortMappedTextSearchResult")
+        .mockImplementation((mappedTextSearchResult, sortOrder) => {
+          if (mappedTextSearchResult !== existingMappedTextSearchResult)
+            throw new Error();
+          if (sortOrder !== "byDateDesc") throw new Error();
+          return expectedMappedTextSearchResult;
+        });
 
-    //   const nextState = reducer(existingState, {
-    //     type: "CHANGE_RESULTS_ORDER",
-    //     payload: "byDateDesc",
-    //   });
+      const existingState = {
+        searchState: {
+          searchType: "documentContent",
+          searchConfigs: {
+            documentContent: {
+              resultsOrder: "byOccurancesPerDocumentDesc",
+              results: { status: "succeeded", data: existingMappedTextSearchResult }
+            }
+          }
+        },
+      } as CombinedState;
 
-    //   expect(nextState).toEqual({
-    //     searchState: {
-    //       results: {
-    //         status: "succeeded",
-    //         data: expectedMappedTextSearchResult,
-    //       },
-    //       resultsOrder: "byDateDesc",
-    //     },
-    //   });
-    // });
+      const nextState = reducer(existingState, {
+        type: "CHANGE_RESULTS_ORDER",
+        payload: "byDateDesc",
+      });
+
+      expect(nextState).toEqual({
+        searchState: {
+          searchType: "documentContent",
+          searchConfigs: {
+            documentContent: {
+              resultsOrder: "byDateDesc",
+              results: { status: "succeeded", data: expectedMappedTextSearchResult }
+            }
+          }
+        },
+      });
+    });
   });
 
   describe("UPDATE_FILTER", () => {
-    // it("can update filters but not sort data if search state is still loading", () => {
-    //   const existingSearchState = {
-    //     results: { status: "loading" },
+    it("can update filters but not sort data if search state is still loading", () => {
+      const existingSearchState = {
+        searchType: "documentContent",
+        searchConfigs: {
+          documentContent: {
+            results: { status: "loading" },
+            filterOptions: {
+              category: {
+                a: { label: "", count: -1, isSelected: true },
+                b: { label: "", count: -1, isSelected: false },
+              },
+              docType: {
+                a: { label: "", count: -1, isSelected: true },
+                b: { label: "", count: -1, isSelected: true },
+              },
+            } as CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"]
+          }
+        },
+      } as CombinedState["searchState"];
 
-    //     filterOptions: {
-    //       category: {
-    //         a: { label: "", count: -1, isSelected: true },
-    //         b: { label: "", count: -1, isSelected: false },
-    //       },
-    //       docType: {
-    //         a: { label: "", count: -1, isSelected: true },
-    //         b: { label: "", count: -1, isSelected: true },
-    //       },
-    //     } as CombinedState["searchState"]["filterOptions"],
-    //   } as CombinedState["searchState"];
+      const result = reducer(
+        { searchState: existingSearchState } as CombinedState,
+        {
+          type: "UPDATE_FILTER",
+          payload: { filter: "docType", id: "b", isSelected: true },
+        }
+      );
 
-    //   const result = reducer(
-    //     { searchState: existingSearchState } as CombinedState,
-    //     {
-    //       type: "UPDATE_FILTER",
-    //       payload: { filter: "docType", id: "b", isSelected: true },
-    //     }
-    //   );
+      expect(result).toEqual({
+        searchState: {
+          searchType: "documentContent",
+          searchConfigs: {
+            documentContent: {
+              filterOptions: {
+                category: {
+                  a: {
+                    count: -1,
+                    isSelected: true,
+                    label: "",
+                  },
+                  b: {
+                    count: -1,
+                    isSelected: false,
+                    label: "",
+                  },
+                },
+                docType: {
+                  a: {
+                    count: -1,
+                    isSelected: true,
+                    label: "",
+                  },
+                  b: {
+                    count: -1,
+                    isSelected: true,
+                    label: "",
+                  },
+                },
+              },
+              results: { status: "loading" }
+            }
+          }
+        },
+      });
+    });
 
-    //   expect(result).toEqual({
-    //     searchState: {
-    //       filterOptions: {
-    //         category: {
-    //           a: {
-    //             count: -1,
-    //             isSelected: true,
-    //             label: "",
-    //           },
-    //           b: {
-    //             count: -1,
-    //             isSelected: false,
-    //             label: "",
-    //           },
-    //         },
-    //         docType: {
-    //           a: {
-    //             count: -1,
-    //             isSelected: true,
-    //             label: "",
-    //           },
-    //           b: {
-    //             count: -1,
-    //             isSelected: true,
-    //             label: "",
-    //           },
-    //         },
-    //       },
-    //       results: {
-    //         status: "loading",
-    //       },
-    //     },
-    //   });
-    // });
+    it("can update filters and sort data if search state has succeeded", () => {
+      jest
+        .spyOn(documentVisibility, "isDocumentVisible")
+        .mockImplementation(({ documentId }, filterOptions) => {
+          switch (documentId) {
+            case "1":
+              return { isVisible: true, hasChanged: true };
+            case "2":
+              return { isVisible: false, hasChanged: true };
+            case "3":
+              return { isVisible: true, hasChanged: false };
+            default:
+              throw new Error("Unexpected mock function arguments");
+          }
+        });
 
-    // it("can update filters and sort data if search state has succeeded", () => {
-    //   jest
-    //     .spyOn(documentVisibility, "isDocumentVisible")
-    //     .mockImplementation(({ documentId }, filterOptions) => {
-    //       switch (documentId) {
-    //         case "1":
-    //           return { isVisible: true, hasChanged: true };
-    //         case "2":
-    //           return { isVisible: false, hasChanged: true };
-    //         case "3":
-    //           return { isVisible: true, hasChanged: false };
-    //         default:
-    //           throw new Error("Unexpected mock function arguments");
-    //       }
-    //     });
+      const existingSearchState = {
+        searchType: "documentContent",
+        searchConfigs: {
+          documentContent: {
+            results: {
+              status: "succeeded", data: {
+                documentResults: [
+                  { documentId: "1", occurrencesInDocumentCount: 2 },
+                  { documentId: "2", occurrencesInDocumentCount: 3 },
+                  { documentId: "3", occurrencesInDocumentCount: 7 },
+                ] as MappedDocumentResult[],
+              }
+            },
+            filterOptions: {
+              category: {},
+              docType: {},
+            } as CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"],
+          }
+        }
+      } as CombinedState["searchState"];
 
-    //   const existingSearchState = {
-    //     results: {
-    //       status: "succeeded",
-    //       data: {
-    //         documentResults: [
-    //           { documentId: "1", occurrencesInDocumentCount: 2 },
-    //           { documentId: "2", occurrencesInDocumentCount: 3 },
-    //           { documentId: "3", occurrencesInDocumentCount: 7 },
-    //         ] as MappedDocumentResult[],
-    //       },
-    //     },
+      const result = reducer(
+        { searchState: existingSearchState } as CombinedState,
+        {
+          type: "UPDATE_FILTER",
+          payload: { filter: "docType", id: "a", isSelected: true },
+        }
+      );
 
-    //     filterOptions: {
-    //       category: {},
-    //       docType: {},
-    //     } as CombinedState["searchState"]["filterOptions"],
-    //   } as CombinedState["searchState"];
+      expect(result).toEqual({
+        searchState: {
+          searchType: "documentContent",
+          searchConfigs: {
+            documentContent: {
+              results: {
+                data: {
+                  documentResults: [
+                    {
+                      documentId: "1",
+                      isVisible: true,
+                      occurrencesInDocumentCount: 2,
+                    },
+                    {
+                      documentId: "2",
+                      isVisible: false,
+                      occurrencesInDocumentCount: 3,
+                    },
+                    { documentId: "3", occurrencesInDocumentCount: 7 },
+                  ],
+                  filteredDocumentCount: 1,
+                  filteredOccurrencesCount: 2,
+                },
+                status: "succeeded",
+              },
+              filterOptions: {
+                category: {},
+                docType: {
+                  a: { isSelected: true },
+                },
+              },
+            },
+          },
+        },
+      });
 
-    //   const result = reducer(
-    //     { searchState: existingSearchState } as CombinedState,
-    //     {
-    //       type: "UPDATE_FILTER",
-    //       payload: { filter: "docType", id: "a", isSelected: true },
-    //     }
-    //   );
-
-    //   expect(result).toEqual({
-    //     searchState: {
-    //       filterOptions: {
-    //         category: {},
-    //         docType: {
-    //           a: { isSelected: true },
-    //         },
-    //       },
-    //       results: {
-    //         data: {
-    //           documentResults: [
-    //             {
-    //               documentId: "1",
-    //               isVisible: true,
-    //               occurrencesInDocumentCount: 2,
-    //             },
-    //             {
-    //               documentId: "2",
-    //               isVisible: false,
-    //               occurrencesInDocumentCount: 3,
-    //             },
-    //             { documentId: "3", occurrencesInDocumentCount: 7 },
-    //           ],
-    //           filteredDocumentCount: 1,
-    //           filteredOccurrencesCount: 2,
-    //         },
-    //         status: "succeeded",
-    //       },
-    //     },
-    //   });
-
-    //   // assert we have been given the same reference to the object if
-    //   //  the document has not changed
-    //   expect(
-    //     result.searchState.results.status === "succeeded" &&
-    //       result.searchState.results.data.documentResults[2]
-    //   ).toBe(
-    //     existingSearchState.results.status === "succeeded" &&
-    //       existingSearchState.results.data.documentResults[2]
-    //   );
-    // });
+      // assert we have been given the same reference to the object if
+      //  the document has not changed
+      expect(
+        result.searchState.searchConfigs.documentContent.results.status === "succeeded" &&
+        result.searchState.searchConfigs.documentContent.results.data.documentResults[2]
+      ).toBe(
+        existingSearchState.searchConfigs.documentContent.results.status === "succeeded" &&
+        existingSearchState.searchConfigs.documentContent.results.data.documentResults[2]
+      );
+    });
   });
 
   describe("ADD_REDACTION", () => {
