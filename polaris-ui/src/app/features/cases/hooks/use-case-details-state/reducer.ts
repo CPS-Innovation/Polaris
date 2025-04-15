@@ -60,7 +60,7 @@ import {
 import { LocalDocumentState } from "../../domain/LocalDocumentState";
 import { shouldTriggerPipelineRefresh } from "../utils/shouldTriggerPipelineRefresh";
 import { mapDocumentNameSearch } from "./map-document-name-search";
-import { addDocumentNameMatches as combineDocumentNameMatches } from "./combine-document-name-matches";
+import { combineDocumentNameMatches } from "./combine-document-name-matches";
 
 export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
 
@@ -959,7 +959,8 @@ export const reducer = (
 
         const unsortedData = combineDocumentNameMatches(
           textSearchResults,
-          state.searchState.searchConfigs.documentName.results.data.documentResults
+          state.searchState.searchConfigs.documentName.results.data.documentResults,
+          state.featureFlags.documentNameSearch
         );
 
         const sortedData = sortMappedTextSearchResult(
@@ -1088,7 +1089,7 @@ export const reducer = (
             if (curr.isVisible) {
               acc.filteredDocumentCount += 1;
               acc.filteredOccurrencesCount += curr.occurrencesInDocumentCount;
-              if (curr.isDocumentNameMatch) {
+              if (curr.isDocumentNameMatch && state.featureFlags.documentNameSearch) {
                 acc.filteredOccurrencesCount += 1;
               }
             }

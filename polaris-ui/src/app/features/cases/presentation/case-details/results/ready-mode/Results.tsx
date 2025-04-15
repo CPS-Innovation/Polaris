@@ -5,6 +5,7 @@ import { Filters } from "./Filters";
 import { Header } from "./Header";
 import { List } from "./List";
 import { useAppInsightsTrackEvent } from "../../../../../../common/hooks/useAppInsightsTracks";
+import { FeatureFlagData } from "../../../../domain/FeatureFlagData";
 
 type Props = {
   submittedSearchTerm: string;
@@ -13,6 +14,7 @@ type Props = {
   missingDocs: CombinedState["searchState"]["missingDocs"];
   resultsOrder: CombinedState["searchState"]["searchConfigs"]["documentContent"]["resultsOrder"];
   previouslyIndexed: boolean;
+  featureFlags: FeatureFlagData;
   handleChangeResultsOrder: CaseDetailsState["handleChangeResultsOrder"];
   filterOptions: CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"];
   handleUpdateFilter: CaseDetailsState["handleUpdateFilter"];
@@ -25,6 +27,7 @@ export const Results: React.FC<Props> = ({
   requestedSearchTerm,
   missingDocs,
   resultsOrder,
+  featureFlags,
   previouslyIndexed,
   handleChangeResultsOrder,
   filterOptions,
@@ -66,7 +69,7 @@ export const Results: React.FC<Props> = ({
           }}
         />
 
-        <List searchResult={searchResult} handleOpenPdf={handleOpenPdf} submittedSearchTerm={submittedSearchTerm} />
+        <List searchResult={searchResult} handleOpenPdf={handleOpenPdf} submittedSearchTerm={submittedSearchTerm} featureFlags={featureFlags} />
       </div>
     </>
   );

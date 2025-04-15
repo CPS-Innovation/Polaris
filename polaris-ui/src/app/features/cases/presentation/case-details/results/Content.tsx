@@ -7,12 +7,14 @@ import { Results } from "./ready-mode/Results";
 import { CombinedState } from "../../../domain/CombinedState";
 import React, { useEffect, useState } from "react";
 import { LinkButton, NotificationBanner } from "../../../../../common/presentation/components";
+import { FeatureFlagData } from "../../../domain/FeatureFlagData";
 
 type Props = {
   caseState: SucceededApiResult<CaseDetails>;
   searchTerm: CombinedState["searchTerm"];
   searchState: CombinedState["searchState"];
   loadingPercentage?: number;
+  featureFlags: FeatureFlagData;
   handleSearchTermChange: CaseDetailsState["handleSearchTermChange"];
   handleSearchTypeChange: CaseDetailsState["handleSearchTypeChange"];
   handleLaunchSearchResults: CaseDetailsState["handleLaunchSearchResults"];
@@ -39,6 +41,7 @@ export const Content: React.FC<Props> = ({
     missingDocs,
   },
   loadingPercentage,
+  featureFlags,
   handleSearchTermChange: handleChange,
   handleSearchTypeChange,
   handleLaunchSearchResults: handleSubmit,
@@ -46,8 +49,8 @@ export const Content: React.FC<Props> = ({
   handleUpdateFilter,
   handleOpenPdf,
 }) => {
-  const [previouslyIndexed, setPreviouslyIndexed] = useState(documentContent.results.status === 'succeeded' && submittedSearchTerm ===
-    lastSubmittedSearchTerm);
+  const [previouslyIndexed, setPreviouslyIndexed] = useState((documentContent.results.status === 'succeeded' && submittedSearchTerm ===
+    lastSubmittedSearchTerm) || !featureFlags.documentNameSearch);
 
 
   useEffect(() => {
@@ -62,7 +65,7 @@ export const Content: React.FC<Props> = ({
     setPreviouslyIndexed(true);
   };
 
-  const handleResetSearch  = () => {
+  const handleResetSearch = () => {
     setPreviouslyIndexed(false);
     handleSubmit();
   };
@@ -76,45 +79,47 @@ export const Content: React.FC<Props> = ({
       className={`govuk-width-container ${classes.content}`}
       data-testid="div-search-results"
     >
-      <div className={classes.notificationContainer}>
-        {submittedSearchTerm && requestedSearchTerm && !previouslyIndexed && (
-          <>
-            {documentContent.results.status === "loading" ? (
-              <NotificationBanner className={classes.notificationBanner}>
-                <div
-                  className={classes.bannerContent}
-                  data-testid="div-notification-information-banner"
-                >
-                  <p className={classes.notificationBannerHeading}>
-                    The full search results are being prepared - {loadingPercentage}% complete
-                  </p>
-                  <p>In the meantime search results on material filenames are displayed below.</p>
-                </div>
-              </NotificationBanner>
-            ) : null}
-            {documentContent.results.status === "succeeded" ? (
-              <NotificationBanner {...{ type: 'success' }}>
-                <div
-                  className={classes.bannerContent}
-                  data-testid="div-notification-success-banner"
-                >
-                  <p className={classes.notificationBannerHeading}>
-                    The full search results are now available -
-                    <LinkButton
-                      onClick={handleUpdateResults}
-                      ariaLabel={'Search Results Available Link'}
-                      dataTestId={'search-results-available-link'}
-                      className={classes.searchResultsAvailableLink}
-                    >
-                      update this page
-                    </LinkButton>
-                  </p>
-                </div>
-              </NotificationBanner>
-            ) : null}
-          </>
-        )}
-      </div>
+      {featureFlags.documentNameSearch && (
+        <div className={classes.notificationContainer}>
+          {submittedSearchTerm && requestedSearchTerm && !previouslyIndexed && (
+            <>
+              {documentContent.results.status === "loading" ? (
+                <NotificationBanner className={classes.notificationBanner}>
+                  <div
+                    className={classes.bannerContent}
+                    data-testid="div-notification-information-banner"
+                  >
+                    <p className={classes.notificationBannerHeading}>
+                      The full search results are being prepared - {loadingPercentage}% complete
+                    </p>
+                    <p>In the meantime search results on material filenames are displayed below.</p>
+                  </div>
+                </NotificationBanner>
+              ) : null}
+              {documentContent.results.status === "succeeded" ? (
+                <NotificationBanner {...{ type: 'success' }}>
+                  <div
+                    className={classes.bannerContent}
+                    data-testid="div-notification-success-banner"
+                  >
+                    <p className={classes.notificationBannerHeading}>
+                      The full search results are now available -
+                      <LinkButton
+                        onClick={handleUpdateResults}
+                        ariaLabel={'Search Results Available Link'}
+                        dataTestId={'search-results-available-link'}
+                        className={classes.searchResultsAvailableLink}
+                      >
+                        update this page
+                      </LinkButton>
+                    </p>
+                  </div>
+                </NotificationBanner>
+              ) : null}
+            </>
+          )}
+        </div>
+      )}
 
       <div className="govuk-grid-row">
         <div className="govuk-!-width-one-half">
@@ -141,6 +146,7 @@ export const Content: React.FC<Props> = ({
                     resultsOrder: documentContent.resultsOrder,
                     filterOptions: documentContent.filterOptions,
                     previouslyIndexed,
+                    featureFlags,
                     handleChangeResultsOrder,
                     handleUpdateFilter,
                     handleOpenPdf,
@@ -159,6 +165,7 @@ export const Content: React.FC<Props> = ({
                           resultsOrder: documentName.resultsOrder,
                           filterOptions: documentName.filterOptions,
                           previouslyIndexed,
+                          featureFlags,
                           handleChangeResultsOrder,
                           handleUpdateFilter,
                           handleOpenPdf,

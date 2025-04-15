@@ -1,10 +1,15 @@
 import { MappedDocumentResult } from "../../domain/MappedDocumentResult";
 import { MappedTextSearchResult } from "../../domain/MappedTextSearchResult";
 
-export const addDocumentNameMatches = (
+export const combineDocumentNameMatches = (
   mappedTextSearchResult: MappedTextSearchResult,
-  documentNameMatches: MappedDocumentResult[]
+  documentNameMatches: MappedDocumentResult[],
+  documentNameSearchFeatureEnabled: boolean,
 ): MappedTextSearchResult => {
+
+  if (!documentNameSearchFeatureEnabled) {
+    return mappedTextSearchResult;
+  }
 
   documentNameMatches.map(documentNameMatch => {
     const documentIndex = mappedTextSearchResult.documentResults.findIndex(document => document.documentId === documentNameMatch.documentId);
