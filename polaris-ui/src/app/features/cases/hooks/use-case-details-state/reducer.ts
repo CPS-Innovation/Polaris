@@ -841,8 +841,6 @@ export const reducer = (
       };
 
     case "UPDATE_SEARCH_TYPE":
-      console.log('UPDATE_SEARCH_TYPE');
-
       return {
         ...state,
         searchState: {
@@ -852,8 +850,6 @@ export const reducer = (
       };
 
     case "CLOSE_SEARCH_RESULTS":
-      console.log('CLOSE_SEARCH_RESULTS');
-
       return {
         ...state,
         searchState: {

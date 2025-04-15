@@ -1587,6 +1587,7 @@ describe("useCaseDetailsState reducer", () => {
       });
     });
   });
+
   describe("UPDATE_SEARCH_TERM", () => {
     it("can update search term", () => {
       const existingState = {
@@ -1606,6 +1607,27 @@ describe("useCaseDetailsState reducer", () => {
         searchState: {
           lastSubmittedSearchTerm: "abc",
           submittedSearchTerm: "abc",
+        },
+      });
+    });
+  });
+
+  describe("UPDATE_SEARCH_TYPE", () => {
+    it("can update search type", () => {
+      const existingState = {
+        searchState: {
+          searchType: "documentName",
+        },
+      } as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "UPDATE_SEARCH_TYPE",
+        payload: "documentContent",
+      });
+
+      expect(nextState).toEqual({
+        searchState: {
+          searchType: "documentContent",
         },
       });
     });
