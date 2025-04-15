@@ -2,7 +2,7 @@ import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
 import { mapDocumentNameSearch } from "./map-document-name-search";
 
 describe("mapDocumentNameSearch", () => {
-  it.only("can map document name matches to a MappedTextSearchResult", () => {
+  it("can map document name matches to a MappedTextSearchResult", () => {
     const searchTerm = "abc";
     const caseDocuments = [
       { documentId: "1", presentationTitle: "testabc" },
