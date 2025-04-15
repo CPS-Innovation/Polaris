@@ -34,7 +34,6 @@ stages:
       indexTerraformContainerName: $(index-terraform-container-name)
       terraformStateKey: $(terraform-key)
       terraformStateAccessKey: $(cpsqastorageterraform-key1)
-      targetSuffix: "-qa"
 
   - template: stages/stage_apply-terraform.yml
     parameters:
