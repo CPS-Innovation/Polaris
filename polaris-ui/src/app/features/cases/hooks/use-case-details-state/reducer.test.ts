@@ -988,495 +988,515 @@ describe("useCaseDetailsState reducer", () => {
         });
       });
 
-      // it("can reopen a read mode pdf in search mode", () => {
-      //   const existingTabsState = {
-      //     headers: {
-      //       Authorization: "foo",
-      //       "Correlation-Id": "foo1",
-      //     } as HeadersInit,
-      //     items: [
-      //       { documentId: "0", mode: "read" },
-      //       { documentId: "1", mode: "read" },
-      //       { documentId: "2", mode: "read" },
-      //     ],
-      //   } as CombinedState["tabsState"];
+      it("can reopen a read mode pdf in search mode", () => {
+        const existingTabsState = {
+          headers: {
+            Authorization: "foo",
+            "Correlation-Id": "foo1",
+          } as HeadersInit,
+          items: [
+            { documentId: "0", mode: "read" },
+            { documentId: "1", mode: "read" },
+            { documentId: "2", mode: "read" },
+          ],
+        } as CombinedState["tabsState"];
 
-      //   const existingDocumentsState = {
-      //     status: "succeeded",
-      //     data: [] as MappedCaseDocument[],
-      //   } as CombinedState["documentsState"];
+        const existingDocumentsState = {
+          status: "succeeded",
+          data: [] as MappedCaseDocument[],
+        } as CombinedState["documentsState"];
 
-      //   const existingSearchState = {
-      //     submittedSearchTerm: "foo",
-      //     results: {
-      //       status: "succeeded",
-      //       data: {
-      //         documentResults: [
-      //           {
-      //             documentId: "1",
-      //             occurrences: [
-      //               {
-      //                 pageIndex: 0,
-      //                 pageHeight: 11.69,
-      //                 pageWidth: 8.27,
+        const existingSearchState = {
+          submittedSearchTerm: "foo",
+          searchConfigs: {
+            documentContent: {
+              results: {
+                status: "succeeded",
+                data: {
+                  documentResults: [
+                    {
+                      documentId: "1",
+                      occurrences: [
+                        {
+                          pageIndex: 0,
+                          pageHeight: 11.69,
+                          pageWidth: 8.27,
 
-      //                 occurrencesInLine: [[21, 21, 9, 9, 23, 23, 9, 9]],
-      //               },
-      //             ] as MappedDocumentResult["occurrences"],
-      //             occurrencesInDocumentCount: 3,
-      //           },
-      //         ],
-      //       },
-      //     },
-      //   } as CombinedState["searchState"];
+                          occurrencesInLine: [[21, 21, 9, 9, 23, 23, 9, 9]],
+                        },
+                      ] as MappedDocumentResult["occurrences"],
+                      occurrencesInDocumentCount: 3,
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        } as CombinedState["searchState"];
 
-      //   const existingPipelineState = {} as CombinedState["pipelineState"];
+        const existingPipelineState = {} as CombinedState["pipelineState"];
 
-      //   const existingNotificationState = buildDefaultNotificationState();
+        const existingNotificationState = buildDefaultNotificationState();
 
-      //   const nextState = reducer(
-      //     {
-      //       searchState: existingSearchState,
-      //       documentsState: existingDocumentsState,
-      //       tabsState: existingTabsState,
-      //       pipelineState: existingPipelineState,
-      //       notificationState: existingNotificationState,
-      //     } as CombinedState,
-      //     {
-      //       type: "OPEN_PDF",
-      //       payload: {
-      //         documentId: "1",
-      //         mode: "search",
-      //         headers: {
-      //           Authorization: "bar",
-      //           "Correlation-Id": "bar1",
-      //         } as HeadersInit,
-      //       },
-      //     }
-      //   );
+        const nextState = reducer(
+          {
+            searchState: existingSearchState,
+            documentsState: existingDocumentsState,
+            tabsState: existingTabsState,
+            pipelineState: existingPipelineState,
+            notificationState: existingNotificationState,
+          } as CombinedState,
+          {
+            type: "OPEN_PDF",
+            payload: {
+              documentId: "1",
+              mode: "search",
+              headers: {
+                Authorization: "bar",
+                "Correlation-Id": "bar1",
+              } as HeadersInit,
+            },
+          }
+        );
 
-      //   expect(nextState).toEqual({
-      //     searchState: {
-      //       submittedSearchTerm: "foo",
-      //       results: {
-      //         status: "succeeded",
-      //         data: {
-      //           documentResults: [
-      //             {
-      //               documentId: "1",
-      //               occurrences: [
-      //                 {
-      //                   pageIndex: 0,
-      //                   pageHeight: 11.69,
-      //                   pageWidth: 8.27,
+        expect(nextState).toEqual({
+          searchState: {
+            submittedSearchTerm: "foo",
+            searchConfigs: {
+              documentContent: {
+                results: {
+                  status: "succeeded",
+                  data: {
+                    documentResults: [
+                      {
+                        documentId: "1",
+                        occurrences: [
+                          {
+                            pageIndex: 0,
+                            pageHeight: 11.69,
+                            pageWidth: 8.27,
 
-      //                   occurrencesInLine: [[21, 21, 9, 9, 23, 23, 9, 9]],
-      //                 },
-      //               ],
-      //               occurrencesInDocumentCount: 3,
-      //             },
-      //           ],
-      //         },
-      //       },
-      //       isResultsVisible: false,
-      //     },
-      //     documentsState: { status: "succeeded", data: [] },
-      //     tabsState: {
-      //       headers: {
-      //         Authorization: "bar",
-      //         "Correlation-Id": "bar1",
-      //       } as HeadersInit,
-      //       items: [
-      //         {
-      //           documentId: "0",
-      //           mode: "read",
-      //         },
-      //         {
-      //           documentId: "1",
-      //           mode: "search",
-      //           clientLockedState: "unlocked",
-      //           searchTerm: "foo",
-      //           occurrencesInDocumentCount: 3,
-      //           pageDeleteRedactions: [],
-      //           pageRotations: [],
-      //           rotatePageMode: false,
-      //           deletePageMode: true,
-      //           areaOnlyRedactionMode: false,
-      //           searchHighlights: [
-      //             {
-      //               id: "0",
-      //               type: "search",
-      //               highlightType: "linear",
-      //               position: {
-      //                 pageNumber: 0,
-      //                 boundingRect: {
-      //                   x1: 20.97,
-      //                   x2: 23.03,
-      //                   y1: 20.97,
-      //                   y2: 23.03,
-      //                   width: 8.27,
-      //                   height: 11.69,
-      //                 },
-      //                 rects: [
-      //                   {
-      //                     x1: 20.97,
-      //                     x2: 23.03,
-      //                     y1: 20.97,
-      //                     y2: 23.03,
-      //                     width: 8.27,
-      //                     height: 11.69,
-      //                   },
-      //                 ],
-      //               },
-      //             },
-      //           ],
-      //           isDeleted: false,
-      //           saveStatus: {
-      //             status: "initial",
-      //             type: "none",
-      //           },
-      //         },
-      //         {
-      //           documentId: "2",
-      //           mode: "read",
-      //         },
-      //       ],
-      //     },
-      //     pipelineState: {},
-      //     notificationState: existingNotificationState,
-      //   });
-      // });
+                            occurrencesInLine: [[21, 21, 9, 9, 23, 23, 9, 9]],
+                          },
+                        ],
+                        occurrencesInDocumentCount: 3,
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            isResultsVisible: false,
+          },
+          documentsState: { status: "succeeded", data: [] },
+          tabsState: {
+            headers: {
+              Authorization: "bar",
+              "Correlation-Id": "bar1",
+            } as HeadersInit,
+            items: [
+              {
+                documentId: "0",
+                mode: "read",
+              },
+              {
+                documentId: "1",
+                mode: "search",
+                clientLockedState: "unlocked",
+                searchTerm: "foo",
+                occurrencesInDocumentCount: 3,
+                pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
+                deletePageMode: true,
+                areaOnlyRedactionMode: false,
+                searchHighlights: [
+                  {
+                    id: "0",
+                    type: "search",
+                    highlightType: "linear",
+                    position: {
+                      pageNumber: 0,
+                      boundingRect: {
+                        x1: 20.97,
+                        x2: 23.03,
+                        y1: 20.97,
+                        y2: 23.03,
+                        width: 8.27,
+                        height: 11.69,
+                      },
+                      rects: [
+                        {
+                          x1: 20.97,
+                          x2: 23.03,
+                          y1: 20.97,
+                          y2: 23.03,
+                          width: 8.27,
+                          height: 11.69,
+                        },
+                      ],
+                    },
+                  },
+                ],
+                isDeleted: false,
+                saveStatus: {
+                  status: "initial",
+                  type: "none",
+                },
+              },
+              {
+                documentId: "2",
+                mode: "read",
+              },
+            ],
+          },
+          pipelineState: {},
+          notificationState: existingNotificationState,
+        });
+      });
 
-      // it("can reopen a search mode pdf in read mode", () => {
-      //   const existingTabsState = {
-      //     headers: {
-      //       Authorization: "foo",
-      //       "Correlation-Id": "foo1",
-      //     } as HeadersInit,
-      //     items: [
-      //       { documentId: "d0", mode: "read" },
-      //       { documentId: "1", mode: "search" },
-      //       { documentId: "2", mode: "read" },
-      //     ],
-      //   } as CombinedState["tabsState"];
+      it("can reopen a search mode pdf in read mode", () => {
+        const existingTabsState = {
+          headers: {
+            Authorization: "foo",
+            "Correlation-Id": "foo1",
+          } as HeadersInit,
+          items: [
+            { documentId: "d0", mode: "read" },
+            { documentId: "1", mode: "search" },
+            { documentId: "2", mode: "read" },
+          ],
+        } as CombinedState["tabsState"];
 
-      //   const existingDocumentsState = {
-      //     status: "succeeded",
-      //     data: [] as MappedCaseDocument[],
-      //   } as CombinedState["documentsState"];
+        const existingDocumentsState = {
+          status: "succeeded",
+          data: [] as MappedCaseDocument[],
+        } as CombinedState["documentsState"];
 
-      //   const existingSearchState = {
-      //     submittedSearchTerm: "foo",
-      //     results: {
-      //       status: "succeeded",
-      //     },
-      //   } as CombinedState["searchState"];
+        const existingSearchState = {
+          submittedSearchTerm: "foo",
+          searchConfigs: {
+            documentContent: {
+              results: {
+                status: "succeeded",
+              },
+            },
+          },
+        } as CombinedState["searchState"];
 
-      //   const existingPipelineState = {} as CombinedState["pipelineState"];
+        const existingPipelineState = {} as CombinedState["pipelineState"];
 
-      //   const existingNotificationState = buildDefaultNotificationState();
+        const existingNotificationState = buildDefaultNotificationState();
 
-      //   const nextState = reducer(
-      //     {
-      //       searchState: existingSearchState,
-      //       documentsState: existingDocumentsState,
-      //       tabsState: existingTabsState,
-      //       pipelineState: existingPipelineState,
-      //       notificationState: existingNotificationState,
-      //     } as CombinedState,
-      //     {
-      //       type: "OPEN_PDF",
-      //       payload: {
-      //         documentId: "1",
-      //         mode: "read",
-      //         headers: {
-      //           Authorization: "bar",
-      //           "Correlation-Id": "bar1",
-      //         } as HeadersInit,
-      //       },
-      //     }
-      //   );
+        const nextState = reducer(
+          {
+            searchState: existingSearchState,
+            documentsState: existingDocumentsState,
+            tabsState: existingTabsState,
+            pipelineState: existingPipelineState,
+            notificationState: existingNotificationState,
+          } as CombinedState,
+          {
+            type: "OPEN_PDF",
+            payload: {
+              documentId: "1",
+              mode: "read",
+              headers: {
+                Authorization: "bar",
+                "Correlation-Id": "bar1",
+              } as HeadersInit,
+            },
+          }
+        );
 
-      //   expect(nextState).toEqual({
-      //     documentsState: existingDocumentsState,
-      //     searchState: { ...existingSearchState, isResultsVisible: false },
-      //     pipelineState: existingPipelineState,
-      //     notificationState: existingNotificationState,
-      //     tabsState: {
-      //       headers: {
-      //         Authorization: "bar",
-      //         "Correlation-Id": "bar1",
-      //       } as HeadersInit,
-      //       items: [
-      //         { documentId: "d0", mode: "read" },
-      //         {
-      //           documentId: "1",
-      //           areaOnlyRedactionMode: false,
-      //           clientLockedState: "unlocked",
-      //           mode: "read",
-      //           url: undefined,
-      //           isDeleted: false,
-      //           saveStatus: {
-      //             status: "initial",
-      //             type: "none",
-      //           },
-      //           pageDeleteRedactions: [],
-      //           pageRotations: [],
-      //           rotatePageMode: false,
-      //           deletePageMode: true,
-      //         },
-      //         { documentId: "2", mode: "read" },
-      //       ],
-      //     },
-      //   });
-      // });
+        expect(nextState).toEqual({
+          documentsState: existingDocumentsState,
+          searchState: { ...existingSearchState, isResultsVisible: false },
+          pipelineState: existingPipelineState,
+          notificationState: existingNotificationState,
+          tabsState: {
+            headers: {
+              Authorization: "bar",
+              "Correlation-Id": "bar1",
+            } as HeadersInit,
+            items: [
+              { documentId: "d0", mode: "read" },
+              {
+                documentId: "1",
+                areaOnlyRedactionMode: false,
+                clientLockedState: "unlocked",
+                mode: "read",
+                url: undefined,
+                isDeleted: false,
+                saveStatus: {
+                  status: "initial",
+                  type: "none",
+                },
+                pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
+                deletePageMode: true,
+              },
+              { documentId: "2", mode: "read" },
+            ],
+          },
+        });
+      });
 
-      // it("can reopen a search mode pdf in search mode with a different search term", () => {
-      //   const existingTabsState = {
-      //     headers: {
-      //       Authorization: "foo",
-      //       "Correlation-Id": "foo1",
-      //     } as HeadersInit,
-      //     items: [
-      //       { documentId: "d0", mode: "read" },
-      //       {
-      //         documentId: "1",
-      //         mode: "search",
-      //         searchTerm: "foo",
-      //         occurrencesInDocumentCount: 1,
-      //         pageOccurrences: [
-      //           {
-      //             boundingBoxes: [[1, 2, 3]],
-      //             pageIndex: 0,
-      //             pageHeight: 11.69,
-      //             pageWidth: 8.27,
-      //           },
-      //         ],
-      //       },
-      //       { documentId: "2", mode: "read" },
-      //     ],
-      //   } as CombinedState["tabsState"];
+      it("can reopen a search mode pdf in search mode with a different search term", () => {
+        const existingTabsState = {
+          headers: {
+            Authorization: "foo",
+            "Correlation-Id": "foo1",
+          } as HeadersInit,
+          items: [
+            { documentId: "d0", mode: "read" },
+            {
+              documentId: "1",
+              mode: "search",
+              searchTerm: "foo",
+              occurrencesInDocumentCount: 1,
+              pageOccurrences: [
+                {
+                  boundingBoxes: [[1, 2, 3]],
+                  pageIndex: 0,
+                  pageHeight: 11.69,
+                  pageWidth: 8.27,
+                },
+              ],
+            },
+            { documentId: "2", mode: "read" },
+          ],
+        } as CombinedState["tabsState"];
 
-      //   const existingDocumentsState = {
-      //     status: "succeeded",
-      //     data: [] as MappedCaseDocument[],
-      //   } as CombinedState["documentsState"];
+        const existingDocumentsState = {
+          status: "succeeded",
+          data: [] as MappedCaseDocument[],
+        } as CombinedState["documentsState"];
 
-      //   const existingSearchState = {
-      //     submittedSearchTerm: "bar",
-      //     results: {
-      //       status: "succeeded",
-      //       data: {
-      //         documentResults: [
-      //           {
-      //             documentId: "1",
-      //             occurrences: [
-      //               {
-      //                 pageIndex: 1,
-      //                 pageHeight: 8,
-      //                 pageWidth: 7,
-      //                 occurrencesInLine: [[1, 1, 9, 9, 2, 2]],
-      //               },
-      //               {
-      //                 pageIndex: 2,
-      //                 pageHeight: 9,
-      //                 pageWidth: 8,
-      //                 occurrencesInLine: [[2, 2, 9, 9, 3, 3]],
-      //               },
-      //               {
-      //                 pageIndex: 2,
-      //                 pageHeight: 10,
-      //                 pageWidth: 9,
-      //                 occurrencesInLine: [[3, 3, 9, 9, 4, 4]],
-      //               },
-      //             ] as MappedDocumentResult["occurrences"],
-      //             occurrencesInDocumentCount: 4,
-      //           },
-      //         ],
-      //       },
-      //     },
-      //   } as CombinedState["searchState"];
+        const existingSearchState = {
+          submittedSearchTerm: "bar",
+          searchConfigs: {
+            documentContent: {
+              results: {
+                status: "succeeded",
+                data: {
+                  documentResults: [
+                    {
+                      documentId: "1",
+                      occurrences: [
+                        {
+                          pageIndex: 1,
+                          pageHeight: 8,
+                          pageWidth: 7,
+                          occurrencesInLine: [[1, 1, 9, 9, 2, 2]],
+                        },
+                        {
+                          pageIndex: 2,
+                          pageHeight: 9,
+                          pageWidth: 8,
+                          occurrencesInLine: [[2, 2, 9, 9, 3, 3]],
+                        },
+                        {
+                          pageIndex: 2,
+                          pageHeight: 10,
+                          pageWidth: 9,
+                          occurrencesInLine: [[3, 3, 9, 9, 4, 4]],
+                        },
+                      ] as MappedDocumentResult["occurrences"],
+                      occurrencesInDocumentCount: 4,
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        } as CombinedState["searchState"];
 
-      //   const existingPipelineState = {} as CombinedState["pipelineState"];
-      //   const existingNotificationState = buildDefaultNotificationState();
+        const existingPipelineState = {} as CombinedState["pipelineState"];
+        const existingNotificationState = buildDefaultNotificationState();
 
-      //   const nextState = reducer(
-      //     {
-      //       searchState: existingSearchState,
-      //       documentsState: existingDocumentsState,
-      //       tabsState: existingTabsState,
-      //       pipelineState: existingPipelineState,
-      //       notificationState: existingNotificationState,
-      //     } as CombinedState,
-      //     {
-      //       type: "OPEN_PDF",
-      //       payload: {
-      //         documentId: "1",
-      //         mode: "search",
-      //         headers: {
-      //           Authorization: "bar",
-      //           "Correlation-Id": "bar1",
-      //         } as HeadersInit,
-      //       },
-      //     }
-      //   );
+        const nextState = reducer(
+          {
+            searchState: existingSearchState,
+            documentsState: existingDocumentsState,
+            tabsState: existingTabsState,
+            pipelineState: existingPipelineState,
+            notificationState: existingNotificationState,
+          } as CombinedState,
+          {
+            type: "OPEN_PDF",
+            payload: {
+              documentId: "1",
+              mode: "search",
+              headers: {
+                Authorization: "bar",
+                "Correlation-Id": "bar1",
+              } as HeadersInit,
+            },
+          }
+        );
 
-      //   expect(nextState).toEqual({
-      //     searchState: {
-      //       submittedSearchTerm: "bar",
-      //       results: {
-      //         status: "succeeded",
-      //         data: {
-      //           documentResults: [
-      //             {
-      //               documentId: "1",
-      //               occurrences: [
-      //                 {
-      //                   pageIndex: 1,
-      //                   pageHeight: 8,
-      //                   pageWidth: 7,
-      //                   occurrencesInLine: [[1, 1, 9, 9, 2, 2]],
-      //                 },
-      //                 {
-      //                   pageIndex: 2,
-      //                   pageHeight: 9,
-      //                   pageWidth: 8,
-      //                   occurrencesInLine: [[2, 2, 9, 9, 3, 3]],
-      //                 },
-      //                 {
-      //                   pageIndex: 2,
-      //                   pageHeight: 10,
-      //                   pageWidth: 9,
-      //                   occurrencesInLine: [[3, 3, 9, 9, 4, 4]],
-      //                 },
-      //               ],
-      //               occurrencesInDocumentCount: 4,
-      //             },
-      //           ],
-      //         },
-      //       },
-      //       isResultsVisible: false,
-      //     },
-      //     documentsState: { status: "succeeded", data: [] },
-      //     tabsState: {
-      //       headers: {
-      //         Authorization: "bar",
-      //         "Correlation-Id": "bar1",
-      //       } as HeadersInit,
-      //       items: [
-      //         { documentId: "d0", mode: "read" },
-      //         {
-      //           documentId: "1",
-      //           mode: "search",
-      //           searchTerm: "bar",
-      //           isDeleted: false,
-      //           saveStatus: {
-      //             status: "initial",
-      //             type: "none",
-      //           },
-      //           areaOnlyRedactionMode: false,
-      //           occurrencesInDocumentCount: 4,
-      //           pageDeleteRedactions: [],
-      //           pageRotations: [],
-      //           rotatePageMode: false,
-      //           deletePageMode: true,
-      //           pageOccurrences: [
-      //             {
-      //               boundingBoxes: [[1, 2, 3]],
-      //               pageIndex: 0,
-      //               pageHeight: 11.69,
-      //               pageWidth: 8.27,
-      //             },
-      //           ],
-      //           clientLockedState: "unlocked",
-      //           searchHighlights: [
-      //             {
-      //               id: "0",
-      //               type: "search",
-      //               highlightType: "linear",
-      //               position: {
-      //                 pageNumber: 1,
-      //                 boundingRect: {
-      //                   x1: 0.97,
-      //                   y1: 0.97,
-      //                   x2: 2.03,
-      //                   y2: 2.03,
-      //                   width: 7,
-      //                   height: 8,
-      //                 },
-      //                 rects: [
-      //                   {
-      //                     x1: 0.97,
-      //                     y1: 0.97,
-      //                     x2: 2.03,
-      //                     y2: 2.03,
-      //                     width: 7,
-      //                     height: 8,
-      //                   },
-      //                 ],
-      //               },
-      //             },
-      //             {
-      //               id: "1",
-      //               type: "search",
-      //               highlightType: "linear",
-      //               position: {
-      //                 pageNumber: 2,
-      //                 boundingRect: {
-      //                   x1: 1.97,
-      //                   y1: 1.97,
-      //                   x2: 3.03,
-      //                   y2: 3.03,
-      //                   width: 8,
-      //                   height: 9,
-      //                 },
-      //                 rects: [
-      //                   {
-      //                     x1: 1.97,
-      //                     y1: 1.97,
-      //                     x2: 3.03,
-      //                     y2: 3.03,
-      //                     width: 8,
-      //                     height: 9,
-      //                   },
-      //                 ],
-      //               },
-      //             },
-      //             {
-      //               id: "2",
-      //               type: "search",
-      //               highlightType: "linear",
-      //               position: {
-      //                 pageNumber: 2,
-      //                 boundingRect: {
-      //                   x1: 2.97,
-      //                   y1: 2.97,
-      //                   x2: 4.03,
-      //                   y2: 4.03,
-      //                   width: 8,
-      //                   height: 9,
-      //                 },
-      //                 rects: [
-      //                   {
-      //                     x1: 2.97,
-      //                     y1: 2.97,
-      //                     x2: 4.03,
-      //                     y2: 4.03,
-      //                     width: 8,
-      //                     height: 9,
-      //                   },
-      //                 ],
-      //               },
-      //             },
-      //           ],
-      //         },
-      //         { documentId: "2", mode: "read" },
-      //       ],
-      //     },
-      //     pipelineState: {},
-      //     notificationState: existingNotificationState,
-      //   });
-      // });
+        expect(nextState).toEqual({
+          searchState: {
+            submittedSearchTerm: "bar",
+            searchConfigs: {
+              documentContent: {
+                results: {
+                  status: "succeeded",
+                  data: {
+                    documentResults: [
+                      {
+                        documentId: "1",
+                        occurrences: [
+                          {
+                            pageIndex: 1,
+                            pageHeight: 8,
+                            pageWidth: 7,
+                            occurrencesInLine: [[1, 1, 9, 9, 2, 2]],
+                          },
+                          {
+                            pageIndex: 2,
+                            pageHeight: 9,
+                            pageWidth: 8,
+                            occurrencesInLine: [[2, 2, 9, 9, 3, 3]],
+                          },
+                          {
+                            pageIndex: 2,
+                            pageHeight: 10,
+                            pageWidth: 9,
+                            occurrencesInLine: [[3, 3, 9, 9, 4, 4]],
+                          },
+                        ],
+                        occurrencesInDocumentCount: 4,
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            isResultsVisible: false,
+          },
+          documentsState: { status: "succeeded", data: [] },
+          tabsState: {
+            headers: {
+              Authorization: "bar",
+              "Correlation-Id": "bar1",
+            } as HeadersInit,
+            items: [
+              { documentId: "d0", mode: "read" },
+              {
+                documentId: "1",
+                mode: "search",
+                searchTerm: "bar",
+                isDeleted: false,
+                saveStatus: {
+                  status: "initial",
+                  type: "none",
+                },
+                areaOnlyRedactionMode: false,
+                occurrencesInDocumentCount: 4,
+                pageDeleteRedactions: [],
+                pageRotations: [],
+                rotatePageMode: false,
+                deletePageMode: true,
+                pageOccurrences: [
+                  {
+                    boundingBoxes: [[1, 2, 3]],
+                    pageIndex: 0,
+                    pageHeight: 11.69,
+                    pageWidth: 8.27,
+                  },
+                ],
+                clientLockedState: "unlocked",
+                searchHighlights: [
+                  {
+                    id: "0",
+                    type: "search",
+                    highlightType: "linear",
+                    position: {
+                      pageNumber: 1,
+                      boundingRect: {
+                        x1: 0.97,
+                        y1: 0.97,
+                        x2: 2.03,
+                        y2: 2.03,
+                        width: 7,
+                        height: 8,
+                      },
+                      rects: [
+                        {
+                          x1: 0.97,
+                          y1: 0.97,
+                          x2: 2.03,
+                          y2: 2.03,
+                          width: 7,
+                          height: 8,
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    id: "1",
+                    type: "search",
+                    highlightType: "linear",
+                    position: {
+                      pageNumber: 2,
+                      boundingRect: {
+                        x1: 1.97,
+                        y1: 1.97,
+                        x2: 3.03,
+                        y2: 3.03,
+                        width: 8,
+                        height: 9,
+                      },
+                      rects: [
+                        {
+                          x1: 1.97,
+                          y1: 1.97,
+                          x2: 3.03,
+                          y2: 3.03,
+                          width: 8,
+                          height: 9,
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    id: "2",
+                    type: "search",
+                    highlightType: "linear",
+                    position: {
+                      pageNumber: 2,
+                      boundingRect: {
+                        x1: 2.97,
+                        y1: 2.97,
+                        x2: 4.03,
+                        y2: 4.03,
+                        width: 8,
+                        height: 9,
+                      },
+                      rects: [
+                        {
+                          x1: 2.97,
+                          y1: 2.97,
+                          x2: 4.03,
+                          y2: 4.03,
+                          width: 8,
+                          height: 9,
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+              { documentId: "2", mode: "read" },
+            ],
+          },
+          pipelineState: {},
+          notificationState: existingNotificationState,
+        });
+      });
     });
   });
 
