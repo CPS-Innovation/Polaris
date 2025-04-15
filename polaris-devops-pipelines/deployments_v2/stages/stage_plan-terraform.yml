@@ -17,45 +17,38 @@ parameters:
   - name: terraformStateAccessKey
     type: string
 
-
 stages:
   - stage: Plan
     displayName: Plan Terraform
+    condition: succeeded()
     jobs:
-      - deployment: Wait_For_Running_Builds
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: jobs/tasks/task_wait-for-running-releases.yml
-                  parameters:
-                    devOpsPatToken: $(System.AccessToken)
+      - job: Wait_For_Running_Builds
+        displayName: Log Start
+        condition: succeeded()
+        steps:
+          - template: jobs/tasks/task_wait-for-running-releases.yml
+            parameters:
+              devOpsPatToken: $(System.AccessToken)
 
-
-      - deployment: Plan_Main_Terraform
+      - job: Plan_Main_Terraform
+        displayName: Plan Main Terraform
         condition: succeeded()
         dependsOn: Wait_For_Running_Builds
-        displayName: Plan Main Terraform
-        workspace:
-          clean: all
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: jobs/tasks/task_get-credentials.yml
-                  parameters:
-                    azureSubscription: ${{ parameters.azureSubscription }}
+        steps:
+          - template: jobs/tasks/task_get-credentials.yml
+            parameters:
+              azureSubscription: ${{ parameters.azureSubscription }}
 
-                - template: jobs/tasks/task_plan-terraform.yml
-                  parameters:
-                    targetBuild: ${{ parameters.targetBuild }}
-                    targetTerraformArtifact: "main-terraform-files"
-                    targetPlanName: ${{ parameters.targetPlanName }}
-                    terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
-                    terraformContainerName: ${{ parameters.mainTerraformContainerName }}
-                    terraformStateKey: ${{ parameters.terraformStateKey }}
-                    terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
-                    armClientId: $(clientId)
-                    armClientSecret: $(clientSecret)
-                    armTenantId: $(tenantId)
-                    armSubscriptionId: $(subscriptionId)
+          - template: jobs/tasks/task_plan-terraform.yml
+            parameters:
+              targetBuild: ${{ parameters.targetBuild }}
+              targetTerraformArtifact: "main-terraform-files"
+              targetPlanName: ${{ parameters.targetPlanName }}
+              terraformStorageAccount: ${{ parameters.terraformStorageAccount }}
+              terraformContainerName: ${{ parameters.mainTerraformContainerName }}
+              terraformStateKey: ${{ parameters.terraformStateKey }}
+              terraformStateAccessKey: ${{ parameters.terraformStateAccessKey }}
+              armClientId: $(clientId)
+              armClientSecret: $(clientSecret)
+              armTenantId: $(tenantId)
+              armSubscriptionId: $(subscriptionId)
