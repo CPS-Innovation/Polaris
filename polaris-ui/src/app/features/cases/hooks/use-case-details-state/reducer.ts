@@ -831,8 +831,6 @@ export const reducer = (
     }
 
     case "UPDATE_SEARCH_TERM":
-      console.log('UPDATE_SEARCH_TERM');
-
       return {
         ...state,
         searchTerm: action.payload.searchTerm,
@@ -865,8 +863,6 @@ export const reducer = (
       };
 
     case "LAUNCH_SEARCH_RESULTS": {
-      console.log('LAUNCH_SEARCH_RESULTS');
-
       const shouldWaitForNewPipelineRefresh = shouldTriggerPipelineRefresh(
         state.notificationState?.lastModifiedDateTime ?? "",
         state.pipelineRefreshData?.localLastRefreshTime
@@ -881,7 +877,7 @@ export const reducer = (
 
         const sortedData = sortMappedTextSearchResult(
           unsortedData,
-          state.searchState.searchConfigs.documentContent.resultsOrder
+          state.searchState.searchConfigs.documentName.resultsOrder
         );
 
         const filterOptions = mapFilters(unsortedData);
@@ -916,9 +912,6 @@ export const reducer = (
     }
 
     case "UPDATE_SEARCH_RESULTS": {
-      console.log('UPDATE_SEARCH_RESULTS');
-
-
       if (action.payload.status === "failed") {
         throw action.payload.error;
       }
@@ -999,8 +992,6 @@ export const reducer = (
     }
 
     case "CHANGE_RESULTS_ORDER": {
-      console.log('CHANGE_RESULTS_ORDER');
-
       const updateResultsOrder = (searchType: CombinedState["searchState"]["searchType"]) => {
         const results = state.searchState.searchConfigs[searchType].results;
 
@@ -1028,7 +1019,6 @@ export const reducer = (
         };
       };
 
-
       if (state.searchState.searchType === "documentContent") {
         return updateResultsOrder("documentContent");
       }
@@ -1037,8 +1027,6 @@ export const reducer = (
     }
 
     case "UPDATE_FILTER": {
-      console.log('UPDATE_FILTER');
-
       const { isSelected, filter, id } = action.payload;
 
       const updateFilterOptions = (searchType: CombinedState["searchState"]["searchType"]) => ({
@@ -1121,7 +1109,6 @@ export const reducer = (
         };
       };
 
-
       const searchType = state.searchState.searchType;
       const nextState = updateFilterOptions(searchType);
 
@@ -1130,8 +1117,6 @@ export const reducer = (
       }
 
       return updateResults(nextState, searchType);
-
-
     }
 
     case "ADD_REDACTION": {
