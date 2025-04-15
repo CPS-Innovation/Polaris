@@ -23,6 +23,19 @@ variables:
   - group: terraform-containers
 
 stages:
+
+  - template: stages/stage_plan-terraform.yml
+    parameters:
+      targetBuild: PolarisBuild
+      azureSubscription: $(qa-azure-subscription)
+      targetPlanName: "qa"
+      terraformStorageAccount: $(qa-terraform-storage-account)
+      mainTerraformContainerName: $(main-terraform-container-name)
+      indexTerraformContainerName: $(index-terraform-container-name)
+      terraformStateKey: $(terraform-key)
+      terraformStateAccessKey: $(cpsqastorageterraform-key1)
+      targetSuffix: "-qa"
+
   - template: stages/stage_apply-terraform.yml
     parameters:
       targetEnv: "QA"
