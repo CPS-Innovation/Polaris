@@ -71,7 +71,7 @@ Cypress.Commands.add(
 );
 Cypress.Commands.add("selectPDFTextElement", (matchString: string) => {
   cy.wait(100);
-  cy.get(`.textLayer span:contains(${matchString})`)
+  cy.get(`#active-tab-panel .textLayer span:contains(${matchString})`)
     .filter(":not(:has(*))")
     .first()
     .then((element) => {
@@ -88,6 +88,10 @@ Cypress.Commands.add("selectPDFTextElement", (matchString: string) => {
         .trigger("mouseup");
       cy.document().trigger("selectionchange");
     });
+});
+
+Cypress.Commands.add("getElementAsync", (selector: string) => {
+  return cy.get(selector).should("be.visible");
 });
 
 Cypress.Commands.add(

@@ -10,6 +10,7 @@ export type GuidanceProps = {
   dataTestId?: string;
   ariaLabel: string;
   ariaDescription: string;
+  children: React.ReactNode;
 };
 
 export const Guidance: React.FC<GuidanceProps> = ({

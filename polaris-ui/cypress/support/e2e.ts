@@ -49,6 +49,8 @@ declare global {
        */
       selectPDFTextElement(matchString: string): void;
 
+      getElementAsync(element: string): any;
+
       overrideRoute(
         apiRoute: string,
         response:

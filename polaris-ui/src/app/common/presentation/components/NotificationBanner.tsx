@@ -5,6 +5,7 @@ type Props = {
   tag?: {
     children: React.ReactNode;
   };
+  children: React.ReactNode;
 };
 export const NotificationBanner: React.FC<Props> = (props) => (
   <GDS.NotificationBanner {...props} />

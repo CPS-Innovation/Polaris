@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 
-import { getDocument, GlobalWorkerOptions } from "pdfjs-dist/legacy/build/pdf";
+import {
+  GlobalWorkerOptions,
+  getDocument,
+} from "pdfjs-dist/legacy/build/pdf.mjs";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 
 interface Props {
@@ -29,7 +32,8 @@ export class PdfLoader extends Component<Props, State> {
   };
 
   static defaultProps = {
-    workerSrc: "https://unpkg.com/pdfjs-dist@2.11.338/build/pdf.worker.min.js",
+    workerSrc: `${process.env.PUBLIC_URL}/pdf.worker.min.4.4.168.mjs`,
+    // workerSrc: "https://unpkg.com/pdfjs-dist@4.4.168/build/pdf.worker.min.mjs",
   };
 
   documentRef = React.createRef<HTMLElement>();
@@ -66,26 +70,24 @@ export class PdfLoader extends Component<Props, State> {
     const { url, cMapUrl, cMapPacked, workerSrc, headers } = this.props;
     const { pdfDocument: discardedDocument } = this.state;
     this.setState({ pdfDocument: null, error: null });
-
     if (typeof workerSrc === "string") {
       GlobalWorkerOptions.workerSrc = workerSrc;
     }
-
     Promise.resolve()
       .then(() => discardedDocument && discardedDocument.destroy())
       .then(() => {
         if (!url) {
           return;
         }
-
-        return getDocument({
+        const document = {
           ...this.props,
           httpHeaders: headers,
           ownerDocument,
           cMapUrl,
           cMapPacked,
           withCredentials: true,
-        }).promise.then((pdfDocument) => {
+        };
+        return getDocument(document).promise.then((pdfDocument) => {
           this.setState({ pdfDocument });
         });
       })

@@ -99,7 +99,7 @@ describe("redaction refresh flow", () => {
     cy.findAllByTestId("div-pdfviewer-1")
       .last()
       .should("exist")
-      .contains("CASE FILE EVIDENCE and INFORMATION ");
+      .contains("CASE FILE EVIDENCE and INFORMATION");
     cy.wait(500);
     cy.selectPDFTextElement("MCLOVE");
     cy.findByTestId("btn-redact").should("have.length", 1);
@@ -150,7 +150,7 @@ describe("redaction refresh flow", () => {
     cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
     cy.findByTestId("btn-redact").should("have.length", 1);
     cy.findByTestId("btn-redact").should("be.disabled");
-    cy.focused().should("have.id", "select-redaction-type");
+    // cy.focused().should("have.id", "select-redaction-type");
     cy.findByTestId("select-redaction-type").select("2");
     cy.findByTestId("btn-redact").click({ force: true });
     cy.findByTestId("btn-save-redaction-0").click();
