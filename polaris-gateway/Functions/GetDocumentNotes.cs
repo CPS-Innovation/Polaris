@@ -1,10 +1,12 @@
 using Common.Configuration;
 using Common.Telemetry;
-using Ddei;
 using Ddei.Factories;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -19,7 +21,7 @@ public class GetDocumentNotes : BaseFunction
     private readonly ITelemetryClient _telemetryClient;
 
     public GetDocumentNotes(ILogger<GetDocumentNotes> logger,
-        IDdeiClient ddeiClient,
+        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient)
         : base()

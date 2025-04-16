@@ -1,18 +1,18 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Services.DocumentToggle;
-using Ddei;
+using coordinator.Domain;
+using coordinator.Durable.Payloads;
+using coordinator.Services;
+using Ddei.Factories;
+using DdeiClient.Clients.Interfaces;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using coordinator.Durable.Payloads;
-using Ddei.Factories;
-using Microsoft.Azure.Functions.Worker;
-using coordinator.Domain;
-using coordinator.Services;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace coordinator.Durable.Activity
 {

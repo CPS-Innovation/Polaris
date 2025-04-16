@@ -2,13 +2,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
-using Ddei;
 using Ddei.Factories;
 using Microsoft.Azure.Functions.Worker;
 using System.Threading.Tasks;
 using System;
 using Common.Telemetry;
 using DdeiClient.Domain.Args;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Enums;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PolarisGateway.Functions;
 
@@ -21,7 +23,7 @@ public class ToggleIsUnusedDocument : BaseFunction
 
     public ToggleIsUnusedDocument(
         ILogger<ToggleIsUnusedDocument> logger,
-        IDdeiClient ddeiClient,
+        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient)
         : base()

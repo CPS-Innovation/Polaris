@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Ddei;
 using Ddei.Factories;
 using Microsoft.Azure.Functions.Worker;
 using System.Threading.Tasks;
 using System;
 using Common.Telemetry;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Enums;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PolarisGateway.Functions;
 
@@ -20,7 +22,7 @@ public class CancelCheckoutDocument : BaseFunction
 
     public CancelCheckoutDocument(
         ILogger<CancelCheckoutDocument> logger,
-        IDdeiClient ddeiClient,
+        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient)
         : base()

@@ -42,9 +42,7 @@
     <ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Functions\PolarisPipeline\" />
     <None Remove="Clients\PolarisPipeline\" />
-    <None Remove="Functions\DocumentExtraction\" />
     <None Remove="Mappers\" />
   </ItemGroup>
 </Project>

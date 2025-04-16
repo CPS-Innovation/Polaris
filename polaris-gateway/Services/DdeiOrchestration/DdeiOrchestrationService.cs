@@ -3,14 +3,16 @@ using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
 using Common.Services.DocumentToggle;
-using Ddei;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
+using DdeiClient.Clients.Interfaces;
 using PolarisGateway.Services.DdeiOrchestration.Mappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DdeiClient.Enums;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PolarisGateway.Services.DdeiOrchestration;
 
@@ -22,7 +24,7 @@ public class DdeiOrchestrationService : IDdeiOrchestrationService
     private readonly IDocumentDtoMapper _cmsDocumentMapper;
 
     public DdeiOrchestrationService(
-             IDdeiClient ddeiClient,
+        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
              IDdeiArgFactory ddeiArgFactory,
              IDocumentToggleService documentToggleService,
              IDocumentDtoMapper cmsDocumentMapper
@@ -49,7 +51,7 @@ public class DdeiOrchestrationService : IDdeiOrchestrationService
         return Enumerable.Empty<DocumentDto>()
             .Concat(cmsDocuments.Select(MapDocument))
             .Concat(pcdRequests.Select(MapPcdRequest))
-            .Concat(defendantAndCharges.DefendantsAndCharges.Count() > 1 || defendantAndCharges.DefendantsAndCharges.Any(x => x.Charges.Count() > 1)
+            .Concat(defendantAndCharges.DefendantsAndCharges.Count() > 1
                 ? [MapDefendantAndCharges(defendantAndCharges)]
                 : []
             );

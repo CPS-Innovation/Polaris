@@ -1,15 +1,15 @@
-﻿using System.IO;
-using System.Threading.Tasks;
+﻿using Common.Clients.PdfGenerator;
 using Common.Services.BlobStorage;
-using Ddei;
-using coordinator.Durable.Payloads;
-using Common.Clients.PdfGenerator;
-using Ddei.Factories;
-using System;
-using coordinator.Durable.Activity.GeneratePdf;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Azure.Functions.Worker;
 using coordinator.Domain;
+using coordinator.Durable.Activity.GeneratePdf;
+using coordinator.Durable.Payloads;
+using Ddei.Factories;
+using DdeiClient.Clients.Interfaces;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace coordinator.Durable.Activity
 {

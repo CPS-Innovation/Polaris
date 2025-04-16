@@ -1,15 +1,15 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Common.Clients.PdfGenerator;
+﻿using Common.Clients.PdfGenerator;
 using Common.Configuration;
 using Common.Constants;
 using Common.Services.BlobStorage;
 using coordinator.Domain;
 using coordinator.Durable.Payloads;
-using Ddei;
 using Ddei.Factories;
+using DdeiClient.Clients.Interfaces;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace coordinator.Durable.Activity.GeneratePdf
 {

@@ -1,7 +1,6 @@
 
 using Common.Clients.PdfGenerator;
 using Common.Services.RenderHtmlService;
-using Ddei;
 using Ddei.Factories;
 using Moq;
 using PolarisGateway.Services.Artefact;
@@ -19,6 +18,7 @@ using FluentAssertions;
 using Ddei.Domain.CaseData.Args.Core;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Case;
+using DdeiClient.Clients.Interfaces;
 
 namespace PolarisGateway.Tests.Services.Artefact;
 
