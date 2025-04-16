@@ -983,6 +983,38 @@ describe("Case Details Search", () => {
       cy.findByTestId("loading-percentage").should("not.exist");
     });
   });
+
+  describe("Document Name Search", () => {
+    it("can display search banners whilst permforming the document name matches", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("input-search-case").type("MCLOVE{enter}");
+      cy.findByTestId("div-notification-information-banner").should("exist");
+      cy.wait(500);
+      cy.findByTestId("div-notification-success-banner").should("exist");
+      cy.findByTestId("search-results-available-link").should("exist");
+    });
+
+
+    it("can display header information when there are document name matches", () => {
+      cy.visit("/case-details/12AB1111111/13401");
+      cy.findByTestId("input-search-case").type("MCLOVE{enter}");
+      cy.findByTestId("search-results-available-link").click();
+
+      cy.findByTestId("div-results-header").contains(
+        "1 results in 1 documents"
+      );
+
+      cy.findByTestId("div-search-result-1")
+        .should("exist")
+        .should(
+          "contain",
+          "Filename contains MCLOVE"
+        );
+
+      cy.findByTestId("div-sanitized-search").should("not.exist");
+    });
+  });
+
 });
 
 export { };
