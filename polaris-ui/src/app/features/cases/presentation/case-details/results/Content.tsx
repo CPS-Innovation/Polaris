@@ -52,22 +52,22 @@ export const Content: React.FC<Props> = ({
   const [previouslyIndexed, setPreviouslyIndexed] = useState((documentContent.results.status === 'succeeded' && submittedSearchTerm ===
     lastSubmittedSearchTerm) || !featureFlags.documentNameSearch);
 
-
   useEffect(() => {
     if (documentContent.results.status === 'succeeded') {
       handleSearchTypeChange("documentContent");
     }
   }, []);
 
-
   const handleUpdateResults = () => {
     handleSearchTypeChange("documentContent");
     setPreviouslyIndexed(true);
   };
 
-  const handleResetSearch = () => {
-    setPreviouslyIndexed(false);
-    handleSubmit();
+  const handleResetSearch = (currentValue: string) => {
+    if (requestedSearchTerm !== currentValue) {
+      setPreviouslyIndexed(false);
+      handleSubmit();
+    }
   };
 
   const labelText = leadDefendantDetails
@@ -124,7 +124,7 @@ export const Content: React.FC<Props> = ({
       <div className="govuk-grid-row">
         <div className="govuk-!-width-one-half">
           <SearchBox
-            {...{ labelText, value, handleChange, handleSubmit: handleResetSearch }}
+            {...{ labelText, value, handleChange, handleSubmit: () => handleResetSearch(value) }}
             data-testid="results-search-case"
             id="case-details-result-search"
             trackEventKey="Search Case Documents From Document Search"
