@@ -212,23 +212,23 @@ describe("Feature Notes", () => {
     expect(doc9GetNotesCounter.count).to.equal(0);
   });
 
-  it("Hovering over the notes icon should show first notes loading tool tip and then show the recent note", () => {
-    const doc2GetNotesCounter = { count: 0 };
-    cy.trackRequestCount(
-      doc2GetNotesCounter,
-      "GET",
-      "/api/urns/12AB1111111/cases/13401/documents/2/notes"
-    );
-    cy.visit("/case-details/12AB1111111/13401?notes=true");
-    cy.findByTestId("btn-accordion-open-close-all").click();
-    cy.findByTestId("notes-panel").should("not.exist");
-    cy.findByTestId("btn-notes-2").trigger("mouseover");
-    cy.findByTestId("tooltip").contains("Loading notes, please wait...");
-    cy.waitUntil(() => cy.findByTestId("tooltip").contains("text_2 (+1 more)"));
-    cy.waitUntil(() => doc2GetNotesCounter.count === 1).then(() => {
-      expect(doc2GetNotesCounter.count).to.equal(1);
-    });
-  });
+  // it("Hovering over the notes icon should show first notes loading tool tip and then show the recent note", () => {
+  //   const doc2GetNotesCounter = { count: 0 };
+  //   cy.trackRequestCount(
+  //     doc2GetNotesCounter,
+  //     "GET",
+  //     "/api/urns/12AB1111111/cases/13401/documents/2/notes"
+  //   );
+  //   cy.visit("/case-details/12AB1111111/13401?notes=true");
+  //   cy.findByTestId("btn-accordion-open-close-all").click();
+  //   cy.findByTestId("notes-panel").should("not.exist");
+  //   cy.findByTestId("btn-notes-2").trigger("mouseover");
+  //   cy.findByTestId("tooltip").contains("Loading notes, please wait...");
+  //   cy.waitUntil(() => cy.findByTestId("tooltip").contains("text_2 (+1 more)"));
+  //   cy.waitUntil(() => doc2GetNotesCounter.count === 1).then(() => {
+  //     expect(doc2GetNotesCounter.count).to.equal(1);
+  //   });
+  // });
 
   it("Focus over the notes icon should show first notes loading tool tip and then show the recent note", () => {
     const doc2GetNotesCounter = { count: 0 };

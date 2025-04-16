@@ -90,6 +90,10 @@ Cypress.Commands.add("selectPDFTextElement", (matchString: string) => {
     });
 });
 
+Cypress.Commands.add("getElementAsync", (selector: string) => {
+  return cy.get(selector).should("be.visible");
+});
+
 Cypress.Commands.add(
   "trackRequestCount",
   (requestCounter, method, pathname) => {

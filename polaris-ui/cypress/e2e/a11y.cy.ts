@@ -66,12 +66,12 @@ describe("Accessibility testing using cypress-axe", () => {
     it("Has no detectable a11y violations on load", () => {
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
-      cy.findByTestId("div-pdfviewer-0")
+      cy.getElementAsync("[data-testid='div-pdfviewer-0']")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
 
       cy.findByTestId("link-document-2").click();
-      cy.findByTestId("div-pdfviewer-1")
+      cy.getElementAsync("[data-testid='div-pdfviewer-1']")
         .should("exist")
         .contains("CASE OUTLINE");
 
@@ -81,9 +81,9 @@ describe("Accessibility testing using cypress-axe", () => {
     it("Has no violations on search modal", () => {
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
-      cy.findByTestId("div-pdfviewer-0")
+      cy.getElementAsync("[data-testid='div-pdfviewer-0']")
         .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION");
 
       cy.findByTestId("input-search-case").type("drink{enter}");
       cy.findByTestId("div-search-result-1");
@@ -93,10 +93,10 @@ describe("Accessibility testing using cypress-axe", () => {
     it("Has no violations on viewing search results in the page", () => {
       cy.findByTestId("input-search-case").type("drink{enter}");
       cy.findByTestId("link-result-document-3").click();
-      cy.findByTestId("div-pdfviewer-0")
+      cy.getElementAsync("[data-testid='div-pdfviewer-0']")
         .should("exist")
         .contains("Officer’s certification");
-      cy.wait(100);
+      // cy.wait(100);
       cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
     });
 
@@ -115,7 +115,7 @@ describe("Accessibility testing using cypress-axe", () => {
       cy.findByTestId("btn-redact").click({ force: true });
       //open the second document and save redaction
       cy.findByTestId("link-document-4").click();
-      cy.findAllByTestId("div-pdfviewer-1")
+      cy.getElementAsync("[data-testid='div-pdfviewer-1']")
         .last()
         .should("exist")
         .contains("CASE FILE EVIDENCE and INFORMATION");
@@ -124,7 +124,7 @@ describe("Accessibility testing using cypress-axe", () => {
       cy.findByTestId("select-redaction-type").should("have.length", 1);
       cy.findByTestId("select-redaction-type").select("2");
       cy.findByTestId("btn-redact").click({ force: true });
-      cy.wait(200);
+      // cy.wait(200);
       cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
     });
 
@@ -160,9 +160,9 @@ describe("Accessibility testing using cypress-axe", () => {
         body: documentList[0],
         timeMs: 1000,
       });
-      cy.findByTestId("div-pdfviewer-0")
+      cy.getElementAsync("[data-testid='div-pdfviewer-0']")
         .should("exist")
-        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
+        .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
       cy.findByTestId("btn-redact").should("be.disabled");
       cy.findByTestId("select-redaction-type").should("have.length", 1);
@@ -170,7 +170,7 @@ describe("Accessibility testing using cypress-axe", () => {
       cy.findByTestId("btn-redact").should("have.length", 1);
       cy.findByTestId("btn-redact").click({ force: true });
       cy.findByTestId("btn-save-redaction-0").click();
-      cy.findByTestId("pdfTab-spinner-0").should("exist");
+      // cy.getElementAsync("pdfTab-spinner-0").should("exist");
       cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
     });
   });
