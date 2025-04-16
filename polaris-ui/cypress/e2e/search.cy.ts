@@ -422,19 +422,18 @@ describe("Case Details Search", () => {
       });
     });
 
-    describe("Loading... (long running calls)", () => {
-      it.skip("can show the user the 'Loading...' content for a long running search call", () => {
+    describe("Document Name Search Feature Flag 'OFF' - Loading... (long running calls)", () => {
+      it("can show the user the 'Loading...' content for a long running search call", () => {
         cy.overrideRoute(TEXT_SEARCH_ROUTE, { type: "delay", timeMs: 1500 });
-        cy.visit("/case-details/12AB1111111/13401");
+        cy.visit("/case-details/12AB1111111/13401?documentNameSearch=false");
         cy.findByTestId("input-search-case").type("drink{enter}");
-        cy.findByTestId("search-results-available-link").click();
 
         cy.findByTestId("div-please-wait");
       });
 
-      it.skip("can show the user the 'Loading...' content for a long running pipeline call", () => {
+      it("can show the user the 'Loading...' content for a long running pipeline call", () => {
         cy.overrideRoute(TRACKER_ROUTE, { type: "delay", timeMs: 1500 });
-        cy.visit("/case-details/12AB1111111/13401");
+        cy.visit("/case-details/12AB1111111/13401?documentNameSearch=false");
         cy.findByTestId("input-search-case").type("drink{enter}");
 
         cy.findByTestId("div-please-wait");
@@ -446,7 +445,7 @@ describe("Case Details Search", () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("input-search-case").type("drink{enter}");
         cy.findByTestId("search-results-available-link").click();
-        
+
         cy.findByTestId("link-result-document-3").click();
         cy.findByTestId("div-pdfviewer-0")
           .should("exist")
@@ -565,7 +564,7 @@ describe("Case Details Search", () => {
     });
 
     describe("Search term redaction", () => {
-      it.skip("User can successfully complete redactions, by clicking on the search results highlighted in the document", () => {
+      it("User can successfully complete redactions, by clicking on the search results highlighted in the document", () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-search-case").click();
 
@@ -577,7 +576,7 @@ describe("Case Details Search", () => {
         cy.findByTestId("div-pdfviewer-0")
           .should("exist")
           .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
-        cy.get(".PdfLinearHighlight_Highlight__part__search__KLMnH")
+        cy.get('[class*="PdfLinearHighlight_Highlight__part__search"]')
           .first()
           .click({ force: true });
         cy.findByTestId("btn-save-redaction-0").should("not.exist");
@@ -938,8 +937,8 @@ describe("Case Details Search", () => {
       });
     });
 
-    it.skip("Should show the loading percentage and the tracker summary if the pipeline refresh tracker is called more than once during the search", () => {
-      cy.visit("/case-details/12AB1111111/13401");
+    it("Should show the loading percentage and the tracker summary if the pipeline refresh tracker is called more than once during the search", () => {
+      cy.visit("/case-details/12AB1111111/13401?documentNameSearch=false");
       const pipelineDocuments = pipelinePdfResults()[0];
       cy.overrideRoute(TRACKER_ROUTE, {
         type: "break",
@@ -986,4 +985,4 @@ describe("Case Details Search", () => {
   });
 });
 
-export {};
+export { };
