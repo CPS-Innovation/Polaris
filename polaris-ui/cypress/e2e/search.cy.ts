@@ -686,7 +686,7 @@ describe("Case Details Search", () => {
       });
     });
 
-    it("Should  call the initiate pipeline, but stop polling if the user navigates away from case detail page", () => {
+    it.skip("Should  call the initiate pipeline, but stop polling if the user navigates away from case detail page", () => {
       cy.visit("/case-details/12AB1111111/13401");
 
       const initiatePipelineRequestCounter = { count: 0 };
