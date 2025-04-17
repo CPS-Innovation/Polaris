@@ -994,7 +994,6 @@ describe("Case Details Search", () => {
       cy.findByTestId("search-results-available-link").should("exist");
     });
 
-
     it("can display header information when there are document name matches", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("input-search-case").type("MCLOVE{enter}");
@@ -1006,15 +1005,11 @@ describe("Case Details Search", () => {
 
       cy.findByTestId("div-search-result-1")
         .should("exist")
-        .should(
-          "contain",
-          "Filename contains MCLOVE"
-        );
+        .should("contain", "Filename contains MCLOVE");
 
       cy.findByTestId("div-sanitized-search").should("not.exist");
     });
   });
-
 });
 
-export { };
+export {};
