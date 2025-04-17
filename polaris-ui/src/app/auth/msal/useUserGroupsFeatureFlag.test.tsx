@@ -30,6 +30,7 @@ const mockConfig = configModule as {
   FEATURE_FLAG_STATE_RETENTION: boolean;
   FEATURE_FLAG_GLOBAL_NAV: boolean;
   FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON: boolean;
+  FEATURE_FLAG_DOCUMENT_NAME_SEARCH: boolean;
   PRIVATE_BETA_FEATURE_USER_GROUP: string;
   PRIVATE_BETA_FEATURE_USER_GROUP2: string;
 };
@@ -141,6 +142,17 @@ describe("useUserGroupsFeatureFlag", () => {
       mockConfig.FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON = true;
       const { result } = renderHook(() => useUserGroupsFeatureFlag());
       expect(result?.current?.copyRedactionTextButton).toStrictEqual(true);
+    });
+  });
+
+  describe("document name search flag", () => {
+    test("Should return documentNameSearch feature true, if user is not in private beta feature groups and FEATURE_FLAG_DOCUMENT_NAME_SEARCH is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "test",
+      });
+      mockConfig.FEATURE_FLAG_DOCUMENT_NAME_SEARCH = true;
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.documentNameSearch).toStrictEqual(true);
     });
   });
 
