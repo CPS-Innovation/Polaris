@@ -59,6 +59,8 @@ import {
 } from "../../domain/gateway/PipelineDocument";
 import { LocalDocumentState } from "../../domain/LocalDocumentState";
 import { shouldTriggerPipelineRefresh } from "../utils/shouldTriggerPipelineRefresh";
+import { mapDocumentNameSearch } from "./map-document-name-search";
+import { combineDocumentNameMatches } from "./combine-document-name-matches";
 
 export type DispatchType = React.Dispatch<Parameters<typeof reducer>["1"]>;
 
@@ -116,6 +118,10 @@ export const reducer = (
         payload: { searchTerm: string };
       }
     | {
+        type: "UPDATE_SEARCH_TYPE";
+        payload: CombinedState["searchState"]["searchType"];
+      }
+    | {
         type: "LAUNCH_SEARCH_RESULTS";
       }
     | {
@@ -127,12 +133,12 @@ export const reducer = (
       }
     | {
         type: "CHANGE_RESULTS_ORDER";
-        payload: CombinedState["searchState"]["resultsOrder"];
+        payload: CombinedState["searchState"]["searchConfigs"]["documentContent"]["resultsOrder"];
       }
     | {
         type: "UPDATE_FILTER";
         payload: {
-          filter: keyof CombinedState["searchState"]["filterOptions"];
+          filter: keyof CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"];
           id: string;
           isSelected: boolean;
         };
@@ -699,8 +705,11 @@ export const reducer = (
         };
       } else {
         const foundDocumentSearchResult =
-          state.searchState.results.status === "succeeded" &&
-          state.searchState.results.data.documentResults.find(
+          state.searchState.searchConfigs["documentContent"].results.status ===
+            "succeeded" &&
+          state.searchState.searchConfigs[
+            "documentContent"
+          ].results.data.documentResults.find(
             (item) => item.documentId === documentId
           )!;
 
@@ -823,6 +832,7 @@ export const reducer = (
         },
       };
     }
+
     case "UPDATE_SEARCH_TERM":
       return {
         ...state,
@@ -832,6 +842,16 @@ export const reducer = (
           lastSubmittedSearchTerm: state.searchState.submittedSearchTerm,
         },
       };
+
+    case "UPDATE_SEARCH_TYPE":
+      return {
+        ...state,
+        searchState: {
+          ...state.searchState,
+          searchType: action.payload,
+        },
+      };
+
     case "CLOSE_SEARCH_RESULTS":
       return {
         ...state,
@@ -840,6 +860,7 @@ export const reducer = (
           isResultsVisible: false,
         },
       };
+
     case "LAUNCH_SEARCH_RESULTS": {
       const shouldWaitForNewPipelineRefresh = shouldTriggerPipelineRefresh(
         state.notificationState?.lastModifiedDateTime ?? "",
@@ -849,18 +870,45 @@ export const reducer = (
       const requestedSearchTerm = searchTerm.trim();
       const submittedSearchTerm = sanitizeSearchTerm(requestedSearchTerm);
 
-      return {
-        ...state,
-        searchState: {
-          ...searchState,
-          isResultsVisible: true,
-          requestedSearchTerm,
+      if (state.documentsState.status === "succeeded") {
+        const unsortedData = mapDocumentNameSearch(
           submittedSearchTerm,
-          lastSubmittedSearchTerm: shouldWaitForNewPipelineRefresh
-            ? ""
-            : state.searchState.submittedSearchTerm ?? "",
-        },
-      };
+          state.documentsState.data
+        );
+
+        const sortedData = sortMappedTextSearchResult(
+          unsortedData,
+          state.searchState.searchConfigs.documentName.resultsOrder
+        );
+
+        const filterOptions = mapFilters(unsortedData);
+
+        return {
+          ...state,
+          searchState: {
+            ...searchState,
+            isResultsVisible: true,
+            requestedSearchTerm,
+            submittedSearchTerm,
+            lastSubmittedSearchTerm: shouldWaitForNewPipelineRefresh
+              ? ""
+              : state.searchState.submittedSearchTerm ?? "",
+            searchConfigs: {
+              ...state.searchState.searchConfigs,
+              documentName: {
+                resultsOrder: "byDateDesc",
+                filterOptions,
+                results: {
+                  status: "succeeded",
+                  data: sortedData,
+                },
+              },
+            },
+          },
+        };
+      }
+
+      return state;
     }
 
     case "UPDATE_SEARCH_RESULTS": {
@@ -873,7 +921,13 @@ export const reducer = (
           ...state,
           searchState: {
             ...state.searchState,
-            results: { status: "loading" },
+            searchConfigs: {
+              ...state.searchState.searchConfigs,
+              documentContent: {
+                ...state.searchState.searchConfigs.documentContent,
+                results: { status: "loading" },
+              },
+            },
           },
         };
       }
@@ -882,6 +936,8 @@ export const reducer = (
         state.documentsState.status === "succeeded" &&
         state.pipelineState.status === "complete" &&
         state.searchState.submittedSearchTerm &&
+        state.searchState.searchConfigs.documentName.results.status ===
+          "succeeded" &&
         action.payload.data
       ) {
         const filteredSearchResults = filterApiResults(
@@ -889,14 +945,21 @@ export const reducer = (
           state.documentsState.data
         );
 
-        const unsortedData = mapTextSearch(
+        const textSearchResults = mapTextSearch(
           filteredSearchResults,
           state.documentsState.data
         );
 
+        const unsortedData = combineDocumentNameMatches(
+          textSearchResults,
+          state.searchState.searchConfigs.documentName.results.data
+            .documentResults,
+          state.featureFlags.documentNameSearch
+        );
+
         const sortedData = sortMappedTextSearchResult(
           unsortedData,
-          state.searchState.resultsOrder
+          state.searchState.searchConfigs.documentContent.resultsOrder
         );
 
         const missingDocs = mapMissingDocuments(
@@ -911,10 +974,16 @@ export const reducer = (
           searchState: {
             ...state.searchState,
             missingDocs,
-            filterOptions,
-            results: {
-              status: "succeeded",
-              data: sortedData,
+            searchConfigs: {
+              ...state.searchState.searchConfigs,
+              documentContent: {
+                ...state.searchState.searchConfigs.documentContent,
+                filterOptions,
+                results: {
+                  status: "succeeded",
+                  data: sortedData,
+                },
+              },
             },
           },
         };
@@ -923,93 +992,149 @@ export const reducer = (
       return state;
     }
 
-    case "CHANGE_RESULTS_ORDER":
-      return {
-        ...state,
-        searchState: {
-          ...state.searchState,
-          resultsOrder: action.payload,
-          results:
-            state.searchState.results.status === "loading"
-              ? // if loading, then there are no stable results to search,
-                //  also required for type checking :)
-                state.searchState.results
-              : {
-                  ...state.searchState.results,
-                  data: sortMappedTextSearchResult(
-                    state.searchState.results.data,
-                    action.payload
-                  ),
-                },
-        },
+    case "CHANGE_RESULTS_ORDER": {
+      const updateResultsOrder = (
+        searchType: CombinedState["searchState"]["searchType"]
+      ) => {
+        const results = state.searchState.searchConfigs[searchType].results;
+
+        return {
+          ...state,
+          searchState: {
+            ...state.searchState,
+            searchConfigs: {
+              ...state.searchState.searchConfigs,
+              [searchType]: {
+                ...state.searchState.searchConfigs[searchType],
+                resultsOrder: action.payload,
+                results:
+                  results.status === "loading"
+                    ? results
+                    : {
+                        ...results,
+                        data: sortMappedTextSearchResult(
+                          results.data,
+                          action.payload
+                        ),
+                      },
+              },
+            },
+          },
+        };
       };
+
+      if (state.searchState.searchType === "documentContent") {
+        return updateResultsOrder("documentContent");
+      }
+
+      return updateResultsOrder("documentName");
+    }
 
     case "UPDATE_FILTER": {
       const { isSelected, filter, id } = action.payload;
 
-      const nextState = {
+      const updateFilterOptions = (
+        searchType: CombinedState["searchState"]["searchType"]
+      ) => ({
         ...state,
         searchState: {
           ...state.searchState,
-          filterOptions: {
-            ...state.searchState.filterOptions,
-            [filter]: {
-              ...state.searchState.filterOptions[filter],
-              [id]: {
-                ...state.searchState.filterOptions[filter][id],
-                isSelected,
+          searchConfigs: {
+            ...state.searchState.searchConfigs,
+            [searchType]: {
+              ...state.searchState.searchConfigs[searchType],
+              filterOptions: {
+                ...state.searchState.searchConfigs[searchType].filterOptions,
+                [filter]: {
+                  ...state.searchState.searchConfigs[searchType].filterOptions[
+                    filter
+                  ],
+                  [id]: {
+                    ...state.searchState.searchConfigs[searchType]
+                      .filterOptions[filter][id],
+                    isSelected,
+                  },
+                },
               },
             },
           },
         },
-      };
+      });
 
-      if (state.searchState.results.status !== "succeeded") {
-        return nextState;
-      }
+      const updateResults = (
+        nextState: typeof state,
+        searchType: CombinedState["searchState"]["searchType"]
+      ) => {
+        const results = nextState.searchState.searchConfigs[searchType].results;
 
-      const nextResults = state.searchState.results.data.documentResults.reduce(
-        (acc, curr) => {
+        if (results.status !== "succeeded") {
+          return nextState;
+        }
+
+        const nextResults = results.data.documentResults.reduce((acc, curr) => {
           const { isVisible, hasChanged } = isDocumentVisible(
             curr,
-            nextState.searchState.filterOptions
+            nextState.searchState.searchConfigs[searchType].filterOptions
           );
 
           acc.push(hasChanged ? { ...curr, isVisible } : curr);
           return acc;
-        },
-        [] as MappedDocumentResult[]
-      );
+        }, [] as MappedDocumentResult[]);
 
-      const { filteredDocumentCount, filteredOccurrencesCount } =
-        nextResults.reduce(
-          (acc, curr) => {
-            if (curr.isVisible) {
-              acc.filteredDocumentCount += 1;
-              acc.filteredOccurrencesCount += curr.occurrencesInDocumentCount;
-            }
+        const { filteredDocumentCount, filteredOccurrencesCount } =
+          nextResults.reduce(
+            (acc, curr) => {
+              if (curr.isVisible) {
+                acc.filteredDocumentCount += 1;
+                acc.filteredOccurrencesCount += curr.occurrencesInDocumentCount;
+                if (
+                  curr.isDocumentNameMatch &&
+                  state.featureFlags.documentNameSearch
+                ) {
+                  acc.filteredOccurrencesCount += 1;
+                }
+              }
+              return acc;
+            },
+            { filteredDocumentCount: 0, filteredOccurrencesCount: 0 }
+          );
 
-            return acc;
-          },
-          { filteredDocumentCount: 0, filteredOccurrencesCount: 0 }
-        );
-
-      return {
-        ...nextState,
-        searchState: {
-          ...nextState.searchState,
-          results: {
-            ...state.searchState.results,
-            data: {
-              ...state.searchState.results.data,
-              documentResults: nextResults,
-              filteredDocumentCount,
-              filteredOccurrencesCount,
+        return {
+          ...nextState,
+          searchState: {
+            ...nextState.searchState,
+            searchConfigs: {
+              ...nextState.searchState.searchConfigs,
+              [searchType]: {
+                ...nextState.searchState.searchConfigs[searchType],
+                results: {
+                  ...results,
+                  data: {
+                    ...results.data,
+                    documentResults: nextResults,
+                    filteredDocumentCount,
+                    filteredOccurrencesCount,
+                  },
+                },
+              },
             },
           },
-        },
+        };
       };
+
+      const searchType = state.searchState.searchType;
+      const nextState = updateFilterOptions(searchType);
+
+      if (
+        state.searchState.searchConfigs[searchType].results.status !==
+        "succeeded"
+      ) {
+        return nextState;
+      }
+
+      return updateResults(nextState, searchType);
     }
+
     case "ADD_REDACTION": {
       const { documentId, redactions } = action.payload;
 

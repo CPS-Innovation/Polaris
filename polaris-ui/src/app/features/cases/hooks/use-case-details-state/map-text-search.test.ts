@@ -61,6 +61,7 @@ describe("mapTextSearch", () => {
         {
           documentId: "1",
           isVisible: true,
+          isDocumentNameMatch: false,
           occurrences: [
             {
               contextTextChunks: [
@@ -87,6 +88,7 @@ describe("mapTextSearch", () => {
         {
           documentId: "2",
           isVisible: true,
+          isDocumentNameMatch: false,
           occurrences: [
             {
               contextTextChunks: [

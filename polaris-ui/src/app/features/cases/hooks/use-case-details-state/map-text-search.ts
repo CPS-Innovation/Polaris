@@ -29,6 +29,7 @@ export const mapTextSearch = (
           occurrencesInDocumentCount: 0,
           occurrences: [],
           isVisible: true,
+          isDocumentNameMatch: false,
         } as TDocument;
 
         accumulator.push(documentResult);

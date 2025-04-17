@@ -63,17 +63,23 @@ export type CombinedState = {
     requestedSearchTerm: string | undefined;
     submittedSearchTerm: string | undefined;
     lastSubmittedSearchTerm: string | undefined;
-    resultsOrder: "byDateDesc" | "byOccurancesPerDocumentDesc";
-    filterOptions: {
-      docType: { [key: string]: FilterOption };
-      category: { [key: string]: FilterOption };
+    searchType: "documentName" | "documentContent";
+    searchConfigs: {
+      [key in "documentName" | "documentContent"]: {
+        resultsOrder: "byDateDesc" | "byOccurancesPerDocumentDesc";
+        filterOptions: {
+          docType: { [key: string]: FilterOption };
+          category: { [key: string]: FilterOption };
+        };
+        results: AsyncResult<MappedTextSearchResult>;
+      };
     };
     missingDocs: {
       documentId: CaseDocumentViewModel["documentId"];
       fileName: string;
     }[];
-    results: AsyncResult<MappedTextSearchResult>;
   };
+
   errorModal: {
     show: boolean;
     message: string;
@@ -121,13 +127,26 @@ export const initialState = {
     requestedSearchTerm: undefined,
     submittedSearchTerm: undefined,
     lastSubmittedSearchTerm: undefined,
-    resultsOrder: "byDateDesc",
-    filterOptions: {
-      docType: {},
-      category: {},
+    searchType: "documentName",
+    searchConfigs: {
+      documentName: {
+        resultsOrder: "byDateDesc",
+        filterOptions: {
+          docType: {},
+          category: {},
+        },
+        results: { status: "loading" },
+      },
+      documentContent: {
+        resultsOrder: "byDateDesc",
+        filterOptions: {
+          docType: {},
+          category: {},
+        },
+        results: { status: "loading" },
+      },
     },
     missingDocs: [],
-    results: { status: "loading" },
   },
   errorModal: {
     show: false,
@@ -164,6 +183,7 @@ export const initialState = {
     stateRetention: false,
     globalNav: false,
     copyRedactionTextButton: false,
+    documentNameSearch: false,
   },
   storedUserData: { status: "loading" },
   notes: [],

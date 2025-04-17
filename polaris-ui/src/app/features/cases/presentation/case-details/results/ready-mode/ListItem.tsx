@@ -10,8 +10,13 @@ import { CaseDetailsState } from "../../../../hooks/use-case-details-state/useCa
 import { ContextText } from "./ContextText";
 import { useAppInsightsTrackEvent } from "../../../../../../common/hooks/useAppInsightsTracks";
 import classes from "./ListItem.module.scss";
+import { CombinedState } from "../../../../domain/CombinedState";
+import { FeatureFlagData } from "../../../../domain/FeatureFlagData";
+
 type Props = {
   documentResult: MappedDocumentResult;
+  submittedSearchTerm: CombinedState["searchState"]["submittedSearchTerm"];
+  featureFlags: FeatureFlagData;
   handleOpenPdf: CaseDetailsState["handleOpenPdf"];
 };
 
@@ -21,12 +26,19 @@ export const ListItem: React.FC<Props> = ({
     documentId,
     cmsFileCreatedDate: createdDate,
     cmsDocType,
-    occurrences: [firstOccurrence, ...subsequentOccurrences],
+    isDocumentNameMatch,
+    occurrences,
     occurrencesInDocumentCount,
   },
+  submittedSearchTerm,
+  featureFlags,
   handleOpenPdf,
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
+  const [firstOccurrence, ...subsequentOccurrences] = occurrences;
+  const shouldShowDocumentNameMatches =
+    isDocumentNameMatch && featureFlags.documentNameSearch;
+
   return (
     <div data-testid={`div-search-result-${documentId}`}>
       <LinkButton
@@ -54,9 +66,21 @@ export const ListItem: React.FC<Props> = ({
         </div>
       </div>
 
-      <ContextText contextTextChunks={firstOccurrence.contextTextChunks} />
+      {shouldShowDocumentNameMatches && (
+        <div className="govuk-details__text">
+          <span>
+            Filename contains <b>{submittedSearchTerm}</b>
+          </span>
+        </div>
+      )}
 
-      {subsequentOccurrences.length ? (
+      {!(isDocumentNameMatch && featureFlags.documentNameSearch) &&
+        firstOccurrence && (
+          <ContextText contextTextChunks={firstOccurrence.contextTextChunks} />
+        )}
+
+      {(shouldShowDocumentNameMatches && occurrences.length) ||
+      subsequentOccurrences.length ? (
         <Details
           data-testid="details-expand-search-results"
           isDefaultLeftBorderHidden
@@ -64,18 +88,32 @@ export const ListItem: React.FC<Props> = ({
             trackEvent("View 'x' More", {
               viewMoreCount:
                 occurrencesInDocumentCount -
-                firstOccurrence.occurrencesInLine.length,
+                firstOccurrence.occurrencesInLine.length +
+                (shouldShowDocumentNameMatches ? 1 : 0),
             });
           }}
           summaryChildren={`View ${
             occurrencesInDocumentCount -
-            firstOccurrence.occurrencesInLine.length
+            firstOccurrence.occurrencesInLine.length +
+            (shouldShowDocumentNameMatches ? 1 : 0)
           } more`}
-          children={subsequentOccurrences.map((occurrence) => (
-            <span key={occurrence.id}>
-              <ContextText contextTextChunks={occurrence.contextTextChunks} />
-            </span>
-          ))}
+          children={
+            shouldShowDocumentNameMatches
+              ? occurrences.map((occurrence) => (
+                  <span key={occurrence.id}>
+                    <ContextText
+                      contextTextChunks={occurrence.contextTextChunks}
+                    />
+                  </span>
+                ))
+              : subsequentOccurrences.map((occurrence) => (
+                  <span key={occurrence.id}>
+                    <ContextText
+                      contextTextChunks={occurrence.contextTextChunks}
+                    />
+                  </span>
+                ))
+          }
         />
       ) : null}
 

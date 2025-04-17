@@ -12,6 +12,8 @@ import { MappedDocumentResult } from "../../domain/MappedDocumentResult";
 import * as documentVisibility from "./is-document-visible";
 import { ApiTextSearchResult } from "../../domain/gateway/ApiTextSearchResult";
 import * as textSearchMapper from "./map-text-search";
+import * as documentNameSearchMapper from "./map-document-name-search";
+import * as combineDocumentNameMatches from "./combine-document-name-matches";
 import * as filters from "./map-filters";
 import * as missingDocuments from "./map-missing-documents";
 import { MappedCaseDocument } from "../../domain/MappedCaseDocument";
@@ -1006,24 +1008,28 @@ describe("useCaseDetailsState reducer", () => {
 
         const existingSearchState = {
           submittedSearchTerm: "foo",
-          results: {
-            status: "succeeded",
-            data: {
-              documentResults: [
-                {
-                  documentId: "1",
-                  occurrences: [
+          searchConfigs: {
+            documentContent: {
+              results: {
+                status: "succeeded",
+                data: {
+                  documentResults: [
                     {
-                      pageIndex: 0,
-                      pageHeight: 11.69,
-                      pageWidth: 8.27,
+                      documentId: "1",
+                      occurrences: [
+                        {
+                          pageIndex: 0,
+                          pageHeight: 11.69,
+                          pageWidth: 8.27,
 
-                      occurrencesInLine: [[21, 21, 9, 9, 23, 23, 9, 9]],
+                          occurrencesInLine: [[21, 21, 9, 9, 23, 23, 9, 9]],
+                        },
+                      ] as MappedDocumentResult["occurrences"],
+                      occurrencesInDocumentCount: 3,
                     },
-                  ] as MappedDocumentResult["occurrences"],
-                  occurrencesInDocumentCount: 3,
+                  ],
                 },
-              ],
+              },
             },
           },
         } as CombinedState["searchState"];
@@ -1056,24 +1062,28 @@ describe("useCaseDetailsState reducer", () => {
         expect(nextState).toEqual({
           searchState: {
             submittedSearchTerm: "foo",
-            results: {
-              status: "succeeded",
-              data: {
-                documentResults: [
-                  {
-                    documentId: "1",
-                    occurrences: [
+            searchConfigs: {
+              documentContent: {
+                results: {
+                  status: "succeeded",
+                  data: {
+                    documentResults: [
                       {
-                        pageIndex: 0,
-                        pageHeight: 11.69,
-                        pageWidth: 8.27,
+                        documentId: "1",
+                        occurrences: [
+                          {
+                            pageIndex: 0,
+                            pageHeight: 11.69,
+                            pageWidth: 8.27,
 
-                        occurrencesInLine: [[21, 21, 9, 9, 23, 23, 9, 9]],
+                            occurrencesInLine: [[21, 21, 9, 9, 23, 23, 9, 9]],
+                          },
+                        ],
+                        occurrencesInDocumentCount: 3,
                       },
                     ],
-                    occurrencesInDocumentCount: 3,
                   },
-                ],
+                },
               },
             },
             isResultsVisible: false,
@@ -1165,8 +1175,12 @@ describe("useCaseDetailsState reducer", () => {
 
         const existingSearchState = {
           submittedSearchTerm: "foo",
-          results: {
-            status: "succeeded",
+          searchConfigs: {
+            documentContent: {
+              results: {
+                status: "succeeded",
+              },
+            },
           },
         } as CombinedState["searchState"];
 
@@ -1262,35 +1276,39 @@ describe("useCaseDetailsState reducer", () => {
 
         const existingSearchState = {
           submittedSearchTerm: "bar",
-          results: {
-            status: "succeeded",
-            data: {
-              documentResults: [
-                {
-                  documentId: "1",
-                  occurrences: [
+          searchConfigs: {
+            documentContent: {
+              results: {
+                status: "succeeded",
+                data: {
+                  documentResults: [
                     {
-                      pageIndex: 1,
-                      pageHeight: 8,
-                      pageWidth: 7,
-                      occurrencesInLine: [[1, 1, 9, 9, 2, 2]],
+                      documentId: "1",
+                      occurrences: [
+                        {
+                          pageIndex: 1,
+                          pageHeight: 8,
+                          pageWidth: 7,
+                          occurrencesInLine: [[1, 1, 9, 9, 2, 2]],
+                        },
+                        {
+                          pageIndex: 2,
+                          pageHeight: 9,
+                          pageWidth: 8,
+                          occurrencesInLine: [[2, 2, 9, 9, 3, 3]],
+                        },
+                        {
+                          pageIndex: 2,
+                          pageHeight: 10,
+                          pageWidth: 9,
+                          occurrencesInLine: [[3, 3, 9, 9, 4, 4]],
+                        },
+                      ] as MappedDocumentResult["occurrences"],
+                      occurrencesInDocumentCount: 4,
                     },
-                    {
-                      pageIndex: 2,
-                      pageHeight: 9,
-                      pageWidth: 8,
-                      occurrencesInLine: [[2, 2, 9, 9, 3, 3]],
-                    },
-                    {
-                      pageIndex: 2,
-                      pageHeight: 10,
-                      pageWidth: 9,
-                      occurrencesInLine: [[3, 3, 9, 9, 4, 4]],
-                    },
-                  ] as MappedDocumentResult["occurrences"],
-                  occurrencesInDocumentCount: 4,
+                  ],
                 },
-              ],
+              },
             },
           },
         } as CombinedState["searchState"];
@@ -1322,35 +1340,39 @@ describe("useCaseDetailsState reducer", () => {
         expect(nextState).toEqual({
           searchState: {
             submittedSearchTerm: "bar",
-            results: {
-              status: "succeeded",
-              data: {
-                documentResults: [
-                  {
-                    documentId: "1",
-                    occurrences: [
+            searchConfigs: {
+              documentContent: {
+                results: {
+                  status: "succeeded",
+                  data: {
+                    documentResults: [
                       {
-                        pageIndex: 1,
-                        pageHeight: 8,
-                        pageWidth: 7,
-                        occurrencesInLine: [[1, 1, 9, 9, 2, 2]],
-                      },
-                      {
-                        pageIndex: 2,
-                        pageHeight: 9,
-                        pageWidth: 8,
-                        occurrencesInLine: [[2, 2, 9, 9, 3, 3]],
-                      },
-                      {
-                        pageIndex: 2,
-                        pageHeight: 10,
-                        pageWidth: 9,
-                        occurrencesInLine: [[3, 3, 9, 9, 4, 4]],
+                        documentId: "1",
+                        occurrences: [
+                          {
+                            pageIndex: 1,
+                            pageHeight: 8,
+                            pageWidth: 7,
+                            occurrencesInLine: [[1, 1, 9, 9, 2, 2]],
+                          },
+                          {
+                            pageIndex: 2,
+                            pageHeight: 9,
+                            pageWidth: 8,
+                            occurrencesInLine: [[2, 2, 9, 9, 3, 3]],
+                          },
+                          {
+                            pageIndex: 2,
+                            pageHeight: 10,
+                            pageWidth: 9,
+                            occurrencesInLine: [[3, 3, 9, 9, 4, 4]],
+                          },
+                        ],
+                        occurrencesInDocumentCount: 4,
                       },
                     ],
-                    occurrencesInDocumentCount: 4,
                   },
-                ],
+                },
               },
             },
             isResultsVisible: false,
@@ -1565,6 +1587,7 @@ describe("useCaseDetailsState reducer", () => {
       });
     });
   });
+
   describe("UPDATE_SEARCH_TERM", () => {
     it("can update search term", () => {
       const existingState = {
@@ -1584,6 +1607,27 @@ describe("useCaseDetailsState reducer", () => {
         searchState: {
           lastSubmittedSearchTerm: "abc",
           submittedSearchTerm: "abc",
+        },
+      });
+    });
+  });
+
+  describe("UPDATE_SEARCH_TYPE", () => {
+    it("can update search type", () => {
+      const existingState = {
+        searchState: {
+          searchType: "documentName",
+        },
+      } as CombinedState;
+
+      const nextState = reducer(existingState, {
+        type: "UPDATE_SEARCH_TYPE",
+        payload: "documentContent",
+      });
+
+      expect(nextState).toEqual({
+        searchState: {
+          searchType: "documentContent",
         },
       });
     });
@@ -1616,23 +1660,84 @@ describe("useCaseDetailsState reducer", () => {
     });
 
     it("Should match the state when search for the first time", () => {
-      const existingSearchState = {
-        isResultsVisible: false,
-      } as CombinedState["searchState"];
+      const existingState = {
+        documentsState: {
+          status: "succeeded",
+          data: [] as MappedCaseDocument[],
+        },
+        pipelineState: { status: "complete", data: {} },
+        searchTerm: "bar",
+        searchState: {
+          isResultsVisible: false,
+          searchConfigs: {
+            documentName: {
+              resultsOrder: "byDateDesc",
+              results: { status: "succeeded" },
+            },
+          },
+        },
+      } as CombinedState;
 
-      const nextState = reducer(
-        {
-          searchTerm: "foo ",
-          searchState: existingSearchState,
-        } as CombinedState,
-        { type: "LAUNCH_SEARCH_RESULTS" }
-      );
+      const mockUnsortedData = {} as MappedTextSearchResult;
+      const mockData = {} as MappedTextSearchResult;
+      const mockFilterOptions =
+        {} as CombinedState["searchState"]["searchConfigs"]["documentName"]["filterOptions"];
+
+      jest
+        .spyOn(documentNameSearchMapper, "mapDocumentNameSearch")
+        .mockImplementation((searchTerm, mappedCaseDocuments) => {
+          if (
+            searchTerm === existingState.searchTerm &&
+            existingState.documentsState.status === "succeeded" &&
+            mappedCaseDocuments === existingState.documentsState.data
+          ) {
+            return mockUnsortedData;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
+
+      jest
+        .spyOn(sorter, "sortMappedTextSearchResult")
+        .mockImplementation((mappedTextSearchResult, resultOrder) => {
+          if (
+            mappedTextSearchResult === mockUnsortedData &&
+            resultOrder ===
+              existingState.searchState.searchConfigs.documentName.resultsOrder
+          ) {
+            return mockData;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
+
+      jest
+        .spyOn(filters, "mapFilters")
+        .mockImplementation((mappedTextSearchResult) => {
+          if (mappedTextSearchResult === mockUnsortedData) {
+            return mockFilterOptions;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
+
+      const nextState = reducer(existingState, {
+        type: "LAUNCH_SEARCH_RESULTS",
+      });
 
       expect(nextState.searchState).toEqual({
         submittedSearchTerm: "bar",
-        requestedSearchTerm: "foo",
+        requestedSearchTerm: "bar",
         isResultsVisible: true,
         lastSubmittedSearchTerm: "",
+        searchConfigs: {
+          ...existingState.searchState.searchConfigs,
+          documentName: {
+            ...existingState.searchState.searchConfigs.documentName,
+            filterOptions: mockFilterOptions,
+            results: {
+              status: "succeeded",
+              data: mockData,
+            },
+          },
+        },
       } as CombinedState["searchState"]);
     });
     it("Should match the state when search for any subsequent time", () => {
@@ -1641,17 +1746,72 @@ describe("useCaseDetailsState reducer", () => {
         .mockImplementation((a, b) => {
           return false;
         });
-      const existingSearchState = {
-        isResultsVisible: false,
-        requestedSearchTerm: "foo",
-        submittedSearchTerm: "foo",
-        lastSubmittedSearchTerm: "",
-      } as CombinedState["searchState"];
+
+      const existingState = {
+        documentsState: {
+          status: "succeeded",
+          data: [] as MappedCaseDocument[],
+        },
+        pipelineState: { status: "complete", data: {} },
+        searchTerm: "bar",
+        searchState: {
+          isResultsVisible: false,
+          requestedSearchTerm: "foo",
+          submittedSearchTerm: "foo",
+          lastSubmittedSearchTerm: "",
+          searchConfigs: {
+            documentName: {
+              resultsOrder: "byDateDesc",
+              results: { status: "succeeded" },
+            },
+          },
+        },
+      } as CombinedState;
+
+      const mockUnsortedData = {} as MappedTextSearchResult;
+      const mockData = {} as MappedTextSearchResult;
+      const mockFilterOptions =
+        {} as CombinedState["searchState"]["searchConfigs"]["documentName"]["filterOptions"];
+      jest
+        .spyOn(documentNameSearchMapper, "mapDocumentNameSearch")
+        .mockImplementation((searchTerm, mappedCaseDocuments) => {
+          if (
+            searchTerm === existingState.searchTerm &&
+            existingState.documentsState.status === "succeeded" &&
+            mappedCaseDocuments === existingState.documentsState.data
+          ) {
+            return mockUnsortedData;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
+
+      jest
+        .spyOn(sorter, "sortMappedTextSearchResult")
+        .mockImplementation((mappedTextSearchResult, resultOrder) => {
+          if (
+            mappedTextSearchResult === mockUnsortedData &&
+            resultOrder ===
+              existingState.searchState.searchConfigs.documentName.resultsOrder
+          ) {
+            return mockData;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
+
+      jest
+        .spyOn(filters, "mapFilters")
+        .mockImplementation((mappedTextSearchResult) => {
+          if (mappedTextSearchResult === mockUnsortedData) {
+            return mockFilterOptions;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
 
       const nextState = reducer(
         {
           searchTerm: "abc",
-          searchState: existingSearchState,
+          documentsState: existingState.documentsState,
+          searchState: existingState.searchState,
         } as CombinedState,
         { type: "LAUNCH_SEARCH_RESULTS" }
       );
@@ -1661,6 +1821,17 @@ describe("useCaseDetailsState reducer", () => {
         requestedSearchTerm: "abc",
         isResultsVisible: true,
         lastSubmittedSearchTerm: "foo",
+        searchConfigs: {
+          ...existingState.searchState.searchConfigs,
+          documentName: {
+            ...existingState.searchState.searchConfigs.documentName,
+            filterOptions: mockFilterOptions,
+            results: {
+              status: "succeeded",
+              data: mockData,
+            },
+          },
+        },
       } as CombinedState["searchState"]);
     });
 
@@ -1670,17 +1841,73 @@ describe("useCaseDetailsState reducer", () => {
         .mockImplementation((a, b) => {
           return true;
         });
-      const existingSearchState = {
-        isResultsVisible: false,
-        requestedSearchTerm: "foo",
-        submittedSearchTerm: "bar",
-        lastSubmittedSearchTerm: "foo",
-      } as CombinedState["searchState"];
+
+      const existingState = {
+        documentsState: {
+          status: "succeeded",
+          data: [] as MappedCaseDocument[],
+        },
+        pipelineState: { status: "complete", data: {} },
+        searchTerm: "bar",
+        searchState: {
+          isResultsVisible: false,
+          requestedSearchTerm: "foo",
+          submittedSearchTerm: "bar",
+          lastSubmittedSearchTerm: "foo",
+          searchConfigs: {
+            documentName: {
+              resultsOrder: "byDateDesc",
+              results: { status: "succeeded" },
+            },
+          },
+        },
+      } as CombinedState;
+
+      const mockUnsortedData = {} as MappedTextSearchResult;
+      const mockData = {} as MappedTextSearchResult;
+      const mockFilterOptions =
+        {} as CombinedState["searchState"]["searchConfigs"]["documentName"]["filterOptions"];
+
+      jest
+        .spyOn(documentNameSearchMapper, "mapDocumentNameSearch")
+        .mockImplementation((searchTerm, mappedCaseDocuments) => {
+          if (
+            searchTerm === existingState.searchTerm &&
+            existingState.documentsState.status === "succeeded" &&
+            mappedCaseDocuments === existingState.documentsState.data
+          ) {
+            return mockUnsortedData;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
+
+      jest
+        .spyOn(sorter, "sortMappedTextSearchResult")
+        .mockImplementation((mappedTextSearchResult, resultOrder) => {
+          if (
+            mappedTextSearchResult === mockUnsortedData &&
+            resultOrder ===
+              existingState.searchState.searchConfigs.documentName.resultsOrder
+          ) {
+            return mockData;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
+
+      jest
+        .spyOn(filters, "mapFilters")
+        .mockImplementation((mappedTextSearchResult) => {
+          if (mappedTextSearchResult === mockUnsortedData) {
+            return mockFilterOptions;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
 
       const nextState = reducer(
         {
           searchTerm: "abc",
-          searchState: existingSearchState,
+          documentsState: existingState.documentsState,
+          searchState: existingState.searchState,
         } as CombinedState,
         { type: "LAUNCH_SEARCH_RESULTS" }
       );
@@ -1690,18 +1917,81 @@ describe("useCaseDetailsState reducer", () => {
         requestedSearchTerm: "abc",
         isResultsVisible: true,
         lastSubmittedSearchTerm: "",
+        searchConfigs: {
+          ...existingState.searchState.searchConfigs,
+          documentName: {
+            ...existingState.searchState.searchConfigs.documentName,
+            filterOptions: mockFilterOptions,
+            results: {
+              status: "succeeded",
+              data: mockData,
+            },
+          },
+        },
       } as CombinedState["searchState"]);
     });
 
     it("can trim spaces from the search term", () => {
-      const existingSearchState = {
-        isResultsVisible: false,
-      } as CombinedState["searchState"];
+      const existingState = {
+        documentsState: {
+          status: "succeeded",
+          data: [] as MappedCaseDocument[],
+        },
+        pipelineState: { status: "complete", data: {} },
+        searchTerm: "bar",
+        searchState: {
+          isResultsVisible: false,
+          searchConfigs: {
+            documentName: {
+              resultsOrder: "byDateDesc",
+              results: { status: "succeeded" },
+            },
+          },
+        },
+      } as CombinedState;
+
+      const mockUnsortedData = {} as MappedTextSearchResult;
+      const mockData = {} as MappedTextSearchResult;
+      const mockFilterOptions =
+        {} as CombinedState["searchState"]["searchConfigs"]["documentName"]["filterOptions"];
+      jest
+        .spyOn(documentNameSearchMapper, "mapDocumentNameSearch")
+        .mockImplementation((searchTerm, mappedCaseDocuments) => {
+          if (
+            searchTerm === existingState.searchTerm &&
+            existingState.documentsState.status === "succeeded" &&
+            mappedCaseDocuments === existingState.documentsState.data
+          ) {
+            return mockUnsortedData;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
+      jest
+        .spyOn(sorter, "sortMappedTextSearchResult")
+        .mockImplementation((mappedTextSearchResult, resultOrder) => {
+          if (
+            mappedTextSearchResult === mockUnsortedData &&
+            resultOrder ===
+              existingState.searchState.searchConfigs.documentName.resultsOrder
+          ) {
+            return mockData;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
+      jest
+        .spyOn(filters, "mapFilters")
+        .mockImplementation((mappedTextSearchResult) => {
+          if (mappedTextSearchResult === mockUnsortedData) {
+            return mockFilterOptions;
+          }
+          throw new Error("Unexpected mock function arguments");
+        });
 
       const nextState = reducer(
         {
           searchTerm: " foo ",
-          searchState: existingSearchState,
+          documentsState: existingState.documentsState,
+          searchState: existingState.searchState,
         } as CombinedState,
         { type: "LAUNCH_SEARCH_RESULTS" }
       );
@@ -1711,6 +2001,17 @@ describe("useCaseDetailsState reducer", () => {
         requestedSearchTerm: "foo",
         isResultsVisible: true,
         lastSubmittedSearchTerm: "",
+        searchConfigs: {
+          ...existingState.searchState.searchConfigs,
+          documentName: {
+            ...existingState.searchState.searchConfigs.documentName,
+            filterOptions: mockFilterOptions,
+            results: {
+              status: "succeeded",
+              data: mockData,
+            },
+          },
+        },
       } as CombinedState["searchState"]);
     });
   });
@@ -1730,17 +2031,26 @@ describe("useCaseDetailsState reducer", () => {
     });
 
     it("returns a loading searchState if the search call is loading", () => {
-      const nextState = reducer({ searchState: {} } as CombinedState, {
-        type: "UPDATE_SEARCH_RESULTS",
-        payload: {
-          status: "loading",
-        },
-      });
+      const nextState = reducer(
+        {
+          searchState: {
+            searchConfigs: {
+              documentContent: { results: { status: "loading" } },
+            },
+          },
+        } as CombinedState,
+        {
+          type: "UPDATE_SEARCH_RESULTS",
+          payload: {
+            status: "loading",
+          },
+        }
+      );
 
       expect(nextState).toEqual({
         searchState: {
-          results: {
-            status: "loading",
+          searchConfigs: {
+            documentContent: { results: { status: "loading" } },
           },
         },
       });
@@ -1801,7 +2111,12 @@ describe("useCaseDetailsState reducer", () => {
       const existingState = {
         documentsState: { status: "succeeded" },
         pipelineState: { status: "complete" },
-        searchState: { submittedSearchTerm: "foo" },
+        searchState: {
+          submittedSearchTerm: "foo",
+          searchConfigs: {
+            documentName: { results: { status: "succeeded" } },
+          },
+        },
       } as CombinedState;
 
       const nextState = reducer(existingState, {
@@ -1822,7 +2137,22 @@ describe("useCaseDetailsState reducer", () => {
           data: [] as MappedCaseDocument[],
         },
         pipelineState: { status: "complete", data: {} },
-        searchState: { submittedSearchTerm: "foo", resultsOrder: "byDateDesc" },
+        featureFlags: {
+          documentNameSearch: false,
+        },
+        searchState: {
+          submittedSearchTerm: "foo",
+          searchConfigs: {
+            documentName: {
+              resultsOrder: "byDateDesc",
+              results: { status: "succeeded", data: {} },
+            },
+            documentContent: {
+              resultsOrder: "byDateDesc",
+              results: { status: "succeeded" },
+            },
+          },
+        },
       } as CombinedState;
 
       const inputPayload = {
@@ -1836,7 +2166,7 @@ describe("useCaseDetailsState reducer", () => {
       const mockData = {} as MappedTextSearchResult;
       const mockMissingDocs = {} as CombinedState["searchState"]["missingDocs"];
       const mockFilterOptions =
-        {} as CombinedState["searchState"]["filterOptions"];
+        {} as CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"];
 
       jest
         .spyOn(filterApiResults, "filterApiResults")
@@ -1866,11 +2196,37 @@ describe("useCaseDetailsState reducer", () => {
         });
 
       jest
+        .spyOn(combineDocumentNameMatches, "combineDocumentNameMatches")
+        .mockImplementation(
+          (
+            mappedTextSearchResult,
+            documentNameMatches,
+            documentNameSearchFeatureEnabled
+          ) => {
+            if (
+              mappedTextSearchResult === mockUnsortedData &&
+              existingState.documentsState.status === "succeeded" &&
+              existingState.searchState.searchConfigs.documentName.results
+                .status === "succeeded" &&
+              documentNameMatches ===
+                existingState.searchState.searchConfigs.documentName.results
+                  .data.documentResults &&
+              !documentNameSearchFeatureEnabled
+            ) {
+              return mockUnsortedData;
+            }
+            throw new Error("Unexpected mock function arguments");
+          }
+        );
+
+      jest
         .spyOn(sorter, "sortMappedTextSearchResult")
         .mockImplementation((mappedTextSearchResult, resultOrder) => {
           if (
             mappedTextSearchResult === mockUnsortedData &&
-            resultOrder === existingState.searchState.resultsOrder
+            resultOrder ===
+              existingState.searchState.searchConfigs.documentContent
+                .resultsOrder
           ) {
             return mockData;
           }
@@ -1909,20 +2265,29 @@ describe("useCaseDetailsState reducer", () => {
         searchState: {
           ...existingState.searchState,
           missingDocs: mockMissingDocs,
-          filterOptions: mockFilterOptions,
-          results: {
-            status: "succeeded",
-            data: mockData,
+          searchConfigs: {
+            ...existingState.searchState.searchConfigs,
+            documentContent: {
+              ...existingState.searchState.searchConfigs.documentName,
+              filterOptions: mockFilterOptions,
+              results: {
+                status: "succeeded",
+                data: mockData,
+              },
+            },
           },
         },
       });
 
       expect(nextState.searchState.missingDocs).toBe(mockMissingDocs);
-      expect(nextState.searchState.filterOptions).toBe(mockFilterOptions);
+      expect(
+        nextState.searchState.searchConfigs.documentContent.filterOptions
+      ).toBe(mockFilterOptions);
 
       expect(
-        nextState.searchState.results.status === "succeeded" &&
-          nextState.searchState.results.data
+        nextState.searchState.searchConfigs.documentContent.results.status ===
+          "succeeded" &&
+          nextState.searchState.searchConfigs.documentContent.results.data
       ).toBe(mockData);
     });
   });
@@ -1931,8 +2296,13 @@ describe("useCaseDetailsState reducer", () => {
     it("can update the stored results order but not change search results ordering if the search state is still loading", () => {
       const existingState = {
         searchState: {
-          results: { status: "loading" },
-          resultsOrder: "byOccurancesPerDocumentDesc",
+          searchType: "documentContent",
+          searchConfigs: {
+            documentContent: {
+              resultsOrder: "byOccurancesPerDocumentDesc",
+              results: { status: "loading" },
+            },
+          },
         },
       } as CombinedState;
 
@@ -1943,10 +2313,13 @@ describe("useCaseDetailsState reducer", () => {
 
       expect(nextState).toEqual({
         searchState: {
-          results: {
-            status: "loading",
+          searchType: "documentContent",
+          searchConfigs: {
+            documentContent: {
+              resultsOrder: "byDateDesc",
+              results: { status: "loading" },
+            },
           },
-          resultsOrder: "byDateDesc",
         },
       });
     });
@@ -1966,11 +2339,16 @@ describe("useCaseDetailsState reducer", () => {
 
       const existingState = {
         searchState: {
-          results: {
-            status: "succeeded",
-            data: existingMappedTextSearchResult,
+          searchType: "documentContent",
+          searchConfigs: {
+            documentContent: {
+              resultsOrder: "byOccurancesPerDocumentDesc",
+              results: {
+                status: "succeeded",
+                data: existingMappedTextSearchResult,
+              },
+            },
           },
-          resultsOrder: "byOccurancesPerDocumentDesc",
         },
       } as CombinedState;
 
@@ -1981,11 +2359,16 @@ describe("useCaseDetailsState reducer", () => {
 
       expect(nextState).toEqual({
         searchState: {
-          results: {
-            status: "succeeded",
-            data: expectedMappedTextSearchResult,
+          searchType: "documentContent",
+          searchConfigs: {
+            documentContent: {
+              resultsOrder: "byDateDesc",
+              results: {
+                status: "succeeded",
+                data: expectedMappedTextSearchResult,
+              },
+            },
           },
-          resultsOrder: "byDateDesc",
         },
       });
     });
@@ -1994,18 +2377,22 @@ describe("useCaseDetailsState reducer", () => {
   describe("UPDATE_FILTER", () => {
     it("can update filters but not sort data if search state is still loading", () => {
       const existingSearchState = {
-        results: { status: "loading" },
-
-        filterOptions: {
-          category: {
-            a: { label: "", count: -1, isSelected: true },
-            b: { label: "", count: -1, isSelected: false },
+        searchType: "documentContent",
+        searchConfigs: {
+          documentContent: {
+            results: { status: "loading" },
+            filterOptions: {
+              category: {
+                a: { label: "", count: -1, isSelected: true },
+                b: { label: "", count: -1, isSelected: false },
+              },
+              docType: {
+                a: { label: "", count: -1, isSelected: true },
+                b: { label: "", count: -1, isSelected: true },
+              },
+            } as CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"],
           },
-          docType: {
-            a: { label: "", count: -1, isSelected: true },
-            b: { label: "", count: -1, isSelected: true },
-          },
-        } as CombinedState["searchState"]["filterOptions"],
+        },
       } as CombinedState["searchState"];
 
       const result = reducer(
@@ -2018,34 +2405,37 @@ describe("useCaseDetailsState reducer", () => {
 
       expect(result).toEqual({
         searchState: {
-          filterOptions: {
-            category: {
-              a: {
-                count: -1,
-                isSelected: true,
-                label: "",
+          searchType: "documentContent",
+          searchConfigs: {
+            documentContent: {
+              filterOptions: {
+                category: {
+                  a: {
+                    count: -1,
+                    isSelected: true,
+                    label: "",
+                  },
+                  b: {
+                    count: -1,
+                    isSelected: false,
+                    label: "",
+                  },
+                },
+                docType: {
+                  a: {
+                    count: -1,
+                    isSelected: true,
+                    label: "",
+                  },
+                  b: {
+                    count: -1,
+                    isSelected: true,
+                    label: "",
+                  },
+                },
               },
-              b: {
-                count: -1,
-                isSelected: false,
-                label: "",
-              },
+              results: { status: "loading" },
             },
-            docType: {
-              a: {
-                count: -1,
-                isSelected: true,
-                label: "",
-              },
-              b: {
-                count: -1,
-                isSelected: true,
-                label: "",
-              },
-            },
-          },
-          results: {
-            status: "loading",
           },
         },
       });
@@ -2068,21 +2458,25 @@ describe("useCaseDetailsState reducer", () => {
         });
 
       const existingSearchState = {
-        results: {
-          status: "succeeded",
-          data: {
-            documentResults: [
-              { documentId: "1", occurrencesInDocumentCount: 2 },
-              { documentId: "2", occurrencesInDocumentCount: 3 },
-              { documentId: "3", occurrencesInDocumentCount: 7 },
-            ] as MappedDocumentResult[],
+        searchType: "documentContent",
+        searchConfigs: {
+          documentContent: {
+            results: {
+              status: "succeeded",
+              data: {
+                documentResults: [
+                  { documentId: "1", occurrencesInDocumentCount: 2 },
+                  { documentId: "2", occurrencesInDocumentCount: 3 },
+                  { documentId: "3", occurrencesInDocumentCount: 7 },
+                ] as MappedDocumentResult[],
+              },
+            },
+            filterOptions: {
+              category: {},
+              docType: {},
+            } as CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"],
           },
         },
-
-        filterOptions: {
-          category: {},
-          docType: {},
-        } as CombinedState["searchState"]["filterOptions"],
       } as CombinedState["searchState"];
 
       const result = reducer(
@@ -2095,31 +2489,36 @@ describe("useCaseDetailsState reducer", () => {
 
       expect(result).toEqual({
         searchState: {
-          filterOptions: {
-            category: {},
-            docType: {
-              a: { isSelected: true },
-            },
-          },
-          results: {
-            data: {
-              documentResults: [
-                {
-                  documentId: "1",
-                  isVisible: true,
-                  occurrencesInDocumentCount: 2,
+          searchType: "documentContent",
+          searchConfigs: {
+            documentContent: {
+              results: {
+                data: {
+                  documentResults: [
+                    {
+                      documentId: "1",
+                      isVisible: true,
+                      occurrencesInDocumentCount: 2,
+                    },
+                    {
+                      documentId: "2",
+                      isVisible: false,
+                      occurrencesInDocumentCount: 3,
+                    },
+                    { documentId: "3", occurrencesInDocumentCount: 7 },
+                  ],
+                  filteredDocumentCount: 1,
+                  filteredOccurrencesCount: 2,
                 },
-                {
-                  documentId: "2",
-                  isVisible: false,
-                  occurrencesInDocumentCount: 3,
+                status: "succeeded",
+              },
+              filterOptions: {
+                category: {},
+                docType: {
+                  a: { isSelected: true },
                 },
-                { documentId: "3", occurrencesInDocumentCount: 7 },
-              ],
-              filteredDocumentCount: 1,
-              filteredOccurrencesCount: 2,
+              },
             },
-            status: "succeeded",
           },
         },
       });
@@ -2127,11 +2526,15 @@ describe("useCaseDetailsState reducer", () => {
       // assert we have been given the same reference to the object if
       //  the document has not changed
       expect(
-        result.searchState.results.status === "succeeded" &&
-          result.searchState.results.data.documentResults[2]
+        result.searchState.searchConfigs.documentContent.results.status ===
+          "succeeded" &&
+          result.searchState.searchConfigs.documentContent.results.data
+            .documentResults[2]
       ).toBe(
-        existingSearchState.results.status === "succeeded" &&
-          existingSearchState.results.data.documentResults[2]
+        existingSearchState.searchConfigs.documentContent.results.status ===
+          "succeeded" &&
+          existingSearchState.searchConfigs.documentContent.results.data
+            .documentResults[2]
       );
     });
   });

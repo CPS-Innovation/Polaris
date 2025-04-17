@@ -35,11 +35,13 @@ export const HeaderSearchMode: React.FC<Props> = ({
         {searchTerm}" in {presentationTitle}
       </div>
 
-      <HeaderSearchModeNavigation
-        occurrencesInDocumentCount={occurrencesInDocumentCount}
-        focussedHighlightIndex={focussedHighlightIndex}
-        handleSetFocussedHighlightIndex={handleSetFocussedHighlightIndex}
-      />
+      {!!occurrencesInDocumentCount && (
+        <HeaderSearchModeNavigation
+          occurrencesInDocumentCount={occurrencesInDocumentCount}
+          focussedHighlightIndex={focussedHighlightIndex}
+          handleSetFocussedHighlightIndex={handleSetFocussedHighlightIndex}
+        />
+      )}
     </div>
   );
 };
