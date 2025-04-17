@@ -4,17 +4,20 @@ import { MappedTextSearchResult } from "../../domain/MappedTextSearchResult";
 export const combineDocumentNameMatches = (
   mappedTextSearchResult: MappedTextSearchResult,
   documentNameMatches: MappedDocumentResult[],
-  documentNameSearchFeatureEnabled: boolean,
+  documentNameSearchFeatureEnabled: boolean
 ): MappedTextSearchResult => {
-
   if (!documentNameSearchFeatureEnabled) {
     return mappedTextSearchResult;
   }
 
-  documentNameMatches.forEach(documentNameMatch => {
-    const documentIndex = mappedTextSearchResult.documentResults.findIndex(document => document.documentId === documentNameMatch.documentId);
+  documentNameMatches.forEach((documentNameMatch) => {
+    const documentIndex = mappedTextSearchResult.documentResults.findIndex(
+      (document) => document.documentId === documentNameMatch.documentId
+    );
     if (documentIndex !== -1) {
-      mappedTextSearchResult.documentResults[documentIndex].isDocumentNameMatch = true;
+      mappedTextSearchResult.documentResults[
+        documentIndex
+      ].isDocumentNameMatch = true;
       mappedTextSearchResult.totalOccurrencesCount += 1;
       mappedTextSearchResult.filteredOccurrencesCount += 1;
     } else {
@@ -23,11 +26,9 @@ export const combineDocumentNameMatches = (
       mappedTextSearchResult.totalOccurrencesCount += 1;
       mappedTextSearchResult.filteredOccurrencesCount += 1;
     }
-  })
+  });
 
   return {
-    ...mappedTextSearchResult
+    ...mappedTextSearchResult,
   };
 };
-
-

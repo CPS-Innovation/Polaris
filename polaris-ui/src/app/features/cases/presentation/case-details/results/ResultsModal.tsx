@@ -55,7 +55,8 @@ export const ResultsModal: React.FC<Props> = ({
 
   const waitStatus = useMandatoryWaitPeriod(
     restProps.pipelineState.status === "complete" &&
-    restProps.searchState.searchConfigs.documentContent.results.status === "succeeded",
+      restProps.searchState.searchConfigs.documentContent.results.status ===
+        "succeeded",
     PAUSE_PERIOD_MS,
     MANDATORY_WAIT_PERIOD
   );
@@ -96,7 +97,7 @@ export const ResultsModal: React.FC<Props> = ({
       ) : (
         <>
           {waitStatus === "wait" &&
-            searchState.submittedSearchTerm !==
+          searchState.submittedSearchTerm !==
             searchState.lastSubmittedSearchTerm ? (
             <div className={classes.loadingContent}>
               <PleaseWait

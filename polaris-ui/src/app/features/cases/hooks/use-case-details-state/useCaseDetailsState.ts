@@ -160,7 +160,9 @@ export const useCaseDetailsState = (
   );
 
   const handleChangeResultsOrder = useCallback(
-    (newResultsOrder: CombinedState["searchState"]["searchConfigs"]["documentContent"]["resultsOrder"]) =>
+    (
+      newResultsOrder: CombinedState["searchState"]["searchConfigs"]["documentContent"]["resultsOrder"]
+    ) =>
       dispatch({
         type: "CHANGE_RESULTS_ORDER",
         payload: newResultsOrder,

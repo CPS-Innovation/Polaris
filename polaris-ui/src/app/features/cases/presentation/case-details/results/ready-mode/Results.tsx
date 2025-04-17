@@ -69,7 +69,12 @@ export const Results: React.FC<Props> = ({
           }}
         />
 
-        <List searchResult={searchResult} handleOpenPdf={handleOpenPdf} submittedSearchTerm={submittedSearchTerm} featureFlags={featureFlags} />
+        <List
+          searchResult={searchResult}
+          handleOpenPdf={handleOpenPdf}
+          submittedSearchTerm={submittedSearchTerm}
+          featureFlags={featureFlags}
+        />
       </div>
     </>
   );

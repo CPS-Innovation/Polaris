@@ -63,7 +63,7 @@ export type CombinedState = {
     requestedSearchTerm: string | undefined;
     submittedSearchTerm: string | undefined;
     lastSubmittedSearchTerm: string | undefined;
-    searchType: "documentName" | "documentContent",
+    searchType: "documentName" | "documentContent";
     searchConfigs: {
       [key in "documentName" | "documentContent"]: {
         resultsOrder: "byDateDesc" | "byOccurancesPerDocumentDesc";

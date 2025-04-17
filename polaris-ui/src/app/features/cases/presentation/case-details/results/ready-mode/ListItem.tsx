@@ -36,7 +36,8 @@ export const ListItem: React.FC<Props> = ({
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const [firstOccurrence, ...subsequentOccurrences] = occurrences;
-  const shouldShowDocumentNameMatches = isDocumentNameMatch && featureFlags.documentNameSearch
+  const shouldShowDocumentNameMatches =
+    isDocumentNameMatch && featureFlags.documentNameSearch;
 
   return (
     <div data-testid={`div-search-result-${documentId}`}>
@@ -67,15 +68,19 @@ export const ListItem: React.FC<Props> = ({
 
       {shouldShowDocumentNameMatches && (
         <div className="govuk-details__text">
-          <span>Filename contains <b>{submittedSearchTerm}</b></span>
+          <span>
+            Filename contains <b>{submittedSearchTerm}</b>
+          </span>
         </div>
       )}
 
-      {!(isDocumentNameMatch && featureFlags.documentNameSearch) && firstOccurrence && (
-        <ContextText contextTextChunks={firstOccurrence.contextTextChunks} />
-      )}
+      {!(isDocumentNameMatch && featureFlags.documentNameSearch) &&
+        firstOccurrence && (
+          <ContextText contextTextChunks={firstOccurrence.contextTextChunks} />
+        )}
 
-      {(shouldShowDocumentNameMatches && occurrences.length) || subsequentOccurrences.length ? (
+      {(shouldShowDocumentNameMatches && occurrences.length) ||
+      subsequentOccurrences.length ? (
         <Details
           data-testid="details-expand-search-results"
           isDefaultLeftBorderHidden
@@ -84,25 +89,31 @@ export const ListItem: React.FC<Props> = ({
               viewMoreCount:
                 occurrencesInDocumentCount -
                 firstOccurrence.occurrencesInLine.length +
-                (shouldShowDocumentNameMatches ? 1 : 0)
-              ,
+                (shouldShowDocumentNameMatches ? 1 : 0),
             });
           }}
-          summaryChildren={`View ${occurrencesInDocumentCount -
+          summaryChildren={`View ${
+            occurrencesInDocumentCount -
             firstOccurrence.occurrencesInLine.length +
             (shouldShowDocumentNameMatches ? 1 : 0)
-            } more`}
-          children={shouldShowDocumentNameMatches ?
-            occurrences.map((occurrence) => (
-              <span key={occurrence.id}>
-                <ContextText contextTextChunks={occurrence.contextTextChunks} />
-              </span>
-            )) :
-            subsequentOccurrences.map((occurrence) => (
-              <span key={occurrence.id}>
-                <ContextText contextTextChunks={occurrence.contextTextChunks} />
-              </span>
-            ))}
+          } more`}
+          children={
+            shouldShowDocumentNameMatches
+              ? occurrences.map((occurrence) => (
+                  <span key={occurrence.id}>
+                    <ContextText
+                      contextTextChunks={occurrence.contextTextChunks}
+                    />
+                  </span>
+                ))
+              : subsequentOccurrences.map((occurrence) => (
+                  <span key={occurrence.id}>
+                    <ContextText
+                      contextTextChunks={occurrence.contextTextChunks}
+                    />
+                  </span>
+                ))
+          }
         />
       ) : null}
 

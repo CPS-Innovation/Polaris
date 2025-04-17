@@ -18,8 +18,7 @@ describe("mapDocumentNameSearch", () => {
           isVisible: true,
           isDocumentNameMatch: true,
           presentationTitle: "testabc",
-          occurrences: [
-          ],
+          occurrences: [],
           occurrencesInDocumentCount: 0,
         },
       ],

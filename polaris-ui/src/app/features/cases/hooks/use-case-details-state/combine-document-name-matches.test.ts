@@ -1,4 +1,3 @@
-
 import { MappedDocumentResult } from "../../domain/MappedDocumentResult";
 import { MappedTextSearchResult } from "../../domain/MappedTextSearchResult";
 import { combineDocumentNameMatches } from "./combine-document-name-matches";
@@ -98,7 +97,11 @@ describe("combineDocumentNameMatches", () => {
     ] as MappedDocumentResult[];
     const documentNameSearchFeatureEnabled = true;
 
-    const result = combineDocumentNameMatches(mappedTextSearchResult, documentNameMatches, documentNameSearchFeatureEnabled);
+    const result = combineDocumentNameMatches(
+      mappedTextSearchResult,
+      documentNameMatches,
+      documentNameSearchFeatureEnabled
+    );
 
     expect(result).toEqual({
       documentResults: [

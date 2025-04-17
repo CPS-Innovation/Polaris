@@ -8,7 +8,8 @@ import { CaseDetailsState } from "../../../../hooks/use-case-details-state/useCa
 import { MissingDocs } from "./MissingDocs";
 import classes from "./Header.module.scss";
 
-type ResultsOrder = CombinedState["searchState"]["searchConfigs"]["documentContent"]["resultsOrder"];
+type ResultsOrder =
+  CombinedState["searchState"]["searchConfigs"]["documentContent"]["resultsOrder"];
 
 type Props = {
   submittedSearchTerm: string;
@@ -35,15 +36,15 @@ export const Header: React.FC<Props> = ({
     children: string;
     value: ResultsOrder;
   }[] = [
-      {
-        children: "Date added",
-        value: "byDateDesc" as const,
-      },
-      {
-        children: "Results per document",
-        value: "byOccurancesPerDocumentDesc" as const,
-      },
-    ];
+    {
+      children: "Date added",
+      value: "byDateDesc" as const,
+    },
+    {
+      children: "Results per document",
+      value: "byOccurancesPerDocumentDesc" as const,
+    },
+  ];
 
   return (
     <>

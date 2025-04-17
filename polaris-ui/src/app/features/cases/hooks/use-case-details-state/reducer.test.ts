@@ -1672,9 +1672,9 @@ describe("useCaseDetailsState reducer", () => {
           searchConfigs: {
             documentName: {
               resultsOrder: "byDateDesc",
-              results: { status: "succeeded" }
-            }
-          }
+              results: { status: "succeeded" },
+            },
+          },
         },
       } as CombinedState;
 
@@ -1701,7 +1701,8 @@ describe("useCaseDetailsState reducer", () => {
         .mockImplementation((mappedTextSearchResult, resultOrder) => {
           if (
             mappedTextSearchResult === mockUnsortedData &&
-            resultOrder === existingState.searchState.searchConfigs.documentName.resultsOrder
+            resultOrder ===
+              existingState.searchState.searchConfigs.documentName.resultsOrder
           ) {
             return mockData;
           }
@@ -1717,10 +1718,9 @@ describe("useCaseDetailsState reducer", () => {
           throw new Error("Unexpected mock function arguments");
         });
 
-      const nextState = reducer(
-        existingState,
-        { type: "LAUNCH_SEARCH_RESULTS" }
-      );
+      const nextState = reducer(existingState, {
+        type: "LAUNCH_SEARCH_RESULTS",
+      });
 
       expect(nextState.searchState).toEqual({
         submittedSearchTerm: "bar",
@@ -1736,8 +1736,8 @@ describe("useCaseDetailsState reducer", () => {
               status: "succeeded",
               data: mockData,
             },
-          }
-        }
+          },
+        },
       } as CombinedState["searchState"]);
     });
     it("Should match the state when search for any subsequent time", () => {
@@ -1762,9 +1762,9 @@ describe("useCaseDetailsState reducer", () => {
           searchConfigs: {
             documentName: {
               resultsOrder: "byDateDesc",
-              results: { status: "succeeded" }
-            }
-          }
+              results: { status: "succeeded" },
+            },
+          },
         },
       } as CombinedState;
 
@@ -1790,7 +1790,8 @@ describe("useCaseDetailsState reducer", () => {
         .mockImplementation((mappedTextSearchResult, resultOrder) => {
           if (
             mappedTextSearchResult === mockUnsortedData &&
-            resultOrder === existingState.searchState.searchConfigs.documentName.resultsOrder
+            resultOrder ===
+              existingState.searchState.searchConfigs.documentName.resultsOrder
           ) {
             return mockData;
           }
@@ -1829,8 +1830,8 @@ describe("useCaseDetailsState reducer", () => {
               status: "succeeded",
               data: mockData,
             },
-          }
-        }
+          },
+        },
       } as CombinedState["searchState"]);
     });
 
@@ -1856,9 +1857,9 @@ describe("useCaseDetailsState reducer", () => {
           searchConfigs: {
             documentName: {
               resultsOrder: "byDateDesc",
-              results: { status: "succeeded" }
-            }
-          }
+              results: { status: "succeeded" },
+            },
+          },
         },
       } as CombinedState;
 
@@ -1885,7 +1886,8 @@ describe("useCaseDetailsState reducer", () => {
         .mockImplementation((mappedTextSearchResult, resultOrder) => {
           if (
             mappedTextSearchResult === mockUnsortedData &&
-            resultOrder === existingState.searchState.searchConfigs.documentName.resultsOrder
+            resultOrder ===
+              existingState.searchState.searchConfigs.documentName.resultsOrder
           ) {
             return mockData;
           }
@@ -1900,7 +1902,6 @@ describe("useCaseDetailsState reducer", () => {
           }
           throw new Error("Unexpected mock function arguments");
         });
-
 
       const nextState = reducer(
         {
@@ -1925,9 +1926,8 @@ describe("useCaseDetailsState reducer", () => {
               status: "succeeded",
               data: mockData,
             },
-          }
-        }
-
+          },
+        },
       } as CombinedState["searchState"]);
     });
 
@@ -1944,9 +1944,9 @@ describe("useCaseDetailsState reducer", () => {
           searchConfigs: {
             documentName: {
               resultsOrder: "byDateDesc",
-              results: { status: "succeeded" }
-            }
-          }
+              results: { status: "succeeded" },
+            },
+          },
         },
       } as CombinedState;
 
@@ -1971,7 +1971,8 @@ describe("useCaseDetailsState reducer", () => {
         .mockImplementation((mappedTextSearchResult, resultOrder) => {
           if (
             mappedTextSearchResult === mockUnsortedData &&
-            resultOrder === existingState.searchState.searchConfigs.documentName.resultsOrder
+            resultOrder ===
+              existingState.searchState.searchConfigs.documentName.resultsOrder
           ) {
             return mockData;
           }
@@ -1985,7 +1986,6 @@ describe("useCaseDetailsState reducer", () => {
           }
           throw new Error("Unexpected mock function arguments");
         });
-
 
       const nextState = reducer(
         {
@@ -2010,8 +2010,8 @@ describe("useCaseDetailsState reducer", () => {
               status: "succeeded",
               data: mockData,
             },
-          }
-        }
+          },
+        },
       } as CombinedState["searchState"]);
     });
   });
@@ -2031,24 +2031,27 @@ describe("useCaseDetailsState reducer", () => {
     });
 
     it("returns a loading searchState if the search call is loading", () => {
-      const nextState = reducer({
-        searchState: {
-          searchConfigs: {
-            documentContent: { results: { status: "loading" } }
-          }
+      const nextState = reducer(
+        {
+          searchState: {
+            searchConfigs: {
+              documentContent: { results: { status: "loading" } },
+            },
+          },
+        } as CombinedState,
+        {
+          type: "UPDATE_SEARCH_RESULTS",
+          payload: {
+            status: "loading",
+          },
         }
-      } as CombinedState, {
-        type: "UPDATE_SEARCH_RESULTS",
-        payload: {
-          status: "loading",
-        },
-      });
+      );
 
       expect(nextState).toEqual({
         searchState: {
           searchConfigs: {
-            documentContent: { results: { status: "loading" } }
-          }
+            documentContent: { results: { status: "loading" } },
+          },
         },
       });
     });
@@ -2109,9 +2112,10 @@ describe("useCaseDetailsState reducer", () => {
         documentsState: { status: "succeeded" },
         pipelineState: { status: "complete" },
         searchState: {
-          submittedSearchTerm: "foo", searchConfigs: {
-            documentName: { results: { status: "succeeded" } }
-          }
+          submittedSearchTerm: "foo",
+          searchConfigs: {
+            documentName: { results: { status: "succeeded" } },
+          },
         },
       } as CombinedState;
 
@@ -2137,16 +2141,17 @@ describe("useCaseDetailsState reducer", () => {
           documentNameSearch: false,
         },
         searchState: {
-          submittedSearchTerm: "foo", searchConfigs: {
+          submittedSearchTerm: "foo",
+          searchConfigs: {
             documentName: {
               resultsOrder: "byDateDesc",
-              results: { status: "succeeded", data: {} }
+              results: { status: "succeeded", data: {} },
             },
             documentContent: {
               resultsOrder: "byDateDesc",
-              results: { status: "succeeded" }
-            }
-          }
+              results: { status: "succeeded" },
+            },
+          },
         },
       } as CombinedState;
 
@@ -2192,25 +2197,36 @@ describe("useCaseDetailsState reducer", () => {
 
       jest
         .spyOn(combineDocumentNameMatches, "combineDocumentNameMatches")
-        .mockImplementation((mappedTextSearchResult, documentNameMatches, documentNameSearchFeatureEnabled) => {
-          if (
-            mappedTextSearchResult === mockUnsortedData &&
-            existingState.documentsState.status === "succeeded" &&
-            existingState.searchState.searchConfigs.documentName.results.status === "succeeded" &&
-            documentNameMatches === existingState.searchState.searchConfigs.documentName.results.data.documentResults &&
-            !documentNameSearchFeatureEnabled
-          ) {
-            return mockUnsortedData;
+        .mockImplementation(
+          (
+            mappedTextSearchResult,
+            documentNameMatches,
+            documentNameSearchFeatureEnabled
+          ) => {
+            if (
+              mappedTextSearchResult === mockUnsortedData &&
+              existingState.documentsState.status === "succeeded" &&
+              existingState.searchState.searchConfigs.documentName.results
+                .status === "succeeded" &&
+              documentNameMatches ===
+                existingState.searchState.searchConfigs.documentName.results
+                  .data.documentResults &&
+              !documentNameSearchFeatureEnabled
+            ) {
+              return mockUnsortedData;
+            }
+            throw new Error("Unexpected mock function arguments");
           }
-          throw new Error("Unexpected mock function arguments");
-        });
+        );
 
       jest
         .spyOn(sorter, "sortMappedTextSearchResult")
         .mockImplementation((mappedTextSearchResult, resultOrder) => {
           if (
             mappedTextSearchResult === mockUnsortedData &&
-            resultOrder === existingState.searchState.searchConfigs.documentContent.resultsOrder
+            resultOrder ===
+              existingState.searchState.searchConfigs.documentContent
+                .resultsOrder
           ) {
             return mockData;
           }
@@ -2258,18 +2274,20 @@ describe("useCaseDetailsState reducer", () => {
                 status: "succeeded",
                 data: mockData,
               },
-            }
-          }
-
+            },
+          },
         },
       });
 
       expect(nextState.searchState.missingDocs).toBe(mockMissingDocs);
-      expect(nextState.searchState.searchConfigs.documentContent.filterOptions).toBe(mockFilterOptions);
+      expect(
+        nextState.searchState.searchConfigs.documentContent.filterOptions
+      ).toBe(mockFilterOptions);
 
       expect(
-        nextState.searchState.searchConfigs.documentContent.results.status === "succeeded" &&
-        nextState.searchState.searchConfigs.documentContent.results.data
+        nextState.searchState.searchConfigs.documentContent.results.status ===
+          "succeeded" &&
+          nextState.searchState.searchConfigs.documentContent.results.data
       ).toBe(mockData);
     });
   });
@@ -2282,11 +2300,10 @@ describe("useCaseDetailsState reducer", () => {
           searchConfigs: {
             documentContent: {
               resultsOrder: "byOccurancesPerDocumentDesc",
-              results: { status: "loading" }
-            }
-          }
+              results: { status: "loading" },
+            },
+          },
         },
-
       } as CombinedState;
 
       const nextState = reducer(existingState, {
@@ -2300,9 +2317,9 @@ describe("useCaseDetailsState reducer", () => {
           searchConfigs: {
             documentContent: {
               resultsOrder: "byDateDesc",
-              results: { status: "loading" }
-            }
-          }
+              results: { status: "loading" },
+            },
+          },
         },
       });
     });
@@ -2326,9 +2343,12 @@ describe("useCaseDetailsState reducer", () => {
           searchConfigs: {
             documentContent: {
               resultsOrder: "byOccurancesPerDocumentDesc",
-              results: { status: "succeeded", data: existingMappedTextSearchResult }
-            }
-          }
+              results: {
+                status: "succeeded",
+                data: existingMappedTextSearchResult,
+              },
+            },
+          },
         },
       } as CombinedState;
 
@@ -2343,9 +2363,12 @@ describe("useCaseDetailsState reducer", () => {
           searchConfigs: {
             documentContent: {
               resultsOrder: "byDateDesc",
-              results: { status: "succeeded", data: expectedMappedTextSearchResult }
-            }
-          }
+              results: {
+                status: "succeeded",
+                data: expectedMappedTextSearchResult,
+              },
+            },
+          },
         },
       });
     });
@@ -2367,8 +2390,8 @@ describe("useCaseDetailsState reducer", () => {
                 a: { label: "", count: -1, isSelected: true },
                 b: { label: "", count: -1, isSelected: true },
               },
-            } as CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"]
-          }
+            } as CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"],
+          },
         },
       } as CombinedState["searchState"];
 
@@ -2411,9 +2434,9 @@ describe("useCaseDetailsState reducer", () => {
                   },
                 },
               },
-              results: { status: "loading" }
-            }
-          }
+              results: { status: "loading" },
+            },
+          },
         },
       });
     });
@@ -2439,20 +2462,21 @@ describe("useCaseDetailsState reducer", () => {
         searchConfigs: {
           documentContent: {
             results: {
-              status: "succeeded", data: {
+              status: "succeeded",
+              data: {
                 documentResults: [
                   { documentId: "1", occurrencesInDocumentCount: 2 },
                   { documentId: "2", occurrencesInDocumentCount: 3 },
                   { documentId: "3", occurrencesInDocumentCount: 7 },
                 ] as MappedDocumentResult[],
-              }
+              },
             },
             filterOptions: {
               category: {},
               docType: {},
             } as CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"],
-          }
-        }
+          },
+        },
       } as CombinedState["searchState"];
 
       const result = reducer(
@@ -2502,11 +2526,15 @@ describe("useCaseDetailsState reducer", () => {
       // assert we have been given the same reference to the object if
       //  the document has not changed
       expect(
-        result.searchState.searchConfigs.documentContent.results.status === "succeeded" &&
-        result.searchState.searchConfigs.documentContent.results.data.documentResults[2]
+        result.searchState.searchConfigs.documentContent.results.status ===
+          "succeeded" &&
+          result.searchState.searchConfigs.documentContent.results.data
+            .documentResults[2]
       ).toBe(
-        existingSearchState.searchConfigs.documentContent.results.status === "succeeded" &&
-        existingSearchState.searchConfigs.documentContent.results.data.documentResults[2]
+        existingSearchState.searchConfigs.documentContent.results.status ===
+          "succeeded" &&
+          existingSearchState.searchConfigs.documentContent.results.data
+            .documentResults[2]
       );
     });
   });
@@ -4336,7 +4364,7 @@ describe("useCaseDetailsState reducer", () => {
           .mockImplementation(
             (incomingNotificationsState, incomingDocumentsState) =>
               incomingNotificationsState === expectedNotificationState &&
-                incomingDocumentsState === priorDocumentsState
+              incomingDocumentsState === priorDocumentsState
                 ? expectedDocumentsState
                 : badDocumentsState
           );
@@ -4375,7 +4403,7 @@ describe("useCaseDetailsState reducer", () => {
           .mockImplementation(
             (incomingNotificationsState, incomingNotificationId) =>
               incomingNotificationsState === priorNotificationState &&
-                incomingNotificationId === notificationId
+              incomingNotificationId === notificationId
                 ? expectedNotificationState
                 : badNotificationState
           );
@@ -4397,7 +4425,7 @@ describe("useCaseDetailsState reducer", () => {
           .mockImplementation(
             (incomingNotificationsState, incomingDocumentIdId) =>
               incomingNotificationsState === priorNotificationState &&
-                incomingDocumentIdId === documentId
+              incomingDocumentIdId === documentId
                 ? expectedNotificationState
                 : badNotificationState
           );

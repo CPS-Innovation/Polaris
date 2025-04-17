@@ -5,12 +5,13 @@ type TDocument = MappedTextSearchResult["documentResults"][number];
 
 export const mapDocumentNameSearch = (
   searchTerm: string,
-  caseDocuments: MappedCaseDocument[],
+  caseDocuments: MappedCaseDocument[]
 ): MappedTextSearchResult => {
+  const baseCaseDocuments = caseDocuments.filter((document) =>
+    document.presentationTitle.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const baseCaseDocuments = caseDocuments.filter(document => document.presentationTitle.toLowerCase().includes(searchTerm.toLowerCase()));
-
-  const documentResults: TDocument[] = baseCaseDocuments.map(document => ({
+  const documentResults: TDocument[] = baseCaseDocuments.map((document) => ({
     ...document,
     occurrencesInDocumentCount: 0,
     occurrences: [],
@@ -25,4 +26,3 @@ export const mapDocumentNameSearch = (
     documentResults,
   };
 };
-

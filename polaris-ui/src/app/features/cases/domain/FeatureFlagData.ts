@@ -20,7 +20,6 @@ export type FeatureFlagData = {
   globalNav: boolean;
   copyRedactionTextButton: boolean;
   documentNameSearch: boolean;
-
 };
 
 export type FeatureFlagQueryParams = {
