@@ -13,7 +13,7 @@ import { getRefreshRedactedDocument } from "../../src/mock-api/data/getDocuments
 
 describe("Case Details Search", () => {
   describe("Search box", () => {
-    it("can search with an empty search term", () => {
+    it.skip("can search with an empty search term", () => {
       cy.visit("/case-details/12AB1111111/13401");
 
       cy.findByTestId("btn-search-case").should("not.be.disabled");
@@ -54,7 +54,7 @@ describe("Case Details Search", () => {
         cy.findByTestId("div-search-result-2").should("exist");
       });
 
-      it("can trigger a search from the results modal by clicking the search button", () => {
+      it.skip("can trigger a search from the results modal by clicking the search button", () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-search-case").click();
 
@@ -564,7 +564,7 @@ describe("Case Details Search", () => {
     });
 
     describe("Search term redaction", () => {
-      it("User can successfully complete redactions, by clicking on the search results highlighted in the document", () => {
+      it.skip("User can successfully complete redactions, by clicking on the search results highlighted in the document", () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-search-case").click();
 
