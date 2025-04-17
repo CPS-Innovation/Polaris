@@ -9,7 +9,7 @@ export const isDocumentVisible = (
   }: MappedDocumentResult,
   {
     docType,
-  category,
+    category,
   }: CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"]
 ) => {
   const isAnyFilterActive =

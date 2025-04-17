@@ -169,7 +169,8 @@ describe("useUserGroupsFeatureFlag", () => {
           },
         },
       ]);
-      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP5 = "private_beta_feature_group5";
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP5 =
+        "private_beta_feature_group5";
       mockConfig.FEATURE_FLAG_DOCUMENT_NAME_SEARCH = true;
 
       const { result } = renderHook(() => useUserGroupsFeatureFlag());
