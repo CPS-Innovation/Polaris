@@ -11,7 +11,7 @@ export const combineDocumentNameMatches = (
     return mappedTextSearchResult;
   }
 
-  documentNameMatches.map(documentNameMatch => {
+  documentNameMatches.forEach(documentNameMatch => {
     const documentIndex = mappedTextSearchResult.documentResults.findIndex(document => document.documentId === documentNameMatch.documentId);
     if (documentIndex !== -1) {
       mappedTextSearchResult.documentResults[documentIndex].isDocumentNameMatch = true;
