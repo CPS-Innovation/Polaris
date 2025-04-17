@@ -8,6 +8,7 @@ import { CombinedState } from "../../../domain/CombinedState";
 import React, { useEffect, useState } from "react";
 import { LinkButton, NotificationBanner } from "../../../../../common/presentation/components";
 import { FeatureFlagData } from "../../../domain/FeatureFlagData";
+import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 
 type Props = {
   caseState: SucceededApiResult<CaseDetails>;
@@ -49,6 +50,8 @@ export const Content: React.FC<Props> = ({
   handleUpdateFilter,
   handleOpenPdf,
 }) => {
+  const trackEvent = useAppInsightsTrackEvent();
+
   const [previouslyIndexed, setPreviouslyIndexed] = useState((documentContent.results.status === 'succeeded' && submittedSearchTerm ===
     lastSubmittedSearchTerm) || !featureFlags.documentNameSearch);
 
@@ -59,6 +62,7 @@ export const Content: React.FC<Props> = ({
   }, []);
 
   const handleUpdateResults = () => {
+    trackEvent("Search Results Available Link");
     handleSearchTypeChange("documentContent");
     setPreviouslyIndexed(true);
   };

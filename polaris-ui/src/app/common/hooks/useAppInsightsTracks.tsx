@@ -67,7 +67,8 @@ type AppInsightsTrackEventNames =
   | "Undo Rotate Page"
   | "Rotate Page Right"
   | "Rotate Page Left"
-  | "Copy Text Content";
+  | "Copy Text Content"
+  | "Search Results Available Link";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -181,6 +182,7 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Rotate Page Right": "User clicked 'Rotate page right' button",
   "Rotate Page Left": "User clicked 'Rotate page left' button",
   "Copy Text Content": "User clicked 'Copy' button",
+  "Search Results Available Link": "User clicked the search results available link",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
