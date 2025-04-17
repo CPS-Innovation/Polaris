@@ -9,6 +9,13 @@ data "azurerm_function_app_host_keys" "fa_ddei_host_keys" {
 }
 # end: ddei lookup
 
+# begin: mds lookup
+data "azurerm_function_app_host_keys" "fa_mds_host_keys" {
+  name                = "fa-${local.mds_resource_name}"
+  resource_group_name = "rg-${local.mds_resource_name}"
+}
+# end: ddei lookup
+
 # begin: vnet lookup
 data "azurerm_virtual_network" "polaris_vnet" {
   name                = "vnet-innovation-${var.environment_tag}"

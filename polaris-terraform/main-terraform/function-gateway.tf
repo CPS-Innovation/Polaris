@@ -34,6 +34,10 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Production"
+    "MDSBaseUrl"                                      = "https://fa-${local.mds_resource_name}.azurewebsites.net"
+    "MDSAccessKey"                                    = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "MDSMockBaseUrl"                                  = "https://as-${local.mds_mock_resource_name}.azurewebsites.net"
+    "MDSMockAccessKey"                                = ""
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_resource_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.global_resource_name}-pdf-thumb-gen.azurewebsites.net/api/"
@@ -130,6 +134,10 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["HostType"],
       app_settings["LanguageServiceKey"],
       app_settings["LanguageServiceUrl"],
+      app_settings["MDSBaseUrl"],
+      app_settings["MDSAccessKey"],
+      app_settings["MDSMockBaseUrl"],
+      app_settings["MDSMockAccessKey"],
       app_settings["PolarisPipelineCoordinatorBaseUrl"],
       app_settings["PolarisPipelineRedactPdfBaseUrl"],
       app_settings["PolarisPdfThumbnailGeneratorBaseUrl"],
