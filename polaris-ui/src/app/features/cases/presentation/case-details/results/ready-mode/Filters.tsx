@@ -9,7 +9,7 @@ import { CaseDetailsState } from "../../../../hooks/use-case-details-state/useCa
 import classes from "./Filters.module.scss";
 
 type Props = {
-  filterOptions: CombinedState["searchState"]["filterOptions"];
+  filterOptions: CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"];
   handleUpdateFilter: CaseDetailsState["handleUpdateFilter"];
 };
 

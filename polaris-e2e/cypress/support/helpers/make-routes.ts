@@ -123,26 +123,6 @@ export const makeApiRoutes = (headers: any) => {
     } as RedactionSaveRequest,
   });
 
-  const DELETE_PAGE = (
-    urn: string,
-    caseId: number,
-    documentId: string,
-    versionId: number,
-    correlationId: CorrelationId = "BLANK"
-  ) => ({
-    url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/redact`,
-    headers: makeHeaders(headers, correlationId),
-    method: "PUT",
-    body: {
-      documentModifications: [{
-        pageIndex: 1,
-        operation: "delete",
-      }],
-      redactions: [
-      ],
-    } as RedactionSaveRequest,
-  });
-
   return {
     LIST_CASES,
     GET_CASE,
@@ -155,6 +135,5 @@ export const makeApiRoutes = (headers: any) => {
     CHECKOUT_DOCUMENT,
     CANCEL_CHECKOUT_DOCUMENT,
     SAVE_DOCUMENT,
-    DELETE_PAGE,
   };
 };
