@@ -9,12 +9,12 @@ data "azurerm_function_app_host_keys" "fa_ddei_host_keys" {
 }
 # end: ddei lookup
 
-# begin: mds lookup
-data "azurerm_function_app_host_keys" "fa_mds_host_keys" {
-  name                = "fa-${local.mds_resource_name}"
-  resource_group_name = "rg-${local.mds_resource_name}"
+# begin: MDS FA secret lookup - Retrieval of secret stored in vault for the host keys of the MDS FA which is in a different subscription. Secret is a manual entry.
+data "azurerm_key_vault_secret" "kvs_fa_mds_host_keys" {
+  name         = "MDS_FA_AccessKey"   
+  key_vault_id = azurerm_key_vault.kv_polaris.id
 }
-# end: ddei lookup
+# end: MDS FA secret lookup
 
 # begin: vnet lookup
 data "azurerm_virtual_network" "polaris_vnet" {

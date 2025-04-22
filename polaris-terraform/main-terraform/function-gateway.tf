@@ -35,7 +35,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Production"
     "MDSBaseUrl"                                      = "https://fa-${local.mds_resource_name}.azurewebsites.net"
-    "MDSAccessKey"                                    = data.azurerm_function_app_host_keys.fa_mds_host_keys.default_function_key
+    "MDSAccessKey"                                    = data.azurerm_key_vault_secret.kvs_fa_mds_host_keys.value
     "MDSMockBaseUrl"                                  = "https://as-${local.mds_mock_resource_name}.azurewebsites.net"
     "MDSMockAccessKey"                                = ""
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
