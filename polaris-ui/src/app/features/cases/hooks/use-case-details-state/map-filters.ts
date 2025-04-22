@@ -4,7 +4,7 @@ import { categoryNamesInPresentationOrder } from "./document-category-definition
 
 export const mapFilters = (
   mappedTextSearchResult: MappedTextSearchResult
-): CombinedState["searchState"]["filterOptions"] => {
+): CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"] => {
   // we show categories even if they are empty, so kick off with map of all the
   //  categories
   const category = categoryNamesInPresentationOrder.reduce(
@@ -16,7 +16,7 @@ export const mapFilters = (
       };
       return accumulator;
     },
-    {} as CombinedState["searchState"]["filterOptions"]["category"]
+    {} as CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"]["category"]
   );
 
   const orderedDocumentResults = mappedTextSearchResult.documentResults.sort(
@@ -32,7 +32,7 @@ export const mapFilters = (
   );
 
   const docType =
-    {} as CombinedState["searchState"]["filterOptions"]["docType"];
+    {} as CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"]["docType"];
 
   for (var doc of orderedDocumentResults) {
     if (!docType[doc.cmsDocType.documentType]) {

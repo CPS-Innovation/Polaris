@@ -129,6 +129,16 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleSearchTypeChange = useCallback(
+    (searchType: CombinedState["searchState"]["searchType"]) => {
+      dispatch({
+        type: "UPDATE_SEARCH_TYPE",
+        payload: searchType,
+      });
+    },
+    [dispatch]
+  );
+
   const handleLaunchSearchResults = useCallback(() => {
     dispatch({
       type: "UPDATE_PIPELINE_REFRESH",
@@ -150,7 +160,9 @@ export const useCaseDetailsState = (
   );
 
   const handleChangeResultsOrder = useCallback(
-    (newResultsOrder: CombinedState["searchState"]["resultsOrder"]) =>
+    (
+      newResultsOrder: CombinedState["searchState"]["searchConfigs"]["documentContent"]["resultsOrder"]
+    ) =>
       dispatch({
         type: "CHANGE_RESULTS_ORDER",
         payload: newResultsOrder,
@@ -160,7 +172,7 @@ export const useCaseDetailsState = (
 
   const handleUpdateFilter = useCallback(
     (payload: {
-      filter: keyof CombinedState["searchState"]["filterOptions"];
+      filter: keyof CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"];
       id: string;
       isSelected: boolean;
     }) => dispatch({ type: "UPDATE_FILTER", payload }),
@@ -586,6 +598,7 @@ export const useCaseDetailsState = (
     handleClosePdf,
     handleTabSelection,
     handleSearchTermChange,
+    handleSearchTypeChange,
     handleLaunchSearchResults,
     handleCloseSearchResults,
     handleChangeResultsOrder,
