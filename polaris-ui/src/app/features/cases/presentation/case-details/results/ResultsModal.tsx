@@ -18,7 +18,9 @@ type Props = {
   searchTerm: CombinedState["searchTerm"];
   searchState: CombinedState["searchState"];
   pipelineState: CombinedState["pipelineState"];
+  featureFlags: CombinedState["featureFlags"];
   handleSearchTermChange: CaseDetailsState["handleSearchTermChange"];
+  handleSearchTypeChange: CaseDetailsState["handleSearchTypeChange"];
   handleCloseSearchResults: CaseDetailsState["handleCloseSearchResults"];
   handleLaunchSearchResults: CaseDetailsState["handleLaunchSearchResults"];
   handleChangeResultsOrder: CaseDetailsState["handleChangeResultsOrder"];
@@ -53,7 +55,8 @@ export const ResultsModal: React.FC<Props> = ({
 
   const waitStatus = useMandatoryWaitPeriod(
     restProps.pipelineState.status === "complete" &&
-      restProps.searchState.results.status === "succeeded",
+      restProps.searchState.searchConfigs.documentContent.results.status ===
+        "succeeded",
     PAUSE_PERIOD_MS,
     MANDATORY_WAIT_PERIOD
   );
@@ -89,21 +92,27 @@ export const ResultsModal: React.FC<Props> = ({
       ariaLabel="Search Modal"
       ariaDescription="Find your search results"
     >
-      {waitStatus === "wait" &&
-      searchState.submittedSearchTerm !==
-        searchState.lastSubmittedSearchTerm ? (
-        <div className={classes.loadingContent}>
-          <PleaseWait
-            percentageCompleted={loadingPercentage}
-            showLoadingPercentage={showLoadingPercentage}
-          />
-
-          {showLoadingPercentage && (
-            <TrackerSummary pipelineState={restProps.pipelineState} />
-          )}
-        </div>
+      {restProps.featureFlags.documentNameSearch ? (
+        <Content {...restProps} loadingPercentage={loadingPercentage} />
       ) : (
-        <Content {...restProps} />
+        <>
+          {waitStatus === "wait" &&
+          searchState.submittedSearchTerm !==
+            searchState.lastSubmittedSearchTerm ? (
+            <div className={classes.loadingContent}>
+              <PleaseWait
+                percentageCompleted={loadingPercentage}
+                showLoadingPercentage={showLoadingPercentage}
+              />
+
+              {showLoadingPercentage && (
+                <TrackerSummary pipelineState={restProps.pipelineState} />
+              )}
+            </div>
+          ) : (
+            <Content {...restProps} />
+          )}
+        </>
       )}
     </Modal>
   );

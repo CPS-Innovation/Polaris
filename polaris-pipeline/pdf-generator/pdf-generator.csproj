@@ -14,7 +14,7 @@
     <PackageReference Include="Aspose.Words" Version="24.5.0" />
     <PackageReference Include="Azure.Core" Version="1.44.1" />
     <PackageReference Include="FluentValidation" Version="11.11.0" />
-    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" />
     <PackageReference Include="Microsoft.Azure.CognitiveServices.Vision.ComputerVision" Version="7.0.1" />
     <PackageReference Include="MediaTypeMap.Core" Version="2.3.3" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />

@@ -34,6 +34,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP"         = var.feature_flag_external_redirect_bulk_um_app
     "REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH"           = var.feature_flag_background_pipeline_refresh
     "REACT_APP_FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON"          = var.feature_flag_redaction_toggle_copy_button
+    "REACT_APP_FEATURE_FLAG_DOCUMENT_NAME_SEARCH"                  = var.feature_flag_document_name_search
     "REACT_APP_BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS"            = tostring(var.background_pipeline_refresh_interval_ms)
     "REACT_APP_BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS" = var.background_pipeline_refresh_show_own_notifications
     "REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"                          = var.local_storage_expiry_days

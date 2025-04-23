@@ -3,3 +3,26 @@
   max-width: 87.5rem !important;
   height: 80vh;
 }
+
+.bannerContent {
+  margin-left: 1rem;
+
+  .notificationBannerHeading {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+}
+
+.notificationBanner {
+  margin: 1.25rem 0;
+}
+
+.notificationContainer {
+  margin-left: -15px;
+  margin-top: 60px;
+}
+
+.searchResultsAvailableLink {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
