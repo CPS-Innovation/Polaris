@@ -93,15 +93,16 @@ class MouseSelection extends Component<Props, State> {
     };
 
     container.addEventListener("mousemove", (event: MouseEvent) => {
-      const { start, locked } = this.state;
+      this.setState((prevState) => {
+        const { start, locked } = prevState;
 
-      if (!start || locked) {
-        return;
-      }
+        if (!start || locked) {
+          return null;
+        }
 
-      this.setState({
-        ...this.state,
-        end: containerCoords(event.pageX, event.pageY),
+        return {
+          end: containerCoords(event.pageX, event.pageY),
+        };
       });
     });
 
