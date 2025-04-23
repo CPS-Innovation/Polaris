@@ -1,5 +1,5 @@
 #################### Functions ####################
-resource "azurerm_linux_function_app" "fa_polaris" {
+resource "azurerm_linux_function_app" "fa_polaris" { 
   name                          = "fa-${local.global_resource_name}-gateway"
   location                      = azurerm_resource_group.rg_polaris.location
   resource_group_name           = azurerm_resource_group.rg_polaris.name
@@ -134,6 +134,10 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["HostType"],
       app_settings["LanguageServiceKey"],
       app_settings["LanguageServiceUrl"],
+      app_settings["MDSBaseUrl"],
+      app_settings["MDSAccessKey"],
+      app_settings["MDSMockBaseUrl"],
+      app_settings["MDSMockAccessKey"],
       app_settings["PolarisPipelineCoordinatorBaseUrl"],
       app_settings["PolarisPipelineRedactPdfBaseUrl"],
       app_settings["PolarisPdfThumbnailGeneratorBaseUrl"],
