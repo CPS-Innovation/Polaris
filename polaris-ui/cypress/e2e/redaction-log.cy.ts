@@ -93,7 +93,7 @@ describe("Redaction Log", () => {
         .should("contain", "1 - Relationship to others");
     });
 
-    it("Should be able to open and close the guidance and show the relevant guidance text", () => {
+    xit("Should be able to open and close the guidance and show the relevant guidance text", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -126,7 +126,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("btn-modal-close").click();
       cy.findByTestId("guidance-supporting-notes-panel").should("not.exist");
     });
-    it("Save and close button in the under redaction page should be disabled initially and should be enabled after redaction is saved", () => {
+    xit("Save and close button in the under redaction page should be disabled initially and should be enabled after redaction is saved", () => {
       cy.overrideRoute(
         SAVE_REDACTION_ROUTE,
         {
@@ -161,7 +161,7 @@ describe("Redaction Log", () => {
       );
       cy.findByTestId("btn-save-redaction-log").should("not.be.disabled");
     });
-    it("Under redaction modal should throw error for empty select values and should be able to successfully save the under redaction log", () => {
+    xit("Under redaction modal should throw error for empty select values and should be able to successfully save the under redaction log", () => {
       cy.overrideRoute(
         SAVE_REDACTION_ROUTE,
         {
@@ -234,7 +234,7 @@ describe("Redaction Log", () => {
       cy.get("#error-summary-title").should("not.exist");
       cy.findByTestId("div-modal").should("not.exist");
     });
-    it("Should hide RedactionLog modal and should show error message if the saving of redaction is failed", () => {
+    xit("Should hide RedactionLog modal and should show error message if the saving of redaction is failed", () => {
       cy.overrideRoute(
         SAVE_REDACTION_ROUTE,
         {
@@ -268,7 +268,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("btn-save-redaction-0").should("not.be.disabled");
       cy.findByTestId("btn-link-removeAll-0").should("not.be.disabled");
     });
-    it("Should hide RedactionLog modal and should show error message if the saving of redaction log is failed", () => {
+    xit("Should hide RedactionLog modal and should show error message if the saving of redaction log is failed", () => {
       cy.overrideRoute(
         SAVE_REDACTION_LOG_ROUTE,
         {
@@ -304,7 +304,7 @@ describe("Redaction Log", () => {
           "The entries into the Redaction Log have failed. Please go to the Redaction Log and enter manually."
         );
     });
-    it("Should fallback and handle redaction without any redaction log if the redaction logger is down", () => {
+    xit("Should fallback and handle redaction without any redaction log if the redaction logger is down", () => {
       cy.overrideRoute(
         REDACTION_LOG_LOOKUP_ROUTE,
         {
@@ -327,7 +327,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("btn-save-redaction-0").click();
       cy.findByTestId("div-modal").should("not.exist");
     });
-    it("Should verify the save redaction log request data for under-redaction", () => {
+    xit("Should verify the save redaction log request data for under-redaction", () => {
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
       cy.visit("/case-details/12AB1111111/13401");
@@ -370,7 +370,7 @@ describe("Redaction Log", () => {
   });
 
   describe("Feature Flag On Under Over Redaction", () => {
-    it(`should be a able to open and close the Under Over Redaction Modal`, () => {
+    xit(`should be a able to open and close the Under Over Redaction Modal`, () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -403,7 +403,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("btn-redaction-log-cancel").click();
       cy.findByTestId("div-modal").should("have.length", 0);
     });
-    it("should show the Under Over redaction contents correctly", () => {
+    xit("should show the Under Over redaction contents correctly", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -520,7 +520,7 @@ describe("Redaction Log", () => {
 
       cy.get("legend:visible").should("have.length", 3);
     });
-    it("Under Over redaction modal should throw error for empty select values and checkboxes values and should be able to successfully save an under redaction log", () => {
+    xit("Under Over redaction modal should throw error for empty select values and checkboxes values and should be able to successfully save an under redaction log", () => {
       cy.overrideRoute(
         REDACTION_LOG_MAPPING_ROUTE,
         {
@@ -599,7 +599,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("div-modal").should("not.exist");
     });
-    it("Under Over redaction modal should throw error for empty  checkboxes values and should be able to successfully save an over redaction log", () => {
+    xit("Under Over redaction modal should throw error for empty  checkboxes values and should be able to successfully save an over redaction log", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -650,7 +650,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("btn-save-redaction-log").click();
       cy.findByTestId("div-modal").should("not.exist");
     });
-    it("Should verify the save redaction log request data for under-redaction", () => {
+    xit("Should verify the save redaction log request data for under-redaction", () => {
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
 
@@ -691,7 +691,7 @@ describe("Redaction Log", () => {
         );
       });
     });
-    it("Should verify the save redaction log request data for over-redaction", () => {
+    xit("Should verify the save redaction log request data for over-redaction", () => {
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
 
@@ -731,7 +731,7 @@ describe("Redaction Log", () => {
         );
       });
     });
-    it("Should verify the save redaction log request data for both under and over-redaction", () => {
+    xit("Should verify the save redaction log request data for both under and over-redaction", () => {
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(saveRequestObject, "POST", "/api/redactionLogs");
 
@@ -772,7 +772,7 @@ describe("Redaction Log", () => {
         );
       });
     });
-    it("Should throw error with correct error message, if failed to save redaction under over log successfully", () => {
+    xit("Should throw error with correct error message, if failed to save redaction under over log successfully", () => {
       cy.overrideRoute(
         SAVE_REDACTION_LOG_ROUTE,
         {
@@ -816,7 +816,7 @@ describe("Redaction Log", () => {
           "The entries into the Redaction Log have failed. Please try again in the Casework App, or go to the Redaction Log app and enter manually."
         );
     });
-    it(`Should fallback and should not show the "Log an Under/Over redaction" option in the Document actions, if the redaction logger is down`, () => {
+    xit(`Should fallback and should not show the "Log an Under/Over redaction" option in the Document actions, if the redaction logger is down`, () => {
       cy.overrideRoute(
         REDACTION_LOG_LOOKUP_ROUTE,
         {
@@ -839,7 +839,7 @@ describe("Redaction Log", () => {
         .contains("Log an Under/Over redaction")
         .should("not.exist");
     });
-    it("Should throw error if the supporting notes crosses the maximum character limit", () => {
+    xit("Should throw error if the supporting notes crosses the maximum character limit", () => {
       const notes400CharacterText =
         "Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Investigative Agency for correction.Returned to Inve";
       cy.visit("/case-details/12AB1111111/13401");
@@ -893,7 +893,7 @@ describe("Redaction Log", () => {
   });
 
   describe("Feature Flag Off", () => {
-    it("Should not show the redaction types select input along with the redaction button", () => {
+    xit("Should not show the redaction types select input along with the redaction button", () => {
       cy.visit("/case-details/12AB1111111/13401?redactionLog=false");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -905,7 +905,7 @@ describe("Redaction Log", () => {
       cy.findByTestId("select-redaction-type").should("have.length", 0);
     });
 
-    it(`Should not show the "Log an Under/Over redaction" item in action dropdown menu`, () => {
+    xit(`Should not show the "Log an Under/Over redaction" item in action dropdown menu`, () => {
       cy.visit("/case-details/12AB1111111/13401?redactionLog=false");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();

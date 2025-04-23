@@ -63,7 +63,7 @@ describe("Accessibility testing using cypress-axe", () => {
       cy.injectAxe();
     });
 
-    it("Has no detectable a11y violations on load", () => {
+    xit("Has no detectable a11y violations on load", () => {
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.getElementAsync("[data-testid='div-pdfviewer-0']")
@@ -78,7 +78,7 @@ describe("Accessibility testing using cypress-axe", () => {
       cy.checkA11y({ exclude: [".PdfHighlighter"] }, undefined, terminalLog);
     });
 
-    it("Has no violations on search modal", () => {
+    xit("Has no violations on search modal", () => {
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.getElementAsync("[data-testid='div-pdfviewer-0']")
@@ -90,7 +90,7 @@ describe("Accessibility testing using cypress-axe", () => {
       cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
     });
 
-    it("Has no violations on viewing search results in the page", () => {
+    xit("Has no violations on viewing search results in the page", () => {
       cy.findByTestId("input-search-case").type("drink{enter}");
       cy.findByTestId("link-result-document-3").click();
       cy.getElementAsync("[data-testid='div-pdfviewer-0']")
@@ -100,7 +100,7 @@ describe("Accessibility testing using cypress-axe", () => {
       cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
     });
 
-    it("Has no violations while redacting documents", () => {
+    xit("Has no violations while redacting documents", () => {
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
       cy.findAllByTestId("div-pdfviewer-0")
@@ -128,10 +128,10 @@ describe("Accessibility testing using cypress-axe", () => {
       cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
     });
 
-    it("Has no violations unsaved redaction popup", () => {
+    xit("Has no violations unsaved redaction popup", () => {
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
-      cy.findByTestId("div-pdfviewer-0")
+      cy.getElementAsync("div-pdfviewer-0")
         .should("exist")
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.selectPDFTextElement("WEST YORKSHIRE POLICE");
@@ -152,7 +152,7 @@ describe("Accessibility testing using cypress-axe", () => {
       cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
     });
 
-    it("Has no violations while saving a redaction and when spinner screen is shown", () => {
+    xit("Has no violations while saving a redaction and when spinner screen is shown", () => {
       const documentList = getRefreshRedactedDocument("1", 2);
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();

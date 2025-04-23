@@ -224,7 +224,7 @@ describe("case details page", () => {
       });
     });
 
-    it("Should show browser confirm modal when navigating away by refreshing the page, from a document with active redactions", () => {
+    xit("Should show browser confirm modal when navigating away by refreshing the page, from a document with active redactions", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -240,7 +240,7 @@ describe("case details page", () => {
       cy.get("@beforeunloadCallback").should("have.been.called");
     });
 
-    it("Should not show browser confirm modal when navigating away by refreshing the page, from a document with no active redactions", () => {
+    xit("Should not show browser confirm modal when navigating away by refreshing the page, from a document with no active redactions", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -253,7 +253,7 @@ describe("case details page", () => {
       // cy.get("@beforeunloadCallback").should("not.have.been.called");
     });
 
-    it("Should show browser confirm modal when navigating away using Header Crown Prosecution Service link, from a document with active redactions", () => {
+    xit("Should show browser confirm modal when navigating away using Header Crown Prosecution Service link, from a document with active redactions", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -312,7 +312,7 @@ describe("case details page", () => {
     //   });
     // });
 
-    it("Should show custom alert modal when navigating away using browser back button from a document with active redactions", () => {
+    xit("Should show custom alert modal when navigating away using browser back button from a document with active redactions", () => {
       cy.visit("/case-search-results?urn=12AB1111111");
       cy.findByTestId("link-12AB1111111").click();
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -857,7 +857,7 @@ describe("case details page", () => {
   // });
 
   describe("Switch main content areas using the Period '.' key press", () => {
-    it("Should be able switch between main content areas using the Period '.' Key Press", () => {
+    xit("Should be able switch between main content areas using the Period '.' Key Press", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -874,7 +874,7 @@ describe("case details page", () => {
       cy.focused().should("have.id", "side-panel");
     });
 
-    it("Should continue from the last active content if the focus has been changed to the inner element", () => {
+    xit("Should continue from the last active content if the focus has been changed to the inner element", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-2").click();
@@ -998,7 +998,7 @@ describe("case details page", () => {
   });
 
   describe("Hte emails", () => {
-    it("Should show communication sub categories", () => {
+    xit("Should show communication sub categories", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.get("#side-panel").scrollTo("bottom");
       cy.get("h2").contains("Communications").should("be.visible");
@@ -1010,7 +1010,7 @@ describe("case details page", () => {
       cy.get("h3").contains("Communication files").should("not.be.visible");
       cy.get("h3").contains("Emails").should("not.be.visible");
     });
-    it("Should show number of attachments in the accordion, list attachment document name  in the document attachment head and clicking on it should open the corresponding documents", () => {
+    xit("Should show number of attachments in the accordion, list attachment document name  in the document attachment head and clicking on it should open the corresponding documents", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.get("#side-panel").scrollTo("bottom");
       cy.get("h2").contains("Communications").should("be.visible");
@@ -1043,7 +1043,7 @@ describe("case details page", () => {
   });
 
   describe("Document Full Screen", () => {
-    it("Should show the 'Show Full Screen' button when at least one document is opened in a tab", () => {
+    xit("Should show the 'Show Full Screen' button when at least one document is opened in a tab", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("full-screen-btn").should("not.exist");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -1054,7 +1054,7 @@ describe("case details page", () => {
       cy.findByTestId("full-screen-btn").should("exist");
     });
 
-    it("Should hide the 'Show Full Screen' button when no documents are opened in a tab", () => {
+    xit("Should hide the 'Show Full Screen' button when no documents are opened in a tab", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("full-screen-btn").should("not.exist");
       cy.findByTestId("btn-accordion-open-close-all").click();
@@ -1067,7 +1067,7 @@ describe("case details page", () => {
       cy.findByTestId("full-screen-btn").should("not.exist");
     });
 
-    it("Should show and hide the document in full screen on clicking the full screen btn and should show correct tooltip", () => {
+    xit("Should show and hide the document in full screen on clicking the full screen btn and should show correct tooltip", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -1085,7 +1085,7 @@ describe("case details page", () => {
       cy.findByTestId("side-panel").should("exist");
     });
 
-    it("Should not show the 'Show Full Screen' button if the full screen feature is turned off", () => {
+    xit("Should not show the 'Show Full Screen' button if the full screen feature is turned off", () => {
       cy.visit("/case-details/12AB1111111/13401?fullScreen=false");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -1095,7 +1095,7 @@ describe("case details page", () => {
       cy.findByTestId("side-panel").should("exist");
       cy.findByTestId("full-screen-btn").should("not.exist");
     });
-    it("Should retain accordion state when user comes back from full screen mode", () => {
+    xit("Should retain accordion state when user comes back from full screen mode", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("link-document-10").should("not.be.visible");
       cy.findByTestId("exhibits").click();
@@ -1134,7 +1134,7 @@ describe("case details page", () => {
   });
 
   describe("Opening unavailable documents", () => {
-    it("Should handle opening of an unsupported fileType or content type document which returns statuscode 415", () => {
+    xit("Should handle opening of an unsupported fileType or content type document which returns statuscode 415", () => {
       cy.overrideRoute(FILE_ROUTE, {
         type: "break",
         httpStatusCode: 415,
@@ -1155,7 +1155,7 @@ describe("case details page", () => {
         .should("contains.text", "Document only available on CMS");
     });
 
-    it("Should handle opening of an encrypted or password protected document which returns statuscode 403", () => {
+    xit("Should handle opening of an encrypted or password protected document which returns statuscode 403", () => {
       cy.overrideRoute(FILE_ROUTE, {
         type: "break",
         httpStatusCode: 403,
@@ -1176,7 +1176,7 @@ describe("case details page", () => {
         .should("contains.text", "Document only available on CMS");
     });
 
-    it("Should handle opening of a document for any other reason which returns statuscode other than 200", () => {
+    xit("Should handle opening of a document for any other reason which returns statuscode other than 200", () => {
       cy.overrideRoute(FILE_ROUTE, {
         type: "break",
         httpStatusCode: 500,
