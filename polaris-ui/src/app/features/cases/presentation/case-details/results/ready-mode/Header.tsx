@@ -8,7 +8,8 @@ import { CaseDetailsState } from "../../../../hooks/use-case-details-state/useCa
 import { MissingDocs } from "./MissingDocs";
 import classes from "./Header.module.scss";
 
-type ResultsOrder = CombinedState["searchState"]["resultsOrder"];
+type ResultsOrder =
+  CombinedState["searchState"]["searchConfigs"]["documentContent"]["resultsOrder"];
 
 type Props = {
   submittedSearchTerm: string;
@@ -16,6 +17,7 @@ type Props = {
   searchResult: MappedTextSearchResult;
   missingDocs: CombinedState["searchState"]["missingDocs"];
   resultsOrder: ResultsOrder;
+  previouslyIndexed: boolean;
   handleChangeResultsOrder: CaseDetailsState["handleChangeResultsOrder"];
 };
 
@@ -24,6 +26,7 @@ export const Header: React.FC<Props> = ({
   missingDocs,
   submittedSearchTerm,
   requestedSearchTerm,
+  previouslyIndexed,
   handleChangeResultsOrder,
   resultsOrder,
 }) => {
@@ -77,7 +80,7 @@ export const Header: React.FC<Props> = ({
               <>No documents found matching '{submittedSearchTerm}'</>
             )}
           </div>
-          {isMissingDocsMode && (
+          {isMissingDocsMode && previouslyIndexed && (
             <div>
               Search may not have found all instances of '{submittedSearchTerm}'
               in this case
@@ -105,12 +108,16 @@ export const Header: React.FC<Props> = ({
         )}
       </div>
 
-      <SectionBreak noTopMargin />
-
-      {isMissingDocsMode && (
+      {previouslyIndexed && (
         <>
-          <MissingDocs missingDocs={missingDocs} />
-          <SectionBreak />
+          <SectionBreak noTopMargin />
+
+          {isMissingDocsMode && (
+            <>
+              <MissingDocs missingDocs={missingDocs} />
+              <SectionBreak />
+            </>
+          )}
         </>
       )}
     </>

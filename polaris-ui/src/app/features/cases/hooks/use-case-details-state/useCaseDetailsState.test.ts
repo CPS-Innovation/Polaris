@@ -139,6 +139,7 @@ describe("useCaseDetailsState", () => {
         handleOpenPdf,
         handleClosePdf,
         handleSearchTermChange,
+        handleSearchTypeChange,
         handleLaunchSearchResults,
         handleCloseSearchResults,
         handleChangeResultsOrder,

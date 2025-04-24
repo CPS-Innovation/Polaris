@@ -19,6 +19,7 @@ export type FeatureFlagData = {
   stateRetention: boolean;
   globalNav: boolean;
   copyRedactionTextButton: boolean;
+  documentNameSearch: boolean;
 };
 
 export type FeatureFlagQueryParams = {
@@ -36,4 +37,5 @@ export type FeatureFlagQueryParams = {
   stateRetention: string;
   globalNav: string;
   copyRedactionTextButton: string;
+  documentNameSearch: string;
 };

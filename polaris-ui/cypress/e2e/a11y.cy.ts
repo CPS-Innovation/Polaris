@@ -86,12 +86,14 @@ describe("Accessibility testing using cypress-axe", () => {
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION");
 
       cy.findByTestId("input-search-case").type("drink{enter}");
+      cy.findByTestId("search-results-available-link").click();
       cy.findByTestId("div-search-result-1");
       cy.checkA11y({ exclude: [".pdfViewer"] }, undefined, terminalLog);
     });
 
     xit("Has no violations on viewing search results in the page", () => {
       cy.findByTestId("input-search-case").type("drink{enter}");
+      cy.findByTestId("search-results-available-link").click();
       cy.findByTestId("link-result-document-3").click();
       cy.getElementAsync("[data-testid='div-pdfviewer-0']")
         .should("exist")
