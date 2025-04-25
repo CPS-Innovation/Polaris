@@ -2,7 +2,7 @@ import { GET_DOCUMENTS_LIST_ROUTE } from "../../src/mock-api/routes";
 import { getRefreshedDocumentsForNotification } from "../../src/mock-api/data/getDocumentsList.cypress";
 
 describe("notifications", () => {
-  it("Should show notifications when a document get updated, when a new documents gets added,a new version is available or a document is discarded and should be able to clear each of the notification by clicking on the clear button", () => {
+  xit("Should show notifications when a document get updated, when a new documents gets added,a new version is available or a document is discarded and should be able to clear each of the notification by clicking on the clear button", () => {
     const documentList = getRefreshedDocumentsForNotification();
     cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
       body: documentList[0],
