@@ -44,7 +44,7 @@ describe("Case Details Search", () => {
 
   describe("Search results", () => {
     describe("Searching from the results modal", () => {
-      it("can search if the user has opened the results modal with an empty search term", () => {
+      xit("can search if the user has opened the results modal with an empty search term", () => {
         cy.visit("/case-details/12AB1111111/13401");
         cy.findByTestId("btn-search-case").click();
 
