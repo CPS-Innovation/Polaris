@@ -27,6 +27,34 @@ stages:
   - stage: Determine_Changes
     displayName: Determine Changes
     jobs:
+      - job: Wait_For_Running_Builds
+        displayName: Wait For Running Builds
+        steps:
+          - template: jobs/tasks/task_wait-for-running-releases.yml
+            parameters:
+              devOpsPatToken: $(System.AccessToken)
+
+      - job: Plan_Terraform
+        displayName: Plan Teraform
+        steps:
+          - template: stages/jobs/tasks/task_get-credentials.yml
+            parameters:
+              azureSubscription: $(prod-azure-subscription)
+
+          - template: jobs/tasks/task_plan-terraform.yml
+            parameters:
+              targetBuild: PolarisBuild
+              targetTerraformArtifact: "main-terraform-files"
+              targetPlanName: prod
+              terraformStorageAccount: $(prod-terraform-storage-account)
+              terraformContainerName: $(main-terraform-container-name)
+              terraformStateKey: $(terraform-key)
+              terraformStateAccessKey: $(cpsprodstorageterraform-key1)
+              armClientId: $(clientId)
+              armClientSecret: $(clientSecret)
+              armTenantId: $(tenantId)
+              armSubscriptionId: $(subscriptionId)   
+
       - job: Generate_Diff
         workspace:
           clean: all
