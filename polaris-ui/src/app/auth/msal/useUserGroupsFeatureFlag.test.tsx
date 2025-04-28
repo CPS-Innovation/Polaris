@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, act } from "@testing-library/react";
 import { useUserGroupsFeatureFlag } from "./useUserGroupsFeatureFlag";
 import * as authModule from "../../auth";
 import * as configModule from "../../config";

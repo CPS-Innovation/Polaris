@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { asElement, isHTMLElement } from "../lib/pdfjs-dom";
+import { isHTMLElement } from "../lib/pdfjs-dom";
 import "../style/MouseSelection.css";
 
 import type { LTWH } from "../types.js";
@@ -68,28 +68,19 @@ class MouseSelection extends Component<Props, State> {
       return;
     }
 
-    const that = this;
-
     const { onSelection, onDragStart, onDragEnd, shouldStart } = this.props;
 
-    const container = asElement(this.root.parentElement);
-
-    if (!isHTMLElement(container)) {
+    const container = this.root.parentElement;
+    if (!container || !isHTMLElement(container)) {
       return;
     }
 
-    // Note: a CPS customisation here.  By caching containerBoundingRect the library
-    //  makes the assumption that the pdf viewing control is always rooted at the same spot
-    //  in the window.  In our use case, the page can scroll up and down and hence move
-    //  the pdf control.  So we fix the bug by always calculating containerBoundingRect
-    //  on demand and removing the use of the caching variable.
-
-    //let containerBoundingRect: DOMRect | null = null;
+    let containerBoundingRect: DOMRect | null = null;
 
     const containerCoords = (pageX: number, pageY: number) => {
-      //if (!containerBoundingRect) {
-      const containerBoundingRect = container.getBoundingClientRect();
-      //}
+      if (!containerBoundingRect) {
+        containerBoundingRect = container.getBoundingClientRect();
+      }
 
       return {
         x: pageX - containerBoundingRect.left + container.scrollLeft,
@@ -102,34 +93,33 @@ class MouseSelection extends Component<Props, State> {
     };
 
     container.addEventListener("mousemove", (event: MouseEvent) => {
-      const { start, locked } = this.state;
+      this.setState((prevState) => {
+        const { start, locked } = prevState;
 
-      if (!start || locked) {
-        return;
-      }
+        if (!start || locked) {
+          return null;
+        }
 
-      that.setState({
-        ...this.state,
-        end: containerCoords(event.pageX, event.pageY),
+        return {
+          end: containerCoords(event.pageX, event.pageY),
+        };
       });
     });
 
     container.addEventListener("mousedown", (event: MouseEvent) => {
-      //do not reset if the user is clicking on the redaction modal
       if (
-        asElement(event.target).id !== "btn-redact" &&
-        asElement(event.target).closest(".PdfHighlighter__tip-container")
+        (event.target as HTMLElement).id !== "btn-redact" &&
+        (event.target as HTMLElement).closest(".PdfHighlighter__tip-container")
       ) {
         return;
       }
-
       if (!shouldStart(event)) {
         this.reset();
         return;
       }
 
-      const startTarget = asElement(event.target);
-      if (!isHTMLElement(startTarget)) {
+      const startTarget = event.target;
+      if (!(startTarget instanceof Element) || !isHTMLElement(startTarget)) {
         return;
       }
 
@@ -156,31 +146,35 @@ class MouseSelection extends Component<Props, State> {
 
         const end = containerCoords(event.pageX, event.pageY);
 
-        const boundingRect = that.getBoundingRect(start, end);
+        const boundingRect = this.getBoundingRect(start, end);
 
         if (
+          !(event.target instanceof Element) ||
           !isHTMLElement(event.target) ||
-          !container.contains(asElement(event.target)) ||
-          !that.shouldRender(boundingRect)
+          !container.contains(event.target) ||
+          !this.shouldRender(boundingRect)
         ) {
-          that.reset();
+          this.reset();
           return;
         }
 
-        that.setState(
+        this.setState(
           {
             end,
             locked: true,
           },
           () => {
-            const { start, end } = that.state;
+            const { start, end } = this.state;
 
             if (!start || !end) {
               return;
             }
 
-            if (isHTMLElement(event.target)) {
-              onSelection(startTarget, boundingRect, that.reset);
+            if (
+              event.target instanceof Element &&
+              isHTMLElement(event.target)
+            ) {
+              onSelection(startTarget, boundingRect, this.reset);
 
               onDragEnd();
               window.getSelection()?.removeAllRanges();

@@ -152,9 +152,9 @@ const TabButtons: React.FC<TabButtonProps> = ({
               >
                 <span className={classes.tabLabel}>{label}</span>
               </button>
-
               {activeTabIndex === index && (
                 <button
+                  role="tab"
                   className={classes.tabCloseButton}
                   onClick={handleCloseTab}
                   onKeyDown={handleKeyPressOnTab}

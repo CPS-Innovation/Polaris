@@ -12,6 +12,7 @@ type Props = {
   handleClose?: () => void;
   className?: string;
   defaultLastFocusId?: string;
+  children: React.ReactNode;
 };
 
 export const Modal: React.FC<Props> = ({

@@ -571,14 +571,15 @@ stages:
               customCommand: "run coverage"
             displayName: "combine unit and cypress coverage"
 
-          - task: PublishBuildArtifacts@1
-            condition: always()  # this step will always run, helpful to diagnose failing cypress tests
-            inputs:
-              PathtoPublish: "polaris-ui/cypress/videos"
-              ArtifactName: "Cypress failure vidoes"
-              publishLocation: "Container"
-            displayName: "Publish UI Cypress Failure Videos"
-
+#           Commenting out this step as videos have been disabled to improve E2E performance under PR#1606
+#          - task: PublishBuildArtifacts@1
+#            condition: always()  # this step will always run, helpful to diagnose failing cypress tests
+#            inputs:
+#              PathtoPublish: "polaris-ui/cypress/videos"
+#              ArtifactName: "Cypress failure vidoes"
+#              publishLocation: "Container"
+#            displayName: "Publish UI Cypress Failure Videos"
+#
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: "polaris-ui/report"
