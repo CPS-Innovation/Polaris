@@ -24,6 +24,7 @@ using Microsoft.DurableTask.Client;
 using Microsoft.DurableTask;
 using Common.Exceptions;
 using Common.Constants;
+using DdeiClient.Clients.Interfaces;
 
 namespace coordinator.tests.Functions
 {

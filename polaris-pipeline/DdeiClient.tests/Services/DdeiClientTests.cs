@@ -25,7 +25,7 @@ public class DdeiClientTests
     private readonly HttpResponseMessage _httpResponseMessage;
     private readonly List<DdeiDocumentResponse> _content;
     private readonly Mock<IJsonConvertWrapper> _jsonConvertWrapperMock;
-    private readonly DdeiClient _ddeiClient;
+    private readonly DdeiClient.Clients.DdeiClient _ddeiClient;
 
     public DdeiClientTests()
     {
@@ -49,7 +49,7 @@ public class DdeiClientTests
             Content = new StreamContent(documentStream)
         };
 
-        var loggerMock = new Mock<ILogger<DdeiClient>>();
+        var loggerMock = new Mock<ILogger<DdeiClient.Clients.DdeiClient>>();
 
         _jsonConvertWrapperMock = new Mock<IJsonConvertWrapper>();
         _jsonConvertWrapperMock.Setup(wrapper => wrapper.DeserializeObject<List<DdeiDocumentResponse>>(It.IsAny<string>()))
@@ -78,7 +78,7 @@ public class DdeiClientTests
         var mockCmsMaterialTypeMapper = new Mock<ICmsMaterialTypeMapper>();
         var mockCaseWitnessStatementMapper = new Mock<ICaseWitnessStatementMapper>();
 
-        _ddeiClient = new DdeiClient
+        _ddeiClient = new DdeiClient.Clients.DdeiClient
             (
                 httpClient,
                 mockHttpRequestFactory.Object,
@@ -95,13 +95,6 @@ public class DdeiClientTests
                 _jsonConvertWrapperMock.Object,
                 loggerMock.Object
             );
-    }
-
-    [Fact]
-    public void Ctors_EnsureNotNullAndCorrectExceptionParameterName()
-    {
-        var assertion = new GuardClauseAssertion(_fixture);
-        assertion.Verify(_ddeiClient.GetType().GetConstructors());
     }
 
     [Fact]

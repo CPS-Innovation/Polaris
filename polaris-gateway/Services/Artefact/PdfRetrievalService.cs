@@ -2,8 +2,10 @@ using Common.Clients.PdfGenerator;
 using Common.Constants;
 using Common.Domain.Document;
 using Common.Services.RenderHtmlService;
-using Ddei;
 using Ddei.Factories;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using PolarisGateway.Services.Artefact.Domain;
 using System;
 using System.IO;
@@ -19,7 +21,7 @@ public class PdfRetrievalService : IPdfRetrievalService
     private readonly IPdfGeneratorClient _pdfGeneratorClient;
 
     public PdfRetrievalService(
-        IDdeiClient ddeiClient,
+        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
         IConvertModelToHtmlService convertModelToHtmlService,
         IPdfGeneratorClient pdfGeneratorClient)

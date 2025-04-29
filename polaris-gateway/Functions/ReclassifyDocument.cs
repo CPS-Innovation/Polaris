@@ -4,11 +4,13 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Dto.Request;
 using Common.Telemetry;
-using Ddei;
 using Ddei.Factories;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Mappers;
 using PolarisGateway.TelemetryEvents;
@@ -26,7 +28,7 @@ public class ReclassifyDocument : BaseFunction
 
     public ReclassifyDocument(
         ILogger<ReclassifyDocument> logger,
-        IDdeiClient ddeiClient,
+        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
         IReclassifyDocumentRequestMapper reclassifyDocumentRequestMapper,
         ITelemetryClient telemetryClient)

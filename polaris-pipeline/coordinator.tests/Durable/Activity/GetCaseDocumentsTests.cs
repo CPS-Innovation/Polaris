@@ -16,6 +16,7 @@ using coordinator.Durable.Payloads;
 using Ddei.Factories;
 using Ddei.Domain.CaseData.Args.Core;
 using coordinator.Services;
+using DdeiClient.Clients.Interfaces;
 
 namespace coordinator.tests.Durable.Activity
 {
