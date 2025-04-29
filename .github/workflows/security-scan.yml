@@ -15,7 +15,7 @@ jobs:
       with:
         output: reports
     - name: Upload report
-      uses: github/codeql-action/upload-sarif@a09933a12a80f87b87005513f0abb1494c27a716 # v2.21.4
+      uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: reports
 
@@ -31,7 +31,7 @@ jobs:
         skip_check: CKV2_GHA_1,CKV_SECRET_3
         
     - name: Upload Report
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       if: success() || failure()
       with:
         sarif_file: results.sarif
