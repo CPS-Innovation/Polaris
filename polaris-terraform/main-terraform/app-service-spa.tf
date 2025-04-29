@@ -51,6 +51,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP3"                   = var.private_beta.feature_user_group3
     "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP4"                   = var.private_beta.feature_user_group4
     "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP5"                   = var.private_beta.feature_user_group5
+    "REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP6"                   = var.private_beta.feature_user_group6
     "REACT_APP_CASE_REVIEW_APP_REDIRECT_URL"                       = var.case_review_app_redirect_url
     "REACT_APP_BULK_UM_REDIRECT_URL"                               = var.bulk_um_redirect_url
     "REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND"                       = var.polaris_ui_reauth.outbound_live_url
@@ -163,6 +164,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP3"],
       app_settings["REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP4"],
       app_settings["REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP5"],
+      app_settings["REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP6"],      
       app_settings["REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND"],
       app_settings["REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND_E2E"],
       app_settings["REACT_APP_REAUTH_REDIRECT_URL_INBOUND"],

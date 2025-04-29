@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, act } from "@testing-library/react";
 import { useUserGroupsFeatureFlag } from "./useUserGroupsFeatureFlag";
 import * as authModule from "../../auth";
 import * as configModule from "../../config";
@@ -34,6 +34,7 @@ const mockConfig = configModule as {
   PRIVATE_BETA_FEATURE_USER_GROUP: string;
   PRIVATE_BETA_FEATURE_USER_GROUP2: string;
   PRIVATE_BETA_FEATURE_USER_GROUP5: string;
+  PRIVATE_BETA_FEATURE_USER_GROUP6: string;
 };
 
 describe("useUserGroupsFeatureFlag", () => {
@@ -165,12 +166,12 @@ describe("useUserGroupsFeatureFlag", () => {
       ).mockReturnValue([
         {
           idTokenClaims: {
-            groups: ["private_beta_feature_group5"],
+            groups: ["private_beta_feature_group6"],
           },
         },
       ]);
-      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP5 =
-        "private_beta_feature_group5";
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP6 =
+        "private_beta_feature_group6";
       mockConfig.FEATURE_FLAG_DOCUMENT_NAME_SEARCH = true;
 
       const { result } = renderHook(() => useUserGroupsFeatureFlag());

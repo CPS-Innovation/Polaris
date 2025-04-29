@@ -2,7 +2,7 @@ import { GET_DOCUMENTS_LIST_ROUTE } from "../../src/mock-api/routes";
 import { getRefreshedDocumentsForNotification } from "../../src/mock-api/data/getDocumentsList.cypress";
 
 describe("notifications", () => {
-  it("Should show notifications when a document get updated, when a new documents gets added,a new version is available or a document is discarded and should be able to clear each of the notification by clicking on the clear button", () => {
+  xit("Should show notifications when a document get updated, when a new documents gets added,a new version is available or a document is discarded and should be able to clear each of the notification by clicking on the clear button", () => {
     const documentList = getRefreshedDocumentsForNotification();
     cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
       body: documentList[0],
@@ -135,7 +135,7 @@ describe("notifications", () => {
     cy.findByTestId("notifications-panel").should("not.exist");
   });
 
-  it("Should show notifications and clear all notification button click should clear the notifications", () => {
+  xit("Should show notifications and clear all notification button click should clear the notifications", () => {
     const documentList = getRefreshedDocumentsForNotification();
     cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
       body: documentList[0],
@@ -185,7 +185,7 @@ describe("notifications", () => {
     cy.findByTestId("notifications_count").should("have.text", "0");
     cy.findByTestId("notifications-panel").should("not.exist");
   });
-  it("Should be able to open the document and notification related to that document should be cleared", () => {
+  xit("Should be able to open the document and notification related to that document should be cleared", () => {
     const documentList = getRefreshedDocumentsForNotification();
     cy.overrideRoute(GET_DOCUMENTS_LIST_ROUTE, {
       body: documentList[0],

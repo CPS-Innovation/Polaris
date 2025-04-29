@@ -206,7 +206,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   ]);
 
   const localHandleShowHideRedactionSuggestions = useCallback(
-    (documentId, showSuggestion, defaultOption) => {
+    (documentId: string, showSuggestion: boolean, defaultOption: boolean) => {
       const getData =
         searchPIIDataItem?.getSearchPIIStatus === "failure"
           ? true

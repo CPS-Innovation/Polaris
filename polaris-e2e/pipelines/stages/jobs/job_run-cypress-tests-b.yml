@@ -47,12 +47,13 @@ jobs:
           script: "npm run cy:ci"
         displayName: "cypress run tests"
 
-      - task: PublishBuildArtifacts@1
-        condition: always() # this step will always run, helpful to diagnose failing cypress tests
-        inputs:
-          PathtoPublish: "polaris-e2e/cypress/videos"
-          ArtifactName: "Cypress failure vidoes"
-          publishLocation: "Container"
+#     Commenting out this step as videos have been disabled to improve E2E performance under PR#1606
+#      - task: PublishBuildArtifacts@1
+#        condition: always() # this step will always run, helpful to diagnose failing cypress tests
+#        inputs:
+#          PathtoPublish: "polaris-e2e/cypress/videos"
+#          ArtifactName: "Cypress failure vidoes"
+#          publishLocation: "Container"
 
       - task: PublishBuildArtifacts@1
         condition: always() # this step will always run, helpful to diagnose failing cypress tests

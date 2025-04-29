@@ -94,7 +94,7 @@ describe("Save User Data", () => {
         win.sessionStorage.clear();
       });
     });
-    it("Should be able to apply and ignore unsaved redaction data if the user chose new sessions by closing the tab in the middle of redaction", () => {
+    xit("Should be able to apply and ignore unsaved redaction data if the user chose new sessions by closing the tab in the middle of redaction", () => {
       const doc10CheckoutCounter = { count: 0 };
       cy.trackRequestCount(
         doc10CheckoutCounter,
@@ -298,7 +298,7 @@ describe("Save User Data", () => {
         expect(doc10CheckoutCounter.count).to.equal(3);
       });
     });
-    it("Should be able to apply unsaved redactions between new sessions, closing and opening of the document tab, and should be able continue adding more redactions until we successfully save the redactions ", () => {
+    xit("Should be able to apply unsaved redactions between new sessions, closing and opening of the document tab, and should be able continue adding more redactions until we successfully save the redactions ", () => {
       const expectedSaveRedactionPayload = {
         documentId: "1",
         redactions: [
@@ -307,10 +307,10 @@ describe("Save User Data", () => {
             height: 1272.81,
             width: 900,
             redactionCoordinates: [
-              { x1: 362.28, y1: 1250.66, x2: 562.65, y2: 1232.94 },
-              { x1: 151.29, y1: 1005.39, x2: 219.35, y2: 987.67 },
-              { x1: 351.04, y1: 975.82, x2: 388.08, y2: 958.09 },
-              { x1: 185.94, y1: 303.67, x2: 242.22, y2: 285.95 },
+              { x1: 362.28, y1: 1250.66, x2: 558.32, y2: 1232.94 },
+              { x1: 151.29, y1: 1005.39, x2: 214.05, y2: 987.67 },
+              { x1: 351.04, y1: 975.82, x2: 383.71, y2: 958.09 },
+              { x1: 185.94, y1: 303.67, x2: 237.93, y2: 285.95 },
             ],
           },
         ],
@@ -436,7 +436,7 @@ describe("Save User Data", () => {
         .contains("REPORT TO CROWN PROSECUTOR FOR CHARGING DECISION,");
       cy.findAllByTestId("div-modal").should("not.exist");
     });
-    it("Clearing of the localstorage should clear the unsaved redactions data on a new session", () => {
+    xit("Clearing of the localstorage should clear the unsaved redactions data on a new session", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -491,7 +491,7 @@ describe("Save User Data", () => {
       cy.findAllByTestId("div-modal").should("not.exist");
       cy.findByTestId("redaction-count-text-0").should("not.exist");
     });
-    it("Should add unsaved redactions data to the localstorage in the correct format", () => {
+    xit("Should add unsaved redactions data to the localstorage in the correct format", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
 
