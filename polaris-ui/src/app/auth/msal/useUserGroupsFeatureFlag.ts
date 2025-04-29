@@ -18,6 +18,7 @@ import {
   PRIVATE_BETA_FEATURE_USER_GROUP3,
   PRIVATE_BETA_FEATURE_USER_GROUP4,
   PRIVATE_BETA_FEATURE_USER_GROUP5,
+  PRIVATE_BETA_FEATURE_USER_GROUP6,
   FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
   FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON,
   FEATURE_FLAG_DOCUMENT_NAME_SEARCH,
@@ -176,7 +177,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         FEATURE_FLAG_DOCUMENT_NAME_SEARCH,
         userDetails?.username,
         documentNameSearch,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP5 }
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP6 }
       ),
     }),
     []
