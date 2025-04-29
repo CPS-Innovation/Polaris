@@ -4,9 +4,8 @@ namespace Common.Extensions;
 
 public static class ObjectExtensions
 {
-    public static T ExceptionIfNull<T>(this T obj)
+    public static T ExceptionIfNull<T>(this T obj) where T : class
     {
-        if (obj == null) throw new ArgumentNullException(nameof(obj));
-        return obj;
+        return obj ?? throw new ArgumentNullException(nameof(obj));
     }
 }
