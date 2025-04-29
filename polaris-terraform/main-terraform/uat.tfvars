@@ -113,6 +113,7 @@ private_beta = {
   feature_user_group3 = "e9abbdb6-b6e9-4972-90fb-79d3140df840"
   feature_user_group4 = "1e5874e3-1c88-4506-8b9f-4f469acc1a42"
   feature_user_group5 = "a5bcc0a5-50e4-49c4-89e0-fad3dced6235"
+  feature_user_group6 = "21c21011-b568-4ebb-b013-02d4cd15681a"
 }
 
 case_review_app_redirect_url = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"

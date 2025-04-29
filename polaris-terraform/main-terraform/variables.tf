@@ -266,6 +266,7 @@ variable "private_beta" {
     feature_user_group3 = string
     feature_user_group4 = string
     feature_user_group5 = string
+    feature_user_group6 = string
   })
 }
 
