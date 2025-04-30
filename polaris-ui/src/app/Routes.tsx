@@ -45,8 +45,6 @@ export const Routes: FC = () => {
     }
   }, []);
 
-  const { globalNav } = useUserGroupsFeatureFlag();
-
   if (!isAppInsightActive) {
     throw Error("Failed to connect to App Insights");
   }
@@ -60,7 +58,6 @@ export const Routes: FC = () => {
               {" "}
               <title>Casework App case search page</title>
             </Helmet>
-            {globalNav && <cps-global-nav></cps-global-nav>}
             <CaseSearch />
           </Layout>
         </Route>
@@ -69,7 +66,6 @@ export const Routes: FC = () => {
             <Helmet>
               <title>Casework App case search result page</title>
             </Helmet>
-            {globalNav && <cps-global-nav></cps-global-nav>}
             <CaseSearchResults backLinkProps={{ to: caseSearchPath }} />
           </Layout>
         </Route>

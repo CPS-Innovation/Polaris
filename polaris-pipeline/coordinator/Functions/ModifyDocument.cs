@@ -18,6 +18,7 @@ using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.Functions.Worker;
 using Common.Domain.Document;
+using DdeiClient.Clients.Interfaces;
 
 namespace coordinator.Functions
 {

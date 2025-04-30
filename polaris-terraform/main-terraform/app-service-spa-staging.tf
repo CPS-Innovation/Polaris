@@ -60,6 +60,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "REACT_APP_REDACTION_LOG_SCOPE"                                = "https://CPSGOVUK.onmicrosoft.com/fa-${local.redaction_log_resource_name}-reporting/user_impersonation"
     "REACT_APP_SURVEY_LINK"                                        = "https://www.smartsurvey.co.uk/s/DG5B6G/"
     "REACT_APP_TENANT_ID"                                          = data.azurerm_client_config.current.tenant_id
+    "REACT_APP_CPS_GLOBAL_HEADER_URL"                              = var.cps_global_components_url
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"              = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"                     = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                                      = "1"

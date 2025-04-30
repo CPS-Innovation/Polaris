@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useUserDetails } from "../../../auth";
+import { useUserGroupsFeatureFlag } from "../../../auth/msal/useUserGroupsFeatureFlag";
 import { SkipLink } from "../components";
 import classes from "./Layout.module.scss";
 
@@ -27,35 +28,46 @@ export const Layout: React.FC<LayoutProps> = ({ isWide, children }) => {
       (skipLinkSiblingRef.current as HTMLButtonElement).blur();
     }
   }, [location.pathname]);
+  const { globalNav } = useUserGroupsFeatureFlag();
 
   return (
     <>
       <div ref={skipLinkSiblingRef} tabIndex={-1} />
-      <SkipLink href="#main-content">Skip to main content</SkipLink>
-      <header
-        className="govuk-header "
-        role="banner"
-        data-module="govuk-header"
-      >
-        <div className={`govuk-header__container`}>
-          <div className={containerCssClass}>
-            <div className={`govuk-header__logo ${classes.logo} `}>
-              <a
-                href="/"
-                className="govuk-header__link govuk-header__link--homepage"
-                data-testid="link-homepage"
-              >
-                <span className="govuk-header__logotype">
-                  <span className="govuk-header__logotype-text">
-                    Crown Prosecution Service
-                  </span>
-                </span>
-              </a>
-              <span className="govuk-header__link--homepage">Casework App</span>
-            </div>
-          </div>
+      {globalNav ? (
+        <div className={containerCssClass}>
+          <cps-global-header></cps-global-header>
         </div>
-      </header>
+      ) : (
+        <>
+          <SkipLink href="#main-content">Skip to main content</SkipLink>
+          <header
+            className="govuk-header "
+            role="banner"
+            data-module="govuk-header"
+          >
+            <div className={`govuk-header__container`}>
+              <div className={containerCssClass}>
+                <div className={`govuk-header__logo ${classes.logo} `}>
+                  <a
+                    href="/"
+                    className="govuk-header__link govuk-header__link--homepage"
+                    data-testid="link-homepage"
+                  >
+                    <span className="govuk-header__logotype">
+                      <span className="govuk-header__logotype-text">
+                        Crown Prosecution Service
+                      </span>
+                    </span>
+                  </a>
+                  <span className="govuk-header__link--homepage">
+                    Casework App
+                  </span>
+                </div>
+              </div>
+            </div>
+          </header>
+        </>
+      )}
       <div className={`${containerCssClass} ${classes["cps-main-container"]}`}>
         {children}
       </div>

@@ -1,35 +1,26 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Common.Configuration;
-using Ddei;
-using Ddei.Factories;
-using Microsoft.Azure.Functions.Worker;
-using System.Threading.Tasks;
-using System;
-using Common.Telemetry;
+﻿using Common.Configuration;
+using Common.Extensions;
 using DdeiClient.Domain.Args;
+using DdeiClient.Enums;
+using DdeiClient.Factories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
 
 public class ToggleIsUnusedDocument : BaseFunction
 {
     private readonly ILogger<ToggleIsUnusedDocument> _logger;
-    private readonly IDdeiClient _ddeiClient;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly ITelemetryClient _telemetryClient;
-
+    private readonly IDdeiClientFactory _ddeiClientFactory;
     public ToggleIsUnusedDocument(
         ILogger<ToggleIsUnusedDocument> logger,
-        IDdeiClient ddeiClient,
-        IDdeiArgFactory ddeiArgFactory,
-        ITelemetryClient telemetryClient)
-        : base()
+        IDdeiClientFactory ddeiClientFactory)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
-        _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+        _logger = logger.ExceptionIfNull();
+        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
     }
 
     [Function(nameof(ToggleIsUnusedDocument))]
@@ -54,6 +45,8 @@ public class ToggleIsUnusedDocument : BaseFunction
             Urn = caseUrn,
         };
 
-        return await _ddeiClient.ToggleIsUnusedDocumentAsync(toggleIsUnusedDocumentDto) ? new OkResult() : new BadRequestResult();
+        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
+
+        return await ddeiClient.ToggleIsUnusedDocumentAsync(toggleIsUnusedDocumentDto) ? new OkResult() : new BadRequestResult();
     }
 }

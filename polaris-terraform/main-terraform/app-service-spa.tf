@@ -63,6 +63,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_REDACTION_LOG_SCOPE"                                = "https://CPSGOVUK.onmicrosoft.com/fa-${local.redaction_log_resource_name}-reporting/user_impersonation"
     "REACT_APP_SURVEY_LINK"                                        = "https://www.smartsurvey.co.uk/s/DG5B6G/"
     "REACT_APP_TENANT_ID"                                          = data.azurerm_client_config.current.tenant_id
+    "REACT_APP_CPS_GLOBAL_HEADER_URL"                              = var.cps_global_components_url
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"              = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"                     = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                                      = "1"
@@ -187,7 +188,8 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
       app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
       app_settings["WEBSITE_WARMUP_PATH"],
-      app_settings["WEBSITES_ENABLE_APP_CACHE"]
+      app_settings["WEBSITES_ENABLE_APP_CACHE"],
+      app_settings["REACT_APP_CPS_GLOBAL_HEADER_URL"]
     ]
   }
 }

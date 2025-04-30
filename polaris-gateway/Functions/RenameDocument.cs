@@ -4,11 +4,13 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Dto.Request;
 using Common.Telemetry;
-using Ddei;
 using Ddei.Factories;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Helpers;
 using PolarisGateway.TelemetryEvents;
@@ -24,7 +26,7 @@ public class RenameDocument : BaseFunction
     private readonly ITelemetryClient _telemetryClient;
 
     public RenameDocument(ILogger<RenameDocument> logger,
-        IDdeiClient ddeiClient,
+        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient)
         : base()

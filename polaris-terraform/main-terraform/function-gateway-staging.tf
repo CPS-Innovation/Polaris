@@ -31,6 +31,10 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Staging1"
+    "MDSBaseUrl"                                      = "https://fa-${local.mds_resource_name}.azurewebsites.net"
+    "MDSAccessKey"                                    = data.azurerm_key_vault_secret.kvs_fa_mds_host_keys.value
+    "MDSMockBaseUrl"                                  = "https://as-${local.mds_mock_resource_name}.azurewebsites.net"
+    "MDSMockAccessKey"                                = ""
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_resource_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.global_resource_name}-pdf-thumb-gen.azurewebsites.net/api/"

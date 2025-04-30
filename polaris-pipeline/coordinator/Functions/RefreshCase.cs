@@ -1,17 +1,17 @@
 ﻿using Common.Configuration;
 using Common.Extensions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
+using coordinator.Domain;
+using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
 using coordinator.Services.ClearDownService;
-using coordinator.Durable.Payloads;
-using Microsoft.AspNetCore.Http;
-using coordinator.Domain;
-using Ddei;
 using Ddei.Factories;
-using Microsoft.DurableTask.Client;
+using DdeiClient.Clients.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask.Client;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace coordinator.Functions
 {

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
-
 using Microsoft.AspNetCore.Http.Extensions;
 using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.Artefact.Domain;

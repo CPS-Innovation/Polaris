@@ -1,34 +1,30 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Common.Configuration;
-using Ddei;
+﻿using Common.Configuration;
+using Common.Extensions;
 using Ddei.Factories;
+using DdeiClient.Factories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using System;
-using Common.Telemetry;
+using DdeiClient.Enums;
 
 namespace PolarisGateway.Functions;
 
 public class CheckoutDocument : BaseFunction
 {
     private readonly ILogger<CheckoutDocument> _logger;
-    private readonly IDdeiClient _ddeiClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly ITelemetryClient _telemetryClient;
+    private readonly IDdeiClientFactory _ddeiClientFactory;
 
     public CheckoutDocument(
         ILogger<CheckoutDocument> logger,
-        IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
-        ITelemetryClient telemetryClient)
-        : base()
+        IDdeiClientFactory ddeiClientFactory)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
-        _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+        _logger = logger.ExceptionIfNull();
+        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
     }
 
     [Function(nameof(CheckoutDocument))]
@@ -38,7 +34,7 @@ public class CheckoutDocument : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var arg = _ddeiArgFactory.CreateDocumentVersionArgDto(
+        var ddeiDocumentIdAndVersionIdArgDto = _ddeiArgFactory.CreateDocumentVersionArgDto(
                      cmsAuthValues: cmsAuthValues,
                      correlationId: correlationId,
                      urn: caseUrn,
@@ -46,8 +42,10 @@ public class CheckoutDocument : BaseFunction
                      documentId: documentId,
                      versionId: versionId);
 
-        var result = await _ddeiClient.CheckoutDocumentAsync(arg);
+        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
 
-        return result.IsSuccess ? new OkResult() : new ConflictObjectResult(result.LockingUserName);
+        var checkoutDocumentDto = await ddeiClient.CheckoutDocumentAsync(ddeiDocumentIdAndVersionIdArgDto);
+
+        return checkoutDocumentDto.IsSuccess ? new OkResult() : new ConflictObjectResult(checkoutDocumentDto.LockingUserName);
     }
 }

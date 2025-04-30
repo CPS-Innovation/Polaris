@@ -2,33 +2,34 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Ddei;
 using Ddei.Factories;
 using Microsoft.Azure.Functions.Worker;
 using System.Threading.Tasks;
 using System;
+using Common.Extensions;
 using Common.Telemetry;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Enums;
+using Microsoft.Extensions.DependencyInjection;
+using Ddei.Domain.CaseData.Args;
+using DdeiClient.Factories;
 
 namespace PolarisGateway.Functions;
 
 public class CancelCheckoutDocument : BaseFunction
 {
     private readonly ILogger<CancelCheckoutDocument> _logger;
-    private readonly IDdeiClient _ddeiClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly ITelemetryClient _telemetryClient;
+    private readonly IDdeiClientFactory _ddeiClientFactory;
 
     public CancelCheckoutDocument(
         ILogger<CancelCheckoutDocument> logger,
-        IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
-        ITelemetryClient telemetryClient)
-        : base()
+        IDdeiClientFactory ddeiClientFactory)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
-        _telemetryClient = telemetryClient;
+        _logger = logger.ExceptionIfNull();
+        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
     }
 
     [Function(nameof(CancelCheckoutDocument))]
@@ -39,7 +40,7 @@ public class CancelCheckoutDocument : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var arg = _ddeiArgFactory.CreateDocumentVersionArgDto(
+        var ddeiDocumentIdAndVersionIdArgDto = _ddeiArgFactory.CreateDocumentVersionArgDto(
                 cmsAuthValues: cmsAuthValues,
                 correlationId: correlationId,
                 urn: caseUrn,
@@ -47,7 +48,9 @@ public class CancelCheckoutDocument : BaseFunction
                 documentId: documentId,
                 versionId: versionId);
 
-        await _ddeiClient.CancelCheckoutDocumentAsync(arg);
+        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
+
+        await ddeiClient.CancelCheckoutDocumentAsync(ddeiDocumentIdAndVersionIdArgDto);
 
         return new OkResult();
     }

@@ -95,7 +95,7 @@ public static class ServiceExtensions
 
 
         services.RegisterCoordinatorMapsterConfiguration();
-        services.AddDdeiClient(configuration);
+        services.AddDdeiClientCoordinator(configuration);
         // services.AddTransient<IDocumentToggleService, DocumentToggleService>();
         services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
           DocumentToggleService.ReadConfig()

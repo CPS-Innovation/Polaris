@@ -11,6 +11,7 @@ using coordinator.Durable.Activity.GeneratePdf;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.Functions.Worker;
 using coordinator.Domain;
+using DdeiClient.Clients.Interfaces;
 
 namespace coordinator.Durable.Activity
 {
