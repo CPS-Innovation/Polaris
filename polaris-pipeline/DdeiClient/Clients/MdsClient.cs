@@ -24,7 +24,7 @@ public class MdsClient : BaseDdeiClient
         ICmsMaterialTypeMapper cmsMaterialTypeMapper,
         ICaseWitnessStatementMapper caseWitnessStatementMapper,
         IJsonConvertWrapper jsonConvertWrapper,
-        ILogger<MdsClient> logger) : 
+        ILogger<MdsClient> logger) :
         base(httpClient,
             ddeiClientRequestFactory,
             caseDataServiceArgFactory,
@@ -32,12 +32,12 @@ public class MdsClient : BaseDdeiClient
             caseDocumentMapper,
             caseDocumentNoteMapper,
             caseDocumentNoteResultMapper,
-            caseExhibitProducerMapper, 
-            caseWitnessMapper, 
-            caseIdentifiersMapper, 
-            cmsMaterialTypeMapper, 
-            caseWitnessStatementMapper, 
-            jsonConvertWrapper, 
+            caseExhibitProducerMapper,
+            caseWitnessMapper,
+            caseIdentifiersMapper,
+            cmsMaterialTypeMapper,
+            caseWitnessStatementMapper,
+            jsonConvertWrapper,
             logger)
     {
     }

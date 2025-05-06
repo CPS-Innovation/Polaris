@@ -35,7 +35,10 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateGetPcdRequest(DdeiPcdArgDto arg)
     {
-        throw new NotImplementedException();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/pcd-request/{arg.PcdId}");
+        AddAuthHeaders(request, arg);
+        request.Headers.Add(UrnHeaderName, arg.Urn);
+        return request;
     }
 
     public HttpRequestMessage CreateGetDefendantAndChargesRequest(DdeiCaseIdentifiersArgDto arg)

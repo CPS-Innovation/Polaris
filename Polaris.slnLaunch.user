@@ -1,0 +1,31 @@
+[
+  {
+    "Name": "All Functions",
+    "Projects": [
+      {
+        "Path": "polaris-pipeline\\coordinator\\coordinator.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "polaris-pipeline\\pdf-generator\\pdf-generator.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "polaris-pipeline\\text-extractor\\text-extractor.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "polaris-gateway\\polaris-gateway.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "polaris-pipeline\\pdf-redactor\\pdf-redactor.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "polaris-pipeline\\pdf-thumbnail-generator\\pdf-thumbnail-generator.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
