@@ -28,7 +28,7 @@ export const PrivateBetaAuthorizationFilter: FC<Props> = ({
   // DANGER: some minification problem here:
   //  `!PRIVATE_BETA_USER_GROUP` is true in production even if PRIVATE_BETA_USER_GROUP is ""
   const canProceedOnNoGroupInConfig = !(
-    PRIVATE_BETA_USER_GROUP && PRIVATE_BETA_USER_GROUP.length
+    PRIVATE_BETA_USER_GROUP?.length
   );
 
   const canProceedOnAutomationTestRun =
