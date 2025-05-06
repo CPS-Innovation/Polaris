@@ -302,12 +302,12 @@ stages:
               workingDir: "polaris-ui"
             displayName: "npm install"
 
-          - task: Npm@1
-            inputs:
-              command: "custom"
-              workingDir: "polaris-ui"
-              customCommand: "run prettier"
-            displayName: "npm prettier"
+          #- task: Npm@1
+          #  inputs:
+          #    command: "custom"
+          #    workingDir: "polaris-ui"
+          #    customCommand: "run prettier"
+          #  displayName: "npm prettier"
 
           - task: Npm@1
             inputs:

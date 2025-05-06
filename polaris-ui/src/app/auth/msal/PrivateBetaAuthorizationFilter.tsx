@@ -1,5 +1,5 @@
 import { IPublicClientApplication } from "@azure/msal-browser";
-import { FC, ReactElement } from "react";
+import { FC } from "react";
 import {
   PRIVATE_BETA_SIGN_UP_URL,
   PRIVATE_BETA_USER_GROUP,
