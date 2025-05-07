@@ -1,12 +1,15 @@
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
+using Common.Extensions;
 using Common.Services.DocumentToggle;
 using coordinator.Domain;
 using coordinator.Durable.Payloads;
 using coordinator.Services;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
+using DdeiClient.Enums;
+using DdeiClient.Factories;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -19,6 +22,7 @@ namespace coordinator.Durable.Activity
     public class GetCaseDocuments
     {
         private readonly IDdeiClient _ddeiClient;
+        private readonly IDdeiClientFactory _ddeiClientFactory;
         private readonly IDdeiArgFactory _ddeiArgFactory;
         private readonly IDocumentToggleService _documentToggleService;
         private readonly IStateStorageService _stateStorageService;
@@ -27,6 +31,7 @@ namespace coordinator.Durable.Activity
 
         public GetCaseDocuments(
                  IDdeiClient ddeiClient,
+                 IDdeiClientFactory ddeiClientFactory,
                  IDdeiArgFactory ddeiArgFactory,
                  IDocumentToggleService documentToggleService,
                  IStateStorageService stateStorageService,
@@ -34,6 +39,7 @@ namespace coordinator.Durable.Activity
                  IConfiguration configuration)
         {
             _ddeiClient = ddeiClient;
+            _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
             _ddeiArgFactory = ddeiArgFactory;
             _documentToggleService = documentToggleService;
             _stateStorageService = stateStorageService;
@@ -64,6 +70,8 @@ namespace coordinator.Durable.Activity
                 throw new ArgumentException("CorrelationId must be valid GUID");
             }
 
+            var mdsClient = _ddeiClientFactory.Create(payload.CmsAuthValues, DdeiClients.Mds);
+
             var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(
                 payload.CmsAuthValues,
                 payload.CorrelationId,
@@ -71,7 +79,7 @@ namespace coordinator.Durable.Activity
                 payload.CaseId);
 
             var getDocumentsTask = _ddeiClient.ListDocumentsAsync(arg);
-            var getPcdRequestsTask = _ddeiClient.GetPcdRequestsAsync(arg);
+            var getPcdRequestsTask = mdsClient.GetPcdRequestsAsync(arg);
             var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndChargesAsync(arg);
 
             await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);

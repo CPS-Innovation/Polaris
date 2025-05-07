@@ -44,15 +44,8 @@ public static class IServiceCollectionExtension
 
     public static void AddDdeiClientCoordinator(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddHttpClient<IDdeiClient, DdeiClient.Clients.DdeiClient>((service, client) =>
-            {
-                client.BaseAddress = new Uri(configuration[DdeiBaseUrlConfigKey]);
-                client.DefaultRequestHeaders.Add(FunctionKey, configuration[DdeiAccessKeyConfigKey]);
-                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            }).SetHandlerLifetime(TimeSpan.FromMinutes(5))
-            .AddPolicyHandler(GetRetryPolicy());
-
-        services.AddDdeiServices();
+        services.AddDdeiClientGateway(configuration);
+        services.AddScoped<IDdeiClient, DdeiClient.Clients.DdeiClient>();
     }
 
     private static void AddDdeiServices(this IServiceCollection services)
