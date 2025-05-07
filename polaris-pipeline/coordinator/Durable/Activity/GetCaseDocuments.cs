@@ -1,6 +1,7 @@
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
+using Common.Extensions;
 using Common.Services.DocumentToggle;
 using coordinator.Domain;
 using coordinator.Durable.Payloads;
@@ -37,13 +38,13 @@ namespace coordinator.Durable.Activity
                  ILogger<GetCaseDocuments> logger,
                  IConfiguration configuration)
         {
-            _ddeiClient = ddeiClient;
-            _ddeiClientFactory = ddeiClientFactory;
-            _ddeiArgFactory = ddeiArgFactory;
-            _documentToggleService = documentToggleService;
-            _stateStorageService = stateStorageService;
-            _log = logger;
-            _configuration = configuration;
+            _ddeiClient = ddeiClient.ExceptionIfNull();
+            _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+            _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+            _documentToggleService = documentToggleService.ExceptionIfNull();
+            _stateStorageService = stateStorageService.ExceptionIfNull();
+            _log = logger.ExceptionIfNull();
+            _configuration = configuration.ExceptionIfNull();
         }
 
         [Function(nameof(GetCaseDocuments))]
