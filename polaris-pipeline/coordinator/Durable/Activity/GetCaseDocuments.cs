@@ -1,7 +1,6 @@
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
-using Common.Extensions;
 using Common.Services.DocumentToggle;
 using coordinator.Domain;
 using coordinator.Durable.Payloads;
@@ -39,7 +38,7 @@ namespace coordinator.Durable.Activity
                  IConfiguration configuration)
         {
             _ddeiClient = ddeiClient;
-            _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+            _ddeiClientFactory = ddeiClientFactory;
             _ddeiArgFactory = ddeiArgFactory;
             _documentToggleService = documentToggleService;
             _stateStorageService = stateStorageService;

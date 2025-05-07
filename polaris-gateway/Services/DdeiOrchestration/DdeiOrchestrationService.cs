@@ -2,7 +2,6 @@ using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
-using Common.Extensions;
 using Common.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
@@ -34,7 +33,7 @@ public class DdeiOrchestrationService : IDdeiOrchestrationService
         )
     {
         _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _ddeiClientFactory = ddeiClientFactory ?? throw new ArgumentNullException(nameof(ddeiClientFactory));
         _documentToggleService = documentToggleService ?? throw new ArgumentNullException(nameof(documentToggleService));
         _cmsDocumentMapper = cmsDocumentMapper ?? throw new ArgumentNullException(nameof(cmsDocumentMapper));
     }
