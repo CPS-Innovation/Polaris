@@ -2,44 +2,49 @@ using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
+using Common.Extensions;
 using Common.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
+using DdeiClient.Enums;
+using DdeiClient.Factories;
+using Microsoft.Extensions.DependencyInjection;
 using PolarisGateway.Services.DdeiOrchestration.Mappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DdeiClient.Enums;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace PolarisGateway.Services.DdeiOrchestration;
 
 public class DdeiOrchestrationService : IDdeiOrchestrationService
 {
     private readonly IDdeiClient _ddeiClient;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IDdeiClientFactory _ddeiClientFactory;
     private readonly IDocumentToggleService _documentToggleService;
     private readonly IDocumentDtoMapper _cmsDocumentMapper;
 
     public DdeiOrchestrationService(
-        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
-             IDdeiArgFactory ddeiArgFactory,
-             IDocumentToggleService documentToggleService,
-             IDocumentDtoMapper cmsDocumentMapper
+            [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
+            IDdeiClientFactory ddeiClientFactory,
+            IDdeiArgFactory ddeiArgFactory,
+            IDocumentToggleService documentToggleService,
+            IDocumentDtoMapper cmsDocumentMapper
         )
     {
         _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
+        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
         _documentToggleService = documentToggleService ?? throw new ArgumentNullException(nameof(documentToggleService));
         _cmsDocumentMapper = cmsDocumentMapper ?? throw new ArgumentNullException(nameof(cmsDocumentMapper));
     }
 
     public async Task<IEnumerable<DocumentDto>> GetCaseDocuments(DdeiCaseIdentifiersArgDto arg)
     {
+        var mdsClient = _ddeiClientFactory.Create(arg.CmsAuthValues, DdeiClients.Mds);
+
         var getDocumentsTask = _ddeiClient.ListDocumentsAsync(arg);
-        var getPcdRequestsTask = _ddeiClient.GetPcdRequestsAsync(arg);
+        var getPcdRequestsTask = mdsClient.GetPcdRequestsAsync(arg);
         var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndChargesAsync(arg);
 
         await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
