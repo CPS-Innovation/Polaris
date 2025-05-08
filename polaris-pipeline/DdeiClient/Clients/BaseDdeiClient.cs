@@ -201,13 +201,8 @@ public abstract class BaseDdeiClient : IDdeiClient
         return CaseDocumentNoteResultMapper.Map(response);
     }
 
-    public virtual async Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg)
-    {
-        var response = await CallDdei<DdeiDocumentRenamedResponse>(DdeiClientRequestFactory.CreateRenameDocumentRequest(arg));
-
-        return new DocumentRenamedResultDto { Id = response.Id, OperationName = response.OperationName };
-    }
-
+    public abstract Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg);
+    
     public virtual async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg)
     {
         var response = await CallDdei<DdeiDocumentReclassifiedResponse>(DdeiClientRequestFactory.CreateReclassifyDocumentRequest(arg));
