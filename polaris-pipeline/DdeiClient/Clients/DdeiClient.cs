@@ -1,4 +1,6 @@
+using Common.Dto.Response.Document;
 using Common.Wrappers;
+using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.Response.Document;
 using Ddei.Factories;
 using Ddei.Mappers;
@@ -40,5 +42,12 @@ public class DdeiClient : BaseDdeiClient
             jsonConvertWrapper,
             logger)
     {
+    }
+
+    public override async Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg)
+    {
+        var response = await CallDdei<DdeiDocumentRenamedResponse>(DdeiClientRequestFactory.CreateRenameDocumentRequest(arg));
+
+        return new DocumentRenamedResultDto { Id = response.Id, OperationName = response.OperationName };
     }
 }

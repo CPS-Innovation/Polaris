@@ -1,7 +1,10 @@
-﻿using Ddei.Domain.CaseData.Args;
+﻿using Common.Dto.Request;
+using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using DdeiClient.Domain.Args;
+using System.Text;
+using System.Text.Json;
 
 namespace DdeiClient.Factories;
 
@@ -31,16 +34,14 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
     public HttpRequestMessage CreateGetPcdRequestsRequest(DdeiCaseIdentifiersArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/pcd-requests/overview");
-        AddAuthHeaders(request, arg);
-        request.Headers.Add(UrnHeaderName, arg.Urn);
+        CreateRequest(request, arg);
         return request;
     }
 
     public HttpRequestMessage CreateGetPcdRequest(DdeiPcdArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/pcd-request/{arg.PcdId}");
-        AddAuthHeaders(request, arg);
-        request.Headers.Add(UrnHeaderName, arg.Urn);
+        CreateRequest(request, arg);
         return request;
     }
 
@@ -57,16 +58,14 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
     public HttpRequestMessage CreateCheckoutDocumentRequest(DdeiDocumentIdAndVersionIdArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, $"api/cases/{arg.CaseId}/documents/{arg.DocumentId}/versions/{arg.VersionId}/checkout");
-        AddAuthHeaders(request, arg);
-        request.Headers.Add(UrnHeaderName, arg.Urn);
+        CreateRequest(request, arg);
         return request;
     }
 
     public HttpRequestMessage CreateCancelCheckoutDocumentRequest(DdeiDocumentIdAndVersionIdArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Delete, $"api/cases/{arg.CaseId}/documents/{arg.DocumentId}/versions/{arg.VersionId}/checkout");
-        AddAuthHeaders(request, arg);
-        request.Headers.Add(UrnHeaderName, arg.Urn);
+        CreateRequest(request, arg);
         return request;
     }
 
@@ -102,7 +101,15 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateRenameDocumentRequest(DdeiRenameDocumentArgDto arg)
     {
-        throw new NotImplementedException();
+        var content = JsonSerializer.Serialize(new RenameMaterialDto()
+        {
+            Subject = arg.DocumentName,
+            MaterialId = arg.DocumentId
+        });
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"api/material/{arg.DocumentId}/rename");
+        var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+        CreateRequest(request, arg, httpContent);
+        return request;
     }
 
     public HttpRequestMessage CreateReclassifyDocumentRequest(DdeiReclassifyDocumentArgDto arg)
@@ -133,8 +140,16 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
     public HttpRequestMessage CreateToggleIsUnusedDocumentRequest(DdeiToggleIsUnusedDocumentDto dto)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, $"api/cases/{dto.CaseId}/documents/{dto.DocumentId}/toggle/{dto.IsUnused}");
-        AddAuthHeaders(request, dto);
-        request.Headers.Add(UrnHeaderName, dto.Urn);
+        CreateRequest(request, dto);
         return request;
+    }
+
+    private void CreateRequest(HttpRequestMessage request, DdeiUrnArgDto arg, HttpContent content = null)
+    {
+        AddAuthHeaders(request, arg);
+        request.Headers.Add(UrnHeaderName, arg.Urn);
+
+        if (content is not null)
+            request.Content = content;
     }
 }
