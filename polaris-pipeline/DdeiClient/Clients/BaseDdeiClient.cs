@@ -17,6 +17,7 @@ using Ddei.Mappers;
 using DdeiClient.Domain.Args;
 using Microsoft.Extensions.Logging;
 using DdeiClient.Clients.Interfaces;
+using DdeiClient.Domain.Response.Document;
 
 namespace DdeiClient.Clients;
 
@@ -73,7 +74,12 @@ public abstract class BaseDdeiClient : IDdeiClient
         // Will throw in the same way as any other call if auth is not correct.
         await CallDdei(DdeiClientRequestFactory.CreateVerifyCmsAuthRequest(arg));
 
-    public abstract Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCaseIdOnlyArgDto arg);
+    public virtual async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCaseIdOnlyArgDto arg)
+    {
+        var response = await CallDdei<DdeiCaseSummaryDto>(DdeiClientRequestFactory.CreateGetCaseSummary(arg));
+
+        return CaseIdentifiersMapper.MapCaseIdentifiers(response);
+    }
 
     public virtual async Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiUrnArgDto arg)
     {
@@ -196,8 +202,13 @@ public abstract class BaseDdeiClient : IDdeiClient
         return CaseDocumentNoteResultMapper.Map(response);
     }
 
-    public abstract Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg);
-    
+    public virtual async Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg)
+    {
+        var response = await CallDdei<RenameMaterialResponse>(DdeiClientRequestFactory.CreateRenameDocumentRequest(arg));
+
+        return new DocumentRenamedResultDto { Id = response.UpdateCommunication.Id };
+    }
+
     public virtual async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg)
     {
         var response = await CallDdei<DdeiDocumentReclassifiedResponse>(DdeiClientRequestFactory.CreateReclassifyDocumentRequest(arg));

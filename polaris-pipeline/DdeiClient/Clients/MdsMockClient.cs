@@ -47,18 +47,4 @@ public class MdsMockClient : BaseDdeiClient
             logger)
     {
     }
-
-    public override async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCaseIdOnlyArgDto arg)
-    {
-        var response = await CallDdei<DdeiCaseSummaryDto>(DdeiClientRequestFactory.CreateGetCaseSummary(arg));
-
-        return CaseIdentifiersMapper.MapCaseIdentifiers(response);
-    }
-
-    public override async Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg)
-    {
-        var response = await CallDdei<RenameMaterialResponse>(DdeiClientRequestFactory.CreateRenameDocumentRequest(arg));
-
-        return new DocumentRenamedResultDto { Id = response.UpdateCommunication.Id };
-    }
 }
