@@ -1,14 +1,12 @@
 ﻿using Common.Configuration;
-using Common.Telemetry;
+using Common.Extensions;
 using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
 using DdeiClient.Enums;
+using DdeiClient.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -16,21 +14,18 @@ namespace PolarisGateway.Functions;
 public class LookupUrn : BaseFunction
 {
     private readonly ILogger<LookupUrn> _logger;
-    private readonly IDdeiClient _ddeiClient;
+    private readonly IDdeiClientFactory _ddeiClientFactory;
     private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly ITelemetryClient _telemetryClient;
 
     public LookupUrn(
         ILogger<LookupUrn> logger,
-        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
-        IDdeiArgFactory ddeiArgFactory,
-        ITelemetryClient telemetryClient)
+        IDdeiClientFactory ddeiClientFactory,
+        IDdeiArgFactory ddeiArgFactory)
         : base()
     {
-        _logger = logger;
-        _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
-        _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+        _logger = logger.ExceptionIfNull();
+        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
     }
 
     [Function(nameof(LookupUrn))]
@@ -42,7 +37,9 @@ public class LookupUrn : BaseFunction
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var arg = _ddeiArgFactory.CreateCaseIdArg(cmsAuthValues, correlationId, caseId);
-        var result = await _ddeiClient.GetUrnFromCaseIdAsync(arg);
+        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
+
+        var result = await ddeiClient.GetUrnFromCaseIdAsync(arg);
 
         return new OkObjectResult(result);
     }

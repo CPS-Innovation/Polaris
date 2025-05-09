@@ -73,12 +73,7 @@ public abstract class BaseDdeiClient : IDdeiClient
         // Will throw in the same way as any other call if auth is not correct.
         await CallDdei(DdeiClientRequestFactory.CreateVerifyCmsAuthRequest(arg));
 
-    public virtual async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCaseIdOnlyArgDto arg)
-    {
-        _ = Logger;
-        var result = await CallDdei<DdeiCaseIdentifiersDto>(DdeiClientRequestFactory.CreateUrnLookupRequest(arg));
-        return CaseIdentifiersMapper.MapCaseIdentifiers(result);
-    }
+    public abstract Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCaseIdOnlyArgDto arg);
 
     public virtual async Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiUrnArgDto arg)
     {
