@@ -170,3 +170,5 @@ coordinator = {
   max_concurrent_activity_functions     = 1000
   max_queue_polling_interval            = "00:00:02"
 }
+
+cps_global_components_url="https://sacpsglobalcomponents.blob.core.windows.net/prod/cps-global-components.js"

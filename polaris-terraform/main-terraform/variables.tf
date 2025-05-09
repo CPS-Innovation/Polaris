@@ -369,3 +369,7 @@ variable "coordinator" {
     max_queue_polling_interval            = string #hh:mm:ss format e.g. "00:00:05" for 5 seconds
   })
 }
+
+variable "cps_global_components_url" {
+  type = string
+}
