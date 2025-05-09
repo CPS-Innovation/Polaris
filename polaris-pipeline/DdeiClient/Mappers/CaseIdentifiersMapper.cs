@@ -14,4 +14,16 @@ public class CaseIdentifiersMapper : ICaseIdentifiersMapper
             UrnRoot = caseIdentifiers.UrnRoot,
         };
     }
+
+    public CaseIdentifiersDto MapCaseIdentifiers(DdeiCaseSummaryDto caseIdentifiers)
+    {
+        return new CaseIdentifiersDto
+        {
+            Id = caseIdentifiers.Id,
+            Urn = caseIdentifiers.Urn,
+            UrnRoot = caseIdentifiers.Urn
+                    .Split("/")
+                    .FirstOrDefault(),
+        };
+    }
 }

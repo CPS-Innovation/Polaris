@@ -1,6 +1,9 @@
-﻿using Common.Dto.Response.Document;
+﻿using Common.Dto.Response.Case;
+using Common.Dto.Response.Document;
 using Common.Wrappers;
 using Ddei.Domain.CaseData.Args;
+using Ddei.Domain.CaseData.Args.Core;
+using Ddei.Domain.Response;
 using Ddei.Domain.Response.Document;
 using Ddei.Factories;
 using Ddei.Mappers;
@@ -43,12 +46,5 @@ public class MdsMockClient : BaseDdeiClient
             jsonConvertWrapper, 
             logger)
     {
-    }
-
-    public override async Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg)
-    {
-        var response = await CallDdei<RenameMaterialResponse>(DdeiClientRequestFactory.CreateRenameDocumentRequest(arg));
-
-        return new DocumentRenamedResultDto { Id = response.UpdateCommunication.Id };
     }
 }

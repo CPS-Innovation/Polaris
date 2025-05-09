@@ -6,5 +6,6 @@ namespace Ddei.Mappers
     public interface ICaseIdentifiersMapper
     {
         CaseIdentifiersDto MapCaseIdentifiers(DdeiCaseIdentifiersDto caseIdentifiers);
+        CaseIdentifiersDto MapCaseIdentifiers(DdeiCaseSummaryDto caseIdentifiers);
     }
 }

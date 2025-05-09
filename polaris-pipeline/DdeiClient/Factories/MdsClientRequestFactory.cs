@@ -144,6 +144,13 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
         return request;
     }
 
+    public HttpRequestMessage CreateGetCaseSummary(DdeiCaseIdOnlyArgDto arg)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/summary");
+        AddAuthHeaders(request, arg);
+        return request;
+    }
+
     private void CreateRequest(HttpRequestMessage request, DdeiUrnArgDto arg, HttpContent content = null)
     {
         AddAuthHeaders(request, arg);

@@ -51,5 +51,7 @@ namespace Ddei.Factories
         HttpRequestMessage CreateGetWitnessStatementsRequest(DdeiWitnessStatementsArgDto arg);
 
         HttpRequestMessage CreateToggleIsUnusedDocumentRequest(DdeiToggleIsUnusedDocumentDto dto);
+
+        HttpRequestMessage CreateGetCaseSummary(DdeiCaseIdOnlyArgDto arg);
     }
 }
