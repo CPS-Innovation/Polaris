@@ -194,4 +194,9 @@ public class DdeiClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClien
         AddAuthHeaders(request, arg);
         return request;
     }
+
+    public HttpRequestMessage CreateGetCaseSummary(DdeiCaseIdOnlyArgDto arg)
+    {
+        throw new NotImplementedException();
+    }
 }

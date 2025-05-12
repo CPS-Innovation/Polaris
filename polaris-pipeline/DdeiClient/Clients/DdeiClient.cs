@@ -1,6 +1,9 @@
+using Common.Dto.Response.Case;
 using Common.Dto.Response.Document;
 using Common.Wrappers;
 using Ddei.Domain.CaseData.Args;
+using Ddei.Domain.CaseData.Args.Core;
+using Ddei.Domain.Response;
 using Ddei.Domain.Response.Document;
 using Ddei.Factories;
 using Ddei.Mappers;
@@ -42,6 +45,13 @@ public class DdeiClient : BaseDdeiClient
             jsonConvertWrapper,
             logger)
     {
+    }
+
+    public override async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCaseIdOnlyArgDto arg)
+    {
+        var response = await CallDdei<DdeiCaseIdentifiersDto>(DdeiClientRequestFactory.CreateUrnLookupRequest(arg));
+
+        return CaseIdentifiersMapper.MapCaseIdentifiers(response);
     }
 
     public override async Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg)
