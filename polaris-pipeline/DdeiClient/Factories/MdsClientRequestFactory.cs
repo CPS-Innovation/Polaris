@@ -18,7 +18,9 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateUrnLookupRequest(DdeiCaseIdOnlyArgDto arg)
     {
-        throw new NotImplementedException();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/urn");
+        AddAuthHeaders(request, arg);
+        return request;
     }
 
     public HttpRequestMessage CreateListCasesRequest(DdeiUrnArgDto arg)
