@@ -44,7 +44,8 @@ public class DdeiOrchestrationService : IDdeiOrchestrationService
         var mdsClient = _ddeiClientFactory.Create(arg.CmsAuthValues, DdeiClients.Mds);
 
         var getDocumentsTask = _ddeiClient.ListDocumentsAsync(arg);
-        var getPcdRequestsTask = mdsClient.GetPcdRequestsAsync(arg);
+        //var getPcdRequestsTask = mdsClient.GetPcdRequestsAsync(arg);
+        var getPcdRequestsTask = _ddeiClient.GetPcdRequestsAsync(arg);
         var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndChargesAsync(arg);
 
         await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
