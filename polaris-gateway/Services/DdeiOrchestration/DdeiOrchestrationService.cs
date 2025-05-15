@@ -25,7 +25,7 @@ public class DdeiOrchestrationService : IDdeiOrchestrationService
     private readonly IDdeiClientFactory _ddeiClientFactory;
     private readonly IDocumentToggleService _documentToggleService;
     private readonly IDocumentDtoMapper _cmsDocumentMapper;
-    private readonly ILogger _logger;
+    private readonly ILogger<DdeiOrchestrationService> _logger;
 
     public DdeiOrchestrationService(
             [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
@@ -33,7 +33,7 @@ public class DdeiOrchestrationService : IDdeiOrchestrationService
             IDdeiArgFactory ddeiArgFactory,
             IDocumentToggleService documentToggleService,
             IDocumentDtoMapper cmsDocumentMapper,
-            ILogger logger
+            ILogger<DdeiOrchestrationService> logger
         )
     {
         _ddeiClient = ddeiClient.ExceptionIfNull();
