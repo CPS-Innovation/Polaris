@@ -1,23 +1,25 @@
-﻿using Common.Exceptions;
-using System.Net;
-using Common.Wrappers;
-using Common.Dto.Response.Case.PreCharge;
-using Common.Dto.Response.Case;
-using Common.Dto.Response.Document;
+﻿using Azure;
 using Common.Dto.Response;
+using Common.Dto.Response.Case;
+using Common.Dto.Response.Case.PreCharge;
+using Common.Dto.Response.Document;
+using Common.Exceptions;
 using Common.Extensions;
-using Ddei.Domain.CaseData.Args.Core;
+using Common.Wrappers;
 using Ddei.Domain.CaseData.Args;
+using Ddei.Domain.CaseData.Args.Core;
+using Ddei.Domain.Response;
 using Ddei.Domain.Response.Defendant;
 using Ddei.Domain.Response.Document;
 using Ddei.Domain.Response.PreCharge;
-using Ddei.Domain.Response;
 using Ddei.Factories;
 using Ddei.Mappers;
-using DdeiClient.Domain.Args;
-using Microsoft.Extensions.Logging;
 using DdeiClient.Clients.Interfaces;
+using DdeiClient.Domain.Args;
 using DdeiClient.Domain.Response.Document;
+using Microsoft.Extensions.Logging;
+using System.Net;
+using System.Text;
 
 namespace DdeiClient.Clients;
 
@@ -100,7 +102,8 @@ public abstract class BaseDdeiClient : IDdeiClient
 
     public virtual async Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsAsync(DdeiCaseIdentifiersArgDto arg)
     {
-        var pcdRequests = await CallDdei<IEnumerable<DdeiPcdRequestCoreDto>>(DdeiClientRequestFactory.CreateGetPcdRequestsRequest(arg));
+        var pcdRequests = await CallDdeiLog<IEnumerable<DdeiPcdRequestCoreDto>>(DdeiClientRequestFactory.CreateGetPcdRequestsRequest(arg));
+        var request = DdeiClientRequestFactory.CreateGetPcdRequestsRequest(arg);
         return CaseDetailsMapper.MapCorePreChargeDecisionRequests(pcdRequests);
     }
 
@@ -122,7 +125,7 @@ public abstract class BaseDdeiClient : IDdeiClient
 
     public virtual async Task<IEnumerable<CmsDocumentDto>> ListDocumentsAsync(DdeiCaseIdentifiersArgDto arg)
     {
-        var ddeiResults = await CallDdei<List<DdeiDocumentResponse>>(
+        var ddeiResults = await CallDdeiLog<List<DdeiDocumentResponse>>(
             DdeiClientRequestFactory.CreateListCaseDocumentsRequest(arg)
         );
 
@@ -269,6 +272,13 @@ public abstract class BaseDdeiClient : IDdeiClient
         return JsonConvertWrapper.DeserializeObject<T>(content);
     }
 
+    protected virtual async Task<T> CallDdeiLog<T>(HttpRequestMessage request)
+    {
+        using var response = await CallDdeiLog(request);
+        var content = await response.Content.ReadAsStringAsync();
+        return JsonConvertWrapper.DeserializeObject<T>(content);
+    }
+
     protected virtual async Task<HttpResponseMessage> CallDdei(HttpRequestMessage request, params HttpStatusCode[] expectedUnhappyStatusCodes)
     {
         var response = await HttpClient.SendAsync(request);
@@ -286,5 +296,29 @@ public abstract class BaseDdeiClient : IDdeiClient
         {
             throw new DdeiClientException(response.StatusCode, exception);
         }
+    }
+
+    protected virtual async Task<HttpResponseMessage> CallDdeiLog(HttpRequestMessage request, params HttpStatusCode[] expectedUnhappyStatusCodes)
+    {
+        HttpResponseMessage response = null;
+        try
+        {
+            response = await HttpClient.SendAsync(request);
+            var sb = new StringBuilder();
+            foreach (var header in response.RequestMessage.Headers)
+            {
+                sb.Append($"Header key: {header.Key} - Header value: {header.Value}");
+            }
+            Logger.LogDebug($"HTTP client call debug log: HEADERS: {sb.ToString()}");
+            Logger.LogDebug($"HTTP client call debug log: STATUS CODE: {response.StatusCode}");
+            Logger.LogDebug($"HTTP client call debug log: REASON PHRASE: {response.ReasonPhrase}");
+            Logger.LogDebug($"HTTP client call debug log: RESPONSE CONTENT: {response.Content.ToString()}");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogDebug($"HTTP client call debug log: An exception was thrown in CallDdeiLog - MESSAGE {ex.Message} - INNER EXCEPTION {ex.InnerException} - SOURCE {ex.Source} - TOSTRING {ex.ToString()}");
+        }
+
+        return response;
     }
 }
