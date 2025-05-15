@@ -1,5 +1,5 @@
 import { IPublicClientApplication } from "@azure/msal-browser";
-import { FC } from "react";
+import { FC, ReactElement } from "react";
 import {
   PRIVATE_BETA_SIGN_UP_URL,
   PRIVATE_BETA_USER_GROUP,
@@ -8,6 +8,7 @@ import {
 type Props = {
   msalInstance: IPublicClientApplication;
   window: Window;
+  children: React.ReactNode;
 };
 
 const proceedNotAuthorized = (window: Window) => {

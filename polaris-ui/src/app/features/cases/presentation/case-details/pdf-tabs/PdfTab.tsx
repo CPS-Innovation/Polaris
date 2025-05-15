@@ -48,7 +48,6 @@ type PdfTabProps = {
   handleRemoveRedaction: CaseDetailsState["handleRemoveRedaction"];
   handleRemoveAllRedactions: CaseDetailsState["handleRemoveAllRedactions"];
   handleSavedRedactions: CaseDetailsState["handleSavedRedactions"];
-  handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   handleShowHideRedactionSuggestions: CaseDetailsState["handleShowHideRedactionSuggestions"];
@@ -83,7 +82,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   handleRemoveRedaction,
   handleRemoveAllRedactions,
   handleSavedRedactions,
-  handleShowHideDocumentIssueModal,
   handleShowRedactionLogModal,
   handleAreaOnlyRedaction,
   handleShowHideRedactionSuggestions,
@@ -208,7 +206,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
   ]);
 
   const localHandleShowHideRedactionSuggestions = useCallback(
-    (documentId, showSuggestion, defaultOption) => {
+    (documentId: string, showSuggestion: boolean, defaultOption: boolean) => {
       const getData =
         searchPIIDataItem?.getSearchPIIStatus === "failure"
           ? true
@@ -369,7 +367,6 @@ export const PdfTab: React.FC<PdfTabProps> = ({
         ) : (
           <HeaderReadMode
             showOverRedactionLog={showOverRedactionLog}
-            handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
             handleShowRedactionLogModal={handleShowRedactionLogModal}
             handleAreaOnlyRedaction={handleAreaOnlyRedaction}
             handleShowHideRedactionSuggestions={

@@ -1,0 +1,143 @@
+import { renderHook, act } from "@testing-library/react-hooks";
+import { useQueryParamsState } from "./useQueryParamsState";
+import { createMemoryHistory } from "history";
+import { Router } from "react-router-dom";
+
+const history = createMemoryHistory();
+
+xdescribe("useQueryParams", () => {
+  xit("reads single params", () => {
+    history.push("/my/route?foo=a&bar=b");
+    const { result } = renderHook(
+      () => useQueryParamsState<{ foo: string; bar: string }>(),
+      {
+        wrapper: ({ children }: { children: React.ReactNode }) => (
+          <Router history={history}>{children}</Router>
+        ),
+      }
+    );
+
+    const { foo, bar } = result.current;
+
+    expect({ foo, bar }).toEqual({
+      foo: "a",
+      bar: "b",
+    });
+  });
+
+  xit("reads array params", () => {
+    history.push("/my/route?foo=a,b");
+    const { result } = renderHook(
+      () => useQueryParamsState<{ foo: string[] }>(),
+      {
+        wrapper: ({ children }: { children: React.ReactNode }) => (
+          <Router history={history}>{children}</Router>
+        ),
+      }
+    );
+
+    const { foo } = result.current;
+
+    expect({ foo }).toEqual({
+      foo: ["a", "b"],
+    });
+  });
+
+  xit("reads empty params", () => {
+    history.push("/my/route?foo=");
+    const { result } = renderHook(
+      () => useQueryParamsState<{ foo: string }>(),
+      {
+        wrapper: ({ children }: { children: React.ReactNode }) => (
+          <Router history={history}>{children}</Router>
+        ),
+      }
+    );
+
+    const { foo } = result.current;
+
+    expect({ foo }).toEqual({
+      foo: "",
+    });
+  });
+
+  xit("sets single params", () => {
+    history.push("/my/route");
+    const { result } = renderHook(
+      () => useQueryParamsState<{ foo: string }>(),
+      {
+        wrapper: ({ children }: { children: React.ReactNode }) => (
+          <Router history={history}>{children}</Router>
+        ),
+      }
+    );
+
+    act(() => result.current.setParams({ foo: "a" }));
+
+    expect(history.location.search).toBe("?foo=a");
+  });
+
+  xit("sets many single params", () => {
+    history.push("/my/route");
+    const { result } = renderHook(
+      () => useQueryParamsState<{ foo: string; bar: string }>(),
+      {
+        wrapper: ({ children }: { children: React.ReactNode }) => (
+          <Router history={history}>{children}</Router>
+        ),
+      }
+    );
+
+    act(() => result.current.setParams({ foo: "a", bar: "b" }));
+
+    expect(history.location.search).toBe("?foo=a&bar=b");
+  });
+
+  xit("sets array params with a single value", () => {
+    history.push("/my/route");
+    const { result } = renderHook(
+      () => useQueryParamsState<{ foo: string[] }>(),
+      {
+        wrapper: ({ children }: { children: React.ReactNode }) => (
+          <Router history={history}>{children}</Router>
+        ),
+      }
+    );
+
+    act(() => result.current.setParams({ foo: ["a"] }));
+
+    expect(history.location.search).toBe("?foo=a");
+  });
+
+  xit("sets array params with a many values", () => {
+    history.push("/my/route");
+    const { result } = renderHook(
+      () => useQueryParamsState<{ foo: string[] }>(),
+      {
+        wrapper: ({ children }: { children: React.ReactNode }) => (
+          <Router history={history}>{children}</Router>
+        ),
+      }
+    );
+
+    act(() => result.current.setParams({ foo: ["a", "b"] }));
+
+    expect(history.location.search).toBe("?foo=a,b");
+  });
+
+  xit("sets array params with no values", () => {
+    history.push("/my/route");
+    const { result } = renderHook(
+      () => useQueryParamsState<{ foo: string[] }>(),
+      {
+        wrapper: ({ children }: { children: React.ReactNode }) => (
+          <Router history={history}>{children}</Router>
+        ),
+      }
+    );
+
+    act(() => result.current.setParams({ foo: [] }));
+
+    expect(history.location.search).toBe("");
+  });
+});

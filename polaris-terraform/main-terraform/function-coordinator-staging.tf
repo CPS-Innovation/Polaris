@@ -33,6 +33,10 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Staging1"
+    "MDSBaseUrl"                                      = "https://fa-${local.mds_resource_name}.azurewebsites.net"
+    "MDSAccessKey"                                    = data.azurerm_key_vault_secret.kvs_fa_mds_host_keys.value
+    "MDSMockBaseUrl"                                  = "https://as-${local.mds_mock_resource_name}.azurewebsites.net"
+    "MDSMockAccessKey"                                = ""
     "LanguageServiceKey"                              = azurerm_cognitive_account.language_service.primary_access_key
     "LanguageServiceUrl"                              = azurerm_cognitive_account.language_service.endpoint
     "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule

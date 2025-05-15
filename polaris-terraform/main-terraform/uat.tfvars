@@ -99,6 +99,8 @@ feature_flag_global_nav                            = "true"
 feature_flag_external_redirect_case_review_app     = "true"
 feature_flag_external_redirect_bulk_um_app         = "true"
 feature_flag_background_pipeline_refresh           = "true"
+feature_flag_redaction_toggle_copy_button          = "true"
+feature_flag_document_name_search                  = "true"
 background_pipeline_refresh_interval_ms            = 0.5 * 60 * 1000
 background_pipeline_refresh_show_own_notifications = "true"
 feature_flag_page_rotate                           = "true"
@@ -112,6 +114,7 @@ private_beta = {
   feature_user_group3 = "e9abbdb6-b6e9-4972-90fb-79d3140df840"
   feature_user_group4 = "1e5874e3-1c88-4506-8b9f-4f469acc1a42"
   feature_user_group5 = "a5bcc0a5-50e4-49c4-89e0-fad3dced6235"
+  feature_user_group6 = "21c21011-b568-4ebb-b013-02d4cd15681a"
 }
 
 case_review_app_redirect_url = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
@@ -153,7 +156,7 @@ image_conversion_redaction = {
 }
 
 search_service_config = {
-  replica_count                 = 3
+  replica_count                 = 1
   partition_count               = 1
   is_dynamic_throttling_enabled = true
 }
@@ -169,3 +172,5 @@ coordinator = {
   max_concurrent_activity_functions     = 325
   max_queue_polling_interval            = "00:00:02"
 }
+
+cps_global_components_url="https://sacpsglobalcomponents.blob.core.windows.net/test/cps-global-components.js"

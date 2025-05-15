@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
 using Common.Dto.Request;
@@ -49,7 +48,7 @@ namespace PolarisGateway.Tests.Validators
         public void Redactions_CorrectChildValidator_Loaded()
         {
             var saveRequest = _fixture.Create<DocumentRedactionSaveRequestDto>();
-            saveRequest.Redactions = new List<RedactionDefinitionDto>();
+            saveRequest.Redactions = [];
 
             var redactionValidator = new DocumentRedactionSaveRequestValidator();
             redactionValidator.ShouldHaveChildValidator(x => x.Redactions, typeof(RedactionValidator));

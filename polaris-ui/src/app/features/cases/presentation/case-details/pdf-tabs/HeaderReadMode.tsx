@@ -11,12 +11,12 @@ import {
 import { isAlreadyReportedDocument } from "../../../../../common/utils/reportDocuments";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogTypes";
+import { useUserGroupsFeatureFlag } from "../../../../../auth/msal/useUserGroupsFeatureFlag";
 import { ReactComponent as AreaIcon } from "../../../../../common/presentation/svgs/areaIcon.svg";
 import classes from "./HeaderReadMode.module.scss";
 
 type Props = {
   showOverRedactionLog: boolean;
-  handleShowHideDocumentIssueModal: CaseDetailsState["handleShowHideDocumentIssueModal"];
   handleShowRedactionLogModal: CaseDetailsState["handleShowRedactionLogModal"];
   handleAreaOnlyRedaction: CaseDetailsState["handleAreaOnlyRedaction"];
   handleShowHidePageRotation: CaseDetailsState["handleShowHidePageRotation"];
@@ -42,7 +42,6 @@ type Props = {
 
 export const HeaderReadMode: React.FC<Props> = ({
   showOverRedactionLog,
-  handleShowHideDocumentIssueModal,
   handleShowRedactionLogModal,
   handleAreaOnlyRedaction,
   handleShowHideRedactionSuggestions,
@@ -53,6 +52,8 @@ export const HeaderReadMode: React.FC<Props> = ({
   const trackEvent = useAppInsightsTrackEvent();
   const disableReportBtn = isAlreadyReportedDocument(contextData.documentId);
 
+  const { searchPII } = useUserGroupsFeatureFlag();
+
   const handleDocumentAction = (id: string) => {
     switch (id) {
       case "1":
@@ -60,9 +61,6 @@ export const HeaderReadMode: React.FC<Props> = ({
         trackEvent("Open Under Over Redaction Log", {
           documentId: contextData.documentId,
         });
-        break;
-      case "2":
-        handleShowHideDocumentIssueModal(true);
         break;
       case "3":
         handleShowHideRedactionSuggestions(
@@ -106,7 +104,7 @@ export const HeaderReadMode: React.FC<Props> = ({
         ...items,
       ];
     }
-    if (contextData.showSearchPII) {
+    if (contextData.showSearchPII && searchPII) {
       items = [
         ...items,
         {

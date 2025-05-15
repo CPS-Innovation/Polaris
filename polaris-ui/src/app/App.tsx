@@ -7,7 +7,6 @@ import { AppInsightsContext } from "@microsoft/applicationinsights-react-js";
 import { initializeAppInsights } from "../app/common/utils/appInsightsUtils";
 import { clearDownStorage } from "../app/features/cases/presentation/case-details/utils/localStorageUtils";
 import { AuthHeaderProvider } from "./AuthHeaderProvider";
-import "cps-global-nav";
 export const App: FC = () => {
   const reactPlugin = initializeAppInsights();
   useEffect(() => {

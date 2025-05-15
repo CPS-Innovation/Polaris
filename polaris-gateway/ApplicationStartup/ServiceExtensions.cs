@@ -53,7 +53,7 @@ public static class ServiceExtensions
         })
             .AddPolicyHandler(RetryPolicy);
 
-        services.AddDdeiClient(configuration);
+        services.AddDdeiClientGateway(configuration);
 
         services.AddSingleton<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();

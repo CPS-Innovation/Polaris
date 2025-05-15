@@ -87,7 +87,7 @@ feature_flag_redaction_log                         = "true"
 feature_flag_redaction_log_under_over              = "true"
 feature_flag_full_screen                           = "true"
 feature_flag_notes                                 = "true"
-feature_flag_search_pii                            = "true"
+feature_flag_search_pii                            = "false"
 feature_flag_rename_document                       = "true"
 feature_flag_reclassify                            = "true"
 feature_flag_page_delete                           = "true"
@@ -97,6 +97,8 @@ feature_flag_global_nav                            = "false"
 feature_flag_external_redirect_case_review_app     = "true"
 feature_flag_external_redirect_bulk_um_app         = "true"
 feature_flag_background_pipeline_refresh           = "true"
+feature_flag_redaction_toggle_copy_button          = "false"
+feature_flag_document_name_search                  = "false"
 background_pipeline_refresh_interval_ms            = 5 * 60 * 1000
 background_pipeline_refresh_show_own_notifications = "false"
 feature_flag_page_rotate                           = "true"
@@ -110,6 +112,7 @@ private_beta = {
   feature_user_group3 = "e9abbdb6-b6e9-4972-90fb-79d3140df840"
   feature_user_group4 = "1e5874e3-1c88-4506-8b9f-4f469acc1a42"
   feature_user_group5 = "a5bcc0a5-50e4-49c4-89e0-fad3dced6235"
+  feature_user_group6 = "21c21011-b568-4ebb-b013-02d4cd15681a"
 }
 
 case_review_app_redirect_url = "https://cps.outsystemsenterprise.com/CaseReview/RedirectCW"
@@ -153,7 +156,7 @@ image_conversion_redaction = {
 
 search_service_config = {
   replica_count                 = 3
-  partition_count               = 6
+  partition_count               = 2
   is_dynamic_throttling_enabled = true
 }
 
@@ -168,3 +171,5 @@ coordinator = {
   max_concurrent_activity_functions     = 1000
   max_queue_polling_interval            = "00:00:02"
 }
+
+cps_global_components_url="https://sacpsglobalcomponents.blob.core.windows.net/prod/cps-global-components.js"

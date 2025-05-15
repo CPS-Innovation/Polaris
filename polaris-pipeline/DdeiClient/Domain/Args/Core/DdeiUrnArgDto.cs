@@ -1,7 +1,6 @@
-namespace Ddei.Domain.CaseData.Args.Core
+namespace Ddei.Domain.CaseData.Args.Core;
+
+public class DdeiUrnArgDto : DdeiBaseArgDto
 {
-    public class DdeiUrnArgDto : DdeiBaseArgDto
-    {
-        public string Urn { get; set; }
-    }
+    public string Urn { get; set; }
 }

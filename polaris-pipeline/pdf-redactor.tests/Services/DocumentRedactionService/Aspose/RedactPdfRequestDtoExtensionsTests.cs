@@ -12,21 +12,21 @@ namespace pdf_redactor.tests.Services.DocumentRedaction.Aspose
       // Arrange
       var redactPdfRequestDto = new RedactPdfRequestDto
       {
-        RedactionDefinitions = new List<RedactionDefinitionDto> {
+        RedactionDefinitions = [
           new RedactionDefinitionDto {
             PageIndex = 0,
-            RedactionCoordinates = new List<RedactionCoordinatesDto> {
+            RedactionCoordinates = [
               new RedactionCoordinatesDto(),
               new RedactionCoordinatesDto()
-            }
+            ]
           },
           new RedactionDefinitionDto {
             PageIndex = 1,
-            RedactionCoordinates = new List<RedactionCoordinatesDto> {
+            RedactionCoordinates = [
               new RedactionCoordinatesDto()
-            }
+            ]
           }
-        }
+        ]
       };
 
       // Act

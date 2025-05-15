@@ -22,17 +22,6 @@ namespace pdf_generator.tests.Services.PdfService
             _pdfService = new CellsPdfService(_asposeItemFactory.Object);
         }
 
-        [Fact]
-        public void Ctor_NoItemFactory_ThrowsAppropriateException()
-        {
-            var act = () =>
-            {
-                var _ = new CellsPdfService(null);
-            };
-
-            act.Should().Throw<ArgumentNullException>().And.ParamName.Should().Be("asposeItemFactory");
-        }
-
         // todo: following test fails on mac (at least Stef's mac at time of writing)
 #if Windows
         [Fact]

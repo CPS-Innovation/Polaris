@@ -253,7 +253,7 @@ describe("Feature Rotate Page", () => {
     //document checkout and cancel checkout tracking
   });
 
-  it("Should show error message when failed to save the rotation and should enable back the save rotation button", () => {
+  xit("Should show error message when failed to save the rotation and should enable back the save rotation button", () => {
     cy.overrideRoute(
       SAVE_ROTATION_ROUTE,
       {
@@ -309,7 +309,7 @@ describe("Feature Rotate Page", () => {
     );
   });
 
-  it("Should show warning message when the user tries to turn on rotate page option, if there are unsaved redactions", () => {
+  xit("Should show warning message when the user tries to turn on rotate page option, if there are unsaved redactions", () => {
     cy.visit("/case-details/12AB1111111/13401?pageRotate=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();

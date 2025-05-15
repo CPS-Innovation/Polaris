@@ -1,20 +1,23 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutoFixture;
-using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using Moq;
-using Xunit;
-using coordinator.Durable.Activity;
+﻿using AutoFixture;
+using Common.Dto.Response.Case;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Document.FeatureFlags;
-using Ddei;
 using Common.Services.DocumentToggle;
-using Common.Dto.Response.Case;
-using Microsoft.Extensions.Configuration;
+using coordinator.Durable.Activity;
 using coordinator.Durable.Payloads;
-using Ddei.Factories;
+using coordinator.Services;
 using Ddei.Domain.CaseData.Args.Core;
+using Ddei.Factories;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Enums;
+using DdeiClient.Factories;
+using FluentAssertions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Moq;
+using System;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace coordinator.tests.Durable.Activity
 {
@@ -26,6 +29,8 @@ namespace coordinator.tests.Durable.Activity
         private readonly CasePayload _payload;
         private readonly GetCaseDocuments _getCaseDocuments;
         private readonly Mock<IConfiguration> _mockConfiguration;
+        private readonly Mock<IStateStorageService> _mockStateStorageService;
+        private readonly Mock<IDdeiClientFactory> _ddeiClientFactoryMock;
 
         public GetCaseDocumentsTests()
         {
@@ -44,6 +49,7 @@ namespace coordinator.tests.Durable.Activity
 
             var mockDdeiClient = new Mock<IDdeiClient>();
 
+            _mockStateStorageService = new Mock<IStateStorageService>();
             _mockConfiguration = new Mock<IConfiguration>();
 
             mockDdeiClient
@@ -71,10 +77,16 @@ namespace coordinator.tests.Durable.Activity
 
             var mockLogger = new Mock<ILogger<GetCaseDocuments>>();
 
+            var ddeiClientMock = new Mock<IDdeiClient>();
+            _ddeiClientFactoryMock = new Mock<IDdeiClientFactory>();
+            _ddeiClientFactoryMock.Setup(s => s.Create(It.IsAny<string>(), DdeiClients.Mds)).Returns(ddeiClientMock.Object);
+
             _getCaseDocuments = new GetCaseDocuments(
                 mockDdeiClient.Object,
+                _ddeiClientFactoryMock.Object,
                 mockDdeiArgFactory.Object,
                 mockDocumentToggleService.Object,
+                _mockStateStorageService.Object,
                 mockLogger.Object,
                 _mockConfiguration.Object);
         }

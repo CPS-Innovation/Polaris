@@ -40,7 +40,7 @@ import {
 } from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
-import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
+// import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
 import { SaveUsedOrUnusedModal } from "./modals/SaveUsedOrUnusedModal";
 import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
 import { NotesPanel } from "./notes/NotesPanel";
@@ -62,7 +62,8 @@ import {
   TaggedContext,
 } from "../../../../inbound-handover/context";
 import { saveStateToSessionStorage } from "./utils/stateRetentionUtil";
-export const path = "/case-details/:urn/:id";
+
+export const path = "/case-details/:urn/:id/:hkDocumentId?";
 
 type Props = BackLinkingPageProps & {
   context: TaggedContext | undefined;
@@ -107,7 +108,8 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   useAppInsightsTrackPageView("Case Details Page");
   const trackEvent = useAppInsightsTrackEvent();
   const history = useHistory();
-  const { id: caseId, urn } = useParams<{ id: string; urn: string }>();
+  const params = useParams<{ id: string; urn: string; hkDocumentId: string }>();
+  const { id: caseId, urn, hkDocumentId } = params as any;
 
   const unMounting = useRef(false);
   useEffect(() => {
@@ -125,6 +127,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleClosePdf,
     handleTabSelection,
     handleSearchTermChange,
+    handleSearchTypeChange,
     handleLaunchSearchResults,
     handleCloseSearchResults,
     handleChangeResultsOrder,
@@ -136,7 +139,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleSaveRedactionLog,
     handleCloseErrorModal,
     handleUnLockDocuments,
-    handleShowHideDocumentIssueModal,
     handleShowRedactionLogModal,
     handleHideRedactionLogModal,
     handleAreaOnlyRedaction,
@@ -175,7 +177,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     documentsState,
     documentRefreshData,
     errorModal,
-    documentIssueModal,
     redactionLog,
     featureFlags,
     storedUserData,
@@ -296,7 +297,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     //  (we are prepared to show page whilst waiting for docs to load though)
     return (
       <>
-        {featureFlags.globalNav && <cps-global-nav></cps-global-nav>}
         <WaitPage />
       </>
     );
@@ -465,25 +465,8 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     window.open(url, "_self");
   };
 
-  const name =
-    caseState.data.leadDefendantDetails?.type === "Organisation"
-      ? caseState.data.leadDefendantDetails?.organisationName
-      : `${caseState.data.leadDefendantDetails?.surname}, ${caseState.data.leadDefendantDetails?.firstNames}`;
   return (
     <div>
-      {featureFlags.globalNav && (
-        <cps-global-nav name={name}>
-          {featureFlags.notifications && (
-            <Notifications
-              state={notificationState}
-              handleOpenPdf={handleOpenPdf}
-              handleClearAllNotifications={handleClearAllNotifications}
-              handleClearNotification={handleClearNotification}
-            ></Notifications>
-          )}
-        </cps-global-nav>
-      )}
-
       <div className={reclassifyDetails.open ? classes.reclassifyMode : ""}>
         {errorModal.show && (
           <Modal
@@ -540,16 +523,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           </Modal>
         )}
 
-        {documentIssueModal.show && (
-          <ReportAnIssueModal
-            documentTypeId={activeTabMappedDocument?.cmsDocType?.documentTypeId}
-            documentId={activeTabMappedDocument?.documentId!}
-            presentationTitle={activeTabMappedDocument?.presentationTitle!}
-            versionId={activeTabMappedDocument?.versionId!}
-            correlationId={pipelineState?.correlationId}
-            handleShowHideDocumentIssueModal={handleShowHideDocumentIssueModal}
-          />
-        )}
         {searchState.isResultsVisible && (
           <ResultsModal
             {...{
@@ -557,7 +530,9 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
               searchTerm,
               searchState,
               pipelineState,
+              featureFlags,
               handleSearchTermChange,
+              handleSearchTypeChange,
               handleLaunchSearchResults,
               handleCloseSearchResults,
               handleChangeResultsOrder,
@@ -607,7 +582,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           >
             {backLinkProps.label}
           </BackLink>
-          {!featureFlags.globalNav && featureFlags.notifications && (
+          {featureFlags.notifications && (
             <Notifications
               state={notificationState}
               handleOpenPdf={handleOpenPdf}
@@ -710,7 +685,22 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       </Button>
                     </div>
                   )}
-
+                  {/* <div className={classes.externalRedirectBtnWrapper}>
+                    <Button
+                      disabled={false}
+                      onClick={() => {
+                        openInNewTab(
+                          `${window.location.pathname}?URN=${urn}&caseId=${caseId}`
+                        );
+                      }}
+                      data-testid="btn-housekeep-link"
+                      id="btn-housekeep-link"
+                      className={`${classes.newWindowBtn} govuk-button--secondary`}
+                      name="secondary"
+                    >
+                      Housekeeping link <NewWindow />
+                    </Button>
+                  </div> */}
                   <SearchBox
                     id="case-details-search"
                     data-testid="search-case"
@@ -752,6 +742,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       handleAccordionOpenClose={handleAccordionOpenClose}
                       handleAccordionOpenCloseAll={handleAccordionOpenCloseAll}
                       handleToggleDocumentState={handleToggleDocumentState}
+                      hkDocumentId={hkDocumentId}
                     />
                   )}
                 </div>
@@ -892,9 +883,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   handleSavedRedactions={handleSavedRedactions}
                   handleOpenPdf={handleOpenPdf}
                   handleUnLockDocuments={handleUnLockDocuments}
-                  handleShowHideDocumentIssueModal={
-                    handleShowHideDocumentIssueModal
-                  }
                   handleShowRedactionLogModal={handleShowRedactionLogModal}
                   handleShowHideRedactionSuggestions={
                     handleShowHideRedactionSuggestions

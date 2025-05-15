@@ -18,8 +18,11 @@ import {
   PRIVATE_BETA_FEATURE_USER_GROUP3,
   PRIVATE_BETA_FEATURE_USER_GROUP4,
   PRIVATE_BETA_FEATURE_USER_GROUP5,
+  PRIVATE_BETA_FEATURE_USER_GROUP6,
   FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
   FEATURE_FLAG_USED_DOCUMENT_STATE,
+  FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON,
+  FEATURE_FLAG_DOCUMENT_NAME_SEARCH,
 } from "../../config";
 import { useQueryParamsState } from "../../common/hooks/useQueryParamsState";
 import {
@@ -87,6 +90,8 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     stateRetention,
     globalNav,
     isUsed,
+    copyRedactionTextButton,
+    documentNameSearch,
   } = useQueryParamsState<FeatureFlagQueryParams>();
   const [account] = msalInstance.getAllAccounts();
   const userDetails = useUserDetails();
@@ -145,14 +150,12 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
       pageRotate: shouldShowFeature(
         FEATURE_FLAG_PAGE_ROTATE,
         userDetails?.username,
-        pageRotate,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP5 }
+        pageRotate
       ),
       notifications: shouldShowFeature(
         FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
         userDetails?.username,
-        notifications,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+        notifications
       ),
       isUsed: shouldShowFeature(
         FEATURE_FLAG_USED_DOCUMENT_STATE,
@@ -170,6 +173,17 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         userDetails?.username,
         globalNav,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP5 }
+      ),
+      copyRedactionTextButton: shouldShowFeature(
+        FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON,
+        userDetails?.username,
+        copyRedactionTextButton
+      ),
+      documentNameSearch: shouldShowFeature(
+        FEATURE_FLAG_DOCUMENT_NAME_SEARCH,
+        userDetails?.username,
+        documentNameSearch,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP6 }
       ),
     }),
     []

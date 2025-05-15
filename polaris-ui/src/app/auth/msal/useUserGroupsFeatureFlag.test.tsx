@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, act } from "@testing-library/react-hooks";
 import { useUserGroupsFeatureFlag } from "./useUserGroupsFeatureFlag";
 import * as authModule from "../../auth";
 import * as configModule from "../../config";
@@ -29,9 +29,13 @@ const mockConfig = configModule as {
   FEATURE_FLAG_PAGE_ROTATE: boolean;
   FEATURE_FLAG_STATE_RETENTION: boolean;
   FEATURE_FLAG_GLOBAL_NAV: boolean;
+  FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON: boolean;
+  FEATURE_FLAG_DOCUMENT_NAME_SEARCH: boolean;
   PRIVATE_BETA_FEATURE_USER_GROUP: string;
   PRIVATE_BETA_FEATURE_USER_GROUP2: string;
   FEATURE_FLAG_USED_DOCUMENT_STATE: boolean;
+  PRIVATE_BETA_FEATURE_USER_GROUP5: string;
+  PRIVATE_BETA_FEATURE_USER_GROUP6: string;
 };
 
 describe("useUserGroupsFeatureFlag", () => {
@@ -130,6 +134,49 @@ describe("useUserGroupsFeatureFlag", () => {
 
       const { result } = renderHook(() => useUserGroupsFeatureFlag());
       expect(result?.current?.redactionLog).toStrictEqual(true);
+    });
+  });
+
+  describe("redaction copy button flag", () => {
+    test("Should show the button if REACT_APP_FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON is set to true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "test",
+      });
+      mockConfig.FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON = true;
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.copyRedactionTextButton).toStrictEqual(true);
+    });
+  });
+
+  describe("document name search flag", () => {
+    test("Should return documentNameSearch feature false, if FEATURE_FLAG_DOCUMENT_NAME_SEARCH is false", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "test",
+      });
+      mockConfig.FEATURE_FLAG_DOCUMENT_NAME_SEARCH = false;
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.documentNameSearch).toStrictEqual(false);
+    });
+
+    test("Should return documentNameSearch feature true, if user is not in private beta feature groups and FEATURE_FLAG_DOCUMENT_NAME_SEARCH is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "test",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group6"],
+          },
+        },
+      ]);
+      mockConfig.PRIVATE_BETA_FEATURE_USER_GROUP6 =
+        "private_beta_feature_group6";
+      mockConfig.FEATURE_FLAG_DOCUMENT_NAME_SEARCH = true;
+
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.documentNameSearch).toStrictEqual(true);
     });
   });
 
@@ -245,6 +292,25 @@ describe("useUserGroupsFeatureFlag", () => {
   });
 
   describe("searchPII feature flag", () => {
+    test("Should return searchPII feature true, if FEATURE_FLAG_SEARCH_PII is true", () => {
+      (authModule.useUserDetails as jest.Mock).mockReturnValue({
+        username: "test",
+      });
+      (
+        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
+      ).mockReturnValue([
+        {
+          idTokenClaims: {
+            groups: ["private_beta_feature_group"],
+          },
+        },
+      ]);
+
+      mockConfig.FEATURE_FLAG_SEARCH_PII = true;
+      const { result } = renderHook(() => useUserGroupsFeatureFlag());
+      expect(result?.current?.searchPII).toStrictEqual(true);
+    });
+
     test("Should return searchPII feature false, if FEATURE_FLAG_SEARCH_PII is false", () => {
       (authModule.useUserDetails as jest.Mock).mockReturnValue({
         username: "test",

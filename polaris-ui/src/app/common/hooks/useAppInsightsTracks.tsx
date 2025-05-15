@@ -24,7 +24,6 @@ type AppInsightsTrackEventNames =
   | "Remove Redact Content"
   | "Remove All Redactions"
   | "Save All Redactions"
-  | "Report Document Issue"
   | "Uncategorised Document"
   | "Categorised Documents Count"
   | "Open Documents Count"
@@ -69,7 +68,9 @@ type AppInsightsTrackEventNames =
   | "Rotate Page Right"
   | "Rotate Page Left"
   | "Update Document Evidential Status"
-  | "Ignore Saved Or Unsaved Redactions Modal Window";
+  | "Ignore Saved Or Unsaved Redactions Modal Window"
+  | "Copy Text Content"
+  | "Search Results Available Link";
 
 const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Search URN":
@@ -114,8 +115,6 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
     "User has clicked the 'Remove All Redactions' link in a document tab.",
   "Save All Redactions":
     "User has clicked the 'Save All Redactions' green button in a document tab.",
-  "Report Document Issue":
-    "User has clicked to report an issue with a document.",
   "Uncategorised Document":
     "Action auto-triggered. Action not initiated by a user. Log an Uncategorised document after loading the Case Details screen.",
   "Categorised Documents Count":
@@ -188,6 +187,9 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
     "User has changed the evidential status between used and unused",
   "Ignore Saved Or Unsaved Redactions Modal Window":
     "User has closed used or unused modal window",
+  "Copy Text Content": "User clicked 'Copy' button",
+  "Search Results Available Link":
+    "User clicked the search results available link",
 };
 const useAppInsightsTrackEvent = () => {
   const { id: caseId, urn } = useParams<{ id: string; urn: string }>();

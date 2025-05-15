@@ -33,7 +33,7 @@ export const path = "/case-search-results";
 
 const validationFailMessage = "Enter a URN in the right format";
 
-type Props = BackLinkingPageProps & {};
+type Props = BackLinkingPageProps;
 
 const Page: React.FC<Props> = ({ backLinkProps }) => {
   useAppInsightsTrackPageView("Case Search Result Page");
@@ -169,7 +169,8 @@ const Page: React.FC<Props> = ({ backLinkProps }) => {
                       to={{
                         pathname: generatePath(casePath, {
                           urn: urnFromSearchParams,
-                          id: item.id,
+                          id: `${item.id}`,
+                          hkDocumentId: null,
                         }),
                         state: search,
                         search: `${linkParams}`,

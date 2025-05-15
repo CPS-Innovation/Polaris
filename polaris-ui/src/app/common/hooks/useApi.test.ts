@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, waitFor } from "@testing-library/react";
 import { useApi } from "./useApi";
 
 describe("useApi", () => {
@@ -9,13 +9,12 @@ describe("useApi", () => {
         new Promise((resolve) => setTimeout(() => resolve(mockResult), 10))
     );
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useApi(mockApiCall, ["1"])
-    );
+    const { result } = renderHook(() => useApi(mockApiCall, ["1"]));
 
     expect(result.current).toEqual({ status: "loading" });
-    await waitForNextUpdate();
-    expect(result.current).toEqual({ status: "succeeded", data: mockResult });
+    await waitFor(() => {
+      expect(result.current).toEqual({ status: "succeeded", data: mockResult });
+    });
   });
 
   it("can initiate a call, set status to loading, then return an error result", async () => {
@@ -25,13 +24,12 @@ describe("useApi", () => {
         new Promise((_, reject) => setTimeout(() => reject(mockError)))
     );
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useApi(mockApiCall, ["1"])
-    );
+    const { result } = renderHook(() => useApi(mockApiCall, ["1"]));
 
     expect(result.current).toEqual({ status: "loading" });
-    await waitForNextUpdate();
-    expect(result.current).toEqual({ status: "failed", error: mockError });
+    await waitFor(() => {
+      expect(result.current).toEqual({ status: "failed", error: mockError });
+    });
   });
 
   it("can initiate a call with multiple parameters", async () => {
@@ -41,15 +39,14 @@ describe("useApi", () => {
         new Promise((resolve) => setTimeout(() => resolve(mockResult), 10))
     );
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useApi(mockApiCall, ["1", 2, "3"])
-    );
+    const { result } = renderHook(() => useApi(mockApiCall, ["1", 2, "3"]));
 
     expect(result.current).toEqual({ status: "loading" });
-    await waitForNextUpdate();
-    expect(result.current).toEqual({
-      status: "succeeded",
-      data: mockResult,
+    await waitFor(() => {
+      expect(result.current).toEqual({
+        status: "succeeded",
+        data: mockResult,
+      });
     });
   });
 

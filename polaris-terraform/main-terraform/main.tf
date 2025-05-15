@@ -58,6 +58,8 @@ locals {
   analytics_group_name          = var.env != "prod" ? "${var.resource_name_prefix}-analytics-${var.env}" : "${var.resource_name_prefix}-analytics"
   pipeline_resource_name        = var.env != "prod" ? "${var.resource_name_prefix}-pipeline-${var.env}" : "${var.resource_name_prefix}-pipeline"
   ddei_resource_name            = var.env != "prod" ? "${var.resource_name_prefix}-ddei-${var.env}" : "${var.resource_name_prefix}-ddei"
+  mds_resource_name             = var.env != "prod" ? var.env != "dev" ? "eas-app-ddei-staging" : "eas-app-ddei-${var.env}" : "eas-app-ddei"
+  mds_mock_resource_name        = var.env != "prod" ? "mock-polaris-ddei-${var.env}" : "mock-polaris-ddei"
   app_service_certificate_store = var.env != "prod" ? "kv-polaris-cert-${var.env}" : "kv-polaris-cert"
   redaction_log_resource_name   = var.env != "prod" ? "redaction-log-${var.env}" : "redaction-log"
   resource_suffix               = var.env != "prod" ? "-${var.env}" : ""

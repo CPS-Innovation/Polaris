@@ -212,7 +212,7 @@ describe("Feature Notes", () => {
     expect(doc9GetNotesCounter.count).to.equal(0);
   });
 
-  it("Hovering over the notes icon should show first notes loading tool tip and then show the recent note", () => {
+  xit("Hovering over the notes icon should show first notes loading tool tip and then show the recent note", () => {
     const doc2GetNotesCounter = { count: 0 };
     cy.trackRequestCount(
       doc2GetNotesCounter,

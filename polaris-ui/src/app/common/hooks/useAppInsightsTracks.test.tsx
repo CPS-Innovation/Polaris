@@ -2,7 +2,7 @@ import {
   useAppInsightsTrackEvent,
   useAppInsightsTrackPageView,
 } from "./useAppInsightsTracks";
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook } from "@testing-library/react";
 import { MemoryRouter, useParams } from "react-router-dom";
 
 jest.mock("react-router-dom", () => ({

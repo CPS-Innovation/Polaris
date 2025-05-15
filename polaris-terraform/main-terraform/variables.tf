@@ -236,6 +236,16 @@ variable "feature_flag_background_pipeline_refresh" {
   type = string
 }
 
+variable "feature_flag_redaction_toggle_copy_button" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
+variable "feature_flag_document_name_search" {
+  # intentionally a string as this goes in to UI app service's app settings
+  type = string
+}
+
 variable "background_pipeline_refresh_interval_ms" {
   type = number
 }
@@ -261,6 +271,7 @@ variable "private_beta" {
     feature_user_group3 = string
     feature_user_group4 = string
     feature_user_group5 = string
+    feature_user_group6 = string
   })
 }
 
@@ -362,4 +373,8 @@ variable "coordinator" {
     max_concurrent_orchestrator_functions = number
     max_queue_polling_interval            = string #hh:mm:ss format e.g. "00:00:05" for 5 seconds
   })
+}
+
+variable "cps_global_components_url" {
+  type = string
 }

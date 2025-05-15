@@ -246,7 +246,7 @@ export const PdfViewer: React.FC<Props> = ({
   };
 
   const enableAreaSelection = useCallback(
-    (event) => {
+    (event: MouseEvent) => {
       return areaOnlyRedactionMode
         ? true
         : (event.target as HTMLElement).className === "textLayer";
@@ -283,7 +283,7 @@ export const PdfViewer: React.FC<Props> = ({
           beforeLoad={<Wait ariaLabel="Pdf loading, please wait" />}
           // To avoid reaching out to an internet-hosted asset we have taken a local copy
           //  of the library that PdfHighlighter links to and put that in our `public` folder.
-          workerSrc={`${process.env.PUBLIC_URL}/pdf.worker.min.2.11.338.js`}
+          workerSrc={`${process.env.PUBLIC_URL}/pdf.worker.min.4.4.168.mjs`}
           onError={handlePdfLoaderError}
         >
           {(pdfDocument) => (
@@ -346,6 +346,7 @@ export const PdfViewer: React.FC<Props> = ({
                           : undefined
                       }
                       redactionTypesData={redactionTypesData}
+                      onRedactionCopy={() => hideTipAndSelection()}
                       onConfirm={(
                         redactionType: RedactionTypeData,
                         actionType: PIIRedactionStatus | "redact"
