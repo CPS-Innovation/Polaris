@@ -1,5 +1,6 @@
 ﻿using Common.Dto.Response.Case;
 using Common.Dto.Response.Document;
+using Common.Telemetry;
 using Common.Wrappers;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
@@ -30,7 +31,8 @@ public class MdsClient : BaseDdeiClient
         ICmsMaterialTypeMapper cmsMaterialTypeMapper,
         ICaseWitnessStatementMapper caseWitnessStatementMapper,
         IJsonConvertWrapper jsonConvertWrapper,
-        ILogger<MdsClient> logger) :
+        ILogger<MdsClient> logger,
+        ITelemetryClient telemetryClient) :
         base(httpClient,
             ddeiClientRequestFactory,
             caseDataServiceArgFactory,
@@ -44,7 +46,8 @@ public class MdsClient : BaseDdeiClient
             cmsMaterialTypeMapper,
             caseWitnessStatementMapper,
             jsonConvertWrapper,
-            logger)
+            logger,
+            telemetryClient)
     {
     }
 }

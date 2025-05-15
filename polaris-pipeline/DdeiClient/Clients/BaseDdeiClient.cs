@@ -5,6 +5,7 @@ using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Exceptions;
 using Common.Extensions;
+using Common.Telemetry;
 using Common.Wrappers;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
@@ -38,7 +39,8 @@ public abstract class BaseDdeiClient : IDdeiClient
     protected readonly ICaseWitnessStatementMapper CaseWitnessStatementMapper;
     protected readonly IJsonConvertWrapper JsonConvertWrapper;
     protected readonly IDdeiClientRequestFactory DdeiClientRequestFactory;
-    protected readonly ILogger Logger;
+    protected readonly ILogger<BaseDdeiClient> Logger;
+    private readonly ITelemetryClient _telemetryClient;
 
     protected BaseDdeiClient(
         HttpClient httpClient,
@@ -54,7 +56,8 @@ public abstract class BaseDdeiClient : IDdeiClient
         ICmsMaterialTypeMapper cmsMaterialTypeMapper,
         ICaseWitnessStatementMapper caseWitnessStatementMapper,
         IJsonConvertWrapper jsonConvertWrapper,
-        ILogger logger)
+        ILogger<BaseDdeiClient> logger,
+        ITelemetryClient telemetryClient)
     {
         HttpClient = httpClient.ExceptionIfNull();
         CaseDataServiceArgFactory = caseDataServiceArgFactory.ExceptionIfNull();
@@ -70,6 +73,7 @@ public abstract class BaseDdeiClient : IDdeiClient
         JsonConvertWrapper = jsonConvertWrapper.ExceptionIfNull();
         DdeiClientRequestFactory = ddeiClientRequestFactory.ExceptionIfNull();
         Logger = logger.ExceptionIfNull();
+        _telemetryClient = telemetryClient.ExceptionIfNull();
     }
 
     public virtual async Task VerifyCmsAuthAsync(DdeiBaseArgDto arg) =>
@@ -300,25 +304,44 @@ public abstract class BaseDdeiClient : IDdeiClient
 
     protected virtual async Task<HttpResponseMessage> CallDdeiLog(HttpRequestMessage request, params HttpStatusCode[] expectedUnhappyStatusCodes)
     {
-        HttpResponseMessage response = null;
+        HttpResponseMessage response = new HttpResponseMessage();
         try
         {
+            _telemetryClient.TrackEvent(new TestEvent { ErrorMessage = "HTTP client call debug log: About to call await HttpClient.SendAsync" });
             response = await HttpClient.SendAsync(request);
-            var sb = new StringBuilder();
-            foreach (var header in response.RequestMessage.Headers)
-            {
-                sb.Append($"Header key: {header.Key} - Header value: {header.Value}");
-            }
-            Logger.LogDebug($"HTTP client call debug log: HEADERS: {sb.ToString()}");
-            Logger.LogDebug($"HTTP client call debug log: STATUS CODE: {response.StatusCode}");
-            Logger.LogDebug($"HTTP client call debug log: REASON PHRASE: {response.ReasonPhrase}");
-            Logger.LogDebug($"HTTP client call debug log: RESPONSE CONTENT: {response.Content.ToString()}");
         }
         catch (Exception ex)
         {
-            Logger.LogDebug($"HTTP client call debug log: An exception was thrown in CallDdeiLog - MESSAGE {ex.Message} - INNER EXCEPTION {ex.InnerException} - SOURCE {ex.Source} - TOSTRING {ex.ToString()}");
+            _telemetryClient.TrackEvent(new TestEvent { ErrorMessage = $"HTTP client call debug log: An exception was thrown in CallDdeiLog - MESSAGE {ex.Message} - INNER EXCEPTION {ex.InnerException} - SOURCE {ex.Source} - TOSTRING {ex.ToString()}" });
         }
 
+        var sb = new StringBuilder();
+        foreach (var header in response.RequestMessage.Headers)
+        {
+            sb.Append($"Header key: {header.Key} - Header value: {header.Value}");
+        }
+        _telemetryClient.TrackEvent(new TestEvent { ErrorMessage = $"HTTP client call debug log: HEADERS: {sb.ToString()}" });
+        _telemetryClient.TrackEvent(new TestEvent { ErrorMessage = $"HTTP client call debug log: STATUS CODE: {response.StatusCode}" });
+        _telemetryClient.TrackEvent(new TestEvent { ErrorMessage = $"HTTP client call debug log: REASON PHRASE: {response.ReasonPhrase}" });
+        _telemetryClient.TrackEvent(new TestEvent { ErrorMessage = $"HTTP client call debug log: RESPONSE CONTENT: {response.Content.ToString()}" });
+
         return response;
+    }
+}
+
+public class TestEvent : BaseTelemetryEvent
+{
+    public override (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps()
+    {
+        return (
+    new Dictionary<string, string>
+    {
+                    { nameof(ErrorMessage), ErrorMessage },
+    },
+    new Dictionary<string, double?>
+    {
+                    { "This is unknown", 0 },
+    }
+);
     }
 }

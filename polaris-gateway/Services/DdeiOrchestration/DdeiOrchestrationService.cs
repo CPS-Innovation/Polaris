@@ -4,8 +4,10 @@ using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
 using Common.Extensions;
 using Common.Services.DocumentToggle;
+using Common.Telemetry;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
+using DdeiClient.Clients;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Enums;
 using DdeiClient.Factories;
@@ -26,6 +28,7 @@ public class DdeiOrchestrationService : IDdeiOrchestrationService
     private readonly IDocumentToggleService _documentToggleService;
     private readonly IDocumentDtoMapper _cmsDocumentMapper;
     private readonly ILogger<DdeiOrchestrationService> _logger;
+    private readonly ITelemetryClient _telemetryClient;
 
     public DdeiOrchestrationService(
             [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
@@ -33,7 +36,8 @@ public class DdeiOrchestrationService : IDdeiOrchestrationService
             IDdeiArgFactory ddeiArgFactory,
             IDocumentToggleService documentToggleService,
             IDocumentDtoMapper cmsDocumentMapper,
-            ILogger<DdeiOrchestrationService> logger
+            ILogger<DdeiOrchestrationService> logger,
+            ITelemetryClient telemetryClient
         )
     {
         _ddeiClient = ddeiClient.ExceptionIfNull();
@@ -41,14 +45,15 @@ public class DdeiOrchestrationService : IDdeiOrchestrationService
         _documentToggleService = documentToggleService.ExceptionIfNull();
         _cmsDocumentMapper = cmsDocumentMapper.ExceptionIfNull();
         _logger = logger.ExceptionIfNull();
+        _telemetryClient = telemetryClient.ExceptionIfNull();
     }
 
     public async Task<IEnumerable<DocumentDto>> GetCaseDocuments(DdeiCaseIdentifiersArgDto arg)
     {
         var mdsClient = _ddeiClientFactory.Create(arg.CmsAuthValues, DdeiClients.Mds);
-        _logger.LogDebug("HTTP client call debug log: Calling _ddeiClient.ListDocumentsAsync(arg)");
+        _telemetryClient.TrackEvent(new TestEvent { ErrorMessage = "HTTP client call debug log: Calling _ddeiClient.ListDocumentsAsync(arg)" });
         var getDocumentsTask = _ddeiClient.ListDocumentsAsync(arg);
-        _logger.LogDebug("HTTP client call debug log: Calling mdsClient.GetPcdRequestsAsync(arg)");
+        _telemetryClient.TrackEvent(new TestEvent { ErrorMessage = "HTTP client call debug log: Calling mdsClient.GetPcdRequestsAsync(arg)" });
         var getPcdRequestsTask = mdsClient.GetPcdRequestsAsync(arg);
         var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndChargesAsync(arg);
 

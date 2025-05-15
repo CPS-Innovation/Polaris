@@ -8,6 +8,8 @@ using Microsoft.Azure.Functions.Worker;
 using System.Threading.Tasks;
 using System;
 using Common.Telemetry;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace PolarisGateway.Functions;
 
@@ -37,10 +39,10 @@ public class GetDocumentList : BaseFunction
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
-
         var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
         var result = await _ddeiOrchestrationService.GetCaseDocuments(arg);
 
         return new OkObjectResult(result);
     }
 }
+
