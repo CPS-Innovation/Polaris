@@ -35,8 +35,8 @@ type Props = {
   handleReclassifyDocument: (documentId: string) => void;
   notesData: NotesData[];
   handleToggleDocumentState: (
-    urn: string,
-    caseId: number,
+    urn: string | undefined,
+    caseId: number | undefined,
     documentId: string,
     isUnused: boolean
   ) => void;

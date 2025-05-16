@@ -353,7 +353,12 @@ export const useCaseDetailsState = (
   );
 
   const handleToggleDocumentState = useCallback(
-    (urn: string, caseId: number, documentId: string, unused: boolean) => {
+    (
+      urn: string | undefined,
+      caseId: number | undefined,
+      documentId: string,
+      unused: boolean
+    ) => {
       dispatch({
         type: "TOGGLE_DOCUMENT_STATE",
         payload: {

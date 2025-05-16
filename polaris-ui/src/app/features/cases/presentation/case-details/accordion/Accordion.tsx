@@ -14,8 +14,8 @@ import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseD
 
 type Props = {
   handleToggleDocumentState: (
-    urn: string,
-    caseId: number,
+    urn: string | undefined,
+    caseId: number | undefined,
     documentId: string,
     isUnused: boolean
   ) => void;

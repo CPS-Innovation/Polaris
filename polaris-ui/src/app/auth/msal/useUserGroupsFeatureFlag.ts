@@ -87,9 +87,9 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     pageDelete,
     pageRotate,
     notifications,
+    isUnused,
     stateRetention,
     globalNav,
-    isUsed,
     copyRedactionTextButton,
     documentNameSearch,
   } = useQueryParamsState<FeatureFlagQueryParams>();
@@ -157,10 +157,10 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         userDetails?.username,
         notifications
       ),
-      isUsed: shouldShowFeature(
+      isUnused: shouldShowFeature(
         FEATURE_FLAG_USED_DOCUMENT_STATE,
         userDetails?.username,
-        isUsed,
+        isUnused,
         { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
       stateRetention: shouldShowFeature(

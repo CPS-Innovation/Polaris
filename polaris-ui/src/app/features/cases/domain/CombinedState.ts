@@ -182,7 +182,7 @@ export const initialState = {
     pageDelete: false,
     pageRotate: false,
     notifications: false,
-    isUsed: false,
+    isUnused: false,
     stateRetention: false,
     globalNav: false,
     copyRedactionTextButton: false,

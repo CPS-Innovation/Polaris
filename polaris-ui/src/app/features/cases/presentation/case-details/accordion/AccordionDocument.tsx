@@ -54,8 +54,8 @@ type Props = {
   notesData: NotesData[];
   conversionStatus?: ConversionStatus | GroupedConversionStatus;
   handleToggleDocumentState: (
-    urn: string,
-    caseId: number,
+    urn: string | undefined,
+    caseId: number | undefined,
     documentId: string,
     isUnsed: boolean
   ) => void;
@@ -174,11 +174,12 @@ export const AccordionDocument: React.FC<Props> = ({
         },
       ];
     }
+    {
+      console.log(featureFlags);
+    }
     if (
-      featureFlags.reclassify &&
-      caseDocument.canReclassify &&
       caseDocument.presentationFlags.write !== "IsDispatched" &&
-      featureFlags.isUsed
+      featureFlags.isUnused
     ) {
       const isUnused = caseDocument.isUnused ? "used" : "unused";
       items = [
@@ -198,7 +199,7 @@ export const AccordionDocument: React.FC<Props> = ({
     featureFlags.renameDocument,
     featureFlags.reclassify,
     caseDocument.presentationFlags.write,
-    featureFlags.isUsed,
+    featureFlags.isUnused,
   ]);
 
   const handleDocumentAction = (id: string) => {
@@ -223,7 +224,7 @@ export const AccordionDocument: React.FC<Props> = ({
         });
         handleToggleDocumentState(
           urn,
-          +caseId,
+          +caseId!,
           caseDocument.documentId,
           caseDocument.isUnused
         );
