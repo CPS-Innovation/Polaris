@@ -61,7 +61,7 @@ public class PdfRetrievalService : IPdfRetrievalService
     private async Task<(Stream Stream, FileType FileType, bool IsKnownFileType)> GetDocumentStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
     {
         var ddeiDocumentIdAndVersionIdArgDto = _ddeiArgFactory.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId, documentId, versionId);
-        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues);
+        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
         var fileResult = await ddeiClient.GetDocumentAsync(ddeiDocumentIdAndVersionIdArgDto);
 
         var isKnownFileType = FileTypeHelper.TryGetSupportedFileType(fileResult.FileName, out var fileType);
