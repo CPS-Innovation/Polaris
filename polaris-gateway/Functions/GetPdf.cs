@@ -8,6 +8,7 @@ using PolarisGateway.Services.Artefact.Domain;
 using Microsoft.Azure.Functions.Worker;
 using System.Threading.Tasks;
 using System;
+using Common.Extensions;
 using Common.Telemetry;
 
 
@@ -22,12 +23,11 @@ public class GetPdf : BaseFunction
 
     public GetPdf(
         ILogger<GetPdf> logger,
-        IPdfArtefactService pdfArtefactService,
-        ITelemetryClient telemetryClient)
+        IPdfArtefactService pdfArtefactService)
         : base()
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _pdfArtefactService = pdfArtefactService ?? throw new ArgumentNullException(nameof(pdfArtefactService));
+        _logger = logger.ExceptionIfNull();
+        _pdfArtefactService = pdfArtefactService.ExceptionIfNull();
     }
 
     [Function(nameof(GetPdf))]

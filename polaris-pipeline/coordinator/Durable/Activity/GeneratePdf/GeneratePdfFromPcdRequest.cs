@@ -1,17 +1,16 @@
-﻿using System.IO;
-using System.Threading.Tasks;
+﻿using Common.Clients.PdfGenerator;
 using Common.Services.BlobStorage;
-using Ddei;
-using coordinator.Durable.Payloads;
-using Common.Clients.PdfGenerator;
-using Ddei.Factories;
 using Common.Services.RenderHtmlService;
-using System;
-using coordinator.Durable.Activity.GeneratePdf;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Azure.Functions.Worker;
 using coordinator.Domain;
-using DdeiClient.Clients.Interfaces;
+using coordinator.Durable.Activity.GeneratePdf;
+using coordinator.Durable.Payloads;
+using Ddei.Factories;
+using DdeiClient.Factories;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace coordinator.Durable.Activity
 {
@@ -20,12 +19,12 @@ namespace coordinator.Durable.Activity
         private readonly IConvertModelToHtmlService _convertPcdRequestToHtmlService;
         public GeneratePdfFromPcdRequest(
             IPdfGeneratorClient pdfGeneratorClient,
-            IDdeiClient ddeiClient,
+            IDdeiClientFactory ddeiClientFactory,
             Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
             IDdeiArgFactory ddeiArgFactory,
             IConvertModelToHtmlService convertPcdRequestToHtmlService,
             IConfiguration configuration)
-            : base(ddeiClient, ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration)
+            : base(ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, ddeiClientFactory)
         {
             _convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
 
@@ -45,7 +44,8 @@ namespace coordinator.Durable.Activity
                     payload.Urn,
                     payload.CaseId,
                     payload.DocumentId);
-            var pcdRequest = await DdeiClient.GetPcdRequestAsync(arg);
+            var ddeiClient = DdeiClientFactory.Create(payload.CmsAuthValues);
+            var pcdRequest = await ddeiClient.GetPcdRequestAsync(arg);
             return await _convertPcdRequestToHtmlService.ConvertAsync(pcdRequest);
         }
     }
