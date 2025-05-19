@@ -171,12 +171,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         userDetails?.username,
         copyRedactionTextButton
       ),
-      documentNameSearch: shouldShowFeature(
-        true,
-        userDetails?.username,
-        documentNameSearch,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP6 }
-      ),
+      documentNameSearch: true,
     }),
     []
   );
