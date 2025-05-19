@@ -5,32 +5,32 @@ using Common.Services.BlobStorage;
 using coordinator.Domain;
 using coordinator.Durable.Payloads;
 using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Common.Extensions;
+using DdeiClient.Factories;
 
 namespace coordinator.Durable.Activity.GeneratePdf
 {
     public abstract class BaseGeneratePdf
     {
-        protected readonly IDdeiClient DdeiClient;
         protected readonly IDdeiArgFactory DdeiArgFactory;
+        protected readonly IDdeiClientFactory DdeiClientFactory;
         private readonly IPdfGeneratorClient _pdfGeneratorClient;
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
 
-        protected BaseGeneratePdf(
-            IDdeiClient ddeiClient,
-            IDdeiArgFactory ddeiArgFactory,
+        protected BaseGeneratePdf(IDdeiArgFactory ddeiArgFactory,
             Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
             IPdfGeneratorClient pdfGeneratorClient,
-            IConfiguration configuration)
+            IConfiguration configuration, 
+            IDdeiClientFactory ddeiClientFactory)
         {
-            DdeiClient = ddeiClient;
             DdeiArgFactory = ddeiArgFactory;
             _pdfGeneratorClient = pdfGeneratorClient;
             _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
+            DdeiClientFactory = ddeiClientFactory.ExceptionIfNull();
         }
 
         protected async Task<PdfConversionResponse> Run(DocumentPayload payload)
