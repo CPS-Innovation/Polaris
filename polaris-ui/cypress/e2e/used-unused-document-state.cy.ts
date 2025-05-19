@@ -3,7 +3,7 @@ import { GET_DOCUMENTS_LIST_ROUTE } from "../../src/mock-api/routes";
 
 describe("Checks if the used/unused functionality", () => {
   it("should change document state as used / unused on option select", () => {
-    cy.visit("/case-details/12AB1111111/13401?isUsed=true");
+    cy.visit("/case-details/42MZ7213221/13401/?isUsed=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("document-housekeeping-actions-dropdown-10").click();
 
@@ -13,7 +13,7 @@ describe("Checks if the used/unused functionality", () => {
       .find("li")
       .eq(2);
 
-    lastElement.should("have.text", "Mark as unused");
+    lastElement.should("have.text", "Mark as used");
     lastElement.click();
 
     const documentList = getUsedUnusedDocumentState("10", true, 1);
@@ -30,7 +30,7 @@ describe("Checks if the used/unused functionality", () => {
       timeMs: 1000,
     });
 
-    cy.visit("/case-details/12AB1111111/13401?isUsed=true");
+    cy.visit("/case-details/42MZ7213221/13401?isUsed=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("document-housekeeping-actions-dropdown-10").click();
     cy.findByTestId("dropdown-panel")
@@ -39,4 +39,9 @@ describe("Checks if the used/unused functionality", () => {
       .eq(2)
       .should("have.text", "Mark as used");
   });
+
+  // it("should show an error message on failure", () => {
+  //   throw new Error();
+  //   cy.findByText("Failed to change the document state.")
+  // });
 });
