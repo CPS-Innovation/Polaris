@@ -57,14 +57,14 @@ const shouldShowFeature = (
     return false;
   }
 
-  const isTestUserWithQueryParam =
-    !!window.Cypress &&
-    (isAutomationTestUser(username) || isUIIntegrationTestUser(username)) &&
-    (queryParam === "true" || queryParam === "false");
+  // const isTestUserWithQueryParam =
+  //   !!window.Cypress &&
+  //   (isAutomationTestUser(username) || isUIIntegrationTestUser(username)) &&
+  //   (queryParam === "true" || queryParam === "false");
 
-  if (isTestUserWithQueryParam) {
-    return queryParam === "true";
-  }
+  // if (isTestUserWithQueryParam) {
+  //   return queryParam === "true";
+  // }
 
   const shouldConsiderGroupClaims = !!groupClaims;
 
@@ -171,7 +171,12 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         userDetails?.username,
         copyRedactionTextButton
       ),
-      documentNameSearch: true,
+      documentNameSearch: shouldShowFeature(
+        true,
+        userDetails?.username,
+        documentNameSearch,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP6 }
+      ),
     }),
     []
   );
