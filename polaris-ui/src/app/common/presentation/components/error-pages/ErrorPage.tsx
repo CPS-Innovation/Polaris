@@ -1,10 +1,8 @@
-import { CmsAuthError } from "../../../errors/CmsAuthError";
 import { PageContentWrapper } from "../PageContentWrapper";
 
 type Props = { error: Error | undefined };
 
 export const ErrorPage = ({ error }: Props) => {
-  const isAnAuthError = error instanceof CmsAuthError;
   return (
     <PageContentWrapper>
       <h1 className="govuk-heading-l" data-testid="txt-error-page-heading">

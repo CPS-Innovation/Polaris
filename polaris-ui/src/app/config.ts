@@ -161,4 +161,6 @@ if (process.env.NODE_ENV !== "test") {
     }, {} as Record<string, any>);
 
   console.log(JSON.stringify(objectToLog, null, 2));
+  console.log("FeatureFlagPageDelete After assignment: " + FEATURE_FLAG_PAGE_DELETE)
+  console.log("FEATURE_FLAG_STATE_RETENTION After assignment: " + FEATURE_FLAG_STATE_RETENTION)
 }

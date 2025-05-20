@@ -35,6 +35,8 @@ export const useCaseDetailsState = (
   isUnMounting: () => boolean
 ) => {
   const featureFlagData = useUserGroupsFeatureFlag();
+
+  console.log(JSON.stringify(featureFlagData, null, 2));
   const retentionState = useMemo(
     () =>
       featureFlagData?.stateRetention
