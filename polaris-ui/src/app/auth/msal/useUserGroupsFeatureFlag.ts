@@ -68,9 +68,10 @@ const shouldShowFeature = (
 
   const shouldConsiderGroupClaims = !!groupClaims;
 
-  return shouldConsiderGroupClaims
-    ? groupClaims.groups.includes(groupClaims.groupKey)
-    : true;
+  return true;
+  // return shouldConsiderGroupClaims
+  //   ? groupClaims.groups.includes(groupClaims.groupKey)
+  //   : true;
 };
 
 export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
