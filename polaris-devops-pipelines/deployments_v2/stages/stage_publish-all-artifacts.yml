@@ -279,11 +279,11 @@ stages:
         steps:
           # We want to rely only on the .env.production file, anything in .env is still included
           #  if not overwritten by .env.production.  For safety, just delete .env
-          - task: DeleteFiles@1
-            displayName: "Remove .env file"
-            inputs:
-              contents: |
-                polaris-ui/.env
+          # - task: DeleteFiles@1
+          #   displayName: "Remove .env file"
+          #   inputs:
+          #     contents: |
+          #       polaris-ui/.env
 
           # Add build version
           - task: PowerShell@2
@@ -313,7 +313,7 @@ stages:
             inputs:
               command: "custom"
               workingDir: "polaris-ui"
-              customCommand: "run build"
+              customCommand: "run build:dev"
             displayName: "npm build"
 
           - task: PublishBuildArtifacts@1
