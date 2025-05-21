@@ -88,9 +88,9 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     ftps_state    = "FtpsOnly"
     http2_enabled = true
     # The -s in npx serve -s is very important.  It allows any url that hits the app
-    #  to be served from the root index.html.  This is important as it accomodates any
+    #  to be served from the root index.html.  This is important as it accommodates any
     #  sub directory that the app may be hosted with, or none at all.
-    app_command_line       = "node polaris-ui/subsititute-config.js; npx serve -s"
+    app_command_line       = "node substitute-config.js; npx serve -s"
     always_on              = true
     vnet_route_all_enabled = true
 

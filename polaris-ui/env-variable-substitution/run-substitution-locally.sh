@@ -17,4 +17,6 @@ REACT_APP_PRIVATE_BETA_USER_GROUP=1a9b08e8-5839-4953-a053-c1bc6dd02233 \
 REACT_APP_PRIVATE_BETA_SIGN_UP_URL=https://forms.office.com/e/Af374akw0Q \
 REACT_APP_PRIVATE_BETA_CHECK_IGNORE_USER=AutomationUser.ServiceTeam2@cps.gov.uk \
 REACT_APP_IS_REDACTION_SERVICE_OFFLINE="true" \
-node polaris-ui/subsititute-config.js
+REACT_APP_CPS_GLOBAL_COMPONENTS_URL=https://some-file-path \
+REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND_E2E=buzz \
+node substitute-config.js
