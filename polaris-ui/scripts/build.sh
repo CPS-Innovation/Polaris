@@ -17,7 +17,7 @@
 #  `serve` is very basic, and the rewrite logic does not really cope with what we
 #   do.
 rm -rf build
-PUBLIC_URL=/polaris-ui BUILD_PATH=build/polaris-ui  env-cmd -f .env.development react-scripts build
+PUBLIC_URL=/polaris-ui BUILD_PATH=build/polaris-ui  env-cmd -f .env.qa react-scripts build
 cp -r build/polaris-ui/static/js build/polaris-ui/static/js-pre-substitution
 mv build/polaris-ui/index.html build/index.html
 mv build/polaris-ui/run-substitution.sh build/run-substitution.sh

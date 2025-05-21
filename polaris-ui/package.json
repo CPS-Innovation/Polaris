@@ -81,8 +81,8 @@
     "coverage": "./scripts/combine-coverage.sh",
     "clean": "./scripts/clean.sh",
     "build:dev": "./scripts/build.sh",
-    "build:qa": "./scripts/build.sh 'qa'",
-    "build:prod": "./scripts/build.sh 'production'"
+    "build:qa": "./scripts/build.sh",
+    "build:prod": "./scripts/build.sh"
   },
   "eslintConfig": {
     "extends": [
