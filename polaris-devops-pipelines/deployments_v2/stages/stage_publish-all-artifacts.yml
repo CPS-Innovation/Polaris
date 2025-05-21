@@ -1,5 +1,9 @@
 ﻿---
 
+parameters:
+- name: environment 
+  type: string
+
 stages:
   - stage: Publish_Artifacts
     displayName: Publish Pipeline Scripts
@@ -313,7 +317,7 @@ stages:
             inputs:
               command: "custom"
               workingDir: "polaris-ui"
-              customCommand: "run build"
+              customCommand: "run build:${{ parameters.environment }}"
             displayName: "npm build"
 
           - task: PublishBuildArtifacts@1
