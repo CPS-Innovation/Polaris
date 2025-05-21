@@ -313,7 +313,7 @@ stages:
             inputs:
               command: "custom"
               workingDir: "polaris-ui"
-              customCommand: "run build:dev2"
+              customCommand: "run build"
             displayName: "npm build"
 
           - task: PublishBuildArtifacts@1
