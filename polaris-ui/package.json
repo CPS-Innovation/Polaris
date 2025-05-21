@@ -80,7 +80,7 @@
     "cy:parallel:ci:win": "npm run ci:script:win -- 'env-cmd -f .\\.env.cypress cypress-parallel -s cy:run -t 4 -d .\\cypress\\e2e'",
     "coverage": "./scripts/combine-coverage.sh",
     "clean": "./scripts/clean.sh",
-    "build:dev": "./scripts/build.sh 'development'",
+    "build:dev": "./scripts/build.sh",
     "build:qa": "./scripts/build.sh 'qa'",
     "build:prod": "./scripts/build.sh 'production'"
   },
