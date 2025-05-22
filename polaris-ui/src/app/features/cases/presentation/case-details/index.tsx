@@ -40,7 +40,6 @@ import {
 } from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
-// import { ReportAnIssueModal } from "./modals/ReportAnIssueModal";
 import { SaveUsedOrUnusedModal } from "./modals/SaveUsedOrUnusedModal";
 import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
 import { NotesPanel } from "./notes/NotesPanel";
