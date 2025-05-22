@@ -80,9 +80,10 @@
     "cy:parallel:ci:win": "npm run ci:script:win -- 'env-cmd -f .\\.env.cypress cypress-parallel -s cy:run -t 4 -d .\\cypress\\e2e'",
     "coverage": "./scripts/combine-coverage.sh",
     "clean": "./scripts/clean.sh",
-    "build:dev": "./scripts/build.sh",
+    "build:development": "./scripts/build.sh",
     "build:qa": "./scripts/build.sh",
-    "build:prod": "./scripts/build.sh"
+    "build:uat": "./scripts/build.sh",
+    "build:production": "./scripts/build.sh"
   },
   "eslintConfig": {
     "extends": [
