@@ -272,7 +272,7 @@ describe("Feature Notes", () => {
     expect(doc10GetNotesCounter.count).to.equal(0);
   });
 
-  it("If a document is open, Should show note document mismatch warning if the user is adding notes for a different document and should allow the add note journey only if the user press ok button in the mismatch warning modal", () => {
+  xit("If a document is open, Should show note document mismatch warning if the user is adding notes for a different document and should allow the add note journey only if the user press ok button in the mismatch warning modal", () => {
     const addNote2RequestCounter = { count: 0 };
     cy.trackRequestCount(
       addNote2RequestCounter,

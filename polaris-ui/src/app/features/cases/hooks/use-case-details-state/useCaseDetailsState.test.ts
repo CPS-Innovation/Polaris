@@ -177,6 +177,7 @@ describe("useCaseDetailsState", () => {
         handleHideSaveRotationModal,
         handleAccordionOpenClose,
         handleAccordionOpenCloseAll,
+        handleToggleDocumentState,
         ...stateProperties
       } = result.current;
 
