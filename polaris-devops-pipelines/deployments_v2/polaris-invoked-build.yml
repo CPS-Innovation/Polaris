@@ -17,3 +17,5 @@ pool:
 
 stages:
   - template: stages/stage_publish-all-artifacts.yml
+    parameters:
+      environment: $(environment)
