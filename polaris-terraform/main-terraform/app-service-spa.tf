@@ -147,7 +147,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["REACT_APP_FEATURE_FLAG_PAGE_DELETE"],
       app_settings["REACT_APP_FEATURE_FLAG_PAGE_ROTATE"],
       app_settings["REACT_APP_FEATURE_FLAG_STATE_RETENTION"],
-      app_settings["REACT_APP_FEATURE_FLAG_USED_DOCUMENT"].
+      app_settings["REACT_APP_FEATURE_FLAG_USED_DOCUMENT"],
       app_settings["REACT_APP_FEATURE_FLAG_GLOBAL_NAV"],
       app_settings["REACT_APP_FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON"],
       app_settings["REACT_APP_FEATURE_FLAG_DOCUMENT_NAME_SEARCH"],
