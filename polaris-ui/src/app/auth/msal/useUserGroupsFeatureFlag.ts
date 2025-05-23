@@ -174,7 +174,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP,
         userDetails?.username,
         documentNameSearch,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP4 }
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP6 }
       ),
     }),
     []
