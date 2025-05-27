@@ -1,30 +1,30 @@
 terraform {
-  required_version = ">= 1.12.1"
+  required_version = ">= 1.5.3"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "4.23.0"
+      version = "3.87.0"
     }
 
     azuread = {
       source  = "hashicorp/azuread"
-      version = "3.4.0"
+      version = "2.45.0"
     }
 
     restapi = {
       source  = "Mastercard/restapi"
-      version = "2.0.1"
+      version = "1.18.2"
     }
 
     random = {
       source  = "hashicorp/random"
-      version = "3.7.1"
+      version = "3.5.1"
     }
 
     azapi = {
       source  = "Azure/azapi"
-      version = "2.4.0"
+      version = "1.10.0"
     }
   }
 
