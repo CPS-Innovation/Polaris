@@ -4,7 +4,8 @@ using coordinator.Domain;
 using coordinator.Durable.Activity.GeneratePdf;
 using coordinator.Durable.Payloads;
 using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
+using DdeiClient.Enums;
+using DdeiClient.Factories;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -16,12 +17,12 @@ namespace coordinator.Durable.Activity
     public class GeneratePdfFromDocument : BaseGeneratePdf
     {
         public GeneratePdfFromDocument(
-            IPdfGeneratorClient pdfGeneratorCLient,
-            IDdeiClient ddeiClient,
+            IPdfGeneratorClient pdfGeneratorClient,
             IDdeiArgFactory ddeiArgFactory,
             Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-            IConfiguration configuration)
-            : base(ddeiClient, ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorCLient, configuration) { }
+            IConfiguration configuration,
+            IDdeiClientFactory ddeiClientFactory)
+            : base(ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, ddeiClientFactory) { }
 
         [Function(nameof(GeneratePdfFromDocument))]
         public new async Task<PdfConversionResponse> Run([ActivityTrigger] DocumentPayload payload)
@@ -39,7 +40,8 @@ namespace coordinator.Durable.Activity
                 payload.DocumentId,
                 payload.VersionId);
 
-            var result = await DdeiClient.GetDocumentAsync(arg);
+            var ddeiClient = DdeiClientFactory.Create(payload.CmsAuthValues, DdeiClients.Mds);
+            var result = await ddeiClient.GetDocumentAsync(arg);
 
             return result.Stream;
         }

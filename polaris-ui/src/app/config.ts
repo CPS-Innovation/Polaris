@@ -155,7 +155,7 @@ export const FEATURE_FLAG_USED_DOCUMENT_STATE =
 
 // for support/diagnostics, output our env into console when deployed
 //  but not during test runs, too much noise
-if (process.env.NODE_ENV !== "test") {
+if (process.env.NODE_ENV !== "production") {
   const objectToLog = Object.keys(process.env)
     .sort()
     .reduce((obj, key) => {

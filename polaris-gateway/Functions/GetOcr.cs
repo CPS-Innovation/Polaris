@@ -1,37 +1,33 @@
-using System.Net;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Common.Configuration;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.Artefact.Domain;
-using Microsoft.Azure.Functions.Worker;
-using System.Threading.Tasks;
 using System;
-using Common.Telemetry;
+using System.Net;
+using System.Threading.Tasks;
+using Common.Extensions;
 
 
 namespace PolarisGateway.Functions;
 
 public class GetOcr : BaseFunction
 {
-    private const string JsonContentType = "application/json";
     private const string tokenQueryParamName = "token";
     private const string isOcrProcessedParamName = "isOcrProcessed";
     private readonly ILogger<GetOcr> _logger;
     private readonly IOcrArtefactService _ocrArtefactService;
-    private readonly ITelemetryClient _telemetryClient;
 
     public GetOcr(
         ILogger<GetOcr> logger,
-        IOcrArtefactService ocrArtefactService,
-        ITelemetryClient telemetryClient)
+        IOcrArtefactService ocrArtefactService)
         : base()
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _ocrArtefactService = ocrArtefactService ?? throw new ArgumentNullException(nameof(ocrArtefactService));
-        _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+        _logger = logger.ExceptionIfNull();
+        _ocrArtefactService = ocrArtefactService.ExceptionIfNull();
     }
 
     [Function(nameof(GetOcr))]

@@ -5,7 +5,7 @@ using coordinator.Domain;
 using coordinator.Durable.Activity.GeneratePdf;
 using coordinator.Durable.Payloads;
 using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
+using DdeiClient.Factories;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -20,15 +20,14 @@ namespace coordinator.Durable.Activity
         private readonly IConvertModelToHtmlService _convertPcdRequestToHtmlService;
         public GeneratePdfFromDefendantsAndCharges(
             IPdfGeneratorClient pdfGeneratorClient,
-            IDdeiClient ddeiClient,
+            IDdeiClientFactory ddeiClientFactory,
             Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
             IDdeiArgFactory ddeiArgFactory,
             IConvertModelToHtmlService convertPcdRequestToHtmlService,
             IConfiguration configuration)
-            : base(ddeiClient, ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration)
+            : base(ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, ddeiClientFactory)
         {
             _convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
-
         }
 
         [Function(nameof(GeneratePdfFromDefendantsAndCharges))]
@@ -44,8 +43,8 @@ namespace coordinator.Durable.Activity
                             payload.CorrelationId,
                             payload.Urn,
                             payload.CaseId);
-
-            var defendantsAndCharges = await DdeiClient.GetDefendantAndChargesAsync(arg);
+            var ddeiClient = DdeiClientFactory.Create(payload.CmsAuthValues);
+            var defendantsAndCharges = await ddeiClient.GetDefendantAndChargesAsync(arg);
 
             return await _convertPcdRequestToHtmlService.ConvertAsync(defendantsAndCharges);
         }
