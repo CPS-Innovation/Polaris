@@ -11,7 +11,7 @@ const makeHeaders = (headers: any, correlationId: CorrelationId) => ({
 });
 
 export const makeApiRoutes = (headers: any) => {
-  const LIST_CASES = (urn: string, correlationId: CorrelationId = "BLANK") => ({
+  const LIST_CASES = (urn: string, correlationId: CorrelationId = "VALID") => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases`,
     headers: makeHeaders(headers, correlationId),
   });
@@ -19,7 +19,7 @@ export const makeApiRoutes = (headers: any) => {
   const GET_CASE = (
     urn: string,
     caseId: number,
-    correlationId: CorrelationId = "BLANK"
+    correlationId: CorrelationId = "VALID"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
     headers: makeHeaders(headers, correlationId),
@@ -28,7 +28,7 @@ export const makeApiRoutes = (headers: any) => {
   const TRACKER_START = (
     urn: string,
     caseId: number,
-    correlationId: CorrelationId = "BLANK"
+    correlationId: CorrelationId = "VALID"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}`,
     headers: makeHeaders(headers, correlationId),
@@ -38,7 +38,7 @@ export const makeApiRoutes = (headers: any) => {
   const GET_TRACKER = (
     urn: string,
     caseId: number,
-    correlationId: CorrelationId = "BLANK"
+    correlationId: CorrelationId = "VALID"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/tracker`,
     headers: makeHeaders(headers, correlationId),
@@ -48,7 +48,7 @@ export const makeApiRoutes = (headers: any) => {
     urn: string,
     caseId: number,
     query: string,
-    correlationId: CorrelationId = "BLANK"
+    correlationId: CorrelationId = "VALID"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/search?query=${query}`,
     headers: makeHeaders(headers, correlationId),
@@ -57,7 +57,7 @@ export const makeApiRoutes = (headers: any) => {
   const GET_DOCUMENTS = (
     urn: string,
     caseId: number,
-    correlationId: CorrelationId = "BLANK"
+    correlationId: CorrelationId = "VALID"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents`,
     headers: makeHeaders(headers, correlationId),
@@ -69,7 +69,7 @@ export const makeApiRoutes = (headers: any) => {
     caseId: number,
     documentId: string,
     versionId: number,
-    correlationId: CorrelationId = "BLANK"
+    correlationId: CorrelationId = "VALID"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/pdf`,
     headers: makeHeaders(headers, correlationId),
@@ -81,7 +81,7 @@ export const makeApiRoutes = (headers: any) => {
     caseId: number,
     documentId: string,
     versionId: number,
-    correlationId: CorrelationId = "BLANK"
+    correlationId: CorrelationId = "VALID"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/checkout`,
     headers: makeHeaders(headers, correlationId),
@@ -93,7 +93,7 @@ export const makeApiRoutes = (headers: any) => {
     caseId: number,
     documentId: string,
     versionId: number,
-    correlationId: CorrelationId = "BLANK"
+    correlationId: CorrelationId = "VALID"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/checkout`,
     headers: makeHeaders(headers, correlationId),
@@ -105,7 +105,7 @@ export const makeApiRoutes = (headers: any) => {
     caseId: number,
     documentId: string,
     versionId: number,
-    correlationId: CorrelationId = "BLANK"
+    correlationId: CorrelationId = "VALID"
   ) => ({
     url: `${API_ROOT_DOMAIN}/api/urns/${urn}/cases/${caseId}/documents/${documentId}/versions/${versionId}/redact`,
     headers: makeHeaders(headers, correlationId),
