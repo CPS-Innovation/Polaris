@@ -234,7 +234,7 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
 						followRedirect: false,
 						headers: {
 							authorization: `Bearer ${adTokens.access_token}`,
-							"correlation-id": correlationIds.BLANK,
+							"correlation-id": correlationIds.VALID,
 						},
 						// At the time of writing, nginx will timeout a long running http call after 60 seconds
 						//  and return a 504. So in this case lets survive that
@@ -255,7 +255,7 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
 							failOnStatusCode: false,
 							headers: {
 								authorization: `Bearer ${adTokens.access_token}`,
-								"correlation-id": correlationIds.BLANK,
+								"correlation-id": correlationIds.VALID,
 							},
 						})
 						.then((response) => response.body.lineCount === 0),
@@ -269,7 +269,7 @@ Cypress.Commands.add("clearCaseTracker", (urn, caseId) => {
 							failOnStatusCode: false,
 							headers: {
 								authorization: `Bearer ${adTokens.access_token}`,
-								"correlation-id": correlationIds.BLANK,
+								"correlation-id": correlationIds.VALID,
 							},
 						})
 						.its("status")
