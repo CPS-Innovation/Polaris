@@ -150,6 +150,9 @@ export const CASE_REVIEW_APP_REDIRECT_URL =
   process.env.REACT_APP_CASE_REVIEW_APP_REDIRECT_URL!;
 export const BULK_UM_REDIRECT_URL = process.env.REACT_APP_BULK_UM_REDIRECT_URL!;
 
+export const FEATURE_FLAG_USED_DOCUMENT_STATE =
+  `${process.env.REACT_APP_FEATURE_FLAG_USED_DOCUMENT}` === "true";
+
 // for support/diagnostics, output our env into console when deployed
 //  but not during test runs, too much noise
 if (process.env.NODE_ENV !== "production") {

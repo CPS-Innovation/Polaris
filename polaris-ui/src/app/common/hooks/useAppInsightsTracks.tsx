@@ -67,6 +67,8 @@ type AppInsightsTrackEventNames =
   | "Undo Rotate Page"
   | "Rotate Page Right"
   | "Rotate Page Left"
+  | "Update Document Evidential Status"
+  | "Ignore Saved Or Unsaved Redactions Modal Window"
   | "Copy Text Content"
   | "Search Results Available Link";
 
@@ -181,6 +183,10 @@ const eventDescription: { [key in AppInsightsTrackEventNames]: string } = {
   "Undo Rotate Page": "User has cancelled page rotate",
   "Rotate Page Right": "User clicked 'Rotate page right' button",
   "Rotate Page Left": "User clicked 'Rotate page left' button",
+  "Update Document Evidential Status":
+    "User has changed the evidential status between used and unused",
+  "Ignore Saved Or Unsaved Redactions Modal Window":
+    "User has closed used or unused modal window",
   "Copy Text Content": "User clicked 'Copy' button",
   "Search Results Available Link":
     "User clicked the search results available link",

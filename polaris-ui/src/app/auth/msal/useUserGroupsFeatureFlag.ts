@@ -14,11 +14,13 @@ import {
   PRIVATE_BETA_FEATURE_USER_GROUP,
   FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP,
   FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP,
+  PRIVATE_BETA_FEATURE_USER_GROUP2,
   PRIVATE_BETA_FEATURE_USER_GROUP3,
   PRIVATE_BETA_FEATURE_USER_GROUP4,
   PRIVATE_BETA_FEATURE_USER_GROUP5,
   PRIVATE_BETA_FEATURE_USER_GROUP6,
   FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
+  FEATURE_FLAG_USED_DOCUMENT_STATE,
   FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON,
   FEATURE_FLAG_DOCUMENT_NAME_SEARCH,
 } from "../../config";
@@ -85,6 +87,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     pageDelete,
     pageRotate,
     notifications,
+    isUnused,
     stateRetention,
     globalNav,
     copyRedactionTextButton,
@@ -153,6 +156,12 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
         userDetails?.username,
         notifications
+      ),
+      isUnused: shouldShowFeature(
+        FEATURE_FLAG_USED_DOCUMENT_STATE,
+        userDetails?.username,
+        isUnused,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
       stateRetention: shouldShowFeature(
         FEATURE_FLAG_STATE_RETENTION,

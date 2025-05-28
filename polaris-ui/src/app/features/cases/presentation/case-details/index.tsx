@@ -40,6 +40,7 @@ import {
 } from "../../../../config";
 import { useSwitchContentArea } from "../../../../common/hooks/useSwitchContentArea";
 import { useDocumentFocus } from "../../../../common/hooks/useDocumentFocus";
+import { SaveUsedOrUnusedModal } from "./modals/SaveUsedOrUnusedModal";
 import { RedactionLogModal } from "./redactionLog/RedactionLogModal";
 import { NotesPanel } from "./notes/NotesPanel";
 import { RenamePanel } from "./rename/RenamePanel";
@@ -157,6 +158,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleClearNotification,
     handleUpdateConversionStatus,
     handleShowHidePageDeletion,
+    handleToggleDocumentState,
     handleHideSaveRotationModal,
     handleAccordionOpenClose,
     handleAccordionOpenCloseAll,
@@ -165,6 +167,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const {
     context: stateContext,
     caseState,
+    usedOrUnused,
     accordionState,
     tabsState,
     searchState,
@@ -737,6 +740,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       localDocumentState={localDocumentState}
                       handleAccordionOpenClose={handleAccordionOpenClose}
                       handleAccordionOpenCloseAll={handleAccordionOpenCloseAll}
+                      handleToggleDocumentState={handleToggleDocumentState}
                       hkDocumentId={hkDocumentId}
                     />
                   )}
@@ -839,6 +843,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   : "govuk-grid-column-three-quarters"
               }`}
             >
+              <SaveUsedOrUnusedModal
+                savingState={usedOrUnused.saveStatus}
+                documentId={dacDocumentId}
+              />
+
               {!tabsState.items.length ? (
                 <PdfTabsEmpty
                   pipelineState={pipelineState}
