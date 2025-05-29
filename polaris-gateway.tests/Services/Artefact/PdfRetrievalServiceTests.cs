@@ -135,7 +135,7 @@ public class PdfRetrievalServiceTests
             Status = PdfConversionStatus.DocumentConverted
         };
         _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId)).Returns(ddeiCaseIdentifiersArgDto);
-        _ddeiClientFactoryMock.Setup(s => s.Create(cmsAuthValues, DdeiClients.Ddei)).Returns(ddeiClientMock.Object);
+        _ddeiClientFactoryMock.Setup(s => s.Create(cmsAuthValues, It.IsAny<DdeiClients>())).Returns(ddeiClientMock.Object);
         ddeiClientMock.Setup(s => s.GetDefendantAndChargesAsync(ddeiCaseIdentifiersArgDto)).ReturnsAsync(defendantsAndCharges);
         _convertModelToHtmlServiceMock.Setup(s => s.ConvertAsync(defendantsAndCharges)).ReturnsAsync(stream);
         _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(correlationId, urn, caseId, documentId, versionId, stream, FileTypeHelper.PseudoDocumentFileType)).ReturnsAsync(pdfResult);
@@ -179,7 +179,7 @@ public class PdfRetrievalServiceTests
             Status = status
         };
         _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId)).Returns(ddeiCaseIdentifiersArgDto);
-        _ddeiClientFactoryMock.Setup(s => s.Create(cmsAuthValues, DdeiClients.Ddei)).Returns(ddeiClientMock.Object);
+        _ddeiClientFactoryMock.Setup(s => s.Create(cmsAuthValues, It.IsAny<DdeiClients>())).Returns(ddeiClientMock.Object);
         ddeiClientMock.Setup(s => s.GetDefendantAndChargesAsync(ddeiCaseIdentifiersArgDto)).ReturnsAsync(defendantsAndCharges);
         _convertModelToHtmlServiceMock.Setup(s => s.ConvertAsync(defendantsAndCharges)).ReturnsAsync(stream);
         _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(correlationId, urn, caseId, documentId, versionId, stream, FileTypeHelper.PseudoDocumentFileType)).ReturnsAsync(pdfResult);
@@ -246,7 +246,7 @@ public class PdfRetrievalServiceTests
             Status = PdfConversionStatus.DocumentConverted
         };
         _ddeiArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId,documentId, versionId)).Returns(ddeiDocumentIdAndVersionIdArgDto);
-        _ddeiClientFactoryMock.Setup(s => s.Create(cmsAuthValues, DdeiClients.Ddei)).Returns(ddeiClientMock.Object);
+        _ddeiClientFactoryMock.Setup(s => s.Create(cmsAuthValues, It.IsAny<DdeiClients>())).Returns(ddeiClientMock.Object);
         ddeiClientMock.Setup(s => s.GetDocumentAsync(ddeiDocumentIdAndVersionIdArgDto)).ReturnsAsync(fileResult);
         _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(correlationId, urn, caseId, documentId, versionId, fileResult.Stream, fileType)).ReturnsAsync(pdfResult);
 
@@ -276,7 +276,7 @@ public class PdfRetrievalServiceTests
         };
         
         _ddeiArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId,documentId, versionId)).Returns(ddeiDocumentIdAndVersionIdArgDto);
-        _ddeiClientFactoryMock.Setup(s => s.Create(cmsAuthValues, DdeiClients.Ddei)).Returns(ddeiClientMock.Object);
+        _ddeiClientFactoryMock.Setup(s => s.Create(cmsAuthValues, It.IsAny<DdeiClients>())).Returns(ddeiClientMock.Object);
         ddeiClientMock.Setup(s => s.GetDocumentAsync(ddeiDocumentIdAndVersionIdArgDto)).ReturnsAsync(fileResult);
         
 
