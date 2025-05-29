@@ -87,7 +87,7 @@ public sealed partial class RequestValidationMiddleware(
             throw new CpsAuthenticationException();
         }
 
-        var validateTokenResult = await authorizationValidator.ValidateTokenAsync(accessTokenValues.First(), correlationId, ValidRoles.UserImpersonation);
+        var validateTokenResult = await authorizationValidator.ValidateTokenAsync(accessTokenValues.First(), correlationId, ValidRoles.UserImpersonation, ValidRoles.ClientCredentials);
 
         return validateTokenResult.IsValid ?
             validateTokenResult.UserName :

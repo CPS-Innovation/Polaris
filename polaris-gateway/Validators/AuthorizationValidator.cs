@@ -119,7 +119,7 @@ namespace PolarisGateway.Validators
             var tokenScopes = scopeClaim.Split(separator, StringSplitOptions.RemoveEmptyEntries).ToList();
             var hasAccessToScopes = requiredScopes.Count == 0 || requiredScopes.All(x => tokenScopes.Any(y => string.Equals(x, y, StringComparison.OrdinalIgnoreCase)));
 
-            return hasAccessToRoles && hasAccessToScopes;
+            return hasAccessToRoles || hasAccessToScopes;
         }
 
         private static List<string> LoadRequiredItems(string items) =>
