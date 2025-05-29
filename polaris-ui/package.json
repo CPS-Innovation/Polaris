@@ -63,7 +63,7 @@
     "start": "react-scripts start",
     "build-and-serve-local": "./scripts/build-and-serve-local.sh",
     "build": "./scripts/build.sh",
-    "test": "react-scripts test --watchAll --transformIgnorePatterns \"node_modules/(?!pdfjs-dist)/\"",
+    "test": "react-scripts test --watchAll",
     "test:ci": "./scripts/test-ci.sh",
     "eject": "react-scripts eject",
     "check-types": "tsc --noemit",
@@ -79,7 +79,11 @@
     "cy:parallel:ci": "npm run ci:script -- 'env-cmd -f .env.cypress cypress-parallel -s cy:run  -t 4 -d ./cypress/e2e' ",
     "cy:parallel:ci:win": "npm run ci:script:win -- 'env-cmd -f .\\.env.cypress cypress-parallel -s cy:run -t 4 -d .\\cypress\\e2e'",
     "coverage": "./scripts/combine-coverage.sh",
-    "clean": "./scripts/clean.sh"
+    "clean": "./scripts/clean.sh",
+    "build:development": "./scripts/build.sh 'development'",
+    "build:qa": "./scripts/build.sh 'qa'",
+    "build:uat": "./scripts/build.sh 'uat'",
+    "build:production": "./scripts/build.sh 'production'"
   },
   "eslintConfig": {
     "extends": [
@@ -118,6 +122,11 @@
   },
   "jest-junit": {
     "outputDirectory": "report"
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "!node_modules/"
+    ]
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",

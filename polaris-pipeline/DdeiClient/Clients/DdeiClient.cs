@@ -47,13 +47,6 @@ public class DdeiClient : BaseDdeiClient
     {
     }
 
-    public override async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCaseIdOnlyArgDto arg)
-    {
-        var response = await CallDdei<DdeiCaseIdentifiersDto>(DdeiClientRequestFactory.CreateUrnLookupRequest(arg));
-
-        return CaseIdentifiersMapper.MapCaseIdentifiers(response);
-    }
-
     public override async Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg)
     {
         var response = await CallDdei<DdeiDocumentRenamedResponse>(DdeiClientRequestFactory.CreateRenameDocumentRequest(arg));

@@ -13,6 +13,12 @@ import { MappedCaseDocument } from "../../../domain/MappedCaseDocument";
 import { CaseDetailsState } from "../../../hooks/use-case-details-state/useCaseDetailsState";
 
 type Props = {
+  handleToggleDocumentState: (
+    urn: string | undefined,
+    caseId: number | undefined,
+    documentId: string,
+    isUnused: boolean
+  ) => void;
   documentsState: MappedCaseDocument[];
   activeDocumentId: string;
   readUnreadData: string[];
@@ -55,6 +61,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
       handleOpenPanel,
       handleReclassifyDocument,
       handleGetNotes,
+      handleToggleDocumentState,
       handleAccordionOpenClose,
       handleAccordionOpenCloseAll,
       hkDocumentId,
@@ -137,6 +144,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
             handleReclassifyDocument={handleReclassifyDocument}
             notesData={notesData}
             localDocumentState={localDocumentState}
+            handleToggleDocumentState={handleToggleDocumentState}
             hkDocumentId={hkDocumentId}
           />
         ))}

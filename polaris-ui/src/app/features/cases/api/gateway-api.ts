@@ -491,6 +491,30 @@ export const getDocumentsList = async (urn: string, caseId: number) => {
   return (await response.json()) as PresentationDocumentProperties[];
 };
 
+export const toggleUsedDocumentState = async (
+  urn: string,
+  caseId: number,
+  documentId?: string,
+  isUnused?: boolean
+) => {
+  const isDocumentUsed = isUnused ? "unused" : "used";
+  const path = fullUrl(
+    `/api/urns/${urn}/cases/${caseId}/documents/${documentId}/toggle/${isDocumentUsed}`
+  );
+
+  const response = await fetchImplementation("reauth-if-in-situ", path, {
+    headers: await buildHeaders(),
+    method: "POST",
+    body: JSON.stringify({ isUnused: isDocumentUsed }),
+  });
+
+  if (!response.ok) {
+    throw new ApiError("Changing document state failed", path, response);
+  }
+
+  return true;
+};
+
 const fetchImplementation = (
   reauthBehaviour:
     | "no-reauth"

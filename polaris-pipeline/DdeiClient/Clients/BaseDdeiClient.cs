@@ -76,7 +76,7 @@ public abstract class BaseDdeiClient : IDdeiClient
 
     public virtual async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCaseIdOnlyArgDto arg)
     {
-        var response = await CallDdei<DdeiCaseSummaryDto>(DdeiClientRequestFactory.CreateGetCaseSummary(arg));
+        var response = await CallDdei<DdeiCaseIdentifiersDto>(DdeiClientRequestFactory.CreateUrnLookupRequest(arg));
 
         return CaseIdentifiersMapper.MapCaseIdentifiers(response);
     }

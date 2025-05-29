@@ -29,6 +29,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     "REACT_APP_FEATURE_FLAG_PAGE_DELETE"                           = var.feature_flag_page_delete
     "REACT_APP_FEATURE_FLAG_PAGE_ROTATE"                           = var.feature_flag_page_rotate
     "REACT_APP_FEATURE_FLAG_STATE_RETENTION"                       = var.feature_flag_state_retention
+    "REACT_APP_FEATURE_FLAG_USED_DOCUMENT"                         = var.feature_flag_used_document
     "REACT_APP_FEATURE_FLAG_GLOBAL_NAV"                            = var.feature_flag_global_nav
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP"     = var.feature_flag_external_redirect_case_review_app
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP"         = var.feature_flag_external_redirect_bulk_um_app
@@ -88,7 +89,7 @@ resource "azurerm_linux_web_app_slot" "as_web_polaris_staging1" {
     vnet_route_all_enabled = true
 
     application_stack {
-      node_version = "18-lts"
+      node_version = "20-lts"
     }
   }
 

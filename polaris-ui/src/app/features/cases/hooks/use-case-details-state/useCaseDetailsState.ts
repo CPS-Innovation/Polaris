@@ -352,6 +352,26 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleToggleDocumentState = useCallback(
+    (
+      urn: string | undefined,
+      caseId: number | undefined,
+      documentId: string,
+      unused: boolean
+    ) => {
+      dispatch({
+        type: "TOGGLE_DOCUMENT_STATE",
+        payload: {
+          urn,
+          caseId,
+          documentId,
+          unused,
+        },
+      });
+    },
+    [dispatch]
+  );
+
   const handleShowHideRedactionSuggestions = useCallback(
     (
       documentId: CaseDocumentViewModel["documentId"],
@@ -618,6 +638,7 @@ export const useCaseDetailsState = (
     handleGetNotes,
     handleAddNote,
     handleSaveRename,
+    handleToggleDocumentState,
     handleShowHideRedactionSuggestions,
     handleSearchPIIAction,
     handleResetRenameData,

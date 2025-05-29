@@ -1,4 +1,7 @@
 ﻿---
+parameters:
+- name: environment 
+  type: string
 
 stages:
   - stage: Publish_Artifacts
@@ -277,14 +280,6 @@ stages:
 
       - job: Build_SPA_Artifacts
         steps:
-          # We want to rely only on the .env.production file, anything in .env is still included
-          #  if not overwritten by .env.production.  For safety, just delete .env
-          - task: DeleteFiles@1
-            displayName: "Remove .env file"
-            inputs:
-              contents: |
-                polaris-ui/.env
-
           # Add build version
           - task: PowerShell@2
             displayName: "Record build version"
@@ -313,7 +308,7 @@ stages:
             inputs:
               command: "custom"
               workingDir: "polaris-ui"
-              customCommand: "run build"
+              customCommand: "run build:${{ parameters.environment }}"
             displayName: "npm build"
 
           - task: PublishBuildArtifacts@1
