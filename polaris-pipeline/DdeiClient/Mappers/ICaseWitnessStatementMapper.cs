@@ -1,9 +1,10 @@
 using Common.Dto.Response;
+using DdeiClient.Domain.Response;
 
-namespace Ddei.Mappers
+namespace Ddei.Mappers;
+
+public interface ICaseWitnessStatementMapper
 {
-    public interface ICaseWitnessStatementMapper
-    {
-        WitnessStatementDto Map(DdeiCaseWitnessStatementsResponse ddeiResponse);
-    }
+    WitnessStatementDto Map(DdeiCaseWitnessStatementsResponse ddeiResponse);
+    WitnessStatementDto Map(StatementForWitness ddeiResponse);
 }
