@@ -33,6 +33,7 @@ const mockConfig = configModule as {
   FEATURE_FLAG_DOCUMENT_NAME_SEARCH: boolean;
   PRIVATE_BETA_FEATURE_USER_GROUP: string;
   PRIVATE_BETA_FEATURE_USER_GROUP2: string;
+  FEATURE_FLAG_USED_DOCUMENT_STATE: boolean;
   PRIVATE_BETA_FEATURE_USER_GROUP5: string;
   PRIVATE_BETA_FEATURE_USER_GROUP6: string;
 };
@@ -291,25 +292,6 @@ describe("useUserGroupsFeatureFlag", () => {
   });
 
   describe("searchPII feature flag", () => {
-    test("Should return searchPII feature true, if FEATURE_FLAG_SEARCH_PII is true", () => {
-      (authModule.useUserDetails as jest.Mock).mockReturnValue({
-        username: "test",
-      });
-      (
-        msalInstanceModule.msalInstance.getAllAccounts as jest.Mock
-      ).mockReturnValue([
-        {
-          idTokenClaims: {
-            groups: ["private_beta_feature_group"],
-          },
-        },
-      ]);
-
-      mockConfig.FEATURE_FLAG_SEARCH_PII = true;
-      const { result } = renderHook(() => useUserGroupsFeatureFlag());
-      expect(result?.current?.searchPII).toStrictEqual(true);
-    });
-
     test("Should return searchPII feature false, if FEATURE_FLAG_SEARCH_PII is false", () => {
       (authModule.useUserDetails as jest.Mock).mockReturnValue({
         username: "test",

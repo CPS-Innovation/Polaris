@@ -7,7 +7,10 @@ import {
   GET_DOCUMENTS_LIST_ROUTE,
 } from "../../src/mock-api/routes";
 
-import { getRefreshReclassifyDocuments } from "../../src/mock-api/data/getDocumentsList.cypress";
+import {
+  getRefreshReclassifyDocuments,
+  getUsedUnusedDocumentState,
+} from "../../src/mock-api/data/getDocumentsList.cypress";
 
 describe("Feature Reclassify Document", () => {
   it("Should show reclassify document option if the document 'canReclassify' is true and presentationFlags, write property is not 'isDispatched' and should not show if it is not ", () => {
