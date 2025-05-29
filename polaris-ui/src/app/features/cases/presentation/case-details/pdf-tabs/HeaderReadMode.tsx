@@ -11,7 +11,6 @@ import {
 import { isAlreadyReportedDocument } from "../../../../../common/utils/reportDocuments";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogTypes";
-import { useUserGroupsFeatureFlag } from "../../../../../auth/msal/useUserGroupsFeatureFlag";
 import { ReactComponent as AreaIcon } from "../../../../../common/presentation/svgs/areaIcon.svg";
 import classes from "./HeaderReadMode.module.scss";
 
@@ -51,8 +50,6 @@ export const HeaderReadMode: React.FC<Props> = ({
 }) => {
   const trackEvent = useAppInsightsTrackEvent();
   const disableReportBtn = isAlreadyReportedDocument(contextData.documentId);
-
-  const { searchPII } = useUserGroupsFeatureFlag();
 
   const handleDocumentAction = (id: string) => {
     switch (id) {
@@ -104,7 +101,7 @@ export const HeaderReadMode: React.FC<Props> = ({
         ...items,
       ];
     }
-    if (contextData.showSearchPII && searchPII) {
+    if (contextData.showSearchPII) {
       items = [
         ...items,
         {
