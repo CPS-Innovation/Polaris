@@ -17,6 +17,7 @@ using Ddei.Mappers;
 using DdeiClient.Domain.Args;
 using Microsoft.Extensions.Logging;
 using DdeiClient.Clients.Interfaces;
+using DdeiClient.Domain.Response;
 using DdeiClient.Domain.Response.Document;
 
 namespace DdeiClient.Clients;
@@ -247,9 +248,9 @@ public abstract class BaseDdeiClient : IDdeiClient
 
     public virtual async Task<IEnumerable<WitnessStatementDto>> GetWitnessStatementsAsync(DdeiWitnessStatementsArgDto arg)
     {
-        var ddeiResults = await CallDdei<List<DdeiCaseWitnessStatementsResponse>>(DdeiClientRequestFactory.CreateGetWitnessStatementsRequest(arg));
+        var ddeiResults = await CallDdei<StatementsForWitnessResponse>(DdeiClientRequestFactory.CreateGetWitnessStatementsRequest(arg));
 
-        return ddeiResults.Select(ddeiResult => CaseWitnessStatementMapper.Map(ddeiResult)).ToArray();
+        return ddeiResults.StatementsForWitness.Select(CaseWitnessStatementMapper.Map).ToArray();
     }
 
     public virtual async Task<bool> ToggleIsUnusedDocumentAsync(DdeiToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto) =>
