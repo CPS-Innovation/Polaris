@@ -10,6 +10,7 @@ public static class ConfigurationKeys
 public static class ValidRoles
 {
     public const string UserImpersonation = "user_impersonation";
+    public const string ClientCredentials = "AppRole.Polaris.Gateway.Access";
 }
 
 public static class CmsAuthConstants
