@@ -100,7 +100,14 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateAddDocumentNoteRequest(DdeiAddDocumentNoteArgDto arg)
     {
-        throw new NotImplementedException();
+        var content = JsonSerializer.Serialize(new AddDocumentNoteDto()
+        {
+            Text = arg.Text
+        });
+        var request = new HttpRequestMessage(HttpMethod.Post, $"api/cases/{arg.CaseId}/documents/{arg.DocumentId}/notes");
+        var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+        CreateRequest(request, arg, httpContent);
+        return request;
     }
 
     public HttpRequestMessage CreateRenameDocumentRequest(DdeiRenameDocumentArgDto arg)

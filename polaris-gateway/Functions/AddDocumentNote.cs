@@ -1,45 +1,39 @@
-using System;
-using System.Net;
-using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Dto.Request;
+using Common.Extensions;
 using Common.Telemetry;
-using Common.Wrappers;
 using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
 using DdeiClient.Enums;
+using DdeiClient.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Helpers;
 using PolarisGateway.TelemetryEvents;
 using PolarisGateway.Validators;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
 
 public class AddDocumentNote : BaseFunction
 {
     private readonly ILogger<AddDocumentNote> _logger;
-    private readonly IDdeiClient _ddeiClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
     private readonly ITelemetryClient _telemetryClient;
-    private readonly IJsonConvertWrapper _jsonConvertWrapper;
+    private readonly IDdeiClientFactory _ddeiClientFactory;
 
     public AddDocumentNote(
         ILogger<AddDocumentNote> logger,
-        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
-        ITelemetryClient telemetryClient,
-        IJsonConvertWrapper jsonConvertWrapper)
+        ITelemetryClient telemetryClient, IDdeiClientFactory ddeiClientFactory)
         : base()
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
-        _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-        _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
+        _logger = logger.ExceptionIfNull();
+        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _telemetryClient = telemetryClient.ExceptionIfNull();
+        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
     }
 
     [Function(nameof(AddDocumentNote))]
@@ -49,7 +43,7 @@ public class AddDocumentNote : BaseFunction
         int caseId,
         string documentId)
     {
-        var telemetryEvent = new DocumentNoteRequestEvent(caseId, documentId.ToString())
+        var telemetryEvent = new DocumentNoteRequestEvent(caseId, documentId)
         {
             OperationName = nameof(AddDocumentNote),
         };
@@ -72,7 +66,8 @@ public class AddDocumentNote : BaseFunction
             }
 
             var arg = _ddeiArgFactory.CreateAddDocumentNoteArgDto(cmsAuthValues, correlationId, caseUrn, caseId, documentId, body.Value.Text);
-            var result = await _ddeiClient.AddDocumentNoteAsync(arg);
+            var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
+            var result = await ddeiClient.AddDocumentNoteAsync(arg);
 
             telemetryEvent.IsSuccess = true;
             _telemetryClient.TrackEvent(telemetryEvent);
