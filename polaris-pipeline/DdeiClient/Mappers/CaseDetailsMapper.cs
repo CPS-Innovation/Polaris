@@ -130,9 +130,9 @@ namespace Ddei.Mappers
         {
             return new CustodyTimeLimitDto
             {
-                ExpiryDate = custodyTimeLimit.ExpiryDate,
-                ExpiryDays = custodyTimeLimit.ExpiryDays,
-                ExpiryIndicator = custodyTimeLimit.ExpiryIndicator
+                ExpiryDate = custodyTimeLimit?.ExpiryDate,
+                ExpiryDays = custodyTimeLimit?.ExpiryDays,
+                ExpiryIndicator = custodyTimeLimit?.ExpiryIndicator
             };
         }
 

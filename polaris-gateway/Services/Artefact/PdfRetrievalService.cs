@@ -81,7 +81,7 @@ public class PdfRetrievalService : IPdfRetrievalService
     private async Task<(Stream Stream, FileType FileType, bool IsKnownFileType)> GetDefendantsAndChargesStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId)
     {
         var deiCaseIdentifiersArgDto = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId);
-        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues);
+        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
         var defendantsAndCharges = await ddeiClient.GetDefendantAndChargesAsync(deiCaseIdentifiersArgDto);
         var stream = await _convertModelToHtmlService.ConvertAsync(defendantsAndCharges);
         return (stream, FileTypeHelper.PseudoDocumentFileType, true);
