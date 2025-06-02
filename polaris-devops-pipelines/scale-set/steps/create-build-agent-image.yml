@@ -52,19 +52,19 @@ steps:
       deployScriptPath: "build-agent.sh"
       additionalBuilderParameters: ${{ parameters.additionalBuilderParams }}
       skipTempFileCleanupDuringVMDeprovision: false
-
-  - bash: |
-      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
-      az account set --subscription $ARM_SUBSCRIPTION_ID
-      az resource delete --ids $(az resource list --tag Temporary=True --query "[].id" --output tsv) --verbose
-    displayName: Remove older build-agent versioned images
-    continueOnError: true
-    env:
-      ARM_CLIENT_ID: ${{ parameters.clientId }}
-      ARM_CLIENT_SECRET: ${{ parameters.clientSecret }}
-      ARM_TENANT_ID: ${{ parameters.tenantId }}
-      ARM_SUBSCRIPTION_ID: ${{ parameters.subscriptionId }}
-
+#
+#  - bash: |
+#      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+#      az account set --subscription $ARM_SUBSCRIPTION_ID
+#      az resource delete --ids $(az resource list --tag Temporary=True --query "[].id" --output tsv) --verbose
+#    displayName: Remove older build-agent versioned images
+#    continueOnError: true
+#    env:
+#      ARM_CLIENT_ID: ${{ parameters.clientId }}
+#      ARM_CLIENT_SECRET: ${{ parameters.clientSecret }}
+#      ARM_TENANT_ID: ${{ parameters.tenantId }}
+#      ARM_SUBSCRIPTION_ID: ${{ parameters.subscriptionId }}
+#
   - bash: |
       az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
       az account set --subscription $ARM_SUBSCRIPTION_ID
