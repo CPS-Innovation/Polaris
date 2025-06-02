@@ -7,9 +7,8 @@ sudo apt-get update
 echo '==== dotnet 8 ===='
 sudo apt-get update -y && sudo apt-get install -y dotnet-sdk-8.0
 
-echo '==== PowerShell / AzureCLI ===='
+echo '==== PowerShell ===='
 sudo snap install powershell --classic
-sudo snap install azcli
 
 echo '==== Utils ===='
 sudo apt-get update -yq
