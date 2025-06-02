@@ -191,7 +191,7 @@ public abstract class BaseDdeiClient : IDdeiClient
 
     public virtual async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotesAsync(DdeiDocumentArgDto arg)
     {
-        var ddeiResults = await CallDdei<List<DdeiDocumentNoteResponse>>(DdeiClientRequestFactory.CreateGetDocumentNotesRequest(arg));
+        var ddeiResults = await CallDdei<List<DocumentNoteResponse>>(DdeiClientRequestFactory.CreateGetDocumentNotesRequest(arg));
 
         return ddeiResults.Select(ddeiResult => CaseDocumentNoteMapper.Map(ddeiResult)).ToArray();
     }
