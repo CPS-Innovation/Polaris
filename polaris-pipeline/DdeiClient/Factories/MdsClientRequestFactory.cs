@@ -97,7 +97,9 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateGetDocumentNotesRequest(DdeiDocumentArgDto arg)
     {
-        throw new NotImplementedException();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/documents/{arg.DocumentId}/notes");
+        AddAuthHeaders(request, arg);
+        return request;
     }
 
     public HttpRequestMessage CreateAddDocumentNoteRequest(DdeiAddDocumentNoteArgDto arg)

@@ -1,8 +1,10 @@
 using Common.Configuration;
+using Common.Extensions;
 using Common.Telemetry;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Enums;
+using DdeiClient.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -16,19 +18,20 @@ namespace PolarisGateway.Functions;
 public class GetDocumentNotes : BaseFunction
 {
     private readonly ILogger<GetDocumentNotes> _logger;
-    private readonly IDdeiClient _ddeiClient;
+    private readonly IDdeiClientFactory _ddeiClientFactory;
     private readonly IDdeiArgFactory _ddeiArgFactory;
     private readonly ITelemetryClient _telemetryClient;
 
     public GetDocumentNotes(ILogger<GetDocumentNotes> logger,
+        IDdeiClientFactory ddeiClientFactory,
         [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient)
         : base()
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
+        _logger = logger.ExceptionIfNull();
+        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
         _telemetryClient = telemetryClient;
     }
 
@@ -40,7 +43,10 @@ public class GetDocumentNotes : BaseFunction
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var arg = _ddeiArgFactory.CreateDocumentArgDto(cmsAuthValues, correlationId, caseUrn, caseId, documentId);
-        var result = await _ddeiClient.GetDocumentNotesAsync(arg);
+
+        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
+
+        var result = await ddeiClient.GetDocumentNotesAsync(arg);
 
         return new OkObjectResult(result);
     }

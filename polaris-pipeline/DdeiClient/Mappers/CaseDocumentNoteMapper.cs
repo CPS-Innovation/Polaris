@@ -17,5 +17,18 @@ namespace Ddei.Mappers
                 Type = ddeiResponse.Type
             };
         }
+
+        public DocumentNoteDto Map(DocumentNoteResponse ddeiResponse)
+        {
+            return new DocumentNoteDto
+            {
+                Id = ddeiResponse.Id,
+                CreatedByName = ddeiResponse.CreatedByName,
+                Date = ddeiResponse.Date,
+                SortOrder = ddeiResponse.SequenceNumber,
+                Text = ddeiResponse.Text,
+                Type = ddeiResponse.CmsNoteType
+            };
+        }
     }
 }

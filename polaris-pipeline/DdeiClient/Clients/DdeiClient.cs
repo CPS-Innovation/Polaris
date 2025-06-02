@@ -2,6 +2,7 @@ using Common.Dto.Response;
 using Common.Dto.Response.Document;
 using Common.Wrappers;
 using Ddei.Domain.CaseData.Args;
+using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Domain.Response.Document;
 using Ddei.Factories;
 using Ddei.Mappers;
@@ -57,5 +58,12 @@ public class DdeiClient : BaseDdeiClient
         var ddeiResults = await CallDdei<List<DdeiCaseWitnessStatementsResponse>>(DdeiClientRequestFactory.CreateGetWitnessStatementsRequest(arg));
 
         return ddeiResults.Select(ddeiResult => CaseWitnessStatementMapper.Map(ddeiResult)).ToArray();
+    }
+
+    public override async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotesAsync(DdeiDocumentArgDto arg)
+    {
+        var ddeiResults = await CallDdei<List<DdeiDocumentNoteResponse>>(DdeiClientRequestFactory.CreateGetDocumentNotesRequest(arg));
+
+        return ddeiResults.Select(ddeiResult => CaseDocumentNoteMapper.Map(ddeiResult)).ToArray();
     }
 }
