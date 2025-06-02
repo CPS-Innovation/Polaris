@@ -28,6 +28,20 @@ sudo apt-get install -y unzip
 sudo apt-get install -y gnupg
 sudo apt-get clean
 
+echo '==== Azure CLI ===='
+sudo mkdir -p /etc/apt/keyrings
+curl -sLS https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
+sudo chmod go+r /etc/apt/keyrings/microsoft.gpg
+AZ_DIST=$(lsb_release -cs)
+echo "Types: deb
+URIs: https://packages.microsoft.com/repos/azure-cli/
+Suites: ${AZ_DIST}
+Components: main
+Architectures: $(dpkg --print-architecture)
+Signed-by: /etc/apt/keyrings/microsoft.gpg" | sudo tee /etc/apt/sources.list.d/azure-cli.sources
+sudo apt-get update
+sudo apt-get install azure-cli
+
 sudo apt-get install libc6
 sudo apt-get install libgcc1
 sudo apt-get install libgcc-s1
