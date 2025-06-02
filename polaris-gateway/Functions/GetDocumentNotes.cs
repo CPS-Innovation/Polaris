@@ -1,16 +1,12 @@
 using Common.Configuration;
 using Common.Extensions;
-using Common.Telemetry;
 using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
 using DdeiClient.Enums;
 using DdeiClient.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -20,19 +16,15 @@ public class GetDocumentNotes : BaseFunction
     private readonly ILogger<GetDocumentNotes> _logger;
     private readonly IDdeiClientFactory _ddeiClientFactory;
     private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly ITelemetryClient _telemetryClient;
 
     public GetDocumentNotes(ILogger<GetDocumentNotes> logger,
         IDdeiClientFactory ddeiClientFactory,
-        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
-        IDdeiArgFactory ddeiArgFactory,
-        ITelemetryClient telemetryClient)
+        IDdeiArgFactory ddeiArgFactory)
         : base()
     {
         _logger = logger.ExceptionIfNull();
         _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
-        _telemetryClient = telemetryClient;
     }
 
     [Function(nameof(GetDocumentNotes))]
