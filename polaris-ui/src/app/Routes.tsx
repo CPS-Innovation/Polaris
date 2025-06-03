@@ -43,7 +43,7 @@ export const Routes: FC = () => {
         }
       }, 1000);
     }
-  }, []);
+  }, []); 
 
   if (!isAppInsightActive) {
     throw Error("Failed to connect to App Insights");
@@ -93,7 +93,7 @@ export const Routes: FC = () => {
         </Route>
         <Route
           path={inboundHandoverPath}
-          Component={InboundHandoverHandler}
+          component={InboundHandoverHandler}
         ></Route>
         <Route>
           <Redirect to={caseSearchPath} />
