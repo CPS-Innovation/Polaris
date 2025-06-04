@@ -20,7 +20,6 @@ import {
   inboundHandoverPath,
 } from "./inbound-handover/InboundHandoverHandler";
 import { isTaggedContext } from "./inbound-handover/context";
-import { useUserGroupsFeatureFlag } from "./auth/msal/useUserGroupsFeatureFlag";
 
 export const Routes: FC = () => {
   const { state: navigationState } = useLocation();

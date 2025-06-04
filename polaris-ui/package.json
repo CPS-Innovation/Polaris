@@ -85,17 +85,6 @@
     "build:uat": "./scripts/build.sh 'uat'",
     "build:production": "./scripts/build.sh 'production'"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app/jest"
-    ],
-    "rules": {
-      "testing-library/await-async-query": "off",
-      "testing-library/prefer-screen-queries": "off",
-      "eslinttesting-library/no-unnecessary-act": "off",
-      "testing-library/await-async-utils": "off"
-    }
-  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -130,6 +119,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@cypress/code-coverage": "^3.14.0",
+    "@eslint/js": "^9.28.0",
     "@testing-library/react": "^16.2.0",
     "@types/react-helmet": "^6.1.8",
     "@types/sinon": "^10.0.13",
@@ -141,8 +131,10 @@
     "cypress-wait-until": "^3.0.2",
     "eslint": "^8.57.1",
     "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.2.0",
     "jest-fetch-mock": "^3.0.3",
     "react-helmet": "^6.1.0",
-    "sinon": "^15.0.3"
+    "sinon": "^15.0.3",
+    "typescript-eslint": "^8.33.1"
   }
 }
