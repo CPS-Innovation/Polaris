@@ -42,7 +42,7 @@ export const Routes: FC = () => {
         }
       }, 1000);
     }
-  }, []); 
+  }, []);
 
   if (!isAppInsightActive) {
     throw Error("Failed to connect to App Insights");
