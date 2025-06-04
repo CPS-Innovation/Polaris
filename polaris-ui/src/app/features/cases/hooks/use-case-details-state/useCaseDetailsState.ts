@@ -612,6 +612,15 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleUpdateDCFAction = useCallback(
+    (mode: any) =>
+      dispatch({
+        type: "DCF_DOCUMENT_VIEW_ACTION_CHANGE",
+        payload: { mode },
+      }),
+    [dispatch]
+  );
+
   return {
     combinedState,
     handleOpenPdf,
@@ -656,5 +665,6 @@ export const useCaseDetailsState = (
     handleHideSaveRotationModal,
     handleAccordionOpenClose,
     handleAccordionOpenCloseAll,
+    handleUpdateDCFAction,
   };
 };

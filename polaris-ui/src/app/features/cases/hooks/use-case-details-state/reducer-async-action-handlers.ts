@@ -137,7 +137,14 @@ type AsyncActions =
         documentId?: any;
         unused?: any;
       };
+    }
+  | {
+      type: "DCF_DOCUMENT_VIEW_ACTION_CHANGE";
+      payload: {
+        param: any;
+      };
     };
+
 export const CHECKOUT_BLOCKED_STATUS_CODE = 409;
 export const DOCUMENT_NOT_FOUND_STATUS_CODE = 410;
 export const DOCUMENT_TOO_LARGE_STATUS_CODE = 413;
@@ -991,5 +998,13 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           },
         });
       }
+    },
+
+  DCF_DOCUMENT_VIEW_ACTION_CHANGE:
+    ({ dispatch, getState }) =>
+    async (action) => {
+      const { payload: mode } = action;
+      const { caseId, urn } = getState();
+      console.log("mode", mode);
     },
 };

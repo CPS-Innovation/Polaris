@@ -376,6 +376,12 @@ export const reducer = (
           saveRefreshStatus: "initial" | "updating" | "updated";
         };
       }
+    | {
+        type: "DCF_DOCUMENT_VIEW_ACTION_CHANGE";
+        payload: {
+          mode: any;
+        };
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -1942,6 +1948,11 @@ export const reducer = (
         },
       };
       return newState;
+    }
+    case "DCF_DOCUMENT_VIEW_ACTION_CHANGE": {
+      const { mode } = action.payload;
+      // const newState
+      return mode;
     }
 
     default:

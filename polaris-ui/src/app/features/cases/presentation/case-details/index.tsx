@@ -1,4 +1,4 @@
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useHistory, useLocation } from "react-router-dom";
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import {
   BackLink,
@@ -61,7 +61,7 @@ import {
   TaggedContext,
 } from "../../../../inbound-handover/context";
 import { saveStateToSessionStorage } from "./utils/stateRetentionUtil";
-
+// import { handleUpdateDCFAction } from "../../hooks/use-case-details-state/useCaseDetailsState";
 export const path = "/case-details/:urn/:id/:hkDocumentId?";
 
 type Props = BackLinkingPageProps & {
@@ -109,6 +109,17 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const history = useHistory();
   const params = useParams<{ id: string; urn: string; hkDocumentId: string }>();
   const { id: caseId, urn, hkDocumentId } = params as any;
+
+  const location = useLocation();
+
+  const [DCFparam, useDCFParam] = useState<boolean>(false);
+
+  useEffect(() => {
+    const splitString = location.hash.substring(2);
+    let urlParam = !!splitString.split("=")[1] === true;
+    console.log(urlParam);
+    handleUpdateDCFAction(urlParam);
+  }, [location]);
 
   const unMounting = useRef(false);
   useEffect(() => {
@@ -162,6 +173,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     handleHideSaveRotationModal,
     handleAccordionOpenClose,
     handleAccordionOpenCloseAll,
+    handleUpdateDCFAction,
   } = useCaseDetailsState(urn, +caseId, context, unMountingCallback);
 
   const {
@@ -692,12 +704,12 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                           `${window.location.pathname}?URN=${urn}&caseId=${caseId}`
                         );
                       }}
-                      data-testid="btn-housekeep-link"
-                      id="btn-housekeep-link"
+                      data-testid="btn-dcf-link"
+                      id="btn-dcf-link"
                       className={`${classes.newWindowBtn} govuk-button--secondary`}
                       name="secondary"
                     >
-                      Housekeeping link <NewWindow />
+                      DCF link <NewWindow />
                     </Button>
                   </div> */}
                   <SearchBox
@@ -742,6 +754,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       handleAccordionOpenCloseAll={handleAccordionOpenCloseAll}
                       handleToggleDocumentState={handleToggleDocumentState}
                       hkDocumentId={hkDocumentId}
+                      handleUpdateDCFAction={handleUpdateDCFAction}
                     />
                   )}
                 </div>

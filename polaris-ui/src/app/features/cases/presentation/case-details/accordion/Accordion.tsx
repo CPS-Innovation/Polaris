@@ -42,6 +42,7 @@ type Props = {
   handleAccordionOpenClose: CaseDetailsState["handleAccordionOpenClose"];
   handleAccordionOpenCloseAll: CaseDetailsState["handleAccordionOpenCloseAll"];
   hkDocumentId: string | undefined;
+  handleUpdateDCFAction: (mode: any) => void;
 };
 export type AccordionRef = {
   handleOpenAccordion: (documentId: string) => void;
@@ -65,10 +66,13 @@ export const Accordion = forwardRef<AccordionRef, Props>(
       handleAccordionOpenClose,
       handleAccordionOpenCloseAll,
       hkDocumentId,
+      handleUpdateDCFAction,
     },
     ref
   ) => {
     const trackEvent = useAppInsightsTrackEvent();
+
+    // handleUpdateDCFAction();
 
     const handleToggleOpenAll = () => {
       if (isAllOpen) {
