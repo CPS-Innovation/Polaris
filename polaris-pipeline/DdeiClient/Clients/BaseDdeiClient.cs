@@ -31,7 +31,6 @@ public abstract class BaseDdeiClient : IDdeiClient
     protected readonly ICaseDocumentNoteMapper CaseDocumentNoteMapper;
     protected readonly ICaseDocumentNoteResultMapper CaseDocumentNoteResultMapper;
     protected readonly ICaseExhibitProducerMapper CaseExhibitProducerMapper;
-    protected readonly ICaseWitnessMapper CaseWitnessMapper;
     protected readonly ICaseIdentifiersMapper CaseIdentifiersMapper;
     protected readonly ICmsMaterialTypeMapper CmsMaterialTypeMapper;
     protected readonly ICaseWitnessStatementMapper CaseWitnessStatementMapper;
@@ -48,7 +47,6 @@ public abstract class BaseDdeiClient : IDdeiClient
         ICaseDocumentNoteMapper caseDocumentNoteMapper,
         ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper,
         ICaseExhibitProducerMapper caseExhibitProducerMapper,
-        ICaseWitnessMapper caseWitnessMapper,
         ICaseIdentifiersMapper caseIdentifiersMapper,
         ICmsMaterialTypeMapper cmsMaterialTypeMapper,
         ICaseWitnessStatementMapper caseWitnessStatementMapper,
@@ -62,7 +60,6 @@ public abstract class BaseDdeiClient : IDdeiClient
         CaseDocumentNoteMapper = caseDocumentNoteMapper.ExceptionIfNull();
         CaseDocumentNoteResultMapper = caseDocumentNoteResultMapper.ExceptionIfNull();
         CaseExhibitProducerMapper = caseExhibitProducerMapper.ExceptionIfNull();
-        CaseWitnessMapper = caseWitnessMapper.ExceptionIfNull();
         CaseIdentifiersMapper = caseIdentifiersMapper.ExceptionIfNull();
         CmsMaterialTypeMapper = cmsMaterialTypeMapper.ExceptionIfNull();
         CaseWitnessStatementMapper = caseWitnessStatementMapper.ExceptionIfNull();
@@ -232,11 +229,11 @@ public abstract class BaseDdeiClient : IDdeiClient
         return ddeiResults.Select(ddeiResult => CaseExhibitProducerMapper.Map(ddeiResult)).ToArray();
     }
 
-    public virtual async Task<IEnumerable<CaseWitnessDto>> GetWitnessesAsync(DdeiCaseIdentifiersArgDto arg)
+    public virtual async Task<IEnumerable<BaseCaseWitnessResponse>> GetWitnessesAsync(DdeiCaseIdentifiersArgDto arg)
     {
-        var ddeiResults = await CallDdei<List<DdeiCaseWitnessResponse>>(DdeiClientRequestFactory.CreateCaseWitnessesRequest(arg));
+        var ddeiResults = await CallDdei<List<MdsCaseWitnessResponse>>(DdeiClientRequestFactory.CreateCaseWitnessesRequest(arg));
 
-        return ddeiResults.Select(ddeiResult => CaseWitnessMapper.Map(ddeiResult)).ToArray();
+        return ddeiResults;
     }
 
     public virtual async Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(DdeiBaseArgDto arg)
