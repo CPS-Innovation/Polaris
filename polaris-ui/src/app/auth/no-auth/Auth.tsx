@@ -1,7 +1,7 @@
 const twoLevelStringify = (storage: Storage) => {
-  var result = { ...storage };
+  const result = { ...storage };
 
-  for (var key in result) {
+  for (const key in result) {
     try {
       // if a session value is a JSON string, we hydrate that string to an object ...
       result[key] = JSON.parse(result[key]);

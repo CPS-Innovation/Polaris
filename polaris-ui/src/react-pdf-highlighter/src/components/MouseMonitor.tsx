@@ -9,7 +9,9 @@ interface Props {
 
 class MouseMonitor extends Component<Props> {
   container: HTMLDivElement | null = null;
-  unsubscribe = () => {};
+  unsubscribe = () => {
+    // No-op by default, can be overridden
+  };
 
   onMouseMove = (event: MouseEvent) => {
     if (!this.container) {

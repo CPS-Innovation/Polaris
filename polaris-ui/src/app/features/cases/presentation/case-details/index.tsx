@@ -236,7 +236,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
         });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accordionState.status]);
 
   useEffect(() => {
@@ -246,7 +245,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     if (tabsState.items.length === 0) {
       setInFullScreen(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabsState.items.length]);
 
   useEffect(() => {

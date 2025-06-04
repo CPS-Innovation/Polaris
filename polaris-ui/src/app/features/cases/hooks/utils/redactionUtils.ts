@@ -62,7 +62,7 @@ export const getNormalizedRedactionHighlights = (
 
 export const roundToFixedDecimalPlaces = (
   num: number,
-  precisionCount: number = 2
+  precisionCount = 2
 ) => round(num, precisionCount);
 
 export const handleSaveRedactionsLocally = (

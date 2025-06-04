@@ -185,7 +185,7 @@ const getAmendedRedactionsCount = (
     (highlight) => highlight.type === "redaction"
   );
 
-  let partialRedactions: ISearchPIIHighlight[] = [];
+  const partialRedactions: ISearchPIIHighlight[] = [];
 
   normalizedManualHighlights.forEach((highlight) => {
     const pageNumber = highlight.position.pageNumber;

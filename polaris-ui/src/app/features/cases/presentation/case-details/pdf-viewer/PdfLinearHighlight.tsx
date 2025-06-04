@@ -1,4 +1,4 @@
-import React from "react";
+import { MouseEventHandler} from "react";
 import { T_ViewportHighlight } from "../../../../../../react-pdf-highlighter/src/components/PdfHighlighter";
 import { IPdfHighlight } from "../../../domain/IPdfHighlight";
 import { ISearchPIIHighlight } from "../../../domain/NewPdfHighlight";
@@ -11,7 +11,7 @@ interface Props {
   type: "search" | "redaction" | "searchPII";
   isScrolledTo: boolean;
   highlight: T_ViewportHighlight<IPdfHighlight | ISearchPIIHighlight>;
-  onClick?: () => {};
+  onClick?: MouseEventHandler;
 }
 
 export const PdfLinearHighlight: React.FC<Props> = ({
