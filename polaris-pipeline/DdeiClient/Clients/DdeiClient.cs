@@ -6,6 +6,7 @@ using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Domain.Response.Document;
 using Ddei.Factories;
 using Ddei.Mappers;
+using DdeiClient.Domain.Response;
 using DdeiClient.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,6 @@ public class DdeiClient : BaseDdeiClient
         ICaseDocumentNoteMapper caseDocumentNoteMapper,
         ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper,
         ICaseExhibitProducerMapper caseExhibitProducerMapper,
-        ICaseWitnessMapper caseWitnessMapper,
         ICaseIdentifiersMapper caseIdentifiersMapper,
         ICmsMaterialTypeMapper cmsMaterialTypeMapper,
         ICaseWitnessStatementMapper caseWitnessStatementMapper,
@@ -37,7 +37,6 @@ public class DdeiClient : BaseDdeiClient
             caseDocumentNoteMapper,
             caseDocumentNoteResultMapper,
             caseExhibitProducerMapper,
-            caseWitnessMapper,
             caseIdentifiersMapper,
             cmsMaterialTypeMapper,
             caseWitnessStatementMapper,
@@ -65,5 +64,12 @@ public class DdeiClient : BaseDdeiClient
         var ddeiResults = await CallDdei<List<DdeiDocumentNoteResponse>>(DdeiClientRequestFactory.CreateGetDocumentNotesRequest(arg));
 
         return ddeiResults.Select(ddeiResult => CaseDocumentNoteMapper.Map(ddeiResult)).ToArray();
+    }
+
+    public override async Task<IEnumerable<BaseCaseWitnessResponse>> GetWitnessesAsync(DdeiCaseIdentifiersArgDto arg)
+    {
+        var ddeiResults = await CallDdei<List<DdeiCaseWitnessResponse>>(DdeiClientRequestFactory.CreateCaseWitnessesRequest(arg));
+
+        return ddeiResults;
     }
 }

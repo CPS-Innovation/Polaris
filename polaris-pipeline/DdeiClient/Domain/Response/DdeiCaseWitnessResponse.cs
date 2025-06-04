@@ -1,8 +1,7 @@
-namespace Common.Dto.Response
+﻿using Common.Dto.Response;
+
+namespace DdeiClient.Domain.Response;
+
+public class DdeiCaseWitnessResponse : BaseCaseWitnessResponse
 {
-    public class DdeiCaseWitnessResponse
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
 }

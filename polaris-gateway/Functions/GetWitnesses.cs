@@ -1,36 +1,35 @@
+using System.Linq;
 using Common.Configuration;
-using Common.Telemetry;
+using Common.Extensions;
 using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
 using DdeiClient.Enums;
+using DdeiClient.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
+using Ddei.Mappers;
 
 namespace PolarisGateway.Functions;
 
 public class GetWitnesses : BaseFunction
 {
     private readonly ILogger<GetWitnesses> _logger;
-    private readonly IDdeiClient _ddeiClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly ITelemetryClient _telemetryClient;
-
+    private readonly IDdeiClientFactory _ddeiClientFactory;
+    private readonly ICaseWitnessMapper _caseWitnessMapper;
     public GetWitnesses(
         ILogger<GetWitnesses> logger,
-        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
-        IDdeiArgFactory ddeiArgFactory,
-        ITelemetryClient telemetryClient)
+        IDdeiArgFactory ddeiArgFactory, 
+        IDdeiClientFactory ddeiClientFactory, 
+        ICaseWitnessMapper caseWitnessMapper)
         : base()
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
-        _telemetryClient = telemetryClient;
+        _logger = logger.ExceptionIfNull();
+        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _caseWitnessMapper = caseWitnessMapper.ExceptionIfNull();
     }
 
     [Function(nameof(GetWitnesses))]
@@ -41,8 +40,10 @@ public class GetWitnesses : BaseFunction
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
-        var result = await _ddeiClient.GetWitnessesAsync(arg);
+        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
+        var caseWitnessResponses = await ddeiClient.GetWitnessesAsync(arg);
+        var caseWitnesses = caseWitnessResponses.Select(_caseWitnessMapper.Map);
 
-        return new OkObjectResult(result);
+        return new OkObjectResult(caseWitnesses);
     }
 }
