@@ -71,10 +71,8 @@ const buildRedirectUrl = (
 };
 
 const navigateAndStopExecution = (window: Window, url: string) => {
-  if (url.startsWith(window.location.origin)) {
     window.location.assign(url);
-  }
-
+    
   // stop any follow-on logic occurring
   throw new CmsAuthRedirectingError();
 };
