@@ -21,7 +21,7 @@ import {
   PIIRedactionStatus,
 } from "../../../domain/NewPdfHighlight";
 import { Footer } from "./Footer";
-import { PdfHighlight } from "./PdfHighlifght";
+import { PdfHighlight } from "./PdfHighlight";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { sortRedactionHighlights } from "../utils/sortRedactionHighlights";
 import { IS_REDACTION_SERVICE_OFFLINE } from "../../../../../config";
@@ -147,7 +147,7 @@ export const PdfViewer: React.FC<Props> = ({
   }, [searchHighlights, focussedHighlightIndex]);
 
   const getPIISuggestionsWithSameText = useCallback(
-    (redactionText: string = "") => {
+    (redactionText = "") => {
       const redactionSuggestionWithSameText = activeSearchPIIHighlights.filter(
         (highlight) => highlight.textContent === redactionText
       );
@@ -157,7 +157,7 @@ export const PdfViewer: React.FC<Props> = ({
   );
 
   const getSelectedPIIHighlight = useCallback(
-    (highlightGroupId: string = "") => {
+    (highlightGroupId = "") => {
       return activeSearchPIIHighlights.find(
         (highlight) => highlight.groupId === highlightGroupId
       );
@@ -293,7 +293,9 @@ export const PdfViewer: React.FC<Props> = ({
                 onWheelDownwards={ensureAllPdfInView}
                 pdfDocument={pdfDocument}
                 enableAreaSelection={enableAreaSelection}
-                onScrollChange={() => {}}
+                onScrollChange={() => ({
+                  // Intentionally left blank as no action is required on scroll change
+                })}
                 pdfScaleValue="page-width"
                 scrollRef={(scrollTo) => {
                   scrollToFnRef.current = scrollTo;

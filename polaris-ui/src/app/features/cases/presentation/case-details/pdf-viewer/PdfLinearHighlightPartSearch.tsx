@@ -29,7 +29,7 @@ export const PdfLinearHighlightPartSearch: React.FC<Props> = ({ rect }) => {
     if (ref?.current) {
       window.getSelection()?.removeAllRanges();
       const range = document.createRange();
-      range.selectNodeContents(ref?.current.parentNode!);
+      range.selectNodeContents(ref.current.parentNode!);
       window.getSelection()?.addRange(range);
 
       const selectionChangeEvent = new Event("selectionchange");

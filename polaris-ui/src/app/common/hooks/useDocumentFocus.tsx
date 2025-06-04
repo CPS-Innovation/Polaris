@@ -42,7 +42,6 @@ export const useDocumentFocus = (activeTabId: string | undefined) => {
 
   const sortedSpanElements = useMemo(() => {
     return getTextLayerChildren();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toggleRefresh]);
 
   /*

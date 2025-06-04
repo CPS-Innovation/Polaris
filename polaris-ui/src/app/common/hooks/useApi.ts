@@ -47,7 +47,6 @@ export const useApi: UseApiParams = (del, params, makeCall = true) => {
           })
         );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [del, JSON.stringify(params), makeCall]);
 
   return result;

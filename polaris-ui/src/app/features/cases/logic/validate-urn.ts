@@ -5,14 +5,14 @@ export type ValidateUrnReturnType =
   | { isValid: false; rootUrn: null };
 
 export const validateUrn = (urn: string): ValidateUrnReturnType => {
-  var match = urn.match(URN_REGEX);
-  var isValid = !!match;
+  const match = RegExp(URN_REGEX).exec(urn);
+  const isValid = !!match;
 
   if (!isValid) {
     return { isValid: false, rootUrn: null };
   }
 
-  var rootUrn = isValid && match?.[1] ? match[1] : "";
+  const rootUrn = isValid && match?.[1] ? match[1] : "";
 
   return {
     isValid: true,
