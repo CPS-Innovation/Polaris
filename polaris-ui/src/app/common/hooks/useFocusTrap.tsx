@@ -30,7 +30,7 @@ export const useFocusTrap = (id = "#modal") => {
         if (
           !e.shiftKey &&
           document.activeElement ===
-          tabbableElements[tabbableElements.length - 1]
+            tabbableElements[tabbableElements.length - 1]
         ) {
           (tabbableElements[0] as HTMLElement).focus();
           e.preventDefault();

@@ -60,10 +60,8 @@ export const getNormalizedRedactionHighlights = (
   return normalizedHighlights;
 };
 
-export const roundToFixedDecimalPlaces = (
-  num: number,
-  precisionCount = 2
-) => round(num, precisionCount);
+export const roundToFixedDecimalPlaces = (num: number, precisionCount = 2) =>
+  round(num, precisionCount);
 
 export const handleSaveRedactionsLocally = (
   items: CaseDocumentViewModel[],

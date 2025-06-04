@@ -714,7 +714,7 @@ export const reducer = (
       } else {
         const foundDocumentSearchResult =
           state.searchState.searchConfigs["documentContent"].results.status ===
-            "succeeded"
+          "succeeded"
             ? state.searchState.searchConfigs[
                 "documentContent"
               ].results.data.documentResults.find(

@@ -21,8 +21,8 @@ export const mapFilters = (
 
   // Sort documents by their documentType using optional chaining and a named compare function.
   function compareByDocumentType(
-    a: typeof mappedTextSearchResult.documentResults[number],
-    b: typeof mappedTextSearchResult.documentResults[number]
+    a: (typeof mappedTextSearchResult.documentResults)[number],
+    b: (typeof mappedTextSearchResult.documentResults)[number]
   ): number {
     const docTypeA = a.cmsDocType?.documentType ?? "";
     const docTypeB = b.cmsDocType?.documentType ?? "";
@@ -31,7 +31,9 @@ export const mapFilters = (
     return 0;
   }
 
-  const orderedDocumentResults = mappedTextSearchResult.documentResults.slice().sort(compareByDocumentType);
+  const orderedDocumentResults = mappedTextSearchResult.documentResults
+    .slice()
+    .sort(compareByDocumentType);
 
   const docType =
     {} as CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"]["docType"];

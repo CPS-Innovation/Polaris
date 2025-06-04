@@ -71,8 +71,7 @@ const buildRedirectUrl = (
 };
 
 const navigateAndStopExecution = (window: Window, url: string) => {
-  if(url.startsWith(window.location.origin))
-  {
+  if (url.startsWith(window.location.origin)) {
     window.location.assign(url);
   }
 
