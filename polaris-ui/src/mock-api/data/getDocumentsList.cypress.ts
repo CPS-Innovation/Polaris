@@ -340,10 +340,10 @@ export const getDocumentsListResult = (resultsCount: number) => {
     .map((value, index) =>
       documentsList.map(
         (document) =>
-        ({
-          ...document,
-          versionId: document.versionId + index,
-        } as PresentationDocumentProperties)
+          ({
+            ...document,
+            versionId: document.versionId + index,
+          } as PresentationDocumentProperties)
       )
     );
   return resultsArray;
