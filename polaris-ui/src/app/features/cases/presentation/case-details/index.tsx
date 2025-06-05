@@ -116,8 +116,10 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   useEffect(() => {
     const splitString = location.hash.substring(2);
-    let urlParam = !!splitString.split("=")[1] === true;
-    console.log(urlParam);
+
+    //compare with string as urls are strings
+    let urlParam = splitString.split("=")[1] === "true";
+    debugger;
     handleUpdateDCFAction(urlParam);
   }, [location]);
 
@@ -197,12 +199,20 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     reclassifyDocuments,
     notificationState,
     localDocumentState,
+    mode,
   } = combinedState;
+
   useEffect(() => {
     if (featureFlags.stateRetention) {
       saveStateToSessionStorage(combinedState);
     }
   }, [combinedState, featureFlags.stateRetention]);
+
+  // console.log("combinedState: ", combinedState);
+
+  useEffect(() => {
+    console.log("state is: ", mode);
+  }, [mode]);
 
   const {
     showAlert,
@@ -610,7 +620,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                 : ""
             }`}
           >
-            {!inFullScreen && !actionsSidePanel.open && (
+            {!inFullScreen && !actionsSidePanel.open && !mode && (
               <div
                 role="region"
                 aria-labelledby="side-panel-region-label"
@@ -755,6 +765,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       handleToggleDocumentState={handleToggleDocumentState}
                       hkDocumentId={hkDocumentId}
                       handleUpdateDCFAction={handleUpdateDCFAction}
+                      mode={mode}
                     />
                   )}
                 </div>

@@ -1950,8 +1950,13 @@ export const reducer = (
       return newState;
     }
     case "DCF_DOCUMENT_VIEW_ACTION_CHANGE": {
-      const { mode } = action.payload;
-      // const newState
+      debugger;
+      const { mode: pmode } = action.payload;
+      console.log("pmode: ", pmode);
+      let mode = {
+        ...state,
+        mode: pmode,
+      };
       return mode;
     }
 

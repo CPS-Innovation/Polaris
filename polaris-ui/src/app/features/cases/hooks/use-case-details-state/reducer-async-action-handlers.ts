@@ -137,13 +137,19 @@ type AsyncActions =
         documentId?: any;
         unused?: any;
       };
-    }
-  | {
-      type: "DCF_DOCUMENT_VIEW_ACTION_CHANGE";
-      payload: {
-        param: any;
-      };
     };
+// | {
+//     type: "DCF_DOCUMENT_VIEW_ACTION_CHANGE";
+//     payload: {
+//       mode: any;
+//     };
+//   }
+// | {
+//     type: "UPDATE_DCF_DOCUMENT_VIEW_ACTION_CHANGE";
+//     payload: {
+//       mode: any;
+//     };
+//   };
 
 export const CHECKOUT_BLOCKED_STATUS_CODE = 409;
 export const DOCUMENT_NOT_FOUND_STATUS_CODE = 410;
@@ -1000,11 +1006,31 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
       }
     },
 
-  DCF_DOCUMENT_VIEW_ACTION_CHANGE:
-    ({ dispatch, getState }) =>
-    async (action) => {
-      const { payload: mode } = action;
-      const { caseId, urn } = getState();
-      console.log("mode", mode);
-    },
+  // DCF_DOCUMENT_VIEW_ACTION_CHANGE:
+  //   ({ dispatch, getState }) =>
+  //   async (action) => {
+  //     const { mode } = action.payload;
+  //     const { caseId, urn } = getState();
+  //     try {
+  //       dispatch({
+  //         type: "UPDATE_DCF_DOCUMENT_VIEW_ACTION_CHANGE",
+  //         payload: { mode },
+  //       });
+  //     } catch (err) {
+  //       dispatch({
+  //         type: "SHOW_ERROR_MODAL",
+  //         payload: {
+  //           type: "addnote",
+  //           title: "Something went wrong!",
+  //           message: "Failed changing mode",
+  //         },
+  //       });
+  //     }
+  //     console.log("mode", mode);
+  //   },
+
+  // DCF_DOCUMENT_VIEW_ACTION_CHANGE:
+  // payload: {
+  //   mode: any;
+  // };
 };

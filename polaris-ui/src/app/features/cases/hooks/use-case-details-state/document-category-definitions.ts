@@ -166,7 +166,7 @@ const documentCategoryDefinitions: {
 export const categoryNamesInPresentationOrder = documentCategoryDefinitions.map(
   ({ category }) => category
 );
-
+// debugger;
 export const getCategory = (item: PresentationDocumentProperties) => {
   let subCategory = null;
   const category = documentCategoryDefinitions.find(({ testFn: test }) =>

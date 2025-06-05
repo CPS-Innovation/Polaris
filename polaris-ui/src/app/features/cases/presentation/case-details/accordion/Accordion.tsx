@@ -43,6 +43,7 @@ type Props = {
   handleAccordionOpenCloseAll: CaseDetailsState["handleAccordionOpenCloseAll"];
   hkDocumentId: string | undefined;
   handleUpdateDCFAction: (mode: any) => void;
+  mode?: boolean | string;
 };
 export type AccordionRef = {
   handleOpenAccordion: (documentId: string) => void;
@@ -66,7 +67,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
       handleAccordionOpenClose,
       handleAccordionOpenCloseAll,
       hkDocumentId,
-      handleUpdateDCFAction,
+      mode,
     },
     ref
   ) => {
@@ -101,6 +102,7 @@ export const Accordion = forwardRef<AccordionRef, Props>(
 
     useImperativeHandle(ref, () => ({
       handleOpenAccordion,
+      // mode,
     }));
 
     useEffect(() => {
@@ -123,6 +125,10 @@ export const Accordion = forwardRef<AccordionRef, Props>(
 
       return () => clearTimeout(st);
     }, []);
+
+    useEffect(() => {
+      hkDocumentId && handleOpenPdf({ documentId: hkDocumentId });
+    }, [hkDocumentId]);
 
     return (
       <div className={`${classes.accordion}`}>
