@@ -60,7 +60,7 @@
     "xunit-viewer": "^10.3.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "npm run prettier-fix && react-scripts start",
     "build-and-serve-local": "./scripts/build-and-serve-local.sh",
     "build": "./scripts/build.sh",
     "test": "react-scripts test --watchAll",

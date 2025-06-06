@@ -1,3 +1,4 @@
 {
-  "azureFunctions.projectSubpath": "polaris-pipeline/coordinator"
+  "azureFunctions.projectSubpath": "polaris-pipeline/coordinator",
+  "editor.formatOnSave": true
 }

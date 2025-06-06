@@ -26,6 +26,7 @@ describe("Tabs", () => {
       handleClosePdf: () => {},
       handleTabSelection: () => {},
       handleUnLockDocuments: () => {},
+      dcfMode: "dcf",
     };
 
     render(<Tabs {...props} />);
@@ -64,11 +65,12 @@ describe("Tabs", () => {
       handleClosePdf: () => {},
       handleTabSelection: () => {},
       handleUnLockDocuments: () => {},
+      dcfMode: "dcf",
     };
 
     render(<Tabs {...props} />);
     await screen.findByTestId("tabs");
-    expect(screen.queryAllByRole("tab")).toHaveLength(4);
+    expect(screen.queryAllByRole("tab")).toHaveLength(3);
   });
 
   it("can highlight the active tab", async () => {
@@ -83,6 +85,7 @@ describe("Tabs", () => {
       idPrefix: "foo",
       title: "Tabs-title",
       activeTabId: "",
+      dcfMode: "dcf",
       items: [
         {
           id: "t1",
@@ -140,6 +143,7 @@ describe("Tabs", () => {
         idPrefix: "foo",
         activeTabId,
         title: "Tabs-title",
+        dcfMode: undefined,
         items: [
           {
             id: "t1",
@@ -224,6 +228,7 @@ describe("Tabs", () => {
       handleClosePdf: () => {},
       handleTabSelection: () => {},
       handleUnLockDocuments: () => {},
+      dcfMode: undefined,
       items: [],
     };
 
@@ -281,6 +286,7 @@ describe("Tabs", () => {
         idPrefix: "foo",
         title: "Tabs-title",
         activeTabId: "t2",
+        dcfMode: undefined,
         items: [
           {
             id: "t1",
@@ -335,6 +341,7 @@ describe("Tabs", () => {
         idPrefix: "foo",
         title: "Tabs-title",
         activeTabId: "t1",
+        dcfMode: undefined,
         items: [
           {
             id: "t1",
@@ -389,6 +396,7 @@ describe("Tabs", () => {
         idPrefix: "foo",
         title: "Tabs-title",
         activeTabId: "t1",
+        dcfMode: undefined,
         items: [
           {
             id: "t1",
