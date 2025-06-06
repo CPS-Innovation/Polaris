@@ -100,7 +100,6 @@ export const Accordion = forwardRef<AccordionRef, Props>(
 
     useImperativeHandle(ref, () => ({
       handleOpenAccordion,
-      // mode,
     }));
 
     useEffect(() => {
