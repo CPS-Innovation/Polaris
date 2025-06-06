@@ -110,17 +110,14 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const params = useParams<{ id: string; urn: string; hkDocumentId: string }>();
   const { id: caseId, urn, hkDocumentId } = params as any;
 
-  const location = useLocation();
+  const { hash } = useLocation();
 
   useEffect(() => {
     const DCF_ARG: string = "dcf";
-    const hashLocation = location.hash;
-    const hashSubstring = hashLocation.substring(2);
-    const spString = hashSubstring.split("=");
-    const paramPassed = spString[1] === DCF_ARG ? spString[1] : "";
+    const paramPassed = hash.substring(1) === DCF_ARG ? hash : "";
 
     handleUpdateDCFAction(paramPassed);
-  }, [location]);
+  }, [hash]);
 
   const unMounting = useRef(false);
   useEffect(() => {
@@ -930,6 +927,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   handleUpdateConversionStatus={handleUpdateConversionStatus}
                   handleShowHidePageDeletion={handleShowHidePageDeletion}
                   handleHideSaveRotationModal={handleHideSaveRotationModal}
+                  dcfMode={dcfMode}
                 />
               )}
             </div>

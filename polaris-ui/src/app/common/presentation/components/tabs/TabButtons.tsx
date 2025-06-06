@@ -11,6 +11,7 @@ export type TabButtonProps = {
   handleTabSelection: (documentId: string) => void;
   handleCloseTab: () => void;
   handleUnLockDocuments: (documentIds: string[]) => void;
+  dcfMode: string | undefined;
 };
 
 const ARROW_KEY_SHIFTS = {
@@ -23,6 +24,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
   activeTabIndex,
   handleTabSelection,
   handleCloseTab,
+  dcfMode,
 }) => {
   const activeTabRef = useRef<HTMLButtonElement>(null);
 
@@ -152,7 +154,7 @@ const TabButtons: React.FC<TabButtonProps> = ({
               >
                 <span className={classes.tabLabel}>{label}</span>
               </button>
-              {activeTabIndex === index && (
+              {activeTabIndex === index && !dcfMode && (
                 <button
                   role="tab"
                   className={classes.tabCloseButton}
