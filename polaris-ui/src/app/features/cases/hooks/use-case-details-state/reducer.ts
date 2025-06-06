@@ -1951,11 +1951,11 @@ export const reducer = (
     }
     case "DCF_DOCUMENT_VIEW_ACTION_CHANGE": {
       const { dcfMode: _dcfMode } = action.payload;
-      let dcfMode = {
+      const mode = {
         ...state,
         dcfMode: _dcfMode,
       };
-      return dcfMode;
+      return mode;
     }
 
     default:

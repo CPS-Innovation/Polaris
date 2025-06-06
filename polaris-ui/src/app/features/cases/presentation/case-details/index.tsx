@@ -113,7 +113,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const { hash } = useLocation();
 
   useEffect(() => {
-    const DCF_ARG: string = "dcf";
+    const DCF_ARG = "dcf";
     const paramPassed = hash.substring(1) === DCF_ARG ? hash : "";
 
     handleUpdateDCFAction(paramPassed);
