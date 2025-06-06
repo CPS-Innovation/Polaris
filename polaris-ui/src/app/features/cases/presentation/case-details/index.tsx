@@ -112,15 +112,14 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
 
   const location = useLocation();
 
-  const [DCFparam, useDCFParam] = useState<boolean>(false);
-
   useEffect(() => {
-    const splitString = location.hash.substring(2);
+    const DCF_ARG: string = "dcf";
+    const hashLocation = location.hash;
+    const hashSubstring = hashLocation.substring(2);
+    const spString = hashSubstring.split("=");
+    const paramPassed = spString[1] === DCF_ARG ? spString[1] : "";
 
-    //compare with string as urls are strings
-    let urlParam = splitString.split("=")[1] === "true";
-    debugger;
-    handleUpdateDCFAction(urlParam);
+    handleUpdateDCFAction(paramPassed);
   }, [location]);
 
   const unMounting = useRef(false);
@@ -199,7 +198,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     reclassifyDocuments,
     notificationState,
     localDocumentState,
-    mode,
+    dcfMode,
   } = combinedState;
 
   useEffect(() => {
@@ -207,12 +206,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       saveStateToSessionStorage(combinedState);
     }
   }, [combinedState, featureFlags.stateRetention]);
-
-  // console.log("combinedState: ", combinedState);
-
-  useEffect(() => {
-    console.log("state is: ", mode);
-  }, [mode]);
 
   const {
     showAlert,
@@ -597,12 +590,14 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
             />
           )}
         <nav>
-          <BackLink
-            to={backLinkProps.to}
-            onClick={() => trackEvent("Back to Case Search Results")}
-          >
-            {backLinkProps.label}
-          </BackLink>
+          <div className={dcfMode ? classes.visibilityHidden : ""}>
+            <BackLink
+              to={backLinkProps.to}
+              onClick={() => trackEvent("Back to Case Search Results")}
+            >
+              {backLinkProps.label}
+            </BackLink>
+          </div>
           {featureFlags.notifications && (
             <Notifications
               state={notificationState}
@@ -620,7 +615,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                 : ""
             }`}
           >
-            {!inFullScreen && !actionsSidePanel.open && !mode && (
+            {!inFullScreen && !actionsSidePanel.open && (
               <div
                 role="region"
                 aria-labelledby="side-panel-region-label"
@@ -628,7 +623,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                 data-testid="side-panel"
                 // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
                 tabIndex={0}
-                className={`govuk-grid-column-one-quarter perma-scrollbar ${classes.leftColumn} ${classes.sidePanelArea}`}
+                className={`govuk-grid-column-one-quarter perma-scrollbar ${
+                  classes.leftColumn
+                } ${classes.sidePanelArea}
+                ${dcfMode ? classes.displayNone : ""}
+                `}
               >
                 <span
                   id="side-panel-region-label"
@@ -765,7 +764,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       handleToggleDocumentState={handleToggleDocumentState}
                       hkDocumentId={hkDocumentId}
                       handleUpdateDCFAction={handleUpdateDCFAction}
-                      mode={mode}
+                      dcfMode={dcfMode}
                     />
                   )}
                 </div>
@@ -827,7 +826,11 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
               </>
             )}
             {!!tabsState.items.length && featureFlags.fullScreen && (
-              <div className={classes.resizeBtnWrapper}>
+              <div
+                className={
+                  !dcfMode ? classes.resizeBtnWrapper : classes.visibilityHidden
+                }
+              >
                 <Tooltip
                   text={inFullScreen ? "Exit full screen" : "View full screen"}
                   position="right"
@@ -862,7 +865,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
             )}
             <div
               className={`${classes.rightColumn} ${
-                inFullScreen
+                inFullScreen || dcfMode
                   ? "govuk-grid-column-full"
                   : "govuk-grid-column-three-quarters"
               }`}

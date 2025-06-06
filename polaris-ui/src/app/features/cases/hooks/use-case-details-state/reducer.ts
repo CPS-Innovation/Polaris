@@ -379,7 +379,7 @@ export const reducer = (
     | {
         type: "DCF_DOCUMENT_VIEW_ACTION_CHANGE";
         payload: {
-          mode: any;
+          dcfMode: string | undefined;
         };
       }
 ): CombinedState => {
@@ -1950,14 +1950,12 @@ export const reducer = (
       return newState;
     }
     case "DCF_DOCUMENT_VIEW_ACTION_CHANGE": {
-      debugger;
-      const { mode: pmode } = action.payload;
-      console.log("pmode: ", pmode);
-      let mode = {
+      const { dcfMode: _dcfMode } = action.payload;
+      let dcfMode = {
         ...state,
-        mode: pmode,
+        dcfMode: _dcfMode,
       };
-      return mode;
+      return dcfMode;
     }
 
     default:

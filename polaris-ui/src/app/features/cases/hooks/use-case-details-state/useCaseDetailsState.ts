@@ -613,10 +613,10 @@ export const useCaseDetailsState = (
   );
 
   const handleUpdateDCFAction = useCallback(
-    (mode: any) =>
+    (dcfMode: string | undefined) =>
       dispatch({
         type: "DCF_DOCUMENT_VIEW_ACTION_CHANGE",
-        payload: { mode },
+        payload: { dcfMode },
       }),
     [dispatch]
   );

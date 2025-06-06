@@ -104,7 +104,7 @@ export type CombinedState = {
   searchPII: SearchPIIData[];
   renameDocuments: RenameDocumentData[];
   reclassifyDocuments: ReclassifyDocumentData[];
-  mode: string;
+  dcfMode: string | undefined;
 };
 
 export const initialState = {
@@ -200,5 +200,5 @@ export const initialState = {
   renameDocuments: [],
   reclassifyDocuments: [],
   context: undefined,
-  mode: "false",
+  dcfMode: undefined,
 } as Omit<CombinedState, "caseId" | "urn">;
