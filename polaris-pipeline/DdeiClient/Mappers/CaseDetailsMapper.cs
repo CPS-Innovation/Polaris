@@ -37,6 +37,11 @@ namespace Ddei.Mappers
             };
         }
 
+        public CaseDto MapCaseDetails((CaseSummaryDto Summary, IEnumerable<PcdRequestDto> PreChargeDecisionRequests) caseDetails)
+        {
+            return new CaseDto();
+        }
+
         public DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<DdeiCaseDefendantDto> defendants, int caseId, string etag)
         {
             var defendantsAndCharges = defendants
@@ -68,6 +73,42 @@ namespace Ddei.Mappers
         public IEnumerable<PcdRequestCoreDto> MapCorePreChargeDecisionRequests(IEnumerable<DdeiPcdRequestCoreDto> pcdRequests)
         {
             return pcdRequests.Select(pcd => MapCorePreChargeDecisionRequest(pcd));
+        }
+
+        public IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<DdeiPcdRequestDto> preChargeDecisionRequests)
+        {
+            return preChargeDecisionRequests.Select(pcdr => MapPreChargeDecisionRequest(pcdr));
+        }
+
+        public CaseSummaryDto Map(MdsCaseSummaryDto ddeiResult)
+        {
+            return new CaseSummaryDto
+            {
+                Urn = ddeiResult.Urn,
+                Id = ddeiResult.Id,
+                NumberOfDefendants = ddeiResult.NumberOfDefendants,
+                LeadDefendantFirstNames = ddeiResult.LeadDefendantFirstNames,
+                LeadDefendantSurname = ddeiResult.LeadDefendantSurname,
+                LeadDefendantType = ddeiResult.LeadDefendantType,
+                Deleted = ddeiResult.Deleted,
+                Finalised = ddeiResult.Finalised,
+                NextHearingDate = ddeiResult.NextHearingDate,
+                NextHearingType = ddeiResult.NextHearingType,
+                NextHearingTypeCode = ddeiResult.NextHearingTypeCode,
+                NextHearingVenue = ddeiResult.NextHearingVenue,
+                NextHearingVenueCode = ddeiResult.NextHearingVenueCode,
+                OwningUnit = ddeiResult.UnitName,
+                CtlActive = ddeiResult.CtlActive,
+                EarliestCtlDate = ddeiResult.EarliestCtlDate,
+                Locking = new Common.Dto.Response.Case.CaseLockingDto
+                {
+                    Application = ddeiResult.Locking?.Application,
+                    BySurname = ddeiResult.Locking?.BySurname,
+                    ByFirstNames = ddeiResult.Locking?.ByFirstNames,
+                    Locked = ddeiResult.Locking?.Locked,
+                    Since = ddeiResult.Locking?.Since,
+                }
+            };
         }
 
         private PcdRequestCoreDto MapCorePreChargeDecisionRequest(DdeiPcdRequestCoreDto pcd)
@@ -168,7 +209,7 @@ namespace Ddei.Mappers
         private IEnumerable<ChargeDto> MapCharges(DdeiCaseDefendantDto defendant)
         {
             var charges = new List<ChargeDto>();
-            var nextHearingDate = defendant.NextHearing.Date;
+            var nextHearingDate = defendant.NextHearing?.Date;
 
             return defendant.Offences
                 .Select(offence => MapCharge(offence, nextHearingDate));
@@ -293,11 +334,6 @@ namespace Ddei.Mappers
                 .SelectMany(defendant => defendant.Charges)
                 .Where(charge => charge.Code != NotYetChargedCode)
                 .Any();
-        }
-
-        private IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<DdeiPcdRequestDto> preChargeDecisionRequests)
-        {
-            return preChargeDecisionRequests.Select(pcdr => MapPreChargeDecisionRequest(pcdr));
         }
 
         private PcdCaseOutlineLineDto MapPcdCaseOutlineLine(DdeiPcdCaseOutlineLineDto ol)
