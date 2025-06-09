@@ -18,7 +18,9 @@ public interface IDdeiClient
 
     Task<CaseDto> GetCaseAsync(DdeiCaseIdentifiersArgDto arg);
 
-    Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsAsync(DdeiCaseIdentifiersArgDto arg);
+    Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsCoreAsync(DdeiCaseIdentifiersArgDto arg);
+
+    Task<IEnumerable<PcdRequestDto>> GetPcdRequestsAsync(DdeiCaseIdentifiersArgDto arg);
 
     Task<PcdRequestDto> GetPcdRequestAsync(DdeiPcdArgDto arg);
 

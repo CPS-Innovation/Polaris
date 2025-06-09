@@ -1,8 +1,10 @@
 using Common.Dto.Response;
+using Common.Dto.Response.Case;
 using Common.Dto.Response.Document;
 using Common.Wrappers;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
+using Ddei.Domain.Response;
 using Ddei.Domain.Response.Document;
 using Ddei.Factories;
 using Ddei.Mappers;
@@ -72,4 +74,24 @@ public class DdeiClient : BaseDdeiClient
 
         return ddeiResults;
     }
+
+    public override async Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiUrnArgDto arg)
+    {
+        var caseIdentifiers = await ListCaseIdsAsync(arg);
+
+        var calls = caseIdentifiers.Select(async caseIdentifier =>
+            await GetCaseInternalAsync(CaseDataServiceArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id)));
+
+        var cases = await Task.WhenAll(calls);
+        return cases.Select(@case => CaseDetailsMapper.MapCaseDetails(@case));
+    }
+
+    public override async Task<CaseDto> GetCaseAsync(DdeiCaseIdentifiersArgDto arg)
+    {
+        var @case = await GetCaseInternalAsync(arg);
+        return CaseDetailsMapper.MapCaseDetails(@case);
+    }
+
+    private new async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg) =>
+        await CallDdei<DdeiCaseDetailsDto>(DdeiClientRequestFactory.CreateGetCaseRequest(arg));
 }

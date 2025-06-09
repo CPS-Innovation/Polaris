@@ -96,10 +96,22 @@ public abstract class BaseDdeiClient : IDdeiClient
         return CaseDetailsMapper.MapCaseDetails(@case);
     }
 
-    public virtual async Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsAsync(DdeiCaseIdentifiersArgDto arg)
+    public virtual async Task<CaseSummaryDto> GetCaseSummaryAsync(DdeiCaseIdOnlyArgDto arg)
+    {
+        var ddeiResult = await CallDdei<MdsCaseSummaryDto>(DdeiClientRequestFactory.CreateGetCaseSummary(arg));
+        return CaseDetailsMapper.Map(ddeiResult);
+    }
+
+    public virtual async Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsCoreAsync(DdeiCaseIdentifiersArgDto arg)
     {
         var pcdRequests = await CallDdei<IEnumerable<DdeiPcdRequestCoreDto>>(DdeiClientRequestFactory.CreateGetPcdRequestsRequest(arg));
         return CaseDetailsMapper.MapCorePreChargeDecisionRequests(pcdRequests);
+    }
+
+    public virtual async Task<IEnumerable<PcdRequestDto>> GetPcdRequestsAsync(DdeiCaseIdentifiersArgDto arg)
+    {
+        var pcdRequests = await CallDdei<IEnumerable<DdeiPcdRequestDto>>(DdeiClientRequestFactory.CreateGetPcdRequestsRequest(arg));
+        return CaseDetailsMapper.MapPreChargeDecisionRequests(pcdRequests);
     }
 
     public virtual async Task<PcdRequestDto> GetPcdRequestAsync(DdeiPcdArgDto arg)
@@ -257,8 +269,22 @@ public abstract class BaseDdeiClient : IDdeiClient
     protected virtual async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiUrnArgDto arg) =>
         await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(DdeiClientRequestFactory.CreateListCasesRequest(arg));
 
-    protected virtual async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg) =>
-        await CallDdei<DdeiCaseDetailsDto>(DdeiClientRequestFactory.CreateGetCaseRequest(arg));
+    protected virtual async Task<(CaseSummaryDto Summary, IEnumerable<PcdRequestDto> PreChargeDecisionRequests)> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg)
+    {
+        var getCaseSummaryTask = GetCaseSummaryAsync(new DdeiCaseIdOnlyArgDto { CaseId = arg.CaseId, CmsAuthValues = arg.CmsAuthValues, CorrelationId = arg.CorrelationId });
+        var getDefendantsAndChargesTask = GetDefendantAndChargesAsync(arg);
+        var witnessesTask = GetWitnessesAsync(arg);
+        var getPcdRequestTask = GetPcdRequestsAsync(arg);
+
+        await Task.WhenAll(getCaseSummaryTask, getDefendantsAndChargesTask, witnessesTask, getPcdRequestTask);
+
+        var summary = getCaseSummaryTask.Result;
+        var defendants = getDefendantsAndChargesTask.Result;
+        var witnesses = witnessesTask.Result;
+        var preChargeDecisionRequests = getPcdRequestTask.Result;
+
+        return (Summary: summary, PreChargeDecisionRequests: preChargeDecisionRequests);
+    }
 
     protected virtual async Task<T> CallDdei<T>(HttpRequestMessage request)
     {
