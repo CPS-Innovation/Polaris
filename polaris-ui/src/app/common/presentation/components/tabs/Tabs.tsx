@@ -11,6 +11,7 @@ export type TabsProps = CommonTabsProps & {
   handleTabSelection: (documentId: string) => void;
   handleClosePdf: (documentId: string, versionId: number) => void;
   handleUnLockDocuments: (documentIds: string[]) => void;
+  dcfMode: string | undefined;
 };
 
 export const Tabs: React.FC<TabsProps> = ({
@@ -23,6 +24,7 @@ export const Tabs: React.FC<TabsProps> = ({
   handleTabSelection,
   handleClosePdf,
   handleUnLockDocuments,
+  dcfMode,
   ...attributes
 }) => {
   const [showDocumentNavAlert, setShowDocumentNavAlert] = useState(false);
@@ -121,6 +123,7 @@ export const Tabs: React.FC<TabsProps> = ({
           handleTabSelection={handleTabSelection}
           handleCloseTab={handleCloseTab}
           handleUnLockDocuments={handleUnLockDocuments}
+          dcfMode={dcfMode}
         />
         {panels}
       </div>
