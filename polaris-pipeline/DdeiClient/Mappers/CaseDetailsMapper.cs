@@ -64,7 +64,7 @@ namespace Ddei.Mappers
                 DefendantsAndCharges = defendants,
                 HeadlineCharge = headlineCharge,
                 PreChargeDecisionRequests = preChargeDecisionRequests,
-                // Witnesses = witnesses
+                Witnesses = witnesses
             };
         }
 
