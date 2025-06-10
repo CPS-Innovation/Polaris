@@ -30,8 +30,6 @@ import { DocumentsListDataSource } from "./data/types/DocumentsListDataSource";
 import { SearchCaseDataSource } from "./data/types/SearchCaseDataSource";
 import * as routes from "./routes";
 import { MockApiConfig } from "./MockApiConfig";
-
-// eslint-disable-next-line import/no-webpack-loader-syntax
 import pdfStrings from "./data/pdfs/pdf-strings.json";
 import { UrnLookupDataSource } from "./data/types/UrnLookupDataSource";
 import devDocumentsListDataSource from "./data/getDocumentsList.dev";
@@ -291,10 +289,10 @@ export const setupHandlers = ({
 };
 
 function _base64ToArrayBuffer(base64: string) {
-  var binary_string = window.atob(base64);
-  var len = binary_string.length;
-  var bytes = new Uint8Array(len);
-  for (var i = 0; i < len; i++) {
+  const binary_string = window.atob(base64);
+  const len = binary_string.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
     bytes[i] = binary_string.charCodeAt(i);
   }
   return bytes.buffer;

@@ -1,9 +1,11 @@
 # Outputs of azuread_service_principal resource
 
+/*
 output "app_role_ids" {
   description = "A mapping of app role values to app role IDs, as published by the associated application, intended to be useful when referencing app roles in other resources in your configuration."
   value       = azuread_service_principal.main.app_role_ids
 }
+*/
 
 output "app_roles" {
   description = "A list of app roles published by the associated application."
@@ -70,4 +72,3 @@ output "type" {
   description = "Identifies whether the service principal represents an application or a managed identity."
   value       = azuread_service_principal.main.type
 }
-

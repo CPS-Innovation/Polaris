@@ -20,7 +20,6 @@ import {
   inboundHandoverPath,
 } from "./inbound-handover/InboundHandoverHandler";
 import { isTaggedContext } from "./inbound-handover/context";
-import { useUserGroupsFeatureFlag } from "./auth/msal/useUserGroupsFeatureFlag";
 
 export const Routes: FC = () => {
   const { state: navigationState } = useLocation();
@@ -93,7 +92,7 @@ export const Routes: FC = () => {
         </Route>
         <Route
           path={inboundHandoverPath}
-          Component={InboundHandoverHandler}
+          component={InboundHandoverHandler}
         ></Route>
         <Route>
           <Redirect to={caseSearchPath} />

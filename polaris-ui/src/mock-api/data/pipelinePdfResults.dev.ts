@@ -83,7 +83,7 @@ const pipelinePdfResult: PipelineResults = {
   ],
 };
 const getPipelinePdfResults = (resultsCount: number) => {
-  let resultsArray = Array(resultsCount)
+  const resultsArray = Array(resultsCount)
     .fill({})
     .map((value, index) => ({
       ...pipelinePdfResult,

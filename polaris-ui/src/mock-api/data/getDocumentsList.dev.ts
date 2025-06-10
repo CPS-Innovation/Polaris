@@ -425,7 +425,7 @@ const documentsList: PresentationDocumentProperties[] = [
 ];
 
 const getDocumentsListResult = (resultsCount: number) => {
-  let resultsArray = Array(resultsCount)
+  const resultsArray = Array(resultsCount)
     .fill([])
     .map((value, index) =>
       documentsList.map((document) => ({

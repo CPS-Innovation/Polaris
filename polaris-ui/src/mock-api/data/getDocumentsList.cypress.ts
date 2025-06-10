@@ -335,7 +335,7 @@ const documentsList: PresentationDocumentProperties[] = [
 ];
 
 export const getDocumentsListResult = (resultsCount: number) => {
-  let resultsArray = Array(resultsCount)
+  const resultsArray = Array(resultsCount)
     .fill({})
     .map((value, index) =>
       documentsList.map(
@@ -353,7 +353,7 @@ export const getDocumentsListResult = (resultsCount: number) => {
 export const getRefreshDeletedDocuments = (
   redactedDocumentId: string,
   deletedDocumentId: string,
-  trackerCalls: number = 1
+  trackerCalls = 1
 ) => {
   const resultsArray = getRefreshRedactedDocument(
     redactedDocumentId,
@@ -439,7 +439,7 @@ export const getRefreshReclassifyDocuments = (
 
 export const getRefreshRedactedDocument = (
   id: string,
-  trackerCalls: number = 1
+  trackerCalls = 1
 ): PresentationDocumentProperties[][] => {
   const resultsArray = getDocumentsListResult(trackerCalls);
 
