@@ -144,7 +144,9 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateGetMaterialTypeListRequest(DdeiBaseArgDto arg)
     {
-        throw new NotImplementedException();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/reference/reclassification");
+        AddAuthHeaders(request, arg);
+        return request;
     }
 
     public HttpRequestMessage CreateGetWitnessStatementsRequest(DdeiWitnessStatementsArgDto arg)
