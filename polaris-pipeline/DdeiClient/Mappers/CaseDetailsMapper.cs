@@ -38,7 +38,7 @@ namespace Ddei.Mappers
             };
         }
 
-        public CaseDto MapCaseDetails((CaseSummaryDto Summary, IEnumerable<PcdRequestDto> PreChargeDecisionRequests, IEnumerable<DefendantAndChargesDto> DefendantsAndCharges, IEnumerable<BaseCaseWitnessResponse> Witnesses) caseDetails)
+        public CaseDto MapCaseDetails(CaseDetailsDto caseDetails)
         {
             var summary = caseDetails.Summary;
 
@@ -48,7 +48,7 @@ namespace Ddei.Mappers
                 defendant.ProposedCharges = MapProposedCharges(defendant, caseDetails.PreChargeDecisionRequests);
             }
             var leadDefendant = FindLeadDefendant(defendants, (summary.LeadDefendantFirstNames, summary.LeadDefendantSurname, summary.LeadDefendantType));
-            var witnesses = MapWitnesses(caseDetails.Witnesses);
+            var witnesses = caseDetails.Witnesses;
             var headlineCharge = FindHeadlineCharge(leadDefendant);
             var isCaseCharged = FindIsCaseCharged(defendants);
             var preChargeDecisionRequests = caseDetails.PreChargeDecisionRequests;
@@ -137,6 +137,11 @@ namespace Ddei.Mappers
             };
         }
 
+        public IEnumerable<WitnessDto> MapWitnesses(IEnumerable<BaseCaseWitnessResponse> witnesses)
+        {
+            return witnesses.Select(witness => MapWitness(witness));
+        }
+
         private PcdRequestCoreDto MapCorePreChargeDecisionRequest(DdeiPcdRequestCoreDto pcd)
         {
             return new PcdRequestCoreDto
@@ -210,20 +215,28 @@ namespace Ddei.Mappers
 
         private WitnessDto MapWitness(DdeiWitnessDto witness)
         {
-            return MapWitnessProperties(witness);
+            return new WitnessDto
+            {
+                Id = witness.Id,
+                ShoulderNumber = witness.ShoulderNumber,
+                Title = witness.Title,
+                Name = witness.Name,
+                HasStatements = witness.HasStatements,
+                ListOrder = witness.ListOrder,
+                Child = witness.Child,
+                Expert = witness.Expert,
+                GreatestNeed = witness.GreatestNeed,
+                Prisoner = witness.Prisoner,
+                Interpreter = witness.Interpreter,
+                Vulnerable = witness.Vulnerable,
+                Police = witness.Police,
+                Professional = witness.Professional,
+                SpecialNeeds = witness.SpecialNeeds,
+                Intimidated = witness.Intimidated,
+                Victim = witness.Victim
+            };
         }
-
-        private IEnumerable<WitnessDto> MapWitnesses(IEnumerable<BaseCaseWitnessResponse> witnesses)
-        {
-            return witnesses.Select(witness => MapWitness(witness));
-        }
-
         private WitnessDto MapWitness(BaseCaseWitnessResponse witness)
-        {
-            return MapWitnessProperties(witness);
-        }
-
-        private WitnessDto MapWitnessProperties(dynamic witness)
         {
             return new WitnessDto
             {

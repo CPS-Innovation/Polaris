@@ -269,7 +269,7 @@ public abstract class BaseDdeiClient : IDdeiClient
     protected virtual async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiUrnArgDto arg) =>
         await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(DdeiClientRequestFactory.CreateListCasesRequest(arg));
 
-    protected virtual async Task<(CaseSummaryDto Summary, IEnumerable<PcdRequestDto> PreChargeDecisionRequests, IEnumerable<DefendantAndChargesDto> DefendantsAndCharges, IEnumerable<BaseCaseWitnessResponse> Witnesses)> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg)
+    protected virtual async Task<CaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg)
     {     
         var getCaseSummaryTask = GetCaseSummaryAsync(CaseDataServiceArgFactory.CreateCaseIdArg(arg.CmsAuthValues, arg.CorrelationId, arg.CaseId));
         var getDefendantsAndChargesTask = GetDefendantAndChargesAsync(arg);
@@ -280,10 +280,16 @@ public abstract class BaseDdeiClient : IDdeiClient
 
         var summary = getCaseSummaryTask.Result;
         var defendantsAndCharges = getDefendantsAndChargesTask.Result.DefendantsAndCharges;
-        var witnesses = witnessesTask.Result;
+        var witnesses = CaseDetailsMapper.MapWitnesses(witnessesTask.Result);
         var preChargeDecisionRequests = getPcdRequestTask.Result;
 
-        return (Summary: summary, PreChargeDecisionRequests: preChargeDecisionRequests, DefendantsAndCharges: defendantsAndCharges, Witnesses: witnesses);
+        return new CaseDetailsDto
+        {
+            Summary = summary,
+            DefendantsAndCharges = defendantsAndCharges,
+            Witnesses = witnesses,
+            PreChargeDecisionRequests = preChargeDecisionRequests
+        };
     }
 
     protected virtual async Task<T> CallDdei<T>(HttpRequestMessage request)
