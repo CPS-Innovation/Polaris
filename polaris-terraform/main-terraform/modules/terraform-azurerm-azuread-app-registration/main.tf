@@ -142,11 +142,12 @@ app roles are currently being managed outside of teraform. Commenting out the be
       }
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      app_role_ids,
+      app_role
+    ]
+  }
+  
 }
-
-
-
-
-
-
-

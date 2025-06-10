@@ -27,8 +27,9 @@ output "oauth2_permission_scope_ids" {
   description = "A mapping of OAuth2.0 permission scope values to scope IDs, intended to be useful when referencing permission scopes in other resources in your configuration."
   value       = azuread_application.main.oauth2_permission_scope_ids
 }
-
+/*
 output "app_role_ids" {
   description = "A mapping of app role values to app role IDs, intended to be useful when referencing app roles in other resources in your configuration."
   value       = azuread_application.main.app_role_ids
 }
+*/
