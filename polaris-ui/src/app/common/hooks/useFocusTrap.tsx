@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from "react";
 
-export const useFocusTrap = (id: string = "#modal") => {
+export const useFocusTrap = (id = "#modal") => {
   const getTabbableElements = useCallback(() => {
     if (!document.querySelector(id)) {
       return;
@@ -26,14 +26,14 @@ export const useFocusTrap = (id: string = "#modal") => {
             ).focus();
             e.preventDefault();
           }
-        } else {
-          if (
-            document.activeElement ===
+        }
+        if (
+          !e.shiftKey &&
+          document.activeElement ===
             tabbableElements[tabbableElements.length - 1]
-          ) {
-            (tabbableElements[0] as HTMLElement).focus();
-            e.preventDefault();
-          }
+        ) {
+          (tabbableElements[0] as HTMLElement).focus();
+          e.preventDefault();
         }
       }
     },

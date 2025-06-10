@@ -115,7 +115,9 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   highlightRoots: {
     [page: number]: { reactRoot: Root; container: Element };
   } = {};
-  unsubscribe = () => {};
+  unsubscribe = () => {
+    // No-op by default, can be overridden
+  };
   mouseSelectionRef: React.RefObject<MouseSelection>;
   constructor(props: Props<T_HT>) {
     super(props);

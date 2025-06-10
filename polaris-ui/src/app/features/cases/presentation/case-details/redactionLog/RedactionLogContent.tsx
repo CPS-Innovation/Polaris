@@ -457,7 +457,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   };
 
   const getErrorSummaryList = (errorState: ErrorState) => {
-    let filteredErrorKeys: string[] = Object.keys(errorState).filter(
+    const filteredErrorKeys: string[] = Object.keys(errorState).filter(
       (key) => errorState[key as keyof ErrorState]
     );
     const errorSummary = filteredErrorKeys.map((error, index) => ({

@@ -111,6 +111,8 @@ resource "azuread_application" "main" {
     }
   }
 
+/*
+app roles are currently being managed outside of teraform. Commenting out the below block to make sure terraform does not track the app_role attribute.
   dynamic "app_role" {
     for_each = var.app_role != null ? var.app_role : []
     content {
@@ -122,6 +124,7 @@ resource "azuread_application" "main" {
       value                = lookup(app_role.value, "value", null)
     }
   }
+*/
 
   dynamic "required_resource_access" {
     for_each = var.required_resource_access != null ? var.required_resource_access : []
@@ -139,11 +142,12 @@ resource "azuread_application" "main" {
       }
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      app_role_ids,
+      app_role
+    ]
+  }
+  
 }
-
-
-
-
-
-
-

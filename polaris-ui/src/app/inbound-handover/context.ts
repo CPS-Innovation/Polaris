@@ -19,7 +19,7 @@ const isValidContextHandoverObject = (o: any): o is ContextHandoverObject =>
   typeof o === "object" && Number.isInteger(o["caseId"]);
 
 // Special case to accommodate a handover to go with e.g. caseId but no other context
-type NakedContext = {};
+type NakedContext = object;
 
 const isNakedContext = (o: RecordObject): o is NakedContext =>
   Object.keys(o).length === 0;

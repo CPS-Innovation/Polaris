@@ -7,7 +7,6 @@ import * as fetchWithCookiesModule from "./fetch-with-cookies";
 import { CORRELATION_ID } from "./core";
 import { CmsAuthRedirectingError } from "../../../../common/errors/CmsAuthRedirectingError";
 import appInitialisationError from "../../../../app-initialisation-error";
-import { CmsAuthError } from "../../../../common/errors/CmsAuthError";
 
 const fetchWithCookiesSpy = jest.spyOn(
   fetchWithCookiesModule,

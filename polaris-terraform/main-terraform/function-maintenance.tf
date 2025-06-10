@@ -56,7 +56,7 @@ resource "azurerm_linux_function_app" "fa_polaris_maintenance" {
   depends_on = [azurerm_storage_account.sa_gateway, azapi_resource.polaris_sa_maintenance_file_share]
 }
 
-module "azurerm_app_reg_fa_maintenance" {
+module "azurerm_app_reg_fa_maintenance" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   count = var.env == "dev" ? 1 : 0
 
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
@@ -84,7 +84,7 @@ resource "azuread_application_password" "faap_fa_maintenance_app_service" {
   end_date_relative     = "17520h"
 }
 
-module "azurerm_service_principal_fa_maintenance" {
+module "azurerm_service_principal_fa_maintenance" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   count = var.env == "dev" ? 1 : 0
 
   source                       = "./modules/terraform-azurerm-azuread_service_principal"

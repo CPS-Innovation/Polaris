@@ -211,10 +211,7 @@ export const useCaseDetailsState = (
   );
 
   const handleSavedRedactions = useCallback(
-    (
-      documentId: CaseDocumentViewModel["documentId"],
-      searchPIIOn: boolean = false
-    ) =>
+    (documentId: CaseDocumentViewModel["documentId"], searchPIIOn = false) =>
       dispatch({
         type: "SAVE_REDACTIONS",
         payload: { documentId, searchPIIOn },
@@ -612,6 +609,15 @@ export const useCaseDetailsState = (
     [dispatch]
   );
 
+  const handleUpdateDCFAction = useCallback(
+    (dcfMode: string | undefined) =>
+      dispatch({
+        type: "DCF_DOCUMENT_VIEW_ACTION_CHANGE",
+        payload: { dcfMode },
+      }),
+    [dispatch]
+  );
+
   return {
     combinedState,
     handleOpenPdf,
@@ -656,5 +662,6 @@ export const useCaseDetailsState = (
     handleHideSaveRotationModal,
     handleAccordionOpenClose,
     handleAccordionOpenCloseAll,
+    handleUpdateDCFAction,
   };
 };

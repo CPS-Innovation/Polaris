@@ -19,7 +19,7 @@ import {
 import { fetchWithCookies } from "./fetch-with-cookies";
 
 const cleanRefreshIndicatorsFromUrl = (existingUrl: string) => {
-  let url = new URL(existingUrl);
+  const url = new URL(existingUrl);
   url.searchParams.delete(REAUTHENTICATION_INDICATOR_QUERY_PARAM);
   url.searchParams.delete(AUTH_FAIL_REASON_QUERY_PARAM);
   url.searchParams.delete(FAIL_CORRELATION_ID_QUERY_PARAM);

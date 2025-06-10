@@ -19,7 +19,7 @@ export const getDefaultValuesFromMappings = (
   caseUrn: string
 ) => {
   const manuallySelectDocumentTypeIds = [-1, 1029, 1200];
-  let defaultValues: MappingDefaultData = {
+  const defaultValues: MappingDefaultData = {
     cpsArea: "",
     businessUnit: "",
     documentType: "",
