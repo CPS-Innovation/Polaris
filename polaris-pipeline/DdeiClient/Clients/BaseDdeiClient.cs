@@ -1,24 +1,24 @@
-﻿using Common.Exceptions;
-using System.Net;
-using Common.Wrappers;
-using Common.Dto.Response.Case.PreCharge;
+﻿using Common.Dto.Response;
 using Common.Dto.Response.Case;
+using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
-using Common.Dto.Response;
+using Common.Exceptions;
 using Common.Extensions;
-using Ddei.Domain.CaseData.Args.Core;
+using Common.Wrappers;
 using Ddei.Domain.CaseData.Args;
+using Ddei.Domain.CaseData.Args.Core;
+using Ddei.Domain.Response;
 using Ddei.Domain.Response.Defendant;
 using Ddei.Domain.Response.Document;
 using Ddei.Domain.Response.PreCharge;
-using Ddei.Domain.Response;
 using Ddei.Factories;
 using Ddei.Mappers;
-using DdeiClient.Domain.Args;
-using Microsoft.Extensions.Logging;
 using DdeiClient.Clients.Interfaces;
+using DdeiClient.Domain.Args;
 using DdeiClient.Domain.Response;
 using DdeiClient.Domain.Response.Document;
+using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace DdeiClient.Clients;
 
@@ -269,9 +269,9 @@ public abstract class BaseDdeiClient : IDdeiClient
     protected virtual async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiUrnArgDto arg) =>
         await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(DdeiClientRequestFactory.CreateListCasesRequest(arg));
 
-    protected virtual async Task<(CaseSummaryDto Summary, IEnumerable<PcdRequestDto> PreChargeDecisionRequests, IEnumerable<DefendantAndChargesDto> DefendantsAndCharges)> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg)
-    {
-        var getCaseSummaryTask = GetCaseSummaryAsync(new DdeiCaseIdOnlyArgDto { CaseId = arg.CaseId, CmsAuthValues = arg.CmsAuthValues, CorrelationId = arg.CorrelationId });
+    protected virtual async Task<(CaseSummaryDto Summary, IEnumerable<PcdRequestDto> PreChargeDecisionRequests, IEnumerable<DefendantAndChargesDto> DefendantsAndCharges, IEnumerable<BaseCaseWitnessResponse> Witnesses)> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg)
+    {     
+        var getCaseSummaryTask = GetCaseSummaryAsync(CaseDataServiceArgFactory.CreateCaseIdArg(arg.CmsAuthValues, arg.CorrelationId, arg.CaseId));
         var getDefendantsAndChargesTask = GetDefendantAndChargesAsync(arg);
         var witnessesTask = GetWitnessesAsync(arg);
         var getPcdRequestTask = GetPcdRequestsAsync(arg);
@@ -283,7 +283,7 @@ public abstract class BaseDdeiClient : IDdeiClient
         var witnesses = witnessesTask.Result;
         var preChargeDecisionRequests = getPcdRequestTask.Result;
 
-        return (Summary: summary, PreChargeDecisionRequests: preChargeDecisionRequests, DefendantsAndCharges: defendantsAndCharges);
+        return (Summary: summary, PreChargeDecisionRequests: preChargeDecisionRequests, DefendantsAndCharges: defendantsAndCharges, Witnesses: witnesses);
     }
 
     protected virtual async Task<T> CallDdei<T>(HttpRequestMessage request)

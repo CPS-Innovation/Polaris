@@ -4,6 +4,7 @@ using Ddei.Domain.Response;
 using Ddei.Domain.Response.PreCharge;
 using Ddei.Domain.Response.Defendant;
 using System.Text.RegularExpressions;
+using Common.Dto.Response;
 
 namespace Ddei.Mappers
 {
@@ -37,7 +38,7 @@ namespace Ddei.Mappers
             };
         }
 
-        public CaseDto MapCaseDetails((CaseSummaryDto Summary, IEnumerable<PcdRequestDto> PreChargeDecisionRequests, IEnumerable<DefendantAndChargesDto> DefendantsAndCharges) caseDetails)
+        public CaseDto MapCaseDetails((CaseSummaryDto Summary, IEnumerable<PcdRequestDto> PreChargeDecisionRequests, IEnumerable<DefendantAndChargesDto> DefendantsAndCharges, IEnumerable<BaseCaseWitnessResponse> Witnesses) caseDetails)
         {
             var summary = caseDetails.Summary;
 
@@ -47,7 +48,7 @@ namespace Ddei.Mappers
                 defendant.ProposedCharges = MapProposedCharges(defendant, caseDetails.PreChargeDecisionRequests);
             }
             var leadDefendant = FindLeadDefendant(defendants, (summary.LeadDefendantFirstNames, summary.LeadDefendantSurname, summary.LeadDefendantType));
-            // var witnesses = MapWitnesses(caseDetails);
+            var witnesses = MapWitnesses(caseDetails.Witnesses);
             var headlineCharge = FindHeadlineCharge(leadDefendant);
             var isCaseCharged = FindIsCaseCharged(defendants);
             var preChargeDecisionRequests = caseDetails.PreChargeDecisionRequests;
@@ -208,6 +209,21 @@ namespace Ddei.Mappers
         }
 
         private WitnessDto MapWitness(DdeiWitnessDto witness)
+        {
+            return MapWitnessProperties(witness);
+        }
+
+        private IEnumerable<WitnessDto> MapWitnesses(IEnumerable<BaseCaseWitnessResponse> witnesses)
+        {
+            return witnesses.Select(witness => MapWitness(witness));
+        }
+
+        private WitnessDto MapWitness(BaseCaseWitnessResponse witness)
+        {
+            return MapWitnessProperties(witness);
+        }
+
+        private WitnessDto MapWitnessProperties(dynamic witness)
         {
             return new WitnessDto
             {
