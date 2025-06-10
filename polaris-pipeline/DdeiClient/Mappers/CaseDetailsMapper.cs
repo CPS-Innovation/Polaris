@@ -16,7 +16,7 @@ namespace Ddei.Mappers
             var summary = caseDetails.Summary;
 
             var defendants = MapDefendants(caseDetails);
-            var leadDefendant = FindLeadDefendant(defendants, summary);
+            var leadDefendant = FindLeadDefendant(defendants, (summary.LeadDefendantFirstNames, summary.LeadDefendantSurname, summary.LeadDefendantType));
             var witnesses = MapWitnesses(caseDetails);
             var headlineCharge = FindHeadlineCharge(leadDefendant);
             var isCaseCharged = FindIsCaseCharged(defendants);
@@ -37,9 +37,34 @@ namespace Ddei.Mappers
             };
         }
 
-        public CaseDto MapCaseDetails((CaseSummaryDto Summary, IEnumerable<PcdRequestDto> PreChargeDecisionRequests) caseDetails)
+        public CaseDto MapCaseDetails((CaseSummaryDto Summary, IEnumerable<PcdRequestDto> PreChargeDecisionRequests, IEnumerable<DefendantAndChargesDto> DefendantsAndCharges) caseDetails)
         {
-            return new CaseDto();
+            var summary = caseDetails.Summary;
+
+            var defendants = caseDetails.DefendantsAndCharges;
+            foreach (var defendant in defendants)
+            {
+                defendant.ProposedCharges = MapProposedCharges(defendant, caseDetails.PreChargeDecisionRequests);
+            }
+            var leadDefendant = FindLeadDefendant(defendants, (summary.LeadDefendantFirstNames, summary.LeadDefendantSurname, summary.LeadDefendantType));
+            // var witnesses = MapWitnesses(caseDetails);
+            var headlineCharge = FindHeadlineCharge(leadDefendant);
+            var isCaseCharged = FindIsCaseCharged(defendants);
+            var preChargeDecisionRequests = caseDetails.PreChargeDecisionRequests;
+
+            return new CaseDto
+            {
+                Id = summary.Id,
+                UniqueReferenceNumber = summary.Urn,
+                IsCaseCharged = isCaseCharged,
+                NumberOfDefendants = summary.NumberOfDefendants,
+                OwningUnit = summary.OwningUnit,
+                LeadDefendantDetails = leadDefendant != null ? leadDefendant.DefendantDetails : null,
+                DefendantsAndCharges = defendants,
+                HeadlineCharge = headlineCharge,
+                PreChargeDecisionRequests = preChargeDecisionRequests,
+                // Witnesses = witnesses
+            };
         }
 
         public DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<DdeiCaseDefendantDto> defendants, int caseId, string etag)
@@ -229,6 +254,20 @@ namespace Ddei.Mappers
                       .Select(proposedCharge => MapProposedCharge(proposedCharge));
         }
 
+        private IEnumerable<ProposedChargeDto> MapProposedCharges(DefendantAndChargesDto defendant, IEnumerable<PcdRequestDto> pcdRequests)
+        {
+            return pcdRequests
+                      .SelectMany(pcdRequest => pcdRequest.Suspects)
+                      // weakness here:  because we screen-scrape, we don't actually ever see a unique numerical id
+                      //  for a suspect.  When we want to join between defendants and suspect, all we have are 
+                      //  the Dob etc fields to join on, and hope for the best that they all match
+                      .Where(suspect => suspect.Dob == defendant.DefendantDetails.Dob
+                                && suspect.FirstNames == defendant.DefendantDetails.FirstNames
+                                && suspect.Surname == defendant.DefendantDetails.Surname)
+                      .SelectMany(suspect => suspect.ProposedCharges)
+                      .Select(proposedCharge => MapProposedCharge(proposedCharge));
+        }
+
         private ChargeDto MapCharge(DdeiOffenceDto offence, string nextHearingDate)
         {
             return new ChargeDto
@@ -247,6 +286,16 @@ namespace Ddei.Mappers
         }
 
         private ProposedChargeDto MapProposedCharge(DdeiPcdProposedChargeDto proposedCharge)
+        {
+            return new ProposedChargeDto
+            {
+                Charge = proposedCharge.Charge,
+                EarlyDate = proposedCharge.EarlyDate,
+                LateDate = proposedCharge.LateDate
+            };
+        }
+
+        private ProposedChargeDto MapProposedCharge(PcdProposedChargeDto proposedCharge)
         {
             return new ProposedChargeDto
             {
@@ -275,11 +324,11 @@ namespace Ddei.Mappers
                 LateDate = proposedCharge.LateDate
             };
         }
-        private DefendantAndChargesDto FindLeadDefendant(IEnumerable<DefendantAndChargesDto> defendants, DdeiCaseSummaryDto caseSummary)
+        private DefendantAndChargesDto FindLeadDefendant(IEnumerable<DefendantAndChargesDto> defendants, (string LeadDefendantFirstNames, string LeadDefendantSurname, string LeadDefendantType) caseSummary)
         {
 
             // todo: this is not ideal, DDEI only gives us the names of the lead defendant, so not 100%
-            // that we find the defendant recrod we want (e.g. if there are two John Smiths on the case?) 
+            // that we find the defendant record we want (e.g. if there are two John Smiths on the case?) 
             var foundDefendants = defendants.Where(defendant =>
                 AreStringsEqual(caseSummary.LeadDefendantFirstNames, defendant.DefendantDetails.FirstNames)
                 && AreStringsEqual(caseSummary.LeadDefendantSurname, defendant.DefendantDetails.Surname)
