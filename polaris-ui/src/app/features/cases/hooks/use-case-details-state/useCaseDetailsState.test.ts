@@ -178,6 +178,7 @@ describe("useCaseDetailsState", () => {
         handleAccordionOpenClose,
         handleAccordionOpenCloseAll,
         handleToggleDocumentState,
+        handleUpdateDCFAction,
         ...stateProperties
       } = result.current;
 

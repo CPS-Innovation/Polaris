@@ -250,7 +250,7 @@ public abstract class BaseDdeiClient : IDdeiClient
 
     public virtual async Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(DdeiBaseArgDto arg)
     {
-        var ddeiResults = await CallDdei<List<DdeiMaterialTypeListResponse>>(DdeiClientRequestFactory.CreateGetMaterialTypeListRequest(arg));
+        var ddeiResults = await CallDdei<List<MdsMaterialTypeListResponse>>(DdeiClientRequestFactory.CreateGetMaterialTypeListRequest(arg));
 
         return ddeiResults.Select(ddeiResult => CmsMaterialTypeMapper.Map(ddeiResult)).ToArray();
     }

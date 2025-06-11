@@ -104,7 +104,7 @@ resource "azurerm_windows_function_app" "fa_pdf_redactor" {
   }
 }
 
-module "azurerm_app_reg_fa_pdf_redactor" {
+module "azurerm_app_reg_fa_pdf_redactor" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
   display_name            = "fa-${local.global_resource_name}-pdf-redactor-appreg"
   identifier_uris         = ["api://fa-${local.global_resource_name}-pdf-redactor"]
@@ -138,7 +138,7 @@ resource "azuread_application_password" "faap_fa_pdf_redactor_app_service" {
   end_date_relative     = "17520h"
 }
 
-module "azurerm_service_principal_fa_pdf_redactor" {
+module "azurerm_service_principal_fa_pdf_redactor" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   source                       = "./modules/terraform-azurerm-azuread_service_principal"
   application_id               = module.azurerm_app_reg_fa_pdf_redactor.client_id
   app_role_assignment_required = false

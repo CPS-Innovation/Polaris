@@ -30,6 +30,13 @@ resource "azuread_service_principal" "main" {
       hide                  = lookup(var.feature_tags, "hide", null)
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      app_role_ids,
+      app_roles
+    ]
+  }
 }
 
 

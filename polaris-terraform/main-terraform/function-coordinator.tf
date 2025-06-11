@@ -148,7 +148,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
   }
 }
 
-module "azurerm_app_reg_fa_coordinator" {
+module "azurerm_app_reg_fa_coordinator" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
   display_name            = "fa-${local.global_resource_name}-coordinator-appreg"
   identifier_uris         = ["api://fa-${local.global_resource_name}-coordinator"]
@@ -168,7 +168,7 @@ module "azurerm_app_reg_fa_coordinator" {
   tags = ["terraform"]
 }
 
-module "azurerm_service_principal_fa_coordinator" {
+module "azurerm_service_principal_fa_coordinator" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   source                       = "./modules/terraform-azurerm-azuread_service_principal"
   application_id               = module.azurerm_app_reg_fa_coordinator.client_id
   app_role_assignment_required = false

@@ -1,9 +1,10 @@
 using Common.Dto.Response;
+using DdeiClient.Domain.Response;
 
-namespace Ddei.Mappers
+namespace Ddei.Mappers;
+
+public interface ICmsMaterialTypeMapper
 {
-    public interface ICmsMaterialTypeMapper
-    {
-        MaterialTypeDto Map(DdeiMaterialTypeListResponse ddeiResponse);
-    }
+    MaterialTypeDto Map(DdeiMaterialTypeListResponse ddeiResponse);
+    MaterialTypeDto Map(MdsMaterialTypeListResponse mdsResponse);
 }
