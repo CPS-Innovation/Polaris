@@ -21,14 +21,14 @@ public class GetCasesTests
     private readonly Mock<ILogger<GetCases>> _loggerMock;
     private readonly Mock<IDdeiArgFactory> _ddeiArgFactoryMock;
     private readonly Mock<IDdeiClientFactory> _ddeiClientFactoryMock;
-    private readonly GetCases _getGetCases;
+    private readonly GetCases _getCases;
 
     public GetCasesTests()
     {
         _loggerMock = new Mock<ILogger<GetCases>>();
         _ddeiArgFactoryMock = new Mock<IDdeiArgFactory>();
         _ddeiClientFactoryMock = new Mock<IDdeiClientFactory>();
-        _getGetCases = new GetCases(_loggerMock.Object, _ddeiClientFactoryMock.Object, _ddeiArgFactoryMock.Object);
+        _getCases = new GetCases(_loggerMock.Object, _ddeiClientFactoryMock.Object, _ddeiArgFactoryMock.Object);
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public class GetCasesTests
         _ddeiClientFactoryMock.Setup(s => s.Create(It.IsAny<string>(), DdeiClients.Mds)).Returns(ddeiClientMock.Object);
         ddeiClientMock.Setup(s => s.ListCasesAsync(urnArgDto)).ReturnsAsync(caseDtos);
         //act
-        var result = await _getGetCases.Run(req, caseUrn);
+        var result = await _getCases.Run(req, caseUrn);
 
         //assert
         Assert.IsType<OkObjectResult>(result);
