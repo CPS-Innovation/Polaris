@@ -92,9 +92,6 @@ public class DdeiClient : BaseDdeiClient
         return CaseDetailsMapper.MapCaseDetails(@case);
     }
 
-    private new async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg) =>
-        await CallDdei<DdeiCaseDetailsDto>(DdeiClientRequestFactory.CreateGetCaseRequest(arg));
-
     public override async Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(DdeiBaseArgDto arg)
     {
         var ddeiResults = await CallDdei<List<DdeiMaterialTypeListResponse>>(DdeiClientRequestFactory.CreateGetMaterialTypeListRequest(arg));
@@ -102,10 +99,6 @@ public class DdeiClient : BaseDdeiClient
         return ddeiResults.Select(ddeiResult => CmsMaterialTypeMapper.Map(ddeiResult)).ToArray();
     }
 
-    public override async Task<IEnumerable<BaseCaseWitnessResponse>> GetWitnessesAsync(DdeiCaseIdentifiersArgDto arg)
-    {
-        var ddeiResults = await CallDdei<List<DdeiCaseWitnessResponse>>(DdeiClientRequestFactory.CreateCaseWitnessesRequest(arg));
-
-        return ddeiResults;
-    }
+    private new async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg) =>
+        await CallDdei<DdeiCaseDetailsDto>(DdeiClientRequestFactory.CreateGetCaseRequest(arg));
 }
