@@ -32,7 +32,7 @@ public class ToggleIsUnusedDocumentTests
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
-        long documentId = 1;
+        string documentId = "CMS-1";
         var isUnused = "unused";
         var ddeiClientMock = new Mock<IDdeiClient>();
         _ddeiClientFactoryMock.Setup(s => s.Create(It.IsAny<string>(), DdeiClients.Mds)).Returns(ddeiClientMock.Object);
@@ -52,7 +52,7 @@ public class ToggleIsUnusedDocumentTests
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
-        long documentId = 1;
+        string documentId = "CMS-1";
         var isUnused = "unused";
         var ddeiClientMock = new Mock<IDdeiClient>();
         _ddeiClientFactoryMock.Setup(s => s.Create(It.IsAny<string>(), DdeiClients.Mds)).Returns(ddeiClientMock.Object);
