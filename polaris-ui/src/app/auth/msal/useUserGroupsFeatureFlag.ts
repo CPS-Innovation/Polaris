@@ -157,7 +157,6 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
         userDetails?.username,
         notifications,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
       ),
       isUnused: shouldShowFeature(
         FEATURE_FLAG_USED_DOCUMENT_STATE,
