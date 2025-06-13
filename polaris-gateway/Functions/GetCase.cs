@@ -40,7 +40,7 @@ public class GetCase : BaseFunction
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
-        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
+        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Ddei);
 
         var result = await ddeiClient.GetCaseAsync(arg);
 

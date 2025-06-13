@@ -41,7 +41,7 @@ public class GetCasesTests
         var ddeiClientMock = new Mock<IDdeiClient>();
         var caseDtos = new List<CaseDto>();
         _ddeiArgFactoryMock.Setup(s => s.CreateUrnArg(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn)).Returns(urnArgDto);
-        _ddeiClientFactoryMock.Setup(s => s.Create(It.IsAny<string>(), DdeiClients.Mds)).Returns(ddeiClientMock.Object);
+        _ddeiClientFactoryMock.Setup(s => s.Create(It.IsAny<string>(), DdeiClients.Ddei)).Returns(ddeiClientMock.Object);
         ddeiClientMock.Setup(s => s.ListCasesAsync(urnArgDto)).ReturnsAsync(caseDtos);
         //act
         var result = await _getCases.Run(req, caseUrn);

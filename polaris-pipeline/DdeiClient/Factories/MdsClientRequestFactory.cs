@@ -1,8 +1,10 @@
-﻿using Common.Dto.Request;
+﻿using Common.Constants;
+using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using DdeiClient.Domain.Args;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -11,6 +13,7 @@ namespace DdeiClient.Factories;
 public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClientRequestFactory
 {
     private const string UrnHeaderName = "Urn";
+
     public HttpRequestMessage CreateVerifyCmsAuthRequest(DdeiBaseArgDto arg)
     {
         throw new NotImplementedException();
@@ -172,6 +175,12 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/summary");
         AddAuthHeaders(request, arg);
         return request;
+    }
+
+    protected override void AddAuthHeaders(HttpRequestMessage request, DdeiBaseArgDto arg)
+    {
+        request.Headers.Add(HttpHeaderKeys.CmsAuthValues, WebUtility.UrlDecode(arg.CmsAuthValues));
+        request.Headers.Add(CorrelationId, arg.CorrelationId.ToString());
     }
 
     private void CreateRequest(HttpRequestMessage request, DdeiUrnArgDto arg, HttpContent content = null)

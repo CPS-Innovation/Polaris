@@ -36,7 +36,7 @@ public class GetCases : BaseFunction
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var arg = _ddeiArgFactory.CreateUrnArg(cmsAuthValues, correlationId, caseUrn);
-        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
+        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Ddei);
 
         var result = await ddeiClient.ListCasesAsync(arg);
 
