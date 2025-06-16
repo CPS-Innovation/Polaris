@@ -221,17 +221,13 @@ public abstract class BaseDdeiClient : IDdeiClient
 
     public virtual async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg)
     {
-        var response = await CallDdei<DdeiDocumentReclassifiedResponse>(DdeiClientRequestFactory.CreateReclassifyDocumentRequest(arg));
+        // var documents = await ListDocumentsAsync(arg);
+        var materialTypeList = await GetMaterialTypeListAsync(arg);
+        // var rc = await ReclassifyDocumentAsync(arg);
 
-        return new DocumentReclassifiedResultDto
-        {
-            DocumentId = response.Id,
-            DocumentTypeId = response.DocumentTypeId,
-            ReclassificationType = response.ReclassificationType,
-            OriginalDocumentTypeId = response.OriginalDocumentTypeId,
-            DocumentRenamed = response.DocumentRenamed,
-            DocumentRenamedOperationName = response.DocumentRenamedOperationName
-        };
+        var materialType = materialTypeList.SingleOrDefault(x => x.TypeId == arg.DocumentTypeId);
+
+        return new DocumentReclassifiedResultDto();
     }
 
     public virtual async Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(DdeiCaseIdentifiersArgDto arg)
@@ -270,7 +266,7 @@ public abstract class BaseDdeiClient : IDdeiClient
         await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(DdeiClientRequestFactory.CreateListCasesRequest(arg));
 
     protected virtual async Task<CaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg)
-    {     
+    {
         var getCaseSummaryTask = GetCaseSummaryAsync(CaseDataServiceArgFactory.CreateCaseIdArg(arg.CmsAuthValues, arg.CorrelationId, arg.CaseId));
         var getDefendantsAndChargesTask = GetDefendantAndChargesAsync(arg);
         var witnessesTask = GetWitnessesAsync(arg);

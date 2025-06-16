@@ -99,6 +99,21 @@ public class DdeiClient : BaseDdeiClient
         return ddeiResults.Select(ddeiResult => CmsMaterialTypeMapper.Map(ddeiResult)).ToArray();
     }
 
+    public override async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg)
+    {
+        var response = await CallDdei<DdeiDocumentReclassifiedResponse>(DdeiClientRequestFactory.CreateReclassifyDocumentRequest(arg));
+
+        return new DocumentReclassifiedResultDto
+        {
+            DocumentId = response.Id,
+            DocumentTypeId = response.DocumentTypeId,
+            ReclassificationType = response.ReclassificationType,
+            OriginalDocumentTypeId = response.OriginalDocumentTypeId,
+            DocumentRenamed = response.DocumentRenamed,
+            DocumentRenamedOperationName = response.DocumentRenamedOperationName
+        };
+    }
+
     private new async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg) =>
         await CallDdei<DdeiCaseDetailsDto>(DdeiClientRequestFactory.CreateGetCaseRequest(arg));
 }
