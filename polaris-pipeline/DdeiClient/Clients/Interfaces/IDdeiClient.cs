@@ -5,6 +5,7 @@ using Common.Dto.Response;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
 using DdeiClient.Domain.Args;
+using Ddei.Domain.Response.Document;
 
 namespace DdeiClient.Clients.Interfaces;
 
@@ -45,6 +46,7 @@ public interface IDdeiClient
     Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg);
 
     Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg);
+    Task<DdeiCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(DdeiReclassifyCommunicationArgDto arg);
 
     Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(DdeiCaseIdentifiersArgDto arg);
 

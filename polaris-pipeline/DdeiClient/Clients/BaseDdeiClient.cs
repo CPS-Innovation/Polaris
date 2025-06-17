@@ -137,8 +137,7 @@ public abstract class BaseDdeiClient : IDdeiClient
             DdeiClientRequestFactory.CreateListCaseDocumentsRequest(arg)
         );
 
-        return ddeiResults
-            .Select(ddeiResult => CaseDocumentMapper.Map(ddeiResult));
+        return ddeiResults.Select(ddeiResult => CaseDocumentMapper.Map(ddeiResult));
     }
 
     public virtual async Task<FileResult> GetDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg)
@@ -222,12 +221,17 @@ public abstract class BaseDdeiClient : IDdeiClient
 
     public virtual async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg)
     {
-        // TODO SH - Parallelism
-        var caseDocuments = await ListDocumentsAsync(arg);
-        // TODO SH - Not found error/Might already throw error
+        var caseDocumentsTask = ListDocumentsAsync(arg);
+        var materialTypeListTask = GetMaterialTypeListAsync(arg);
+
+        await Task.WhenAll(caseDocumentsTask, materialTypeListTask);
+
+        var caseDocuments = caseDocumentsTask.Result;
+        var materialTypeList = materialTypeListTask.Result;
+
+        // TODO SH - Not found error
         var document = caseDocuments.SingleOrDefault(x => x.DocumentId == arg.DocumentId);
-        // TODO SH - Not found error/Might already throw error
-        var materialTypeList = await GetMaterialTypeListAsync(arg);
+        // TODO SH - Not found error
         var materialType = materialTypeList.SingleOrDefault(x => x.TypeId == arg.DocumentTypeId);
 
         // TODO SH - Arg Factory
@@ -247,8 +251,7 @@ public abstract class BaseDdeiClient : IDdeiClient
             Used = SetReclassifyDocumentUsed(materialType, arg)
         };
 
-        // TODO SH - Separate method
-        var reclassifyResponse = await CallDdei<DdeiCommunicationReclassifiedResponse>(DdeiClientRequestFactory.CreateReclassifyCommunicationRequest(reclassifyCommunicationRequest));
+        var reclassifyResponse = await ReclassifyCommunicationAsync(reclassifyCommunicationRequest);
 
         // TODO SH - Call Rename and RenameDescription
         // reclassifyResult.DocumentRenamed = documentRenamed;
@@ -261,6 +264,11 @@ public abstract class BaseDdeiClient : IDdeiClient
             OriginalDocumentTypeId = document.CmsDocType.DocumentTypeId ?? 0,
             ReclassificationType = materialType.Classification,
         };
+    }
+
+    public virtual async Task<DdeiCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(DdeiReclassifyCommunicationArgDto arg)
+    {
+        return await CallDdei<DdeiCommunicationReclassifiedResponse>(DdeiClientRequestFactory.CreateReclassifyCommunicationRequest(arg));
     }
 
     private static ReclassificationStatement SetReclassifyDocumentStatement(MaterialTypeDto materialType, CmsDocumentDto document, DdeiReclassifyDocumentArgDto documentReclassify)
