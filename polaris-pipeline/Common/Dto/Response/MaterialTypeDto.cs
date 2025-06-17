@@ -6,5 +6,6 @@ namespace Common.Dto.Response
         public string Description { get; set; }
         public string NewClassificationVariant { get; set; }
         public string AddAsUsedOrUnused { get; set; }
+        public string Classification { get; set; }
     }
 }

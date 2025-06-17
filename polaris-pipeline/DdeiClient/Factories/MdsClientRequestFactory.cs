@@ -141,18 +141,19 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateReclassifyCommunicationRequest(DdeiReclassifyCommunicationArgDto arg)
     {
-        // TODO - SH - Implement
-        //var content = JsonSerializer.Serialize(new ReclassifyDocumentDto
-        //{
-        //    DocumentTypeId = arg.DocumentTypeId,
-        //    Exhibit = arg.Exhibit,
-        //    Statement = arg.Statement,
-        //    Other = arg.Other,
-        //    Immediate = arg.Immediate
-        //});
-        var request = new HttpRequestMessage(HttpMethod.Put, $"api/communication/reclassify");
+        var content = JsonSerializer.Serialize(new ReclassifyCommunicationDto
+        {
+            Classification = arg.Classification,
+            MaterialId = arg.MaterialId,
+            DocumentTypeId = arg.DocumentTypeId,
+            Subject = arg.Subject,
+            Statement = arg.Statement,
+            Exhibit = arg.Exhibit,
+            Used = arg.Used
+        });
+        var request = new HttpRequestMessage(HttpMethod.Post, $"api/communication/reclassify");
         AddAuthHeaders(request, arg);
-        //request.Content = new StringContent(content, Encoding.UTF8, ContentType.Json);
+        request.Content = new StringContent(content, Encoding.UTF8, ContentType.Json);
         return request;
     }
 

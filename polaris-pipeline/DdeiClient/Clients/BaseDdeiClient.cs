@@ -230,7 +230,7 @@ public abstract class BaseDdeiClient : IDdeiClient
         var materialTypeList = await GetMaterialTypeListAsync(arg);
         var materialType = materialTypeList.SingleOrDefault(x => x.TypeId == arg.DocumentTypeId);
 
-        // TODO - SH - Arg Factory
+        // TODO SH - Arg Factory
         var reclassifyCommunicationRequest = new DdeiReclassifyCommunicationArgDto
         {
             CmsAuthValues = arg.CmsAuthValues,
@@ -238,7 +238,7 @@ public abstract class BaseDdeiClient : IDdeiClient
             Urn = arg.Urn,
             CaseId = arg.CaseId,
             DocumentId = arg.DocumentId,
-            Classification = arg.DocumentTypeId == -2 ? "DEFENCESTATEMENT" : materialType.NewClassificationVariant,
+            Classification = arg.DocumentTypeId == -2 ? "DEFENCESTATEMENT" : materialType.Classification,
             MaterialId = arg.DocumentId,
             DocumentTypeId = arg.DocumentTypeId,
             Subject = document.PresentationTitle,
@@ -248,20 +248,24 @@ public abstract class BaseDdeiClient : IDdeiClient
         };
 
         // TODO SH - Separate method
-        var response = await CallDdei<DdeiDocumentReclassifiedResponse>(DdeiClientRequestFactory.CreateReclassifyCommunicationRequest(reclassifyCommunicationRequest));
+        var reclassifyResponse = await CallDdei<DdeiCommunicationReclassifiedResponse>(DdeiClientRequestFactory.CreateReclassifyCommunicationRequest(reclassifyCommunicationRequest));
+
+        // TODO SH - Call Rename and RenameDescription
+        // reclassifyResult.DocumentRenamed = documentRenamed;
+        // reclassifyResult.DocumentRenamedOperationName = documentRenamedResult.OperationName;
 
         return new DocumentReclassifiedResultDto
         {
-            DocumentId = 0, //TODO - SH - reclassifyResponse.ReclassifyCommunication.Id,
+            DocumentId = reclassifyResponse.ReclassifyCommunication.Id,
             DocumentTypeId = materialType.TypeId,
-            OriginalDocumentTypeId = document.CmsDocType.DocumentTypeId ?? 0, // TODO SH - Check,
-            ReclassificationType = materialType.NewClassificationVariant,
+            OriginalDocumentTypeId = document.CmsDocType.DocumentTypeId ?? 0,
+            ReclassificationType = materialType.Classification,
         };
     }
 
     private static ReclassificationStatement SetReclassifyDocumentStatement(MaterialTypeDto materialType, CmsDocumentDto document, DdeiReclassifyDocumentArgDto documentReclassify)
     {
-        if (materialType.NewClassificationVariant == "STATEMENT")
+        if (materialType.Classification == "STATEMENT")
         {
             var statementDate = DateTime.Parse(documentReclassify.Statement.Date);
             var statementNo = documentReclassify.Statement.StatementNo;
@@ -285,7 +289,7 @@ public abstract class BaseDdeiClient : IDdeiClient
 
     private static ReclassificationExhibit SetReclassifyDocumentExhibit(MaterialTypeDto materialType, DdeiReclassifyDocumentArgDto documentReclassify)
     {
-        if (materialType.NewClassificationVariant == "EXHIBIT")
+        if (materialType.Classification == "EXHIBIT")
         {
             return new ReclassificationExhibit
             {
