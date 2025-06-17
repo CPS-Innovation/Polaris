@@ -1,4 +1,5 @@
-﻿using Common.Dto.Response;
+﻿using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
@@ -221,13 +222,94 @@ public abstract class BaseDdeiClient : IDdeiClient
 
     public virtual async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg)
     {
-        // var documents = await ListDocumentsAsync(arg);
+        // TODO SH - Parallelism
+        var caseDocuments = await ListDocumentsAsync(arg);
+        // TODO SH - Not found error/Might already throw error
+        var document = caseDocuments.SingleOrDefault(x => x.DocumentId == arg.DocumentId);
+        // TODO SH - Not found error/Might already throw error
         var materialTypeList = await GetMaterialTypeListAsync(arg);
-        // var rc = await ReclassifyDocumentAsync(arg);
-
         var materialType = materialTypeList.SingleOrDefault(x => x.TypeId == arg.DocumentTypeId);
 
-        return new DocumentReclassifiedResultDto();
+        // TODO - SH - Arg Factory
+        var reclassifyCommunicationRequest = new DdeiReclassifyCommunicationArgDto
+        {
+            CmsAuthValues = arg.CmsAuthValues,
+            CorrelationId = arg.CorrelationId,
+            Urn = arg.Urn,
+            CaseId = arg.CaseId,
+            DocumentId = arg.DocumentId,
+            Classification = arg.DocumentTypeId == -2 ? "DEFENCESTATEMENT" : materialType.NewClassificationVariant,
+            MaterialId = arg.DocumentId,
+            DocumentTypeId = arg.DocumentTypeId,
+            Subject = document.PresentationTitle,
+            Statement = SetReclassifyDocumentStatement(materialType, document, arg),
+            Exhibit = SetReclassifyDocumentExhibit(materialType, arg),
+            Used = SetReclassifyDocumentUsed(materialType, arg)
+        };
+
+        // TODO SH - Separate method
+        var response = await CallDdei<DdeiDocumentReclassifiedResponse>(DdeiClientRequestFactory.CreateReclassifyCommunicationRequest(reclassifyCommunicationRequest));
+
+        return new DocumentReclassifiedResultDto
+        {
+            DocumentId = 0, //TODO - SH - reclassifyResponse.ReclassifyCommunication.Id,
+            DocumentTypeId = materialType.TypeId,
+            OriginalDocumentTypeId = document.CmsDocType.DocumentTypeId ?? 0, // TODO SH - Check,
+            ReclassificationType = materialType.NewClassificationVariant,
+        };
+    }
+
+    private static ReclassificationStatement SetReclassifyDocumentStatement(MaterialTypeDto materialType, CmsDocumentDto document, DdeiReclassifyDocumentArgDto documentReclassify)
+    {
+        if (materialType.NewClassificationVariant == "STATEMENT")
+        {
+            var statementDate = DateTime.Parse(documentReclassify.Statement.Date);
+            var statementNo = documentReclassify.Statement.StatementNo;
+
+            if (statementNo == 0)
+            {
+                //var currentStatementNo = int.Parse(document.Title); // TODO SH - Check 
+                // statementNo = currentStatementNo++;
+            }
+
+            return new ReclassificationStatement
+            {
+                StatementNo = statementNo,
+                WitnessId = documentReclassify.Statement.WitnessId,
+                Date = statementDate.ToString("yyyy-MM-dd")
+            };
+        }
+        else
+            return null;
+    }
+
+    private static ReclassificationExhibit SetReclassifyDocumentExhibit(MaterialTypeDto materialType, DdeiReclassifyDocumentArgDto documentReclassify)
+    {
+        if (materialType.NewClassificationVariant == "EXHIBIT")
+        {
+            return new ReclassificationExhibit
+            {
+                Item = documentReclassify.Exhibit.Item,
+                Reference = documentReclassify.Exhibit.Reference,
+                ExistingProducerOrWitnessId = documentReclassify.Exhibit.ExistingProducerOrWitnessId,
+                NewProducer = documentReclassify.Exhibit.NewProducer
+            };
+        }
+        else
+            return null;
+    }
+
+    private static bool? SetReclassifyDocumentUsed(MaterialTypeDto materialType, DdeiReclassifyDocumentArgDto documentReclassifyArgument)
+    {
+        if (materialType.AddAsUsedOrUnused == "N" || materialType.AddAsUsedOrUnused == null) return null;
+
+        return documentReclassifyArgument switch
+        {
+            { Exhibit: not null } => documentReclassifyArgument.Exhibit.Used,
+            { Statement: not null } => documentReclassifyArgument.Statement.Used,
+            { Other: not null } => documentReclassifyArgument.Other.Used,
+            _ => null
+        };
     }
 
     public virtual async Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(DdeiCaseIdentifiersArgDto arg)

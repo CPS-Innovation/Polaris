@@ -22,7 +22,8 @@ public class CmsMaterialTypeMapper : ICmsMaterialTypeMapper
         {
             TypeId = int.Parse(mdsResponse.Code),
             Description = mdsResponse.Description,
-            NewClassificationVariant = GetNewClassificationVariant(mdsResponse.Classification, mdsResponse.AddAsUsedOrUnused).ToString()
+            NewClassificationVariant = GetNewClassificationVariant(mdsResponse.Classification, mdsResponse.AddAsUsedOrUnused).ToString(),
+            AddAsUsedOrUnused = mdsResponse.AddAsUsedOrUnused
         };
     }
 

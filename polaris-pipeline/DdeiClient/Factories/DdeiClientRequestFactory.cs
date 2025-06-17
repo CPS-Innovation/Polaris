@@ -167,6 +167,11 @@ public class DdeiClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClien
         return request;
     }
 
+    public HttpRequestMessage CreateReclassifyCommunicationRequest(DdeiReclassifyCommunicationArgDto arg)
+    {
+        throw new NotImplementedException();
+    }
+
     public HttpRequestMessage CreateGetExhibitProducersRequest(DdeiCaseIdentifiersArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/cases/{arg.CaseId}/exhibit-producers");

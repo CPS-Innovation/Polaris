@@ -42,6 +42,8 @@ namespace Ddei.Factories
 
         HttpRequestMessage CreateReclassifyDocumentRequest(DdeiReclassifyDocumentArgDto arg);
 
+        HttpRequestMessage CreateReclassifyCommunicationRequest(DdeiReclassifyCommunicationArgDto arg);
+
         HttpRequestMessage CreateGetExhibitProducersRequest(DdeiCaseIdentifiersArgDto arg);
 
         HttpRequestMessage CreateCaseWitnessesRequest(DdeiCaseIdentifiersArgDto arg);

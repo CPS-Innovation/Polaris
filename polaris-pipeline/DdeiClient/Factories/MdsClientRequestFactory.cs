@@ -61,7 +61,9 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateListCaseDocumentsRequest(DdeiCaseIdentifiersArgDto arg)
     {
-        throw new NotImplementedException();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/documents/cwa");
+        CreateRequest(request, arg);
+        return request;
     }
 
     public HttpRequestMessage CreateCheckoutDocumentRequest(DdeiDocumentIdAndVersionIdArgDto arg)
@@ -135,6 +137,23 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
     public HttpRequestMessage CreateReclassifyDocumentRequest(DdeiReclassifyDocumentArgDto arg)
     {
         throw new NotImplementedException();
+    }
+
+    public HttpRequestMessage CreateReclassifyCommunicationRequest(DdeiReclassifyCommunicationArgDto arg)
+    {
+        // TODO - SH - Implement
+        //var content = JsonSerializer.Serialize(new ReclassifyDocumentDto
+        //{
+        //    DocumentTypeId = arg.DocumentTypeId,
+        //    Exhibit = arg.Exhibit,
+        //    Statement = arg.Statement,
+        //    Other = arg.Other,
+        //    Immediate = arg.Immediate
+        //});
+        var request = new HttpRequestMessage(HttpMethod.Put, $"api/communication/reclassify");
+        AddAuthHeaders(request, arg);
+        //request.Content = new StringContent(content, Encoding.UTF8, ContentType.Json);
+        return request;
     }
 
     public HttpRequestMessage CreateGetExhibitProducersRequest(DdeiCaseIdentifiersArgDto arg)

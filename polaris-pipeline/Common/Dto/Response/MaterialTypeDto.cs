@@ -5,5 +5,6 @@ namespace Common.Dto.Response
         public int TypeId { get; set; }
         public string Description { get; set; }
         public string NewClassificationVariant { get; set; }
+        public string AddAsUsedOrUnused { get; set; }
     }
 }
