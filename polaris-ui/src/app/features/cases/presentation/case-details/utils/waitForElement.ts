@@ -1,6 +1,6 @@
 export const waitForElement = async (
   getElement: () => Element | undefined,
-  timeout: number = 5000
+  timeout = 5000
 ): Promise<Element> => {
   return new Promise((resolve, reject) => {
     const startTime = Date.now();

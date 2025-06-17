@@ -193,7 +193,6 @@ export const HeaderReadMode: React.FC<Props> = ({
     trackEvent("Redact Area Tool Off", {
       documentId: contextData.documentId,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     contextData.areaOnlyRedactionMode,
     contextData.documentId,

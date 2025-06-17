@@ -1,6 +1,5 @@
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using AutoFixture.Idioms;
 using Common.Exceptions;
 using Common.Wrappers;
 using Ddei.Domain.CaseData.Args.Core;
@@ -9,7 +8,6 @@ using Ddei.Factories;
 using Ddei.Mappers;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
@@ -67,13 +65,11 @@ public class DdeiClientTests
             .Setup(factory => factory.CreateListCaseDocumentsRequest(It.IsAny<DdeiCaseIdentifiersArgDto>()))
             .Returns(httpRequestMessage);
 
-        var mockConfiguration = new Mock<IConfiguration>();
         var mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
         var mockCaseDetailsMapper = new Mock<ICaseDetailsMapper>();
         var mockCaseDocumentNoteMapper = new Mock<ICaseDocumentNoteMapper>();
         var mockCaseDocumentNoteResultMapper = new Mock<ICaseDocumentNoteResultMapper>();
         var mockCaseExhibitProducerMapper = new Mock<ICaseExhibitProducerMapper>();
-        var mockCaseWitnessMapper = new Mock<ICaseWitnessMapper>();
         var mockCaseIdentifiersMapper = new Mock<ICaseIdentifiersMapper>();
         var mockCmsMaterialTypeMapper = new Mock<ICmsMaterialTypeMapper>();
         var mockCaseWitnessStatementMapper = new Mock<ICaseWitnessStatementMapper>();
@@ -88,7 +84,6 @@ public class DdeiClientTests
                 mockCaseDocumentNoteMapper.Object,
                 mockCaseDocumentNoteResultMapper.Object,
                 mockCaseExhibitProducerMapper.Object,
-                mockCaseWitnessMapper.Object,
                 mockCaseIdentifiersMapper.Object,
                 mockCmsMaterialTypeMapper.Object,
                 mockCaseWitnessStatementMapper.Object,

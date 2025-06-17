@@ -1,14 +1,12 @@
 using Common.Configuration;
-using Common.Telemetry;
+using Common.Extensions;
 using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
 using DdeiClient.Enums;
+using DdeiClient.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -16,20 +14,17 @@ namespace PolarisGateway.Functions;
 public class GetMaterialTypeList : BaseFunction
 {
     private readonly ILogger<GetMaterialTypeList> _logger;
-    private readonly IDdeiClient _ddeiClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly ITelemetryClient _telemetryClient;
+    private readonly IDdeiClientFactory _ddeiClientFactory;
 
-    public GetMaterialTypeList(ILogger<GetMaterialTypeList> logger,
-        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
-        IDdeiArgFactory ddeiArgFactory,
-        ITelemetryClient telemetryClient)
-        : base()
+    public GetMaterialTypeList(
+        ILogger<GetMaterialTypeList> logger,
+        IDdeiArgFactory ddeiArgFactory, 
+        IDdeiClientFactory ddeiClientFactory)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
-        _telemetryClient = telemetryClient;
+        _logger = logger.ExceptionIfNull();
+        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
     }
 
     [Function(nameof(GetMaterialTypeList))]
@@ -39,9 +34,10 @@ public class GetMaterialTypeList : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var arg = _ddeiArgFactory.CreateCmsCaseDataArgDto(cmsAuthValues, correlationId);
-        var result = await _ddeiClient.GetMaterialTypeListAsync(arg);
+        var ddeiBaseArgDto = _ddeiArgFactory.CreateCmsCaseDataArgDto(cmsAuthValues, correlationId);
+        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
+        var materialTypes = await ddeiClient.GetMaterialTypeListAsync(ddeiBaseArgDto);
 
-        return new OkObjectResult(result);
+        return new OkObjectResult(materialTypes);
     }
 }

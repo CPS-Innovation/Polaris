@@ -1,13 +1,7 @@
-﻿using Common.Dto.Response.Case;
-using Common.Dto.Response.Document;
-using Common.Wrappers;
-using Ddei.Domain.CaseData.Args;
-using Ddei.Domain.CaseData.Args.Core;
-using Ddei.Domain.Response;
+﻿using Common.Wrappers;
 using Ddei.Domain.Response.Document;
 using Ddei.Factories;
 using Ddei.Mappers;
-using DdeiClient.Domain.Response.Document;
 using DdeiClient.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -25,7 +19,6 @@ public class MdsClient : BaseDdeiClient
         ICaseDocumentNoteMapper caseDocumentNoteMapper,
         ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper,
         ICaseExhibitProducerMapper caseExhibitProducerMapper,
-        ICaseWitnessMapper caseWitnessMapper,
         ICaseIdentifiersMapper caseIdentifiersMapper,
         ICmsMaterialTypeMapper cmsMaterialTypeMapper,
         ICaseWitnessStatementMapper caseWitnessStatementMapper,
@@ -39,7 +32,6 @@ public class MdsClient : BaseDdeiClient
             caseDocumentNoteMapper,
             caseDocumentNoteResultMapper,
             caseExhibitProducerMapper,
-            caseWitnessMapper,
             caseIdentifiersMapper,
             cmsMaterialTypeMapper,
             caseWitnessStatementMapper,

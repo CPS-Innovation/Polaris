@@ -196,7 +196,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   }
 }
 
-module "azurerm_app_reg_as_web_polaris" {
+module "azurerm_app_reg_as_web_polaris" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
   display_name            = "as-web-${local.global_resource_name}-appreg"
   identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/as-web-${local.global_resource_name}"]
@@ -273,7 +273,7 @@ resource "azuread_application_password" "e2e_test_secret" {
   }
 }
 
-module "azurerm_service_principal_sp_polaris_web" {
+module "azurerm_service_principal_sp_polaris_web" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   source                       = "./modules/terraform-azurerm-azuread_service_principal"
   application_id               = module.azurerm_app_reg_as_web_polaris.client_id
   app_role_assignment_required = false

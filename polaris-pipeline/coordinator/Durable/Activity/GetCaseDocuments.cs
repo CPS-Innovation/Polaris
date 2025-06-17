@@ -79,7 +79,7 @@ namespace coordinator.Durable.Activity
                 payload.CaseId);
 
             var getDocumentsTask = _ddeiClient.ListDocumentsAsync(arg);
-            var getPcdRequestsTask = mdsClient.GetPcdRequestsAsync(arg);
+            var getPcdRequestsTask = mdsClient.GetPcdRequestsCoreAsync(arg);
             var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndChargesAsync(arg);
 
             await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);

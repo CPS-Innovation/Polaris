@@ -71,7 +71,7 @@ const pipelinePdfResult: PipelineResults = {
 
 // this will return updated tracker data with updated versionId, processingCompleted and documentsRetrieved needed for te redaction refresh flow
 export const getPipelinePdfResults = (resultsCount: number) => {
-  let resultsArray = Array(resultsCount)
+  const resultsArray = Array(resultsCount)
     .fill({})
     .map((value, index) => ({
       ...pipelinePdfResult,

@@ -1,8 +1,10 @@
-﻿using Common.Dto.Request;
+﻿using Common.Constants;
+using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using DdeiClient.Domain.Args;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -11,6 +13,7 @@ namespace DdeiClient.Factories;
 public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClientRequestFactory
 {
     private const string UrnHeaderName = "Urn";
+
     public HttpRequestMessage CreateVerifyCmsAuthRequest(DdeiBaseArgDto arg)
     {
         throw new NotImplementedException();
@@ -25,7 +28,9 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateListCasesRequest(DdeiUrnArgDto arg)
     {
-        throw new NotImplementedException();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/case-identifiers");
+        AddAuthHeaders(request, arg);
+        return request;
     }
 
     public HttpRequestMessage CreateGetCaseRequest(DdeiCaseIdentifiersArgDto arg)
@@ -49,7 +54,9 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateGetDefendantAndChargesRequest(DdeiCaseIdentifiersArgDto arg)
     {
-        throw new NotImplementedException();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/defendants");
+        CreateRequest(request, arg);
+        return request;
     }
 
     public HttpRequestMessage CreateListCaseDocumentsRequest(DdeiCaseIdentifiersArgDto arg)
@@ -95,12 +102,21 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateGetDocumentNotesRequest(DdeiDocumentArgDto arg)
     {
-        throw new NotImplementedException();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/documents/{arg.DocumentId}/notes");
+        AddAuthHeaders(request, arg);
+        return request;
     }
 
     public HttpRequestMessage CreateAddDocumentNoteRequest(DdeiAddDocumentNoteArgDto arg)
     {
-        throw new NotImplementedException();
+        var content = JsonSerializer.Serialize(new AddDocumentNoteDto
+        {
+            Text = arg.Text
+        });
+        var request = new HttpRequestMessage(HttpMethod.Post, $"api/cases/{arg.CaseId}/documents/{arg.DocumentId}/notes");
+        var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+        CreateRequest(request, arg, httpContent);
+        return request;
     }
 
     public HttpRequestMessage CreateRenameDocumentRequest(DdeiRenameDocumentArgDto arg)
@@ -128,17 +144,23 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateCaseWitnessesRequest(DdeiCaseIdentifiersArgDto arg)
     {
-        throw new NotImplementedException();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/witnesses");
+        CreateRequest(request, arg);
+        return request;
     }
 
     public HttpRequestMessage CreateGetMaterialTypeListRequest(DdeiBaseArgDto arg)
     {
-        throw new NotImplementedException();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/reference/reclassification");
+        AddAuthHeaders(request, arg);
+        return request;
     }
 
     public HttpRequestMessage CreateGetWitnessStatementsRequest(DdeiWitnessStatementsArgDto arg)
     {
-        throw new NotImplementedException();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/witnesses/{arg.WitnessId}/statements");
+        CreateRequest(request, arg);
+        return request;
     }
 
     public HttpRequestMessage CreateToggleIsUnusedDocumentRequest(DdeiToggleIsUnusedDocumentDto dto)
@@ -153,6 +175,12 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/summary");
         AddAuthHeaders(request, arg);
         return request;
+    }
+
+    protected override void AddAuthHeaders(HttpRequestMessage request, DdeiBaseArgDto arg)
+    {
+        request.Headers.Add(HttpHeaderKeys.CmsAuthValues, WebUtility.UrlDecode(arg.CmsAuthValues));
+        request.Headers.Add(CorrelationId, arg.CorrelationId.ToString());
     }
 
     private void CreateRequest(HttpRequestMessage request, DdeiUrnArgDto arg, HttpContent content = null)

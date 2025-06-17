@@ -376,6 +376,12 @@ export const reducer = (
           saveRefreshStatus: "initial" | "updating" | "updated";
         };
       }
+    | {
+        type: "DCF_DOCUMENT_VIEW_ACTION_CHANGE";
+        payload: {
+          dcfMode: string | undefined;
+        };
+      }
 ): CombinedState => {
   switch (action.type) {
     case "UPDATE_CASE_DETAILS":
@@ -714,12 +720,13 @@ export const reducer = (
       } else {
         const foundDocumentSearchResult =
           state.searchState.searchConfigs["documentContent"].results.status ===
-            "succeeded" &&
-          state.searchState.searchConfigs[
-            "documentContent"
-          ].results.data.documentResults.find(
-            (item) => item.documentId === documentId
-          )!;
+          "succeeded"
+            ? state.searchState.searchConfigs[
+                "documentContent"
+              ].results.data.documentResults.find(
+                (item) => item.documentId === documentId
+              )
+            : undefined;
 
         const pageOccurrences = foundDocumentSearchResult
           ? foundDocumentSearchResult.occurrences.reduce(
@@ -1151,7 +1158,7 @@ export const reducer = (
         id: String(`${+new Date()}-${index}`),
       }));
 
-      let newState = {
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -1211,7 +1218,7 @@ export const reducer = (
         );
       };
 
-      let newState = {
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -1470,7 +1477,7 @@ export const reducer = (
             ],
           };
         }
-        default:
+        default: {
           const { notesData } = action.payload;
           return {
             ...state,
@@ -1484,6 +1491,7 @@ export const reducer = (
               },
             ],
           };
+        }
       }
     }
 
@@ -1492,7 +1500,7 @@ export const reducer = (
       const filteredData = state.renameDocuments.filter(
         (data) => data.documentId !== properties.documentId
       );
-      let currentData = state.renameDocuments.find(
+      const currentData = state.renameDocuments.find(
         (data) => data.documentId === properties.documentId
       )!;
 
@@ -1526,7 +1534,7 @@ export const reducer = (
       const filteredData = state.reclassifyDocuments.filter(
         (data) => data.documentId !== properties.documentId
       );
-      let currentData = state.reclassifyDocuments.find(
+      const currentData = state.reclassifyDocuments.find(
         (data) => data.documentId === properties.documentId
       )!;
 
@@ -1627,15 +1635,15 @@ export const reducer = (
 
     case "HANDLE_SEARCH_PII_ACTION": {
       const { documentId, type, highlightGroupIds } = action.payload;
-      const filteredSearchPIIDatas = state.searchPII.filter(
+      const filteredSearchPIIDatas = state.searchPII?.filter(
         (searchPIIResult) => searchPIIResult.documentId !== documentId
       );
 
-      const searchPIIDataItem = state.searchPII?.find(
-        (searchPIIDataItem) => searchPIIDataItem.documentId === documentId
+      const searchPIIDataItem = state.searchPII.find(
+        (searchPIIDataItem) => searchPIIDataItem?.documentId === documentId
       )!;
 
-      let textContent: string = "";
+      let textContent = "";
       let selectedHighlights: {
         selected: ISearchPIIHighlight[];
         rest: ISearchPIIHighlight[];
@@ -1753,7 +1761,7 @@ export const reducer = (
     case "SHOW_HIDE_PAGE_DELETION": {
       const { documentId, deletePageMode } = action.payload;
 
-      let newState = {
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -1774,7 +1782,7 @@ export const reducer = (
     case "SHOW_HIDE_PAGE_ROTATION": {
       const { documentId, rotatePageMode } = action.payload;
 
-      let newState = {
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -1800,7 +1808,7 @@ export const reducer = (
           id: String(`${+new Date()}-${index}`),
         })
       );
-      let newState = {
+      const newState = {
         ...state,
         tabsState: {
           ...state.tabsState,
@@ -1942,6 +1950,14 @@ export const reducer = (
         },
       };
       return newState;
+    }
+    case "DCF_DOCUMENT_VIEW_ACTION_CHANGE": {
+      const { dcfMode: _dcfMode } = action.payload;
+      const mode = {
+        ...state,
+        dcfMode: _dcfMode,
+      };
+      return mode;
     }
 
     default:

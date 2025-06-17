@@ -1,4 +1,5 @@
 ﻿using Common.Configuration;
+using Common.Domain.Document;
 using Common.Extensions;
 using DdeiClient.Domain.Args;
 using DdeiClient.Enums;
@@ -29,7 +30,7 @@ public class ToggleIsUnusedDocument : BaseFunction
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ToggleIsUnusedDocument)] HttpRequest req,
         string caseUrn,
         int caseId,
-        long documentId,
+        string documentId,
         string isUnused)
     {
         var correlationId = EstablishCorrelation(req);
@@ -40,7 +41,7 @@ public class ToggleIsUnusedDocument : BaseFunction
             CaseId = caseId,
             CmsAuthValues = cmsAuthValues,
             CorrelationId = correlationId,
-            DocumentId = documentId,
+            DocumentId = DocumentNature.ToNumericDocumentId(documentId, DocumentNature.Types.Document),
             IsUnused = isUnused,
             Urn = caseUrn,
         };

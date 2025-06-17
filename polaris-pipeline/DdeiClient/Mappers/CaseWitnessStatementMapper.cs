@@ -1,16 +1,25 @@
 using Common.Dto.Response;
+using DdeiClient.Domain.Response;
 
-namespace Ddei.Mappers
+namespace Ddei.Mappers;
+
+public class CaseWitnessStatementMapper : ICaseWitnessStatementMapper
 {
-    public class CaseWitnessStatementMapper : ICaseWitnessStatementMapper
+    public WitnessStatementDto Map(DdeiCaseWitnessStatementsResponse ddeiResponse)
     {
-        public WitnessStatementDto Map(DdeiCaseWitnessStatementsResponse ddeiResponse)
+        return new WitnessStatementDto
         {
-            return new WitnessStatementDto
-            {
-                DocumentId = ddeiResponse.DocumentId,
-                StatementNumber = ddeiResponse.StatementNumber
-            };
-        }
+            DocumentId = ddeiResponse.DocumentId,
+            StatementNumber = ddeiResponse.StatementNumber
+        };
+    }
+        
+    public WitnessStatementDto Map(StatementForWitness ddeiResponse)
+    {
+        return new WitnessStatementDto
+        {
+            DocumentId = ddeiResponse.DocumentId,
+            StatementNumber = ddeiResponse.Title
+        };
     }
 }

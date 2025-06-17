@@ -19,22 +19,26 @@ export const mapFilters = (
     {} as CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"]["category"]
   );
 
-  const orderedDocumentResults = mappedTextSearchResult.documentResults.sort(
-    (a, b) =>
-      // todo: _ get rid of hack
-      (a.cmsDocType && a.cmsDocType.documentType) <
-      (b.cmsDocType && b.cmsDocType.documentType)
-        ? -1
-        : (a.cmsDocType && a.cmsDocType.documentType) >
-          (b.cmsDocType && b.cmsDocType.documentType)
-        ? 1
-        : 0
-  );
+  // Sort documents by their documentType using optional chaining and a named compare function.
+  function compareByDocumentType(
+    a: (typeof mappedTextSearchResult.documentResults)[number],
+    b: (typeof mappedTextSearchResult.documentResults)[number]
+  ): number {
+    const docTypeA = a.cmsDocType?.documentType ?? "";
+    const docTypeB = b.cmsDocType?.documentType ?? "";
+    if (docTypeA < docTypeB) return -1;
+    if (docTypeA > docTypeB) return 1;
+    return 0;
+  }
+
+  const orderedDocumentResults = mappedTextSearchResult.documentResults
+    .slice()
+    .sort(compareByDocumentType);
 
   const docType =
     {} as CombinedState["searchState"]["searchConfigs"]["documentContent"]["filterOptions"]["docType"];
 
-  for (var doc of orderedDocumentResults) {
+  for (const doc of orderedDocumentResults) {
     if (!docType[doc.cmsDocType.documentType]) {
       docType[doc.cmsDocType.documentType] = {
         label: doc.cmsDocType.documentType || "Unknown",

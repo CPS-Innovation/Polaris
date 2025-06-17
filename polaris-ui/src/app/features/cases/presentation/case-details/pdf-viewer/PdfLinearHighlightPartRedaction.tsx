@@ -1,12 +1,12 @@
 import { LTWH } from "../../../../../../react-pdf-highlighter";
-import { useRef } from "react";
+import { useRef, MouseEventHandler } from "react";
 import classes from "./PdfLinearHighlight.module.scss";
 
 type Props = {
   rect: LTWH;
   id: string;
   textContent?: string;
-  onClick?: () => {};
+  onClick?: MouseEventHandler<HTMLButtonElement>;
 };
 
 export const PdfLinearHighlightPartRedaction: React.FC<Props> = ({

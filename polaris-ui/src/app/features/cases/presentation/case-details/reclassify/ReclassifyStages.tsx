@@ -247,7 +247,7 @@ export const ReclassifyStages: React.FC<ReclassifyStagesProps> = ({
     const { newDocTypeId, materialTypeList, formData } = state;
     const reclassificationType = materialTypeList.find(
       (type) => type.typeId === +newDocTypeId
-    )?.newClassificationVariant!;
+    )?.newClassificationVariant;
     const used = formData.documentUsedStatus === "YES";
 
     const saveData = {

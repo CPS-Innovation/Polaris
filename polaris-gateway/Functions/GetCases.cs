@@ -1,36 +1,31 @@
 ﻿using Common.Configuration;
+using Common.Extensions;
+using Ddei.Factories;
+using DdeiClient.Enums;
+using DdeiClient.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Ddei.Factories;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using System;
-using Common.Telemetry;
-using DdeiClient.Clients.Interfaces;
-using DdeiClient.Enums;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace PolarisGateway.Functions;
 
 public class GetCases : BaseFunction
 {
     private readonly ILogger<GetCases> _logger;
-    private readonly IDdeiClient _ddeiClient;
+    private readonly IDdeiClientFactory _ddeiClientFactory;
     private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly ITelemetryClient _telemetryClient;
 
     public GetCases(
         ILogger<GetCases> logger,
-        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
-        IDdeiArgFactory ddeiArgFactory,
-        ITelemetryClient telemetryClient)
+        IDdeiClientFactory ddeiClientFactory,
+        IDdeiArgFactory ddeiArgFactory)
         : base()
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
-        _telemetryClient = telemetryClient;
+        _logger = logger.ExceptionIfNull();
+        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
     }
 
     [Function(nameof(GetCases))]
@@ -41,7 +36,9 @@ public class GetCases : BaseFunction
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var arg = _ddeiArgFactory.CreateUrnArg(cmsAuthValues, correlationId, caseUrn);
-        var result = await _ddeiClient.ListCasesAsync(arg);
+        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Ddei);
+
+        var result = await ddeiClient.ListCasesAsync(arg);
 
         return new OkObjectResult(result);
     }

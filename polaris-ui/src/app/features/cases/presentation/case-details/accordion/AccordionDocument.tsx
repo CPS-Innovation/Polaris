@@ -174,9 +174,7 @@ export const AccordionDocument: React.FC<Props> = ({
         },
       ];
     }
-    {
-      console.log(featureFlags);
-    }
+
     if (
       caseDocument.presentationFlags.write !== "IsDispatched" &&
       featureFlags.isUnused
