@@ -1,7 +1,4 @@
-﻿
-
-
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PolarisGateway.Services.DdeiOrchestration.Mappers;
 
 namespace PolarisGateway.Services.DdeiOrchestration
@@ -12,6 +9,8 @@ namespace PolarisGateway.Services.DdeiOrchestration
         {
             services.AddSingleton<IDdeiCaseDocumentsOrchestrationService, DdeiCaseDocumentsOrchestrationService>();
             services.AddSingleton<IDdeiReclassifyDocumentOrchestrationService, DdeiReclassifyDocumentOrchestrationService>();
+            services.AddSingleton<IDdeiCaseOrchestrationService, DdeiCaseOrchestrationService>();
+            services.AddSingleton<IDdeiCaseOrchestrationService, DdeiCaseOrchestrationService>();
             services.AddSingleton<IDocumentDtoMapper, DocumentDtoMapper>();
         }
     }

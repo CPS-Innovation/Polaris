@@ -75,23 +75,6 @@ public class DdeiClient : BaseDdeiClient
         return ddeiResults;
     }
 
-    public override async Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiUrnArgDto arg)
-    {
-        var caseIdentifiers = await ListCaseIdsAsync(arg);
-
-        var calls = caseIdentifiers.Select(async caseIdentifier =>
-            await GetCaseInternalAsync(CaseDataServiceArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id)));
-
-        var cases = await Task.WhenAll(calls);
-        return cases.Select(@case => CaseDetailsMapper.MapCaseDetails(@case));
-    }
-
-    public override async Task<CaseDto> GetCaseAsync(DdeiCaseIdentifiersArgDto arg)
-    {
-        var @case = await GetCaseInternalAsync(arg);
-        return CaseDetailsMapper.MapCaseDetails(@case);
-    }
-
     public override async Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(DdeiBaseArgDto arg)
     {
         var ddeiResults = await CallDdei<List<DdeiMaterialTypeListResponse>>(DdeiClientRequestFactory.CreateGetMaterialTypeListRequest(arg));
@@ -99,6 +82,4 @@ public class DdeiClient : BaseDdeiClient
         return ddeiResults.Select(ddeiResult => CmsMaterialTypeMapper.Map(ddeiResult)).ToArray();
     }
 
-    private new async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg) =>
-        await CallDdei<DdeiCaseDetailsDto>(DdeiClientRequestFactory.CreateGetCaseRequest(arg));
 }
