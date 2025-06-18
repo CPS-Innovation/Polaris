@@ -1,54 +1,51 @@
-using System;
-using System.IO;
-using System.Net;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using coordinator.Clients.PdfRedactor;
 using Common.Configuration;
+using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Exceptions;
 using Common.Extensions;
 using Common.Services.BlobStorage;
 using Common.Wrappers;
+using coordinator.Clients.PdfRedactor;
 using Ddei.Factories;
-using Ddei;
+using DdeiClient.Enums;
+using DdeiClient.Factories;
 using FluentValidation;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Common.Domain.Document;
-using DdeiClient.Clients.Interfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System;
+using System.IO;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace coordinator.Functions
 {
     public class RedactDocument
     {
-        private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IValidator<RedactPdfRequestWithDocumentDto> _requestValidator;
         private readonly IPdfRedactorClient _redactionClient;
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
-        private readonly IDdeiClient _ddeiClient;
         private readonly IDdeiArgFactory _ddeiArgFactory;
+        private readonly IDdeiClientFactory _ddeiClientFactory;
         private readonly ILogger<RedactDocument> _logger;
 
         public RedactDocument(
-            IJsonConvertWrapper jsonConvertWrapper,
             IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
             IPdfRedactorClient redactionClient,
             Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-            IDdeiClient ddeiClient,
             IDdeiArgFactory ddeiArgFactory,
             ILogger<RedactDocument> logger,
-            IConfiguration configuration)
+            IConfiguration configuration, 
+            IDdeiClientFactory ddeiClientFactory)
         {
-            _jsonConvertWrapper = jsonConvertWrapper;
-            _requestValidator = requestValidator;
-            _redactionClient = redactionClient;
-            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
-            _ddeiClient = ddeiClient;
-            _ddeiArgFactory = ddeiArgFactory;
-            _logger = logger;
+            _requestValidator = requestValidator.ExceptionIfNull();
+            _redactionClient = redactionClient.ExceptionIfNull();
+            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
+            _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+            _logger = logger.ExceptionIfNull();
+            _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
         }
 
         [Function(nameof(RedactDocument))]
@@ -142,7 +139,8 @@ namespace coordinator.Functions
                 DocumentNature.ToNumericDocumentId(documentId, DocumentNature.Types.Document),
                 versionId);
 
-            var ddeiResult = await _ddeiClient.UploadPdfAsync(arg, modifiedDocumentStream ?? redactedDocumentStream);
+            var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
+            var ddeiResult = await ddeiClient.UploadPdfAsync(arg, modifiedDocumentStream ?? redactedDocumentStream);
 
             if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
             {
