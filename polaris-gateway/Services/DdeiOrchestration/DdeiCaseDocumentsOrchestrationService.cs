@@ -18,14 +18,14 @@ using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.DdeiOrchestration;
 
-public class DdeiOrchestrationService : IDdeiOrchestrationService
+public class DdeiCaseDocumentsOrchestrationService : IDdeiCaseDocumentsOrchestrationService
 {
     private readonly IDdeiClient _ddeiClient;
     private readonly IDdeiClientFactory _ddeiClientFactory;
     private readonly IDocumentToggleService _documentToggleService;
     private readonly IDocumentDtoMapper _cmsDocumentMapper;
 
-    public DdeiOrchestrationService(
+    public DdeiCaseDocumentsOrchestrationService(
             [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
             IDdeiClientFactory ddeiClientFactory,
             IDdeiArgFactory ddeiArgFactory,

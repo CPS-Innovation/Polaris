@@ -46,6 +46,7 @@ public interface IDdeiClient
     Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg);
 
     Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg);
+
     Task<DdeiCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(DdeiReclassifyCommunicationArgDto arg);
 
     Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(DdeiCaseIdentifiersArgDto arg);

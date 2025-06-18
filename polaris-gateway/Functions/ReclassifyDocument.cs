@@ -3,13 +3,12 @@ using Common.Dto.Request;
 using Common.Extensions;
 using Common.Telemetry;
 using Ddei.Factories;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Mappers;
+using PolarisGateway.Services.DdeiOrchestration;
 using PolarisGateway.TelemetryEvents;
 using PolarisGateway.Validators;
 using System.Net;
@@ -20,9 +19,9 @@ namespace PolarisGateway.Functions;
 public class ReclassifyDocument : BaseFunction
 {
     private readonly ILogger<ReclassifyDocument> _logger;
-    private readonly IDdeiClientFactory _ddeiClientFactory;
     private readonly IDdeiArgFactory _ddeiArgFactory;
     private readonly IReclassifyDocumentRequestMapper _reclassifyDocumentRequestMapper;
+    private readonly IDdeiReclassifyDocumentOrchestrationService _ddeiOrchestrationService;
     private readonly ITelemetryClient _telemetryClient;
 
     public ReclassifyDocument(
@@ -30,14 +29,14 @@ public class ReclassifyDocument : BaseFunction
         IDdeiArgFactory ddeiArgFactory,
         IReclassifyDocumentRequestMapper reclassifyDocumentRequestMapper,
         ITelemetryClient telemetryClient,
-        IDdeiClientFactory ddeiClientFactory)
+        IDdeiReclassifyDocumentOrchestrationService ddeiOrchestrationService)
         : base()
     {
         _logger = logger.ExceptionIfNull();
-        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
         _reclassifyDocumentRequestMapper = reclassifyDocumentRequestMapper.ExceptionIfNull();
         _telemetryClient = telemetryClient.ExceptionIfNull();
+        _ddeiOrchestrationService = ddeiOrchestrationService.ExceptionIfNull();
     }
 
     [Function(nameof(ReclassifyDocument))]
@@ -79,9 +78,7 @@ public class ReclassifyDocument : BaseFunction
                 dto: body.Value
             );
 
-            var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
-
-            var result = await ddeiClient.ReclassifyDocumentAsync(arg);
+            var result = await _ddeiOrchestrationService.ReclassifyDocument(arg);
 
             telemetryEvent.IsSuccess = true;
             _telemetryClient.TrackEvent(telemetryEvent);

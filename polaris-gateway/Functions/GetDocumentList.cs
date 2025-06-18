@@ -14,13 +14,13 @@ namespace PolarisGateway.Functions;
 public class GetDocumentList : BaseFunction
 {
     private readonly ILogger<GetDocumentList> _logger;
-    private readonly IDdeiOrchestrationService _ddeiOrchestrationService;
+    private readonly IDdeiCaseDocumentsOrchestrationService _ddeiOrchestrationService;
     private readonly IDdeiArgFactory _ddeiArgFactory;
     private readonly ITelemetryClient _telemetryClient;
 
     public GetDocumentList(
         ILogger<GetDocumentList> logger,
-        IDdeiOrchestrationService ddeiOrchestrationService,
+        IDdeiCaseDocumentsOrchestrationService ddeiOrchestrationService,
         IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient)
         : base()

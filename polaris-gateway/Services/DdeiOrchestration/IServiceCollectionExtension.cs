@@ -10,7 +10,8 @@ namespace PolarisGateway.Services.DdeiOrchestration
     {
         public static void AddDdeiOrchestrationService(this IServiceCollection services)
         {
-            services.AddSingleton<IDdeiOrchestrationService, DdeiOrchestrationService>();
+            services.AddSingleton<IDdeiCaseDocumentsOrchestrationService, DdeiCaseDocumentsOrchestrationService>();
+            services.AddSingleton<IDdeiReclassifyDocumentOrchestrationService, DdeiReclassifyDocumentOrchestrationService>();
             services.AddSingleton<IDocumentDtoMapper, DocumentDtoMapper>();
         }
     }
