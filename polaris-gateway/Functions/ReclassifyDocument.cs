@@ -81,6 +81,13 @@ public class ReclassifyDocument : BaseFunction
             var result = await _ddeiOrchestrationService.ReclassifyDocument(arg);
 
             telemetryEvent.IsSuccess = true;
+            telemetryEvent.CorrelationId = correlationId;
+            telemetryEvent.ResponseDocumentId = (int)result.DocumentId;
+            telemetryEvent.ReclassificationType = result.ReclassificationType;
+            telemetryEvent.OriginalDocumentTypeId = result.OriginalDocumentTypeId;
+            telemetryEvent.NewDocumentTypeId = result.DocumentTypeId;
+            telemetryEvent.DocumentRenamed = result.DocumentRenamed;
+            telemetryEvent.DocumentRenameOperationName = result.DocumentRenamedOperationName;
             _telemetryClient.TrackEvent(telemetryEvent);
 
             return new ObjectResult(result);

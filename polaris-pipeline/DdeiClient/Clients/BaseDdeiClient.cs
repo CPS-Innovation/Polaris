@@ -274,7 +274,7 @@ public abstract class BaseDdeiClient : IDdeiClient
     public virtual async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiUrnArgDto arg) =>
         await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(DdeiClientRequestFactory.CreateListCasesRequest(arg));
 
-    protected new async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg) =>
+    protected virtual async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg) =>
         await CallDdei<DdeiCaseDetailsDto>(DdeiClientRequestFactory.CreateGetCaseRequest(arg));
 
     protected virtual async Task<T> CallDdei<T>(HttpRequestMessage request)

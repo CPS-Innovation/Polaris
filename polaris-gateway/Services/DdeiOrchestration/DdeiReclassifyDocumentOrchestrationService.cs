@@ -58,8 +58,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         var reclassifyResponse = await mdsClient.ReclassifyCommunicationAsync(reclassifyCommunicationRequest);
 
         // TODO SH - Call Rename and RenameDescription
-        // reclassifyResult.DocumentRenamed = documentRenamed;
-        // reclassifyResult.DocumentRenamedOperationName = documentRenamedResult.OperationName;
+
 
         return new DocumentReclassifiedResultDto
         {
@@ -67,6 +66,9 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
             DocumentTypeId = materialType.TypeId,
             OriginalDocumentTypeId = document.CmsDocType.DocumentTypeId ?? 0,
             ReclassificationType = materialType.Classification,
+            // TODO SH - Implement
+            //DocumentRenamed = documentRenamed,
+            //DocumentRenamedOperationName = documentRenamedResult.OperationName
         };
     }
 
