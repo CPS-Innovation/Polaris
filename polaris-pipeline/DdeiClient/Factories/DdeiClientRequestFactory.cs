@@ -151,6 +151,11 @@ public class DdeiClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClien
         return request;
     }
 
+    public HttpRequestMessage CreateRenameExhibitRequest(DdeiRenameDocumentArgDto arg)
+    {
+        throw new NotImplementedException();
+    }
+
     public HttpRequestMessage CreateReclassifyDocumentRequest(DdeiReclassifyDocumentArgDto arg)
     {
         var content = JsonSerializer.Serialize(new ReclassifyDocumentDto

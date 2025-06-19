@@ -219,6 +219,13 @@ public abstract class BaseDdeiClient : IDdeiClient
         return new DocumentRenamedResultDto { Id = response.UpdateCommunication.Id };
     }
 
+    public virtual async Task<DocumentRenamedResultDto> RenameExhibitAsync(DdeiRenameDocumentArgDto arg)
+    {
+        var response = await CallDdei<RenameMaterialDescriptionResponse>(DdeiClientRequestFactory.CreateRenameExhibitRequest(arg));
+
+        return new DocumentRenamedResultDto { Id = response.UpdateCommunicationDescription.Id };
+    }
+
     public virtual async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg)
     {
         var response = await CallDdei<DdeiDocumentReclassifiedResponse>(DdeiClientRequestFactory.CreateReclassifyDocumentRequest(arg));

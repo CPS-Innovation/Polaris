@@ -6,5 +6,5 @@ namespace PolarisGateway.Services.DdeiOrchestration;
 
 public interface IDdeiReclassifyDocumentOrchestrationService
 {
-    Task<DocumentReclassifiedResultDto> ReclassifyDocument(DdeiReclassifyDocumentArgDto arg);
+    Task<(bool IsSuccess, DocumentReclassifiedResultDto Result)> ReclassifyDocument(DdeiReclassifyDocumentArgDto arg);
 }

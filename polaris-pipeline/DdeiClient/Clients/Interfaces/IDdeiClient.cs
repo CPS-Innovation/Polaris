@@ -48,6 +48,8 @@ public interface IDdeiClient
 
     Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg);
 
+    Task<DocumentRenamedResultDto> RenameExhibitAsync(DdeiRenameDocumentArgDto arg);
+
     Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg);
 
     Task<DdeiCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(DdeiReclassifyCommunicationArgDto arg);

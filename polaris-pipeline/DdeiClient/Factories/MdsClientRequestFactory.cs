@@ -134,6 +134,19 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
         return request;
     }
 
+    public HttpRequestMessage CreateRenameExhibitRequest(DdeiRenameDocumentArgDto arg)
+    {
+        var content = JsonSerializer.Serialize(new RenameExhibitMaterialDto()
+        {
+            Description = arg.DocumentName,
+            MaterialId = arg.DocumentId
+        });
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"api/material/{arg.DocumentId}/rename-exhibit");
+        var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+        CreateRequest(request, arg, httpContent);
+        return request;
+    }
+
     public HttpRequestMessage CreateReclassifyDocumentRequest(DdeiReclassifyDocumentArgDto arg)
     {
         throw new NotImplementedException();

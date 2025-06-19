@@ -78,19 +78,25 @@ public class ReclassifyDocument : BaseFunction
                 dto: body.Value
             );
 
-            var result = await _ddeiOrchestrationService.ReclassifyDocument(arg);
+            var reclassifyDocumentResult = await _ddeiOrchestrationService.ReclassifyDocument(arg);
+
+            if (!reclassifyDocumentResult.IsSuccess)
+            {
+                telemetryEvent.IsSuccess = false;
+                _telemetryClient.TrackEvent(telemetryEvent);
+                return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+            }
 
             telemetryEvent.IsSuccess = true;
-            telemetryEvent.CorrelationId = correlationId;
-            telemetryEvent.ResponseDocumentId = (int)result.DocumentId;
-            telemetryEvent.ReclassificationType = result.ReclassificationType;
-            telemetryEvent.OriginalDocumentTypeId = result.OriginalDocumentTypeId;
-            telemetryEvent.NewDocumentTypeId = result.DocumentTypeId;
-            telemetryEvent.DocumentRenamed = result.DocumentRenamed;
-            telemetryEvent.DocumentRenameOperationName = result.DocumentRenamedOperationName;
+            telemetryEvent.ResponseDocumentId = (int)reclassifyDocumentResult.Result.DocumentId;
+            telemetryEvent.ReclassificationType = reclassifyDocumentResult.Result.ReclassificationType;
+            telemetryEvent.OriginalDocumentTypeId = reclassifyDocumentResult.Result.OriginalDocumentTypeId;
+            telemetryEvent.NewDocumentTypeId = reclassifyDocumentResult.Result.DocumentTypeId;
+            telemetryEvent.DocumentRenamed = reclassifyDocumentResult.Result.DocumentRenamed;
+            telemetryEvent.DocumentRenameOperationName = reclassifyDocumentResult.Result.DocumentRenamedOperationName;
             _telemetryClient.TrackEvent(telemetryEvent);
 
-            return new ObjectResult(result);
+            return new ObjectResult(reclassifyDocumentResult);
         }
         catch
         {
