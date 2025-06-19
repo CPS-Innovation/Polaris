@@ -29,9 +29,10 @@ public class DdeiCaseOrchestrationService : IDdeiCaseOrchestrationService
         _caseDetailsMapper = caseDetailsMapper.ExceptionIfNull();
     }
 
-    public async Task<CaseDetailsDto> GetCase(DdeiCaseIdentifiersArgDto arg)
+    public async Task<CaseDto> GetCase(DdeiCaseIdentifiersArgDto arg)
     {
-        return await GetCaseDetails(arg);
+        var @case = await GetCaseDetails(arg);
+        return _caseDetailsMapper.MapCaseDetails(@case);
     }
 
     public async Task<IEnumerable<CaseDto>> GetCases(DdeiUrnArgDto arg)

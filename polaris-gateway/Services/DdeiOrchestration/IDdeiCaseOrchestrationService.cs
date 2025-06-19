@@ -5,6 +5,6 @@ using System.Threading.Tasks;
 
 public interface IDdeiCaseOrchestrationService
 {
-    Task<CaseDetailsDto> GetCase(DdeiCaseIdentifiersArgDto arg);
+    Task<CaseDto> GetCase(DdeiCaseIdentifiersArgDto arg);
     Task<IEnumerable<CaseDto>> GetCases(DdeiUrnArgDto arg);
 }
