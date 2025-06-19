@@ -99,6 +99,13 @@ public class DdeiClient : BaseDdeiClient
         return ddeiResults.Select(ddeiResult => CmsMaterialTypeMapper.Map(ddeiResult)).ToArray();
     }
 
+    public override async Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(DdeiCaseIdentifiersArgDto arg)
+    {
+        var ddeiResults = await CallDdei<List<DdeiDocumentExhibitProducerResponse>>(DdeiClientRequestFactory.CreateGetExhibitProducersRequest(arg));
+
+        return ddeiResults.Select(ddeiResult => CaseExhibitProducerMapper.Map(ddeiResult)).ToArray();
+    }
+
     private new async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg) =>
         await CallDdei<DdeiCaseDetailsDto>(DdeiClientRequestFactory.CreateGetCaseRequest(arg));
 }

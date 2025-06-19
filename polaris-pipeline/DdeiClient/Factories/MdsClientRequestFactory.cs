@@ -144,7 +144,9 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateGetExhibitProducersRequest(DdeiCaseIdentifiersArgDto arg)
     {
-        throw new NotImplementedException();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/producers");
+        CreateRequest(request, arg);
+        return request;
     }
 
     public HttpRequestMessage CreateCaseWitnessesRequest(DdeiCaseIdentifiersArgDto arg)
