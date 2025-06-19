@@ -5,6 +5,7 @@ using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using DdeiClient.Domain.Args;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -92,7 +93,11 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateUploadPdfRequest(DdeiDocumentIdAndVersionIdArgDto arg, Stream stream)
     {
-        throw new NotImplementedException();
+        var request = new HttpRequestMessage(HttpMethod.Put, $"api/cases/{arg.CaseId}/documents/{arg.DocumentId}/versions/{arg.VersionId}");
+        var content = new StreamContent(stream);
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+        CreateRequest(request, arg, content);
+        return request;
     }
 
     public HttpRequestMessage CreateStatusRequest()
