@@ -1,14 +1,12 @@
 using Common.Configuration;
-using Common.Telemetry;
+using Common.Extensions;
 using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
 using DdeiClient.Enums;
+using DdeiClient.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -16,20 +14,17 @@ namespace PolarisGateway.Functions;
 public class GetExhibitProducers : BaseFunction
 {
     private readonly ILogger<GetExhibitProducers> _logger;
-    private readonly IDdeiClient _ddeiClient;
+    private readonly IDdeiClientFactory _ddeiClientFactory;
     private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly ITelemetryClient _telemetryClient;
 
     public GetExhibitProducers(ILogger<GetExhibitProducers> logger,
-        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
-        IDdeiArgFactory ddeiArgFactory,
-        ITelemetryClient telemetryClient)
+        IDdeiClientFactory ddeiClientFactory,
+        IDdeiArgFactory ddeiArgFactory)
         : base()
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
-        _telemetryClient = telemetryClient;
+        _logger = logger.ExceptionIfNull();
+        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
     }
 
     [Function(nameof(GetExhibitProducers))]
@@ -39,9 +34,10 @@ public class GetExhibitProducers : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
-        var result = await _ddeiClient.GetExhibitProducersAsync(arg);
+        var ddeiCaseIdentifiersArgDto = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
+        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
+        var exhibitProducerDtos = await ddeiClient.GetExhibitProducersAsync(ddeiCaseIdentifiersArgDto);
 
-        return new OkObjectResult(result);
+        return new OkObjectResult(exhibitProducerDtos);
     }
 }
