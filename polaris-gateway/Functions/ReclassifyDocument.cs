@@ -96,7 +96,7 @@ public class ReclassifyDocument : BaseFunction
             telemetryEvent.DocumentRenameOperationName = reclassifyDocumentResult.Result.DocumentRenamedOperationName;
             _telemetryClient.TrackEvent(telemetryEvent);
 
-            return new ObjectResult(reclassifyDocumentResult);
+            return new ObjectResult(reclassifyDocumentResult.Result);
         }
         catch
         {

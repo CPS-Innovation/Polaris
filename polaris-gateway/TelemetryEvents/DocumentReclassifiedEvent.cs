@@ -18,25 +18,5 @@ namespace PolarisGateway.TelemetryEvents
         public int NewDocumentTypeId { get; set; }
         public bool DocumentRenamed { get; set; }
         public string DocumentRenameOperationName { get; set; }
-
-        public override (IDictionary<string, string>, IDictionary<string, double?>) ToTelemetryEventProps()
-        {
-            return (
-                new Dictionary<string, string>
-                {
-                    { nameof(CorrelationId), CorrelationId.ToString() },
-                    { nameof(CaseId), CaseId.ToString() },
-                    { nameof(ReclassificationType), ReclassificationType },
-                    { nameof(DocumentRenamed), DocumentRenamed.ToString() }
-                },
-                new Dictionary<string, double?>
-                {
-                    { nameof(DocumentId), int.Parse(DocumentId) },
-                    { nameof(ResponseDocumentId), ResponseDocumentId },
-                    { nameof(OriginalDocumentTypeId), OriginalDocumentTypeId },
-                    { nameof(NewDocumentTypeId), NewDocumentTypeId }
-                }
-            );
-        }
     }
 }
