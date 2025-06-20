@@ -6,7 +6,7 @@ namespace Common.Dto.Request
 
         public string Reference { get; set; }
 
-        public int ExistingProducerOrWitnessId { get; set; }
+        public int? ExistingProducerOrWitnessId { get; set; }
 
         public string Producer { get; set; }
     }

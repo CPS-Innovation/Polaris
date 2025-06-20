@@ -81,4 +81,7 @@ public class DdeiDocumentResponse
 
     [JsonPropertyName("reference")]
     public string Reference { get; set; }
+
+    [JsonPropertyName("title")]
+    public string Title { get; set; }
 }

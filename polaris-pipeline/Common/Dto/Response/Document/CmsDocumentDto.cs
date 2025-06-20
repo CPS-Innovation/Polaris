@@ -57,5 +57,7 @@ namespace Common.Dto.Response.Document
         public string RenameStatus { get; set; }
 
         public string Reference { get; set; }
+
+        public string Title { get; set; }
     }
 }

@@ -94,17 +94,20 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
     private async Task<DocumentRenamedResultDto> RenameDocument(DdeiReclassifyDocumentArgDto arg, IDdeiClient mdsClient, MaterialTypeDto materialType, string documentName)
     {
         var renameDocumentArg = _ddeiArgFactory.CreateRenameDocumentArgDto(arg.CmsAuthValues, arg.CorrelationId, arg.Urn, arg.CaseId, arg.DocumentId, documentName);
+        DocumentRenamedResultDto response = new();
 
         if (materialType.Classification == "EXHIBIT")
         {
-            return await mdsClient.RenameExhibitAsync(renameDocumentArg);
+            response = await mdsClient.RenameExhibitAsync(renameDocumentArg);
+            response.OperationName = nameof(mdsClient.RenameExhibitAsync);
         }
         else if (materialType.Classification != "STATEMENT")
         {
-            return await mdsClient.RenameDocumentAsync(renameDocumentArg);
+            response = await mdsClient.RenameDocumentAsync(renameDocumentArg);
+            response.OperationName = nameof(mdsClient.RenameDocumentAsync);
         }
 
-        return new DocumentRenamedResultDto();
+        return response;
     }
 
     private async Task<(bool documentRenamed, DocumentRenamedResultDto documentRenamedResult)> HandleDocumentRenaming(DdeiReclassifyDocumentArgDto arg, IDdeiClient mdsClient, MaterialTypeDto materialType)
@@ -120,7 +123,6 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         return (true, documentRenamedResult);
     }
 
-
     private static ReclassificationStatement SetReclassifyDocumentStatement(MaterialTypeDto materialType, CmsDocumentDto document, DdeiReclassifyDocumentArgDto documentReclassify)
     {
         if (materialType.Classification == "STATEMENT")
@@ -130,8 +132,8 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
 
             if (statementNo == 0)
             {
-                //var currentStatementNo = int.Parse(document.Title);
-                // statementNo = currentStatementNo++;
+                var currentStatementNo = int.Parse(document.Title);
+                statementNo = currentStatementNo++;
             }
 
             return new ReclassificationStatement

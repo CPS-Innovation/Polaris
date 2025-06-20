@@ -173,7 +173,7 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
                 {
                     Item = arg.Exhibit.Item,
                     Reference = arg.Exhibit.Reference,
-                    ExistingProducerOrWitnessId = arg.Exhibit.ExistingProducerOrWitnessId ?? 0,
+                    ExistingProducerOrWitnessId = arg.Exhibit.ExistingProducerOrWitnessId,
                     Producer = arg.Exhibit.NewProducer
                 }
                 : null,
