@@ -157,11 +157,26 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
         var content = JsonSerializer.Serialize(new ReclassifyCommunicationDto
         {
             Classification = arg.Classification,
-            MaterialId = arg.MaterialId,
+            MaterialId = (int)arg.MaterialId,
             DocumentTypeId = arg.DocumentTypeId,
             Subject = arg.Subject,
-            Statement = arg.Statement,
-            Exhibit = arg.Exhibit,
+            Statement = arg.Statement is not null
+                ? new CommunicationStatementType
+                {
+                    Date = DateOnly.FromDateTime(DateTime.Parse(arg.Statement.Date)),
+                    Witness = arg.Statement.WitnessId,
+                    StatementNo = arg.Statement.StatementNo
+                }
+                : null,
+            Exhibit = arg.Exhibit is not null
+                ? new CommunicationExhibitType
+                {
+                    Item = arg.Exhibit.Item,
+                    Reference = arg.Exhibit.Reference,
+                    ExistingProducerOrWitnessId = arg.Exhibit.ExistingProducerOrWitnessId ?? 0,
+                    Producer = arg.Exhibit.NewProducer
+                }
+                : null,
             Used = arg.Used
         });
         var request = new HttpRequestMessage(HttpMethod.Post, $"api/communication/reclassify");
