@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Mappers;
 using PolarisGateway.Services.DdeiOrchestration;
 using PolarisGateway.TelemetryEvents;
 using PolarisGateway.Validators;
@@ -20,21 +19,18 @@ public class ReclassifyDocument : BaseFunction
 {
     private readonly ILogger<ReclassifyDocument> _logger;
     private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly IReclassifyDocumentRequestMapper _reclassifyDocumentRequestMapper;
     private readonly IDdeiReclassifyDocumentOrchestrationService _ddeiOrchestrationService;
     private readonly ITelemetryClient _telemetryClient;
 
     public ReclassifyDocument(
         ILogger<ReclassifyDocument> logger,
         IDdeiArgFactory ddeiArgFactory,
-        IReclassifyDocumentRequestMapper reclassifyDocumentRequestMapper,
         ITelemetryClient telemetryClient,
         IDdeiReclassifyDocumentOrchestrationService ddeiOrchestrationService)
         : base()
     {
         _logger = logger.ExceptionIfNull();
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
-        _reclassifyDocumentRequestMapper = reclassifyDocumentRequestMapper.ExceptionIfNull();
         _telemetryClient = telemetryClient.ExceptionIfNull();
         _ddeiOrchestrationService = ddeiOrchestrationService.ExceptionIfNull();
     }

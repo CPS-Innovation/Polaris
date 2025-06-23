@@ -38,7 +38,7 @@ public class GetCaseTests
         var caseDetails = new CaseDetailsDto();
         var caseDto = new CaseDto();
         _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId)).Returns(caseIdentifiersArgDto);
-        _ddeiCaseOrchestrationServiceMock.Setup(s => s.GetCase(caseIdentifiersArgDto)).ReturnsAsync(caseDetails);
+        _ddeiCaseOrchestrationServiceMock.Setup(s => s.GetCase(caseIdentifiersArgDto)).ReturnsAsync(caseDto);
 
         //act
         var result = await _getCase.Run(req, caseUrn, caseId);
