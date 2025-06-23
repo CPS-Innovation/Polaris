@@ -1,8 +1,6 @@
 ﻿using Common.Configuration;
 using Common.Extensions;
 using Ddei.Factories;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;

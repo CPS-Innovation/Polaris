@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using PolarisGateway.Functions;
+using PolarisGateway.Services.DdeiOrchestration;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
