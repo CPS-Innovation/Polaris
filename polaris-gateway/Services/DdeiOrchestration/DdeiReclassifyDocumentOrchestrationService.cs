@@ -17,9 +17,10 @@ namespace PolarisGateway.Services.DdeiOrchestration;
 
 public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumentOrchestrationService
 {
-    private const string EXHIBIT_CLASSIFICATION = "EXHIBIT";
-    private const string STATEMENT_CLASSIFICATION = "STATEMENT";
-    private const string DEFENCE_STATEMENT_CLASSIFICATION = "DEFENCESTATEMENT";
+    private const string ExhibitClassification = "EXHIBIT";
+    private const string StatementClassification = "STATEMENT";
+    private const string DefenceStatementClassification = "DEFENCESTATEMENT";
+    private const int DefenceStatementTypeId = -2;
     private readonly IDdeiClientFactory _ddeiClientFactory;
     private readonly IDdeiArgFactory _ddeiArgFactory;
 
@@ -82,7 +83,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
             Urn = arg.Urn,
             CaseId = arg.CaseId,
             DocumentId = arg.DocumentId,
-            Classification = arg.DocumentTypeId == -2 ? DEFENCE_STATEMENT_CLASSIFICATION : materialType.Classification,
+            Classification = arg.DocumentTypeId == DefenceStatementTypeId ? DefenceStatementClassification : materialType.Classification,
             MaterialId = arg.DocumentId,
             DocumentTypeId = arg.DocumentTypeId,
             Subject = document.PresentationTitle,
@@ -99,12 +100,12 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         var renameDocumentArg = _ddeiArgFactory.CreateRenameDocumentArgDto(arg.CmsAuthValues, arg.CorrelationId, arg.Urn, arg.CaseId, arg.DocumentId, documentName);
         DocumentRenamedResultDto response = new();
 
-        if (materialType.Classification == EXHIBIT_CLASSIFICATION)
+        if (materialType.Classification == ExhibitClassification)
         {
             response = await mdsClient.RenameExhibitAsync(renameDocumentArg);
             response.OperationName = nameof(mdsClient.RenameExhibitAsync);
         }
-        else if (materialType.Classification != STATEMENT_CLASSIFICATION)
+        else if (materialType.Classification != StatementClassification)
         {
             response = await mdsClient.RenameDocumentAsync(renameDocumentArg);
             response.OperationName = nameof(mdsClient.RenameDocumentAsync);
@@ -128,7 +129,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
 
     private static ReclassificationStatement SetReclassifyDocumentStatement(MaterialTypeDto materialType, CmsDocumentDto document, DdeiReclassifyDocumentArgDto documentReclassify)
     {
-        if (materialType.Classification == STATEMENT_CLASSIFICATION)
+        if (materialType.Classification == StatementClassification)
         {
             var statementDate = DateTime.Parse(documentReclassify.Statement.Date);
             var statementNo = documentReclassify.Statement.StatementNo;
@@ -152,7 +153,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
 
     private static ReclassificationExhibit SetReclassifyDocumentExhibit(MaterialTypeDto materialType, DdeiReclassifyDocumentArgDto documentReclassify)
     {
-        if (materialType.Classification == EXHIBIT_CLASSIFICATION)
+        if (materialType.Classification == ExhibitClassification)
         {
             return new ReclassificationExhibit
             {
