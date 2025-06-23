@@ -248,9 +248,9 @@ public abstract class BaseDdeiClient : IDdeiClient
 
     public virtual async Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(DdeiCaseIdentifiersArgDto arg)
     {
-        var ddeiResults = await CallDdei<List<DdeiDocumentExhibitProducerResponse>>(DdeiClientRequestFactory.CreateGetExhibitProducersRequest(arg));
+        var ddeiResults = await CallDdei<MdsDocumentExhibitProducerResponse>(DdeiClientRequestFactory.CreateGetExhibitProducersRequest(arg));
 
-        return ddeiResults.Select(ddeiResult => CaseExhibitProducerMapper.Map(ddeiResult)).ToArray();
+        return ddeiResults.ExhibitProducers.Select(CaseExhibitProducerMapper.Map);
     }
 
     public virtual async Task<IEnumerable<BaseCaseWitnessResponse>> GetWitnessesAsync(DdeiCaseIdentifiersArgDto arg)
