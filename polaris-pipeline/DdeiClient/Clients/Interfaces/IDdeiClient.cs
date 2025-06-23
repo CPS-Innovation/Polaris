@@ -5,6 +5,8 @@ using Common.Dto.Response;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
 using DdeiClient.Domain.Args;
+using Ddei.Domain.Response.Document;
+using Ddei.Domain.Response;
 
 namespace DdeiClient.Clients.Interfaces;
 
@@ -17,6 +19,8 @@ public interface IDdeiClient
     Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiUrnArgDto arg);
 
     Task<CaseDto> GetCaseAsync(DdeiCaseIdentifiersArgDto arg);
+
+    Task<CaseSummaryDto> GetCaseSummaryAsync(DdeiCaseIdOnlyArgDto arg);
 
     Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsCoreAsync(DdeiCaseIdentifiersArgDto arg);
 
@@ -44,7 +48,11 @@ public interface IDdeiClient
 
     Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg);
 
+    Task<DocumentRenamedResultDto> RenameExhibitAsync(DdeiRenameDocumentArgDto arg);
+
     Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg);
+
+    Task<DdeiCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(DdeiReclassifyCommunicationArgDto arg);
 
     Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(DdeiCaseIdentifiersArgDto arg);
 
@@ -55,4 +63,6 @@ public interface IDdeiClient
     Task<IEnumerable<WitnessStatementDto>> GetWitnessStatementsAsync(DdeiWitnessStatementsArgDto arg);
 
     Task<bool> ToggleIsUnusedDocumentAsync(DdeiToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto);
+
+    Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiUrnArgDto arg);
 }

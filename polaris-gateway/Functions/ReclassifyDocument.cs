@@ -1,44 +1,38 @@
-using System;
-using System.Net;
-using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Dto.Request;
+using Common.Extensions;
 using Common.Telemetry;
 using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
-using DdeiClient.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Mappers;
+using PolarisGateway.Services.DdeiOrchestration;
 using PolarisGateway.TelemetryEvents;
 using PolarisGateway.Validators;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
 
 public class ReclassifyDocument : BaseFunction
 {
     private readonly ILogger<ReclassifyDocument> _logger;
-    private readonly IDdeiClient _ddeiClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly IReclassifyDocumentRequestMapper _reclassifyDocumentRequestMapper;
+    private readonly IDdeiReclassifyDocumentOrchestrationService _ddeiOrchestrationService;
     private readonly ITelemetryClient _telemetryClient;
 
     public ReclassifyDocument(
         ILogger<ReclassifyDocument> logger,
-        [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
         IDdeiArgFactory ddeiArgFactory,
-        IReclassifyDocumentRequestMapper reclassifyDocumentRequestMapper,
-        ITelemetryClient telemetryClient)
+        ITelemetryClient telemetryClient,
+        IDdeiReclassifyDocumentOrchestrationService ddeiOrchestrationService)
         : base()
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _ddeiClient = ddeiClient ?? throw new ArgumentNullException(nameof(ddeiClient));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
-        _reclassifyDocumentRequestMapper = reclassifyDocumentRequestMapper ?? throw new ArgumentNullException(nameof(reclassifyDocumentRequestMapper));
-        _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+        _logger = logger.ExceptionIfNull();
+        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _telemetryClient = telemetryClient.ExceptionIfNull();
+        _ddeiOrchestrationService = ddeiOrchestrationService.ExceptionIfNull();
     }
 
     [Function(nameof(ReclassifyDocument))]
@@ -51,7 +45,7 @@ public class ReclassifyDocument : BaseFunction
         {
             OperationName = nameof(ReclassifyDocument),
         };
-
+        
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
@@ -80,12 +74,25 @@ public class ReclassifyDocument : BaseFunction
                 dto: body.Value
             );
 
-            var result = await _ddeiClient.ReclassifyDocumentAsync(arg);
+            var reclassifyDocumentResult = await _ddeiOrchestrationService.ReclassifyDocument(arg);
+
+            if (!reclassifyDocumentResult.IsSuccess)
+            {
+                telemetryEvent.IsSuccess = false;
+                _telemetryClient.TrackEvent(telemetryEvent);
+                return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+            }
 
             telemetryEvent.IsSuccess = true;
+            telemetryEvent.ResponseDocumentId = (int)reclassifyDocumentResult.Result.DocumentId;
+            telemetryEvent.ReclassificationType = reclassifyDocumentResult.Result.ReclassificationType;
+            telemetryEvent.OriginalDocumentTypeId = reclassifyDocumentResult.Result.OriginalDocumentTypeId;
+            telemetryEvent.NewDocumentTypeId = reclassifyDocumentResult.Result.DocumentTypeId;
+            telemetryEvent.DocumentRenamed = reclassifyDocumentResult.Result.DocumentRenamed;
+            telemetryEvent.DocumentRenameOperationName = reclassifyDocumentResult.Result.DocumentRenamedOperationName;
             _telemetryClient.TrackEvent(telemetryEvent);
 
-            return new ObjectResult(result);
+            return new ObjectResult(reclassifyDocumentResult.Result);
         }
         catch
         {

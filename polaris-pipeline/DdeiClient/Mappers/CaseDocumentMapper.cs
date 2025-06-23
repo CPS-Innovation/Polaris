@@ -33,7 +33,8 @@ public class CaseDocumentMapper : ICaseDocumentMapper<DdeiDocumentResponse>
             CanReclassify = ddeiResponse.CanReclassify,
             CanRename = ddeiResponse.CanRename,
             RenameStatus = ddeiResponse.RenameStatus,
-            Reference = ddeiResponse.Reference
+            Reference = ddeiResponse.Reference,
+            Title = ddeiResponse.Title
         };
     }
 }

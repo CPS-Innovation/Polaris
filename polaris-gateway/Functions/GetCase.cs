@@ -1,15 +1,11 @@
 ﻿using Common.Configuration;
 using Common.Extensions;
 using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
+using PolarisGateway.Services.DdeiOrchestration;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -17,18 +13,18 @@ namespace PolarisGateway.Functions;
 public class GetCase : BaseFunction
 {
     private readonly ILogger<GetCase> _logger;
-    private readonly IDdeiClientFactory _ddeiClientFactory;
     private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IDdeiCaseOrchestrationService _ddeiOrchestrationService;
 
     public GetCase(
         ILogger<GetCase> logger,
-        IDdeiClientFactory ddeiClientFactory,
-        IDdeiArgFactory ddeiArgFactory)
+        IDdeiArgFactory ddeiArgFactory,
+        IDdeiCaseOrchestrationService ddeiOrchestrationService)
         : base()
     {
         _logger = logger.ExceptionIfNull();
-        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _ddeiOrchestrationService = ddeiOrchestrationService.ExceptionIfNull();
     }
 
     [Function(nameof(GetCase))]
@@ -40,9 +36,8 @@ public class GetCase : BaseFunction
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
-        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Ddei);
 
-        var result = await ddeiClient.GetCaseAsync(arg);
+        var result = await _ddeiOrchestrationService.GetCase(arg);
 
         return new OkObjectResult(result);
     }

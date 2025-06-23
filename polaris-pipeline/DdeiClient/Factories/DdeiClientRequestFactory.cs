@@ -151,6 +151,11 @@ public class DdeiClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClien
         return request;
     }
 
+    public HttpRequestMessage CreateRenameExhibitRequest(DdeiRenameDocumentArgDto arg)
+    {
+        throw new NotImplementedException();
+    }
+
     public HttpRequestMessage CreateReclassifyDocumentRequest(DdeiReclassifyDocumentArgDto arg)
     {
         var content = JsonSerializer.Serialize(new ReclassifyDocumentDto
@@ -165,6 +170,11 @@ public class DdeiClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClien
         AddAuthHeaders(request, arg);
         request.Content = new StringContent(content, Encoding.UTF8, ContentType.Json);
         return request;
+    }
+
+    public HttpRequestMessage CreateReclassifyCommunicationRequest(DdeiReclassifyCommunicationArgDto arg)
+    {
+        throw new NotImplementedException();
     }
 
     public HttpRequestMessage CreateGetExhibitProducersRequest(DdeiCaseIdentifiersArgDto arg)

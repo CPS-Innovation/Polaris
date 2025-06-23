@@ -1,4 +1,5 @@
-﻿using Common.Dto.Response;
+﻿using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
@@ -136,8 +137,7 @@ public abstract class BaseDdeiClient : IDdeiClient
             DdeiClientRequestFactory.CreateListCaseDocumentsRequest(arg)
         );
 
-        return ddeiResults
-            .Select(ddeiResult => CaseDocumentMapper.Map(ddeiResult));
+        return ddeiResults.Select(ddeiResult => CaseDocumentMapper.Map(ddeiResult));
     }
 
     public virtual async Task<FileResult> GetDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg)
@@ -219,6 +219,13 @@ public abstract class BaseDdeiClient : IDdeiClient
         return new DocumentRenamedResultDto { Id = response.UpdateCommunication.Id };
     }
 
+    public virtual async Task<DocumentRenamedResultDto> RenameExhibitAsync(DdeiRenameDocumentArgDto arg)
+    {
+        var response = await CallDdei<RenameMaterialDescriptionResponse>(DdeiClientRequestFactory.CreateRenameExhibitRequest(arg));
+
+        return new DocumentRenamedResultDto { Id = response.UpdateCommunicationDescription.Id };
+    }
+
     public virtual async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg)
     {
         var response = await CallDdei<DdeiDocumentReclassifiedResponse>(DdeiClientRequestFactory.CreateReclassifyDocumentRequest(arg));
@@ -232,6 +239,11 @@ public abstract class BaseDdeiClient : IDdeiClient
             DocumentRenamed = response.DocumentRenamed,
             DocumentRenamedOperationName = response.DocumentRenamedOperationName
         };
+    }
+
+    public virtual async Task<DdeiCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(DdeiReclassifyCommunicationArgDto arg)
+    {
+        return await CallDdei<DdeiCommunicationReclassifiedResponse>(DdeiClientRequestFactory.CreateReclassifyCommunicationRequest(arg));
     }
 
     public virtual async Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(DdeiCaseIdentifiersArgDto arg)
@@ -266,31 +278,11 @@ public abstract class BaseDdeiClient : IDdeiClient
         (await CallDdei(DdeiClientRequestFactory.CreateToggleIsUnusedDocumentRequest(toggleIsUnusedDocumentDto)))
         .IsSuccessStatusCode;
 
-    protected virtual async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiUrnArgDto arg) =>
+    public virtual async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(DdeiUrnArgDto arg) =>
         await CallDdei<IEnumerable<DdeiCaseIdentifiersDto>>(DdeiClientRequestFactory.CreateListCasesRequest(arg));
 
-    protected virtual async Task<CaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg)
-    {     
-        var getCaseSummaryTask = GetCaseSummaryAsync(CaseDataServiceArgFactory.CreateCaseIdArg(arg.CmsAuthValues, arg.CorrelationId, arg.CaseId));
-        var getDefendantsAndChargesTask = GetDefendantAndChargesAsync(arg);
-        var witnessesTask = GetWitnessesAsync(arg);
-        var getPcdRequestTask = GetPcdRequestsAsync(arg);
-
-        await Task.WhenAll(getCaseSummaryTask, getDefendantsAndChargesTask, witnessesTask, getPcdRequestTask);
-
-        var summary = getCaseSummaryTask.Result;
-        var defendantsAndCharges = getDefendantsAndChargesTask.Result.DefendantsAndCharges;
-        var witnesses = CaseDetailsMapper.MapWitnesses(witnessesTask.Result);
-        var preChargeDecisionRequests = getPcdRequestTask.Result;
-
-        return new CaseDetailsDto
-        {
-            Summary = summary,
-            DefendantsAndCharges = defendantsAndCharges,
-            Witnesses = witnesses,
-            PreChargeDecisionRequests = preChargeDecisionRequests
-        };
-    }
+    protected virtual async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(DdeiCaseIdentifiersArgDto arg) =>
+        await CallDdei<DdeiCaseDetailsDto>(DdeiClientRequestFactory.CreateGetCaseRequest(arg));
 
     protected virtual async Task<T> CallDdei<T>(HttpRequestMessage request)
     {

@@ -40,7 +40,11 @@ namespace Ddei.Factories
 
         HttpRequestMessage CreateRenameDocumentRequest(DdeiRenameDocumentArgDto arg);
 
+        HttpRequestMessage CreateRenameExhibitRequest(DdeiRenameDocumentArgDto arg);
+
         HttpRequestMessage CreateReclassifyDocumentRequest(DdeiReclassifyDocumentArgDto arg);
+
+        HttpRequestMessage CreateReclassifyCommunicationRequest(DdeiReclassifyCommunicationArgDto arg);
 
         HttpRequestMessage CreateGetExhibitProducersRequest(DdeiCaseIdentifiersArgDto arg);
 

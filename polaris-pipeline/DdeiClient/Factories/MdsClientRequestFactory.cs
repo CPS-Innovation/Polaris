@@ -62,7 +62,9 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
 
     public HttpRequestMessage CreateListCaseDocumentsRequest(DdeiCaseIdentifiersArgDto arg)
     {
-        throw new NotImplementedException();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/documents/cwa");
+        CreateRequest(request, arg);
+        return request;
     }
 
     public HttpRequestMessage CreateCheckoutDocumentRequest(DdeiDocumentIdAndVersionIdArgDto arg)
@@ -137,9 +139,55 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClient
         return request;
     }
 
+    public HttpRequestMessage CreateRenameExhibitRequest(DdeiRenameDocumentArgDto arg)
+    {
+        var content = JsonSerializer.Serialize(new RenameExhibitMaterialDto()
+        {
+            Description = arg.DocumentName,
+            MaterialId = arg.DocumentId
+        });
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"api/material/{arg.DocumentId}/rename-exhibit");
+        var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
+        CreateRequest(request, arg, httpContent);
+        return request;
+    }
+
     public HttpRequestMessage CreateReclassifyDocumentRequest(DdeiReclassifyDocumentArgDto arg)
     {
         throw new NotImplementedException();
+    }
+
+    public HttpRequestMessage CreateReclassifyCommunicationRequest(DdeiReclassifyCommunicationArgDto arg)
+    {
+        var content = JsonSerializer.Serialize(new ReclassifyCommunicationDto
+        {
+            Classification = arg.Classification,
+            MaterialId = (int)arg.MaterialId,
+            DocumentTypeId = arg.DocumentTypeId,
+            Subject = arg.Subject,
+            Statement = arg.Statement is not null
+                ? new CommunicationStatementType
+                {
+                    Date = DateOnly.FromDateTime(DateTime.Parse(arg.Statement.Date)),
+                    Witness = arg.Statement.WitnessId,
+                    StatementNo = arg.Statement.StatementNo
+                }
+                : null,
+            Exhibit = arg.Exhibit is not null
+                ? new CommunicationExhibitType
+                {
+                    Item = arg.Exhibit.Item,
+                    Reference = arg.Exhibit.Reference,
+                    ExistingProducerOrWitnessId = arg.Exhibit.ExistingProducerOrWitnessId,
+                    Producer = arg.Exhibit.NewProducer
+                }
+                : null,
+            Used = arg.Used
+        });
+        var request = new HttpRequestMessage(HttpMethod.Post, $"api/communication/reclassify");
+        AddAuthHeaders(request, arg);
+        request.Content = new StringContent(content, Encoding.UTF8, ContentType.Json);
+        return request;
     }
 
     public HttpRequestMessage CreateGetExhibitProducersRequest(DdeiCaseIdentifiersArgDto arg)
