@@ -17,6 +17,9 @@ namespace PolarisGateway.Services.DdeiOrchestration;
 
 public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumentOrchestrationService
 {
+    private const string EXHIBIT_CLASSIFICATION = "EXHIBIT";
+    private const string STATEMENT_CLASSIFICATION = "STATEMENT";
+    private const string DEFENCE_STATEMENT_CLASSIFICATION = "DEFENCESTATEMENT";
     private readonly IDdeiClientFactory _ddeiClientFactory;
     private readonly IDdeiArgFactory _ddeiArgFactory;
 
@@ -79,7 +82,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
             Urn = arg.Urn,
             CaseId = arg.CaseId,
             DocumentId = arg.DocumentId,
-            Classification = arg.DocumentTypeId == -2 ? "DEFENCESTATEMENT" : materialType.Classification,
+            Classification = arg.DocumentTypeId == -2 ? DEFENCE_STATEMENT_CLASSIFICATION : materialType.Classification,
             MaterialId = arg.DocumentId,
             DocumentTypeId = arg.DocumentTypeId,
             Subject = document.PresentationTitle,
@@ -96,12 +99,12 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         var renameDocumentArg = _ddeiArgFactory.CreateRenameDocumentArgDto(arg.CmsAuthValues, arg.CorrelationId, arg.Urn, arg.CaseId, arg.DocumentId, documentName);
         DocumentRenamedResultDto response = new();
 
-        if (materialType.Classification == "EXHIBIT")
+        if (materialType.Classification == EXHIBIT_CLASSIFICATION)
         {
             response = await mdsClient.RenameExhibitAsync(renameDocumentArg);
             response.OperationName = nameof(mdsClient.RenameExhibitAsync);
         }
-        else if (materialType.Classification != "STATEMENT")
+        else if (materialType.Classification != STATEMENT_CLASSIFICATION)
         {
             response = await mdsClient.RenameDocumentAsync(renameDocumentArg);
             response.OperationName = nameof(mdsClient.RenameDocumentAsync);
@@ -125,7 +128,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
 
     private static ReclassificationStatement SetReclassifyDocumentStatement(MaterialTypeDto materialType, CmsDocumentDto document, DdeiReclassifyDocumentArgDto documentReclassify)
     {
-        if (materialType.Classification == "STATEMENT")
+        if (materialType.Classification == STATEMENT_CLASSIFICATION)
         {
             var statementDate = DateTime.Parse(documentReclassify.Statement.Date);
             var statementNo = documentReclassify.Statement.StatementNo;
@@ -143,13 +146,13 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
                 Date = statementDate.ToString("yyyy-MM-dd")
             };
         }
-        else
-            return null;
+        
+        return null;
     }
 
     private static ReclassificationExhibit SetReclassifyDocumentExhibit(MaterialTypeDto materialType, DdeiReclassifyDocumentArgDto documentReclassify)
     {
-        if (materialType.Classification == "EXHIBIT")
+        if (materialType.Classification == EXHIBIT_CLASSIFICATION)
         {
             return new ReclassificationExhibit
             {
@@ -159,8 +162,8 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
                 NewProducer = documentReclassify.Exhibit.NewProducer
             };
         }
-        else
-            return null;
+        
+        return null;
     }
 
     private static bool? SetReclassifyDocumentUsed(MaterialTypeDto materialType, DdeiReclassifyDocumentArgDto documentReclassifyArgument)
