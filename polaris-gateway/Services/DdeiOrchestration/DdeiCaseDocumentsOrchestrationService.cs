@@ -5,13 +5,9 @@ using Common.Dto.Response.Documents;
 using Common.Extensions;
 using Common.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args.Core;
-using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
 using DdeiClient.Enums;
 using DdeiClient.Factories;
-using Microsoft.Extensions.DependencyInjection;
 using PolarisGateway.Services.DdeiOrchestration.Mappers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,20 +16,16 @@ namespace PolarisGateway.Services.DdeiOrchestration;
 
 public class DdeiCaseDocumentsOrchestrationService : IDdeiCaseDocumentsOrchestrationService
 {
-    private readonly IDdeiClient _ddeiClient;
     private readonly IDdeiClientFactory _ddeiClientFactory;
     private readonly IDocumentToggleService _documentToggleService;
     private readonly IDocumentDtoMapper _cmsDocumentMapper;
 
     public DdeiCaseDocumentsOrchestrationService(
-            [FromKeyedServices(DdeiClients.Ddei)] IDdeiClient ddeiClient,
             IDdeiClientFactory ddeiClientFactory,
-            IDdeiArgFactory ddeiArgFactory,
             IDocumentToggleService documentToggleService,
             IDocumentDtoMapper cmsDocumentMapper
         )
     {
-        _ddeiClient = ddeiClient.ExceptionIfNull();
         _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
         _documentToggleService = documentToggleService.ExceptionIfNull();
         _cmsDocumentMapper = cmsDocumentMapper.ExceptionIfNull();
@@ -43,9 +35,9 @@ public class DdeiCaseDocumentsOrchestrationService : IDdeiCaseDocumentsOrchestra
     {
         var mdsClient = _ddeiClientFactory.Create(arg.CmsAuthValues, DdeiClients.Mds);
 
-        var getDocumentsTask = _ddeiClient.ListDocumentsAsync(arg);
+        var getDocumentsTask = mdsClient.ListDocumentsAsync(arg);
         var getPcdRequestsTask = mdsClient.GetPcdRequestsCoreAsync(arg);
-        var getDefendantsAndChargesTask = _ddeiClient.GetDefendantAndChargesAsync(arg);
+        var getDefendantsAndChargesTask = mdsClient.GetDefendantAndChargesAsync(arg);
 
         await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 

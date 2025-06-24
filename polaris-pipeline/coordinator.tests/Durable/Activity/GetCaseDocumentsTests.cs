@@ -12,7 +12,6 @@ using DdeiClient.Clients.Interfaces;
 using DdeiClient.Enums;
 using DdeiClient.Factories;
 using FluentAssertions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
@@ -28,10 +27,9 @@ namespace coordinator.tests.Durable.Activity
         private readonly PresentationFlagsDto[] _presentationFlags;
         private readonly CasePayload _payload;
         private readonly GetCaseDocuments _getCaseDocuments;
-        private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly Mock<IStateStorageService> _mockStateStorageService;
         private readonly Mock<IDdeiClientFactory> _ddeiClientFactoryMock;
-
+        private readonly Mock<IDdeiClient> _ddeiClientMock;
         public GetCaseDocumentsTests()
         {
             var fixture = new Fixture();
@@ -47,12 +45,11 @@ namespace coordinator.tests.Durable.Activity
               fixture.Create<PresentationFlagsDto>()
             ];
 
-            var mockDdeiClient = new Mock<IDdeiClient>();
+            _ddeiClientMock = new Mock<IDdeiClient>();
 
             _mockStateStorageService = new Mock<IStateStorageService>();
-            _mockConfiguration = new Mock<IConfiguration>();
 
-            mockDdeiClient
+            _ddeiClientMock
                 .Setup(client => client.GetCaseAsync(It.IsAny<DdeiCaseIdentifiersArgDto>()))
                 .ReturnsAsync(_case);
 
@@ -63,7 +60,7 @@ namespace coordinator.tests.Durable.Activity
                 .Setup(factory => factory.CreateCaseIdentifiersArg(_payload.CmsAuthValues, _payload.CorrelationId, _payload.Urn, _payload.CaseId))
                 .Returns(mockDdeiCaseIdentifiersArgDto);
 
-            mockDdeiClient
+            _ddeiClientMock
                 .Setup(client => client.ListDocumentsAsync(mockDdeiCaseIdentifiersArgDto))
                 .ReturnsAsync(_caseDocuments);
 
@@ -82,13 +79,11 @@ namespace coordinator.tests.Durable.Activity
             _ddeiClientFactoryMock.Setup(s => s.Create(It.IsAny<string>(), DdeiClients.Mds)).Returns(ddeiClientMock.Object);
 
             _getCaseDocuments = new GetCaseDocuments(
-                mockDdeiClient.Object,
                 _ddeiClientFactoryMock.Object,
                 mockDdeiArgFactory.Object,
                 mockDocumentToggleService.Object,
                 _mockStateStorageService.Object,
-                mockLogger.Object,
-                _mockConfiguration.Object);
+                mockLogger.Object);
         }
 
         [Fact]
@@ -132,6 +127,7 @@ namespace coordinator.tests.Durable.Activity
         [Fact]
         public async Task Run_ReturnsCaseDocuments()
         {
+            _ddeiClientFactoryMock.Setup(s => s.Create(_payload.CmsAuthValues, DdeiClients.Mds)).Returns(_ddeiClientMock.Object);
             var caseDocuments = await _getCaseDocuments.Run(_payload);
 
             caseDocuments.CmsDocuments.Should().BeEquivalentTo(_caseDocuments);
