@@ -11,7 +11,7 @@ using System.Text.Json;
 
 namespace DdeiClient.Factories;
 
-public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClientRequestFactory
+public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IMdsClientRequestFactory
 {
     private const string UrnHeaderName = "Urn";
 

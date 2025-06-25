@@ -7,8 +7,7 @@ using coordinator.Domain;
 using coordinator.Durable.Payloads;
 using coordinator.Services;
 using Ddei.Factories;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
+using DdeiClient.Clients.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using System;
@@ -19,20 +18,20 @@ namespace coordinator.Durable.Activity;
 
 public class GetCaseDocuments
 {
-    private readonly IDdeiClientFactory _ddeiClientFactory;
+    private readonly IMdsClient _mdsClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
     private readonly IDocumentToggleService _documentToggleService;
     private readonly IStateStorageService _stateStorageService;
     private readonly ILogger<GetCaseDocuments> _log;
 
     public GetCaseDocuments(
-        IDdeiClientFactory ddeiClientFactory,
+        IMdsClient mdsClient,
         IDdeiArgFactory ddeiArgFactory,
         IDocumentToggleService documentToggleService,
         IStateStorageService stateStorageService,
         ILogger<GetCaseDocuments> logger)
     {
-        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
         _documentToggleService = documentToggleService.ExceptionIfNull();
         _stateStorageService = stateStorageService.ExceptionIfNull();
@@ -62,7 +61,6 @@ public class GetCaseDocuments
             throw new ArgumentException("CorrelationId must be valid GUID");
         }
 
-        var mdsClient = _ddeiClientFactory.Create(payload.CmsAuthValues, DdeiClients.Mds);
 
         var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(
             payload.CmsAuthValues,
@@ -70,9 +68,9 @@ public class GetCaseDocuments
             payload.Urn,
             payload.CaseId);
 
-        var getDocumentsTask = mdsClient.ListDocumentsAsync(arg);
-        var getPcdRequestsTask = mdsClient.GetPcdRequestsCoreAsync(arg);
-        var getDefendantsAndChargesTask = mdsClient.GetDefendantAndChargesAsync(arg);
+        var getDocumentsTask = _mdsClient.ListDocumentsAsync(arg);
+        var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg);
+        var getDefendantsAndChargesTask = _mdsClient.GetDefendantAndChargesAsync(arg);
 
         await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 

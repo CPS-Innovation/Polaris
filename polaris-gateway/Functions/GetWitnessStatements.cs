@@ -1,8 +1,7 @@
 using Common.Configuration;
 using Common.Extensions;
 using Ddei.Factories;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
+using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -15,16 +14,16 @@ public class GetWitnessStatements : BaseFunction
 {
     private readonly ILogger<GetWitnessStatements> _logger;
     private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly IDdeiClientFactory _ddeiClientFactory;
+    private readonly IMdsClient _mdsClient;
 
     public GetWitnessStatements(
         ILogger<GetWitnessStatements> logger,
         IDdeiArgFactory ddeiArgFactory,
-        IDdeiClientFactory ddeiClientFactory)
+        IMdsClient mdsClient)
     {
         _logger = logger.ExceptionIfNull();
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
-        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
     }
 
     [Function(nameof(GetWitnessStatements))]
@@ -35,8 +34,7 @@ public class GetWitnessStatements : BaseFunction
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var witnessStatementsArgDto = _ddeiArgFactory.CreateWitnessStatementsArgDto(cmsAuthValues, correlationId, caseUrn, caseId, witnessId);
-        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
-        var witnessStatementDtos = await ddeiClient.GetWitnessStatementsAsync(witnessStatementsArgDto);
+        var witnessStatementDtos = await _mdsClient.GetWitnessStatementsAsync(witnessStatementsArgDto);
 
         return new OkObjectResult(witnessStatementDtos);
     }

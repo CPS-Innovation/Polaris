@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Common.Clients.PdfGenerator;
+﻿using Common.Clients.PdfGenerator;
 using Common.Clients.PdfGeneratorDomain.Domain;
 using Common.Configuration;
 using Common.Constants;
@@ -13,10 +10,11 @@ using coordinator.Durable.Payloads;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace pdf_generator.tests.Durable.Activity;
@@ -27,7 +25,7 @@ public class GeneratePdfFromDocumentTests
     private readonly Mock<IDdeiArgFactory> _ddeiArgFactoryMock;
     private readonly Mock<Func<string, IPolarisBlobStorageService>> _blobStorageServiceFactoryMock;
     private readonly Mock<IConfiguration> _configurationMock;
-    private readonly Mock<IDdeiClientFactory> _ddeiClientFactoryMock;
+    private readonly Mock<IMdsClient> _mdsClientMock;
     private readonly Mock<IPolarisBlobStorageService> _polarisBlobStorageServiceMock;
     private readonly GeneratePdfFromDocument _generatePdfFromDocument;
 
@@ -37,13 +35,13 @@ public class GeneratePdfFromDocumentTests
         _ddeiArgFactoryMock = new Mock<IDdeiArgFactory>();
         _blobStorageServiceFactoryMock = new Mock<Func<string, IPolarisBlobStorageService>>();
         _configurationMock = new Mock<IConfiguration>();
-        _ddeiClientFactoryMock = new Mock<IDdeiClientFactory>();
+        _mdsClientMock = new Mock<IMdsClient>();
 
         _polarisBlobStorageServiceMock = new Mock<IPolarisBlobStorageService>();
         _configurationMock.Setup(s => s[StorageKeys.BlobServiceContainerNameDocuments]).Returns(string.Empty);
         _blobStorageServiceFactoryMock.Setup(s => s.Invoke(It.IsAny<string>())).Returns(_polarisBlobStorageServiceMock.Object);
         
-        _generatePdfFromDocument = new GeneratePdfFromDocument(_pdfGeneratorClientMock.Object, _ddeiArgFactoryMock.Object,_blobStorageServiceFactoryMock.Object,_configurationMock.Object,_ddeiClientFactoryMock.Object);
+        _generatePdfFromDocument = new GeneratePdfFromDocument(_pdfGeneratorClientMock.Object, _ddeiArgFactoryMock.Object,_blobStorageServiceFactoryMock.Object,_configurationMock.Object,_mdsClientMock.Object);
     }
 
     [Fact]
@@ -97,7 +95,6 @@ public class GeneratePdfFromDocumentTests
             Path = "path.txt"
         };
         var arg = new DdeiDocumentIdAndVersionIdArgDto();
-        var ddeiClientMock = new Mock<IDdeiClient>();
         var fileResult = new FileResult();
         var convertToPdfResponse = new ConvertToPdfResponse()
         {
@@ -105,8 +102,7 @@ public class GeneratePdfFromDocumentTests
         };
         _polarisBlobStorageServiceMock.Setup(s => s.BlobExistsAsync(It.IsAny<BlobIdType>(), payload.IsOcredProcessedPreference)).ReturnsAsync(false);
         _ddeiArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(payload.CmsAuthValues, payload.CorrelationId, payload.Urn, payload.CaseId, payload.DocumentId, payload.VersionId)).Returns(arg);
-        _ddeiClientFactoryMock.Setup(s => s.Create(payload.CmsAuthValues, DdeiClients.Mds)).Returns(ddeiClientMock.Object);
-        ddeiClientMock.Setup(s => s.GetDocumentAsync(arg)).ReturnsAsync(fileResult);
+        _mdsClientMock.Setup(s => s.GetDocumentAsync(arg)).ReturnsAsync(fileResult);
         _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(payload.CorrelationId, payload.Urn, payload.CaseId, payload.DocumentId, payload.VersionId, fileResult.Stream, payload.FileType.Value)).ReturnsAsync(convertToPdfResponse);
 
         //act
@@ -127,7 +123,6 @@ public class GeneratePdfFromDocumentTests
             Path = "path.txt"
         };
         var arg = new DdeiDocumentIdAndVersionIdArgDto();
-        var ddeiClientMock = new Mock<IDdeiClient>();
         var fileResult = new FileResult();
         var convertToPdfResponse = new ConvertToPdfResponse()
         {
@@ -136,8 +131,7 @@ public class GeneratePdfFromDocumentTests
         };
         _polarisBlobStorageServiceMock.Setup(s => s.BlobExistsAsync(It.IsAny<BlobIdType>(), payload.IsOcredProcessedPreference)).ReturnsAsync(false);
         _ddeiArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(payload.CmsAuthValues, payload.CorrelationId, payload.Urn, payload.CaseId, payload.DocumentId, payload.VersionId)).Returns(arg);
-        _ddeiClientFactoryMock.Setup(s => s.Create(payload.CmsAuthValues, DdeiClients.Mds)).Returns(ddeiClientMock.Object);
-        ddeiClientMock.Setup(s => s.GetDocumentAsync(arg)).ReturnsAsync(fileResult);
+        _mdsClientMock.Setup(s => s.GetDocumentAsync(arg)).ReturnsAsync(fileResult);
         _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(payload.CorrelationId, payload.Urn, payload.CaseId, payload.DocumentId, payload.VersionId, fileResult.Stream, payload.FileType.Value)).ReturnsAsync(convertToPdfResponse);
 
         //act

@@ -1,8 +1,7 @@
 using Common.Configuration;
 using Common.Extensions;
 using Ddei.Factories;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
+using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -14,16 +13,16 @@ namespace PolarisGateway.Functions;
 public class GetExhibitProducers : BaseFunction
 {
     private readonly ILogger<GetExhibitProducers> _logger;
-    private readonly IDdeiClientFactory _ddeiClientFactory;
+    private readonly IMdsClient _mdsClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
 
     public GetExhibitProducers(ILogger<GetExhibitProducers> logger,
-        IDdeiClientFactory ddeiClientFactory,
+        IMdsClient mdsClient,
         IDdeiArgFactory ddeiArgFactory)
         : base()
     {
         _logger = logger.ExceptionIfNull();
-        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
     }
 
@@ -35,8 +34,8 @@ public class GetExhibitProducers : BaseFunction
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var ddeiCaseIdentifiersArgDto = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
-        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
-        var exhibitProducerDtos = await ddeiClient.GetExhibitProducersAsync(ddeiCaseIdentifiersArgDto);
+        
+        var exhibitProducerDtos = await _mdsClient.GetExhibitProducersAsync(ddeiCaseIdentifiersArgDto);
 
         return new OkObjectResult(exhibitProducerDtos);
     }

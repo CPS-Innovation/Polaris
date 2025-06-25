@@ -6,8 +6,6 @@ using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.Response.Document;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,23 +19,21 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
     private const string StatementClassification = "STATEMENT";
     private const string DefenceStatementClassification = "DEFENCESTATEMENT";
     private const int DefenceStatementTypeId = -2;
-    private readonly IDdeiClientFactory _ddeiClientFactory;
+    private readonly IMdsClient _mdsClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
 
     public DdeiReclassifyDocumentOrchestrationService(
-            IDdeiClientFactory ddeiClientFactory,
+            IMdsClient mdsClient,
             IDdeiArgFactory ddeiArgFactory
         )
     {
-        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
     }
 
     public async Task<DocumentReclassifiedResult> ReclassifyDocument(DdeiReclassifyDocumentArgDto arg)
     {
-        var mdsClient = _ddeiClientFactory.Create(arg.CmsAuthValues, DdeiClients.Mds);
-
-        var (caseDocuments, materialTypeList) = await FetchDocumentAndMaterialTypes(mdsClient, arg);
+        var (caseDocuments, materialTypeList) = await FetchDocumentAndMaterialTypes(_mdsClient, arg);
 
         var document = caseDocuments.SingleOrDefault(x => x.DocumentId == arg.DocumentId);
         if (document == null) return new DocumentReclassifiedResult { IsSuccess = false, Result = null };
@@ -45,9 +41,9 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         var materialType = materialTypeList.SingleOrDefault(x => x.TypeId == arg.DocumentTypeId);
         if (materialType == null) return new DocumentReclassifiedResult { IsSuccess = false, Result = null };
 
-        var reclassifyResponse = await ReclassifyDocument(mdsClient, arg, document, materialType);
+        var reclassifyResponse = await ReclassifyDocument(_mdsClient, arg, document, materialType);
 
-        var (documentRenamed, documentRenamedResult) = await HandleDocumentRenaming(arg, mdsClient, materialType);
+        var (documentRenamed, documentRenamedResult) = await HandleDocumentRenaming(arg, _mdsClient, materialType);
 
         return new DocumentReclassifiedResult
         {
@@ -64,7 +60,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         };
     }
 
-    private async Task<(IEnumerable<CmsDocumentDto> caseDocuments, IEnumerable<MaterialTypeDto> materialTypeList)> FetchDocumentAndMaterialTypes(IDdeiClient mdsClient, DdeiReclassifyDocumentArgDto arg)
+    private async Task<(IEnumerable<CmsDocumentDto> caseDocuments, IEnumerable<MaterialTypeDto> materialTypeList)> FetchDocumentAndMaterialTypes(IMdsClient mdsClient, DdeiReclassifyDocumentArgDto arg)
     {
         var caseDocumentsTask = mdsClient.ListDocumentsAsync(arg);
         var materialTypeListTask = mdsClient.GetMaterialTypeListAsync(arg);
@@ -74,7 +70,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         return (caseDocumentsTask.Result, materialTypeListTask.Result);
     }
 
-    private async Task<DdeiCommunicationReclassifiedResponse> ReclassifyDocument(IDdeiClient mdsClient, DdeiReclassifyDocumentArgDto arg, CmsDocumentDto document, MaterialTypeDto materialType)
+    private async Task<DdeiCommunicationReclassifiedResponse> ReclassifyDocument(IMdsClient mdsClient, DdeiReclassifyDocumentArgDto arg, CmsDocumentDto document, MaterialTypeDto materialType)
     {
         var reclassifyCommunicationRequest = new DdeiReclassifyCommunicationArgDto
         {
@@ -95,7 +91,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         return await mdsClient.ReclassifyCommunicationAsync(reclassifyCommunicationRequest);
     }
 
-    private async Task<DocumentRenamedResultDto> RenameDocument(DdeiReclassifyDocumentArgDto arg, IDdeiClient mdsClient, MaterialTypeDto materialType, string documentName)
+    private async Task<DocumentRenamedResultDto> RenameDocument(DdeiReclassifyDocumentArgDto arg, IMdsClient mdsClient, MaterialTypeDto materialType, string documentName)
     {
         var renameDocumentArg = _ddeiArgFactory.CreateRenameDocumentArgDto(arg.CmsAuthValues, arg.CorrelationId, arg.Urn, arg.CaseId, arg.DocumentId, documentName);
         DocumentRenamedResultDto response = new();
@@ -114,7 +110,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         return response;
     }
 
-    private async Task<(bool documentRenamed, DocumentRenamedResultDto documentRenamedResult)> HandleDocumentRenaming(DdeiReclassifyDocumentArgDto arg, IDdeiClient mdsClient, MaterialTypeDto materialType)
+    private async Task<(bool documentRenamed, DocumentRenamedResultDto documentRenamedResult)> HandleDocumentRenaming(DdeiReclassifyDocumentArgDto arg, IMdsClient mdsClient, MaterialTypeDto materialType)
     {
         if (string.IsNullOrEmpty(arg.Other?.DocumentName) && string.IsNullOrEmpty(arg.Immediate?.DocumentName))
         {

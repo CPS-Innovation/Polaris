@@ -10,15 +10,8 @@ using DdeiClient.Factories;
 
 namespace Ddei.Factories.Contracts;
 
-public class DdeiClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClientRequestFactory
+public class MdsAuthClientRequestFactory : BaseDdeiClientRequestFactory, IMdsClientRequestFactory
 {
-    public HttpRequestMessage CreateVerifyCmsAuthRequest(DdeiBaseArgDto arg)
-    {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"api/verify-cms-auth");
-        AddAuthHeaders(request, arg);
-        return request;
-    }
-
     public HttpRequestMessage CreateUrnLookupRequest(DdeiCaseIdOnlyArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/urn-lookup/{arg.CaseId}");

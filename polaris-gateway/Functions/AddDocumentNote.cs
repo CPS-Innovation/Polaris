@@ -3,8 +3,7 @@ using Common.Dto.Request;
 using Common.Extensions;
 using Common.Telemetry;
 using Ddei.Factories;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
+using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -22,18 +21,18 @@ public class AddDocumentNote : BaseFunction
     private readonly ILogger<AddDocumentNote> _logger;
     private readonly IDdeiArgFactory _ddeiArgFactory;
     private readonly ITelemetryClient _telemetryClient;
-    private readonly IDdeiClientFactory _ddeiClientFactory;
+    private readonly IMdsClient _mdsClient;
 
     public AddDocumentNote(
         ILogger<AddDocumentNote> logger,
         IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient, 
-        IDdeiClientFactory ddeiClientFactory)
+        IMdsClient mdsClient)
     {
         _logger = logger.ExceptionIfNull();
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
         _telemetryClient = telemetryClient.ExceptionIfNull();
-        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
     }
 
     [Function(nameof(AddDocumentNote))]
@@ -66,8 +65,7 @@ public class AddDocumentNote : BaseFunction
             }
 
             var arg = _ddeiArgFactory.CreateAddDocumentNoteArgDto(cmsAuthValues, correlationId, caseUrn, caseId, documentId, body.Value.Text);
-            var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
-            await ddeiClient.AddDocumentNoteAsync(arg);
+            await _mdsClient.AddDocumentNoteAsync(arg);
 
             telemetryEvent.IsSuccess = true;
             _telemetryClient.TrackEvent(telemetryEvent);
