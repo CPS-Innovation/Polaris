@@ -1,25 +1,19 @@
 ﻿using Common.Exceptions;
-using Common.Extensions;
 using Common.Wrappers;
-using Ddei.Domain.Response.Document;
-using Ddei.Factories;
-using Ddei.Mappers;
-using DdeiClient.Factories;
-using Microsoft.Extensions.Logging;
 using System.Net;
+using Common.Extensions;
 
 namespace DdeiClient.Clients;
 
-public abstract class BaseMdsClient
+public abstract class BaseDdeiClient
 {
     protected readonly IJsonConvertWrapper JsonConvertWrapper;
-    protected readonly HttpClient HttpClient;
-    protected BaseMdsClient(IJsonConvertWrapper jsonConvertWrapper, HttpClient httpClient)
+    protected BaseDdeiClient(IJsonConvertWrapper jsonConvertWrapper)
     {
-        JsonConvertWrapper = jsonConvertWrapper;
-        HttpClient = httpClient;
+        JsonConvertWrapper = jsonConvertWrapper.ExceptionIfNull();
     }
 
+    protected abstract HttpClient GetHttpClient(string cmsAuthValues);
     protected virtual async Task<T> CallDdeiAsync<T>(HttpRequestMessage request, string cmsAuthValues)
     {
         using var response = await CallDdeiAsync(request, cmsAuthValues);
@@ -29,7 +23,8 @@ public abstract class BaseMdsClient
 
     protected virtual async Task<HttpResponseMessage> CallDdeiAsync(HttpRequestMessage request, string cmsAuthValues, params HttpStatusCode[] expectedUnhappyStatusCodes)
     {
-        var response = await HttpClient.SendAsync(request);
+        var httpClient = GetHttpClient(cmsAuthValues);
+        var response = await httpClient.SendAsync(request);
         try
         {
             if (response.IsSuccessStatusCode || expectedUnhappyStatusCodes.Contains(response.StatusCode))

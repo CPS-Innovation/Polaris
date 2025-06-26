@@ -38,7 +38,7 @@ public class CoordinatorStartTests
     private readonly Mock<DurableTaskClient> _mockDurableOrchestrationClient;
     private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
     private readonly Mock<IDdeiArgFactory> _mockDdeiArgFactory;
-    private readonly Mock<IMdsClient> _mockDdeiClient;
+    private readonly Mock<IDdeiAuthClient> _ddeiAuthClientMock;
     private readonly RefreshCase _coordinatorStart;
 
     public CoordinatorStartTests()
@@ -86,10 +86,10 @@ public class CoordinatorStartTests
         _mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
         _mockDdeiArgFactory.Setup(factory => factory.CreateCmsCaseDataArgDto(cmsAuthValues, _correlationId))
             .Returns(_mockVerifyArg);
-        _mockDdeiClient = new Mock<IMdsClient>();
-        _mockDdeiClient.Setup(client => client.VerifyCmsAuthAsync(_mockVerifyArg));
+        _ddeiAuthClientMock = new Mock<IDdeiAuthClient>();
+        _ddeiAuthClientMock.Setup(client => client.VerifyCmsAuthAsync(_mockVerifyArg));
 
-        _coordinatorStart = new RefreshCase(mockLogger.Object, _mockOrchestrationProvider.Object, _mockDdeiArgFactory.Object, _mockDdeiClient.Object);
+        _coordinatorStart = new RefreshCase(mockLogger.Object, _mockOrchestrationProvider.Object, _mockDdeiArgFactory.Object, _ddeiAuthClientMock.Object);
     }
 
     [Fact]
@@ -199,7 +199,7 @@ public class CoordinatorStartTests
     public async Task Run_Returns401HttpResponseMessage_WhenCmsAuthIsNotValid()
     {
         // Arrange
-        _mockDdeiClient.Setup(client => client.VerifyCmsAuthAsync(_mockVerifyArg)).ThrowsAsync(new DdeiClientException(HttpStatusCode.Unauthorized, null));
+        _ddeiAuthClientMock.Setup(client => client.VerifyCmsAuthAsync(_mockVerifyArg)).ThrowsAsync(new DdeiClientException(HttpStatusCode.Unauthorized, null));
 
         // Act
         var exception = await Assert.ThrowsAsync<DdeiClientException>(() => _coordinatorStart.Run(_httpRequest, _caseUrn, _caseId, _mockDurableOrchestrationClient.Object));

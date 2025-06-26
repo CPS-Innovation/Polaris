@@ -19,18 +19,18 @@ public class RefreshCase
     private readonly ILogger<RefreshCase> _logger;
     private readonly IOrchestrationProvider _orchestrationProvider;
     private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly IMdsClient _mdsClient; //Todo: inject cmsAuthClient
+    private readonly IDdeiAuthClient _ddeiAuthClient; 
 
     public RefreshCase(
         ILogger<RefreshCase> logger,
         IOrchestrationProvider orchestrationProvider,
         IDdeiArgFactory ddeiArgFactory,
-        IMdsClient mdsClient)
+        IDdeiAuthClient ddeiAuthClient)
     {
         _logger = logger;
         _orchestrationProvider = orchestrationProvider;
         _ddeiArgFactory = ddeiArgFactory;
-        _mdsClient = mdsClient;
+        _ddeiAuthClient = ddeiAuthClient;
     }
 
     [Function(nameof(RefreshCase))]
@@ -64,7 +64,7 @@ public class RefreshCase
         //  However this code will be refactored out as part of #28158 so ¯\_(ツ)_/¯
         //  VerifyCmsAuthAsync will throw an exception if the auth values are invalid, and the HandleUnhandledException
         //  process will deal with translating to a 401 Unauthorized response. 
-        await _mdsClient.VerifyCmsAuthAsync(
+        await _ddeiAuthClient.VerifyCmsAuthAsync(
             _ddeiArgFactory.CreateCmsCaseDataArgDto(cmsAuthValues, currentCorrelationId)
         );
 

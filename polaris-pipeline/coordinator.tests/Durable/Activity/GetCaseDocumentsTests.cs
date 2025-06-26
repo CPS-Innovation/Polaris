@@ -43,11 +43,9 @@ public class GetCaseDocumentsTests
             fixture.Create<PresentationFlagsDto>()
         ];
 
-        var mockDdeiClient = new Mock<IMdsClient>();
-
         _mockStateStorageService = new Mock<IStateStorageService>();
-
-        mockDdeiClient
+        _mdsClientMock = new Mock<IMdsClient>();
+        _mdsClientMock
             .Setup(client => client.GetCaseAsync(It.IsAny<DdeiCaseIdentifiersArgDto>()))
             .ReturnsAsync(_case);
 
@@ -58,7 +56,7 @@ public class GetCaseDocumentsTests
             .Setup(factory => factory.CreateCaseIdentifiersArg(_payload.CmsAuthValues, _payload.CorrelationId, _payload.Urn, _payload.CaseId))
             .Returns(mockDdeiCaseIdentifiersArgDto);
 
-        mockDdeiClient
+        _mdsClientMock
             .Setup(client => client.ListDocumentsAsync(mockDdeiCaseIdentifiersArgDto))
             .ReturnsAsync(_caseDocuments);
 
@@ -71,8 +69,6 @@ public class GetCaseDocumentsTests
             .Returns(_presentationFlags[1]);
 
         var mockLogger = new Mock<ILogger<GetCaseDocuments>>();
-
-        _mdsClientMock = new Mock<IMdsClient>();
 
         _getCaseDocuments = new GetCaseDocuments(
             _mdsClientMock.Object,

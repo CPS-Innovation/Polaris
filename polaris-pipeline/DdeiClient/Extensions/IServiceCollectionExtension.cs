@@ -1,17 +1,17 @@
-﻿using System.Net;
-using System.Net.Http.Headers;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Common.Streaming;
-using Ddei.Factories;
-using Ddei.Factories.Contracts;
-using Ddei.Mappers;
-using Polly;
-using Polly.Contrib.WaitAndRetry;
+﻿using Common.Streaming;
 using Ddei.Domain.Response.Document;
+using Ddei.Factories;
+using Ddei.Mappers;
+using DdeiClient.Clients;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Enums;
 using DdeiClient.Factories;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Polly;
+using Polly.Contrib.WaitAndRetry;
+using System.Net;
+using System.Net.Http.Headers;
 
 namespace Ddei.Extensions;
 
@@ -31,27 +31,20 @@ public static class IServiceCollectionExtension
     {
         services.AddScoped<IMdsClientFactory, MdsClientFactory>();
 
-        //services.AddHttpClientWithDefaults<IMdsClient, DdeiAuthClient.Clients.DdeiAuthClient>(configuration, DdeiBaseUrlConfigKey, DdeiAccessKeyConfigKey, nameof(DdeiClients.Ddei));
+        services.AddHttpClientWithDefaults<IDdeiAuthClient, DdeiAuthClient>(configuration, DdeiBaseUrlConfigKey, DdeiAccessKeyConfigKey, nameof(DdeiClients.Ddei));
         services.AddHttpClientWithDefaults(configuration, MdsBaseUrlConfigKey, MdsAccessKeyConfigKey, nameof(DdeiClients.Mds));
         services.AddHttpClientWithDefaults(configuration, MdsMockBaseUrlConfigKey, MdsMockAccessKeyConfigKey, nameof(DdeiClients.MdsMock));
 
-        services.AddScoped<IMdsClient, DdeiClient.Clients.MdsClient>();
+        services.AddScoped<IMdsClient, MdsClient>();
 
         services.AddDdeiServices();
-    }
-
-    public static void AddDdeiClientCoordinator(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddDdeiClientGateway(configuration);
-        //services.AddScoped<IMdsClient, DdeiAuthClient.Clients.DdeiAuthClient>(); //Todo change to auth client
     }
 
     private static void AddDdeiServices(this IServiceCollection services)
     {
         services.AddTransient<IDdeiArgFactory, DdeiArgFactory>();
-        services.AddKeyedTransient<IMdsClientRequestFactory, MdsAuthClientRequestFactory>(DdeiClients.Ddei);
-        services.AddKeyedTransient<IMdsClientRequestFactory, MdsClientRequestFactory>(DdeiClients.Mds);
-        services.AddKeyedTransient<IMdsClientRequestFactory, MdsClientRequestFactory>(DdeiClients.MdsMock);
+        services.AddTransient<IDdeiAuthClientRequestFactory, DdeiAuthClientRequestFactory>();
+        services.AddTransient<IMdsClientRequestFactory, MdsClientRequestFactory>();
         services.AddTransient<ICaseDocumentMapper<DdeiDocumentResponse>, CaseDocumentMapper>();
         services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
         services.AddTransient<ICaseDocumentMapper<DdeiDocumentResponse>, CaseDocumentMapper>();
@@ -68,6 +61,19 @@ public static class IServiceCollectionExtension
     private static void AddHttpClientWithDefaults(this IServiceCollection services, IConfiguration configuration, string urlKey, string accessKey, string name)
     {
         services.AddHttpClient(name, (_, client) =>
+            {
+                client.BaseAddress = new Uri(configuration[urlKey]);
+                client.DefaultRequestHeaders.Add(FunctionKey, configuration[accessKey]);
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            }).SetHandlerLifetime(TimeSpan.FromMinutes(5))
+            .AddPolicyHandler(GetRetryPolicy()).AddAsKeyed();
+    }
+
+    private static void AddHttpClientWithDefaults<TClient, TImplementation>(this IServiceCollection services, IConfiguration configuration, string urlKey, string accessKey, string name)
+        where TClient : class
+        where TImplementation : class, TClient
+    {
+        services.AddHttpClient<TClient, TImplementation>(name, (_, client) =>
             {
                 client.BaseAddress = new Uri(configuration[urlKey]);
                 client.DefaultRequestHeaders.Add(FunctionKey, configuration[accessKey]);
