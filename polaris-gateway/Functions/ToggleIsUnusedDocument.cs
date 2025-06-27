@@ -1,9 +1,8 @@
 ﻿using Common.Configuration;
 using Common.Domain.Document;
 using Common.Extensions;
+using DdeiClient.Clients.Interfaces;
 using DdeiClient.Domain.Args;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -15,13 +14,13 @@ namespace PolarisGateway.Functions;
 public class ToggleIsUnusedDocument : BaseFunction
 {
     private readonly ILogger<ToggleIsUnusedDocument> _logger;
-    private readonly IDdeiClientFactory _ddeiClientFactory;
+    private readonly IMdsClient _mdsClient;
     public ToggleIsUnusedDocument(
         ILogger<ToggleIsUnusedDocument> logger,
-        IDdeiClientFactory ddeiClientFactory)
+        IMdsClient mdsClient)
     {
         _logger = logger.ExceptionIfNull();
-        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
     }
 
     [Function(nameof(ToggleIsUnusedDocument))]
@@ -46,8 +45,6 @@ public class ToggleIsUnusedDocument : BaseFunction
             Urn = caseUrn,
         };
 
-        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
-
-        return await ddeiClient.ToggleIsUnusedDocumentAsync(toggleIsUnusedDocumentDto) ? new OkResult() : new BadRequestResult();
+        return await _mdsClient.ToggleIsUnusedDocumentAsync(toggleIsUnusedDocumentDto) ? new OkResult() : new BadRequestResult();
     }
 }

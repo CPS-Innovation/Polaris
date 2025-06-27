@@ -4,8 +4,7 @@ using Common.Domain.Document;
 using Common.Extensions;
 using Common.Services.RenderHtmlService;
 using Ddei.Factories;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
+using DdeiClient.Clients.Interfaces;
 using PolarisGateway.Services.Artefact.Domain;
 using System;
 using System.IO;
@@ -18,18 +17,18 @@ public class PdfRetrievalService : IPdfRetrievalService
     private readonly IDdeiArgFactory _ddeiArgFactory;
     private readonly IConvertModelToHtmlService _convertModelToHtmlService;
     private readonly IPdfGeneratorClient _pdfGeneratorClient;
-    private readonly IDdeiClientFactory _ddeiClientFactory;
+    private readonly IMdsClient _mdsClient;
 
     public PdfRetrievalService(
         IDdeiArgFactory ddeiArgFactory,
         IConvertModelToHtmlService convertModelToHtmlService,
         IPdfGeneratorClient pdfGeneratorClient, 
-        IDdeiClientFactory ddeiClientFactory)
+        IMdsClient mdsClient)
     {
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
         _convertModelToHtmlService = convertModelToHtmlService.ExceptionIfNull();
         _pdfGeneratorClient = pdfGeneratorClient.ExceptionIfNull();
-        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
     }
 
     public async Task<DocumentRetrievalResult> GetPdfStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
@@ -61,8 +60,7 @@ public class PdfRetrievalService : IPdfRetrievalService
     private async Task<(Stream Stream, FileType FileType, bool IsKnownFileType)> GetDocumentStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
     {
         var ddeiDocumentIdAndVersionIdArgDto = _ddeiArgFactory.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId, documentId, versionId);
-        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
-        var fileResult = await ddeiClient.GetDocumentAsync(ddeiDocumentIdAndVersionIdArgDto);
+        var fileResult = await _mdsClient.GetDocumentAsync(ddeiDocumentIdAndVersionIdArgDto);
 
         var isKnownFileType = FileTypeHelper.TryGetSupportedFileType(fileResult.FileName, out var fileType);
         return (fileResult.Stream, fileType, isKnownFileType);
@@ -71,8 +69,7 @@ public class PdfRetrievalService : IPdfRetrievalService
     private async Task<(Stream Stream, FileType FileType, bool IsKnownFileType)> GetPcdRequestStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId)
     {
         var ddeiPcdArgDto = _ddeiArgFactory.CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, documentId);
-        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
-        var pcdRequest = await ddeiClient.GetPcdRequestAsync(ddeiPcdArgDto);
+        var pcdRequest = await _mdsClient.GetPcdRequestAsync(ddeiPcdArgDto);
 
         var stream = await _convertModelToHtmlService.ConvertAsync(pcdRequest);
         return (stream, FileTypeHelper.PseudoDocumentFileType, true);
@@ -81,8 +78,7 @@ public class PdfRetrievalService : IPdfRetrievalService
     private async Task<(Stream Stream, FileType FileType, bool IsKnownFileType)> GetDefendantsAndChargesStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId)
     {
         var deiCaseIdentifiersArgDto = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId);
-        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
-        var defendantsAndCharges = await ddeiClient.GetDefendantAndChargesAsync(deiCaseIdentifiersArgDto);
+        var defendantsAndCharges = await _mdsClient.GetDefendantAndChargesAsync(deiCaseIdentifiersArgDto);
         var stream = await _convertModelToHtmlService.ConvertAsync(defendantsAndCharges);
         return (stream, FileTypeHelper.PseudoDocumentFileType, true);
     }

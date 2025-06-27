@@ -3,8 +3,7 @@ using Common.Dto.Request;
 using Common.Extensions;
 using Common.Telemetry;
 using Ddei.Factories;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
+using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -22,17 +21,17 @@ public class RenameDocument : BaseFunction
     private readonly ILogger<RenameDocument> _logger;
     private readonly IDdeiArgFactory _ddeiArgFactory;
     private readonly ITelemetryClient _telemetryClient;
-    private readonly IDdeiClientFactory _ddeiClientFactory;
+    private readonly IMdsClient _mdsClient;
 
     public RenameDocument(ILogger<RenameDocument> logger,
         IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient,
-        IDdeiClientFactory ddeiClientFactory)
+        IMdsClient mdsClient)
     {
         _logger = logger.ExceptionIfNull();
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
         _telemetryClient = telemetryClient.ExceptionIfNull();
-        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
     }
 
     [Function(nameof(RenameDocument))]
@@ -64,8 +63,7 @@ public class RenameDocument : BaseFunction
             }
 
             var arg = _ddeiArgFactory.CreateRenameDocumentArgDto(cmsAuthValues, correlationId, caseUrn, caseId, documentId, body.Value.DocumentName);
-            var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
-            await ddeiClient.RenameDocumentAsync(arg);
+            await _mdsClient.RenameDocumentAsync(arg);
 
             telemetryEvent.IsSuccess = true;
             _telemetryClient.TrackEvent(telemetryEvent);

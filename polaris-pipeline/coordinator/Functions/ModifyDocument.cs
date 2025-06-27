@@ -18,6 +18,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using DdeiClient.Clients.Interfaces;
 
 namespace coordinator.Functions
 {
@@ -28,7 +29,7 @@ namespace coordinator.Functions
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly IDdeiArgFactory _ddeiArgFactory;
         private readonly ILogger<ModifyDocument> _logger;
-        private readonly IDdeiClientFactory _ddeiClientFactory;
+        private readonly IMdsClient _mdsClient;
 
         public ModifyDocument(
             IValidator<ModifyDocumentWithDocumentDto> requestValidator,
@@ -36,14 +37,15 @@ namespace coordinator.Functions
             Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
             IDdeiArgFactory ddeiArgFactory,
             ILogger<ModifyDocument> logger,
-            IConfiguration configuration, IDdeiClientFactory ddeiClientFactory)
+            IConfiguration configuration, 
+            IMdsClient mdsClient)
         {
             _requestValidator = requestValidator.ExceptionIfNull();
             _pdfRedactorClient = pdfRedactorClient.ExceptionIfNull();
             _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
             _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
             _logger = logger.ExceptionIfNull();
-            _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+            _mdsClient = mdsClient.ExceptionIfNull();
         }
 
         [Function(nameof(ModifyDocument))]
@@ -99,8 +101,7 @@ namespace coordinator.Functions
                 DocumentNature.ToNumericDocumentId(documentId, DocumentNature.Types.Document),
                 versionId);
 
-            var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
-            var ddeiResult = await ddeiClient.UploadPdfAsync(arg, modifiedDocumentStream);
+            var ddeiResult = await _mdsClient.UploadPdfAsync(arg, modifiedDocumentStream);
 
             if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
             {

@@ -4,46 +4,43 @@ using coordinator.Domain;
 using coordinator.Durable.Activity.GeneratePdf;
 using coordinator.Durable.Payloads;
 using Ddei.Factories;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
+using DdeiClient.Clients.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace coordinator.Durable.Activity
+namespace coordinator.Durable.Activity;
+
+public class GeneratePdfFromDocument : BaseGeneratePdf
 {
-    public class GeneratePdfFromDocument : BaseGeneratePdf
+    public GeneratePdfFromDocument(
+        IPdfGeneratorClient pdfGeneratorClient,
+        IDdeiArgFactory ddeiArgFactory,
+        Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
+        IConfiguration configuration,
+        IMdsClient mdsClient)
+        : base(ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient) { }
+
+    [Function(nameof(GeneratePdfFromDocument))]
+    public new async Task<PdfConversionResponse> Run([ActivityTrigger] DocumentPayload payload)
     {
-        public GeneratePdfFromDocument(
-            IPdfGeneratorClient pdfGeneratorClient,
-            IDdeiArgFactory ddeiArgFactory,
-            Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-            IConfiguration configuration,
-            IDdeiClientFactory ddeiClientFactory)
-            : base(ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, ddeiClientFactory) { }
+        return await base.Run(payload);
+    }
 
-        [Function(nameof(GeneratePdfFromDocument))]
-        public new async Task<PdfConversionResponse> Run([ActivityTrigger] DocumentPayload payload)
-        {
-            return await base.Run(payload);
-        }
+    protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload)
+    {
+        var arg = DdeiArgFactory.CreateDocumentVersionArgDto(
+            payload.CmsAuthValues,
+            payload.CorrelationId,
+            payload.Urn,
+            payload.CaseId,
+            payload.DocumentId,
+            payload.VersionId);
 
-        protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload)
-        {
-            var arg = DdeiArgFactory.CreateDocumentVersionArgDto(
-                payload.CmsAuthValues,
-                payload.CorrelationId,
-                payload.Urn,
-                payload.CaseId,
-                payload.DocumentId,
-                payload.VersionId);
+        var result = await MdsClient.GetDocumentAsync(arg);
 
-            var ddeiClient = DdeiClientFactory.Create(payload.CmsAuthValues, DdeiClients.Mds);
-            var result = await ddeiClient.GetDocumentAsync(arg);
-
-            return result.Stream;
-        }
+        return result.Stream;
     }
 }

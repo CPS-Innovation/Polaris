@@ -1,8 +1,7 @@
 ﻿namespace DdeiClient.Enums;
 
-public enum DdeiClients
+public enum MdsClients
 {
-    Ddei,
     Mds,
     MdsMock
 }

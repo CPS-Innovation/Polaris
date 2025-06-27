@@ -1,8 +1,7 @@
 using Common.Configuration;
 using Common.Extensions;
 using Ddei.Factories;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
+using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -14,16 +13,16 @@ namespace PolarisGateway.Functions;
 public class GetDocumentNotes : BaseFunction
 {
     private readonly ILogger<GetDocumentNotes> _logger;
-    private readonly IDdeiClientFactory _ddeiClientFactory;
+    private readonly IMdsClient _mdsClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
 
     public GetDocumentNotes(ILogger<GetDocumentNotes> logger,
-        IDdeiClientFactory ddeiClientFactory,
+        IMdsClient mdsClient,
         IDdeiArgFactory ddeiArgFactory)
         : base()
     {
         _logger = logger.ExceptionIfNull();
-        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
     }
 
@@ -36,9 +35,7 @@ public class GetDocumentNotes : BaseFunction
 
         var arg = _ddeiArgFactory.CreateDocumentArgDto(cmsAuthValues, correlationId, caseUrn, caseId, documentId);
 
-        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
-
-        var result = await ddeiClient.GetDocumentNotesAsync(arg);
+        var result = await _mdsClient.GetDocumentNotesAsync(arg);
 
         return new OkObjectResult(result);
     }

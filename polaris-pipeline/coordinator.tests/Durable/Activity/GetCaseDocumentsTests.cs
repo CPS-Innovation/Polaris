@@ -9,8 +9,6 @@ using coordinator.Services;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -18,119 +16,111 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace coordinator.tests.Durable.Activity
+namespace coordinator.tests.Durable.Activity;
+
+public class GetCaseDocumentsTests
 {
-    public class GetCaseDocumentsTests
+    private readonly CaseDto _case;
+    private readonly CmsDocumentDto[] _caseDocuments;
+    private readonly PresentationFlagsDto[] _presentationFlags;
+    private readonly CasePayload _payload;
+    private readonly GetCaseDocuments _getCaseDocuments;
+    private readonly Mock<IStateStorageService> _mockStateStorageService;
+    private readonly Mock<IMdsClient> _mdsClientMock;
+
+    public GetCaseDocumentsTests()
     {
-        private readonly CaseDto _case;
-        private readonly CmsDocumentDto[] _caseDocuments;
-        private readonly PresentationFlagsDto[] _presentationFlags;
-        private readonly CasePayload _payload;
-        private readonly GetCaseDocuments _getCaseDocuments;
-        private readonly Mock<IStateStorageService> _mockStateStorageService;
-        private readonly Mock<IDdeiClientFactory> _ddeiClientFactoryMock;
-        private readonly Mock<IDdeiClient> _ddeiClientMock;
-        public GetCaseDocumentsTests()
-        {
-            var fixture = new Fixture();
-            _payload = fixture.Create<CasePayload>();
-            _case = fixture.Create<CaseDto>();
-            _caseDocuments = [
-              fixture.Create<CmsDocumentDto>(),
-              fixture.Create<CmsDocumentDto>()
-            ];
+        var fixture = new Fixture();
+        _payload = fixture.Create<CasePayload>();
+        _case = fixture.Create<CaseDto>();
+        _caseDocuments = [
+            fixture.Create<CmsDocumentDto>(),
+            fixture.Create<CmsDocumentDto>()
+        ];
 
-            _presentationFlags = [
-              fixture.Create<PresentationFlagsDto>(),
-              fixture.Create<PresentationFlagsDto>()
-            ];
+        _presentationFlags = [
+            fixture.Create<PresentationFlagsDto>(),
+            fixture.Create<PresentationFlagsDto>()
+        ];
 
-            _ddeiClientMock = new Mock<IDdeiClient>();
+        _mockStateStorageService = new Mock<IStateStorageService>();
+        _mdsClientMock = new Mock<IMdsClient>();
+        _mdsClientMock
+            .Setup(client => client.GetCaseAsync(It.IsAny<DdeiCaseIdentifiersArgDto>()))
+            .ReturnsAsync(_case);
 
-            _mockStateStorageService = new Mock<IStateStorageService>();
+        var mockDdeiCaseIdentifiersArgDto = fixture.Create<DdeiCaseIdentifiersArgDto>();
 
-            _ddeiClientMock
-                .Setup(client => client.GetCaseAsync(It.IsAny<DdeiCaseIdentifiersArgDto>()))
-                .ReturnsAsync(_case);
+        var mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
+        mockDdeiArgFactory
+            .Setup(factory => factory.CreateCaseIdentifiersArg(_payload.CmsAuthValues, _payload.CorrelationId, _payload.Urn, _payload.CaseId))
+            .Returns(mockDdeiCaseIdentifiersArgDto);
 
-            var mockDdeiCaseIdentifiersArgDto = fixture.Create<DdeiCaseIdentifiersArgDto>();
+        _mdsClientMock
+            .Setup(client => client.ListDocumentsAsync(mockDdeiCaseIdentifiersArgDto))
+            .ReturnsAsync(_caseDocuments);
 
-            var mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
-            mockDdeiArgFactory
-                .Setup(factory => factory.CreateCaseIdentifiersArg(_payload.CmsAuthValues, _payload.CorrelationId, _payload.Urn, _payload.CaseId))
-                .Returns(mockDdeiCaseIdentifiersArgDto);
+        var mockDocumentToggleService = new Mock<IDocumentToggleService>();
+        mockDocumentToggleService
+            .Setup(service => service.GetDocumentPresentationFlags(_caseDocuments[0]))
+            .Returns(_presentationFlags[0]);
+        mockDocumentToggleService
+            .Setup(service => service.GetDocumentPresentationFlags(_caseDocuments[1]))
+            .Returns(_presentationFlags[1]);
 
-            _ddeiClientMock
-                .Setup(client => client.ListDocumentsAsync(mockDdeiCaseIdentifiersArgDto))
-                .ReturnsAsync(_caseDocuments);
+        var mockLogger = new Mock<ILogger<GetCaseDocuments>>();
 
-            var mockDocumentToggleService = new Mock<IDocumentToggleService>();
-            mockDocumentToggleService
-              .Setup(service => service.GetDocumentPresentationFlags(_caseDocuments[0]))
-              .Returns(_presentationFlags[0]);
-            mockDocumentToggleService
-              .Setup(service => service.GetDocumentPresentationFlags(_caseDocuments[1]))
-              .Returns(_presentationFlags[1]);
+        _getCaseDocuments = new GetCaseDocuments(
+            _mdsClientMock.Object,
+            mockDdeiArgFactory.Object,
+            mockDocumentToggleService.Object,
+            _mockStateStorageService.Object,
+            mockLogger.Object);
+    }
 
-            var mockLogger = new Mock<ILogger<GetCaseDocuments>>();
+    [Fact]
+    public async Task Run_WhenCaseIdIsZero_ThrowsArgumentException()
+    {
+        _payload.CaseId = 0;
 
-            var ddeiClientMock = new Mock<IDdeiClient>();
-            _ddeiClientFactoryMock = new Mock<IDdeiClientFactory>();
-            _ddeiClientFactoryMock.Setup(s => s.Create(It.IsAny<string>(), DdeiClients.Mds)).Returns(ddeiClientMock.Object);
+        await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_payload));
+    }
 
-            _getCaseDocuments = new GetCaseDocuments(
-                _ddeiClientFactoryMock.Object,
-                mockDdeiArgFactory.Object,
-                mockDocumentToggleService.Object,
-                _mockStateStorageService.Object,
-                mockLogger.Object);
-        }
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public async Task Run_WhenAccessTokenIsNullOrWhitespace_ThrowsArgumentException(string cmsAuthValues)
+    {
+        _payload.CmsAuthValues = cmsAuthValues;
 
-        [Fact]
-        public async Task Run_WhenCaseIdIsZero_ThrowsArgumentException()
-        {
-            _payload.CaseId = 0;
+        await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_payload));
+    }
 
-            await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_payload));
-        }
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    public async Task Run_WhenCaseUrnIsNullOrWhitespace_ThrowsArgumentException(string caseUrn)
+    {
+        _payload.Urn = caseUrn;
 
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(" ")]
-        public async Task Run_WhenAccessTokenIsNullOrWhitespace_ThrowsArgumentException(string cmsAuthValues)
-        {
-            _payload.CmsAuthValues = cmsAuthValues;
+        await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_payload));
+    }
 
-            await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_payload));
-        }
+    [Fact]
+    public async Task Run_WhenCorrelationIdIsEmpty_ThrowsArgumentException()
+    {
+        _payload.CorrelationId = Guid.Empty;
 
-        [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData(" ")]
-        public async Task Run_WhenCaseUrnIsNullOrWhitespace_ThrowsArgumentException(string caseUrn)
-        {
-            _payload.Urn = caseUrn;
+        await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_payload));
+    }
 
-            await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_payload));
-        }
+    [Fact]
+    public async Task Run_ReturnsCaseDocuments()
+    {
+        var caseDocuments = await _getCaseDocuments.Run(_payload);
 
-        [Fact]
-        public async Task Run_WhenCorrelationIdIsEmpty_ThrowsArgumentException()
-        {
-            _payload.CorrelationId = Guid.Empty;
-
-            await Assert.ThrowsAsync<ArgumentException>(() => _getCaseDocuments.Run(_payload));
-        }
-
-        [Fact]
-        public async Task Run_ReturnsCaseDocuments()
-        {
-            _ddeiClientFactoryMock.Setup(s => s.Create(_payload.CmsAuthValues, DdeiClients.Mds)).Returns(_ddeiClientMock.Object);
-            var caseDocuments = await _getCaseDocuments.Run(_payload);
-
-            caseDocuments.CmsDocuments.Should().BeEquivalentTo(_caseDocuments);
-        }
+        caseDocuments.CmsDocuments.Should().BeEquivalentTo(_caseDocuments);
     }
 }
