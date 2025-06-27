@@ -31,9 +31,9 @@ public static class IServiceCollectionExtension
     {
         services.AddScoped<IMdsClientFactory, MdsClientFactory>();
 
-        services.AddHttpClientWithDefaults<IDdeiAuthClient, DdeiAuthClient>(configuration, DdeiBaseUrlConfigKey, DdeiAccessKeyConfigKey, nameof(DdeiClients.Ddei));
-        services.AddHttpClientWithDefaults(configuration, MdsBaseUrlConfigKey, MdsAccessKeyConfigKey, nameof(DdeiClients.Mds));
-        services.AddHttpClientWithDefaults(configuration, MdsMockBaseUrlConfigKey, MdsMockAccessKeyConfigKey, nameof(DdeiClients.MdsMock));
+        services.AddHttpClientWithDefaults<IDdeiAuthClient, DdeiAuthClient>(configuration, DdeiBaseUrlConfigKey, DdeiAccessKeyConfigKey, "Ddei");
+        services.AddHttpClientWithDefaults(configuration, MdsBaseUrlConfigKey, MdsAccessKeyConfigKey, nameof(MdsClients.Mds));
+        services.AddHttpClientWithDefaults(configuration, MdsMockBaseUrlConfigKey, MdsMockAccessKeyConfigKey, nameof(MdsClients.MdsMock));
 
         services.AddScoped<IMdsClient, MdsClient>();
 

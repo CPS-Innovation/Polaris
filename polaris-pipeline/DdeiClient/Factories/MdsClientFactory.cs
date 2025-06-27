@@ -9,6 +9,6 @@ public class MdsClientFactory: IMdsClientFactory
 
     public string Create(string cmsAuthValues)
     {
-        return cmsAuthValues.ExtractCmsUserId() == MockUserId ? nameof(DdeiClients.MdsMock) : nameof(DdeiClients.Mds);
+        return cmsAuthValues.ExtractCmsUserId() == MockUserId ? nameof(MdsClients.MdsMock) : nameof(MdsClients.Mds);
     }
 }
