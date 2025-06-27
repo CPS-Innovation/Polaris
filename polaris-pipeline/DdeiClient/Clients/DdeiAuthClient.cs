@@ -6,7 +6,7 @@ using DdeiClient.Clients.Interfaces;
 
 namespace DdeiClient.Clients;
 
-public class DdeiAuthClient : BaseDdeiClient, IDdeiAuthClient
+public class DdeiAuthClient : BaseCmsClient, IDdeiAuthClient
 {
     private readonly HttpClient _httpClient;
     private readonly IDdeiAuthClientRequestFactory _ddeiAuthClientRequestFactory;

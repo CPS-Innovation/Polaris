@@ -5,10 +5,11 @@ using Common.Extensions;
 
 namespace DdeiClient.Clients;
 
-public abstract class BaseDdeiClient
+//BaseCmsClient is used for calling both MDS and DDEI client (now used for auth verification) and passing the cmsAuthValues as part of the request
+public abstract class BaseCmsClient
 {
     protected readonly IJsonConvertWrapper JsonConvertWrapper;
-    protected BaseDdeiClient(IJsonConvertWrapper jsonConvertWrapper)
+    protected BaseCmsClient(IJsonConvertWrapper jsonConvertWrapper)
     {
         JsonConvertWrapper = jsonConvertWrapper.ExceptionIfNull();
     }

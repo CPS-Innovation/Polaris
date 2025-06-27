@@ -22,7 +22,7 @@ using System.Net;
 
 namespace DdeiClient.Clients;
 
-public class MdsClient : BaseDdeiClient, IMdsClient
+public class MdsClient : BaseCmsClient, IMdsClient
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IMdsClientRequestFactory _mdsClientRequestFactory;
