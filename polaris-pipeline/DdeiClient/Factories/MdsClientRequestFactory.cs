@@ -11,15 +11,10 @@ using System.Text.Json;
 
 namespace DdeiClient.Factories;
 
-public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiClientRequestFactory
+public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IMdsClientRequestFactory
 {
     private const string UrnHeaderName = "Urn";
-
-    public HttpRequestMessage CreateVerifyCmsAuthRequest(DdeiBaseArgDto arg)
-    {
-        throw new NotImplementedException();
-    }
-
+    
     public HttpRequestMessage CreateUrnLookupRequest(DdeiCaseIdOnlyArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/urn");

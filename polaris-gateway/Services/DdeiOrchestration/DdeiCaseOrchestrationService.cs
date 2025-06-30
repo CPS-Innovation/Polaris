@@ -4,8 +4,7 @@ using Common.Extensions;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using Ddei.Mappers;
-using DdeiClient.Enums;
-using DdeiClient.Factories;
+using DdeiClient.Clients.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,17 +13,17 @@ namespace PolarisGateway.Services.DdeiOrchestration;
 
 public class DdeiCaseOrchestrationService : IDdeiCaseOrchestrationService
 {
-    private readonly IDdeiClientFactory _ddeiClientFactory;
+    private readonly IMdsClient _mdsClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
     private readonly ICaseDetailsMapper _caseDetailsMapper;
 
     public DdeiCaseOrchestrationService(
-            IDdeiClientFactory ddeiClientFactory,
+            IMdsClient mdsClient,
             IDdeiArgFactory ddeiArgFactory,
             ICaseDetailsMapper caseDetailsMapper
         )
     {
-        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
         _caseDetailsMapper = caseDetailsMapper.ExceptionIfNull();
     }
@@ -37,9 +36,7 @@ public class DdeiCaseOrchestrationService : IDdeiCaseOrchestrationService
 
     public async Task<IEnumerable<CaseDto>> GetCases(DdeiUrnArgDto arg)
     {
-        var mdsClient = _ddeiClientFactory.Create(arg.CmsAuthValues, DdeiClients.Mds);
-
-        var caseIdentifiers = await mdsClient.ListCaseIdsAsync(arg);
+        var caseIdentifiers = await _mdsClient.ListCaseIdsAsync(arg);
 
         var calls = caseIdentifiers.Select(async caseIdentifier =>
             await GetCaseDetails(_ddeiArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id)));
@@ -50,12 +47,10 @@ public class DdeiCaseOrchestrationService : IDdeiCaseOrchestrationService
 
     private async Task<CaseDetailsDto> GetCaseDetails(DdeiCaseIdentifiersArgDto arg)
     {
-        var mdsClient = _ddeiClientFactory.Create(arg.CmsAuthValues, DdeiClients.Mds);
-
-        var getCaseSummaryTask = mdsClient.GetCaseSummaryAsync(_ddeiArgFactory.CreateCaseIdArg(arg.CmsAuthValues, arg.CorrelationId, arg.CaseId));
-        var getDefendantsAndChargesTask = mdsClient.GetDefendantAndChargesAsync(arg);
-        var witnessesTask = mdsClient.GetWitnessesAsync(arg);
-        var getPcdRequestTask = mdsClient.GetPcdRequestsAsync(arg);
+        var getCaseSummaryTask = _mdsClient.GetCaseSummaryAsync(_ddeiArgFactory.CreateCaseIdArg(arg.CmsAuthValues, arg.CorrelationId, arg.CaseId));
+        var getDefendantsAndChargesTask = _mdsClient.GetDefendantAndChargesAsync(arg);
+        var witnessesTask = _mdsClient.GetWitnessesAsync(arg);
+        var getPcdRequestTask = _mdsClient.GetPcdRequestsAsync(arg);
 
         await Task.WhenAll(getCaseSummaryTask, getDefendantsAndChargesTask, witnessesTask, getPcdRequestTask);
 

@@ -1,18 +1,12 @@
 ﻿using Common.Configuration;
+using Common.Extensions;
+using Ddei.Factories;
+using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Ddei.Factories;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using System;
-using Common.Extensions;
-using Common.Telemetry;
-using DdeiClient.Clients.Interfaces;
-using DdeiClient.Enums;
-using Microsoft.Extensions.DependencyInjection;
-using Ddei.Domain.CaseData.Args;
-using DdeiClient.Factories;
 
 namespace PolarisGateway.Functions;
 
@@ -20,16 +14,16 @@ public class CancelCheckoutDocument : BaseFunction
 {
     private readonly ILogger<CancelCheckoutDocument> _logger;
     private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly IDdeiClientFactory _ddeiClientFactory;
+    private readonly IMdsClient _mdsClient;
 
     public CancelCheckoutDocument(
         ILogger<CancelCheckoutDocument> logger,
         IDdeiArgFactory ddeiArgFactory,
-        IDdeiClientFactory ddeiClientFactory)
+        IMdsClient mdsClient)
     {
         _logger = logger.ExceptionIfNull();
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
-        _ddeiClientFactory = ddeiClientFactory.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
     }
 
     [Function(nameof(CancelCheckoutDocument))]
@@ -48,9 +42,7 @@ public class CancelCheckoutDocument : BaseFunction
                 documentId: documentId,
                 versionId: versionId);
 
-        var ddeiClient = _ddeiClientFactory.Create(cmsAuthValues, DdeiClients.Mds);
-
-        await ddeiClient.CancelCheckoutDocumentAsync(ddeiDocumentIdAndVersionIdArgDto);
+        await _mdsClient.CancelCheckoutDocumentAsync(ddeiDocumentIdAndVersionIdArgDto);
 
         return new OkResult();
     }

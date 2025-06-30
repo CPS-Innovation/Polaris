@@ -10,10 +10,8 @@ using Ddei.Domain.Response;
 
 namespace DdeiClient.Clients.Interfaces;
 
-public interface IDdeiClient
+public interface IMdsClient
 {
-    Task VerifyCmsAuthAsync(DdeiBaseArgDto arg);
-
     Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(DdeiCaseIdOnlyArgDto arg);
 
     Task<IEnumerable<CaseDto>> ListCasesAsync(DdeiUrnArgDto arg);
