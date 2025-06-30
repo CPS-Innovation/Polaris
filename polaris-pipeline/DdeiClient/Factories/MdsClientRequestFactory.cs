@@ -231,6 +231,7 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IMdsClientR
     {
         request.Headers.Add(HttpHeaderKeys.CmsAuthValues, WebUtility.UrlDecode(arg.CmsAuthValues));
         request.Headers.Add(CorrelationId, arg.CorrelationId.ToString());
+        request.Headers.Add("ClientName", "CWA");
     }
 
     private void CreateRequest(HttpRequestMessage request, DdeiUrnArgDto arg, HttpContent content = null)
