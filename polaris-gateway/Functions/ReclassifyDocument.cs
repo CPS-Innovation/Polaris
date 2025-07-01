@@ -1,15 +1,16 @@
 using Common.Configuration;
 using Common.Dto.Request;
-using Common.Extensions;
 using Common.Telemetry;
 using Ddei.Factories;
+using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Services.DdeiOrchestration;
+using PolarisGateway.Mappers;
 using PolarisGateway.TelemetryEvents;
 using PolarisGateway.Validators;
+using System;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -18,21 +19,24 @@ namespace PolarisGateway.Functions;
 public class ReclassifyDocument : BaseFunction
 {
     private readonly ILogger<ReclassifyDocument> _logger;
+    private readonly IDdeiAuthClient _ddeiAuthClient;
     private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly IDdeiReclassifyDocumentOrchestrationService _ddeiOrchestrationService;
+    private readonly IReclassifyDocumentRequestMapper _reclassifyDocumentRequestMapper;
     private readonly ITelemetryClient _telemetryClient;
 
     public ReclassifyDocument(
         ILogger<ReclassifyDocument> logger,
+        IDdeiAuthClient ddeiAuthClient,
         IDdeiArgFactory ddeiArgFactory,
-        ITelemetryClient telemetryClient,
-        IDdeiReclassifyDocumentOrchestrationService ddeiOrchestrationService)
+        IReclassifyDocumentRequestMapper reclassifyDocumentRequestMapper,
+        ITelemetryClient telemetryClient)
         : base()
     {
-        _logger = logger.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
-        _telemetryClient = telemetryClient.ExceptionIfNull();
-        _ddeiOrchestrationService = ddeiOrchestrationService.ExceptionIfNull();
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _ddeiAuthClient = ddeiAuthClient ?? throw new ArgumentNullException(nameof(ddeiAuthClient));
+        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
+        _reclassifyDocumentRequestMapper = reclassifyDocumentRequestMapper ?? throw new ArgumentNullException(nameof(reclassifyDocumentRequestMapper));
+        _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
     }
 
     [Function(nameof(ReclassifyDocument))]
@@ -45,7 +49,7 @@ public class ReclassifyDocument : BaseFunction
         {
             OperationName = nameof(ReclassifyDocument),
         };
-        
+
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
@@ -74,25 +78,12 @@ public class ReclassifyDocument : BaseFunction
                 dto: body.Value
             );
 
-            var reclassifyDocumentResult = await _ddeiOrchestrationService.ReclassifyDocument(arg);
-
-            if (!reclassifyDocumentResult.IsSuccess)
-            {
-                telemetryEvent.IsSuccess = false;
-                _telemetryClient.TrackEvent(telemetryEvent);
-                return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
-            }
+            var result = await _ddeiAuthClient.ReclassifyDocumentAsync(arg);
 
             telemetryEvent.IsSuccess = true;
-            telemetryEvent.ResponseDocumentId = (int)reclassifyDocumentResult.Result.DocumentId;
-            telemetryEvent.ReclassificationType = reclassifyDocumentResult.Result.ReclassificationType;
-            telemetryEvent.OriginalDocumentTypeId = reclassifyDocumentResult.Result.OriginalDocumentTypeId;
-            telemetryEvent.NewDocumentTypeId = reclassifyDocumentResult.Result.DocumentTypeId;
-            telemetryEvent.DocumentRenamed = reclassifyDocumentResult.Result.DocumentRenamed;
-            telemetryEvent.DocumentRenameOperationName = reclassifyDocumentResult.Result.DocumentRenamedOperationName;
             _telemetryClient.TrackEvent(telemetryEvent);
 
-            return new ObjectResult(reclassifyDocumentResult.Result);
+            return new ObjectResult(result);
         }
         catch
         {
