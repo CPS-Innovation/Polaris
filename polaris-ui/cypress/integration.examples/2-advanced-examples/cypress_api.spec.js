@@ -101,7 +101,7 @@ context("Cypress.config()", () => {
     expect(myConfig).to.have.property("baseUrl", null);
     expect(myConfig).to.have.property("defaultCommandTimeout", 4000);
     expect(myConfig).to.have.property("requestTimeout", 5000);
-    expect(myConfig).to.have.property("responseTimeout", 30000);
+    expect(myConfig).to.have.property("responseTimeout", 300000);
     expect(myConfig).to.have.property("viewportHeight", 660);
     expect(myConfig).to.have.property("viewportWidth", 1000);
     expect(myConfig).to.have.property("pageLoadTimeout", 60000);

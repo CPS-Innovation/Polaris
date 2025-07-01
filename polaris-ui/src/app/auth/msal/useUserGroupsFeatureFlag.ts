@@ -173,8 +173,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
       globalNav: shouldShowFeature(
         FEATURE_FLAG_GLOBAL_NAV,
         userDetails?.username,
-        globalNav,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP5 }
+        globalNav
       ),
       copyRedactionTextButton: shouldShowFeature(
         FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON,
