@@ -21,17 +21,17 @@ public class RenameDocument : BaseFunction
     private readonly ILogger<RenameDocument> _logger;
     private readonly IDdeiArgFactory _ddeiArgFactory;
     private readonly ITelemetryClient _telemetryClient;
-    private readonly IMdsClient _mdsClient;
+    private readonly IDdeiAuthClient _ddeiAuthClient;
 
     public RenameDocument(ILogger<RenameDocument> logger,
         IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient,
-        IMdsClient mdsClient)
+        IDdeiAuthClient ddeiAuthClient)
     {
         _logger = logger.ExceptionIfNull();
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
         _telemetryClient = telemetryClient.ExceptionIfNull();
-        _mdsClient = mdsClient.ExceptionIfNull();
+        _ddeiAuthClient = ddeiAuthClient.ExceptionIfNull();
     }
 
     [Function(nameof(RenameDocument))]
@@ -63,7 +63,7 @@ public class RenameDocument : BaseFunction
             }
 
             var arg = _ddeiArgFactory.CreateRenameDocumentArgDto(cmsAuthValues, correlationId, caseUrn, caseId, documentId, body.Value.DocumentName);
-            await _mdsClient.RenameDocumentAsync(arg);
+            await _ddeiAuthClient.RenameDocumentAsync(arg);
 
             telemetryEvent.IsSuccess = true;
             _telemetryClient.TrackEvent(telemetryEvent);
