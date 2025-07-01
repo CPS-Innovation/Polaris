@@ -39,5 +39,12 @@ public class DdeiAuthClient : BaseCmsClient, IDdeiAuthClient
         };
     }
 
+    public async Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg)
+    {
+        var response = await CallDdeiAsync<DdeiDocumentRenamedResponse>(_ddeiAuthClientRequestFactory.CreateRenameDocumentRequest(arg), arg.CmsAuthValues);
+
+        return new DocumentRenamedResultDto { Id = response.Id, OperationName = response.OperationName };
+    }
+
     protected override HttpClient GetHttpClient(string cmsAuthValues) => _httpClient;
 }
