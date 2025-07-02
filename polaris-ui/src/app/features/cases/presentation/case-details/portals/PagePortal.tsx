@@ -21,6 +21,7 @@ export const PagePortal: React.FC<PagePortalProps> = ({
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const mutationObserversRef = useRef<MutationObserver[]>([]);
   const isUnmountedRef = useRef(false);
+  const BUTTON_LOAD_TIMEOUT = 500;
 
   const updatePortals = useCallback(() => {
     const pdfViewer = document?.querySelectorAll(".pdfViewer")?.[tabIndex];
@@ -38,7 +39,10 @@ export const PagePortal: React.FC<PagePortalProps> = ({
     // Attach new portal nodes to updated .page elements
     portalNodeRefs.current = updatedPages.map((pageDiv) => {
       const portalDiv = document.createElement("div");
-      pageDiv.prepend(portalDiv);
+      setTimeout(() => {
+        pageDiv.append(portalDiv);
+      }, BUTTON_LOAD_TIMEOUT);
+
       return portalDiv;
     });
     setPageElements(updatedPages);
