@@ -1,8 +1,10 @@
 using Common.Configuration;
+using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Extensions;
 using Common.Telemetry;
-using Ddei.Factories;
+using Ddei.Domain.CaseData.Args;
+using Ddei.Domain.CaseData.Args.Core;
 using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +13,8 @@ using Microsoft.Extensions.Logging;
 using PolarisGateway.Helpers;
 using PolarisGateway.TelemetryEvents;
 using PolarisGateway.Validators;
+using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -19,19 +23,19 @@ namespace PolarisGateway.Functions;
 public class RenameDocument : BaseFunction
 {
     private readonly ILogger<RenameDocument> _logger;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
     private readonly ITelemetryClient _telemetryClient;
-    private readonly IDdeiAuthClient _ddeiAuthClient;
+    private readonly IMdsClient _mdsClient;
+
+    private const string ExhibitClassification = "EXHIBIT";
+    private const string StatementClassification = "STATEMENT";
 
     public RenameDocument(ILogger<RenameDocument> logger,
-        IDdeiArgFactory ddeiArgFactory,
         ITelemetryClient telemetryClient,
-        IDdeiAuthClient ddeiAuthClient)
+        IMdsClient mdsClient)
     {
         _logger = logger.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
         _telemetryClient = telemetryClient.ExceptionIfNull();
-        _ddeiAuthClient = ddeiAuthClient.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
     }
 
     [Function(nameof(RenameDocument))]
@@ -62,8 +66,37 @@ public class RenameDocument : BaseFunction
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
-            var arg = _ddeiArgFactory.CreateRenameDocumentArgDto(cmsAuthValues, correlationId, caseUrn, caseId, documentId, body.Value.DocumentName);
-            await _ddeiAuthClient.RenameDocumentAsync(arg);
+            var ddeiCaseIdentifiersArgDto = new DdeiCaseIdentifiersArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = caseUrn,
+                CaseId = caseId,
+            };
+            var documents = await _mdsClient.ListDocumentsAsync(ddeiCaseIdentifiersArgDto);
+            var documentIdNumber = DocumentNature.ToNumericDocumentId(documentId, DocumentNature.Types.Document);
+
+            var document = documents.SingleOrDefault(x => x.DocumentId == documentIdNumber);
+
+            if (document == null) return new NotFoundObjectResult("Document not found");
+
+            var ddeiRenameDocumentArgDto = new DdeiRenameDocumentArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                Urn = caseUrn,
+                CaseId = caseId,
+                DocumentId = documentIdNumber,
+                DocumentName = body.Value.DocumentName
+            };
+            if (string.Equals(document.Classification, ExhibitClassification, StringComparison.InvariantCultureIgnoreCase))
+            {
+                await _mdsClient.RenameExhibitAsync(ddeiRenameDocumentArgDto);
+            }
+            else if (!string.Equals(document.Classification, StatementClassification, StringComparison.InvariantCultureIgnoreCase))
+            {
+                await _mdsClient.RenameDocumentAsync(ddeiRenameDocumentArgDto);
+            }
 
             telemetryEvent.IsSuccess = true;
             _telemetryClient.TrackEvent(telemetryEvent);
