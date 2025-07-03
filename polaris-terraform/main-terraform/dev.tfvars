@@ -76,7 +76,7 @@ cms_details = {
 }
 
 wm_task_list_host_name  = "https://cps-dev.outsystemsenterprise.com"
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps-dev.outsystemsenterprise.com/WorkManagementApp/,https://cps-dev.outsystemsenterprise.com/CaseReview/,https://sacpsglobalcomponents.blob.core.windows.net/"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps-dev.outsystemsenterprise.com/WorkManagementApp/,https://cps-dev.outsystemsenterprise.com/CaseReview/,https://sacpsglobalcomponents.blob.core.windows.net/,https://cps-dev.outsystemsenterprise.com/AuthHandover/"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
