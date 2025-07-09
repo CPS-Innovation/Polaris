@@ -15,7 +15,7 @@ namespace pdf_generator.Services.PdfService
 
         public HtmlPdfService(IAsposeItemFactory asposeItemFactory)
         {
-            _asposeItemFactory = asposeItemFactory;
+            _asposeItemFactory = asposeItemFactory ?? throw new ArgumentNullException(nameof(asposeItemFactory));
         }
 
         public PdfConversionResult ReadToPdfStream(Stream inputStream, string documentId, Guid correlationId)

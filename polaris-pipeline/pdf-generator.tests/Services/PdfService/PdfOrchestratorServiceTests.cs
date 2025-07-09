@@ -199,7 +199,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStreamAsync(_inputStream, FileType.HTML, _documentId, _correlationId);
 
-            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()));
+            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -207,7 +207,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStreamAsync(_inputStream, FileType.HTM, _documentId, _correlationId);
 
-            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()));
+            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -233,7 +233,7 @@ namespace pdf_generator.tests.Services.PdfService
             _pdfOrchestratorService.ReadToPdfStreamAsync(_inputStream, FileType.HTE, _documentId, _correlationId);
 
             // Assert
-            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()), Times.Once);
+            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
@@ -243,7 +243,7 @@ namespace pdf_generator.tests.Services.PdfService
             _pdfOrchestratorService.ReadToPdfStreamAsync(_inputStream, FileType.MHT, _documentId, _correlationId);
 
             // Assert
-            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()), Times.Once);
+            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
@@ -253,7 +253,7 @@ namespace pdf_generator.tests.Services.PdfService
             _pdfOrchestratorService.ReadToPdfStreamAsync(_inputStream, FileType.MHTML, _documentId, _correlationId);
 
             // Assert
-            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()), Times.Once);
+            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
