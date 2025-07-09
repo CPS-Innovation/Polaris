@@ -34,13 +34,13 @@ namespace pdf_generator.Services.PdfService
             catch (UnsupportedFileFormatException ex)
             {
                 inputStream?.Dispose();
-                conversionResult.RecordConversionFailure(PdfConversionStatus.AsposeWordsUnsupportedFileFormat,
+                conversionResult.RecordConversionFailure(PdfConversionStatus.AsposeHtmlUnsupportedFileFormat,
                     ex.ToFormattedString());
             }
             catch (IncorrectPasswordException ex)
             {
                 inputStream?.Dispose();
-                conversionResult.RecordConversionFailure(PdfConversionStatus.AsposeWordsPasswordProtected,
+                conversionResult.RecordConversionFailure(PdfConversionStatus.AsposeHtmlPasswordProtected,
                     ex.ToFormattedString());
             }
 
