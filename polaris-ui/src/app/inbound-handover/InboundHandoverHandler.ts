@@ -41,14 +41,8 @@ export const InboundHandoverHandler: React.FC<RouteComponentProps> = ({
   );
 
   const navigateToDocument = useCallback(
-    (
-      caseId: number,
-      urn: string,
-      documentId: number,
-    ) =>
-      history.push(
-        `/case-details/${urn}/${caseId}/CMS-${documentId}/#dcf`
-      ),
+    (caseId: number, urn: string, documentId: number) =>
+      history.push(`/case-details/${urn}/${caseId}/CMS-${documentId}/#dcf`),
     [history]
   );
 
@@ -59,7 +53,7 @@ export const InboundHandoverHandler: React.FC<RouteComponentProps> = ({
           buildContextFromQueryString(search);
 
         if (documentId) {
-            navigateToDocument(caseId, urn!, documentId);
+          navigateToDocument(caseId, urn!, documentId);
         } else {
           if (urn) {
             navigateToCase(caseId, urn, contextObject, contextSearchParams);
@@ -81,6 +75,6 @@ export const InboundHandoverHandler: React.FC<RouteComponentProps> = ({
       }
     })();
   }, [search, history, navigateToCase, navigateToDocument]);
-  
+
   return null;
 };

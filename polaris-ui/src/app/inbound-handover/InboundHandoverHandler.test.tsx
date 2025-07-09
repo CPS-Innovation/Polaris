@@ -46,7 +46,7 @@ describe("InboundHandoverHandler", () => {
   it("will navigate a handover object containing only a only a case id and a urn", async () => {
     const inputContextObject = {
       caseId: 1,
-      urn: "bar",
+      urn: "12AB1111111",
     };
 
     const mockProps = generateMockProps(
@@ -56,7 +56,7 @@ describe("InboundHandoverHandler", () => {
       render(<InboundHandoverHandler {...mockProps} />);
     });
 
-    expect(mockPush).toBeCalledWith("/case-details/bar/1", undefined);
+    expect(mockPush).toBeCalledWith("/case-details/12AB1111111/1", undefined);
   });
 
   it("will navigate a well formed triage handover object with no urn to the appropriate case and set context", async () => {
@@ -94,7 +94,7 @@ describe("InboundHandoverHandler", () => {
   it("will navigate a well formed triage handover object with a urn to the appropriate case and set context", async () => {
     const inputContextObject = {
       caseId: 1,
-      urn: "bar",
+      urn: "12AB1111111",
       taskId: 2,
       taskTypeId: 3,
     };
@@ -113,8 +113,27 @@ describe("InboundHandoverHandler", () => {
     });
 
     expect(mockPush).toBeCalledWith(
-      "/case-details/bar/1?taskId=2&taskTypeId=3",
+      "/case-details/12AB1111111/1?taskId=2&taskTypeId=3",
       expectedContextObject
+    );
+  });
+
+  it.only("will navigate a handover object containing a case id, urn and document id", async () => {
+    const inputContextObject = {
+      caseId: 1,
+      urn: "12AB1111111",
+      documentId: 2,
+    };
+
+    const mockProps = generateMockProps(
+      `?ctx=${JSON.stringify(inputContextObject)}`
+    );
+    await act(async () => {
+      render(<InboundHandoverHandler {...mockProps} />);
+    });
+
+    expect(mockPush).toBeCalledWith(
+      "/case-details/12AB1111111/1/CMS-2/#dcf"
     );
   });
 
@@ -143,7 +162,7 @@ describe("InboundHandoverHandler", () => {
     const test = () => render(<InboundHandoverHandler {...mockProps} />);
 
     expect(test).toThrow(
-      /Context object from handing-over app is missing caseId/
+      /Context object from handing-over app is missing identifiers/
     );
   });
 
