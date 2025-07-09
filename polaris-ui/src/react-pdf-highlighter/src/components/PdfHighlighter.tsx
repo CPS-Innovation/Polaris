@@ -121,9 +121,9 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   mouseSelectionRef: React.RefObject<MouseSelection>;
   constructor(props: Props<T_HT>) {
     super(props);
-    if (typeof ResizeObserver !== "undefined") {
-      this.resizeObserver = new ResizeObserver(this.debouncedScaleValue);
-    }
+    // if (typeof ResizeObserver !== "undefined") {
+    //   this.resizeObserver = new ResizeObserver(this.debouncedScaleValue);
+    // }
     this.containerNodeRef = React.createRef();
     this.mouseSelectionRef = React.createRef();
   }
@@ -170,7 +170,10 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       eventBus.on("pagesinit", this.onDocumentReady);
       doc.addEventListener("selectionchange", this.onSelectionChange);
       doc.addEventListener("keydown", this.handleKeyDown);
-      doc.defaultView?.addEventListener("resize", this.debouncedScaleValue);
+      doc.defaultView?.addEventListener(
+        "visibilitychange",
+        this.debouncedScaleValue
+      );
       if (observer) observer.observe(this.containerNode);
       this.containerNode.addEventListener("wheel", this.handleWheel, {
         passive: true,
@@ -181,7 +184,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         doc.removeEventListener("selectionchange", this.onSelectionChange);
         doc.removeEventListener("keydown", this.handleKeyDown);
         doc.defaultView?.removeEventListener(
-          "resize",
+          "visibilitychange",
           this.debouncedScaleValue
         );
         if (observer) observer.disconnect();
