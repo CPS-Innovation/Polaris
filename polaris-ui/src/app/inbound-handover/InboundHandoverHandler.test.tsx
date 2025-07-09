@@ -132,9 +132,7 @@ describe("InboundHandoverHandler", () => {
       render(<InboundHandoverHandler {...mockProps} />);
     });
 
-    expect(mockPush).toBeCalledWith(
-      "/case-details/12AB1111111/1/CMS-2/#dcf"
-    );
+    expect(mockPush).toBeCalledWith("/case-details/12AB1111111/1/CMS-2/#dcf");
   });
 
   it("will throw if there is not a ctx param", () => {
