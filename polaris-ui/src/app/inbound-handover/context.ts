@@ -1,4 +1,5 @@
 import { HandoverError } from "../common/errors/HandoverError";
+import { validateUrn } from "../features/cases/logic/validate-urn";
 
 // This is an opinionated first-pass of a context system whereby we are handed
 //  over some context from another app.  The approach here is to nail down
@@ -117,11 +118,20 @@ export const buildContextFromQueryString = (
 
   if (!isValidContextHandoverObject(ctxWithCaseIdentifiers)) {
     throw new HandoverError(
-      `Context object from handing-over app is missing caseId: ${ctxJson}`
+      `Context object from handing-over app is missing identifiers: ${ctxJson}`
     );
   }
 
   const { caseId, urn, documentId, ...ctx } = ctxWithCaseIdentifiers;
+
+  let rootUrn: string | undefined;
+  if (urn) {
+    const { isValid, rootUrn: validatedUrn } = validateUrn(urn);
+    if (!isValid) {
+      throw new HandoverError(`URN from handing-over app is not valid: ${urn}`);
+    }
+    rootUrn = validatedUrn;
+  }
 
   const contextObjectAsRecord =
     ctx &&
@@ -157,7 +167,7 @@ export const buildContextFromQueryString = (
 
   return {
     caseId,
-    urn,
+    urn: rootUrn,
     documentId,
     contextObject,
     contextSearchParams,
