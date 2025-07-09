@@ -1,4 +1,5 @@
 import { HandoverError } from "../common/errors/HandoverError";
+import { validateUrn } from "../features/cases/logic/validate-urn";
 
 // This is an opinionated first-pass of a context system whereby we are handed
 //  over some context from another app.  The approach here is to nail down
@@ -11,12 +12,22 @@ type RecordObject = Record<string, any>;
 type ContextIdentifiers = {
   caseId: number;
   urn: string | undefined;
+  documentId: number | undefined;
 };
 
 type ContextHandoverObject = ContextIdentifiers & RecordObject;
 
-const isValidContextHandoverObject = (o: any): o is ContextHandoverObject =>
-  typeof o === "object" && Number.isInteger(o["caseId"]);
+const isValidContextHandoverObject = (o: any): o is ContextHandoverObject => {
+  if (typeof o !== "object" || !Number.isInteger(o["caseId"])) {
+    return false;
+  }
+
+  if (o["documentId"] !== undefined) {
+    return Number.isInteger(o["caseId"]) && typeof o["urn"] === "string";
+  }
+
+  return true;
+};
 
 // Special case to accommodate a handover to go with e.g. caseId but no other context
 type NakedContext = object;
@@ -85,6 +96,7 @@ export const buildContextFromQueryString = (
 ): {
   caseId: number;
   urn: string | undefined;
+  documentId?: number | undefined;
   contextObject: TaggedContext | undefined;
   contextSearchParams: string;
 } => {
@@ -106,11 +118,20 @@ export const buildContextFromQueryString = (
 
   if (!isValidContextHandoverObject(ctxWithCaseIdentifiers)) {
     throw new HandoverError(
-      `Context object from handing-over app is missing caseId: ${ctxJson}`
+      `Context object from handing-over app is missing identifiers: ${ctxJson}`
     );
   }
 
-  const { caseId, urn, ...ctx } = ctxWithCaseIdentifiers;
+  const { caseId, urn, documentId, ...ctx } = ctxWithCaseIdentifiers;
+
+  let rootUrn: string | undefined;
+  if (urn) {
+    const { isValid, rootUrn: validatedUrn } = validateUrn(urn);
+    if (!isValid) {
+      throw new HandoverError(`URN from handing-over app is not valid: ${urn}`);
+    }
+    rootUrn = validatedUrn;
+  }
 
   const contextObjectAsRecord =
     ctx &&
@@ -146,7 +167,8 @@ export const buildContextFromQueryString = (
 
   return {
     caseId,
-    urn,
+    urn: rootUrn,
+    documentId,
     contextObject,
     contextSearchParams,
   };
