@@ -118,7 +118,7 @@ describe("InboundHandoverHandler", () => {
     );
   });
 
-  it.only("will navigate a handover object containing a case id, urn and document id", async () => {
+  it("will navigate a handover object containing a case id, urn and document id", async () => {
     const inputContextObject = {
       caseId: 1,
       urn: "12AB1111111",
