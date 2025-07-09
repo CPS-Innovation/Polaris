@@ -26,7 +26,7 @@ export const InboundHandoverHandler: React.FC<RouteComponentProps> = ({
     }
   };
 
-  const navigate = useCallback(
+  const navigateToCase = useCallback(
     (
       caseId: number,
       urn: string,
@@ -40,30 +40,47 @@ export const InboundHandoverHandler: React.FC<RouteComponentProps> = ({
     [history]
   );
 
+  const navigateToDocument = useCallback(
+    (
+      caseId: number,
+      urn: string,
+      documentId: number,
+    ) =>
+      history.push(
+        `/case-details/${urn}/${caseId}/CMS-${documentId}/#dcf`
+      ),
+    [history]
+  );
+
   useEffect(() => {
     (async () => {
       try {
-        const { caseId, urn, contextObject, contextSearchParams } =
+        const { caseId, urn, documentId, contextObject, contextSearchParams } =
           buildContextFromQueryString(search);
 
-        if (urn) {
-          // we have not been passed a urn so no need to look up
-          navigate(caseId, urn, contextObject, contextSearchParams);
+        if (documentId) {
+            navigateToDocument(caseId, urn!, documentId);
         } else {
-          const response = await getCaseIdentifiers(caseId);
-          if (response) {
-            navigate(
-              response.caseId,
-              response.urn,
-              contextObject,
-              contextSearchParams
-            );
+          if (urn) {
+            navigateToCase(caseId, urn, contextObject, contextSearchParams);
+          } else {
+            // we have not been passed a urn so no need to look up
+            const response = await getCaseIdentifiers(caseId);
+            if (response) {
+              navigateToCase(
+                response.caseId,
+                response.urn,
+                contextObject,
+                contextSearchParams
+              );
+            }
           }
         }
       } catch (ex) {
         setError(ex as Error);
       }
     })();
-  }, [search, history, navigate]);
+  }, [search, history, navigateToCase, navigateToDocument]);
+  
   return null;
 };

@@ -11,12 +11,22 @@ type RecordObject = Record<string, any>;
 type ContextIdentifiers = {
   caseId: number;
   urn: string | undefined;
+  documentId: number | undefined;
 };
 
 type ContextHandoverObject = ContextIdentifiers & RecordObject;
 
-const isValidContextHandoverObject = (o: any): o is ContextHandoverObject =>
-  typeof o === "object" && Number.isInteger(o["caseId"]);
+const isValidContextHandoverObject = (o: any): o is ContextHandoverObject => {
+  if (typeof o !== "object" || !Number.isInteger(o["caseId"])) {
+    return false;
+  }
+
+  if (o["documentId"] !== undefined) {
+    return Number.isInteger(o["caseId"]) && typeof o["urn"] === "string";
+  }
+
+  return true;
+};
 
 // Special case to accommodate a handover to go with e.g. caseId but no other context
 type NakedContext = object;
@@ -85,6 +95,7 @@ export const buildContextFromQueryString = (
 ): {
   caseId: number;
   urn: string | undefined;
+  documentId?: number | undefined;
   contextObject: TaggedContext | undefined;
   contextSearchParams: string;
 } => {
@@ -110,7 +121,7 @@ export const buildContextFromQueryString = (
     );
   }
 
-  const { caseId, urn, ...ctx } = ctxWithCaseIdentifiers;
+  const { caseId, urn, documentId, ...ctx } = ctxWithCaseIdentifiers;
 
   const contextObjectAsRecord =
     ctx &&
@@ -147,6 +158,7 @@ export const buildContextFromQueryString = (
   return {
     caseId,
     urn,
+    documentId,
     contextObject,
     contextSearchParams,
   };
