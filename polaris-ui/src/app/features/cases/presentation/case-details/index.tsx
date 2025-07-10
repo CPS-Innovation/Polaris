@@ -61,7 +61,6 @@ import {
   TaggedContext,
 } from "../../../../inbound-handover/context";
 import { saveStateToSessionStorage } from "./utils/stateRetentionUtil";
-// import { handleUpdateDCFAction } from "../../hooks/use-case-details-state/useCaseDetailsState";
 export const path = "/case-details/:urn/:id/:hkDocumentId?";
 
 type Props = BackLinkingPageProps & {
