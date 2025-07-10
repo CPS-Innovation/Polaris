@@ -23,6 +23,11 @@ public enum PdfConversionStatus
     [EnumValue("File is password protected")]
     AsposeWordsPasswordProtected,
 
+    [EnumValue("Unsupported file format")]
+    AsposeHtmlUnsupportedFileFormat,
+    [EnumValue("File is password protected")]
+    AsposeHtmlPasswordProtected,
+
     [EnumValue("General cells library error")]
     AsposeCellsGeneralError,
 

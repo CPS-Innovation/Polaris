@@ -8,6 +8,8 @@ public enum PdfConverterType
     AsposePdf,
     [EnumValue("Aspose Words")]
     AsposeWords,
+    [EnumValue("Aspose HTML")]
+    AsposeHtml,
     [EnumValue("Aspose Cells")]
     AsposeCells,
     [EnumValue("Aspose Slides")]

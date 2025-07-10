@@ -13,6 +13,7 @@ namespace pdf_generator.Services.Extensions
         public static void AddPdfGenerator(this IServiceCollection services)
         {
             services.AddSingleton<IPdfService, WordsPdfService>();
+            services.AddSingleton<IPdfService, HtmlPdfService>();
             services.AddSingleton<IPdfService, CellsPdfService>();
             services.AddSingleton<IPdfService, SlidesPdfService>();
             services.AddSingleton<IPdfService, ImagingPdfService>();
@@ -25,6 +26,7 @@ namespace pdf_generator.Services.Extensions
                 var pdfServices = provider.GetServices<IPdfService>();
                 var servicesList = pdfServices.ToList();
                 var wordsPdfService = servicesList.First(s => s.GetType() == typeof(WordsPdfService));
+                var htmlPdfService = servicesList.First(s => s.GetType() == typeof(HtmlPdfService));
                 var cellsPdfService = servicesList.First(s => s.GetType() == typeof(CellsPdfService));
                 var slidesPdfService = servicesList.First(s => s.GetType() == typeof(SlidesPdfService));
                 var imagingPdfService = servicesList.First(s => s.GetType() == typeof(ImagingPdfService));
@@ -34,7 +36,7 @@ namespace pdf_generator.Services.Extensions
                 var xpsPdfRendererService = servicesList.First(s => s.GetType() == typeof(XpsPdfRendererService));
                 var loggingService = provider.GetService<ILogger<PdfOrchestratorService>>();
 
-                return new PdfOrchestratorService(wordsPdfService, cellsPdfService, slidesPdfService, imagingPdfService,
+                return new PdfOrchestratorService(wordsPdfService, htmlPdfService, cellsPdfService, slidesPdfService, imagingPdfService,
                     diagramPdfService, emailPdfService, pdfRendererService, xpsPdfRendererService, loggingService!);
             });
             services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
