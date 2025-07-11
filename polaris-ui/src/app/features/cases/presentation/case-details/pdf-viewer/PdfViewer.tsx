@@ -296,7 +296,7 @@ export const PdfViewer: React.FC<Props> = ({
                 onScrollChange={() => ({
                   // Intentionally left blank as no action is required on scroll change
                 })}
-                pdfScaleValue="page-width"
+                pdfScaleValue="1.2"
                 scrollRef={(scrollTo) => {
                   scrollToFnRef.current = scrollTo;
                   // imperatively trigger as soon as we have reference to the scrollTo function
