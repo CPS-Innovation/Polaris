@@ -1,4 +1,3 @@
-// NOSONAR
 import { PresentationDocumentProperties } from "../../app/features/cases/domain/gateway/PipelineDocument";
 import { DocumentsListDataSource } from "./types/DocumentsListDataSource";
 
