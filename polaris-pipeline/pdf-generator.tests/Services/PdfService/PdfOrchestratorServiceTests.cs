@@ -16,7 +16,7 @@ namespace pdf_generator.tests.Services.PdfService
         private readonly Guid _correlationId;
 
         private readonly Mock<IPdfService> _mockWordsPdfService;
-        private readonly Mock<IPdfService> _mockHtmlPdfService;
+        private readonly Mock<IPdfService> _mockHtePdfService;
         private readonly Mock<IPdfService> _mockCellsPdfService;
         private readonly Mock<IPdfService> _mockSlidesPdfService;
         private readonly Mock<IPdfService> _mockImagingPdfService;
@@ -35,7 +35,7 @@ namespace pdf_generator.tests.Services.PdfService
             _correlationId = fixture.Create<Guid>();
 
             _mockWordsPdfService = new Mock<IPdfService>();
-            _mockHtmlPdfService = new Mock<IPdfService>();
+            _mockHtePdfService = new Mock<IPdfService>();
             _mockCellsPdfService = new Mock<IPdfService>();
             _mockSlidesPdfService = new Mock<IPdfService>();
             _mockImagingPdfService = new Mock<IPdfService>();
@@ -47,7 +47,7 @@ namespace pdf_generator.tests.Services.PdfService
 
             _pdfOrchestratorService = new PdfOrchestratorService(
                                         _mockWordsPdfService.Object,
-                                        _mockHtmlPdfService.Object,
+                                        _mockHtePdfService.Object,
                                         _mockCellsPdfService.Object,
                                         _mockSlidesPdfService.Object,
                                         _mockImagingPdfService.Object,
@@ -199,7 +199,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStreamAsync(_inputStream, FileType.HTML, _documentId, _correlationId);
 
-            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()));
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -207,7 +207,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStreamAsync(_inputStream, FileType.HTM, _documentId, _correlationId);
 
-            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()));
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()));
         }
 
         [Fact]
@@ -233,7 +233,7 @@ namespace pdf_generator.tests.Services.PdfService
             _pdfOrchestratorService.ReadToPdfStreamAsync(_inputStream, FileType.HTE, _documentId, _correlationId);
 
             // Assert
-            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()), Times.Once);
+            _mockHtePdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
@@ -243,7 +243,7 @@ namespace pdf_generator.tests.Services.PdfService
             _pdfOrchestratorService.ReadToPdfStreamAsync(_inputStream, FileType.MHT, _documentId, _correlationId);
 
             // Assert
-            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()), Times.Once);
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]
@@ -253,7 +253,7 @@ namespace pdf_generator.tests.Services.PdfService
             _pdfOrchestratorService.ReadToPdfStreamAsync(_inputStream, FileType.MHTML, _documentId, _correlationId);
 
             // Assert
-            _mockHtmlPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()), Times.Once);
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()), Times.Once);
         }
 
         [Fact]

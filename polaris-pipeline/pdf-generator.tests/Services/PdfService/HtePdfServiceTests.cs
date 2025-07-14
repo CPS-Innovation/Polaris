@@ -11,17 +11,17 @@ using Xunit;
 
 namespace pdf_generator.tests.Services.PdfService
 {
-    public class HtmlPdfServiceTests
+    public class HtePdfServiceTests
     {
         private readonly Mock<IAsposeItemFactory> _asposeItemFactory;
         private readonly IPdfService _pdfService;
 
-        public HtmlPdfServiceTests()
+        public HtePdfServiceTests()
         {
             _asposeItemFactory = new Mock<IAsposeItemFactory>();
             _asposeItemFactory.Setup(x => x.CreateHtmlDocument(It.IsAny<Stream>(), It.IsAny<Guid>())).Returns(new Document());
 
-            _pdfService = new HtmlPdfService(_asposeItemFactory.Object);
+            _pdfService = new HtePdfService(_asposeItemFactory.Object);
         }
 
         [Fact]
@@ -29,7 +29,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             var act = () =>
             {
-                var _ = new HtmlPdfService(null);
+                var _ = new HtePdfService(null);
             };
 
             act.Should().Throw<ArgumentNullException>().And.ParamName.Should().Be("asposeItemFactory");
