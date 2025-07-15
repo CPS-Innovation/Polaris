@@ -10,7 +10,7 @@ public class TokenAuthApiClient : BaseApiClient
     {
         HttpClient = new HttpClient()
         {
-            BaseAddress = new Uri("https://login.microsoftonline.com/00dd0d1d-d7e6-4338-ac51-565339c7088c/oauth2/v2.0/token")
+            BaseAddress = new Uri("")
         };
     }
 
