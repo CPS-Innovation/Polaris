@@ -156,3 +156,8 @@
   opacity: 0;
   pointer-events: none;
 }
+
+.hideTabDocument {
+  position: absolute;
+  left: -2000px;
+}
