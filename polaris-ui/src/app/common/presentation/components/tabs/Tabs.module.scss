@@ -158,6 +158,7 @@
 }
 
 .hideTabDocument {
-  position: absolute;
-  left: -2000px;
+  visibility: hidden;
+  height: 0px;
+  width: 0px;
 }
