@@ -119,20 +119,16 @@ describe("Tabs", () => {
     // first tab is active if no hash passed
     expect(screen.getByTestId("tab-active")).toHaveTextContent("tab-1");
     expect(screen.getByTestId("tab-content-t1")).not.toHaveClass(
-      "govuk-tabs__panel--hidden"
+      "hideTabDocument"
     );
-    expect(screen.getByTestId("tab-content-t2")).toHaveClass(
-      "govuk-tabs__panel--hidden"
-    );
+    expect(screen.getByTestId("tab-content-t2")).toHaveClass("hideTabDocument");
     rerender(<Tabs {...props} activeTabId="t2" />);
 
     // otherwise active tab driven by hash
     expect(screen.getByTestId("tab-active")).toHaveTextContent("tab-2");
-    expect(screen.getByTestId("tab-content-t1")).toHaveClass(
-      "govuk-tabs__panel--hidden"
-    );
+    expect(screen.getByTestId("tab-content-t1")).toHaveClass("hideTabDocument");
     expect(screen.getByTestId("tab-content-t2")).not.toHaveClass(
-      "govuk-tabs__panel--hidden"
+      "hideTabDocument"
     );
   });
 
