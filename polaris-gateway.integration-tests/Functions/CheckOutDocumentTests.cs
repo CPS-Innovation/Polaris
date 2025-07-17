@@ -1,12 +1,19 @@
 ﻿using System.Net;
+using NUnit.Framework;
 
 namespace polaris_gateway.integration_tests.Functions;
 
-
-public class CheckOutDocumentTests : BaseIntegrationTest
+[TestFixture]
+public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
 {
-    [Trait("Category", "IntegrationTests")]
-    [Fact]
+    [SetUp]
+    public void Setup()
+    {
+        BaseSetup(TestContext.Parameters);
+    }
+
+    [Category("IntegrationTests")]
+    [Test]
     public async Task CheckoutDocument_ShouldReturn200()
     {
         //arrange
@@ -14,15 +21,16 @@ public class CheckOutDocumentTests : BaseIntegrationTest
         var caseId = 1;
         var documentId = "CMS-12345";
         var versionId = 1;
+
         //act
-        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId);
-        
+        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
+
         //assert
-        Assert.Equal(HttpStatusCode.OK, result.HttpStatusCode);
+        Assert.That(HttpStatusCode.OK == result.HttpStatusCode);
     }
 
-    [Trait("Category", "IntegrationTests")]
-    [Fact]
+    [Category("IntegrationTests")]
+    [Test]
     public async Task CheckoutDocument_CaseIdIs0_ShouldReturn404()
     {
         //arrange
@@ -30,15 +38,16 @@ public class CheckOutDocumentTests : BaseIntegrationTest
         var caseId = 0;
         var documentId = "CMS-12345";
         var versionId = 1;
+        
         //act
-        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId);
+        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
 
         //assert
-        Assert.Equal(HttpStatusCode.NotFound, result.HttpStatusCode);
+        Assert.That(HttpStatusCode.NotFound == result.HttpStatusCode);
     }
 
-    [Trait("Category", "IntegrationTests")]
-    [Fact]
+    [Category("IntegrationTests")]
+    [Test]
     public async Task CheckoutDocument_DocumentIdIs0_ShouldReturn400()
     {
         //arrange
@@ -46,15 +55,16 @@ public class CheckOutDocumentTests : BaseIntegrationTest
         var caseId = 1;
         var documentId = "CMS-0";
         var versionId = 1;
+        
         //act
-        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId);
+        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
 
         //assert
-        Assert.Equal(HttpStatusCode.BadRequest, result.HttpStatusCode);
+        Assert.That(HttpStatusCode.BadRequest == result.HttpStatusCode);
     }
 
-    [Trait("Category", "IntegrationTests")]
-    [Fact]
+    [Category("IntegrationTests")]
+    [Test]
     public async Task CheckoutDocument_VersionIdIs0_ShouldReturn404()
     {
         //arrange
@@ -62,15 +72,16 @@ public class CheckOutDocumentTests : BaseIntegrationTest
         var caseId = 1;
         var documentId = "CMS-12345";
         var versionId = 0;
+        
         //act
-        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId);
+        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
 
         //assert
-        Assert.Equal(HttpStatusCode.NotFound, result.HttpStatusCode);
+        Assert.That(HttpStatusCode.NotFound == result.HttpStatusCode);
     }
 
-    [Trait("Category", "IntegrationTests")]
-    [Fact]
+    [Category("IntegrationTests")]
+    [Test]
     public async Task CheckoutDocument_UrnIsCheckOut_ShouldReturn409()
     {
         //arrange
@@ -78,10 +89,11 @@ public class CheckOutDocumentTests : BaseIntegrationTest
         var caseId = 1;
         var documentId = "CMS-12345";
         var versionId = 2;
+        
         //act
-        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId);
+        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
 
         //assert
-        Assert.Equal(HttpStatusCode.Conflict, result.HttpStatusCode);
+        Assert.That(HttpStatusCode.Conflict == result.HttpStatusCode);
     }
 }

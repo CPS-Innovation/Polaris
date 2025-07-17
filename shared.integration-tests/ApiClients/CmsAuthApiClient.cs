@@ -1,21 +1,27 @@
-﻿namespace shared.integration_tests.ApiClients;
+﻿using NUnit.Framework;
+
+namespace shared.integration_tests.ApiClients;
 
 public class CmsAuthApiClient : BaseApiClient
 {
-    public CmsAuthApiClient()
+    private readonly string _username;
+    private readonly string _password;
+    public CmsAuthApiClient(TestParameters configuration)
     {
         HttpClient = new HttpClient()
         {
-            BaseAddress = new Uri("https://polaris-dev-cmsproxy.azurewebsites.net/api/")
+            BaseAddress = new Uri(configuration["CmsProxyUri"]!)
         };
+        _username = configuration["CmsUsername"]!;
+        _password = configuration["CmsPassword"]!;
     }
 
     public async Task<string> GetCmsAuthTokenAsync(CancellationToken cancellationToken = default)
     {
         var form = new Dictionary<string, string>()
         {
-            { "username", "mock.user" },
-            { "password", "mock.user" },
+            { "username", _username },
+            { "password", _password },
         };
         var httpRequestMessage = CreateHttpRequestMessageWithForm("dev-login-full-cookie/", HttpMethod.Post, form);
         var httpResponseMessage = await SendAsync(httpRequestMessage, cancellationToken);
