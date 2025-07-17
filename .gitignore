@@ -30,3 +30,4 @@ azurite
 _ReSharper*/
 *.[Rr]e[Ss]harper
 *.DotSettings.user
+/polaris-gateway.integration-tests/local.runsettings
