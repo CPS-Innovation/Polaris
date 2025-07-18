@@ -32,6 +32,7 @@ import { RedactionLogTypes } from "../../../domain/redactionLog/RedactionLogType
 import { ReactComponent as WhiteTickIcon } from "../../../../../common/presentation/svgs/whiteTick.svg";
 import { useAppInsightsTrackEvent } from "../../../../../common/hooks/useAppInsightsTracks";
 import { ReactComponent as DocIcon } from "../../../../../common/presentation/svgs/doc.svg";
+import { ReactComponent as CloseIcon } from "../../../../../common/presentation/svgs/closeIconBold.svg";
 import classes from "./RedactionLogContent.module.scss";
 import { CmsDocType } from "../../../domain/gateway/CmsDocType";
 
@@ -70,6 +71,7 @@ type RedactionLogContentProps = {
   ) => void;
   message?: string;
   handleCloseRedactionLog?: () => void;
+  handleCloseModal: () => void;
 };
 
 const NOTES_MAX_CHARACTERS = 400;
@@ -88,8 +90,10 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   redactionLogLookUpsData,
   redactionLogMappingsData,
   handleCloseRedactionLog,
+  handleCloseModal,
 }) => {
   const errorSummaryRef = useRef(null);
+  const [closeModal, setCloseModal] = useState<boolean>(false);
   const trackEvent = useAppInsightsTrackEvent();
   const [savingRedactionLog, setSavingRedactionLog] = useState(false);
   const [errorState, setErrorState] = useState<ErrorState>({
@@ -514,418 +518,443 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   };
 
   return (
-    <div
-      className={classes.modalContent}
-      data-testid={
-        redactionLogType === RedactionLogTypes.UNDER_OVER
-          ? "rl-under-over-redaction-content"
-          : "rl-under-redaction-content"
-      }
-    >
-      {redactionLogType === RedactionLogTypes.UNDER && (
-        <div>
-          <div aria-live="polite" className={classes.visuallyHidden}>
-            {saveStatus.status === "saving" && (
-              <span>Saving redactions...</span>
-            )}
-            {saveStatus.status === "saved" && (
-              <span>Redactions successfully saved</span>
-            )}
-          </div>
-          {saveStatus.status === "saving" && (
-            <div
-              className={classes.savingBanner}
-              data-testid="rl-saving-redactions"
-            >
-              <div className={classes.spinnerWrapper}>
-                <Spinner diameterPx={15} ariaLabel={"spinner-animation"} />
+    <>
+      {!closeModal && (
+        <div
+          className={classes.modalContent}
+          data-testid={
+            redactionLogType === RedactionLogTypes.UNDER_OVER
+              ? "rl-under-over-redaction-content"
+              : "rl-under-redaction-content"
+          }
+        >
+          {redactionLogType === RedactionLogTypes.UNDER && (
+            <div>
+              <div aria-live="polite" className={classes.visuallyHidden}>
+                {saveStatus.status === "saving" && (
+                  <span>Saving redactions...</span>
+                )}
+                {saveStatus.status === "saved" && (
+                  <span>Redactions successfully saved</span>
+                )}
               </div>
-              <h2 className={classes.bannerText}>Saving redactions...</h2>
+              {saveStatus.status === "saving" && (
+                <div
+                  className={classes.savingBanner}
+                  data-testid="rl-saving-redactions"
+                >
+                  <div className={classes.spinnerWrapper}>
+                    <Spinner diameterPx={15} ariaLabel={"spinner-animation"} />
+                  </div>
+                  <h2 className={classes.bannerText}>Saving redactions...</h2>
+                </div>
+              )}
+              {saveStatus.status === "saved" && (
+                <div
+                  className={classes.savedBanner}
+                  data-testid="rl-saved-redactions"
+                >
+                  <WhiteTickIcon className={classes.whiteTickIcon} />
+                  <h2 className={classes.bannerText}>
+                    Redactions successfully saved
+                  </h2>
+                </div>
+              )}
             </div>
           )}
-
-          {saveStatus.status === "saved" && (
+          <div className={classes.modalHeadWrapper}>
             <div
-              className={classes.savedBanner}
-              data-testid="rl-saved-redactions"
+              data-testid="closeRedactionModalButton"
+              className={classes.closeRedactionModalButton}
             >
-              <WhiteTickIcon className={classes.whiteTickIcon} />
-              <h2 className={classes.bannerText}>
-                Redactions successfully saved
-              </h2>
+              <LinkButton
+                dataTestId="btn-close-redacton-modal"
+                type="button"
+                className={classes.closerRedactionModalBtn}
+                ariaLabel="close redaction modal"
+                onClick={handleCloseModal}
+              >
+                <CloseIcon height={"2.7rem"} width={"2.7rem"} />
+              </LinkButton>
             </div>
-          )}
+            <div
+              className={`${classes.modalTitleWrapper} ${
+                redactionLogType === RedactionLogTypes.UNDER_OVER
+                  ? classes.modalTitleWrapperTypeOver
+                  : ""
+              }`}
+            >
+              <h1 className={classes.modalContentHeading}>
+                {`${caseUrn}`}
+                <span className={classes.greyColor}> - Redaction Log</span>
+              </h1>
+              <Guidance
+                name="Redaction log Guidance"
+                className={classes.redactionLogGuidance}
+                dataTestId="guidance-redaction-log"
+                ariaLabel="Redaction log guidance"
+                ariaDescription="Guidance about redaction log modal form"
+              >
+                {redactionLogGuidanceContent()}
+              </Guidance>
+            </div>
+          </div>
+          <form
+            className={classes.underRedactionForm}
+            onSubmit={(event) => {
+              const underOverFormValues =
+                redactionLogType === RedactionLogTypes.UNDER_OVER
+                  ? {
+                      category: !(
+                        getValues("underRedaction") ||
+                        getValues("overRedaction")
+                      ),
+                      underRedaction: findRedactionTypesError("underRedaction"),
+                      overRedaction: findRedactionTypesError("overRedaction"),
+                    }
+                  : {
+                      category: false,
+                      underRedaction: false,
+                      overRedaction: false,
+                    };
+              setErrorState((state) => ({
+                ...state,
+                ...underOverFormValues,
+                cpsArea: !getValues("cpsArea"),
+                businessUnit: !getValues("businessUnit"),
+                investigatingAgency: !getValues("investigatingAgency"),
+                documentType: !getValues("documentType"),
+                chargeStatus: !getValues("chargeStatus"),
+                notes: getValues("notes").length > NOTES_MAX_CHARACTERS,
+              }));
+              handleSubmit(
+                (data) => {
+                  event.preventDefault();
+                  const redactionLogRequestData =
+                    getRedactionLogRequestData(data);
+                  setSavingRedactionLog(true);
+                  handleSaveRedactionLog(
+                    redactionLogRequestData,
+                    redactionLogType
+                  );
+                  handleAppInsightReporting(
+                    data,
+                    defaultValues,
+                    redactionLogRequestData
+                  );
+                },
+                (errors) => {
+                  if (errorSummaryRef.current) {
+                    (errorSummaryRef?.current as HTMLButtonElement).focus();
+                  }
+                  console.log("error", errors);
+                }
+              )(event);
+            }}
+          >
+            <div className={classes.selectInputWrapper}>
+              <section className={classes.selectSection}>
+                <Controller
+                  name="cpsArea"
+                  control={control}
+                  rules={{
+                    required: true,
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <Select
+                        {...field}
+                        errorMessage={
+                          errorState.cpsArea
+                            ? {
+                                children: "Select an Area or Division",
+                              }
+                            : undefined
+                        }
+                        label={{
+                          htmlFor: "select-cps-area",
+                          children: "CPS Area or Central Casework Division:",
+                          className: classes.selectLabel,
+                        }}
+                        id="select-cps-area"
+                        data-testid="select-cps-area"
+                        formGroup={{
+                          className: classes.select,
+                        }}
+                        items={getMappedSelectItems().areaOrDivisions}
+                      />
+                    );
+                  }}
+                />
+              </section>
+              <section className={classes.selectSection}>
+                <Controller
+                  name="businessUnit"
+                  control={control}
+                  rules={{
+                    required: true,
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <Select
+                        {...field}
+                        errorMessage={
+                          errorState.businessUnit
+                            ? {
+                                children: "Select a Business Unit",
+                              }
+                            : undefined
+                        }
+                        label={{
+                          htmlFor: "select-cps-bu",
+                          children: "CPS Business Unit:",
+                          className: classes.selectLabel,
+                        }}
+                        id="select-cps-bu"
+                        data-testid="select-cps-bu"
+                        formGroup={{
+                          className: classes.select,
+                        }}
+                        items={getMappedBusinessUnits()}
+                      />
+                    );
+                  }}
+                />
+              </section>
+              <section className={classes.selectSection}>
+                <Controller
+                  name="investigatingAgency"
+                  control={control}
+                  rules={{
+                    required: true,
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <Select
+                        {...field}
+                        errorMessage={
+                          errorState.investigatingAgency
+                            ? {
+                                children: "Select an Investigative Agency",
+                              }
+                            : undefined
+                        }
+                        label={{
+                          htmlFor: "select-cps-ia",
+                          children: "Investigative Agency:",
+                          className: classes.selectLabel,
+                        }}
+                        id="select-cps-ia"
+                        data-testid="select-cps-ia"
+                        formGroup={{
+                          className: classes.select,
+                        }}
+                        items={getMappedSelectItems().investigatingAgencies}
+                      />
+                    );
+                  }}
+                />
+              </section>
+              <section className={classes.selectSection}>
+                <Controller
+                  name="chargeStatus"
+                  control={control}
+                  rules={{
+                    required: true,
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <Select
+                        {...field}
+                        errorMessage={
+                          errorState.chargeStatus
+                            ? {
+                                children: "Select a Charge Status",
+                              }
+                            : undefined
+                        }
+                        label={{
+                          htmlFor: "select-cps-cs",
+                          children: "Charge Status:",
+                          className: classes.selectLabel,
+                        }}
+                        id="select-cps-cs"
+                        data-testid="select-cps-cs"
+                        formGroup={{
+                          className: classes.select,
+                        }}
+                        items={[
+                          {
+                            children:
+                              ChargeStatusLabels[ChargeStatus.PreCharge],
+                            value: `${ChargeStatus.PreCharge}`,
+                          },
+                          {
+                            children:
+                              ChargeStatusLabels[ChargeStatus.PostCharge],
+                            value: `${ChargeStatus.PostCharge}`,
+                          },
+                        ]}
+                      />
+                    );
+                  }}
+                />
+              </section>
+              <section className={classes.selectSection}>
+                <Controller
+                  name="documentType"
+                  control={control}
+                  rules={{
+                    required: true,
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <Select
+                        {...field}
+                        errorMessage={
+                          errorState.documentType
+                            ? {
+                                children: "Select a Document Type",
+                              }
+                            : undefined
+                        }
+                        label={{
+                          htmlFor: "select-cps-dt",
+                          children: "Document Type:",
+                          className: classes.selectLabel,
+                        }}
+                        id="select-cps-dt"
+                        data-testid="select-cps-dt"
+                        formGroup={{
+                          className: classes.select,
+                        }}
+                        items={getMappedSelectItems().documentTypes}
+                      />
+                    );
+                  }}
+                />
+              </section>
+            </div>
+
+            <div className={classes.modalBodyWrapper}>
+              {Object.keys(errorState).some(
+                (key) => errorState[key as keyof ErrorState]
+              ) && (
+                <div
+                  ref={errorSummaryRef}
+                  tabIndex={-1}
+                  className={classes.errorSummaryWrapper}
+                >
+                  <ErrorSummary
+                    data-testid={"redaction-log-error-summary"}
+                    className={classes.errorSummary}
+                    errorList={getErrorSummaryList(errorState)}
+                  />
+                </div>
+              )}
+
+              <section>
+                <div className={classes.headingWrapper}>
+                  <DocIcon className={classes.docIcon} />{" "}
+                  <h2>
+                    <span className={classes.greyColor}>
+                      Redaction details for:
+                    </span>
+                    {`"${documentName}"`}
+                  </h2>
+                </div>
+
+                {redactionLogType === RedactionLogTypes.UNDER && (
+                  <UnderRedactionContent
+                    documentName={documentName}
+                    savedRedactionTypes={savedRedactionTypes}
+                  />
+                )}
+
+                {redactionLogType === RedactionLogTypes.UNDER_OVER && (
+                  <UnderOverRedactionContent
+                    errorState={errorState}
+                    redactionTypes={redactionLogLookUpsData.missedRedactions}
+                    register={register}
+                    getValues={getValues}
+                    watch={watch}
+                  />
+                )}
+              </section>
+              <section className={classes.textAreaSection}>
+                <Guidance
+                  name="Guidance on supporting notes"
+                  className={classes.supportingNotesGuidance}
+                  ariaLabel="Guidance on supporting notes"
+                  ariaDescription="Guidance on adding optional supporting notes for redaction log"
+                  dataTestId="guidance-supporting-notes"
+                >
+                  {supportingNotesGuidanceContent()}
+                </Guidance>
+                <Controller
+                  name="notes"
+                  control={control}
+                  rules={{
+                    validate: { required: () => errorState.notes !== true },
+                  }}
+                  render={({ field }) => {
+                    return (
+                      <CharacterCount
+                        {...field}
+                        errorMessage={
+                          errorState.notes
+                            ? {
+                                children: `Supporting notes must be ${NOTES_MAX_CHARACTERS} characters or less`,
+                              }
+                            : undefined
+                        }
+                        maxCharacters={NOTES_MAX_CHARACTERS}
+                        id="redaction-log-notes"
+                        data-testid="redaction-log-notes"
+                        label={{
+                          children: (
+                            <span className={classes.textAreaLabel}>
+                              Supporting notes{" "}
+                              <span className={classes.greyColor}>
+                                (optional)
+                              </span>
+                            </span>
+                          ),
+                        }}
+                      />
+                    );
+                  }}
+                />
+              </section>
+            </div>
+
+            <div className={classes.btnWrapper}>
+              <Button
+                disabled={
+                  (saveStatus.type === "redaction" &&
+                    saveStatus.status === "saving") ||
+                  savingRedactionLog
+                }
+                type="submit"
+                className={classes.saveBtn}
+                data-testid="btn-save-redaction-log"
+              >
+                Save and Close
+              </Button>
+
+              {handleCloseRedactionLog && (
+                <LinkButton
+                  className={classes.cancelBtn}
+                  onClick={handleCloseRedactionLog}
+                  dataTestId="btn-redaction-log-cancel"
+                >
+                  Cancel
+                </LinkButton>
+              )}
+            </div>
+          </form>
         </div>
       )}
-      <div className={classes.modalHeadWrapper}>
-        <div
-          className={`${classes.modalTitleWrapper} ${
-            redactionLogType === RedactionLogTypes.UNDER_OVER
-              ? classes.modalTitleWrapperTypeOver
-              : ""
-          }`}
-        >
-          <h1 className={classes.modalContentHeading}>
-            {`${caseUrn}`}
-            <span className={classes.greyColor}> - Redaction Log</span>
-          </h1>
-
-          <Guidance
-            name="Redaction log Guidance"
-            className={classes.redactionLogGuidance}
-            dataTestId="guidance-redaction-log"
-            ariaLabel="Redaction log guidance"
-            ariaDescription="Guidance about redaction log modal form"
-          >
-            {redactionLogGuidanceContent()}
-          </Guidance>
-        </div>
-      </div>
-      <form
-        className={classes.underRedactionForm}
-        onSubmit={(event) => {
-          const underOverFormValues =
-            redactionLogType === RedactionLogTypes.UNDER_OVER
-              ? {
-                  category: !(
-                    getValues("underRedaction") || getValues("overRedaction")
-                  ),
-                  underRedaction: findRedactionTypesError("underRedaction"),
-                  overRedaction: findRedactionTypesError("overRedaction"),
-                }
-              : {
-                  category: false,
-                  underRedaction: false,
-                  overRedaction: false,
-                };
-          setErrorState((state) => ({
-            ...state,
-            ...underOverFormValues,
-            cpsArea: !getValues("cpsArea"),
-            businessUnit: !getValues("businessUnit"),
-            investigatingAgency: !getValues("investigatingAgency"),
-            documentType: !getValues("documentType"),
-            chargeStatus: !getValues("chargeStatus"),
-            notes: getValues("notes").length > NOTES_MAX_CHARACTERS,
-          }));
-          handleSubmit(
-            (data) => {
-              event.preventDefault();
-              const redactionLogRequestData = getRedactionLogRequestData(data);
-              setSavingRedactionLog(true);
-              handleSaveRedactionLog(redactionLogRequestData, redactionLogType);
-              handleAppInsightReporting(
-                data,
-                defaultValues,
-                redactionLogRequestData
-              );
-            },
-            (errors) => {
-              if (errorSummaryRef.current) {
-                (errorSummaryRef?.current as HTMLButtonElement).focus();
-              }
-              console.log("error", errors);
-            }
-          )(event);
-        }}
-      >
-        <div className={classes.selectInputWrapper}>
-          <section className={classes.selectSection}>
-            <Controller
-              name="cpsArea"
-              control={control}
-              rules={{
-                required: true,
-              }}
-              render={({ field }) => {
-                return (
-                  <Select
-                    {...field}
-                    errorMessage={
-                      errorState.cpsArea
-                        ? {
-                            children: "Select an Area or Division",
-                          }
-                        : undefined
-                    }
-                    label={{
-                      htmlFor: "select-cps-area",
-                      children: "CPS Area or Central Casework Division:",
-                      className: classes.selectLabel,
-                    }}
-                    id="select-cps-area"
-                    data-testid="select-cps-area"
-                    formGroup={{
-                      className: classes.select,
-                    }}
-                    items={getMappedSelectItems().areaOrDivisions}
-                  />
-                );
-              }}
-            />
-          </section>
-          <section className={classes.selectSection}>
-            <Controller
-              name="businessUnit"
-              control={control}
-              rules={{
-                required: true,
-              }}
-              render={({ field }) => {
-                return (
-                  <Select
-                    {...field}
-                    errorMessage={
-                      errorState.businessUnit
-                        ? {
-                            children: "Select a Business Unit",
-                          }
-                        : undefined
-                    }
-                    label={{
-                      htmlFor: "select-cps-bu",
-                      children: "CPS Business Unit:",
-                      className: classes.selectLabel,
-                    }}
-                    id="select-cps-bu"
-                    data-testid="select-cps-bu"
-                    formGroup={{
-                      className: classes.select,
-                    }}
-                    items={getMappedBusinessUnits()}
-                  />
-                );
-              }}
-            />
-          </section>
-          <section className={classes.selectSection}>
-            <Controller
-              name="investigatingAgency"
-              control={control}
-              rules={{
-                required: true,
-              }}
-              render={({ field }) => {
-                return (
-                  <Select
-                    {...field}
-                    errorMessage={
-                      errorState.investigatingAgency
-                        ? {
-                            children: "Select an Investigative Agency",
-                          }
-                        : undefined
-                    }
-                    label={{
-                      htmlFor: "select-cps-ia",
-                      children: "Investigative Agency:",
-                      className: classes.selectLabel,
-                    }}
-                    id="select-cps-ia"
-                    data-testid="select-cps-ia"
-                    formGroup={{
-                      className: classes.select,
-                    }}
-                    items={getMappedSelectItems().investigatingAgencies}
-                  />
-                );
-              }}
-            />
-          </section>
-          <section className={classes.selectSection}>
-            <Controller
-              name="chargeStatus"
-              control={control}
-              rules={{
-                required: true,
-              }}
-              render={({ field }) => {
-                return (
-                  <Select
-                    {...field}
-                    errorMessage={
-                      errorState.chargeStatus
-                        ? {
-                            children: "Select a Charge Status",
-                          }
-                        : undefined
-                    }
-                    label={{
-                      htmlFor: "select-cps-cs",
-                      children: "Charge Status:",
-                      className: classes.selectLabel,
-                    }}
-                    id="select-cps-cs"
-                    data-testid="select-cps-cs"
-                    formGroup={{
-                      className: classes.select,
-                    }}
-                    items={[
-                      {
-                        children: ChargeStatusLabels[ChargeStatus.PreCharge],
-                        value: `${ChargeStatus.PreCharge}`,
-                      },
-                      {
-                        children: ChargeStatusLabels[ChargeStatus.PostCharge],
-                        value: `${ChargeStatus.PostCharge}`,
-                      },
-                    ]}
-                  />
-                );
-              }}
-            />
-          </section>
-          <section className={classes.selectSection}>
-            <Controller
-              name="documentType"
-              control={control}
-              rules={{
-                required: true,
-              }}
-              render={({ field }) => {
-                return (
-                  <Select
-                    {...field}
-                    errorMessage={
-                      errorState.documentType
-                        ? {
-                            children: "Select a Document Type",
-                          }
-                        : undefined
-                    }
-                    label={{
-                      htmlFor: "select-cps-dt",
-                      children: "Document Type:",
-                      className: classes.selectLabel,
-                    }}
-                    id="select-cps-dt"
-                    data-testid="select-cps-dt"
-                    formGroup={{
-                      className: classes.select,
-                    }}
-                    items={getMappedSelectItems().documentTypes}
-                  />
-                );
-              }}
-            />
-          </section>
-        </div>
-
-        <div className={classes.modalBodyWrapper}>
-          {Object.keys(errorState).some(
-            (key) => errorState[key as keyof ErrorState]
-          ) && (
-            <div
-              ref={errorSummaryRef}
-              tabIndex={-1}
-              className={classes.errorSummaryWrapper}
-            >
-              <ErrorSummary
-                data-testid={"redaction-log-error-summary"}
-                className={classes.errorSummary}
-                errorList={getErrorSummaryList(errorState)}
-              />
-            </div>
-          )}
-
-          <section>
-            <div className={classes.headingWrapper}>
-              <DocIcon className={classes.docIcon} />{" "}
-              <h2>
-                <span className={classes.greyColor}>
-                  Redaction details for:
-                </span>
-                {`"${documentName}"`}
-              </h2>
-            </div>
-
-            {redactionLogType === RedactionLogTypes.UNDER && (
-              <UnderRedactionContent
-                documentName={documentName}
-                savedRedactionTypes={savedRedactionTypes}
-              />
-            )}
-
-            {redactionLogType === RedactionLogTypes.UNDER_OVER && (
-              <UnderOverRedactionContent
-                errorState={errorState}
-                redactionTypes={redactionLogLookUpsData.missedRedactions}
-                register={register}
-                getValues={getValues}
-                watch={watch}
-              />
-            )}
-          </section>
-          <section className={classes.textAreaSection}>
-            <Guidance
-              name="Guidance on supporting notes"
-              className={classes.supportingNotesGuidance}
-              ariaLabel="Guidance on supporting notes"
-              ariaDescription="Guidance on adding optional supporting notes for redaction log"
-              dataTestId="guidance-supporting-notes"
-            >
-              {supportingNotesGuidanceContent()}
-            </Guidance>
-            <Controller
-              name="notes"
-              control={control}
-              rules={{
-                validate: { required: () => errorState.notes !== true },
-              }}
-              render={({ field }) => {
-                return (
-                  <CharacterCount
-                    {...field}
-                    errorMessage={
-                      errorState.notes
-                        ? {
-                            children: `Supporting notes must be ${NOTES_MAX_CHARACTERS} characters or less`,
-                          }
-                        : undefined
-                    }
-                    maxCharacters={NOTES_MAX_CHARACTERS}
-                    id="redaction-log-notes"
-                    data-testid="redaction-log-notes"
-                    label={{
-                      children: (
-                        <span className={classes.textAreaLabel}>
-                          Supporting notes{" "}
-                          <span className={classes.greyColor}>(optional)</span>
-                        </span>
-                      ),
-                    }}
-                  />
-                );
-              }}
-            />
-          </section>
-        </div>
-
-        <div className={classes.btnWrapper}>
-          <Button
-            disabled={
-              (saveStatus.type === "redaction" &&
-                saveStatus.status === "saving") ||
-              savingRedactionLog
-            }
-            type="submit"
-            className={classes.saveBtn}
-            data-testid="btn-save-redaction-log"
-          >
-            Save and Close
-          </Button>
-
-          {handleCloseRedactionLog && (
-            <LinkButton
-              className={classes.cancelBtn}
-              onClick={handleCloseRedactionLog}
-              dataTestId="btn-redaction-log-cancel"
-            >
-              Cancel
-            </LinkButton>
-          )}
-        </div>
-      </form>
-    </div>
+    </>
   );
 };
