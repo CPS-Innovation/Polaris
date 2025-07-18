@@ -10,8 +10,6 @@ parameters:
     type: string
   - name: azureSubscription
     type: string
-  - name: dependsOn
-    type: array
   
 stages:
   - stage: Swap
