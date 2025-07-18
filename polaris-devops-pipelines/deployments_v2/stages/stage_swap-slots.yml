@@ -14,7 +14,7 @@ parameters:
 stages:
   - stage: Swap
     displayName: Swap Slots
-    dependsOn: ${{ parameters.dependsOn}}
+    dependsOn:
       - Apply
       - Deploy
       - Run_Integration_Tests
