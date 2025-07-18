@@ -97,6 +97,7 @@ export const RedactionLogModal: React.FC<Props> = ({
             ? handleCloseModal
             : undefined
         }
+        handleCloseModal={handleCloseModal}
       />
     </Modal>
   );
