@@ -93,7 +93,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   handleCloseModal,
 }) => {
   const errorSummaryRef = useRef(null);
-  const [closeModal, setCloseModal] = useState<boolean>(false);
+  const [closeModal] = useState<boolean>(false);
   const trackEvent = useAppInsightsTrackEvent();
   const [savingRedactionLog, setSavingRedactionLog] = useState(false);
   const [errorState, setErrorState] = useState<ErrorState>({

@@ -181,7 +181,8 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
       documentNameSearch: shouldShowFeature(
         FEATURE_FLAG_DOCUMENT_NAME_SEARCH,
         userDetails?.username,
-        documentNameSearch
+        documentNameSearch,
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP6 }
       ),
     }),
     []
