@@ -26,7 +26,7 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
         var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
 
         //assert
-        Assert.That(HttpStatusCode.OK == result.HttpStatusCode);
+        Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
     }
 
     [Category("IntegrationTests")]
@@ -43,7 +43,7 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
         var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
 
         //assert
-        Assert.That(HttpStatusCode.NotFound == result.HttpStatusCode);
+        Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.NotFound));
     }
 
     [Category("IntegrationTests")]
@@ -60,7 +60,7 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
         var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
 
         //assert
-        Assert.That(HttpStatusCode.BadRequest == result.HttpStatusCode);
+        Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 
     [Category("IntegrationTests")]
@@ -77,7 +77,7 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
         var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
 
         //assert
-        Assert.That(HttpStatusCode.NotFound == result.HttpStatusCode);
+        Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.NotFound));
     }
 
     [Category("IntegrationTests")]
@@ -94,6 +94,6 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
         var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
 
         //assert
-        Assert.That(HttpStatusCode.Conflict == result.HttpStatusCode);
+        Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.Conflict));
     }
 }
