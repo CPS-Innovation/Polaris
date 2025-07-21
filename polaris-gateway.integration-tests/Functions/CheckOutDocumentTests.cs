@@ -10,6 +10,18 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
     public void Setup()
     {
         BaseSetup(TestContext.Parameters);
+
+        TestContext.Out.WriteLine(TestContext.Parameters["PolarisGatewayUri"]);
+        TestContext.Out.WriteLine(TestContext.Parameters["CmsProxyUri"]);
+        TestContext.Out.WriteLine(TestContext.Parameters["CmsUsername"]);
+        TestContext.Out.WriteLine(TestContext.Parameters["CmsPassword"]);
+        TestContext.Out.WriteLine(TestContext.Parameters["TokenAuthUri"]);
+        TestContext.Out.WriteLine(TestContext.Parameters["ClientId"]);
+        TestContext.Out.WriteLine(TestContext.Parameters["GrantType"]);
+        TestContext.Out.WriteLine(TestContext.Parameters["Scope"]);
+        TestContext.Out.WriteLine(TestContext.Parameters["ClientSecret"]);
+        TestContext.Out.WriteLine(TestContext.Parameters["Username"]);
+        TestContext.Out.WriteLine(TestContext.Parameters["Password"]);
     }
 
     [Category("IntegrationTests")]
@@ -38,7 +50,7 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
         var caseId = 0;
         var documentId = "CMS-12345";
         var versionId = 1;
-        
+
         //act
         var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
 
@@ -55,7 +67,7 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
         var caseId = 1;
         var documentId = "CMS-0";
         var versionId = 1;
-        
+
         //act
         var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
 
@@ -72,7 +84,7 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
         var caseId = 1;
         var documentId = "CMS-12345";
         var versionId = 0;
-        
+
         //act
         var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
 
@@ -89,7 +101,7 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
         var caseId = 1;
         var documentId = "CMS-12345";
         var versionId = 2;
-        
+
         //act
         var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
 
