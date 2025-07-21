@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using shared.integration_tests.Models;
 
 namespace shared.integration_tests.ApiClients;
