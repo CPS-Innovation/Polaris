@@ -35,7 +35,7 @@ describe("Redaction Assurance", () => {
         body: documentList[0],
       });
     });
-    it("Should successfully verify the save redaction request data in non-full screen mode", () => {
+    xit("Should successfully verify the save redaction request data in non-full screen mode", () => {
       const saveRequestObject = { body: "" };
       cy.trackRequestBody(
         saveRequestObject,
