@@ -17,6 +17,7 @@ stages:
     dependsOn:
       - Apply
       - Deploy
+      - Run_Integration_Tests
     condition: succeeded()
     jobs:
       - job: Log_Start
