@@ -77,17 +77,6 @@ export const PagePortal: React.FC<PagePortalProps> = ({
   }, [pageElements, observePageMutations]);
 
   useEffect(() => {
-    // add es6+ solution to patch non-working
-    // ctrl+c keypress only inside pdf documents
-    document.addEventListener("mouseup", (event) => {
-      if (document?.getSelection()?.toString().length) {
-        const exactText = document?.getSelection()?.toString();
-        navigator.clipboard.writeText(exactText as string);
-      }
-    });
-  }, []);
-
-  useEffect(() => {
     const fetchElement = async () => {
       try {
         const pdfViewer = await waitForElement(

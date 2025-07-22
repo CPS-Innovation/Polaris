@@ -76,7 +76,7 @@ cms_details = {
 }
 
 wm_task_list_host_name  = "https://cps-tst.outsystemsenterprise.com"
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst.outsystemsenterprise.com/WorkManagementApp/,https://cps-tst.outsystemsenterprise.com/CaseReview/,https://housekeeping-fn-staging.int.cps.gov.uk/,https://sacpsglobalcomponents.blob.core.windows.net/"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst.outsystemsenterprise.com/,https://housekeeping-fn-staging.int.cps.gov.uk/,/task-list"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555

@@ -156,3 +156,9 @@
   opacity: 0;
   pointer-events: none;
 }
+
+.hideTabDocument {
+  visibility: hidden;
+  height: 0px;
+  width: 0px;
+}

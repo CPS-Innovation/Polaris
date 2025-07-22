@@ -88,7 +88,7 @@ export const Tabs: React.FC<TabsProps> = ({
         }
         {...coreProps}
         className={`govuk-tabs__panel ${
-          index !== activeTabIndex ? "govuk-tabs__panel--hidden" : ""
+          index !== activeTabIndex ? classes.hideTabDocument : ""
         }  ${classes.contentArea}`}
       >
         {index === activeTabIndex && (

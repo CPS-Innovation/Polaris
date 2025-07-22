@@ -9,18 +9,18 @@ using pdf_generator.Factories.Contracts;
 
 namespace pdf_generator.Services.PdfService
 {
-    public class HtmlPdfService : IPdfService
+    public class HtePdfService : IPdfService
     {
         private readonly IAsposeItemFactory _asposeItemFactory;
 
-        public HtmlPdfService(IAsposeItemFactory asposeItemFactory)
+        public HtePdfService(IAsposeItemFactory asposeItemFactory)
         {
             _asposeItemFactory = asposeItemFactory ?? throw new ArgumentNullException(nameof(asposeItemFactory));
         }
 
         public PdfConversionResult ReadToPdfStream(Stream inputStream, string documentId, Guid correlationId)
         {
-            var conversionResult = new PdfConversionResult(documentId, PdfConverterType.AsposeHtml);
+            var conversionResult = new PdfConversionResult(documentId, PdfConverterType.AsposeHte);
             var pdfStream = new MemoryStream();
 
             try

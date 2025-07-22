@@ -13,7 +13,7 @@ namespace pdf_generator.Services.PdfService
     public class PdfOrchestratorService : IPdfOrchestratorService
     {
         private readonly IPdfService _wordsPdfService;
-        private readonly IPdfService _htmlPdfService;
+        private readonly IPdfService _htePdfService;
         private readonly IPdfService _cellsPdfService;
         private readonly IPdfService _slidesPdfService;
         private readonly IPdfService _imagingPdfService;
@@ -25,7 +25,7 @@ namespace pdf_generator.Services.PdfService
 
         public PdfOrchestratorService(
             IPdfService wordsPdfService,
-            IPdfService htmlPdfService,
+            IPdfService htePdfService,
             IPdfService cellsPdfService,
             IPdfService slidesPdfService,
             IPdfService imagingPdfService,
@@ -36,7 +36,7 @@ namespace pdf_generator.Services.PdfService
             ILogger<PdfOrchestratorService> logger)
         {
             _wordsPdfService = wordsPdfService;
-            _htmlPdfService = htmlPdfService;
+            _htePdfService = htePdfService;
             _cellsPdfService = cellsPdfService;
             _slidesPdfService = slidesPdfService;
             _imagingPdfService = imagingPdfService;
@@ -67,19 +67,19 @@ namespace pdf_generator.Services.PdfService
                     case FileType.DOTX:
                     case FileType.RTF:
                     case FileType.TXT:
-                        converterType = PdfConverterType.AsposeWords;
-                        conversionResult = _wordsPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
-                        break;
-
                     case FileType.HTML:
                     case FileType.HTM:
                     case FileType.MHT:
                     case FileType.MHTML:
+                        converterType = PdfConverterType.AsposeWords;
+                        conversionResult = _wordsPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
+                        break;
+
                     // CMS HTE format is a custom HTML format, with a pre-<HTML> set of <b> tag metadata headers (i.e. not standard HTML)
                     // But Aspose seems forgiving enough to convert it, so treat it as HTML
                     case FileType.HTE:
-                        converterType = PdfConverterType.AsposeHtml;
-                        conversionResult = _htmlPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
+                        converterType = PdfConverterType.AsposeHte;
+                        conversionResult = _htePdfService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.CSV:

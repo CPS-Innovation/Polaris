@@ -61,6 +61,7 @@ import {
   TaggedContext,
 } from "../../../../inbound-handover/context";
 import { saveStateToSessionStorage } from "./utils/stateRetentionUtil";
+import { debounce } from "lodash";
 export const path = "/case-details/:urn/:id/:hkDocumentId?";
 
 type Props = BackLinkingPageProps & {
@@ -110,6 +111,23 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const { id: caseId, urn, hkDocumentId } = params as any;
 
   const { hash } = useLocation();
+
+  useEffect(() => {
+    const DB_THRESSHOLD = 100;
+    const getCopiedSting = () => {
+      // add es6+ solution to patch non-working
+      // ctrl+c keypress only inside pdf documents
+      document?.addEventListener("selectionchange", (): void => {
+        if (window.getSelection()?.toString().length) {
+          const exactText = window?.getSelection()?.toString();
+          navigator.clipboard.writeText(exactText as string);
+        }
+      });
+    };
+
+    const debounceCopiedValue = debounce(getCopiedSting, DB_THRESSHOLD);
+    debounceCopiedValue();
+  }, []);
 
   useEffect(() => {
     const DCF_ARG = "dcf";
