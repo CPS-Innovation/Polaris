@@ -74,7 +74,6 @@ stages:
       appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
       targetSuffix: "-dev"
       azureSubscription: $(dev-azure-subscription)
-    condition: succeeded('stage_run-gateway-integration-tests')
 
   - template: stages/stage_check-status.yml
     parameters:
