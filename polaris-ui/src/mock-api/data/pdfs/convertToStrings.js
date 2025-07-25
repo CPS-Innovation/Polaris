@@ -10,7 +10,7 @@ fs.readdirSync(__dirname).forEach((fileName) => {
     return;
   }
 
-  const regexp = /!?[-=./]/gm;
+  const regexp = /[-=./]/gm;
   const file = fileName.replace(regexp, "");
   const fileNameNoExtension = path.parse(file).name;
 

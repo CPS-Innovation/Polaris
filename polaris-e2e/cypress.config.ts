@@ -5,7 +5,7 @@ import path from "path";
 const globalAny: any = global;
 
 const getConfigurationByFile = (file: string) => {
-	const regexp = /!?[-=./]/gm;
+	const regexp = /[-=./]/gm;
 	const localFile = file.replace(regexp, "");
 	const pathToConfigFile = path.resolve("config", `${localFile}.json`);
 	return fs.readJsonSync(pathToConfigFile);
