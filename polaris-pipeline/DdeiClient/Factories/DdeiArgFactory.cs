@@ -20,13 +20,14 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCaseIdOnlyArgDto CreateCaseIdArg(string cmsAuthValues, Guid correlationId, int caseId)
+        public DdeiCaseIdOnlyArgDto CreateCaseIdArg(string cmsAuthValues, Guid correlationId, int caseId, string urn = null)
         {
             return new DdeiCaseIdOnlyArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
-                CaseId = caseId
+                CaseId = caseId, 
+                Urn = urn
             };
         }
 

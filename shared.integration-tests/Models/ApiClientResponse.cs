@@ -7,7 +7,7 @@ public class ApiClientResponse<T> : ApiClientResponse
 {
     public ApiClientResponse(HttpResponseMessage httpResponseMessage) : base(httpResponseMessage)
     {
-        ResponseObject = httpResponseMessage.GetContentResponseAsync<T>().Result;
+        ResponseObject = httpResponseMessage.IsSuccessStatusCode ? httpResponseMessage.GetContentResponseAsync<T>().Result : default;
     }
     public T? ResponseObject { get; set; }
 }
