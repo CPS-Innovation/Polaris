@@ -23,13 +23,13 @@ public abstract class BaseApiClient : IApiClient
 
     protected virtual HttpRequestMessage CreateHttpRequestMessageWithForm(string route, HttpMethod httpMethod, IDictionary<string, string> form, IDictionary<string, string>? headersDictionary = null)
     {
-        var httpRequestMessage = CreateHttpRequestMessage(route, httpMethod, string.Empty, null, string.Empty, headersDictionary);
+        var httpRequestMessage = CreateHttpRequestMessage(route, httpMethod, null, string.Empty, null, string.Empty, headersDictionary);
         httpRequestMessage.Content = new FormUrlEncodedContent(form);
 
         return httpRequestMessage;
     }
 
-    protected virtual HttpRequestMessage CreateHttpRequestMessage(string route, HttpMethod httpMethod, string functionKey = "", Token? token = null, string cmsAuthValues = "", IDictionary<string, string>? headersDictionary = null)
+    protected virtual HttpRequestMessage CreateHttpRequestMessage(string route, HttpMethod httpMethod, HttpContent? httpContent = null, string? functionKey = "", Token? token = null, string cmsAuthValues = "", IDictionary<string, string>? headersDictionary = null)
     {
         var httpRequestMessage = new HttpRequestMessage(httpMethod, route);
 
@@ -47,6 +47,8 @@ public abstract class BaseApiClient : IApiClient
 
         if (!string.IsNullOrEmpty(cmsAuthValues))
             httpRequestMessage.Headers.Add("Cookie", $"{cmsAuthValues};Path=/;Expires={DateTime.Today.AddDays(1):R};");
+
+        httpRequestMessage.Content = httpContent;
 
         return httpRequestMessage;
     }
