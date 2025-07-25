@@ -1,4 +1,6 @@
-﻿using Common.Dto.Request;
+﻿using System.Text.Json;
+using Common.Dto.Request;
+using Common.Dto.Response.Document;
 using NUnit.Framework;
 using shared.integration_tests.ApiClients;
 using shared.integration_tests.Models;
@@ -56,6 +58,4 @@ public class PolarisGatewayApiClient : BaseApiClient
         var httpResponseMessage = await SendAsync(httpRequestMessage, cancellationToken);
         return new ApiClientResponse(httpResponseMessage);
     }
-
-    
 }
