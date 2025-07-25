@@ -146,9 +146,13 @@ function __replaceCmsDomainsGeneric(r, data, flags, host)
 
 function __replaceContent(content, replacements)
 {
+    
     for (let i = 0; i < replacements.length; i++) {
+        let reg = /[-=./]/gm;
         let rep = replacements[i];
-        content = content.replace(new RegExp(rep.old, 'g'), rep.new);
+        let repold = (rep.old).replace(reg, "");
+        let regexp = new RegExp(repold, 'g');
+        content = content.replace(regexp, rep.new);
     }
     return content;
 }
