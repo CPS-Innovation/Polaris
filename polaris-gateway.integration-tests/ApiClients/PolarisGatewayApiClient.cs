@@ -4,6 +4,7 @@ using NUnit.Framework;
 using shared.integration_tests.ApiClients;
 using shared.integration_tests.Models;
 using System.Text.Json;
+using Ddei.Domain.Response;
 
 namespace polaris_gateway.integration_tests.ApiClients;
 
@@ -43,6 +44,12 @@ public class PolarisGatewayApiClient : BaseApiClient
     {
         var route = $"urns/{urn}/cases/{caseId}";
         return await SendAsync<CaseDto>(route, HttpMethod.Get, cancellationToken);
+    }
+
+    public async Task<ApiClientResponse<IEnumerable<CaseDto>>> GetCases(string urn, CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases";
+        return await SendAsync<IEnumerable<CaseDto>>(route, HttpMethod.Get, cancellationToken);
     }
 
     private async Task<ApiClientResponse> SendAsync(string route, HttpMethod httpMethod, CancellationToken cancellationToken = default)
