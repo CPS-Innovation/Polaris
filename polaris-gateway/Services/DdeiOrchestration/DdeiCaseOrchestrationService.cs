@@ -47,7 +47,7 @@ public class DdeiCaseOrchestrationService : IDdeiCaseOrchestrationService
 
     private async Task<CaseDetailsDto> GetCaseDetails(DdeiCaseIdentifiersArgDto arg)
     {
-        var getCaseSummaryTask = _mdsClient.GetCaseSummaryAsync(_ddeiArgFactory.CreateCaseIdArg(arg.CmsAuthValues, arg.CorrelationId, arg.CaseId));
+        var getCaseSummaryTask = _mdsClient.GetCaseSummaryAsync(_ddeiArgFactory.CreateCaseIdArg(arg.CmsAuthValues, arg.CorrelationId, arg.CaseId, arg.Urn));
         var getDefendantsAndChargesTask = _mdsClient.GetDefendantAndChargesAsync(arg);
         var witnessesTask = _mdsClient.GetWitnessesAsync(arg);
         var getPcdRequestTask = _mdsClient.GetPcdRequestsAsync(arg);

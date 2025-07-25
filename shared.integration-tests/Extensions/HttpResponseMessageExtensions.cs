@@ -6,6 +6,7 @@ public static class HttpResponseMessageExtensions
 {
     public static async Task<T?> GetContentResponseAsync<T>(this HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken = default)
     {
-        return JsonSerializer.Deserialize<T>(await httpResponseMessage.Content.ReadAsStringAsync(cancellationToken));
+        var json = await httpResponseMessage.Content.ReadAsStringAsync(cancellationToken);
+        return JsonSerializer.Deserialize<T>(json);
     }
 }
