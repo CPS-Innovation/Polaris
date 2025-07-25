@@ -148,7 +148,7 @@ function __replaceContent(content, replacements)
 {
     
     for (let i = 0; i < replacements.length; i++) {
-        let reg = /[/./-/_/\\]/gm;
+        let reg = /!?[-=./]/gm;
         let rep = replacements[i];
         let repold = (rep.old).replace(reg, "");
         let regexp = new RegExp(repold, 'g');
