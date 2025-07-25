@@ -11,7 +11,7 @@ fs.readdirSync(__dirname).forEach((fileName) => {
   }
 
   const regexp = /[/\./\=/\\]/gm;
-  const file  = fileName.replace(regexp, "");
+  const file = fileName.replace(regexp, "");
   const fileNameNoExtension = path.parse(file).name;
 
   fileStrings[fileNameNoExtension] = fs.readFileSync(
