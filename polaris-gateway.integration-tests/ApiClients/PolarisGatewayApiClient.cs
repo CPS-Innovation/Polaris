@@ -1,9 +1,8 @@
-﻿using System.Text.Json;
-using Common.Dto.Request;
-using Common.Dto.Response.Document;
+﻿using Common.Dto.Request;
 using NUnit.Framework;
 using shared.integration_tests.ApiClients;
 using shared.integration_tests.Models;
+using System.Text.Json;
 
 namespace polaris_gateway.integration_tests.ApiClients;
 
@@ -21,10 +20,16 @@ public class PolarisGatewayApiClient : BaseApiClient
         _cmsAuthApiClient = new CmsAuthApiClient(configuration);
     }
 
-    public async Task<ApiClientResponse> CheckOutDocumentAsync(string caseUrn, int caseId, string documentId, long versionId, CancellationToken cancellationToken = default)
+    public async Task<ApiClientResponse> CheckOutDocumentAsync(string urn, int caseId, string documentId, long versionId, CancellationToken cancellationToken = default)
     {
-        var route = $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/checkout";
+        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/checkout";
         return await SendAsync(route, HttpMethod.Post, cancellationToken);
+    }
+
+    public async Task<ApiClientResponse> CancelCheckoutDocumentAsync(string urn, int caseId, string documentId, int versionId, CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/checkout";
+        return await SendAsync(route, HttpMethod.Delete, cancellationToken);
     }
 
     public async Task<ApiClientResponse> AddDocumentNote(string urn, int caseId, string documentId, AddDocumentNoteRequestDto addDocumentNoteRequestDto, CancellationToken cancellationToken = default)
@@ -51,4 +56,6 @@ public class PolarisGatewayApiClient : BaseApiClient
         var httpResponseMessage = await SendAsync(httpRequestMessage, cancellationToken);
         return new ApiClientResponse(httpResponseMessage);
     }
+
+    
 }
