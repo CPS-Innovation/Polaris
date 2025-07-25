@@ -5,9 +5,9 @@ import path from "path"
 const globalAny: any = global
 
 const getConfigurationByFile = (file: string) => {
-  const pathToConfigFile = path.resolve("config", `${file}.json`)
-  return fs.readJsonSync(pathToConfigFile)
-}
+	const regexp = /[/\./\=/\\]/gm;
+	const localFile = file.replace(regexp, "");
+	const pathToConfigFile = path.resolve("config", `${localFile}.json`);
 
 export default defineConfig({
   e2e: {
