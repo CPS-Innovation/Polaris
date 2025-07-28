@@ -237,6 +237,7 @@ stages:
       appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
       targetSuffix: ""
       azureSubscription: $(prod-azure-subscription)
+      stageDependsOn: Deploy
 
   - template: stages/stage_check-status.yml
     parameters:

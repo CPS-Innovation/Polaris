@@ -47,6 +47,7 @@ stages:
       appInsightsKey: $(innovation-qa-app-insights-instrumentation-key)
       targetSuffix: "-qa"
       azureSubscription: $(qa-azure-subscription)
+      stageDependsOn: Deploy
 
   - template: stages/stage_swap-slots.yml
     parameters:
