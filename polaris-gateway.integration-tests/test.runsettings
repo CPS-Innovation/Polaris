@@ -1,15 +1,5 @@
 ﻿<RunSettings>
 	<TestRunParameters>
-		<Parameter name="PolarisGatewayUri" value= "http://localhost:7075/api/" />
-		<Parameter name="CmsProxyUri" value= "https://polaris-dev-cmsproxy.azurewebsites.net/api/" />
-		<Parameter name="CmsUsername" value= "mock.user" />
-		<Parameter name="CmsPassword" value= "mock.user" />
-		<Parameter name="TokenAuthUri" value= "https://login.microsoftonline.com/00dd0d1d-d7e6-4338-ac51-565339c7088c/oauth2/v2.0/token" />
-		<Parameter name="ClientId" value= "3649c1c8-00cf-4b8f-a671-304bc074937c" />
-		<Parameter name="GrantType" value= "password" />
-		<Parameter name="Scope" value= "https://CPSGOVUK.onmicrosoft.com/fa-polaris-dev-gateway/user_impersonation" />
-		<Parameter name="ClientSecret" value= "UNm8Q~-d~Fquwoyf1vB8FKtYFHq-Vlwlfc2gVahz" />
-		<Parameter name="Username" value= "AutomationUser.ServiceTeam2@cps.gov.uk" />
-		<Parameter name="Password" value= "Loxu8024" />
+		
 	</TestRunParameters>
 </RunSettings>
