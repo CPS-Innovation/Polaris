@@ -54,7 +54,7 @@ stages:
           - template: jobs/tasks/task_run-integration-tests.yml
             parameters:
               project: "polaris-gateway.integration-tests/polaris-gateway.integration-tests.csproj"
-              arguments: >
+              arguments: |
                 --configuration Release
                 /p:CollectCoverage=true
                 /p:CoverletOutputFormat=cobertura
