@@ -60,16 +60,16 @@ stages:
                 /p:CoverletOutputFormat=cobertura
                 --settings polaris-gateway.integration-tests/test.runsettings
                 --
-                TestRunParameters.Parameter(name="\""PolarisGatewayUri"\"", value="\""${{ parameters.polarisGatewayUri }}"\"") 
-                TestRunParameters.Parameter(name="\""CmsProxyUri"\"", value="\""${{ parameters.cmsProxyUri }}"\"") 
-                TestRunParameters.Parameter(name="\""CmsUsername"\"", value="\""${{ parameters.cmsUsername }}"\"") 
-                TestRunParameters.Parameter(name="\""CmsPassword"\"", value="\""${{ parameters.cmsPassword }}"\"") 
+                TestRunParameters.Parameter(name="\""PolarisGatewayUri"\"", value="\""${{ parameters.polarisGatewayUri }}"\"")
+                TestRunParameters.Parameter(name="\""CmsProxyUri"\"", value="\""${{ parameters.cmsProxyUri }}"\"")
+                TestRunParameters.Parameter(name="\""CmsUsername"\"", value="\""${{ parameters.cmsUsername }}"\"")
+                TestRunParameters.Parameter(name="\""CmsPassword"\"", value="\""${{ parameters.cmsPassword }}"\"")
                 TestRunParameters.Parameter(name="\""TokenAuthUri"\"", value="\""${{ parameters.tokenAuthUri }}"\"")
-                TestRunParameters.Parameter(name="\""ClientId"\"", value="\""${{ parameters.clientId }}"\"") 
+                TestRunParameters.Parameter(name="\""ClientId"\"", value="\""${{ parameters.clientId }}"\"")
                 TestRunParameters.Parameter(name="\""GrantType"\"", value="\""${{ parameters.grantType }}"\"")
-                TestRunParameters.Parameter(name="\""Scope"\"", value="\""${{ parameters.scope }}"\"") 
-                TestRunParameters.Parameter(name="\""ClientSecret"\"", value="\""${{ parameters.clientSecret }}"\"") 
-                TestRunParameters.Parameter(name="\""Username"\"", value="\""${{ parameters.username }}"\"") 
+                TestRunParameters.Parameter(name="\""Scope"\"", value="\""${{ parameters.scope }}"\"")
+                TestRunParameters.Parameter(name="\""ClientSecret"\"", value="\""${{ parameters.clientSecret }}"\"")
+                TestRunParameters.Parameter(name="\""Username"\"", value="\""${{ parameters.username }}"\"")
                 TestRunParameters.Parameter(name="\""Password"\"", value="\""${{ parameters.password }}"\"")'
 
       - job: Log_Result
