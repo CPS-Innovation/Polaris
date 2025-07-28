@@ -10,13 +10,13 @@ parameters:
     type: string
   - name: azureSubscription
     type: string
+  - name: stageDependsOn
+    type: object
   
 stages:
   - stage: Swap
     displayName: Swap Slots
-    dependsOn:
-      - Apply
-      - Deploy
+    dependsOn: ${{ parameters.stageDependsOn }}
     condition: succeeded()
     jobs:
       - job: Log_Start
