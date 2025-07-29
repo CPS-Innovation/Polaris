@@ -1,0 +1,14 @@
+parameters:
+  - name: project
+    type: string
+  - name: arguments
+    type: string
+
+steps:
+  
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "test"
+      projects: ${{ parameters.project }}
+      arguments: ${{ parameters.arguments }}
+    displayName: "Run integration tests"

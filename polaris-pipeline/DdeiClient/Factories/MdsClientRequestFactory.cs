@@ -14,7 +14,7 @@ namespace DdeiClient.Factories;
 public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IMdsClientRequestFactory
 {
     private const string UrnHeaderName = "Urn";
-    
+
     public HttpRequestMessage CreateUrnLookupRequest(DdeiCaseIdOnlyArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/urn");
@@ -223,7 +223,7 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IMdsClientR
     public HttpRequestMessage CreateGetCaseSummary(DdeiCaseIdOnlyArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/summary");
-        AddAuthHeaders(request, arg);
+        CreateRequest(request, arg);
         return request;
     }
 
@@ -237,7 +237,9 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IMdsClientR
     private void CreateRequest(HttpRequestMessage request, DdeiUrnArgDto arg, HttpContent content = null)
     {
         AddAuthHeaders(request, arg);
-        request.Headers.Add(UrnHeaderName, arg.Urn);
+
+        if (!string.IsNullOrEmpty(arg.Urn))
+            request.Headers.Add(UrnHeaderName, arg.Urn);
 
         if (content is not null)
             request.Content = content;

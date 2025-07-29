@@ -50,6 +50,7 @@ stages:
       appInsightsKey: $(innovation-uat-app-insights-instrumentation-key)
       targetSuffix: "-uat"
       azureSubscription: $(uat-azure-subscription)
+      stageDependsOn: Deploy
 
   - template: stages/stage_check-status.yml
     parameters:
