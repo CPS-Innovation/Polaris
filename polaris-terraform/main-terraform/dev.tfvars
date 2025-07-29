@@ -174,3 +174,5 @@ coordinator = {
 }
 
 cps_global_components_url="https://sacpsglobalcomponents.blob.core.windows.net/dev/cps-global-components.js"
+
+sp_polaris_web_enabled = false # this SP has been temporarily disabled for Dev on the 29/07/2025.

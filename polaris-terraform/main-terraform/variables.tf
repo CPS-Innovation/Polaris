@@ -378,3 +378,8 @@ variable "coordinator" {
 variable "cps_global_components_url" {
   type = string
 }
+
+variable "sp_polaris_web_enabled" {
+  type    = bool
+  default = true
+}

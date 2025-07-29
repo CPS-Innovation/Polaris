@@ -174,3 +174,5 @@ coordinator = {
 }
 
 cps_global_components_url="https://sacpsglobalcomponents.blob.core.windows.net/test/cps-global-components.js"
+
+sp_polaris_web_enabled = true
