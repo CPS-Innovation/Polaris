@@ -4,6 +4,7 @@ using NUnit.Framework;
 using shared.integration_tests.ApiClients;
 using shared.integration_tests.Models;
 using System.Text.Json;
+using Common.Dto.Response.Documents;
 using Ddei.Domain.Response;
 
 namespace polaris_gateway.integration_tests.ApiClients;
@@ -52,6 +53,12 @@ public class PolarisGatewayApiClient : BaseApiClient
         return await SendAsync<IEnumerable<CaseDto>>(route, HttpMethod.Get, cancellationToken);
     }
 
+    public async Task<ApiClientResponse<IEnumerable<DocumentDto>>> GetDocumentListAsync(string urn, int caseId, CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/documents";
+        return await SendAsync<IEnumerable<DocumentDto>>(route, HttpMethod.Get, cancellationToken);
+    }
+
     private async Task<ApiClientResponse> SendAsync(string route, HttpMethod httpMethod, CancellationToken cancellationToken = default)
     {
         var token = await _tokenAuthApiClient.GetTokenAsync(cancellationToken);
@@ -79,4 +86,6 @@ public class PolarisGatewayApiClient : BaseApiClient
         var httpResponseMessage = await SendAsync(httpRequestMessage, cancellationToken);
         return new ApiClientResponse<TResponse>(httpResponseMessage);
     }
+
+    
 }
