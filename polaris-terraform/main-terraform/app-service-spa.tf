@@ -275,6 +275,7 @@ resource "azuread_application_password" "e2e_test_secret" {
 
 module "azurerm_service_principal_sp_polaris_web" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   source                       = "./modules/terraform-azurerm-azuread_service_principal"
+  account_enabled              = var.sp_polaris_web_enabled # this SP has been temporarily disabled for Dev on the 29/07/2025.
   application_id               = module.azurerm_app_reg_as_web_polaris.client_id
   app_role_assignment_required = false
   owners                       = [data.azurerm_client_config.current.object_id]
