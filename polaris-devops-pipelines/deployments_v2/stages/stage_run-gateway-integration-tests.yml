@@ -55,7 +55,7 @@ stages:
             parameters:
               project: "polaris-gateway.integration-tests/polaris-gateway.integration-tests.csproj"
               arguments: >
-                '--configuration Release
+                --configuration Release
                 /p:CollectCoverage=true
                 /p:CoverletOutputFormat=cobertura
                 --settings polaris-gateway.integration-tests/test.runsettings
@@ -70,7 +70,7 @@ stages:
                 TestRunParameters.Parameter(name="\""Scope"\"", value="\""${{ parameters.scope }}"\"")
                 TestRunParameters.Parameter(name="\""ClientSecret"\"", value="\""${{ parameters.clientSecret }}"\"")
                 TestRunParameters.Parameter(name="\""Username"\"", value="\""${{ parameters.username }}"\"")
-                TestRunParameters.Parameter(name="\""Password"\"", value="\""${{ parameters.password }}"\"")'
+                TestRunParameters.Parameter(name="\""Password"\"", value="\""${{ parameters.password }}"\"")
 
       - job: Log_Result
         condition: succeeded()
