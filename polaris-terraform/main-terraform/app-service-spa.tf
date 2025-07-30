@@ -336,6 +336,7 @@ resource "azurerm_key_vault_secret" "kvs_spa_client_id" {
   name         = "polaris-spa-client-id"
   value        = module.azurerm_app_reg_as_web_polaris.client_id
   key_vault_id = data.azurerm_key_vault.terraform_key_vault.id
+  content_type = "secret"
 }
 
 resource "azurerm_key_vault_secret" "kvs_spa_client_secret" {
@@ -344,6 +345,7 @@ resource "azurerm_key_vault_secret" "kvs_spa_client_secret" {
   name         = "polaris-spa-client-secret"
   value        = azuread_application_password.e2e_test_secret.value
   key_vault_id = data.azurerm_key_vault.terraform_key_vault.id
+  content_type = "secret"
   depends_on = [
     azurerm_role_assignment.kv_role_terraform_sp
   ]

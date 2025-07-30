@@ -54,6 +54,7 @@ resource "azurerm_key_vault_secret" "kvs_fa_polaris_client_secret" {
   name         = "PolarisFunctionAppRegistrationClientSecret"
   value        = azuread_application_password.faap_polaris_app_service.value
   key_vault_id = azurerm_key_vault.kv_polaris.id
+  content_type = "secret"
   depends_on = [
     azurerm_role_assignment.kv_role_terraform_sp
   ]
