@@ -161,7 +161,7 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         FEATURE_FLAG_USED_DOCUMENT_STATE,
         userDetails?.username,
         isUnused,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP2 }
+        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP6 }
       ),
       stateRetention: shouldShowFeature(
         FEATURE_FLAG_STATE_RETENTION,
