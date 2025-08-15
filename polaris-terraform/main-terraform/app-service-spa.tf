@@ -196,6 +196,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   }
 }
 
+## Below app registation will be recreated ##
 module "azurerm_app_reg_as_web_polaris" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
   display_name            = "as-web-${local.global_resource_name}-appreg"
