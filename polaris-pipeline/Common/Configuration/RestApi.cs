@@ -23,6 +23,7 @@
         public const string Pii = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/pii";
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/checkout";
         public const string ToggleIsUnusedDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/toggle/{isUnused}";
+        public const string OcrSearch = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/search";
 
         // Internal Pipeline
         public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";
