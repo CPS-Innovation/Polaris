@@ -257,7 +257,7 @@ module "azurerm_app_reg_as_web_polaris" { # Note, app roles are currently being 
 }
 
 resource "azuread_application_password" "asap_web_polaris_app_service" {
-  application_id = module.azurerm_app_reg_as_web_polaris.object_id
+  application_object_id = module.azurerm_app_reg_as_web_polaris.object_id
   end_date_relative     = "17520h"
 }
 
