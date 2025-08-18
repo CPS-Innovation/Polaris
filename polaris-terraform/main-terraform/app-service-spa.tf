@@ -257,7 +257,7 @@ module "azurerm_app_reg_as_web_polaris" { # Note, app roles are currently being 
 }
 
 resource "azuread_application_password" "asap_web_polaris_app_service" {
-  application_object_id = module.azurerm_app_reg_as_web_polaris.object_id
+  application_id = module.azurerm_app_reg_as_web_polaris.object_id
   end_date_relative     = "17520h"
 }
 
@@ -276,7 +276,7 @@ resource "azuread_application_password" "e2e_test_secret" {
 
 module "azurerm_service_principal_sp_polaris_web" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   source                       = "./modules/terraform-azurerm-azuread_service_principal"
-  account_enabled              = var.sp_polaris_web_enabled # this SP has been temporarily disabled for Dev on the 29/07/2025.
+  account_enabled              = var.sp_polaris_web_enabled
   application_id               = module.azurerm_app_reg_as_web_polaris.client_id
   app_role_assignment_required = false
   owners                       = [data.azurerm_client_config.current.object_id]
@@ -290,9 +290,9 @@ resource "azuread_service_principal_password" "sp_polaris_web_pw" {
 
 resource "azuread_application_pre_authorized" "fapre_polaris_web" { # Adding the App Reg we created above as an authorized app to the App Reg for the function app found in main-terraform\function-gateway.tf
   application_object_id = module.azurerm_app_reg_fa_polaris.object_id
-  authorized_app_id     = module.azurerm_app_reg_as_web_polaris.client_id
+  authorized_app_id     = module.azurerm_app_reg_as_web_polaris.client_id 
   permission_ids        = [module.azurerm_app_reg_fa_polaris.oauth2_permission_scope_ids["user_impersonation"]]
-  depends_on            = [module.azurerm_app_reg_fa_polaris, module.azurerm_app_reg_as_web_polaris]            
+  depends_on            = [module.azurerm_app_reg_fa_polaris, module.azurerm_app_reg_as_web_polaris]    
 }
 
 resource "azuread_application_pre_authorized" "fapre_redaction_log_reporting" {
