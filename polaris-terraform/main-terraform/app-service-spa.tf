@@ -288,12 +288,12 @@ resource "azuread_service_principal_password" "sp_polaris_web_pw" {
   depends_on           = [module.azurerm_service_principal_sp_polaris_web]
 }
 
-resource "azuread_application_pre_authorized" "fapre_polaris_web" { # Adding the App Reg we created above as an authorized app to the App Reg for the function app found in main-terraform\function-gateway.tf
-  application_object_id = module.azurerm_app_reg_fa_polaris.object_id
-  authorized_app_id     = module.azurerm_app_reg_as_web_polaris.client_id 
-  permission_ids        = [module.azurerm_app_reg_fa_polaris.oauth2_permission_scope_ids["user_impersonation"]]
-  depends_on            = [module.azurerm_app_reg_fa_polaris, module.azurerm_app_reg_as_web_polaris]    
-}
+# resource "azuread_application_pre_authorized" "fapre_polaris_web" { # Adding the App Reg we created above as an authorized app to the App Reg for the function app found in main-terraform\function-gateway.tf
+#   application_object_id = module.azurerm_app_reg_fa_polaris.object_id
+#   authorized_app_id     = module.azurerm_app_reg_as_web_polaris.client_id 
+#   permission_ids        = [module.azurerm_app_reg_fa_polaris.oauth2_permission_scope_ids["user_impersonation"]]
+#   depends_on            = [module.azurerm_app_reg_fa_polaris, module.azurerm_app_reg_as_web_polaris]    
+# }
 
 resource "azuread_application_pre_authorized" "fapre_redaction_log_reporting" {
   application_object_id = data.azuread_application.fa_redaction_log_reporting.object_id
