@@ -198,7 +198,7 @@ module "azurerm_app_reg_fa_polaris" { # Note, app roles are currently being mana
     {
       admin_consent_description  = "Allow the calling application to make requests of the ${local.global_resource_name} Gateway"
       admin_consent_display_name = "Call the ${local.global_resource_name} Gateway"
-      id                         = element(random_uuid.random_id[*].result, 0)
+      id                         = element(random_uuid.random_id[*].result, 1)
       type                       = "Admin"
       user_consent_description   = "Interact with the ${local.global_resource_name} Gateway on-behalf of the calling API"
       user_consent_display_name  = "Interact with the ${local.global_resource_name} Gateway"
