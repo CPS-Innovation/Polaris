@@ -202,7 +202,7 @@ module "azurerm_app_reg_fa_polaris" { # Note, app roles are currently being mana
       type                       = "Admin"
       user_consent_description   = "Interact with the ${local.global_resource_name} Gateway on-behalf of the calling API"
       user_consent_display_name  = "Interact with the ${local.global_resource_name} Gateway"
-      value                      = ".default"
+      value                      = "default"
     }]
   }
   #use this code for adding api permissions
