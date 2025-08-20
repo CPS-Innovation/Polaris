@@ -195,6 +195,15 @@ module "azurerm_app_reg_fa_polaris" { # Note, app roles are currently being mana
       user_consent_description   = "Interact with the ${local.global_resource_name} Gateway on-behalf of the calling user"
       user_consent_display_name  = "Interact with the ${local.global_resource_name} Gateway"
       value                      = "user_impersonation"
+    },
+    {
+      admin_consent_description  = "ClientCredentials"
+      admin_consent_display_name = "ClientCredentials"
+      id                         = "e1ebdcfc-32ce-4f54-ba32-7e3db88e8e83"
+      type                       = "Admin"
+      user_consent_description   = "Interact with the ${local.global_resource_name} Gateway on-behalf of the calling user"
+      user_consent_display_name  = "Interact with the ${local.global_resource_name} Gateway"
+      value                      = "AppRole.Polaris.Gateway.ClientCreds"
     }]
   }
   #use this code for adding api permissions
