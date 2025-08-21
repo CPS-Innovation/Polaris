@@ -235,7 +235,7 @@ module "azurerm_service_principal_sp_polaris_gateway" { # Note, app roles are cu
   source                       = "./modules/terraform-azurerm-azuread_service_principal"
   application_id               = module.azurerm_app_reg_fa_polaris.client_id
   app_role_assignment_required = false
-  owners                       = [data.azurerm_client_config.current.object_id]
+  owners                       = concat([data.azurerm_client_config.current.object_id], var.app_reg_owners)
 }
 
 resource "azuread_service_principal_password" "sp_polaris_gateway_pw" {

@@ -201,7 +201,7 @@ module "azurerm_app_reg_as_web_polaris" { # Note, app roles are currently being 
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
   display_name            = "as-web-${local.global_resource_name}-appreg"
   identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/as-web-${local.global_resource_name}"]
-  owners                  = [data.azuread_service_principal.terraform_service_principal.object_id, "49a53165-9fa6-4f51-bebe-90ed1cc2e58f", "2cd0a11e-402b-4562-998c-2376d61bbb7f"]
+  owners                  = concat([data.azuread_service_principal.terraform_service_principal.object_id], var.app_reg_owners)
   prevent_duplicate_names = true
   group_membership_claims = ["ApplicationGroup"]
   optional_claims = {
@@ -279,7 +279,7 @@ module "azurerm_service_principal_sp_polaris_web" { # Note, app roles are curren
   account_enabled              = var.sp_polaris_web_enabled
   application_id               = module.azurerm_app_reg_as_web_polaris.client_id
   app_role_assignment_required = false
-  owners                       = [data.azurerm_client_config.current.object_id]
+  owners                       = concat([data.azurerm_client_config.current.object_id], var.app_reg_owners)
   depends_on                   = [module.azurerm_app_reg_as_web_polaris]
 }
 
