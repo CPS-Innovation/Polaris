@@ -167,7 +167,7 @@ module "azurerm_app_reg_fa_polaris" { # Note, app roles are currently being mana
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
   display_name            = "fa-${local.global_resource_name}-gateway-appreg"
   identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/fa-${local.global_resource_name}-gateway"]
-  owners                  = [data.azuread_client_config.current.object_id, "49a53165-9fa6-4f51-bebe-90ed1cc2e58f", "2cd0a11e-402b-4562-998c-2376d61bbb7f"]
+  owners                  = [data.azuread_client_config.current.object_id, var.app_reg_owners]
   prevent_duplicate_names = true
   group_membership_claims = ["ApplicationGroup"]
   optional_claims = {
