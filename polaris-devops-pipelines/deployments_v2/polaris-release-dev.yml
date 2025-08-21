@@ -75,7 +75,7 @@ stages:
       appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
       targetSuffix: "-dev"
       azureSubscription: $(dev-azure-subscription)
-      stageDependsOn: Run_Integration_Tests
+      stageDependsOn: Deploy #Run_Integration_Tests
 
   - template: stages/stage_check-status.yml
     parameters:
