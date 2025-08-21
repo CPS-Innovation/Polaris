@@ -198,8 +198,8 @@ module "azurerm_app_reg_fa_polaris" { # Note, app roles are currently being mana
     },
     {
       admin_consent_description  = "ClientCredentials"
-      admin_consent_display_name = "ClientCredentials"
-      id                         = "e1ebdcfc-32ce-4f54-ba32-7e3db88e8e83"
+      admin_consent_display_name = "Client Credentials flow for M2M calls from Case Markers Tool"
+      id                         = element(random_uuid.random_id[*].result, 1)
       type                       = "Admin"
       user_consent_description   = "ClientCredentials"
       user_consent_display_name  = "ClientCredentials"
