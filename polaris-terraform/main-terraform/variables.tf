@@ -383,3 +383,9 @@ variable "sp_polaris_web_enabled" {
   type    = bool
   default = true
 }
+
+variable "app_reg_owners" {
+  description = "List of object IDs for users with owner permissions to App Registrations we are creating during this build "
+  type        = list(string)
+  default     = []
+}
