@@ -167,7 +167,7 @@ module "azurerm_app_reg_fa_polaris" { # Note, app roles are currently being mana
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
   display_name            = "fa-${local.global_resource_name}-gateway-appreg"
   identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/fa-${local.global_resource_name}-gateway"]
-  owners                  = [data.azuread_client_config.current.object_id]
+  owners                  = concat([data.azuread_client_config.current.object_id], var.app_reg_owners)
   prevent_duplicate_names = true
   group_membership_claims = ["ApplicationGroup"]
   optional_claims = {
@@ -186,7 +186,8 @@ module "azurerm_app_reg_fa_polaris" { # Note, app roles are currently being mana
     mapped_claims_enabled          = true
     requested_access_token_version = 1
     known_client_applications      = []
-    oauth2_permission_scope = [{
+    oauth2_permission_scope = [
+      {
       admin_consent_description  = "Allow the calling application to make requests of the ${local.global_resource_name} Gateway"
       admin_consent_display_name = "Call the ${local.global_resource_name} Gateway"
       id                         = element(random_uuid.random_id[*].result, 0)
@@ -194,6 +195,15 @@ module "azurerm_app_reg_fa_polaris" { # Note, app roles are currently being mana
       user_consent_description   = "Interact with the ${local.global_resource_name} Gateway on-behalf of the calling user"
       user_consent_display_name  = "Interact with the ${local.global_resource_name} Gateway"
       value                      = "user_impersonation"
+    },
+    {
+      admin_consent_description  = "ClientCredentials"
+      admin_consent_display_name = "Client Credentials flow for M2M calls from Case Markers Tool"
+      id                         = element(random_uuid.random_id[*].result, 1)
+      type                       = "Admin"
+      user_consent_description   = "ClientCredentials"
+      user_consent_display_name  = "ClientCredentials"
+      value                      = "AppRole.Polaris.Gateway.ClientCreds"
     }]
   }
   #use this code for adding api permissions
@@ -225,7 +235,7 @@ module "azurerm_service_principal_sp_polaris_gateway" { # Note, app roles are cu
   source                       = "./modules/terraform-azurerm-azuread_service_principal"
   application_id               = module.azurerm_app_reg_fa_polaris.client_id
   app_role_assignment_required = false
-  owners                       = [data.azurerm_client_config.current.object_id]
+  owners                       = concat([data.azurerm_client_config.current.object_id], var.app_reg_owners)
 }
 
 resource "azuread_service_principal_password" "sp_polaris_gateway_pw" {
