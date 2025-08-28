@@ -23,6 +23,7 @@ using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.DdeiOrchestration;
 using System.Net.Http;
 using System;
+using Common.Mappers;
 
 namespace PolarisGateway.ApplicationStartup;
 
@@ -85,6 +86,7 @@ public static class ServiceExtensions
         services.AddPiiService();
         services.AddArtefactService();
         services.AddDdeiOrchestrationService();
+        services.AddSingleton<IRedactionSearchDtoMapper, RedactionSearchDtoMapper>();
         return services;
     }
     public static string GetValueFromConfig(IConfiguration configuration, string secretName)

@@ -13,24 +13,20 @@ public class RedactionSearchDtoMapper : IRedactionSearchDtoMapper
         foreach (var readResult in readResults)
         {
             var words = readResult.Lines.SelectMany(x => x.Words);
-            foreach (var word in words)
+            redactionSearchDtos.AddRange(words.Select(word => new RedactionSearchDto
             {
-                List<RedactionCoordinatesDto> redactionCoordinatesDtos = null;
-                redactionSearchDtos.Add(new RedactionSearchDto
+                PageIndex = readResult.Page,
+                Width = readResult.Width,
+                Height = readResult.Height,
+                RedactionCoordinates = new RedactionCoordinatesDto
                 {
-                    PageIndex = readResult.Page,
-                    Width = readResult.Width,
-                    Height = readResult.Height,
-                    RedactionCoordinates = new RedactionCoordinatesDto
-                    {
-                        X1 = (double)word.BoundingBox[0]!,
-                        Y1 = (double)word.BoundingBox[1]!,
-                        X2 = (double)word.BoundingBox[2]!,
-                        Y2 = (double)word.BoundingBox[3]!
-                    },
-                    Word = word.Text
-                });
-            }
+                    X1 = (double)word.BoundingBox[0]!, 
+                    Y1 = (double)word.BoundingBox[1]!, 
+                    X2 = (double)word.BoundingBox[2]!, 
+                    Y2 = (double)word.BoundingBox[3]!
+                },
+                Word = word.Text
+            }));
         }
 
         return redactionSearchDtos;

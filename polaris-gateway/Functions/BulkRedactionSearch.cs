@@ -13,7 +13,7 @@ public class BulkRedactionSearch : BaseFunction
 {
     private readonly ILogger<BulkRedactionSearch> _logger;
     private readonly IOcrArtefactService _ocrArtefactService;
-    private const string SearchTextHeader = "SeachText";
+    private const string SearchTextHeader = "SearchText";
 
     public BulkRedactionSearch(ILogger<BulkRedactionSearch> logger, IOcrArtefactService ocrArtefactService)
     {
@@ -22,7 +22,7 @@ public class BulkRedactionSearch : BaseFunction
     }
 
     [Function(nameof(BulkRedactionSearch))]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", RestApi.OcrSearch)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.OcrSearch)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId, CancellationToken cancellationToken)
     {
         var searchText = req.Query[SearchTextHeader];
         var correlationId = EstablishCorrelation(req);

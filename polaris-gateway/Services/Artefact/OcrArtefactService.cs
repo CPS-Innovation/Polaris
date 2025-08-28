@@ -11,7 +11,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Exceptions;
+using Common.Extensions;
 using Common.Mappers;
+using Common.Domain.Document;
 
 namespace PolarisGateway.Services.Artefact;
 public class OcrArtefactService : IOcrArtefactService
@@ -26,13 +28,14 @@ public class OcrArtefactService : IOcrArtefactService
         ICacheService cacheService,
         IArtefactServiceResponseFactory artefactServiceResponseFactory,
         IOcrService ocrService,
-        IPdfArtefactService pdfArtefactService, IRedactionSearchDtoMapper redactionSearchDtoMapper)
+        IPdfArtefactService pdfArtefactService, 
+        IRedactionSearchDtoMapper redactionSearchDtoMapper)
     {
-        _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
-        _artefactServiceResponseFactory = artefactServiceResponseFactory ?? throw new ArgumentNullException(nameof(artefactServiceResponseFactory));
-        _ocrService = ocrService ?? throw new ArgumentNullException(nameof(ocrService));
-        _pdfArtefactService = pdfArtefactService ?? throw new ArgumentNullException(nameof(pdfArtefactService));
-        _redactionSearchDtoMapper = redactionSearchDtoMapper;
+        _cacheService = cacheService.ExceptionIfNull();
+        _artefactServiceResponseFactory = artefactServiceResponseFactory.ExceptionIfNull();
+        _ocrService = ocrService.ExceptionIfNull();
+        _pdfArtefactService = pdfArtefactService.ExceptionIfNull();
+        _redactionSearchDtoMapper = redactionSearchDtoMapper.ExceptionIfNull();
     }
 
     public async Task<ArtefactResult<AnalyzeResults>> GetOcrAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null)
@@ -122,6 +125,4 @@ public class OcrArtefactService : IOcrArtefactService
 
         return redactionDefinitionDtos;
     }
-
-
 }
