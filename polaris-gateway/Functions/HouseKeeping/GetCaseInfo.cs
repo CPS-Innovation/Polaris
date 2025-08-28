@@ -2,7 +2,6 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace Cps.Fct.Hk.Ui.Functions.Functions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +18,10 @@ using Microsoft.OpenApi.Models;
 using System.Net;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using System;
+using Common.Configuration;
+using PolarisGateway.Functions;
 
+namespace Cps.Fct.Hk.Ui.Functions.Functions;
 /// <summary>
 /// Represents a function that retrieves the case information for display purposes,
 /// intended to be accessed via the Housekeeping UI front-end.
@@ -30,12 +32,11 @@ using System;
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="caseInfoService">The service used to process the request and generate the result.</param>
 /// <param name="cookieService">The service used to handle cookie-related operations.</param>
-public class GetCaseInfo(ILogger<GetCaseInfo> logger, ICaseInfoService caseInfoService, ICookieService cookieService)
+public class GetCaseInfo(ILogger<GetCaseInfo> logger, ICaseInfoService caseInfoService) : BaseFunction(logger)
 {
     private readonly ILogger<GetCaseInfo> logger = logger;
     private readonly ICaseInfoService caseInfoService = caseInfoService;
-    private readonly ICookieService cookieService = cookieService;
-
+   
     /// <summary>
     /// The Azure Function that processes an HTTP request for the 'case-info' route.
     /// </summary>
@@ -47,25 +48,15 @@ public class GetCaseInfo(ILogger<GetCaseInfo> logger, ICaseInfoService caseInfoS
     [OpenApiRequestBody("application/json", typeof(CaseSummary), Description = "Return case summary response.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
     [Function("GetCaseInfo")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "case-info")] HttpRequest req)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseInfo)] HttpRequest req, string caseUrn, int caseId)
     {
         try
         {
             var stopwatch = Stopwatch.StartNew();
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function processed a request.");
 
-            (bool IsValid, string? ErrorMessage, int? CaseId) cookieValidationResult = this.cookieService.ValidateCookies(req);
-            if (!cookieValidationResult.IsValid)
-            {
-                return new BadRequestObjectResult(cookieValidationResult.ErrorMessage);
-            }
-
-            // Get authorization values
-            CmsAuthValues cmsAuthValues = this.GetCmsAuthValues(req);
-
-            _ = int.TryParse(this.cookieService.GetCaseId(req), out int caseId);
-
-            string caseIdString = this.cookieService.GetCaseId(req) ?? "UnknownCaseId";
+            // Build CMS auth values from cookie extracted from the request
+            var cmsAuthValues = BuildCmsAuthValues(req);
 
             CaseSummary caseSummary;
             try
@@ -78,9 +69,6 @@ public class GetCaseInfo(ILogger<GetCaseInfo> logger, ICaseInfoService caseInfoS
                 this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function encountered an error fetching case information for caseId [{caseId}]: {ex.Message}");
                 throw new UnprocessableEntityException($"GetCaseInfo function encountered an error fetching case information for caseId [{caseId}]");
             }
-
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{cookieValidationResult.CaseId}] GetCaseInfo function completed in [{stopwatch.Elapsed}]");
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} caseId [{cookieValidationResult.CaseId}] with URN [{caseSummary.Urn}]");
 
             var response = new OkObjectResult(caseSummary);
 
@@ -108,18 +96,5 @@ public class GetCaseInfo(ILogger<GetCaseInfo> logger, ICaseInfoService caseInfoS
             this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
-    }
-
-    /// <summary>
-    /// Retrieves authorization values from the incoming HTTP request.
-    /// </summary>
-    /// <param name="req">The HTTP request.</param>
-    /// <returns>A <see cref="CmsAuthValues"/> object containing authorization details.</returns>
-    private CmsAuthValues GetCmsAuthValues(HttpRequest req)
-    {
-        return new CmsAuthValues(
-            this.cookieService.GetCmsCookies(req) ?? string.Empty,
-            this.cookieService.GetCmsToken(req) ?? string.Empty,
-            Guid.NewGuid());
     }
 }

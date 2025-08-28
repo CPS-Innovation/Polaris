@@ -24,6 +24,9 @@
         public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/checkout";
         public const string ToggleIsUnusedDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/toggle/{isUnused}";
 
+        // House keeping endpoints
+        public const string CaseInfo = "urns/{caseUrn}/case-info/{caseId:min(1)}";
+
         // Internal Pipeline
         public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";
         public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/convert-to-pdf";

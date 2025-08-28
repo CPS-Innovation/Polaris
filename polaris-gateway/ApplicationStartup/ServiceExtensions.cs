@@ -23,6 +23,12 @@ using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.DdeiOrchestration;
 using System.Net.Http;
 using System;
+using Cps.Fct.Hk.Ui.Interfaces;
+using Cps.Fct.Hk.Ui.Services;
+using Cps.Fct.Hk.Ui.ServiceClient.Ddei;
+using Cps.Fct.Hk.Ui.ServiceClient.Ddei.Configuration;
+using Cps.Fct.Hk.Common.DDEI.Client;
+using Cps.Fct.Hk.Common.DDEI.Provider;
 
 namespace PolarisGateway.ApplicationStartup;
 
@@ -85,6 +91,15 @@ public static class ServiceExtensions
         services.AddPiiService();
         services.AddArtefactService();
         services.AddDdeiOrchestrationService();
+
+        // House keeping 
+        services.AddSingleton<ICaseInfoService, CaseInfoService>();
+        services.AddSingleton<IDdeiServiceClient, ApiServiceClient>();
+        services.AddSingleton<ICookieService, CookieService>();
+
+        services.AddDdeiApiClient<ClientEndpointOptions>("DDEIClient");
+        services.AddDDEIProvider();
+
         return services;
     }
     public static string GetValueFromConfig(IConfiguration configuration, string secretName)

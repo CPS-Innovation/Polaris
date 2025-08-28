@@ -12,10 +12,11 @@
 	  <Content Include="local.settings.json" />
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="Cps.Fct.Hk.Common.DDEI.Provider" Version="1.0.10" />
 		<PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
-		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.0" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.1" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.OpenApi" Version="1.5.1" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="9.0.4" />
@@ -40,6 +41,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\hk-ui-functions\src\Cps.Fct.Hk.Ui.ServiceClient.Ddei\Cps.Fct.Hk.Ui.ServiceClient.Ddei.csproj" />
 		<ProjectReference Include="..\..\hk-ui-functions\src\Cps.Fct.Hk.Ui.ServiceClient.Uma\Cps.Fct.Hk.Ui.ServiceClient.Uma.csproj" />
+		<ProjectReference Include="..\..\hk-ui-functions\src\Cps.Fct.Hk.Ui.Services\Cps.Fct.Hk.Ui.Services.csproj" />
 		<ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
 		<ProjectReference Include="..\polaris-pipeline\DdeiClient\DdeiClient.csproj" />
 	</ItemGroup>
