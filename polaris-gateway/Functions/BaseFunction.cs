@@ -4,6 +4,7 @@
 
 using System;
 using System.Net;
+using System.Web;
 using Common.Constants;
 using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Microsoft.AspNetCore.Http;
@@ -38,7 +39,7 @@ public class BaseFunction(ILogger? logger = null)
 
         if (urlEncode)
         {
-            return WebUtility.UrlEncode(cookie);
+            return HttpUtility.UrlEncode(cookie);
         }
 
         return cookie;
