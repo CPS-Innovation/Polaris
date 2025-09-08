@@ -1,6 +1,4 @@
-﻿
-
-using Common.Services.RenderHtmlService;
+﻿using Common.Services.RenderHtmlService;
 using Microsoft.Extensions.DependencyInjection;
 using PolarisGateway.Services.Artefact.Factories;
 

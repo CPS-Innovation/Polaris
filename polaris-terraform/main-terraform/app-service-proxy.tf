@@ -241,7 +241,7 @@ resource "azuread_application_password" "asap_polaris_cms_proxy" {
   end_date_relative     = "17520h"
 }
 
-module "azurerm_service_principal_sp_polaris_cms_proxy" {  # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
+module "azurerm_service_principal_sp_polaris_cms_proxy" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   source                       = "./modules/terraform-azurerm-azuread_service_principal"
   application_id               = module.azurerm_app_reg_polaris_proxy.client_id
   app_role_assignment_required = false

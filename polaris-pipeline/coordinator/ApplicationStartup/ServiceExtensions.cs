@@ -1,38 +1,37 @@
-﻿using System;
-using System.Net.Http.Headers;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using coordinator.Constants;
-using coordinator.Durable.Payloads;
-using coordinator.Durable.Providers;
-using Common.Factories.ComputerVisionClientFactory;
-using coordinator.Factories.UploadFileNameFactory;
-using coordinator.Functions.DurableEntity.Entity.Mapper;
-using coordinator.Mappers;
-using coordinator.Services.ClearDownService;
-using Common.Services.DocumentToggle;
-using Common.Services.OcrService;
-using coordinator.Validators;
-using Common.Domain.Validators;
+﻿using Common.Domain.Validators;
 using Common.Dto.Request;
+using Common.Factories.ComputerVisionClientFactory;
 using Common.Handlers;
 using Common.Services.BlobStorage;
+using Common.Services.DocumentToggle;
+using Common.Services.OcrService;
+using Common.Services.PiiService;
+using Common.Services.RenderHtmlService;
 using Common.Streaming;
 using Common.Telemetry;
 using Common.Wrappers;
+using coordinator.Constants;
+using coordinator.Durable.Payloads;
+using coordinator.Durable.Providers;
+using coordinator.Factories.UploadFileNameFactory;
+using coordinator.Functions.DurableEntity.Entity.Mapper;
+using coordinator.Mappers;
+using coordinator.Services;
+using coordinator.Services.ClearDownService;
+using coordinator.Validators;
 using Ddei.Extensions;
 using FluentValidation;
-using System.Net.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
+using System;
 using System.Net;
-
+using System.Net.Http;
+using System.Net.Http.Headers;
 using PdfGenerator = Common.Clients.PdfGenerator;
-using TextExtractor = coordinator.Clients.TextExtractor;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
-using Common.Services.PiiService;
-using Common.Services.RenderHtmlService;
-using coordinator.Services;
+using TextExtractor = coordinator.Clients.TextExtractor;
 
 namespace coordinator.ApplicationStartup;
 
@@ -65,22 +64,9 @@ public static class ServiceExtensions
         services.AddPiiService();
 
         services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
-        services.AddHttpClient<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(client =>
-        {
-            client.BaseAddress = new Uri(GetValueFromConfig(configuration, ConfigKeys.PipelineRedactPdfBaseUrl));
-            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-        }).AddPolicyHandler(GetRetryPolicy);
-        services.AddHttpClient<PdfRedactor.IPdfRedactorClient, PdfRedactor.PdfRedactorClient>(client =>
-        {
-            client.BaseAddress = new Uri(GetValueFromConfig(configuration, ConfigKeys.PipelineRedactorPdfBaseUrl));
-            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-        });
-
-        services.AddHttpClient<TextExtractor.ITextExtractorClient, TextExtractor.TextExtractorClient>(client =>
-        {
-            client.BaseAddress = new Uri(GetValueFromConfig(configuration, ConfigKeys.PipelineTextExtractorBaseUrl));
-            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-        });
+        services.AddHttpClientWithDefaults<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(configuration, ConfigKeys.PipelineRedactPdfBaseUrl, ConfigKeys.PdfGeneratorClientTimeoutSeconds).AddPolicyHandler(GetRetryPolicy);
+        services.AddHttpClientWithDefaults<PdfRedactor.IPdfRedactorClient, PdfRedactor.PdfRedactorClient>(configuration, ConfigKeys.PipelineRedactorPdfBaseUrl, ConfigKeys.PdfRedactorClientTimeoutSeconds);
+        services.AddHttpClientWithDefaults<TextExtractor.ITextExtractorClient, TextExtractor.TextExtractorClient>(configuration, ConfigKeys.PipelineTextExtractorBaseUrl, ConfigKeys.TextExtractorClientTimeoutSeconds);
 
         services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
         services.AddScoped<IValidator<RedactPdfRequestWithDocumentDto>, RedactPdfRequestWithDocumentValidator>();
@@ -92,14 +78,10 @@ public static class ServiceExtensions
         services.AddSingleton<ICmsDocumentsResponseValidator, CmsDocumentsResponseValidator>();
         services.AddSingleton<IClearDownService, ClearDownService>();
         services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
-
-
         services.RegisterCoordinatorMapsterConfiguration();
         services.AddDdeiClientGateway(configuration);
         // services.AddTransient<IDocumentToggleService, DocumentToggleService>();
-        services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
-          DocumentToggleService.ReadConfig()
-        ));
+        services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(DocumentToggleService.ReadConfig()));
 
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
@@ -107,6 +89,20 @@ public static class ServiceExtensions
 
         return services;
     }
+
+    public static IHttpClientBuilder AddHttpClientWithDefaults<TInterface, TImplementation>(this IServiceCollection services, IConfiguration configuration, string baseUrlKey, string timeoutKey) 
+        where TInterface : class
+        where TImplementation : class, TInterface
+    {
+        return services.AddHttpClient<TInterface, TImplementation>(client =>
+        {
+            client.BaseAddress = new Uri(GetValueFromConfig(configuration, baseUrlKey));
+            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            var hasTimeout = int.TryParse(configuration[timeoutKey], out var timeout);
+            client.Timeout = TimeSpan.FromSeconds(hasTimeout ? timeout : 100);
+        });
+    }
+
     public static string GetValueFromConfig(IConfiguration configuration, string secretName)
     {
         var secret = configuration[secretName];
