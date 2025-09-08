@@ -13,9 +13,9 @@ public static class ConfigKeys
     public const string PipelineTextExtractorBaseUrl = "PolarisPipelineTextExtractorBaseUrl";
     public const string PiiCategories = nameof(PiiCategories);
     public const string PiiChunkCharacterLimit = nameof(PiiChunkCharacterLimit);
-    public static string MdsClientTimeoutSeconds = nameof(MdsClientTimeoutSeconds);
-    public static string DdeiClientTimeoutSeconds = nameof(DdeiClientTimeoutSeconds);
-    public static string PdfRedactorClientTimeoutSeconds = nameof(PdfRedactorClientTimeoutSeconds);
-    public static string PdfGeneratorClientTimeoutSeconds = nameof(PdfGeneratorClientTimeoutSeconds);
-    public static string TextExtractorClientTimeoutSeconds = nameof(TextExtractorClientTimeoutSeconds);
+    public const string MdsClientTimeoutSeconds = nameof(MdsClientTimeoutSeconds);
+    public const string DdeiClientTimeoutSeconds = nameof(DdeiClientTimeoutSeconds);
+    public const string PdfRedactorClientTimeoutSeconds = nameof(PdfRedactorClientTimeoutSeconds);
+    public const string PdfGeneratorClientTimeoutSeconds = nameof(PdfGeneratorClientTimeoutSeconds);
+    public const string TextExtractorClientTimeoutSeconds = nameof(TextExtractorClientTimeoutSeconds);
 }
