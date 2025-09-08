@@ -206,17 +206,17 @@ variable "feature_flag_page_rotate" {
   type = string
 }
 
-variable "feature_flag_state_retention"{
+variable "feature_flag_state_retention" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
 }
 
-variable "feature_flag_global_nav"{
+variable "feature_flag_global_nav" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
 }
 
-variable "feature_flag_used_document"{
+variable "feature_flag_used_document" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
 }

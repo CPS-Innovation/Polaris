@@ -46,12 +46,7 @@ public static class ServiceExtensions
         services.AddSingleton<IAuthorizationValidator, AuthorizationValidator>();
         services.AddSingleton<IJsonConvertWrapper, JsonConvertWrapper>();
 
-        services.AddHttpClient<ICoordinatorClient, CoordinatorClient>(client =>
-        {
-            client.BaseAddress = new Uri(GetValueFromConfig(configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl));
-            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-        })
-            .AddPolicyHandler(RetryPolicy);
+        services.AddHttpClientWitDefaults<IPdfThumbnailGeneratorClient, PdfThumbnailGeneratorClient>(configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl, ConfigurationKeys.CoordinatorClientTimeoutSeconds);
 
         services.AddDdeiClientGateway(configuration);
 
@@ -61,25 +56,14 @@ public static class ServiceExtensions
         services.AddSingleton<IReclassifyDocumentRequestMapper, ReclassifyDocumentRequestMapper>();
         services.AddTransient<IRequestFactory, RequestFactory>();
 
-        services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(
-          DocumentToggleService.ReadConfig()
-        ));
+        services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(DocumentToggleService.ReadConfig()));
         services.AddSingleton<IOcrService, OcrService>();
         services.AddSingleton<IComputerVisionClientFactory, ComputerVisionClientFactory>();
 
         services.AddSingleton<IPdfGeneratorRequestFactory, PdfGeneratorRequestFactory>();
-        services.AddHttpClient<IPdfGeneratorClient, PdfGeneratorClient>(client =>
-        {
-            client.BaseAddress = new Uri(GetValueFromConfig(configuration, ConfigurationKeys.PipelineRedactPdfBaseUrl));
-            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-        })
-            .AddPolicyHandler(RetryPolicy);
-        services.AddHttpClient<IPdfThumbnailGeneratorClient, PdfThumbnailGeneratorClient>(client =>
-        {
-            client.BaseAddress = new Uri(GetValueFromConfig(configuration, ConfigurationKeys.PdfThumbnailGeneratorBaseUrl));
-            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-        })
-            .AddPolicyHandler(RetryPolicy);
+
+        services.AddHttpClientWitDefaults<IPdfGeneratorClient, PdfGeneratorClient>(configuration, ConfigurationKeys.PipelineRedactPdfBaseUrl, ConfigurationKeys.PdfGeneratorClientTimeoutSeconds);
+        services.AddHttpClientWitDefaults<IPdfThumbnailGeneratorClient, PdfThumbnailGeneratorClient>(configuration, ConfigurationKeys.PdfThumbnailGeneratorBaseUrl, ConfigurationKeys.PdfThumbnailGeneratorClientTimeoutSeconds);
 
         services.AddBlobStorageWithDefaultAzureCredential(configuration);
         services.AddPiiService();
@@ -87,6 +71,22 @@ public static class ServiceExtensions
         services.AddDdeiOrchestrationService();
         return services;
     }
+
+    public static IServiceCollection AddHttpClientWitDefaults<TInterface, TImplementation>(this IServiceCollection services, IConfiguration configuration, string baseUrlKey, string timeoutSecondsKey)
+        where TInterface : class
+        where TImplementation : class, TInterface
+    {
+        services.AddHttpClient<TInterface, TImplementation>(client => 
+        {
+            client.BaseAddress = new Uri(GetValueFromConfig(configuration, baseUrlKey));
+            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+            var hasTimeout = int.TryParse(GetValueFromConfig(configuration, timeoutSecondsKey), out var timeoutSeconds);
+            client.Timeout = new TimeSpan(hasTimeout ? timeoutSeconds : 100);
+        })
+        .AddPolicyHandler(RetryPolicy);
+        return services;
+    }
+
     public static string GetValueFromConfig(IConfiguration configuration, string secretName)
     {
         var secret = configuration[secretName];
