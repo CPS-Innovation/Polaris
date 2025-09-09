@@ -81,7 +81,7 @@ public static class ServiceExtensions
             client.BaseAddress = new Uri(GetValueFromConfig(configuration, baseUrlKey));
             client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
             var hasTimeout = int.TryParse(GetValueFromConfig(configuration, timeoutSecondsKey), out var timeoutSeconds);
-            client.Timeout = new TimeSpan(hasTimeout ? timeoutSeconds : 100);
+            client.Timeout = TimeSpan.FromSeconds(hasTimeout ? timeoutSeconds : 100);
         })
         .AddPolicyHandler(RetryPolicy);
         return services;
