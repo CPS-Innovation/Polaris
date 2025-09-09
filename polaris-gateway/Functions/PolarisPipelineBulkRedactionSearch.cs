@@ -3,34 +3,32 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Services.Artefact;
+using PolarisGateway.Clients.Coordinator;
+using PolarisGateway.Extensions;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
 
-public class BulkRedactionSearch : BaseFunction
+public class PolarisPipelineBulkRedactionSearch : BaseFunction
 {
-    private readonly ILogger<BulkRedactionSearch> _logger;
-    private readonly IOcrArtefactService _ocrArtefactService;
+    private readonly ILogger<PolarisPipelineBulkRedactionSearch> _logger;
+    private readonly ICoordinatorClient _coordinatorClient;
     private const string SearchTextHeader = "SearchText";
 
-    public BulkRedactionSearch(ILogger<BulkRedactionSearch> logger, IOcrArtefactService ocrArtefactService)
+    public PolarisPipelineBulkRedactionSearch(ILogger<PolarisPipelineBulkRedactionSearch> logger, ICoordinatorClient coordinatorClient)
     {
         _logger = logger;
-        _ocrArtefactService = ocrArtefactService;
+        _coordinatorClient = coordinatorClient;
     }
 
-    [Function(nameof(BulkRedactionSearch))]
+    [Function(nameof(PolarisPipelineBulkRedactionSearch))]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.OcrSearch)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId, CancellationToken cancellationToken)
     {
         var searchText = req.Query[SearchTextHeader];
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var redactionDefinitionDtos = await _ocrArtefactService.GetOcrSearchRedactionsAsync(cmsAuthValues,
-            correlationId, caseUrn, caseId, documentId, versionId, searchText, cancellationToken);
-
-        return new OkObjectResult(redactionDefinitionDtos);
+        return await (await _coordinatorClient.BulkRedactionSearchAsync(caseUrn, caseId, documentId, versionId, searchText, correlationId, cmsAuthValues, cancellationToken)).ToActionResult();
     }
 }

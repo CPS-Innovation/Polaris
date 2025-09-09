@@ -1,7 +1,9 @@
 using Common.Dto.Request;
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Primitives;
 
 namespace PolarisGateway.Clients.Coordinator;
 
@@ -20,4 +22,5 @@ public interface ICoordinatorClient
     Task<HttpResponseMessage> GetCaseSearchIndexCount(string caseUrn, int caseId, Guid correlationId);
 
     Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, string documentId, long versionId, ModifyDocumentDto modifyDocumentDto, string cmsAuthValues, Guid correlationId);
+    Task<HttpResponseMessage> BulkRedactionSearchAsync(string caseUrn, int caseId, string documentId, long versionId, string searchText, Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default);
 }

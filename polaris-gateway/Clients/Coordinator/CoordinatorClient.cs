@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
@@ -85,14 +86,23 @@ namespace PolarisGateway.Clients.Coordinator
                 cmsAuthValues,
                 new StringContent(JsonSerializer.Serialize(modifyDocumentRequest, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }), Encoding.UTF8, ContentType.Json));
 
-        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false)
+        public async Task<HttpResponseMessage> BulkRedactionSearchAsync(string caseUrn, int caseId, string documentId, long versionId, string searchText,
+            Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default) =>
+            await SendRequestAsync(
+                HttpMethod.Get,
+                RestApi.GetBulkRedactionSearchPathAsync(caseUrn, caseId, documentId, versionId, searchText),
+                correlationId,
+                cmsAuthValues,
+                cancellationToken: cancellationToken);
+
+        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false, CancellationToken cancellationToken = default)
         {
             var request = _requestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues, content);
             if (skipRetry)
             {
                 request.Headers.Add("X-Skip-Retry", "true");
             }
-            return await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            return await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         }
     }
 }
