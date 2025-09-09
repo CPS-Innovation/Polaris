@@ -34,6 +34,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "CoordinatorTaskHub"                              = "fapolaris${var.env != "prod" ? var.env : ""}coordinator"
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
+    "DdeiClientTimeoutSeconds"                        = "200"
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Production"
@@ -41,9 +42,12 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "MDSAccessKey"                                    = data.azurerm_key_vault_secret.kvs_fa_mds_host_keys.value
     "MDSMockBaseUrl"                                  = "https://as-${local.mds_mock_resource_name}.azurewebsites.net"
     "MDSMockAccessKey"                                = ""
+    "MdsClientTimeoutSeconds"                         = "200"
     "LanguageServiceKey"                              = azurerm_cognitive_account.language_service.primary_access_key
     "LanguageServiceUrl"                              = azurerm_cognitive_account.language_service.endpoint
     "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
+    "PdfRedactorClientTimeoutSeconds"                 = "200"
+    "PdfGeneratorClientTimeoutSeconds"                = "200"
     "PiiCategories"                                   = var.pii.categories
     "PiiChunkCharacterLimit"                          = var.pii.chunk_character_limit
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_resource_name}-pdf-generator.azurewebsites.net/api/"
@@ -53,6 +57,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "SlidingClearDownProtectBlobs"                    = var.sliding_clear_down.protect_blobs
     "SlidingClearDownSchedule"                        = var.sliding_clear_down.schedule
     "SlidingClearDownBatchSize"                       = var.sliding_clear_down.batch_size
+    "TextExtractorClientTimeoutSeconds"               = "200"
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_coordinator.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                         = "1"
@@ -119,7 +124,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
       app_settings["MDSBaseUrl"],
       app_settings["MDSAccessKey"],
       app_settings["MDSMockBaseUrl"],
-      app_settings["MDSMockAccessKey"],      
+      app_settings["MDSMockAccessKey"],
       app_settings["OvernightClearDownSchedule"],
       app_settings["PiiChunkCharacterLimit"],
       app_settings["PolarisPipelineRedactPdfBaseUrl"],

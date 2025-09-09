@@ -1,5 +1,5 @@
 #################### Functions ####################
-resource "azurerm_linux_function_app" "fa_polaris" { 
+resource "azurerm_linux_function_app" "fa_polaris" {
   name                          = "fa-${local.global_resource_name}-gateway"
   location                      = azurerm_resource_group.rg_polaris.location
   resource_group_name           = azurerm_resource_group.rg_polaris.name
@@ -27,6 +27,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
     "PiiCategories"                                   = var.pii.categories
     "PiiChunkCharacterLimit"                          = var.pii.chunk_character_limit
+    "CoordinatorClientTimeoutSeconds"                 = "200"
+    "DdeiClientTimeoutSeconds"                        = "200"
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "LanguageServiceKey"                              = azurerm_cognitive_account.language_service.primary_access_key
@@ -38,6 +40,9 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "MDSAccessKey"                                    = data.azurerm_key_vault_secret.kvs_fa_mds_host_keys.value
     "MDSMockBaseUrl"                                  = "https://as-${local.mds_mock_resource_name}.azurewebsites.net"
     "MDSMockAccessKey"                                = ""
+    "MdsClientTimeoutSeconds"                         = "200"
+    "PdfGeneratorClientTimeoutSeconds"                = "200"
+    "PdfThumbnailGeneratorClientTimeoutSeconds"       = "200"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_resource_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.global_resource_name}-pdf-thumb-gen.azurewebsites.net/api/"
@@ -188,22 +193,22 @@ module "azurerm_app_reg_fa_polaris" { # Note, app roles are currently being mana
     known_client_applications      = []
     oauth2_permission_scope = [
       {
-      admin_consent_description  = "Allow the calling application to make requests of the ${local.global_resource_name} Gateway"
-      admin_consent_display_name = "Call the ${local.global_resource_name} Gateway"
-      id                         = element(random_uuid.random_id[*].result, 0)
-      type                       = "Admin"
-      user_consent_description   = "Interact with the ${local.global_resource_name} Gateway on-behalf of the calling user"
-      user_consent_display_name  = "Interact with the ${local.global_resource_name} Gateway"
-      value                      = "user_impersonation"
-    },
-    {
-      admin_consent_description  = "ClientCredentials"
-      admin_consent_display_name = "Client Credentials flow for M2M calls from Case Markers Tool"
-      id                         = element(random_uuid.random_id[*].result, 1)
-      type                       = "Admin"
-      user_consent_description   = "ClientCredentials"
-      user_consent_display_name  = "ClientCredentials"
-      value                      = "AppRole.Polaris.Gateway.ClientCreds"
+        admin_consent_description  = "Allow the calling application to make requests of the ${local.global_resource_name} Gateway"
+        admin_consent_display_name = "Call the ${local.global_resource_name} Gateway"
+        id                         = element(random_uuid.random_id[*].result, 0)
+        type                       = "Admin"
+        user_consent_description   = "Interact with the ${local.global_resource_name} Gateway on-behalf of the calling user"
+        user_consent_display_name  = "Interact with the ${local.global_resource_name} Gateway"
+        value                      = "user_impersonation"
+      },
+      {
+        admin_consent_description  = "ClientCredentials"
+        admin_consent_display_name = "Client Credentials flow for M2M calls from Case Markers Tool"
+        id                         = element(random_uuid.random_id[*].result, 1)
+        type                       = "Admin"
+        user_consent_description   = "ClientCredentials"
+        user_consent_display_name  = "ClientCredentials"
+        value                      = "AppRole.Polaris.Gateway.ClientCreds"
     }]
   }
   #use this code for adding api permissions

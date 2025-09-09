@@ -24,6 +24,8 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "ComputerVisionClientServiceUrl"                  = azurerm_cognitive_account.computer_vision_service.endpoint
     "PiiCategories"                                   = var.pii.categories
     "PiiChunkCharacterLimit"                          = var.pii.chunk_character_limit
+    "CoordinatorClientTimeoutSeconds"                 = "200"
+    "DdeiClientTimeoutSeconds"                        = "200"
     "DdeiBaseUrl"                                     = "https://fa-${local.ddei_resource_name}.azurewebsites.net"
     "DdeiAccessKey"                                   = data.azurerm_function_app_host_keys.fa_ddei_host_keys.default_function_key
     "LanguageServiceKey"                              = azurerm_cognitive_account.language_service.primary_access_key
@@ -35,6 +37,9 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "MDSAccessKey"                                    = data.azurerm_key_vault_secret.kvs_fa_mds_host_keys.value
     "MDSMockBaseUrl"                                  = "https://as-${local.mds_mock_resource_name}.azurewebsites.net"
     "MDSMockAccessKey"                                = ""
+    "MdsClientTimeoutSeconds"                         = "200"
+    "PdfGeneratorClientTimeoutSeconds"                = "200"
+    "PdfThumbnailGeneratorClientTimeoutSeconds"       = "200"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_resource_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.global_resource_name}-pdf-thumb-gen.azurewebsites.net/api/"
