@@ -37,7 +37,7 @@ resource "azurerm_linux_function_app_slot" "fa_polaris_staging1" {
     "MDSAccessKey"                                    = data.azurerm_key_vault_secret.kvs_fa_mds_host_keys.value
     "MDSMockBaseUrl"                                  = "https://as-${local.mds_mock_resource_name}.azurewebsites.net"
     "MDSMockAccessKey"                                = ""
-    "MDSClientTimeoutSeconds"                         = "200"
+    "MdsClientTimeoutSeconds"                         = "200"
     "PdfGeneratorClientTimeoutSeconds"                = "200"
     "PdfThumbnailGeneratorClientTimeoutSeconds"       = "200"
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"

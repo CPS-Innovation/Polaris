@@ -42,7 +42,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "MDSAccessKey"                                    = data.azurerm_key_vault_secret.kvs_fa_mds_host_keys.value
     "MDSMockBaseUrl"                                  = "https://as-${local.mds_mock_resource_name}.azurewebsites.net"
     "MDSMockAccessKey"                                = ""
-    "MDSClientTimeoutSeconds"                         = "200"
+    "MdsClientTimeoutSeconds"                         = "200"
     "LanguageServiceKey"                              = azurerm_cognitive_account.language_service.primary_access_key
     "LanguageServiceUrl"                              = azurerm_cognitive_account.language_service.endpoint
     "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule
