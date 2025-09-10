@@ -47,7 +47,7 @@ public static class ServiceExtensions
         services.AddSingleton<IAuthorizationValidator, AuthorizationValidator>();
         services.AddSingleton<IJsonConvertWrapper, JsonConvertWrapper>();
 
-        services.AddHttpClientWitDefaults<IPdfThumbnailGeneratorClient, PdfThumbnailGeneratorClient>(configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl, ConfigurationKeys.CoordinatorClientTimeoutSeconds);
+        services.AddHttpClientWitDefaults<ICoordinatorClient, CoordinatorClient>(configuration, ConfigurationKeys.PipelineCoordinatorBaseUrl, ConfigurationKeys.CoordinatorClientTimeoutSeconds);
 
         services.AddDdeiClientGateway(configuration);
 
