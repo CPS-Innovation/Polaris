@@ -9,6 +9,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="local.settings.json" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Ardalis.SmartEnum" Version="8.2.0" />
     <PackageReference Include="Aspose.PDF.Drawing" Version="24.4.0" />
     <PackageReference Include="Azure.Core" Version="1.44.1" />
