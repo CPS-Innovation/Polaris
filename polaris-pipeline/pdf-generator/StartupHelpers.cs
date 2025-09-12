@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.Logging;
 using pdf_generator.Domain.Exceptions;
 
 namespace pdf_generator
@@ -6,22 +7,22 @@ namespace pdf_generator
     internal static class StartupHelpers
     {
 
-        internal static void SetAsposeLicence()
+        internal static void SetAsposeLicence(ILogger<Program> logger)
         {
             try
             {
-                const string licenceFileName = "Aspose.Total.NET.lic";
+                const string licenceFileName = "Licenses/Aspose.Total.NET.lic";
+
                 new Aspose.Cells.License().SetLicense(licenceFileName);
-                // new Aspose.Diagram.License().SetLicense(licenceFileName);
                 new Aspose.Email.License().SetLicense(licenceFileName);
                 new Aspose.Imaging.License().SetLicense(licenceFileName);
                 new Aspose.Pdf.License().SetLicense(licenceFileName);
                 new Aspose.Slides.License().SetLicense(licenceFileName);
                 new Aspose.Words.License().SetLicense(licenceFileName);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                throw new AsposeLicenseException(exception.Message);
+               logger.LogError($"Aspose license not found or invalid. Running in evaluation mode. Error: {ex.Message}");
             }
         }
     }
