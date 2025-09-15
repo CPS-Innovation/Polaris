@@ -206,17 +206,17 @@ variable "feature_flag_page_rotate" {
   type = string
 }
 
-variable "feature_flag_state_retention"{
+variable "feature_flag_state_retention" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
 }
 
-variable "feature_flag_global_nav"{
+variable "feature_flag_global_nav" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
 }
 
-variable "feature_flag_used_document"{
+variable "feature_flag_used_document" {
   # intentionally a string as this goes in to UI app service's app settings
   type = string
 }
@@ -382,4 +382,10 @@ variable "cps_global_components_url" {
 variable "sp_polaris_web_enabled" {
   type    = bool
   default = true
+}
+
+variable "app_reg_owners" {
+  description = "List of object IDs for users with owner permissions to App Registrations we are creating during this build "
+  type        = list(string)
+  default     = []
 }

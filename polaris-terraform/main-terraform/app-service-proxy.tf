@@ -220,7 +220,7 @@ module "azurerm_app_reg_polaris_proxy" { # Note, app roles are currently being m
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
   display_name            = "${local.global_resource_name}-cmsproxy-appreg"
   identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/${local.global_resource_name}-cmsproxy"]
-  owners                  = [data.azuread_service_principal.terraform_service_principal.object_id]
+  owners                  = concat([data.azuread_service_principal.terraform_service_principal.object_id], var.app_reg_owners)
   prevent_duplicate_names = true
   #use this code for adding api permissions
   required_resource_access = [{
@@ -241,11 +241,11 @@ resource "azuread_application_password" "asap_polaris_cms_proxy" {
   end_date_relative     = "17520h"
 }
 
-module "azurerm_service_principal_sp_polaris_cms_proxy" {  # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
+module "azurerm_service_principal_sp_polaris_cms_proxy" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   source                       = "./modules/terraform-azurerm-azuread_service_principal"
   application_id               = module.azurerm_app_reg_polaris_proxy.client_id
   app_role_assignment_required = false
-  owners                       = [data.azurerm_client_config.current.object_id]
+  owners                       = concat([data.azurerm_client_config.current.object_id], var.app_reg_owners)
   depends_on                   = [module.azurerm_app_reg_polaris_proxy]
 }
 

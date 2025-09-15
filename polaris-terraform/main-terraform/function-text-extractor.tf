@@ -103,7 +103,7 @@ resource "azurerm_linux_function_app" "fa_text_extractor" {
 }
 
 module "azurerm_app_reg_fa_text_extractor" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
-  source                  = "./modules/terraform-azurerm-azuread-app-registration" 
+  source                  = "./modules/terraform-azurerm-azuread-app-registration"
   display_name            = "fa-${local.global_resource_name}-text-extractor-appreg"
   identifier_uris         = ["api://fa-${local.global_resource_name}-text-extractor"]
   prevent_duplicate_names = true
@@ -140,7 +140,7 @@ module "azurerm_service_principal_fa_text_extractor" { # Note, app roles are cur
   source                       = "./modules/terraform-azurerm-azuread_service_principal"
   application_id               = module.azurerm_app_reg_fa_text_extractor.client_id
   app_role_assignment_required = false
-  owners                       = [data.azurerm_client_config.current.object_id]
+  owners                       = concat([data.azurerm_client_config.current.object_id], var.app_reg_owners)
 }
 
 resource "azuread_service_principal_password" "sp_fa_text_extractor_pw" {
