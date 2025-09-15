@@ -7,8 +7,10 @@ namespace coordinator.Services;
 public interface IStateStorageService
 {
     Task<CaseDurableEntityState> GetStateAsync(int caseId);
+    Task<BulkRedactionSearchEntityState> GetBulkRedactionSearchStateAsync(int caseId, string documentId, long versionId, string searchText);
 
     Task<bool> UpdateStateAsync(CaseDurableEntityState caseState);
+    Task<bool> UpdateBulkRedactionSearchStateAsync(BulkRedactionSearchEntityState bulkRedactionSearchEntityState);
 
     Task<CaseDurableEntityDocumentsState> GetDurableEntityDocumentsStateAsync(int caseId);
 

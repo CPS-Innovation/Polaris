@@ -24,6 +24,7 @@ public static class RestApi
     public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/checkout";
     public const string ToggleIsUnusedDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/toggle/{isUnused}";
     public const string OcrSearch = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/search";
+    public const string OcrSearchTracker = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/search/tracker";
 
     // Internal Pipeline
     public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";
@@ -40,6 +41,7 @@ public static class RestApi
     public static string GetCasePath(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}";
 
     public static string GetCaseTrackerPath(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}/tracker";
+    public static string GetBulkRedactionSearchTrackerPath(string caseUrn, int caseId, string documentId, long versionId, string searchText) => $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/search/tracker?SearchText={searchText}";
 
     public static string GetCaseSearchQueryPath(string caseUrn, int caseId, string searchTerm) =>
         $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";

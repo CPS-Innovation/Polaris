@@ -9,100 +9,115 @@ using Common.Configuration;
 using Common.Constants;
 using Common.Dto.Request;
 
-namespace PolarisGateway.Clients.Coordinator
+namespace PolarisGateway.Clients.Coordinator;
+
+public class CoordinatorClient : ICoordinatorClient
 {
-    public class CoordinatorClient : ICoordinatorClient
+    private readonly IRequestFactory _requestFactory;
+    private readonly HttpClient _httpClient;
+
+    public CoordinatorClient(
+        IRequestFactory requestFactory,
+        HttpClient httpClient)
     {
-        private readonly IRequestFactory _requestFactory;
-        private readonly HttpClient _httpClient;
+        _requestFactory = requestFactory;
+        _httpClient = httpClient;
+    }
 
-        public CoordinatorClient(
-            IRequestFactory requestFactory,
-            HttpClient httpClient)
+    public async Task<HttpResponseMessage> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId) =>     
+        await SendRequestAsync(
+            HttpMethod.Post,
+            RestApi.GetCasePath(caseUrn, caseId),
+            correlationId,
+            cmsAuthValues);
+
+    public async Task<HttpResponseMessage> DeleteCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId) =>
+        await SendRequestAsync(
+            HttpMethod.Delete,
+            RestApi.GetCasePath(caseUrn, caseId),
+            correlationId,
+            cmsAuthValues);
+
+    public async Task<HttpResponseMessage> GetTrackerGetCaseAsync(string caseUrn, int caseId, Guid correlationId)
+    {
+        var response = await SendRequestAsync(
+            HttpMethod.Get,
+            RestApi.GetCaseTrackerPath(caseUrn, caseId),
+            correlationId, skipRetry: true);
+
+        // #27357 we return 404 if 503 or 502 status code is returned. The client handles 404s and continues to poll
+        if (response.StatusCode == HttpStatusCode.ServiceUnavailable || response.StatusCode == HttpStatusCode.BadGateway)
         {
-            _requestFactory = requestFactory;
-            _httpClient = httpClient;
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
         }
 
-        public async Task<HttpResponseMessage> RefreshCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId) =>     
-            await SendRequestAsync(
-                HttpMethod.Post,
-                RestApi.GetCasePath(caseUrn, caseId),
-                correlationId,
-                cmsAuthValues);
+        return response;
+    }
+        
+    public async Task<HttpResponseMessage> GetTrackerBulkRedactionSearchAsync(string caseUrn, int caseId, string documentId, long versionId, string searchText, Guid correlationId, CancellationToken cancellationToken = default)
+    {
+        var response = await SendRequestAsync(
+            HttpMethod.Get,
+            RestApi.GetBulkRedactionSearchTrackerPath(caseUrn, caseId, documentId, versionId, searchText),
+            correlationId, skipRetry: true, cancellationToken: cancellationToken);
 
-        public async Task<HttpResponseMessage> DeleteCaseAsync(string caseUrn, int caseId, string cmsAuthValues, Guid correlationId) =>
-            await SendRequestAsync(
-                HttpMethod.Delete,
-                RestApi.GetCasePath(caseUrn, caseId),
-                correlationId,
-                cmsAuthValues);
-
-        public async Task<HttpResponseMessage> GetTrackerAsync(string caseUrn, int caseId, Guid correlationId)
+        // #27357 we return 404 if 503 or 502 status code is returned. The client handles 404s and continues to poll
+        if (response.StatusCode == HttpStatusCode.ServiceUnavailable || response.StatusCode == HttpStatusCode.BadGateway)
         {
-            var response = await SendRequestAsync(
-                HttpMethod.Get,
-                RestApi.GetCaseTrackerPath(caseUrn, caseId),
-                correlationId, skipRetry: true);
-
-            // #27357 we return 404 if 503 or 502 status code is returned. The client handles 404s and continues to poll
-            if (response.StatusCode == HttpStatusCode.ServiceUnavailable || response.StatusCode == HttpStatusCode.BadGateway)
-            {
-                return new HttpResponseMessage(HttpStatusCode.NotFound);
-            }
-
-            return response;
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
         }
 
-        public async Task<HttpResponseMessage> SaveRedactionsAsync(string caseUrn, int caseId, string documentId, long versionId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
+        return response;
+    }
+
+    public async Task<HttpResponseMessage> SaveRedactionsAsync(string caseUrn, int caseId, string documentId, long versionId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
+    {
+        return await SendRequestAsync(
+            HttpMethod.Put,
+            RestApi.GetRedactDocumentPath(caseUrn, caseId, documentId, versionId),
+            correlationId,
+            cmsAuthValues,
+            new StringContent(JsonSerializer.Serialize(redactPdfRequest), Encoding.UTF8, ContentType.Json));
+    }
+
+    public async Task<HttpResponseMessage> SearchCase(string caseUrn, int caseId, string searchTerm, Guid correlationId)
+    {
+        return await SendRequestAsync(
+            HttpMethod.Get,
+            RestApi.GetCaseSearchQueryPath(caseUrn, caseId, searchTerm),
+            correlationId);
+    }
+
+    public async Task<HttpResponseMessage> GetCaseSearchIndexCount(string caseUrn, int caseId, Guid correlationId) =>
+        await SendRequestAsync(
+            HttpMethod.Get,
+            RestApi.CaseSearchCountPath(caseUrn, caseId),
+            correlationId);
+
+    public async Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, string documentId, long versionId, ModifyDocumentDto modifyDocumentRequest, string cmsAuthValues, Guid correlationId) =>
+        await SendRequestAsync(
+            HttpMethod.Post,
+            RestApi.GetModifyDocumentPath(caseUrn, caseId, documentId, versionId),
+            correlationId,
+            cmsAuthValues,
+            new StringContent(JsonSerializer.Serialize(modifyDocumentRequest, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }), Encoding.UTF8, ContentType.Json));
+
+    public async Task<HttpResponseMessage> BulkRedactionSearchAsync(string caseUrn, int caseId, string documentId, long versionId, string searchText,
+        Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default) =>
+        await SendRequestAsync(
+            HttpMethod.Get,
+            RestApi.GetBulkRedactionSearchPathAsync(caseUrn, caseId, documentId, versionId, searchText),
+            correlationId,
+            cmsAuthValues,
+            cancellationToken: cancellationToken);
+
+    private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false, CancellationToken cancellationToken = default)
+    {
+        var request = _requestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues, content);
+        if (skipRetry)
         {
-            return await SendRequestAsync(
-                HttpMethod.Put,
-                RestApi.GetRedactDocumentPath(caseUrn, caseId, documentId, versionId),
-                correlationId,
-                cmsAuthValues,
-                new StringContent(JsonSerializer.Serialize(redactPdfRequest), Encoding.UTF8, ContentType.Json));
+            request.Headers.Add("X-Skip-Retry", "true");
         }
-
-        public async Task<HttpResponseMessage> SearchCase(string caseUrn, int caseId, string searchTerm, Guid correlationId)
-        {
-            return await SendRequestAsync(
-                HttpMethod.Get,
-                RestApi.GetCaseSearchQueryPath(caseUrn, caseId, searchTerm),
-                correlationId);
-        }
-
-        public async Task<HttpResponseMessage> GetCaseSearchIndexCount(string caseUrn, int caseId, Guid correlationId) =>
-            await SendRequestAsync(
-                HttpMethod.Get,
-                RestApi.CaseSearchCountPath(caseUrn, caseId),
-                correlationId);
-
-        public async Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, string documentId, long versionId, ModifyDocumentDto modifyDocumentRequest, string cmsAuthValues, Guid correlationId) =>
-            await SendRequestAsync(
-                HttpMethod.Post,
-                RestApi.GetModifyDocumentPath(caseUrn, caseId, documentId, versionId),
-                correlationId,
-                cmsAuthValues,
-                new StringContent(JsonSerializer.Serialize(modifyDocumentRequest, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }), Encoding.UTF8, ContentType.Json));
-
-        public async Task<HttpResponseMessage> BulkRedactionSearchAsync(string caseUrn, int caseId, string documentId, long versionId, string searchText,
-            Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default) =>
-            await SendRequestAsync(
-                HttpMethod.Get,
-                RestApi.GetBulkRedactionSearchPathAsync(caseUrn, caseId, documentId, versionId, searchText),
-                correlationId,
-                cmsAuthValues,
-                cancellationToken: cancellationToken);
-
-        private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null, bool skipRetry = false, CancellationToken cancellationToken = default)
-        {
-            var request = _requestFactory.Create(httpMethod, requestUri, correlationId, cmsAuthValues, content);
-            if (skipRetry)
-            {
-                request.Headers.Add("X-Skip-Retry", "true");
-            }
-            return await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-        }
+        return await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
     }
 }

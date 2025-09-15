@@ -24,5 +24,5 @@ public interface IOrchestrationProvider
         HttpRequest req);
 
     Task<DeleteCaseOrchestrationResult> DeleteCaseOrchestrationAsync(DurableTaskClient client, int caseId);
-    Task<bool> BulkSearchDocumentAsync(DurableTaskClient orchestrationClient, Guid currentCorrelationId, BulkRedactionPayload bulkRedactionPayload, CancellationToken cancellationToken);
+    Task<bool> BulkSearchDocumentAsync(DurableTaskClient orchestrationClient, BulkRedactionSearchPayload bulkRedactionSearchPayload, CancellationToken cancellationToken = default);
 }

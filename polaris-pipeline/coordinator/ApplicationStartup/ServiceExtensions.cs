@@ -2,6 +2,7 @@
 using Common.Dto.Request;
 using Common.Factories.ComputerVisionClientFactory;
 using Common.Handlers;
+using Common.Mappers;
 using Common.Services.BlobStorage;
 using Common.Services.DocumentToggle;
 using Common.Services.OcrService;
@@ -86,7 +87,7 @@ public static class ServiceExtensions
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
         services.AddSingleton<IStateStorageService, StateStorageService>();
-
+        services.AddSingleton<IRedactionSearchDtoMapper, RedactionSearchDtoMapper>();
         return services;
     }
 

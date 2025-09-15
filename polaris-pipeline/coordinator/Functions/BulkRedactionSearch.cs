@@ -1,4 +1,10 @@
 using Common.Configuration;
+using Common.Extensions;
+using coordinator.Domain;
+using coordinator.Durable.Payloads;
+using coordinator.Durable.Providers;
+using Ddei.Factories;
+using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -6,11 +12,6 @@ using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Extensions;
-using coordinator.Durable.Payloads;
-using coordinator.Durable.Providers;
-using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
 
 namespace coordinator.Functions;
 
@@ -30,22 +31,28 @@ public class BulkRedactionSearch
         _ddeiAuthClient = ddeiAuthClient;
     }
 
-    [Function("BulkRedactionSearch")]
+    [Function(nameof(BulkRedactionSearch))]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.OcrSearch)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId, CancellationToken cancellationToken, [DurableClient] DurableTaskClient orchestrationClient)
     {
         var currentCorrelationId = req.Headers.GetCorrelationId();
         var cmsAuthValues = req.Headers.GetCmsAuthValues();
         await _ddeiAuthClient.VerifyCmsAuthAsync(_ddeiArgFactory.CreateCmsCaseDataArgDto(cmsAuthValues, currentCorrelationId));
-        var bulkRedactionPayload = new BulkRedactionPayload
+        var searchText = req.Query[SearchTextHeader];
+        var bulkRedactionPayload = new BulkRedactionSearchPayload
         {
             CaseUrn = caseUrn,
             CaseId = caseId,
             DocumentId = documentId,
             VersionId = versionId,
-            SearchText = req.Query[SearchTextHeader]
+            SearchText = searchText,
+            CmsAuthDetails = cmsAuthValues,
+            CorrelationId = currentCorrelationId
         };
 
-        var isAccepted = await _orchestrationProvider.BulkSearchDocumentAsync(orchestrationClient, currentCorrelationId, bulkRedactionPayload, cancellationToken);
-        return new OkObjectResult("Welcome to Azure Functions!");
+        var isAccepted = await _orchestrationProvider.BulkSearchDocumentAsync(orchestrationClient, bulkRedactionPayload, cancellationToken);
+        return new ObjectResult(new BulkRedactionSearchResponse(caseUrn, caseId, documentId, versionId, searchText))
+        {
+            StatusCode = isAccepted ? StatusCodes.Status200OK : StatusCodes.Status423Locked
+        };
     }
 }

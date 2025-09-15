@@ -70,7 +70,6 @@ public static class ServiceExtensions
         services.AddPiiService();
         services.AddArtefactService();
         services.AddDdeiOrchestrationService();
-        services.AddSingleton<IRedactionSearchDtoMapper, RedactionSearchDtoMapper>();
         return services;
     }
 

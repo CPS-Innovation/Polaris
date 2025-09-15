@@ -1,5 +1,8 @@
 using Common.Domain.Ocr;
 using Common.Dto.Request.Redaction;
+using Common.Exceptions;
+using Common.Extensions;
+using Common.Mappers;
 using Common.Services.BlobStorage;
 using Common.Services.OcrService;
 using PolarisGateway.Services.Artefact.Domain;
@@ -10,10 +13,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Exceptions;
-using Common.Extensions;
-using Common.Mappers;
-using Common.Domain.Document;
 
 namespace PolarisGateway.Services.Artefact;
 public class OcrArtefactService : IOcrArtefactService
