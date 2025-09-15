@@ -119,6 +119,3 @@ stages:
         - name: QA
           targetLabel: 'QA'
           buildDefinitionId: '352'
-        - name: PROD
-          targetLabel: 'PROD'
-          buildDefinitionId: '353'
