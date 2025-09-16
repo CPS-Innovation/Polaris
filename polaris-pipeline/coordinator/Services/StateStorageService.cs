@@ -55,6 +55,7 @@ public class StateStorageService : IStateStorageService
                    CaseId = caseId,
                    DocumentId = documentId,
                    VersionId = versionId,
+                   SearchTerm = searchText
                };
     }
 

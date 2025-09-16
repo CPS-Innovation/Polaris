@@ -32,6 +32,7 @@ public class SetBulkRedactionSearchStatus(IStateStorageService stateStorageServi
 
             case BulkRedactionSearchStatus.Failed:
                 state.FailureReason = payload.FailureReason;
+                state.FailedAt = payload.FailedAt;
                 break;
         }
         state.UpdatedAt = payload.UpdatedAt;
