@@ -334,17 +334,21 @@ resource "azurerm_private_endpoint" "polaris_ui_pe" {
 resource "azurerm_key_vault_secret" "kvs_spa_client_id" {
   #checkov:skip=CKV_AZURE_41:Ensure that the expiration date is set on all secrets
   #checkov:skip=CKV_AZURE_114:Ensure that key vault secrets have "content_type" set
-  name         = "polaris-spa-client-id"
-  value        = module.azurerm_app_reg_as_web_polaris.client_id
-  key_vault_id = data.azurerm_key_vault.terraform_key_vault.id
+  name            = "polaris-spa-client-id"
+  value           = module.azurerm_app_reg_as_web_polaris.client_id
+  key_vault_id    = data.azurerm_key_vault.terraform_key_vault.id
+  content_type    = "secret"
+  expiration_date = timeadd(timestamp(), "8760h")
 }
 
 resource "azurerm_key_vault_secret" "kvs_spa_client_secret" {
   #checkov:skip=CKV_AZURE_41:Ensure that the expiration date is set on all secrets
   #checkov:skip=CKV_AZURE_114:Ensure that key vault secrets have "content_type" set
-  name         = "polaris-spa-client-secret"
-  value        = azuread_application_password.e2e_test_secret.value
-  key_vault_id = data.azurerm_key_vault.terraform_key_vault.id
+  name            = "polaris-spa-client-secret"
+  value           = azuread_application_password.e2e_test_secret.value
+  key_vault_id    = data.azurerm_key_vault.terraform_key_vault.id
+  content_type    = "secret"
+  expiration_date = timeadd(timestamp(), "8760h")
   depends_on = [
     azurerm_role_assignment.kv_role_terraform_sp
   ]

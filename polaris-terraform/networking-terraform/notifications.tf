@@ -28,6 +28,30 @@ resource "azurerm_storage_account" "sa_alert_processing" {
     ]
   }
 
+  queue_properties {
+    logging {
+      delete                = true
+      read                  = true
+      write                 = true
+      version               = "1.0"
+      retention_policy_days = 10
+    }
+
+    hour_metrics {
+      enabled               = true
+      include_apis          = true
+      version               = "1.0"
+      retention_policy_days = 10
+    }
+
+    minute_metrics {
+      enabled               = true
+      include_apis          = true
+      version               = "1.0"
+      retention_policy_days = 10
+    }
+  }
+
   routing {
     publish_microsoft_endpoints = true
   }
