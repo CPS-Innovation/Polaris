@@ -178,3 +178,11 @@ cps_global_components_url = "https://sacpsglobalcomponents.blob.core.windows.net
 sp_polaris_web_enabled = true
 
 app_reg_owners = ["49a53165-9fa6-4f51-bebe-90ed1cc2e58f", "2cd0a11e-402b-4562-998c-2376d61bbb7f"]
+
+proxy_c_button_launch_path = {
+    cms  = "/task-list"
+    cin2 = "/task-list"
+    cin3 = "https://cps-tst.outsystemsenterprise.com/casework_blocks/home?IsFromCMS=true"
+    cin4 = "/task-list"
+    cin5 = "/task-list"
+}

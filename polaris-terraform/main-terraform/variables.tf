@@ -389,3 +389,14 @@ variable "app_reg_owners" {
   type        = list(string)
   default     = []
 }
+
+variable "proxy_c_button_launch_path" {
+  description = "Redirection path for c button launch into proxy"
+  type = object({
+      cms  = string
+      cin2 = string
+      cin3 = string
+      cin4 = string
+      cin5 = string
+  })  
+}
