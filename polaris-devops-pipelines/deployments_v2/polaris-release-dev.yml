@@ -115,7 +115,7 @@ stages:
       targetBuild: PolarisBuild
       targetLabel: "DEV"
       appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
-      qaTargetLabel: "QA"
-      qaBuildDefinitionId: 352
-      prodTargetLabel: "PROD"
-      prodBuildDefinitionId: 353
+      environments:
+        - name: QA
+          targetLabel: 'QA'
+          buildDefinitionId: '352'
