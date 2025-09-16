@@ -43,7 +43,8 @@ stages:
         displayName: Log End
         dependsOn:
           - Log_Start
-          - ${{ join(',', parameters.environments.*.name | map('Schedule_Release_')) }}
+          - ${{ each env in parameters.environments }}:
+              - Schedule_Release_${{ env.name }}
         steps:
           - template: jobs/tasks/task_log-result.yml
             parameters:
