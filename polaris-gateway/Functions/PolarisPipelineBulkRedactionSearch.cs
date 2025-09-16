@@ -23,7 +23,7 @@ public class PolarisPipelineBulkRedactionSearch : BaseFunction
     }
 
     [Function(nameof(PolarisPipelineBulkRedactionSearch))]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = RestApi.OcrSearch)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.OcrSearch)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId, CancellationToken cancellationToken)
     {
         var searchText = req.Query[SearchTextHeader];
         var correlationId = EstablishCorrelation(req);
