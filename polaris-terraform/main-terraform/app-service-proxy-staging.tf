@@ -77,6 +77,11 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "WEBSITE_SWAP_WARMUP_PING_PATH"                   = "/"
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITE_WARMUP_PATH"                             = "/"
+    "C_BUTTON_LAUNCH_URL_CMS"                         = "https://cms.cps.gov.uk/polaris?r=${var.proxy_c_button_launch_path.cms}"
+    "C_BUTTON_LAUNCH_URL_CIN2"                        = "https://polaris-qa-notprod.cps.gov.uk/polaris?r=${var.proxy_c_button_launch_path.cin2}"
+    "C_BUTTON_LAUNCH_URL_CIN3"                        = "https://cin3.cps.gov.uk/polaris?r=${var.proxy_c_button_launch_path.cin3}"
+    "C_BUTTON_LAUNCH_URL_CIN4"                        = "https://polaris-qa-notprod.cps.gov.uk/polaris?r=${var.proxy_c_button_launch_path.cin4}"
+    "C_BUTTON_LAUNCH_URL_CIN5"                        = "https://polaris-qa-notprod.cps.gov.uk/polaris?r=${var.proxy_c_button_launch_path.cin5}"
   }
 
   site_config {
