@@ -98,19 +98,19 @@ stages:
               appInsightsKey: ${{ parameters.appInsightsKey }}
               azureSubscription: ${{ parameters.azureSubscription }}
 
-      - job: Deploy_Spa
-        dependsOn: Log_Start_Codebase
-        displayName: Deploy SPA
-        condition: succeeded()
-        steps:
-          - template: jobs/tasks/task_deploy-spa.yml
-            parameters:
-              targetBuild: ${{ parameters.targetBuild }}
-              targetLabel: ${{ parameters.targetLabel }}
-              targetName: "SPA Deployment"
-              targetSuffix: ${{ parameters.targetSuffix }}
-              appInsightsKey: ${{ parameters.appInsightsKey }}
-              azureSubscription: ${{ parameters.azureSubscription }}
+      # - job: Deploy_Spa
+      #   dependsOn: Log_Start_Codebase
+      #   displayName: Deploy SPA
+      #   condition: succeeded()
+      #   steps:
+      #     - template: jobs/tasks/task_deploy-spa.yml
+      #       parameters:
+      #         targetBuild: ${{ parameters.targetBuild }}
+      #         targetLabel: ${{ parameters.targetLabel }}
+      #         targetName: "SPA Deployment"
+      #         targetSuffix: ${{ parameters.targetSuffix }}
+      #         appInsightsKey: ${{ parameters.appInsightsKey }}
+      #         azureSubscription: ${{ parameters.azureSubscription }}
 
       - job: Deploy_Gateway
         dependsOn: Log_Start_Codebase

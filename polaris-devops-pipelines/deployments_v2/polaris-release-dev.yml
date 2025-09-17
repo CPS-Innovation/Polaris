@@ -102,13 +102,13 @@ stages:
       targetLabel: "DEV"
       appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
 
-  - template: stages/stage_run-e2e-tests.yml
-    parameters:
-      targetBuild: PolarisBuild
-      targetLabel: "DEV"
-      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
-      buildDefinitionId: 588
-      stageDependsOn: Update_GitHub_Tag
+  # - template: stages/stage_run-e2e-tests.yml
+  #   parameters:
+  #     targetBuild: PolarisBuild
+  #     targetLabel: "DEV"
+  #     appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
+  #     buildDefinitionId: 588
+  #     stageDependsOn: Update_GitHub_Tag
 
   - template: stages/stage_schedule-releases.yml
     parameters:

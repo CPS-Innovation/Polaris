@@ -291,29 +291,29 @@ stages:
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"ui`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
 
-          - task: Npm@1
-            inputs:
-              command: "install"
-              workingDir: "polaris-ui"
-            displayName: "npm install"
+          # - task: Npm@1
+          #   inputs:
+          #     command: "install"
+          #     workingDir: "polaris-ui"
+          #   displayName: "npm install"
 
-          - task: Npm@1
-            inputs:
-              command: "custom"
-              workingDir: "polaris-ui"
-              customCommand: "run prettier"
-            displayName: "npm prettier"
+          # - task: Npm@1
+          #   inputs:
+          #     command: "custom"
+          #     workingDir: "polaris-ui"
+          #     customCommand: "run prettier"
+          #   displayName: "npm prettier"
 
-          - task: Npm@1
-            inputs:
-              command: "custom"
-              workingDir: "polaris-ui"
-              customCommand: "run build:${{ parameters.environment }}"
-            displayName: "npm build"
+          # - task: Npm@1
+          #   inputs:
+          #     command: "custom"
+          #     workingDir: "polaris-ui"
+          #     customCommand: "run build:${{ parameters.environment }}"
+          #   displayName: "npm build"
 
-          - task: PublishBuildArtifacts@1
-            inputs:
-              PathtoPublish: "polaris-ui/build"
-              ArtifactName: "polaris-ui-drop"
-              publishLocation: "Container"
-            displayName: Publish UI artifact
+          # - task: PublishBuildArtifacts@1
+          #   inputs:
+          #     PathtoPublish: "polaris-ui/build"
+          #     ArtifactName: "polaris-ui-drop"
+          #     publishLocation: "Container"
+          #   displayName: Publish UI artifact
