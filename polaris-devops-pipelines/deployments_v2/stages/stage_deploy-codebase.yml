@@ -149,7 +149,7 @@ stages:
           - Deploy_Pdf_Thumbnail_Generator
           - Deploy_Pdf_Redactor
           - Deploy_Text_Extractor
-          - Deploy_Spa
+          #- Deploy_Spa
           - Deploy_Gateway
         steps:
           - template: jobs/tasks/task_log-result-deployment.yml
