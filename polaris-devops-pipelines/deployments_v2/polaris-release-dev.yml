@@ -110,12 +110,12 @@ stages:
   #     buildDefinitionId: 588
   #     stageDependsOn: Update_GitHub_Tag
 
-  - template: stages/stage_schedule-releases.yml
-    parameters:
-      targetBuild: PolarisBuild
-      targetLabel: "DEV"
-      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
-      environments:
-        - name: QA
-          targetLabel: 'QA'
-          buildDefinitionId: '352'
+  # - template: stages/stage_schedule-releases.yml
+  #   parameters:
+  #     targetBuild: PolarisBuild
+  #     targetLabel: "DEV"
+  #     appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
+  #     environments:
+  #       - name: QA
+  #         targetLabel: 'QA'
+  #         buildDefinitionId: '352'
