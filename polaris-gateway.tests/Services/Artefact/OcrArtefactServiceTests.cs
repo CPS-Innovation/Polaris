@@ -1,22 +1,16 @@
-using System;
-using System.Collections.Generic;
 using AutoFixture;
 using Common.Domain.Ocr;
+using Common.Services.BlobStorage;
 using Common.Services.OcrService;
+using FluentAssertions;
 using Moq;
 using PolarisGateway.Services.Artefact;
-using PolarisGateway.Services.Artefact.Factories;
-using Xunit;
-using Common.Services.BlobStorage;
 using PolarisGateway.Services.Artefact.Domain;
-using System.Threading.Tasks;
-using FluentAssertions;
+using PolarisGateway.Services.Artefact.Factories;
+using System;
 using System.IO;
-using System.Linq;
-using System.Threading;
-using Common.Dto.Request.Redaction;
-using Common.Exceptions;
-using Common.Mappers;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace PolarisGateway.Tests.Services.Artefact;
 
@@ -27,7 +21,6 @@ public class OcrArtefactServiceTests
     private readonly Mock<IArtefactServiceResponseFactory> _artefactServiceResponseFactoryMock;
     private readonly Mock<IOcrService> _ocrServiceMock;
     private readonly Mock<IPdfArtefactService> _pdfArtefactServiceMock;
-    private readonly Mock<IRedactionSearchDtoMapper> _redactionSearchDtoMapperMock;
 
     private readonly string _cmsAuthValues;
     private readonly Guid _correlationId;
@@ -53,14 +46,12 @@ public class OcrArtefactServiceTests
         _artefactServiceResponseFactoryMock = new Mock<IArtefactServiceResponseFactory>();
         _ocrServiceMock = new Mock<IOcrService>();
         _pdfArtefactServiceMock = new Mock<IPdfArtefactService>();
-        _redactionSearchDtoMapperMock = new Mock<IRedactionSearchDtoMapper>();
 
         _ocrArtefactService = new OcrArtefactService(
             _cacheServiceMock.Object,
             _artefactServiceResponseFactoryMock.Object,
             _ocrServiceMock.Object,
-            _pdfArtefactServiceMock.Object,
-            _redactionSearchDtoMapperMock.Object
+            _pdfArtefactServiceMock.Object
         );
     }
 
@@ -222,156 +213,5 @@ public class OcrArtefactServiceTests
         // Assert
         result.Should().Be(expectedResult);
     }
-    #endregion
-
-    #region GetOcrSearchRedactionsAsync
-
-    [Fact]
-    public async Task GetOcrSearchRedactionsAsync_OcrDocumentNotFound_ShouldThrowOcrDocumentNotFoundException()
-    {
-        //arrange
-        var urn = "Urn";
-        var caseId = 1;
-        var documentId = "2";
-        var versionId = 3;
-        var searchTerm = "search";
-        var cancellationToken = CancellationToken.None;
-        var results = new AnalyzeResults();
-        _cacheServiceMock.Setup(s => s.TryGetJsonObjectAsync<AnalyzeResults>(caseId, documentId, versionId, BlobType.Ocr)).ReturnsAsync((false, results));
-
-        //act & Assert
-        await Assert.ThrowsAsync<OcrDocumentNotFoundException>(() => _ocrArtefactService.GetOcrSearchRedactionsAsync(_cmsAuthValues, _correlationId, urn, caseId, documentId, versionId, searchTerm, cancellationToken));
-    }
-
-    [Fact]
-    public async Task GetOcrSearchRedactionsAsync_SearchFoundOnSamePage_ShouldReturnFoundSearchTerms()
-    {
-        //arrange
-        var urn = "Urn";
-        var caseId = 1;
-        var documentId = "2";
-        var versionId = 3;
-        var searchTerm = "Hello World";
-        var cancellationToken = CancellationToken.None;
-        var results = new AnalyzeResults();
-        var redactionSearchDtos = new List<RedactionSearchDto>()
-        {
-            new RedactionSearchDto()
-            {
-                Height = 1,
-                PageIndex = 1,
-                Width = 1,
-                Word = "Hello",
-                RedactionCoordinates = new RedactionCoordinatesDto
-                {
-                    X1 = 1,
-                    Y1 = 2,
-                    X2 = 3,
-                    Y2 = 4
-                }
-            },
-            new RedactionSearchDto()
-            {
-                Height = 1,
-                PageIndex = 1,
-                Width = 1,
-                Word = "World",
-                RedactionCoordinates = new RedactionCoordinatesDto
-                {
-                    X1 = 5,
-                    Y1 = 6,
-                    X2 = 7,
-                    Y2 = 8
-                }
-            },
-        };
-        _cacheServiceMock.Setup(s => s.TryGetJsonObjectAsync<AnalyzeResults>(caseId, documentId, versionId, BlobType.Ocr)).ReturnsAsync((true, results));
-        _redactionSearchDtoMapperMock.Setup(s => s.Map(results.ReadResults)).Returns(redactionSearchDtos);
-        
-        //act
-        var result = (await _ocrArtefactService.GetOcrSearchRedactionsAsync(_cmsAuthValues, _correlationId, urn, caseId, documentId, versionId, searchTerm, cancellationToken)).ToList();
-
-        //assert
-        Assert.Single(result);
-        Assert.Equal(result[0].Height, redactionSearchDtos[0].Height);
-        Assert.Equal(result[0].PageIndex, redactionSearchDtos[0].PageIndex);
-        Assert.Equal(result[0].Width, redactionSearchDtos[0].Width);
-        Assert.Equal(result[0].RedactionCoordinates[0].X1, redactionSearchDtos[0].RedactionCoordinates.X1);
-        Assert.Equal(result[0].RedactionCoordinates[0].X2, redactionSearchDtos[0].RedactionCoordinates.X2);
-        Assert.Equal(result[0].RedactionCoordinates[0].Y1, redactionSearchDtos[0].RedactionCoordinates.Y1);
-        Assert.Equal(result[0].RedactionCoordinates[0].Y2, redactionSearchDtos[0].RedactionCoordinates.Y2);
-        Assert.Equal(result[0].RedactionCoordinates[1].X1, redactionSearchDtos[1].RedactionCoordinates.X1);
-        Assert.Equal(result[0].RedactionCoordinates[1].X2, redactionSearchDtos[1].RedactionCoordinates.X2);
-        Assert.Equal(result[0].RedactionCoordinates[1].Y1, redactionSearchDtos[1].RedactionCoordinates.Y1);
-        Assert.Equal(result[0].RedactionCoordinates[1].Y2, redactionSearchDtos[1].RedactionCoordinates.Y2);
-    }
-    
-    [Fact]
-    public async Task GetOcrSearchRedactionsAsync_SearchFoundOverDifferentPages_ShouldReturnFoundSearchTerms()
-    {
-        //arrange
-        var urn = "Urn";
-        var caseId = 1;
-        var documentId = "2";
-        var versionId = 3;
-        var searchTerm = "Hello World";
-        var cancellationToken = CancellationToken.None;
-        var results = new AnalyzeResults();
-        var redactionSearchDtos = new List<RedactionSearchDto>()
-        {
-            new RedactionSearchDto()
-            {
-                Height = 1,
-                PageIndex = 1,
-                Width = 2,
-                Word = "Hello",
-                RedactionCoordinates = new RedactionCoordinatesDto
-                {
-                    X1 = 1,
-                    Y1 = 2,
-                    X2 = 3,
-                    Y2 = 4
-                }
-            },
-            new RedactionSearchDto()
-            {
-                Height = 3,
-                PageIndex = 2,
-                Width = 4,
-                Word = "World",
-                RedactionCoordinates = new RedactionCoordinatesDto
-                {
-                    X1 = 5,
-                    Y1 = 6,
-                    X2 = 7,
-                    Y2 = 8
-                }
-            },
-        };
-        _cacheServiceMock.Setup(s => s.TryGetJsonObjectAsync<AnalyzeResults>(caseId, documentId, versionId, BlobType.Ocr)).ReturnsAsync((true, results));
-        _redactionSearchDtoMapperMock.Setup(s => s.Map(results.ReadResults)).Returns(redactionSearchDtos);
-        
-        //act
-        var result = (await _ocrArtefactService.GetOcrSearchRedactionsAsync(_cmsAuthValues, _correlationId, urn, caseId, documentId, versionId, searchTerm, cancellationToken)).ToList();
-
-        //assert
-        Assert.Equal(2, result.Count);
-        Assert.Equal(result[0].Height, redactionSearchDtos[0].Height);
-        Assert.Equal(result[0].PageIndex, redactionSearchDtos[0].PageIndex);
-        Assert.Equal(result[0].Width, redactionSearchDtos[0].Width);
-        Assert.Equal(result[0].RedactionCoordinates[0].X1, redactionSearchDtos[0].RedactionCoordinates.X1);
-        Assert.Equal(result[0].RedactionCoordinates[0].X2, redactionSearchDtos[0].RedactionCoordinates.X2);
-        Assert.Equal(result[0].RedactionCoordinates[0].Y1, redactionSearchDtos[0].RedactionCoordinates.Y1);
-        Assert.Equal(result[0].RedactionCoordinates[0].Y2, redactionSearchDtos[0].RedactionCoordinates.Y2);
-        Assert.Equal(result[1].Height, redactionSearchDtos[1].Height);
-        Assert.Equal(result[1].PageIndex, redactionSearchDtos[1].PageIndex);
-        Assert.Equal(result[1].Width, redactionSearchDtos[1].Width);
-        Assert.Equal(result[1].RedactionCoordinates[0].X1, redactionSearchDtos[1].RedactionCoordinates.X1);
-        Assert.Equal(result[1].RedactionCoordinates[0].X2, redactionSearchDtos[1].RedactionCoordinates.X2);
-        Assert.Equal(result[1].RedactionCoordinates[0].Y1, redactionSearchDtos[1].RedactionCoordinates.Y1);
-        Assert.Equal(result[1].RedactionCoordinates[0].Y2, redactionSearchDtos[1].RedactionCoordinates.Y2);
-    }
-
-
     #endregion
 }
