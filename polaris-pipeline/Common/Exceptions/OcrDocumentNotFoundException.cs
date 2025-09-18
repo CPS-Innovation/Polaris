@@ -4,7 +4,7 @@ namespace Common.Exceptions;
 
 public class OcrDocumentNotFoundException : Exception
 {
-    public OcrDocumentNotFoundException() : base("OCR Document not found, please generate OCR document")
+    public OcrDocumentNotFoundException() : base("OCR document not found, please generate OCR document")
     {
     }
 }
