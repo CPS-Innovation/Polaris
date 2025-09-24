@@ -534,7 +534,7 @@ stages:
             inputs:
               command: "ci"
               workingDir: "polaris-ui"
-            displayName: "npm ci"
+            displayName: "npm install"
 
           - task: Npm@1
             inputs:

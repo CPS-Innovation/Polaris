@@ -22,7 +22,7 @@ jobs:
         inputs:
           command: "ci"
           workingDir: "polaris-e2e"
-        displayName: "npm ci"
+        displayName: "npm install"
         
       #before running the tests replace the clientId placeholder in env-specific config file
       - bash: |
