@@ -1,9 +1,9 @@
-﻿using System;
-using System.IO;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Moq;
 using pdf_generator.Factories.Contracts;
-using pdf_generator.Services.PdfService;
+using pdf_generator.Services.PdfServices;
+using System;
+using System.IO;
 using Xunit;
 
 namespace pdf_generator.tests.Services.PdfService
@@ -40,7 +40,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             using var inputStream = new MemoryStream(Encoding.UTF8.GetBytes("whatever"));
 
-            var conversionResult = _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
+            var conversionResult = _pdfService.ReadToPdfStreamAsync(inputStream, "test-document-id", Guid.NewGuid());
 
             using (new AssertionScope())
             {

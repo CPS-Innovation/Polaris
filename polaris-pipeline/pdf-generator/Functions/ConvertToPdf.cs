@@ -1,20 +1,22 @@
-﻿using System;
-using System.Net;
-using Common.Configuration;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.AspNetCore.Http;
-using pdf_generator.Services.PdfService;
-using pdf_generator.TelemetryEvents;
+﻿using Common.Configuration;
+using Common.Constants;
 using Common.Exceptions;
-using pdf_generator.Extensions;
 using Common.Extensions;
 using Common.Logging;
-using Common.Telemetry;
 using Common.Streaming;
+using Common.Telemetry;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
+using pdf_generator.Extensions;
+using pdf_generator.Models;
+using pdf_generator.Services;
+using pdf_generator.TelemetryEvents;
+using System;
+using System.IO;
+using System.Net;
 using System.Threading.Tasks;
-using Common.Constants;
 
 namespace pdf_generator.Functions
 {
@@ -40,10 +42,11 @@ namespace pdf_generator.Functions
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [Function(nameof(ConvertToPdf))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
-            string caseUrn, int caseId, string documentId, string versionId)
+            string caseUrn, int caseId, string documentId, long versionId)
         {
             Guid currentCorrelationId = default;
             currentCorrelationId = request.Headers.GetCorrelationId();
+            var cmsAuthValues = request.Headers.GetCmsAuthValues();
 
             var telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId)
             {
@@ -57,7 +60,7 @@ namespace pdf_generator.Functions
                 telemetryEvent.CaseId = caseId.ToString();
                 telemetryEvent.CaseUrn = caseUrn;
                 telemetryEvent.DocumentId = documentId;
-                telemetryEvent.VersionId = versionId;
+                telemetryEvent.VersionId = versionId.ToString();
 
                 var startTime = DateTime.UtcNow;
                 telemetryEvent.StartTime = startTime;
@@ -74,7 +77,19 @@ namespace pdf_generator.Functions
                 var originalBytes = inputStream.Length;
                 telemetryEvent.OriginalBytes = originalBytes;
 
-                var conversionResult = await _pdfOrchestratorService.ReadToPdfStreamAsync(inputStream, fileType, documentId, currentCorrelationId);
+                var readToPdfDto = new ReadToPdfDto
+                {
+                    Urn = caseUrn,
+                    CaseId = caseId,
+                    DocumentId = documentId,
+                    VersionId = versionId,
+                    FileType = fileType,
+                    Stream = inputStream,
+                    CorrelationId = currentCorrelationId,
+                    CmsAuthValues = cmsAuthValues
+                };
+
+                var conversionResult = await _pdfOrchestratorService.ReadToPdfStreamAsync(readToPdfDto);
 
                 // #25834 - Successfully converted documents may still have a failure reason we need to record
                 if (conversionResult.HasFailureReason())

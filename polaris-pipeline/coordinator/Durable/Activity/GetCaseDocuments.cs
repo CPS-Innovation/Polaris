@@ -6,13 +6,13 @@ using Common.Services.DocumentToggle;
 using coordinator.Domain;
 using coordinator.Durable.Payloads;
 using coordinator.Services;
-using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using DdeiClient.Factories;
 
 namespace coordinator.Durable.Activity;
 

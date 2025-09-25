@@ -5,12 +5,12 @@ using Common.Extensions;
 using Common.Services.BlobStorage;
 using coordinator.Domain;
 using coordinator.Durable.Payloads;
-using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using DdeiClient.Factories;
 
 namespace coordinator.Durable.Activity.GeneratePdf;
 
@@ -56,7 +56,8 @@ public abstract class BaseGeneratePdf
             payload.DocumentId,
             payload.VersionId,
             documentStream,
-            payload.FileType.Value);
+            payload.FileType.Value,
+            payload.CmsAuthValues);
 
         if (response.Status != PdfConversionStatus.DocumentConverted)
         {

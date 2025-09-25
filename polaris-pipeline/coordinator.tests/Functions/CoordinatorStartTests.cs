@@ -8,7 +8,6 @@ using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
 using coordinator.Functions;
 using Ddei.Domain.CaseData.Args.Core;
-using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -22,6 +21,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using DdeiClient.Factories;
 using Xunit;
 
 namespace coordinator.tests.Functions;

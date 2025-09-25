@@ -74,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HealthCheckResources\TestPdf.pdf" />

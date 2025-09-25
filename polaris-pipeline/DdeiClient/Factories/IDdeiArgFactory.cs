@@ -2,7 +2,7 @@ using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
 
-namespace Ddei.Factories
+namespace DdeiClient.Factories
 {
     public interface IDdeiArgFactory
     {

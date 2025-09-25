@@ -10,4 +10,5 @@ public enum BlobType
     CaseState,
     CaseDelta,
     DocumentsList,
+    CmsOriginal
 }

@@ -1,6 +1,5 @@
 using Common.Configuration;
 using Common.Extensions;
-using Ddei.Factories;
 using Ddei.Mappers;
 using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +8,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
+using DdeiClient.Factories;
 
 namespace PolarisGateway.Functions;
 

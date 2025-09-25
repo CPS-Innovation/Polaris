@@ -4,8 +4,8 @@ using Common.Wrappers;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Domain.Response.Document;
-using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
+using DdeiClient.Factories;
 
 namespace DdeiClient.Clients;
 

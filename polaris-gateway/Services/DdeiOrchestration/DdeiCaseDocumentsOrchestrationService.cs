@@ -5,13 +5,13 @@ using Common.Dto.Response.Documents;
 using Common.Extensions;
 using Common.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args.Core;
-using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using PolarisGateway.Services.DdeiOrchestration.Mappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DdeiClient.Factories;
 
 namespace PolarisGateway.Services.DdeiOrchestration;
 

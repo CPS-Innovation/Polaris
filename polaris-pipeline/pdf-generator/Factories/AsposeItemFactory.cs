@@ -49,7 +49,7 @@ public class AsposeItemFactory : IAsposeItemFactory
 
 	public Presentation CreatePresentation(Stream inputStream, Guid correlationId) => new (inputStream);
 
-	public Document CreateWordsDocument(Stream inputStream, Guid correlationId) => new (inputStream);
+	public Document CreateWordsDocument(Stream inputStream, Guid correlationId) => new Document(inputStream);
 
     public Aspose.Pdf.Document CreateRenderedPdfDocument(Stream inputStream, Guid correlationId) => new (inputStream);
 

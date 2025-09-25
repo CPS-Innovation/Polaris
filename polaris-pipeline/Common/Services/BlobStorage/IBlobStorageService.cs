@@ -13,5 +13,6 @@ namespace Common.Services.BlobStorage
         Task<bool> UploadObjectAsync<T>(T obj, string blobName);
         Task DeleteBlobsByPrefix(string prefix);
         Task<bool> BlobExistsAsync(string blobName, IDictionary<string, string> mustMatchMetadata = null);
+        Task<Stream> ReadBlobAsync(string blobName);
     }
 }

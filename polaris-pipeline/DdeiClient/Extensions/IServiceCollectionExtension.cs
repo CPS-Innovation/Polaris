@@ -1,6 +1,5 @@
 ﻿using Common.Streaming;
 using Ddei.Domain.Response.Document;
-using Ddei.Factories;
 using Ddei.Mappers;
 using DdeiClient.Clients;
 using DdeiClient.Clients.Interfaces;

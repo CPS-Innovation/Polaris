@@ -27,14 +27,16 @@ public static class DocumentNature
         };
     }
 
-    public static long ToNumericDocumentId(string documentId, Types type)
+    public static long ToNumericDocumentId(string documentId, Types? type = null)
     {
         if (string.IsNullOrWhiteSpace(documentId))
         {
             throw new ArgumentNullException(nameof(documentId));
         }
 
-        var prefix = GetStringPrefix(type);
+        type ??= GetDocumentNatureType(documentId);
+
+        var prefix = GetStringPrefix(type.Value);
         var match = Regex.Match(
                    documentId,
                    $@"{prefix}-(\d+)",

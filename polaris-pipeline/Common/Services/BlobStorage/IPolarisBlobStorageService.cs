@@ -10,6 +10,7 @@ namespace Common.Services.BlobStorage
         Task UploadBlobAsync(Stream stream, BlobIdType blobId, int? pageIndex = null, int? maxDimensionPixel = null);
 
         Task<Stream> GetBlobAsync(BlobIdType blobId);
+        Task<Stream> ReadBlobAsync(BlobIdType blobId);
 
         Task<Stream> TryGetBlobAsync(BlobIdType blobId, bool? mustBeOcred = null);
 

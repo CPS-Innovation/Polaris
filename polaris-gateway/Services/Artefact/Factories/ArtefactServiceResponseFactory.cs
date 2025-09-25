@@ -1,4 +1,3 @@
-
 using Common.Constants;
 using PolarisGateway.Services.Artefact.Domain;
 using System;

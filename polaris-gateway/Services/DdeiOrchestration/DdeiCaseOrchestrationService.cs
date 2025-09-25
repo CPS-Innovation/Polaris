@@ -2,12 +2,12 @@ using Common.Dto.Response;
 using Common.Dto.Response.Case;
 using Common.Extensions;
 using Ddei.Domain.CaseData.Args.Core;
-using Ddei.Factories;
 using Ddei.Mappers;
 using DdeiClient.Clients.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DdeiClient.Factories;
 
 namespace PolarisGateway.Services.DdeiOrchestration;
 

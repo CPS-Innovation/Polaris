@@ -2,7 +2,7 @@ using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
 using DdeiClient.Domain.Args;
 
-namespace Ddei.Factories;
+namespace DdeiClient.Factories;
 
 public interface IMdsClientRequestFactory
 {

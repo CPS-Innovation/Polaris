@@ -7,13 +7,13 @@ using coordinator.Durable.Activity;
 using coordinator.Durable.Payloads;
 using coordinator.Services;
 using Ddei.Domain.CaseData.Args.Core;
-using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Threading.Tasks;
+using DdeiClient.Factories;
 using Xunit;
 
 namespace coordinator.tests.Durable.Activity;

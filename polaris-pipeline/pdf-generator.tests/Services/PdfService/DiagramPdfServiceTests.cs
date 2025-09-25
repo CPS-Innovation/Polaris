@@ -1,11 +1,9 @@
-﻿using System;
-using System.IO;
-using Aspose.Diagram;
-using FluentAssertions;
+﻿using Aspose.Diagram;
 using Moq;
 using pdf_generator.Factories.Contracts;
-using pdf_generator.Services.PdfService;
-using Xunit;
+using pdf_generator.Services.PdfServices;
+using System;
+using System.IO;
 
 namespace pdf_generator.tests.Services.PdfService;
 
@@ -28,7 +26,7 @@ public class DiagramPdfServiceTests
     public void ReadToPdfStream_CallsCreateDiagram()
     {
         using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.tests.TestResources.TestDiagram.vsd");
-        var conversionResult = _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
+        var conversionResult = _pdfService.ReadToPdfStreamAsync(inputStream, "test-document-id", Guid.NewGuid());
 
         using (new AssertionScope())
         {

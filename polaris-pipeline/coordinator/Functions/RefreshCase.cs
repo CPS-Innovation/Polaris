@@ -3,7 +3,6 @@ using Common.Extensions;
 using coordinator.Domain;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
-using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +10,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using DdeiClient.Factories;
 
 namespace coordinator.Functions;
 

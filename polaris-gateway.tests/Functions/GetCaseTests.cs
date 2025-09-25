@@ -1,6 +1,5 @@
 ﻿using Common.Dto.Response.Case;
 using Ddei.Domain.CaseData.Args.Core;
-using Ddei.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -9,6 +8,7 @@ using PolarisGateway.Functions;
 using PolarisGateway.Services.DdeiOrchestration;
 using System;
 using System.Threading.Tasks;
+using DdeiClient.Factories;
 using Xunit;
 
 namespace PolarisGateway.Tests.Functions;

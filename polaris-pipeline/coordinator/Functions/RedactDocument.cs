@@ -5,7 +5,6 @@ using Common.Exceptions;
 using Common.Extensions;
 using Common.Services.BlobStorage;
 using coordinator.Clients.PdfRedactor;
-using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -17,6 +16,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using DdeiClient.Factories;
 
 namespace coordinator.Functions;
 

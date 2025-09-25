@@ -2,7 +2,6 @@ using Common.Configuration;
 using Common.Dto.Request;
 using Common.Extensions;
 using Common.Telemetry;
-using Ddei.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -12,6 +11,7 @@ using PolarisGateway.TelemetryEvents;
 using PolarisGateway.Validators;
 using System.Net;
 using System.Threading.Tasks;
+using DdeiClient.Factories;
 
 namespace PolarisGateway.Functions;
 

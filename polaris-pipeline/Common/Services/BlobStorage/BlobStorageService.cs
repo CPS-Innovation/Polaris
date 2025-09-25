@@ -102,6 +102,19 @@ public class BlobStorageService : IBlobStorageService
         return await blobClient.ExistsAsync() && (mustMatchMetadata == null || await IsMetadataMatch(blobClient, mustMatchMetadata));
     }
 
+    public async Task<Stream> ReadBlobAsync(string blobName)
+    {
+        var blobContainerClient = await GetBlobContainerClientOrThrow();
+        var blobClient = blobContainerClient.GetBlobClient(blobName);
+        if (!await blobClient.ExistsAsync())
+        {
+            return null;
+        }
+
+        var blob = await blobClient.DownloadStreamingAsync();
+        return blob.Value.Content;
+    }
+
     private async Task<BlobContainerClient> GetBlobContainerClientOrThrow()
     {
         var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobServiceContainerName);

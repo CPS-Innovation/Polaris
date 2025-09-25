@@ -1,28 +1,32 @@
-using System.Net;
-using System.Net.Http.Headers;
+using Common.Clients.PdfGenerator;
+using Common.Factories.ComputerVisionClientFactory;
+using Common.Services.BlobStorage;
+using Common.Services.DocumentToggle;
+using Common.Services.OcrService;
+using Common.Services.PiiService;
+using Common.Telemetry;
+using Common.Wrappers;
+using Ddei.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Common.Telemetry;
-using Common.Wrappers;
 using PolarisGateway.Clients.Coordinator;
+using PolarisGateway.Clients.PdfThumbnailGenerator;
 using PolarisGateway.Mappers;
+using PolarisGateway.Services.Artefact;
+using PolarisGateway.Services.Artefact.Factories;
+using PolarisGateway.Services.DdeiOrchestration;
 using PolarisGateway.Validators;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
-using Ddei.Extensions;
-using Common.Services.DocumentToggle;
-using Common.Services.OcrService;
-using Common.Factories.ComputerVisionClientFactory;
-using Common.Clients.PdfGenerator;
-using Common.Services.BlobStorage;
-using Common.Services.PiiService;
-using PolarisGateway.Clients.PdfThumbnailGenerator;
-using PolarisGateway.Services.Artefact;
-using PolarisGateway.Services.DdeiOrchestration;
-using System.Net.Http;
 using System;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Common.Domain.Document;
+using DdeiClient.Factories;
+using DdeiClient.Services.DocumentRetrieval;
 
 namespace PolarisGateway.ApplicationStartup;
 
@@ -69,6 +73,10 @@ public static class ServiceExtensions
         services.AddPiiService();
         services.AddArtefactService();
         services.AddDdeiOrchestrationService();
+        services.AddScoped<IDocumentRetrievalServiceFactory, DocumentRetrievalServiceFactory>();
+        services.AddKeyedScoped<IDocumentRetrievalService, DocumentRetrievalService>(DocumentNature.Types.Document);
+        services.AddKeyedScoped<IDocumentRetrievalService, PreChargeDecisionDocumentRetrievalService>(DocumentNature.Types.PreChargeDecisionRequest);
+        services.AddKeyedScoped<IDocumentRetrievalService, DefendantsAndChargesDocumentRetrievalService>(DocumentNature.Types.DefendantsAndCharges);
         return services;
     }
 

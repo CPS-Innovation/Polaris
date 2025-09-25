@@ -53,7 +53,7 @@ var host = new HostBuilder()
         });
 
         services.AddSingleton(context.Configuration);
-        services.AddPdfGenerator();
+        services.AddPdfGenerator(context.Configuration);
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<Microsoft.ApplicationInsights.TelemetryClient, Microsoft.ApplicationInsights.TelemetryClient>();

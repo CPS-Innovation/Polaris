@@ -2,7 +2,6 @@
 using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
-using Ddei.Factories;
 using DdeiClient.Domain.Args;
 using System.Net;
 using System.Net.Http.Headers;

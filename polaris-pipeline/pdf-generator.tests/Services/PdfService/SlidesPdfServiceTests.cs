@@ -1,10 +1,10 @@
-﻿using System;
-using System.IO;
-using Aspose.Slides;
+﻿using Aspose.Slides;
 using FluentAssertions;
 using Moq;
 using pdf_generator.Factories.Contracts;
-using pdf_generator.Services.PdfService;
+using pdf_generator.Services.PdfServices;
+using System;
+using System.IO;
 using Xunit;
 
 namespace pdf_generator.tests.Services.PdfService
@@ -40,7 +40,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             using var inputStream = GetType().Assembly.GetManifestResourceStream("pdf_generator.tests.TestResources.TestPresentation.pptx");
 
-            var conversionResult = _pdfService.ReadToPdfStream(inputStream, "test-document-id", Guid.NewGuid());
+            var conversionResult = _pdfService.ReadToPdfStreamAsync(inputStream, "test-document-id", Guid.NewGuid());
 
             using (new AssertionScope())
             {

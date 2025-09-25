@@ -1,7 +1,7 @@
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
 
-namespace Ddei.Factories;
+namespace DdeiClient.Factories;
 
 public interface IDdeiAuthClientRequestFactory
 {

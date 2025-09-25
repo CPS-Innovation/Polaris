@@ -10,7 +10,6 @@ using Ddei.Domain.Response;
 using Ddei.Domain.Response.Defendant;
 using Ddei.Domain.Response.Document;
 using Ddei.Domain.Response.PreCharge;
-using Ddei.Factories;
 using Ddei.Mappers;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Domain.Args;

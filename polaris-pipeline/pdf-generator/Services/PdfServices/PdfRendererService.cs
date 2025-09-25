@@ -1,14 +1,17 @@
-﻿using System;
+﻿using Aspose.Pdf;
+using Common.Constants;
+using Common.Extensions;
+using pdf_generator.Domain.Document;
+using pdf_generator.Exceptions;
+using pdf_generator.Extensions;
+using pdf_generator.Factories.Contracts;
+using pdf_generator.Models;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Aspose.Pdf;
-using pdf_generator.Domain.Document;
-using pdf_generator.Extensions;
-using pdf_generator.Factories.Contracts;
-using Common.Constants;
 
-namespace pdf_generator.Services.PdfService;
+namespace pdf_generator.Services.PdfServices;
 
 public class PdfRendererService : IPdfService
 {
@@ -16,17 +19,17 @@ public class PdfRendererService : IPdfService
 
     public PdfRendererService(IAsposeItemFactory asposeItemFactory)
     {
-        _asposeItemFactory = asposeItemFactory ?? throw new ArgumentNullException(nameof(asposeItemFactory));
+        _asposeItemFactory = asposeItemFactory.ExceptionIfNull();
     }
 
-    public async Task<PdfConversionResult> ReadToPdfStreamAsync(Stream inputStream, string documentId, Guid correlationId)
+    public async Task<PdfConversionResult> ReadToPdfStreamAsync(ReadToPdfDto readToPdfDto)
     {
-        var conversionResult = new PdfConversionResult(documentId, PdfConverterType.AsposePdf);
+        var conversionResult = new PdfConversionResult(readToPdfDto.DocumentId, PdfConverterType.AsposePdf);
         var pdfStream = new MemoryStream();
 
         try
         {
-            var doc = _asposeItemFactory.CreateRenderedPdfDocument(inputStream, correlationId);
+            var doc = _asposeItemFactory.CreateRenderedPdfDocument(readToPdfDto.Stream, readToPdfDto.CorrelationId);
             if (doc.IsEncrypted)
                 throw new PdfEncryptionException();
 
@@ -39,31 +42,31 @@ public class PdfRendererService : IPdfService
         {
             // Aspose.Pdf 24.2.0 throws IndexOutOfRangeException exception when converting
             // otherwise healthy PDFs
-            conversionResult.RecordConversionQualifiedSuccess(inputStream);
+            conversionResult.RecordConversionQualifiedSuccess(readToPdfDto.Stream);
         }
         catch (InvalidPasswordException ex)
         {
-            inputStream?.Dispose();
+            readToPdfDto.Stream.Dispose();
             conversionResult.RecordConversionFailure(PdfConversionStatus.AsposePdfPasswordProtected, ex.ToFormattedString());
         }
         catch (InvalidPdfFileFormatException ex)
         {
-            inputStream?.Dispose();
+            readToPdfDto.Stream.Dispose();
             conversionResult.RecordConversionFailure(PdfConversionStatus.AsposePdfInvalidFileFormat, ex.ToFormattedString());
         }
         catch (PdfException ex)
         {
-            inputStream?.Dispose();
+            readToPdfDto.Stream.Dispose();
             conversionResult.RecordConversionFailure(PdfConversionStatus.AsposePdfException, ex.ToFormattedString());
         }
         catch (PdfEncryptionException ex)
         {
-            inputStream?.Dispose();
+            readToPdfDto.Stream.Dispose();
             conversionResult.RecordConversionFailure(PdfConversionStatus.PdfEncrypted, ex.ToFormattedString());
         }
         catch (Exception ex)
         {
-            inputStream?.Dispose();
+            readToPdfDto.Stream.Dispose();
             if (ex.Message.Contains("Permissions check failed"))
             {
                 conversionResult.RecordConversionFailure(PdfConversionStatus.AsposePdfPasswordProtected, ex.ToFormattedString());
@@ -75,10 +78,5 @@ public class PdfRendererService : IPdfService
         }
 
         return conversionResult;
-    }
-
-    public PdfConversionResult ReadToPdfStream(Stream inputStream, string documentId, Guid correlationId)
-    {
-        throw new NotImplementedException();
     }
 }

@@ -4,12 +4,12 @@ using Common.Dto.Response.Document;
 using Common.Extensions;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.Response.Document;
-using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DdeiClient.Factories;
 
 namespace PolarisGateway.Services.DdeiOrchestration;
 
