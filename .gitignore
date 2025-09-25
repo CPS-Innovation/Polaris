@@ -31,3 +31,11 @@ _ReSharper*/
 *.[Rr]e[Ss]harper
 *.DotSettings.user
 /polaris-gateway.integration-tests/local.runsettings
+/MdsClient/bin/Debug
+/MdsClient/bin/Debug
+/MdsClient/obj
+/MdsClient/obj
+/MdsClient/bin/Debug
+/MdsClient/bin/Debug/net8.0
+/MdsClient/bin/Debug/net8.0/Common.dll
+/MdsClient/bin/Debug/net8.0/Common.pdb

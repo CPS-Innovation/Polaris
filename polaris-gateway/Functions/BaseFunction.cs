@@ -9,6 +9,7 @@ using Common.Constants;
 using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using LoggingConstants = Common.Logging.LoggingConstants;
 
 namespace PolarisGateway.Functions;
 
@@ -45,13 +46,13 @@ public class BaseFunction(ILogger? logger = null)
         return cookie;
     }
 
-    protected CmsAuthValues BuildCmsAuthValues(HttpRequest req)
+    protected Common.Dto.Request.CmsAuthValues BuildCmsAuthValues(HttpRequest req)
     {
         var token = this.GetCmsToken(req) ?? string.Empty;
         var cookie = this.GetCmsCookie(req) ?? string.Empty;
         var correlation = EstablishCorrelation(req);
 
-        return new CmsAuthValues(cookie, token, correlation);
+        return new Common.Dto.Request.CmsAuthValues(cookie, token, correlation);
     }
 
     private string? GetCookiePartByIndex(HttpRequest req, int index)
