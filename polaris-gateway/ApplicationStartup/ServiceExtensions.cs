@@ -17,7 +17,6 @@ namespace PolarisGateway.ApplicationStartup
     using Common.Telemetry;
     using Common.Wrappers;
     using Cps.Fct.Hk.Ui.Interfaces;
-    using Cps.Fct.Hk.Ui.ServiceClient.Ddei;
     using Cps.Fct.Hk.Ui.Services;
     using Ddei.Extensions;
     using MdsClient;

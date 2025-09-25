@@ -10,10 +10,10 @@ namespace PolarisGateway.Functions.HouseKeeping
     using System.Threading.Tasks;
     using Common.Configuration;
     using Common.Dto.Response.HouseKeeping;
+    using Common.Logging;
     using Cps.Fct.Hk.Ui.Functions.Utils;
     using Cps.Fct.Hk.Ui.Interfaces;
     using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
-    using Cps.Fct.Hk.Ui.Interfaces.Model;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Azure.Functions.Worker;

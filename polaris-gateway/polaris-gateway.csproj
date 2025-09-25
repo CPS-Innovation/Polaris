@@ -42,7 +42,8 @@
 	<ItemGroup>
 		<!--<ProjectReference Include="..\..\hk-ui-functions\src\Cps.Fct.Hk.Ui.ServiceClient.Ddei\Cps.Fct.Hk.Ui.ServiceClient.Ddei.csproj" />
 		<ProjectReference Include="..\..\hk-ui-functions\src\Cps.Fct.Hk.Ui.ServiceClient.Uma\Cps.Fct.Hk.Ui.ServiceClient.Uma.csproj" />-->
-		<ProjectReference Include="..\..\hk-ui-functions\src\Cps.Fct.Hk.Ui.Services\Cps.Fct.Hk.Ui.Services.csproj" />
+		<ProjectReference Include="..\..\hk-ui-functions\src\Cps.Fct.Hk.Ui.Interfaces\Interfaces.csproj" />
+		<ProjectReference Include="..\..\hk-ui-functions\src\Cps.Fct.Hk.Ui.Services\Services.csproj" />
 		<ProjectReference Include="..\MdsClient\MdsClient.csproj" />
 		<ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
 		<ProjectReference Include="..\polaris-pipeline\DdeiClient\DdeiClient.csproj" />
