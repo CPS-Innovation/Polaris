@@ -10,10 +10,9 @@ namespace PolarisGateway.Functions.HouseKeeping
     using System.Threading.Tasks;
     using Common.Configuration;
     using Common.Dto.Response.HouseKeeping;
+    using Common.Exceptions;
     using Common.Logging;
-    using Cps.Fct.Hk.Ui.Functions.Utils;
     using Cps.Fct.Hk.Ui.Interfaces;
-    using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Azure.Functions.Worker;
@@ -21,6 +20,7 @@ namespace PolarisGateway.Functions.HouseKeeping
     using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
     using Microsoft.Extensions.Logging;
     using Microsoft.OpenApi.Models;
+    using PolarisGateway.Helpers;
 
     /// <summary>
     /// Represents a function that retrieves the case information for display purposes,
@@ -41,6 +41,7 @@ namespace PolarisGateway.Functions.HouseKeeping
         /// The Azure Function that processes an HTTP request for the 'case-info' route.
         /// </summary>
         /// <param name="req">The HTTP request.</param>
+        /// <param name="caseId">The case Id.</param>
         /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
         [OpenApiOperation(operationId: "GetCaseInfo", tags: ["Case"], Description = "Represents a function that retrieves the case information for display purposes.")]
         [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
@@ -48,7 +49,7 @@ namespace PolarisGateway.Functions.HouseKeeping
         [OpenApiRequestBody("application/json", typeof(CaseSummaryResponse), Description = "Return case summary response.")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
         [Function("GetCaseInfo")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseInfo)] HttpRequest req, string caseUrn, int caseId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseInfo)] HttpRequest req, int caseId)
         {
             try
             {

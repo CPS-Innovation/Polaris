@@ -102,7 +102,7 @@ namespace PolarisGateway.ApplicationStartup
             services.AddSingleton<ICookieService, CookieService>();
             services.AddSingleton<IMdsApiClientFactory, MdsApiClientFactory>();
 
-            // Register MDS client service options.
+            // Register MDS client options.
             services.AddServiceOptions<MdsClientOptions>(MdsClientOptions.DefaultSectionName);
             return services;
         }

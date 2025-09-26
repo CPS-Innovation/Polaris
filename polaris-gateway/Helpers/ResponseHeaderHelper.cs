@@ -1,8 +1,8 @@
-// <copyright file="ResponseHeaderHelper.cs" company="TheCrownProsecutionService">
-// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// <copyright file="ResponseHeaderHelper.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace Cps.Fct.Hk.Ui.Functions.Utils;
+namespace PolarisGateway.Helpers;
 
 using Microsoft.AspNetCore.Http;
 
