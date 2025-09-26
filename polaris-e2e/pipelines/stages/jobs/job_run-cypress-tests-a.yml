@@ -20,7 +20,7 @@ jobs:
 
       - task: Npm@1
         inputs:
-          command: "install"
+          command: "ci"
           workingDir: "polaris-e2e"
         displayName: "npm install"
         

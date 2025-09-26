@@ -64,7 +64,7 @@ curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /us
 echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 sudo apt-get update && sudo apt-get install yarn
 echo '==== Install Cypress ===='
-sudo npm install cypress --save-dev
+sudo npm install cypress@15.0.0 --save-dev
 sudo apt-get install -y libgtk2.0-0
 sudo apt-get install -y libgtk-3-0
 sudo apt-get install -y libgbm-dev
