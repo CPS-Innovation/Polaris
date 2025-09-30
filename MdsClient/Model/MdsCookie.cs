@@ -1,15 +1,11 @@
-﻿// <copyright file="MdsCookie.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="MdsCookie.cs" company="TheCrownProsecutionService">
+// Copyright (c) TheCrownProsecutionService. All rights reserved.
 // </copyright>
 
-namespace MdsClient.Model
+namespace MasterDataServiceClient.Model
 {
     using System;
-    using System.Collections.Generic;
     using System.Globalization;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Mds cookie.

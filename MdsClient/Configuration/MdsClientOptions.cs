@@ -1,8 +1,8 @@
-﻿// <copyright file="MdsClientOptions.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="MdsClientOptions.cs" company="TheCrownProsecutionService">
+// Copyright (c) TheCrownProsecutionService. All rights reserved.
 // </copyright>
 
-namespace MdsClient.Configuration
+namespace MasterDataServiceClient.Configuration
 {
     using System;
     using System.Collections.Generic;
@@ -24,7 +24,7 @@ namespace MdsClient.Configuration
         /// <summary>
         /// The default section name in the appsettings.json file.
         /// </summary>
-        public const string DefaultSectionName = $"DDEIClient";
+        public const string DefaultSectionName = $"MDSClient";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MdsClientOptions"/> class.

@@ -19,9 +19,10 @@ namespace PolarisGateway.ApplicationStartup
     using Cps.Fct.Hk.Ui.Interfaces;
     using Cps.Fct.Hk.Ui.Services;
     using Ddei.Extensions;
-    using MdsClient;
-    using MdsClient.Configuration;
-    using MdsClient.Extensions;
+    using global::Services;
+    using MasterDataServiceClient;
+    using MasterDataServiceClient.Configuration;
+    using MasterDataServiceClient.Extensions;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.IdentityModel.Protocols;

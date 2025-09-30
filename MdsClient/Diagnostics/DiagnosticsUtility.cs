@@ -1,8 +1,8 @@
-// <copyright file="DiagnosticsUtility.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="DiagnosticsUtility.cs" company="TheCrownProsecutionService">
+// Copyright (c) TheCrownProsecutionService. All rights reserved.
 // </copyright>
 
-namespace MdsClient.Diagnostics;
+namespace MasterDataServiceClient.Diagnostics;
 
 /// <summary>
 /// Diagnostics utility class.

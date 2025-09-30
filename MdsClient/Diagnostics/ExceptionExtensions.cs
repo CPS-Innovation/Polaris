@@ -1,8 +1,8 @@
-// <copyright file="ExceptionExtensions.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="ExceptionExtensions.cs" company="TheCrownProsecutionService">
+// Copyright (c) TheCrownProsecutionService. All rights reserved.
 // </copyright>
 
-namespace MdsClient.Diagnostics;
+namespace MasterDataServiceClient.Diagnostics;
 
 using System;
 

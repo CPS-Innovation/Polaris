@@ -63,7 +63,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "..\hk-ui-functi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interfaces", "..\hk-ui-functions\src\Cps.Fct.Hk.Ui.Interfaces\Interfaces.csproj", "{BF5FADB7-210B-4A95-9D34-A4389165721F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MdsClient", "MdsClient\MdsClient.csproj", "{D035E9A0-52EF-48EF-BF2E-8FDE045D13F9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterDataServiceClient", "MdsClient\MasterDataServiceClient.csproj", "{D035E9A0-52EF-48EF-BF2E-8FDE045D13F9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HSKDdeiClientToBeRemoved", "HSKDdeiClientToBeRemoved", "{2B4CDE95-B3DE-4AC8-A5A3-1C4BE671E1F9}"
 EndProject
