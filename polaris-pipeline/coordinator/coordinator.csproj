@@ -55,7 +55,4 @@
       <_Parameter1>$(MSBuildProjectName).tests</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="local.settings.json" />
-  </ItemGroup>
 </Project>
