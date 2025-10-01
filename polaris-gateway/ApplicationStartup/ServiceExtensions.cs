@@ -1,5 +1,5 @@
-// <copyright file="ServiceExtensions.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="ServiceExtensions.cs" company="TheCrownProsecutionService">
+// Copyright (c) TheCrownProsecutionService. All rights reserved.
 // </copyright>
 
 namespace PolarisGateway.ApplicationStartup
@@ -19,7 +19,6 @@ namespace PolarisGateway.ApplicationStartup
     using Cps.Fct.Hk.Ui.Interfaces;
     using Cps.Fct.Hk.Ui.Services;
     using Ddei.Extensions;
-    using global::Services;
     using MasterDataServiceClient;
     using MasterDataServiceClient.Configuration;
     using MasterDataServiceClient.Extensions;
@@ -99,7 +98,7 @@ namespace PolarisGateway.ApplicationStartup
             services.AddDdeiOrchestrationService();
 
             // House keeping.
-            services.AddSingleton<ICaseInfoService, CaseInfoService>();
+            services.AddSingleton<ICaseInfoService,  CaseInfoService>();
             services.AddSingleton<ICookieService, CookieService>();
             services.AddSingleton<IMdsApiClientFactory, MdsApiClientFactory>();
 

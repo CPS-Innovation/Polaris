@@ -9,6 +9,11 @@
 		<_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="Services\HouseKeeping\**" />
+	  <EmbeddedResource Remove="Services\HouseKeeping\**" />
+	  <None Remove="Services\HouseKeeping\**" />
+	</ItemGroup>
+	<ItemGroup>
 	  <Content Include="local.settings.json" />
 	</ItemGroup>
 	<ItemGroup>
@@ -40,8 +45,8 @@
 		</None>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\hk-ui-functions\src\Cps.Fct.Hk.Ui.Interfaces\Interfaces.csproj" />
-		<ProjectReference Include="..\..\hk-ui-functions\src\Cps.Fct.Hk.Ui.Services\Services.csproj" />
+		<ProjectReference Include="..\Cps.Fct.Hk.Ui.Interfaces\Cps.Fct.Hk.Ui.Interfaces.csproj" />
+		<ProjectReference Include="..\Cps.Fct.Hk.Ui.Services\Cps.Fct.Hk.Ui.Services.csproj" />
 		<ProjectReference Include="..\MdsClient\MasterDataServiceClient.csproj" />
 		<ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
 		<ProjectReference Include="..\polaris-pipeline\DdeiClient\DdeiClient.csproj" />

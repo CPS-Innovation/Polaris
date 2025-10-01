@@ -1,0 +1,29 @@
+// <copyright file="GlobalSuppressions.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+using System.Diagnostics.CodeAnalysis;
+
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Required for Model", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.Communication")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Required for Model", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.CmsModernTokenResult")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Required for Model", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.CaseSummary")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Required for Model", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.Exhibit")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Required for Model", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.Statement")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Required for Model", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.MgForm")]
+[assembly: SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1000:Keywords should be spaced correctly", Justification = "Conflicts with different warning", Scope = "member", Target = "~P:Cps.Fct.Hk.Ui.Interfaces.Model.BulkSetUnusedResponse.FailedMaterials")]
+[assembly: SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1000:Keywords should be spaced correctly", Justification = "Conflicts with different warning", Scope = "member", Target = "~P:Cps.Fct.Hk.Ui.Interfaces.Model.BulkSetUnusedResponse.ReclassifiedMaterials")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Required for Model", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.Attachment")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Required for Model", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.StatementAttachmentSubType")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Required for Model", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.ExhibitAttachmentSubType")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Required for Model", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.CaseMaterial")]
+[assembly: SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1011:Closing square brackets should be spaced correctly", Justification = "This is a convention in the latest version of c#", Scope = "member", Target = "~P:Cps.Fct.Hk.Ui.Interfaces.Model.PreviewResponse.Document")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Required for model", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.StatementForWitness")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Required for model", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.Witness")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Required for a model", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.ExhibitProducer")]
+[assembly: SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Required for model", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.ReclassifyCaseMaterialRequest")]
+[assembly: SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1011:Closing square brackets should be spaced correctly", Justification = "Conflicts with different warning", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.CompleteReclassificationResponse")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Conflicts with a different warning", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.OperationResult")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Conflicts with a different warning.", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.EditExhibitRequest")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Conflicts with a different warning.", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.EditStatementRequest")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1313:Parameter names should begin with lower-case letter", Justification = "Conflicts with a different warning.", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.UpdateCaseMaterialsRequest")]
+[assembly: SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1011:Closing square brackets should be spaced correctly", Justification = "Conflicts with another warning.", Scope = "type", Target = "~T:Cps.Fct.Hk.Ui.Interfaces.Model.UpdateCaseMaterialsResponse")]

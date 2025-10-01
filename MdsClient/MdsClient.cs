@@ -48,10 +48,6 @@ namespace MasterDataServiceClient
 
             var operationName = "GetCaseSummary";
 
-            // In two minds wheter to keep this or not given than the MDSClient section in appsettings consisting of relative path of endpoints can be removed as it's not used by
-            // the Mds client?
-            var apiPath = this.clientOptions.RelativePath[operationName];
-
             CaseSummaryResponse? result = null;
 
             try
@@ -73,11 +69,11 @@ namespace MasterDataServiceClient
                         data.UnitName);
                 }
 
-                this.LogOperationCompletedEvent(operationName, apiPath, request, stopwatch.Elapsed, string.Empty);
+                this.LogOperationCompletedEvent(operationName, request, stopwatch.Elapsed, string.Empty);
             }
             catch (Exception exception)
             {
-                this.HandleException(operationName, apiPath, exception, request, stopwatch.Elapsed);
+                this.HandleException(operationName, exception, request, stopwatch.Elapsed);
                 throw;
             }
 
@@ -88,29 +84,25 @@ namespace MasterDataServiceClient
         /// Handles an exception that occurred while calling the MDS API.
         /// </summary>
         /// <param name="operationName">The operation name.</param>
-        /// <param name="path">The relative path of the API call.</param>
         /// <param name="exception">The exception to handle.</param>
         /// <param name="request">The request with a correspondence ID.</param>
         /// <param name="duration">The duration of the operation.</param>
         public void HandleException(
             string operationName,
-            string path,
             Exception exception,
             BaseRequest request,
             TimeSpan duration)
         {
             Requires.NotNull(operationName);
-            Requires.NotNull(path);
             Requires.NotNull(exception);
 
             const string LogMessage = DiagnosticsUtility.Error + @"Calling the MDS API failed for {Operation} after {Duration}. Path: {Path}, Correspondence ID: {CorrespondenceId}, Failure: {Reason}
  - Failure response: {FailureResponse}";
             logger.LogError(
                 exception,
-                LoggingConstants.HskUiLogPrefix + " " + LogMessage,
+                $"{LoggingConstants.HskUiLogPrefix} {LogMessage}",
                 operationName,
                 duration,
-                path,
                 request?.CorrespondenceId,
                 exception.ToAggregatedMessage(),
                 string.Empty);
@@ -120,13 +112,11 @@ namespace MasterDataServiceClient
         /// Logs an operation completed event.
         /// </summary>
         /// <param name="operationName">The operation name.</param>
-        /// <param name="path">The relative path of the API call.</param>
         /// <param name="request">The request with a correspondence ID.</param>
         /// <param name="duration">The duration of the operation.</param>
         /// <param name="additionalInfo">Any additional information.</param>
         public void LogOperationCompletedEvent(
             string operationName,
-            string path,
             BaseRequest request,
             TimeSpan duration,
             string additionalInfo)
@@ -138,7 +128,6 @@ namespace MasterDataServiceClient
                 LoggingConstants.HskUiLogPrefix + " " + LogMessage,
                 operationName,
                 duration,
-                path,
                 request.CorrespondenceId,
                 additionalInfo);
         }
