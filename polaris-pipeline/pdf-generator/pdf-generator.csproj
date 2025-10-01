@@ -51,9 +51,6 @@
     <None Remove="Microsoft.Extensions.Azure" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="local.settings.json" />
-  </ItemGroup>
-  <ItemGroup>
     <None Update="development-time.pdf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

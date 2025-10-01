@@ -15,9 +15,6 @@
     <Copy SourceFiles="@(NativeAssetToCopy)" DestinationFolder="$(OutDir).azurefunctions/runtimes/osx-arm64/native" />
   </Target>
   <ItemGroup>
-    <Content Include="local.settings.json" />
-  </ItemGroup>
-  <ItemGroup>
     <!-- See for reason why we need version 2.41.0 explicitly https://github.com/microsoft/durabletask-dotnet/issues/148#issuecomment-1729006827 -->
     <PackageReference Include="Contrib.Grpc.Core.M1" Version="2.41.0" />
   

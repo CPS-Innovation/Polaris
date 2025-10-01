@@ -1,5 +1,5 @@
-// <copyright file="GetCaseInfo.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+// <copyright file="GetCaseInfo.cs" company="TheCrownProsecutionService">
+// Copyright (c) TheCrownProsecutionService. All rights reserved.
 // </copyright>
 
 namespace PolarisGateway.Functions.HouseKeeping
