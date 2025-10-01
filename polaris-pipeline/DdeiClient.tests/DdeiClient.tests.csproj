@@ -18,8 +18,8 @@
     <None Remove="Wrappers\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\DdeiClient\DdeiClient.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
-    <ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ardalis.SmartEnum" Version="8.2.0" />

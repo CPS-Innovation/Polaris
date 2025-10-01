@@ -76,6 +76,7 @@
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\DdeiClient\DdeiClient.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
   <ItemGroup>
