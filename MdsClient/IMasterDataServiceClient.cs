@@ -11,7 +11,7 @@ namespace MasterDataServiceClient
     /// <summary>
     /// Mds client.
     /// </summary>
-    public interface IMdsClient
+    public interface IMasterDataServiceClient
     {
         /// <summary>
         /// Asynchronously retrieves the summary of a case from CMS.

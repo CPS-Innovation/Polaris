@@ -19,9 +19,9 @@ namespace PolarisGateway.ApplicationStartup
     using Cps.Fct.Hk.Ui.Interfaces;
     using Cps.Fct.Hk.Ui.Services;
     using Ddei.Extensions;
-    using MasterDataServiceClient;
-    using MasterDataServiceClient.Configuration;
-    using MasterDataServiceClient.Extensions;
+    using DdeiClient.Clients;
+    using DdeiClient.Clients.Interfaces;
+    using DdeiClient.Configuration;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.IdentityModel.Protocols;
@@ -99,10 +99,10 @@ namespace PolarisGateway.ApplicationStartup
 
             // House keeping.
             services.AddSingleton<ICaseInfoService,  CaseInfoService>();
-            services.AddSingleton<ICookieService, CookieService>();
             services.AddSingleton<IMdsApiClientFactory, MdsApiClientFactory>();
+            services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();
 
-            // Register MDS client options.
+            // Register MasterDataService client options.
             services.AddServiceOptions<MdsClientOptions>(MdsClientOptions.DefaultSectionName);
             return services;
         }

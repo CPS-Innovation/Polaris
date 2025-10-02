@@ -2,10 +2,11 @@
 // Copyright (c) TheCrownProsecutionService. All rights reserved.
 // </copyright>
 
-namespace MasterDataServiceClient
+namespace DdeiClient.Clients
 {
     using Cps.MasterDataService.Infrastructure.ApiClient;
-    using global::MasterDataServiceClient.Configuration;
+    using DdeiClient.Clients.Interfaces;
+    using DdeiClient.Configuration;
     using Microsoft;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;

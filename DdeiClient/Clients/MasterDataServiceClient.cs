@@ -2,7 +2,7 @@
 // Copyright (c) TheCrownProsecutionService. All rights reserved.
 // </copyright>
 
-namespace MasterDataServiceClient
+namespace DdeiClient.Clients
 {
     using System.Diagnostics;
     using System.Text.Json;
@@ -10,25 +10,24 @@ namespace MasterDataServiceClient
     using Common.Dto.Request.HouseKeeping;
     using Common.Dto.Response.HouseKeeping;
     using Common.Logging;
-    using MasterDataServiceClient.Configuration;
-    using MasterDataServiceClient.Diagnostics;
-    using MasterDataServiceClient.Model;
+    using DdeiClient.Clients.Interfaces;
+    using DdeiClient.Diagnostics;
+    using DdeiClient.Model;
     using Microsoft;
     using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
 
     /// <summary>
     ///  Repesents Mds API client.
     /// </summary>
-    public class MdsClient(
+    public class MasterDataServiceClient(
         IMdsApiClientFactory mdsApiClientFactory,
-        ILoggerFactory loggerFactory): IMdsClient
+        ILoggerFactory loggerFactory) : IMasterDataServiceClient
     {
         private readonly IMdsApiClientFactory mdsApiClientFactory = mdsApiClientFactory;
-        private readonly ILogger<MdsClient> logger = loggerFactory.CreateLogger<MdsClient>();
+        private readonly ILogger<MasterDataServiceClient> logger = loggerFactory.CreateLogger<MasterDataServiceClient>();
 
         /// <inheritdoc/>
-        public async Task<CaseSummaryResponse?> GetCaseSummaryAsync(GetCaseSummaryRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<CaseSummaryResponse> GetCaseSummaryAsync(GetCaseSummaryRequest request, CmsAuthValues cmsAuthValues)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -39,7 +38,7 @@ namespace MasterDataServiceClient
 
             var operationName = "GetCaseSummary";
 
-            CaseSummaryResponse? result = null;
+            CaseSummaryResponse result = null;
 
             try
             {
@@ -91,7 +90,7 @@ namespace MasterDataServiceClient
  - Failure response: {FailureResponse}";
             this.logger.LogError(
                 exception,
-                $"{LoggingConstants.HskUiLogPrefix} {LogMessage}", 
+                $"{LoggingConstants.HskUiLogPrefix} {LogMessage}",
                 string.Empty,
                 operationName,
                 duration,

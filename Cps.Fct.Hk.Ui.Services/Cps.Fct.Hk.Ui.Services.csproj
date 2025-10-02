@@ -39,9 +39,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Cps.Fct.Hk.Ui.Interfaces\Cps.Fct.Hk.Ui.Interfaces.csproj" />
-    <ProjectReference Include="..\Cps.Fct.Hk.Ui.ServiceClient.Ddei\Cps.Fct.Hk.Ui.ServiceClient.Ddei.csproj" />
     <ProjectReference Include="..\Cps.Fct.Hk.Ui.ServiceClient.Uma\Cps.Fct.Hk.Ui.ServiceClient.Uma.csproj" />
-    <ProjectReference Include="..\MdsClient\MasterDataServiceClient.csproj" />
+    <ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
     <ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
   </ItemGroup>
 
