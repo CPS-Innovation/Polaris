@@ -20,21 +20,12 @@ namespace MasterDataServiceClient
     /// <summary>
     ///  Repesents Mds API client.
     /// </summary>
-    public class MdsClient : IMdsClient
+    public class MdsClient(
+        IMdsApiClientFactory mdsApiClientFactory,
+        ILoggerFactory loggerFactory): IMdsClient
     {
-        private readonly IMdsApiClientFactory mdsApiClientFactory;
-        private readonly ILogger<MdsClient> logger;
-        private readonly MdsClientOptions clientOptions;
-
-        public MdsClient(
-            IMdsApiClientFactory mdsApiClientFactory,
-            ILoggerFactory loggerFactory,
-            IOptions<MdsClientOptions> clientOptions)
-        {
-            this.logger = loggerFactory.CreateLogger<MdsClient>();
-            this.mdsApiClientFactory = mdsApiClientFactory;
-            this.clientOptions = clientOptions.Value;
-        }
+        private readonly IMdsApiClientFactory mdsApiClientFactory = mdsApiClientFactory;
+        private readonly ILogger<MdsClient> logger = loggerFactory.CreateLogger<MdsClient>();
 
         /// <inheritdoc/>
         public async Task<CaseSummaryResponse?> GetCaseSummaryAsync(GetCaseSummaryRequest request, CmsAuthValues cmsAuthValues)
@@ -98,9 +89,10 @@ namespace MasterDataServiceClient
 
             const string LogMessage = DiagnosticsUtility.Error + @"Calling the MDS API failed for {Operation} after {Duration}. Path: {Path}, Correspondence ID: {CorrespondenceId}, Failure: {Reason}
  - Failure response: {FailureResponse}";
-            logger.LogError(
+            this.logger.LogError(
                 exception,
-                $"{LoggingConstants.HskUiLogPrefix} {LogMessage}",
+                $"{LoggingConstants.HskUiLogPrefix} {LogMessage}", 
+                string.Empty,
                 operationName,
                 duration,
                 request?.CorrespondenceId,
@@ -124,9 +116,10 @@ namespace MasterDataServiceClient
             const string LogMessage = @"Calling the MDS API succeeded for {Operation} after {Duration}. Path: {Path}, Correspondence ID: {CorrespondenceId}
  - Additional info: {AdditionalInfo}";
 
-            logger.LogInformation(
+            this.logger.LogInformation(
                 LoggingConstants.HskUiLogPrefix + " " + LogMessage,
                 operationName,
+                string.Empty,
                 duration,
                 request.CorrespondenceId,
                 additionalInfo);
