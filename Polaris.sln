@@ -47,7 +47,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "shared.integration-tests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polaris-gateway.integration-tests", "polaris-gateway.integration-tests\polaris-gateway.integration-tests.csproj", "{F0441886-19F1-4953-A49C-A1ECFB2FF318}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Uma", "Uma", "{246A0520-6FE7-45D8-BC7D-E40CBFE6858D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UmaClient", "UmaClient", "{246A0520-6FE7-45D8-BC7D-E40CBFE6858D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cps.Fct.Hk.Ui.Interfaces", "Cps.Fct.Hk.Ui.Interfaces", "{C9A58416-899E-4EE6-A4B4-C127E004764F}"
 EndProject
