@@ -13,6 +13,7 @@ using Cps.Fct.Hk.Ui.Interfaces;
 using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Request.HouseKeeping;
 using DdeiClient.Clients.Interfaces;
+using Common.Dto.Request;
 
 /// <summary>
 /// Provides services for retrieving information related to a case.
@@ -26,7 +27,7 @@ public class CaseInfoService(
     private readonly IMasterDataServiceClient mdsClient = mdsClient;
 
     /// <inheritdoc />
-    public async Task<CaseSummaryResponse> GetCaseInfoAsync(int caseId, Common.Dto.Request.CmsAuthValues cmsAuthValues)
+    public async Task<CaseSummaryResponse> GetCaseInfoAsync(int caseId, CmsAuthValues cmsAuthValues)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
 

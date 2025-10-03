@@ -1,5 +1,5 @@
 // <copyright file="GetCaseInfo.cs" company="TheCrownProsecutionService">
-// Copyright (c) TheCrownProsecutionService. All rights reserved.
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
 namespace PolarisGateway.Functions.HouseKeeping
@@ -11,8 +11,8 @@ namespace PolarisGateway.Functions.HouseKeeping
     using Common.Configuration;
     using Common.Dto.Response.HouseKeeping;
     using Common.Exceptions;
-    using Common.Logging;
     using Cps.Fct.Hk.Ui.Interfaces;
+    using Cps.Fct.Hk.Ui.Services.Constants;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Azure.Functions.Worker;

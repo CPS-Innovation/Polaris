@@ -1,5 +1,5 @@
 ﻿// <copyright file="MdsClient.cs" company="TheCrownProsecutionService">
-// Copyright (c) TheCrownProsecutionService. All rights reserved.
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
 namespace DdeiClient.Clients
@@ -90,7 +90,7 @@ namespace DdeiClient.Clients
  - Failure response: {FailureResponse}";
             this.logger.LogError(
                 exception,
-                $"{LoggingConstants.HskUiLogPrefix} {LogMessage}",
+                $"{LogMessage}",
                 string.Empty,
                 operationName,
                 duration,
@@ -116,7 +116,7 @@ namespace DdeiClient.Clients
  - Additional info: {AdditionalInfo}";
 
             this.logger.LogInformation(
-                LoggingConstants.HskUiLogPrefix + " " + LogMessage,
+                LogMessage,
                 operationName,
                 string.Empty,
                 duration,

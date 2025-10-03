@@ -1,5 +1,5 @@
 // <copyright file="ExceptionExtensions.cs" company="TheCrownProsecutionService">
-// Copyright (c) TheCrownProsecutionService. All rights reserved.
+// Copyright (c) The CrownProsecution Service. All rights reserved.
 // </copyright>
 
 namespace DdeiClient.Diagnostics;

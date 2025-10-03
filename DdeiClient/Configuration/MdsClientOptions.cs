@@ -1,5 +1,5 @@
 ﻿// <copyright file="MdsClientOptions.cs" company="TheCrownProsecutionService">
-// Copyright (c) TheCrownProsecutionService. All rights reserved.
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
 namespace DdeiClient.Configuration

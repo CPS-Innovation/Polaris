@@ -49,5 +49,9 @@
       <_Parameter1>Cps.Fct.Hk.Ui.Services.Tests</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Validators\" />
+  </ItemGroup>
   
 </Project>

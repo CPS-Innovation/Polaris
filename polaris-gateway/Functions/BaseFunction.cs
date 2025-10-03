@@ -3,13 +3,11 @@
 // </copyright>
 
 using System;
-using System.Net;
 using System.Web;
 using Common.Constants;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
+using Common.Dto.Request;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using LoggingConstants = Common.Logging.LoggingConstants;
 
 namespace PolarisGateway.Functions;
 
@@ -46,13 +44,13 @@ public class BaseFunction(ILogger? logger = null)
         return cookie;
     }
 
-    protected Common.Dto.Request.CmsAuthValues BuildCmsAuthValues(HttpRequest req)
+    protected CmsAuthValues BuildCmsAuthValues(HttpRequest req)
     {
         var token = this.GetCmsToken(req) ?? string.Empty;
         var cookie = this.GetCmsCookie(req) ?? string.Empty;
         var correlation = EstablishCorrelation(req);
 
-        return new Common.Dto.Request.CmsAuthValues(cookie, token, correlation);
+        return new CmsAuthValues(cookie, token, correlation);
     }
 
     private string? GetCookiePartByIndex(HttpRequest req, int index)
@@ -63,17 +61,17 @@ public class BaseFunction(ILogger? logger = null)
 
             if (cmsParts.Length > index)
             {
-                return cmsParts[index].Split(':')[1].Replace("\"", ""); ;
+                return cmsParts[index].Split(':')[1].Replace("\"", string.Empty);
             }
             else
             {
-                this.logger.LogWarning($"{LoggingConstants.HskUiLogPrefix} CMS cookie does not contain enough parts. Requested index: {index}.");
+                this.logger.LogWarning($"CMS cookie does not contain enough parts. Requested index: {index}.");
                 return null;
             }
         }
         else
         {
-            this.logger.LogWarning($"{LoggingConstants.HskUiLogPrefix} CMS cookie not found in the request.");
+            this.logger.LogWarning($"CMS cookie not found in the request.");
             return null;
         }
     }
