@@ -9,7 +9,7 @@ namespace DdeiClient.Clients.Interfaces
     /// <summary>
     /// Mds api client contracts.
     /// </summary>
-    public interface IMdsApiClientFactory
+    public interface IMasterDataServiceApiClientFactory
     {
         /// <summary>
         /// Creates Mds api client.

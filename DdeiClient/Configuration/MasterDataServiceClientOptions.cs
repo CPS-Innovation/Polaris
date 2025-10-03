@@ -11,12 +11,12 @@ namespace DdeiClient.Configuration
     /// The options for a client endpoint.
     /// </summary>
     /// <remarks>
-    /// Initializes a new instance of the <see cref="MdsClientOptions"/> class.
+    /// Initializes a new instance of the <see cref="MasterDataServiceClientOptions"/> class.
     /// </remarks>
     /// <param name="baseAddress">The service base address.</param>
     /// <param name="functionKey">The function key required to call an Azure Function.</param>
     /// <param name="relativePath">The relative paths supported by the service.</param>
-    public class MdsClientOptions(
+    public class MasterDataServiceClientOptions(
         Uri baseAddress,
         string functionKey,
         IReadOnlyDictionary<string, string> relativePath)
@@ -24,12 +24,12 @@ namespace DdeiClient.Configuration
         /// <summary>
         /// The default section name in the appsettings.json file.
         /// </summary>
-        public const string DefaultSectionName = $"MDSClient";
+        public const string DefaultSectionName = $"MasterDataServiceClient";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MdsClientOptions"/> class.
+        /// Initializes a new instance of the <see cref="MasterDataServiceClientOptions"/> class.
         /// </summary>
-        public MdsClientOptions()
+        public MasterDataServiceClientOptions()
             : this(
                   baseAddress: new Uri("#", UriKind.Relative),
                   functionKey: null,

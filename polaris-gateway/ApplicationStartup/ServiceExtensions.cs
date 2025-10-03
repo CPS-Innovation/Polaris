@@ -99,11 +99,11 @@ namespace PolarisGateway.ApplicationStartup
 
             // House keeping.
             services.AddSingleton<ICaseInfoService,  CaseInfoService>();
-            services.AddSingleton<IMdsApiClientFactory, MdsApiClientFactory>();
+            services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>();
             services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();
 
             // Register MasterDataService client options.
-            services.AddServiceOptions<MdsClientOptions>(MdsClientOptions.DefaultSectionName);
+            services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);
             return services;
         }
 

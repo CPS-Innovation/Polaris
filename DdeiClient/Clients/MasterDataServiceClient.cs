@@ -20,10 +20,10 @@ namespace DdeiClient.Clients
     ///  Repesents Mds API client.
     /// </summary>
     public class MasterDataServiceClient(
-        IMdsApiClientFactory mdsApiClientFactory,
+        IMasterDataServiceApiClientFactory mdsApiClientFactory,
         ILoggerFactory loggerFactory) : IMasterDataServiceClient
     {
-        private readonly IMdsApiClientFactory mdsApiClientFactory = mdsApiClientFactory;
+        private readonly IMasterDataServiceApiClientFactory mdsApiClientFactory = mdsApiClientFactory;
         private readonly ILogger<MasterDataServiceClient> logger = loggerFactory.CreateLogger<MasterDataServiceClient>();
 
         /// <inheritdoc/>
@@ -42,7 +42,7 @@ namespace DdeiClient.Clients
 
             try
             {
-                var cookie = new MdsCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
                 var cookieString = JsonSerializer.Serialize(cookie);
                 var client = this.mdsApiClientFactory.Create(cookieString);
 

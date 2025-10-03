@@ -14,28 +14,28 @@ namespace DdeiClient.Clients
     /// <summary>
     /// Mds api client factory.
     /// </summary>
-    public class MdsApiClientFactory : IMdsApiClientFactory
+    public class MasterDataServiceApiClientFactory : IMasterDataServiceApiClientFactory
     {
-        private readonly ILogger<MdsApiClientFactory> logger;
-        private readonly MdsClientOptions clientOptions;
+        private readonly ILogger<MasterDataServiceApiClientFactory> logger;
+        private readonly MasterDataServiceClientOptions clientOptions;
         private readonly IHttpClientFactory httpClientFactory;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MdsApiClientFactory"/> class.
+        /// Initializes a new instance of the <see cref="MasterDataServiceApiClientFactory"/> class.
         /// </summary>
         /// <param name="loggerFactory">The logger factory.</param>
         /// <param name="clientOptions">The client endpoint options.</param>
         /// <param name="httpClientFactory">The HTTP client factory.</param>
-        public MdsApiClientFactory(
+        public MasterDataServiceApiClientFactory(
             ILoggerFactory loggerFactory,
             IHttpClientFactory httpClientFactory,
-            IOptions<MdsClientOptions> clientOptions)
+            IOptions<MasterDataServiceClientOptions> clientOptions)
         {
             Requires.NotNull(nameof(loggerFactory));
             Requires.NotNull(nameof(clientOptions));
             Requires.NotNull(nameof(httpClientFactory));
 
-            this.logger = loggerFactory.CreateLogger<MdsApiClientFactory>();
+            this.logger = loggerFactory.CreateLogger<MasterDataServiceApiClientFactory>();
             this.clientOptions = clientOptions.Value;
             this.httpClientFactory = httpClientFactory;
         }

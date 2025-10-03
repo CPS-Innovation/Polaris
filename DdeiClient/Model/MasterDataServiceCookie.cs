@@ -10,14 +10,14 @@ namespace DdeiClient.Model
     /// <summary>
     /// Mds cookie.
     /// </summary>
-    public class MdsCookie
+    public class MasterDataServiceCookie
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MdsCookie"/> class.
+        /// Initializes a new instance of the <see cref="MasterDataServiceCookie"/> class.
         /// </summary>
         /// <param name="cookies">Auth cookie.</param>
         /// <param name="token">CMS auth token.</param>
-        public MdsCookie(string cookies, string token)
+        public MasterDataServiceCookie(string cookies, string token)
         {
             this.Cookies = cookies;
             this.Token = token;
