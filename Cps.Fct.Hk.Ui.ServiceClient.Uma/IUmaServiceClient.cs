@@ -5,6 +5,7 @@
 namespace Cps.Fct.Hk.Ui.ServiceClient.Uma;
 
 using System.Threading.Tasks;
+using Common.Dto.Response.HouseKeeping;
 using Cps.Fct.Hk.Ui.Interfaces.Model;
 
 /// <summary>

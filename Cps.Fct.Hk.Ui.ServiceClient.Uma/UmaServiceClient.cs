@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Common.Dto.Response.HouseKeeping;
 
 /// <summary>
 /// Implementation of the UMA service client interface.

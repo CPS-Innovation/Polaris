@@ -7,6 +7,7 @@ namespace DdeiClient.Clients.Interfaces
     using Common.Dto.Request;
     using Common.Dto.Request.HouseKeeping;
     using Common.Dto.Response.HouseKeeping;
+    using Cps.MasterDataService.Infrastructure.ApiClient;
 
     /// <summary>
     /// Mds client.
@@ -23,5 +24,47 @@ namespace DdeiClient.Clients.Interfaces
         /// If the case summary is not found, the method returns <c>null</c>. The caller should handle the <c>null</c> return value accordingly.
         /// </remarks>
         Task<CaseSummaryResponse> GetCaseSummaryAsync(GetCaseSummaryRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Lists the communications for a case identifier.
+        /// </summary>
+        /// <param name="request">The request to list communications.</param>
+        /// <returns>A list of communications for a case identifier.</returns>
+        Task<IReadOnlyCollection<Communication>> ListCommunicationsHkAsync(ListCommunicationsHkRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Lists the used statements for a case identifier.
+        /// </summary>
+        /// <param name="request">The request to list used statements.</param>
+        /// <returns>A list of used statements for a case identifier.</returns>
+        Task<Common.Dto.Response.HouseKeeping.UsedStatementsResponse> GetUsedStatementsAsync(GetUsedStatementsRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Lists the used exhibits for a case identifier.
+        /// </summary>
+        /// <param name="request">The request to list used exhibits.</param>
+        /// <returns>A list of used exhibits for a case identifier.</returns>
+        Task<Common.Dto.Response.HouseKeeping.UsedExhibitsResponse> GetUsedExhibitsAsync(GetUsedExhibitsRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Lists the used MG forms for a case identifier.
+        /// </summary>
+        /// <param name="request">The request to list used MG forms.</param>
+        /// <returns>A list of used MG forms for a case identifier.</returns>
+        Task<Common.Dto.Response.HouseKeeping.UsedMgFormsResponse> GetUsedMgFormsAsync(GetUsedMgFormsRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Lists the used other materials for a case identifier.
+        /// </summary>
+        /// <param name="request">The request to list used other materials.</param>
+        /// <returns>A list of used other materials for a case identifier.</returns>
+        Task<Common.Dto.Response.HouseKeeping.UsedOtherMaterialsResponse> GetUsedOtherMaterialsAsync(GetUsedOtherMaterialsRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Lists the unused materials for a case identifier.
+        /// </summary>
+        /// <param name="request">The request to list unused materials.</param>
+        /// <returns>A list of unused materials for a case identifier.</returns>
+        Task<UnusedMaterialsResponse> GetUnusedMaterialsAsync(GetUnusedMaterialsRequest request, CmsAuthValues cmsAuthValues);
     }
 }
