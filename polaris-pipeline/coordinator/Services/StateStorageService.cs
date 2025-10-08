@@ -6,6 +6,7 @@ using coordinator.Durable.Payloads.Domain;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
+using Common.Dto.Response;
 
 namespace coordinator.Services;
 
@@ -18,12 +19,11 @@ public class StateStorageService : IStateStorageService
         _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty);
     }
 
-
     public async Task<CaseDurableEntityState> GetStateAsync(int caseId)
     {
         var blobId = new BlobIdType(caseId, default, default, BlobType.CaseState);
 
-        return (await _polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityState>(blobId)) ??
+        return await _polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityState>(blobId) ??
             new CaseDurableEntityState
             {
                 Status = CaseRefreshStatus.NotStarted,
@@ -44,6 +44,29 @@ public class StateStorageService : IStateStorageService
         return true;
     }
 
+    public async Task<BulkRedactionSearchEntityState> GetBulkRedactionSearchStateAsync(int caseId, string documentId, long versionId, string searchText)
+    {
+        var blobId = new BlobIdType(caseId, documentId, versionId, BlobType.BulkRedactionSearchState, searchText);
+
+        return await _polarisBlobStorageService.TryGetObjectAsync<BulkRedactionSearchEntityState>(blobId) ??
+               new BulkRedactionSearchEntityState
+               {
+                   Status = BulkRedactionSearchStatus.NotStarted,
+                   CaseId = caseId,
+                   DocumentId = documentId,
+                   VersionId = versionId,
+                   SearchTerm = searchText
+               };
+    }
+
+    public async Task<bool> UpdateBulkRedactionSearchStateAsync(BulkRedactionSearchEntityState bulkRedactionSearchEntityState)
+    {
+        var blobId = new BlobIdType(bulkRedactionSearchEntityState.CaseId, bulkRedactionSearchEntityState.DocumentId, bulkRedactionSearchEntityState.VersionId, BlobType.BulkRedactionSearchState, bulkRedactionSearchEntityState.SearchTerm);
+        await _polarisBlobStorageService.UploadObjectAsync(bulkRedactionSearchEntityState, blobId);
+
+        return true;
+    }
+
     public async Task<CaseDurableEntityDocumentsState> GetDurableEntityDocumentsStateAsync(int caseId)
     {
         var blobId = new BlobIdType(caseId, default, default, BlobType.DocumentState);
@@ -59,7 +82,6 @@ public class StateStorageService : IStateStorageService
         return true;
     }
 
-
     public async Task<CaseDeltasEntity> GetCaseDeltasEntityAsync(int caseId)
     {
         var blobId = new BlobIdType(caseId, default, default, BlobType.CaseDelta);
@@ -74,7 +96,6 @@ public class StateStorageService : IStateStorageService
 
         return true;
     }
-
 
     public async Task<GetCaseDocumentsResponse> GetCaseDocumentsAsync(int caseId)
     {

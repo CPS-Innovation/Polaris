@@ -40,27 +40,27 @@ public class PolarisBlobStorageService : IPolarisBlobStorageService
 
     private static string GetBlobName(BlobIdType blobId, int? pageIndex = null, int? maxDimensionPixel = null)
     {
-        var (caseId, documentId, versionId, blobType) = blobId;
         // Each case has only one defendants and charges (DAC) document.
         //  If the caseId is then the DocumentId for a DAC is DAC-12345
         //  The Pdf blobId has always been CMS-DAC.pdf.
         //  While we are doing the refactor we keep this, but this whole thing is to be reworked.
-        if (long.TryParse(documentId, out _))
+        if (long.TryParse(blobId.DocumentId, out _))
         {
             throw new ArgumentOutOfRangeException(nameof(blobId), "blobId.documentId should not be a number");
             //documentId = $"CMS-{documentId}";
         }
 
-        return blobType switch
+        return blobId.BlobType switch
         {
-            BlobType.Pdf => $"{caseId}/pdfs/{documentId}-{versionId}.pdf",
-            BlobType.Ocr => $"{caseId}/ocrs/{documentId}-{versionId}.json",
-            BlobType.Pii => $"{caseId}/pii/{documentId}-{versionId}.json",
-            BlobType.Thumbnail => $"{caseId}/thumbnails/{documentId}-{versionId}/{maxDimensionPixel}px{pageIndex}.jpg",
-            BlobType.DocumentsList => $"{caseId}/caseState/caseDocuments-{caseId}.json",
-            BlobType.CaseState => $"{caseId}/caseState/caseState-{caseId}.json",
-            BlobType.CaseDelta => $"{caseId}/caseState/caseDelta-{caseId}.json",
-            BlobType.DocumentState => $"{caseId}/caseState/caseDocumentsState-{caseId}.json",
+            BlobType.Pdf => $"{blobId.CaseId}/pdfs/{blobId.DocumentId}-{blobId.VersionId}.pdf",
+            BlobType.Ocr => $"{blobId.CaseId}/ocrs/{blobId.DocumentId}-{blobId.VersionId}.json",
+            BlobType.Pii => $"{blobId.CaseId}/pii/{blobId.DocumentId}-{blobId.VersionId}.json",
+            BlobType.Thumbnail => $"{blobId.CaseId}/thumbnails/{blobId.DocumentId}-{blobId.VersionId}/{maxDimensionPixel}px{pageIndex}.jpg",
+            BlobType.DocumentsList => $"{blobId.CaseId}/caseState/caseDocuments-{blobId.CaseId}.json",
+            BlobType.CaseState => $"{blobId.CaseId}/caseState/caseState-{blobId.CaseId}.json",
+            BlobType.CaseDelta => $"{blobId.CaseId}/caseState/caseDelta-{blobId.CaseId}.json",
+            BlobType.DocumentState => $"{blobId.CaseId}/caseState/caseDocumentsState-{blobId.CaseId}.json",
+            BlobType.BulkRedactionSearchState => $"{blobId.CaseId}/BulkRedactionSearchState/BulkRedactionSearchState-{blobId.CaseId}-{blobId.DocumentId}-{blobId.VersionId}-{blobId.SearchText}.json",
             _ => throw new NotImplementedException()
         };
     }

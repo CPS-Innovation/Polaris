@@ -1,11 +1,10 @@
-﻿namespace Common.Dto.Response.Documents
+﻿namespace Common.Dto.Response.Documents;
+
+public enum CaseRefreshStatus
 {
-    public enum CaseRefreshStatus
-    {
-        NotStarted,
-        Running,
-        DocumentsRetrieved,
-        Completed,
-        Failed
-    }
+    NotStarted,
+    Running,
+    DocumentsRetrieved,
+    Completed,
+    Failed
 }
