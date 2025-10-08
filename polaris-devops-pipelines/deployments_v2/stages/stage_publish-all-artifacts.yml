@@ -32,10 +32,13 @@ stages:
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/search-index-terraform/"
               artifact: "index-terraform-files"
-              publishLocation: "pipeline"
+              publishLocation: "pipeline"  
 
       - job: Build_Coordinator_Artifact
         steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
