@@ -94,8 +94,8 @@ stages:
   - template: stages/stage_schedule-releases.yml
     parameters:
       targetBuild: PolarisBuild
-      targetLabel: "DEV"
-      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
+      targetLabel: "QA"
+      appInsightsKey: $(innovation-qa-app-insights-instrumentation-key)
       environments:
         - name: PROD
           targetLabel: 'PROD'
