@@ -239,6 +239,9 @@ stages:
 
       - job: Build_Gateway_Artifact
         steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -267,6 +270,9 @@ stages:
 
       - job: Build_Maintenance_Function_Artifact
         steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
