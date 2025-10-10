@@ -38,8 +38,8 @@
     <PackageReference Include="System.Threading.AccessControl" Version="9.0.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\DdeiClient\DdeiClient.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
-    <ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

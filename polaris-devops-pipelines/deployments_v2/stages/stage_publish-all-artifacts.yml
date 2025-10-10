@@ -32,10 +32,13 @@ stages:
             inputs:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/search-index-terraform/"
               artifact: "index-terraform-files"
-              publishLocation: "pipeline"
+              publishLocation: "pipeline"  
 
       - job: Build_Coordinator_Artifact
         steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -79,6 +82,9 @@ stages:
               targetFolder: 'polaris-pipeline/pdf-generator'
               OverWrite: true
             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
 
           - task: DotNetCoreCLI@2
             inputs:
@@ -124,6 +130,9 @@ stages:
               OverWrite: true
             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
 
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -168,6 +177,9 @@ stages:
               OverWrite: true
             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
 
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -196,6 +208,9 @@ stages:
 
       - job: Build_Text_Extractor_Artifact
         steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -224,6 +239,9 @@ stages:
 
       - job: Build_Gateway_Artifact
         steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -252,6 +270,9 @@ stages:
 
       - job: Build_Maintenance_Function_Artifact
         steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: publish

@@ -23,6 +23,11 @@ using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.DdeiOrchestration;
 using System.Net.Http;
 using System;
+using Cps.Fct.Hk.Ui.Interfaces;
+using Cps.Fct.Hk.Ui.Services;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Clients;
+using DdeiClient.Configuration;
 
 namespace PolarisGateway.ApplicationStartup;
 
@@ -69,6 +74,14 @@ public static class ServiceExtensions
         services.AddPiiService();
         services.AddArtefactService();
         services.AddDdeiOrchestrationService();
+
+        // House keeping.
+        services.AddSingleton<ICaseInfoService, CaseInfoService>();
+        services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>();
+        services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();
+
+        // Register MasterDataService client options.
+        services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);
         return services;
     }
 
