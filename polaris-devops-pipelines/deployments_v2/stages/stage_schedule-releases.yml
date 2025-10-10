@@ -6,14 +6,9 @@ parameters:
     type: string
   - name: appInsightsKey
     type: string
-  - name: qaTargetLabel
-    type: string
-  - name: qaBuildDefinitionId
-    type: string
-  - name: prodTargetLabel
-    type: string
-  - name: prodBuildDefinitionId
-    type: string
+  - name: environments
+    type: object
+    default: [] #expects an object with values for name, targetLabel and buildDefinitionId
   
 stages:
   - stage: Schedule_Releases
@@ -32,33 +27,24 @@ stages:
               targetName: "Schedule Releases"
               appInsightsKey: ${{ parameters.appInsightsKey }}
 
-      - job: Schedule_Release_QA
-        condition: succeeded()
-        dependsOn: Log_Start
-        steps:
-          - template: jobs/tasks/task_schedule-release.yml
-            parameters:
-              targetLabel: ${{ parameters.qaTargetLabel }}
-              buildDefinitionId: ${{ parameters.qaBuildDefinitionId }}
-              devOpsPatToken: $(System.AccessToken)
-
-      - job: Schedule_Release_PROD
-        condition: succeeded()
-        dependsOn: Log_Start
-        steps:
-          - template: jobs/tasks/task_schedule-release.yml
-            parameters:
-              targetLabel: ${{ parameters.prodTargetLabel }}
-              buildDefinitionId: ${{ parameters.prodBuildDefinitionId }}
-              devOpsPatToken: $(System.AccessToken)
+      - ${{ each env in parameters.environments }}:
+        - job: Schedule_Release_${{ env.name }}
+          condition: succeeded()
+          dependsOn: Log_Start
+          steps:
+            - template: jobs/tasks/task_schedule-release.yml
+              parameters:
+                targetLabel: ${{ env.targetLabel }}
+                buildDefinitionId: ${{ env.buildDefinitionId }}
+                devOpsPatToken: $(System.AccessToken)
 
       - job: Log_Result
         condition: succeeded()
         displayName: Log End
         dependsOn:
           - Log_Start
-          - Schedule_Release_QA
-          - Schedule_Release_PROD
+          - ${{ each env in parameters.environments }}:
+              - Schedule_Release_${{ env.name }}
         steps:
           - template: jobs/tasks/task_log-result.yml
             parameters:

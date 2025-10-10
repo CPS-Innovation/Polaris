@@ -76,7 +76,7 @@ cms_details = {
 }
 
 wm_task_list_host_name  = "https://cps-tst.outsystemsenterprise.com"
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst.outsystemsenterprise.com/,https://housekeeping-fn-staging.int.cps.gov.uk/,/task-list"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst.outsystemsenterprise.com/,https://housekeeping-fn-staging.int.cps.gov.uk/,/task-list,https://fa-lacc-api-staging.azurewebsites.net/"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
@@ -173,6 +173,8 @@ coordinator = {
   max_queue_polling_interval            = "00:00:02"
 }
 
-cps_global_components_url="https://sacpsglobalcomponents.blob.core.windows.net/test/cps-global-components.js"
+cps_global_components_url = "https://sacpsglobalcomponents.blob.core.windows.net/test/cps-global-components.js"
 
 sp_polaris_web_enabled = true
+
+app_reg_owners = ["49a53165-9fa6-4f51-bebe-90ed1cc2e58f", "2cd0a11e-402b-4562-998c-2376d61bbb7f"]

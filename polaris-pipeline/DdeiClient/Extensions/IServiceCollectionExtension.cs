@@ -24,16 +24,17 @@ public static class IServiceCollectionExtension
     private const string DdeiAccessKeyConfigKey = "DdeiAccessKey";
     private const string MdsAccessKeyConfigKey = "MdsAccessKey";
     private const string MdsMockAccessKeyConfigKey = "MdsMockAccessKey";
+    private const string DdeiClientTimeoutSecondsConfigKey = "DdeiClientTimeoutSeconds";
+    private const string MdsClientTimeoutSecondsConfigKey = "MdsClientTimeoutSeconds";
     private const int RetryAttempts = 1;
     private const int FirstRetryDelaySeconds = 1;
 
     public static void AddDdeiClientGateway(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IMdsClientFactory, MdsClientFactory>();
-
-        services.AddHttpClientWithDefaults<IDdeiAuthClient, DdeiAuthClient>(configuration, DdeiBaseUrlConfigKey, DdeiAccessKeyConfigKey, "Ddei");
-        services.AddHttpClientWithDefaults(configuration, MdsBaseUrlConfigKey, MdsAccessKeyConfigKey, nameof(MdsClients.Mds));
-        services.AddHttpClientWithDefaults(configuration, MdsMockBaseUrlConfigKey, MdsMockAccessKeyConfigKey, nameof(MdsClients.MdsMock));
+        services.AddHttpClientWithDefaults<IDdeiAuthClient, DdeiAuthClient>(configuration, DdeiBaseUrlConfigKey, DdeiAccessKeyConfigKey, "Ddei", DdeiClientTimeoutSecondsConfigKey);
+        services.AddHttpClientWithDefaults(configuration, MdsBaseUrlConfigKey, MdsAccessKeyConfigKey, nameof(MdsClients.Mds), MdsClientTimeoutSecondsConfigKey);
+        services.AddHttpClientWithDefaults(configuration, MdsMockBaseUrlConfigKey, MdsMockAccessKeyConfigKey, nameof(MdsClients.MdsMock), MdsClientTimeoutSecondsConfigKey);
 
         services.AddScoped<IMdsClient, MdsClient>();
 
@@ -58,18 +59,20 @@ public static class IServiceCollectionExtension
         services.AddTransient<ICaseWitnessStatementMapper, CaseWitnessStatementMapper>();
     }
 
-    private static void AddHttpClientWithDefaults(this IServiceCollection services, IConfiguration configuration, string urlKey, string accessKey, string name)
+    private static void AddHttpClientWithDefaults(this IServiceCollection services, IConfiguration configuration, string urlKey, string accessKey, string name, string timeoutKey)
     {
         services.AddHttpClient(name, (_, client) =>
             {
                 client.BaseAddress = new Uri(configuration[urlKey]);
                 client.DefaultRequestHeaders.Add(FunctionKey, configuration[accessKey]);
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+                var hasTimeout = int.TryParse(configuration[timeoutKey], out var timeout);
+                client.Timeout = TimeSpan.FromSeconds(hasTimeout ? timeout : 100);
             }).SetHandlerLifetime(TimeSpan.FromMinutes(5))
             .AddPolicyHandler(GetRetryPolicy()).AddAsKeyed();
     }
 
-    private static void AddHttpClientWithDefaults<TClient, TImplementation>(this IServiceCollection services, IConfiguration configuration, string urlKey, string accessKey, string name)
+    private static void AddHttpClientWithDefaults<TClient, TImplementation>(this IServiceCollection services, IConfiguration configuration, string urlKey, string accessKey, string name, string timeoutKey)
         where TClient : class
         where TImplementation : class, TClient
     {
@@ -78,6 +81,8 @@ public static class IServiceCollectionExtension
                 client.BaseAddress = new Uri(configuration[urlKey]);
                 client.DefaultRequestHeaders.Add(FunctionKey, configuration[accessKey]);
                 client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+                var hasTimeout = int.TryParse(configuration[timeoutKey], out var timeout);
+                client.Timeout = TimeSpan.FromSeconds(hasTimeout ? timeout : 100);
             }).SetHandlerLifetime(TimeSpan.FromMinutes(5))
             .AddPolicyHandler(GetRetryPolicy()).AddAsKeyed();
     }
