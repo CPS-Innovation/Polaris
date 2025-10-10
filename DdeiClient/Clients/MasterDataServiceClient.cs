@@ -12,14 +12,18 @@ namespace DdeiClient.Clients
     using System.Linq;
     using System.Net;
     using System.Text.Json;
+    using System.Web;
     using Common.Dto.Request;
     using Common.Dto.Request.HouseKeeping;
     using Common.Dto.Response.HouseKeeping;
+    using Cps.Fct.Hk.Ui.Interfaces.Model;
     using DdeiClient.Clients.Interfaces;
     using DdeiClient.Diagnostics;
     using DdeiClient.Model;
+    using DdeiClient.Utils;
     using Microsoft;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
     using Microsoft.Identity.Client;
 
@@ -316,7 +320,7 @@ namespace DdeiClient.Clients
             }
         }
 
-        public async Task<UsedStatementsResponse> GetUsedStatementsAsync(GetUsedStatementsRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<Common.Dto.Response.HouseKeeping.UsedStatementsResponse> GetUsedStatementsAsync(GetUsedStatementsRequest request, CmsAuthValues cmsAuthValues)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -328,7 +332,7 @@ namespace DdeiClient.Clients
 
             try
             {
-                UsedStatementsResponse? results = new();
+                Common.Dto.Response.HouseKeeping.UsedStatementsResponse? results = new();
 
                 var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
                 var cookieString = JsonSerializer.Serialize(cookie);
@@ -339,7 +343,7 @@ namespace DdeiClient.Clients
 
                 if (data?.Statements is not null)
                 {
-                    results = new UsedStatementsResponse
+                    results = new Common.Dto.Response.HouseKeeping.UsedStatementsResponse
                     {
                         Statements = data.Statements.Select(statement => new Statement(
                         statement.Id,
@@ -370,6 +374,7 @@ namespace DdeiClient.Clients
             }
         }
 
+        /// <inheritdoc/>
         public async Task<IReadOnlyCollection<Communication>> ListCommunicationsHkAsync(ListCommunicationsHkRequest request, CmsAuthValues cmsAuthValues)
         {
             Requires.NotNull(request);
@@ -388,32 +393,192 @@ namespace DdeiClient.Clients
                 var client = this.mdsApiClientFactory.Create(cookieString);
                 string additionalInfo = $"received #0 communications";
 
-                var data = await client.ListCommunicationsHkAsync(request.CaseId);
+                ICollection<Cps.MasterDataService.Infrastructure.ApiClient.HkCommunicationsInfo>? data = await client.ListCommunicationsHkAsync(request.CaseId);
+
                 if (data is not null)
                 {
-                    results = new List<Communication>()
-                    {
-                        data.Select(
-                            communication => new Communication(
-                             communication.Id.GetValueOrDefault(),
-                             communication.OriginalFileName,
-                             communication.Subject,
-                             communication.DocumentId,
-                             communication.MaterialId.GetValueOrDefault(),
-                             communication.Status,
-                             string.Empty,
-                             string.Empty,
-                             null,
-                             communication.HasAttachments,
-                             communication.Method,
-                             communication.Direction,
-                             communication.Party,
-                             communication.Date?.DateTime
-,                    }
+                    results = data.Select(
+                        communication => new Communication(
+                         communication.Id.GetValueOrDefault(),
+                         communication.OriginalFileName,
+                         communication.Subject,
+                         communication.DocumentId,
+                         communication.MaterialId.GetValueOrDefault(),
+                         communication.Status,
+                         string.Empty,
+                         string.Empty,
+                         null,
+                         communication.HasAttachments,
+                         communication.Method,
+                         communication.Direction,
+                         communication.Party,
+                         communication.Date?.DateTime)).ToList();
                 }
 
+                if (results.Count != 0)
+                {
+                    additionalInfo = $"received #{results.Count} communications";
+                }
 
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, additionalInfo);
+
+                return results;
             }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<AttachmentsResponse> GetAttachmentsAsync(GetAttachmentsRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "GetAttachments";
+            AttachmentsResponse results = new ();
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+                string additionalInfo = $"received #0 attachments";
+
+                var data = await client.GetAttachmentsAsync(request.CommunicationId);
+                if (data?.Attachments is not null)
+                {
+                    results = new AttachmentsResponse
+                    {
+                        Attachments = data.Attachments.Select(attachment => new Attachment(
+                            attachment.MaterialId,
+                            attachment.Name,
+                            attachment.Description,
+                            attachment.Link,
+                            attachment.Classification,
+                            attachment.DocumentTypeId,
+                            attachment.NumOfDocVersions,
+                            MapStatementSubType(attachment.Statement),
+                            MapExhibitSubItem(attachment.Exhibit),
+                            attachment.Tag,
+                            attachment.DocId,
+                            attachment.OriginalFileName,
+                            attachment.CheckedOutTo,
+                            attachment.DocumentId,
+                            attachment.OcrProcessed,
+                            attachment.Direction)).ToList(),
+                    };
+                }
+
+                if (results.Attachments.Count != 0)
+                {
+                    additionalInfo = $"received #{results.Attachments.Count} attachments";
+                }
+
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, additionalInfo);
+                return results;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<FileStreamResult?> GetMaterialDocumentAsync(GetDocumentRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "GetMaterialDocument";
+            FileStreamResult? results;
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                int caseId = int.Parse(request.CaseId);
+
+                var data = await client.GetMaterialDocumentAsync(caseId, request.FilePath);
+
+                string fileDownloadName = Path.GetFileName(request.FilePath);
+                string? contentType = FileUtils.GetMimeType(fileDownloadName) ??
+                    throw new InvalidOperationException($"{LoggingConstants.HskUiLogPrefix} Content type cannot be determined for file: {fileDownloadName}");
+
+                // Create FileStreamResult using the stream and content type
+                results = new FileStreamResult(data.Stream, contentType)
+                {
+                    FileDownloadName = fileDownloadName,
+                };
+
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, fileDownloadName);
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+
+            return results;
+        }
+
+        /// <inheritdoc/>
+        public async Task<ExhibitProducersResponse> GetExhibitProducersAsync(GetExhibitProducersRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "GetExhibitProducers";
+            ExhibitProducersResponse results = new ();
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                string additionalInfo = "received #0 producers";
+
+                var data = await client.GetExhibitProducersAsync(request.CaseId);
+
+                if (data != null)
+                {
+                    results = new ExhibitProducersResponse
+                    {
+                        ExhibitProducers = data.ExhibitProducers?.Select(x => new ExhibitProducer(
+                            x.Id,
+                            x.Producer)).ToList(),
+                    };
+
+                    if (results.ExhibitProducers?.Count > 0)
+                    {
+                        additionalInfo = $"retrieved #{results.ExhibitProducers.Count} producers";
+                    }
+                }
+
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, additionalInfo);
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+
+            return results;
         }
 
         /// <summary>
@@ -510,6 +675,27 @@ namespace DdeiClient.Clients
             }
 
             return additionalInfo;
+        }
+
+
+        private static ExhibitAttachmentSubType MapExhibitSubItem(Cps.MasterDataService.Infrastructure.ApiClient.ExhibitAttachmentHkSubType exhibit)
+        {
+            if (exhibit is null)
+            {
+                return null;
+            }
+
+            return new ExhibitAttachmentSubType(exhibit.Reference, exhibit.Item, exhibit.Producer);
+        }
+
+        private static StatementAttachmentSubType MapStatementSubType(Cps.MasterDataService.Infrastructure.ApiClient.StatementAttachmentHkSubType statement)
+        {
+            if (statement == null)
+            {
+                return null;
+            }
+
+            return new StatementAttachmentSubType(statement.WitnessName, statement?.WitnessTitle, statement?.WitnessShoulderNo, statement.StatementNo, statement.Date, statement?.Witness);
         }
     }
 }

@@ -56,6 +56,11 @@ namespace PolarisGateway.Functions.HouseKeeping
                 var stopwatch = Stopwatch.StartNew();
                 this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function processed a request.");
 
+                if (caseId < 1)
+                {
+                    return new BadRequestObjectResult($"{LoggingConstants.HskUiLogPrefix} Invalid case Id. It should be an integer.");
+                }
+
                 // Build CMS auth values from cookie extracted from the request
                 var cmsAuthValues = this.BuildCmsAuthValues(req);
 

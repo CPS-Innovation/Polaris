@@ -101,7 +101,13 @@ namespace PolarisGateway.ApplicationStartup
             services.AddSingleton<ICaseInfoService,  CaseInfoService>();
             services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>();
             services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();
-
+            services.AddSingleton<ICaseMaterialService, CaseMaterialService>();
+            services.AddSingleton<ICommunicationService, CommunicationService>();
+            services.AddSingleton<ICommunicationMapper, CommunicationMapper>();
+            services.AddSingleton<IDocumentTypeMapper, DocumentTypeMapper>();
+            services.AddSingleton<IDocumentService, DocumentService>();
+            services.AddSingleton<IConversionService, ConversionService>();
+            
             // Register MasterDataService client options.
             services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);
             return services;

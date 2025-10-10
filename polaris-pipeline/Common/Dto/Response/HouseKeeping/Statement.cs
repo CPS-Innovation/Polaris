@@ -4,6 +4,8 @@
 
 namespace Common.Dto.Response.HouseKeeping;
 
+using System;
+using System.IO;
 using System.Text.Json.Serialization;
 
 /// <summary>

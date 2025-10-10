@@ -8,6 +8,7 @@ namespace DdeiClient.Clients.Interfaces
     using Common.Dto.Request.HouseKeeping;
     using Common.Dto.Response.HouseKeeping;
     using Cps.MasterDataService.Infrastructure.ApiClient;
+    using Microsoft.AspNetCore.Mvc;
 
     /// <summary>
     /// Mds client.
@@ -66,5 +67,27 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="request">The request to list unused materials.</param>
         /// <returns>A list of unused materials for a case identifier.</returns>
         Task<UnusedMaterialsResponse> GetUnusedMaterialsAsync(GetUnusedMaterialsRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Gets exhibit producers for a given case Id.
+        /// </summary>
+        /// <returns>A list of exhibit producers</returns>
+        Task<Common.Dto.Response.HouseKeeping.ExhibitProducersResponse> GetExhibitProducersAsync(GetExhibitProducersRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Asynchronously retrieves the attachments for a given communication identifier.
+        /// </summary>
+        /// <param name="request">The request containing the parameters required to fetch the attachments.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <returns>A task representing the asynchronous operation, which returns the attachments response.</returns>
+        Task<AttachmentsResponse> GetAttachmentsAsync(GetAttachmentsRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Asynchronously retrieves the material document for the specified request.
+        /// </summary>
+        /// <param name="request">The request containing the document parameters.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <returns>A task representing the asynchronous operation, which returns a <see cref="FileStreamResult"/> if the document is found; otherwise, <c>null</c>.</returns>
+        Task<FileStreamResult?> GetMaterialDocumentAsync(GetDocumentRequest request, CmsAuthValues cmsAuthValues);
     }
 }

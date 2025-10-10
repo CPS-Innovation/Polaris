@@ -26,7 +26,9 @@
 
         // House keeping endpoints
         public const string CaseInfo = "urns/{caseUrn}/case-info/{caseId:min(1)}";
-
+        public const string CaseMaterials = "urns/{caseUrn}/cases/{caseId:min(1)}/case-materials";
+        public const string CaseMaterialsPreview = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/previews";
+        
         // Internal Pipeline
         public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";
         public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/convert-to-pdf";
