@@ -33,7 +33,7 @@ public class PolarisPipelineGetCaseTracker : BaseFunction
     {
         var correlationId = EstablishCorrelation(req);
 
-        return await (await _coordinatorClient.GetTrackerAsync(
+        return await (await _coordinatorClient.GetTrackerGetCaseAsync(
                 caseUrn,
                 caseId,
                 correlationId))

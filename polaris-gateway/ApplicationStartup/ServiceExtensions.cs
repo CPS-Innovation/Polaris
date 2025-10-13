@@ -23,6 +23,7 @@ using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.DdeiOrchestration;
 using System.Net.Http;
 using System;
+using Common.Mappers;
 
 namespace PolarisGateway.ApplicationStartup;
 
