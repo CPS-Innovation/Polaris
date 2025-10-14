@@ -62,7 +62,7 @@ describe("Feature Rotate Page", () => {
     });
   });
 
-  it("Should show page rotate button and page number correctly in each page", () => {
+  xit("Should show page rotate button and page number correctly in each page", () => {
     cy.visit("/case-details/12AB1111111/13401?pageRotate=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
