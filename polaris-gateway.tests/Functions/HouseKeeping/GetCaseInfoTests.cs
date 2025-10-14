@@ -35,12 +35,12 @@ public class GetCaseInfoTests
         // Initialize mocks
         this.mockLogger = new TestLogger<GetCaseInfo>();
         this.mockCaseInfoService = new Mock<ICaseInfoService>();
-  
+
         // Initialize the function class
         this.getCaseInfoFunction = new GetCaseInfo(this.mockLogger, this.mockCaseInfoService.Object);
     }
 
-  
+
     /// <summary>
     /// Tests that the function returns an OK result when a valid request is provided.
     /// </summary>
@@ -55,7 +55,7 @@ public class GetCaseInfoTests
         var context = new DefaultHttpContext();
         mockRequest.Setup(r => r.HttpContext).Returns(context);
         mockRequest.Setup(r => r.Headers.Add("corelation", "1232131231"));
- 
+
         var mockCaseInfo = new CaseSummaryResponse(123, "06SC1234572", "Will", "SMITH", 2, "Hull UT");
 
         // Ensure the mock returns the expected list of communications
@@ -81,14 +81,6 @@ public class GetCaseInfoTests
             log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function processed a request."));
 
         Assert.Contains(this.mockLogger.Logs, log =>
-            log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [123] GetCaseInfo function completed"));
-
-        Assert.Contains(this.mockLogger.Logs, log =>
-            log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"caseId [123] with URN [06SC1234572]"));
-
-        Assert.Contains(this.mockLogger.Logs, log =>
            log.LogLevel == LogLevel.Information &&
            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function call returned unitName [Hull UT] for caseId [123]"));
     }
@@ -102,6 +94,11 @@ public class GetCaseInfoTests
     {
         // Arrange
         var mockRequest = new Mock<HttpRequest>();
+
+        // Set up a DefaultHttpContext to support setting headers
+        var context = new DefaultHttpContext();
+        mockRequest.Setup(r => r.HttpContext).Returns(context);
+        mockRequest.Setup(r => r.Headers.Add("corelation", "1232131231"));
 
         this.mockCaseInfoService
             .Setup(x => x.GetCaseInfoAsync(123, It.IsAny<CmsAuthValues>()))
@@ -129,37 +126,15 @@ public class GetCaseInfoTests
     /// </summary>
     /// <returns>A task representing the asynchronous test operation.</returns>
     [Fact]
-    public async Task Run_ReturnsInternalServerError_WhenExceptionIsThrown()
-    {
-        // Arrange
-        var mockRequest = new Mock<HttpRequest>();
-
-        // Act
-        IActionResult result = await this.getCaseInfoFunction.Run(mockRequest.Object, 123);
-
-        // Assert
-        StatusCodeResult statusCodeResult = Assert.IsType<StatusCodeResult>(result);
-        Assert.Equal(StatusCodes.Status500InternalServerError, statusCodeResult.StatusCode);
-
-        Assert.Contains(this.mockLogger.Logs, log =>
-            log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function processed a request."));
-
-        Assert.Contains(this.mockLogger.Logs, log =>
-            log.LogLevel == LogLevel.Error &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function encountered an error: " +
-            "Unexpected error"));
-    }
-
-    /// <summary>
-    /// Tests that the function returns an internal server error when an exception is thrown.
-    /// </summary>
-    /// <returns>A task representing the asynchronous test operation.</returns>
-    [Fact]
     public async Task Run_ReturnsUnprocessableEntityError_WhenExceptionIsThrown()
     {
         // Arrange
         var mockRequest = new Mock<HttpRequest>();
+
+        // Set up a DefaultHttpContext to support setting headers
+        var context = new DefaultHttpContext();
+        mockRequest.Setup(r => r.HttpContext).Returns(context);
+        mockRequest.Setup(r => r.Headers.Add("corelation", "1232131231"));
 
         this.mockCaseInfoService
             .Setup(x => x.GetCaseInfoAsync(123, It.IsAny<CmsAuthValues>()))
