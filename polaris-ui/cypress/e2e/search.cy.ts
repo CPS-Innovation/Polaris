@@ -33,13 +33,13 @@ describe("Case Details Search", () => {
       cy.findByTestId("div-modal").should("exist");
     });
 
-    xit("can search via the enter button", () => {
-      cy.visit("/case-details/12AB1111111/13401");
+    // it("can search via the enter button", () => {
+    //   cy.visit("/case-details/12AB1111111/13401");
 
-      cy.findByTestId("input-search-case").type("{enter}");
+    //   cy.findByTestId("input-search-case").type("{enter}");
 
-      cy.findByTestId("div-modal").should("exist");
-    });
+    //   cy.findByTestId("div-modal").should("exist");
+    // });
   });
 
   describe("Search results", () => {
