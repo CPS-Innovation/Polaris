@@ -63,7 +63,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITE_WARMUP_PATH"                             = "/api/status"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
     "MasterDataServiceClient__BaseAddress"            = "https://fa-${local.mds_resource_name}.azurewebsites.net/api/"
-    "MasterDataServiceClient__FunctionKey"            = "data.azurerm_key_vault_secret.kvs_fa_mds_host_keys.value"
+    "MasterDataServiceClient__FunctionKey"            = data.azurerm_key_vault_secret.kvs_fa_mds_host_keys.value
   }
 
   sticky_settings {

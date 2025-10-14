@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Services.Tests\\Cps.Fct.Hk.Ui.Services.Tests.csproj": {}
+    "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Services.Tests\\Cps.Fct.Hk.Ui.Services.Tests.csproj": {}
   },
   "projects": {
-    "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj": {
+    "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj",
+        "projectUniqueName": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj",
         "projectName": "Cps.Fct.Hk.Ui.Interfaces",
-        "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj",
+        "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj",
         "packagesPath": "D:\\Users\\Girma.Bewketu\\.nuget\\packages\\",
-        "outputPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\obj\\",
+        "outputPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -35,8 +35,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\polaris-pipeline\\Common\\Common.csproj": {
-                "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\polaris-pipeline\\Common\\Common.csproj"
+              "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\polaris-pipeline\\Common\\Common.csproj": {
+                "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\polaris-pipeline\\Common\\Common.csproj"
               }
             }
           }
@@ -87,14 +87,14 @@
         }
       }
     },
-    "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.ServiceClient.Uma\\Cps.Fct.Hk.Ui.ServiceClient.Uma.csproj": {
+    "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.ServiceClient.Uma\\Cps.Fct.Hk.Ui.ServiceClient.Uma.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.ServiceClient.Uma\\Cps.Fct.Hk.Ui.ServiceClient.Uma.csproj",
+        "projectUniqueName": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.ServiceClient.Uma\\Cps.Fct.Hk.Ui.ServiceClient.Uma.csproj",
         "projectName": "Cps.Fct.Hk.Ui.ServiceClient.Uma",
-        "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.ServiceClient.Uma\\Cps.Fct.Hk.Ui.ServiceClient.Uma.csproj",
+        "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.ServiceClient.Uma\\Cps.Fct.Hk.Ui.ServiceClient.Uma.csproj",
         "packagesPath": "D:\\Users\\Girma.Bewketu\\.nuget\\packages\\",
-        "outputPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.ServiceClient.Uma\\obj\\",
+        "outputPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.ServiceClient.Uma\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -118,8 +118,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj": {
-                "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj"
+              "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj": {
+                "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj"
               }
             }
           }
@@ -183,14 +183,14 @@
         }
       }
     },
-    "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Services.Tests\\Cps.Fct.Hk.Ui.Services.Tests.csproj": {
+    "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Services.Tests\\Cps.Fct.Hk.Ui.Services.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Services.Tests\\Cps.Fct.Hk.Ui.Services.Tests.csproj",
+        "projectUniqueName": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Services.Tests\\Cps.Fct.Hk.Ui.Services.Tests.csproj",
         "projectName": "Cps.Fct.Hk.Ui.Services.Tests",
-        "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Services.Tests\\Cps.Fct.Hk.Ui.Services.Tests.csproj",
+        "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Services.Tests\\Cps.Fct.Hk.Ui.Services.Tests.csproj",
         "packagesPath": "D:\\Users\\Girma.Bewketu\\.nuget\\packages\\",
-        "outputPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Services.Tests\\obj\\",
+        "outputPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Services.Tests\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -214,14 +214,14 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj": {
-                "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj"
+              "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj": {
+                "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj"
               },
-              "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Services\\Cps.Fct.Hk.Ui.Services.csproj": {
-                "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Services\\Cps.Fct.Hk.Ui.Services.csproj"
+              "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Services\\Cps.Fct.Hk.Ui.Services.csproj": {
+                "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Services\\Cps.Fct.Hk.Ui.Services.csproj"
               },
-              "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\DdeiClient\\DdeiClient.csproj": {
-                "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\DdeiClient\\DdeiClient.csproj"
+              "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\DdeiClient\\DdeiClient.csproj": {
+                "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\DdeiClient\\DdeiClient.csproj"
               }
             }
           }
@@ -301,14 +301,14 @@
         }
       }
     },
-    "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Services\\Cps.Fct.Hk.Ui.Services.csproj": {
+    "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Services\\Cps.Fct.Hk.Ui.Services.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Services\\Cps.Fct.Hk.Ui.Services.csproj",
+        "projectUniqueName": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Services\\Cps.Fct.Hk.Ui.Services.csproj",
         "projectName": "Cps.Fct.Hk.Ui.Services",
-        "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Services\\Cps.Fct.Hk.Ui.Services.csproj",
+        "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Services\\Cps.Fct.Hk.Ui.Services.csproj",
         "packagesPath": "D:\\Users\\Girma.Bewketu\\.nuget\\packages\\",
-        "outputPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Services\\obj\\",
+        "outputPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Services\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -332,17 +332,17 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj": {
-                "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj"
+              "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj": {
+                "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.Interfaces\\Cps.Fct.Hk.Ui.Interfaces.csproj"
               },
-              "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.ServiceClient.Uma\\Cps.Fct.Hk.Ui.ServiceClient.Uma.csproj": {
-                "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\Cps.Fct.Hk.Ui.ServiceClient.Uma\\Cps.Fct.Hk.Ui.ServiceClient.Uma.csproj"
+              "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.ServiceClient.Uma\\Cps.Fct.Hk.Ui.ServiceClient.Uma.csproj": {
+                "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\Cps.Fct.Hk.Ui.ServiceClient.Uma\\Cps.Fct.Hk.Ui.ServiceClient.Uma.csproj"
               },
-              "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\DdeiClient\\DdeiClient.csproj": {
-                "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\DdeiClient\\DdeiClient.csproj"
+              "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\DdeiClient\\DdeiClient.csproj": {
+                "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\DdeiClient\\DdeiClient.csproj"
               },
-              "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\polaris-pipeline\\Common\\Common.csproj": {
-                "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\polaris-pipeline\\Common\\Common.csproj"
+              "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\polaris-pipeline\\Common\\Common.csproj": {
+                "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\polaris-pipeline\\Common\\Common.csproj"
               }
             }
           }
@@ -450,14 +450,14 @@
         }
       }
     },
-    "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\DdeiClient\\DdeiClient.csproj": {
+    "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\DdeiClient\\DdeiClient.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\DdeiClient\\DdeiClient.csproj",
+        "projectUniqueName": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\DdeiClient\\DdeiClient.csproj",
         "projectName": "DdeiClient",
-        "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\DdeiClient\\DdeiClient.csproj",
+        "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\DdeiClient\\DdeiClient.csproj",
         "packagesPath": "D:\\Users\\Girma.Bewketu\\.nuget\\packages\\",
-        "outputPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\DdeiClient\\obj\\",
+        "outputPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\DdeiClient\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -481,8 +481,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\polaris-pipeline\\Common\\Common.csproj": {
-                "projectPath": "D:\\Users\\Girma.Bewketu\\Source\\Repos\\Polaris\\polaris-pipeline\\Common\\Common.csproj"
+              "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\polaris-pipeline\\Common\\Common.csproj": {
+                "projectPath": "D:\\Users\\Girma.Bewketu\\source\\repos\\Polaris\\polaris-pipeline\\Common\\Common.csproj"
               }
             }
           }
