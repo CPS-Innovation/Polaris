@@ -49,24 +49,23 @@ stages:
       targetSuffix: "-dev"
       azureSubscription: $(dev-azure-subscription)
 
-  # Step temporarily removed until integration user is enabled
-  # - template: stages/stage_run-gateway-integration-tests.yml
-  #   parameters:
-  #     targetBuild: PolarisBuild
-  #     targetLabel: "DEV"
-  #     appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
-  #     stageDependsOn: Deploy
-  #     polarisGatewayUri: $(test-polaris-gateway-uri)
-  #     cmsProxyUri: $(test-cms-proxy-uri)
-  #     cmsUsername: $(test-cms-username)
-  #     cmsPassword: $(test-cms-password)
-  #     tokenAuthUri: $(test-token-auth-uri)
-  #     clientId: $(test-client-id)
-  #     grantType: $(test-grant-type)
-  #     scope: $(test-scope)
-  #     clientSecret: $(test-client-secret)
-  #     username: $(test-username)
-  #     password: $(test-password)
+  - template: stages/stage_run-gateway-integration-tests.yml
+    parameters:
+      targetBuild: PolarisBuild
+      targetLabel: "DEV"
+      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
+      stageDependsOn: Deploy
+      polarisGatewayUri: $(test-polaris-gateway-uri)
+      cmsProxyUri: $(test-cms-proxy-uri)
+      cmsUsername: $(test-cms-username)
+      cmsPassword: $(test-cms-password)
+      tokenAuthUri: $(test-token-auth-uri)
+      clientId: $(test-client-id)
+      grantType: $(test-grant-type)
+      scope: $(test-scope)
+      clientSecret: $(test-client-secret)
+      username: $(test-username)
+      password: $(test-password)
 
   - template: stages/stage_swap-slots.yml
     parameters:
@@ -75,7 +74,7 @@ stages:
       appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
       targetSuffix: "-dev"
       azureSubscription: $(dev-azure-subscription)
-      stageDependsOn: Deploy #Run_Integration_Tests
+      stageDependsOn: Run_Integration_Tests
 
   - template: stages/stage_check-status.yml
     parameters:
