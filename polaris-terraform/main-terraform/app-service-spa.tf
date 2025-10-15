@@ -32,13 +32,13 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_FEATURE_FLAG_PAGE_DELETE"                           = var.feature_flag_page_delete
     "REACT_APP_FEATURE_FLAG_PAGE_ROTATE"                           = var.feature_flag_page_rotate
     "REACT_APP_FEATURE_FLAG_STATE_RETENTION"                       = var.feature_flag_state_retention
-    "REACT_APP_FEATURE_FLAG_USED_DOCUMENT"                         = var.feature_flag_used_document    
+    "REACT_APP_FEATURE_FLAG_USED_DOCUMENT"                         = var.feature_flag_used_document
     "REACT_APP_FEATURE_FLAG_GLOBAL_NAV"                            = var.feature_flag_global_nav
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP"     = var.feature_flag_external_redirect_case_review_app
     "REACT_APP_FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP"         = var.feature_flag_external_redirect_bulk_um_app
     "REACT_APP_FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH"           = var.feature_flag_background_pipeline_refresh
     "REACT_APP_FEATURE_FLAG_REDACTION_TOGGLE_COPY_BUTTON"          = var.feature_flag_redaction_toggle_copy_button
-    "REACT_APP_FEATURE_FLAG_DOCUMENT_NAME_SEARCH"                  = var.feature_flag_document_name_search    
+    "REACT_APP_FEATURE_FLAG_DOCUMENT_NAME_SEARCH"                  = var.feature_flag_document_name_search
     "REACT_APP_BACKGROUND_PIPELINE_REFRESH_INTERVAL_MS"            = tostring(var.background_pipeline_refresh_interval_ms)
     "REACT_APP_BACKGROUND_PIPELINE_REFRESH_SHOW_OWN_NOTIFICATIONS" = var.background_pipeline_refresh_show_own_notifications
     "REACT_APP_LOCAL_STORAGE_EXPIRY_DAYS"                          = var.local_storage_expiry_days
@@ -64,7 +64,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
     "REACT_APP_REDACTION_LOG_SCOPE"                                = "https://CPSGOVUK.onmicrosoft.com/fa-${local.redaction_log_resource_name}-reporting/user_impersonation"
     "REACT_APP_SURVEY_LINK"                                        = "https://www.smartsurvey.co.uk/s/DG5B6G/"
     "REACT_APP_TENANT_ID"                                          = data.azurerm_client_config.current.tenant_id
-    "REACT_APP_CPS_GLOBAL_COMPONENTS_URL"                              = var.cps_global_components_url
+    "REACT_APP_CPS_GLOBAL_COMPONENTS_URL"                          = var.cps_global_components_url
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG"              = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"                     = azurerm_storage_account.sacpspolaris.primary_connection_string
     "WEBSITE_CONTENTOVERVNET"                                      = "1"
@@ -167,7 +167,7 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
       app_settings["REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP3"],
       app_settings["REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP4"],
       app_settings["REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP5"],
-      app_settings["REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP6"],      
+      app_settings["REACT_APP_PRIVATE_BETA_FEATURE_USER_GROUP6"],
       app_settings["REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND"],
       app_settings["REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND_E2E"],
       app_settings["REACT_APP_REAUTH_REDIRECT_URL_INBOUND"],
@@ -196,11 +196,12 @@ resource "azurerm_linux_web_app" "as_web_polaris" {
   }
 }
 
+## Below app registation will be recreated ##
 module "azurerm_app_reg_as_web_polaris" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   source                  = "./modules/terraform-azurerm-azuread-app-registration"
   display_name            = "as-web-${local.global_resource_name}-appreg"
   identifier_uris         = ["https://CPSGOVUK.onmicrosoft.com/as-web-${local.global_resource_name}"]
-  owners                  = [data.azuread_service_principal.terraform_service_principal.object_id]
+  owners                  = concat([data.azuread_service_principal.terraform_service_principal.object_id], var.app_reg_owners)
   prevent_duplicate_names = true
   group_membership_claims = ["ApplicationGroup"]
   optional_claims = {
@@ -275,10 +276,10 @@ resource "azuread_application_password" "e2e_test_secret" {
 
 module "azurerm_service_principal_sp_polaris_web" { # Note, app roles are currently being managed outside of terraform and it's functionality has been commented out from the module.
   source                       = "./modules/terraform-azurerm-azuread_service_principal"
-  account_enabled              = var.sp_polaris_web_enabled # this SP has been temporarily disabled for Dev on the 29/07/2025.
+  account_enabled              = var.sp_polaris_web_enabled
   application_id               = module.azurerm_app_reg_as_web_polaris.client_id
   app_role_assignment_required = false
-  owners                       = [data.azurerm_client_config.current.object_id]
+  owners                       = concat([data.azurerm_client_config.current.object_id], var.app_reg_owners)
   depends_on                   = [module.azurerm_app_reg_as_web_polaris]
 }
 
@@ -287,7 +288,7 @@ resource "azuread_service_principal_password" "sp_polaris_web_pw" {
   depends_on           = [module.azurerm_service_principal_sp_polaris_web]
 }
 
-resource "azuread_application_pre_authorized" "fapre_polaris_web" {
+resource "azuread_application_pre_authorized" "fapre_polaris_web" { # Adding the App Reg we created above as an authorized app to the App Reg for the function app found in main-terraform\function-gateway.tf
   application_object_id = module.azurerm_app_reg_fa_polaris.object_id
   authorized_app_id     = module.azurerm_app_reg_as_web_polaris.client_id
   permission_ids        = [module.azurerm_app_reg_fa_polaris.oauth2_permission_scope_ids["user_impersonation"]]
@@ -333,17 +334,21 @@ resource "azurerm_private_endpoint" "polaris_ui_pe" {
 resource "azurerm_key_vault_secret" "kvs_spa_client_id" {
   #checkov:skip=CKV_AZURE_41:Ensure that the expiration date is set on all secrets
   #checkov:skip=CKV_AZURE_114:Ensure that key vault secrets have "content_type" set
-  name         = "polaris-spa-client-id"
-  value        = module.azurerm_app_reg_as_web_polaris.client_id
-  key_vault_id = data.azurerm_key_vault.terraform_key_vault.id
+  name            = "polaris-spa-client-id"
+  value           = module.azurerm_app_reg_as_web_polaris.client_id
+  key_vault_id    = data.azurerm_key_vault.terraform_key_vault.id
+  content_type    = "secret"
+  expiration_date = timeadd(timestamp(), "8760h")
 }
 
 resource "azurerm_key_vault_secret" "kvs_spa_client_secret" {
   #checkov:skip=CKV_AZURE_41:Ensure that the expiration date is set on all secrets
   #checkov:skip=CKV_AZURE_114:Ensure that key vault secrets have "content_type" set
-  name         = "polaris-spa-client-secret"
-  value        = azuread_application_password.e2e_test_secret.value
-  key_vault_id = data.azurerm_key_vault.terraform_key_vault.id
+  name            = "polaris-spa-client-secret"
+  value           = azuread_application_password.e2e_test_secret.value
+  key_vault_id    = data.azurerm_key_vault.terraform_key_vault.id
+  content_type    = "secret"
+  expiration_date = timeadd(timestamp(), "8760h")
   depends_on = [
     azurerm_role_assignment.kv_role_terraform_sp
   ]

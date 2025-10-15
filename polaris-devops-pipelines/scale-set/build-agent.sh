@@ -23,11 +23,23 @@ sudo apt-get install -y jq
 sudo apt-get install -y lsb-release
 sudo apt-get install -y software-properties-common
 sudo apt-get install -y zip
-sudo apt-get install -y unzip 
+sudo apt-get install -y unzip
+sudo apt-get install -y gnupg
 sudo apt-get clean
 
 echo '==== Azure CLI ===='
-curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+sudo mkdir -p /etc/apt/keyrings
+curl -sLS https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/keyrings/microsoft.gpg > /dev/null
+sudo chmod go+r /etc/apt/keyrings/microsoft.gpg
+AZ_DIST=$(lsb_release -cs)
+echo "Types: deb
+URIs: https://packages.microsoft.com/repos/azure-cli/
+Suites: ${AZ_DIST}
+Components: main
+Architectures: $(dpkg --print-architecture)
+Signed-by: /etc/apt/keyrings/microsoft.gpg" | sudo tee /etc/apt/sources.list.d/azure-cli.sources
+sudo apt-get update
+sudo apt-get install azure-cli
 
 sudo apt-get install libc6
 sudo apt-get install libgcc1
@@ -52,7 +64,7 @@ curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor | sudo tee /us
 echo "deb [signed-by=/usr/share/keyrings/yarnkey.gpg] https://dl.yarnpkg.com/debian stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 sudo apt-get update && sudo apt-get install yarn
 echo '==== Install Cypress ===='
-sudo npm install cypress --save-dev
+sudo npm install cypress@15.0.0 --save-dev
 sudo apt-get install -y libgtk2.0-0
 sudo apt-get install -y libgtk-3-0
 sudo apt-get install -y libgbm-dev

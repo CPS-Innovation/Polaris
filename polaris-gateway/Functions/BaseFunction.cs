@@ -55,6 +55,11 @@ public class BaseFunction(ILogger? logger = null)
 
     private string? GetCookiePartByIndex(HttpRequest req, int index)
     {
+        if (req.Cookies == null)
+        {
+            return string.Empty;
+        }
+
         if (req.Cookies.TryGetValue(HttpHeaderKeys.CmsAuthValues, out string? cmsCookie))
         {
             string[] cmsParts = cmsCookie.Split(',');

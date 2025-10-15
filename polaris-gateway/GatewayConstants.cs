@@ -5,6 +5,9 @@ public static class ConfigurationKeys
     public const string PipelineCoordinatorBaseUrl = "PolarisPipelineCoordinatorBaseUrl";
     public const string PipelineRedactPdfBaseUrl = "PolarisPipelineRedactPdfBaseUrl";
     public const string PdfThumbnailGeneratorBaseUrl = "PolarisPdfThumbnailGeneratorBaseUrl";
+    public const string CoordinatorClientTimeoutSeconds = "CoordinatorClientTimeoutSeconds";
+    public const string PdfGeneratorClientTimeoutSeconds = "PdfGeneratorClientTimeoutSeconds";
+    public const string PdfThumbnailGeneratorClientTimeoutSeconds = "PdfThumbnailGeneratorClientTimeoutSeconds";
 }
 
 public static class ValidRoles

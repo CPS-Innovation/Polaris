@@ -50,3 +50,5 @@ _ReSharper*/
 /Cps.Fct.Hk.Ui.Services/obj
 /DdeiClient/bin/Debug/net8.0
 /DdeiClient/obj
+/Cps.Fct.Hk.Ui.Services.Tests
+/DdeiClient/DdeiClient.csproj.Backup.tmp
