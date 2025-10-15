@@ -66,6 +66,12 @@ public class PolarisGatewayApiClient : BaseApiClient
         return await SendAsync<IEnumerable<DocumentNoteDto>>(route, HttpMethod.Get, cancellationToken);
     }
 
+    public async Task<ApiClientResponse<CaseIdentifiersDto>> LookupUrnAsync(int caseId, CancellationToken cancellationToken)
+    {
+        var route = $"urn-lookup/{caseId}";
+        return await SendAsync<CaseIdentifiersDto>(route, HttpMethod.Get, cancellationToken);
+    }
+
     private async Task<ApiClientResponse> SendAsync(string route, HttpMethod httpMethod, CancellationToken cancellationToken = default)
     {
         var token = await _tokenAuthApiClient.GetTokenAsync(cancellationToken);
