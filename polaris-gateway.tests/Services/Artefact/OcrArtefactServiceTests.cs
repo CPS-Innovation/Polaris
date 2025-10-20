@@ -1,16 +1,16 @@
-using System;
 using AutoFixture;
 using Common.Domain.Ocr;
+using Common.Services.BlobStorage;
 using Common.Services.OcrService;
+using FluentAssertions;
 using Moq;
 using PolarisGateway.Services.Artefact;
-using PolarisGateway.Services.Artefact.Factories;
-using Xunit;
-using Common.Services.BlobStorage;
 using PolarisGateway.Services.Artefact.Domain;
-using System.Threading.Tasks;
-using FluentAssertions;
+using PolarisGateway.Services.Artefact.Factories;
+using System;
 using System.IO;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace PolarisGateway.Tests.Services.Artefact;
 
@@ -55,6 +55,7 @@ public class OcrArtefactServiceTests
         );
     }
 
+    #region GetOcrAsync
     [Fact]
     public async Task GetOcrAsync_WhenOcrIsAlreadyInCache_WillReturnCachedOcr()
     {
@@ -212,4 +213,5 @@ public class OcrArtefactServiceTests
         // Assert
         result.Should().Be(expectedResult);
     }
+    #endregion
 }

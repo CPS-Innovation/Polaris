@@ -28,6 +28,7 @@ using Cps.Fct.Hk.Ui.Services;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Clients;
 using DdeiClient.Configuration;
+using Common.Mappers;
 
 namespace PolarisGateway.ApplicationStartup;
 

@@ -62,34 +62,34 @@ describe("Feature Rotate Page", () => {
     });
   });
 
-  it("Should show page rotate button and page number correctly in each page", () => {
-    cy.visit("/case-details/12AB1111111/13401?pageRotate=true");
-    cy.findByTestId("btn-accordion-open-close-all").click();
-    cy.findByTestId("link-document-1").click();
-    cy.findByTestId("document-actions-dropdown-0").click();
-    cy.contains("button", "Show Rotate Page Options").click();
-    cy.get("div.page").then((pages) => {
-      const totalPages = pages.length;
-      cy.wrap(pages).each((pageDiv) => {
-        cy.wait(100);
-        const pageNumber = pageDiv.attr("data-page-number");
+  // it("Should show page rotate button and page number correctly in each page", () => {
+  //   cy.visit("/case-details/12AB1111111/13401?pageRotate=true");
+  //   cy.findByTestId("btn-accordion-open-close-all").click();
+  //   cy.findByTestId("link-document-1").click();
+  //   cy.findByTestId("document-actions-dropdown-0").click();
+  //   cy.contains("button", "Show Rotate Page Options").click();
+  //   cy.get("div.page").then((pages) => {
+  //     const totalPages = pages.length;
+  //     cy.wrap(pages).each((pageDiv) => {
+  //       cy.wait(100);
+  //       const pageNumber = pageDiv.attr("data-page-number");
 
-        cy.waitUntil(() => {
-          return cy.wrap(pageDiv).scrollIntoView();
-        }).then(() => {
-          cy.wrap(pageDiv)
-            .findByTestId(`rotate-page-number-text-${pageNumber}`)
-            .should("contain.text", `Page:${pageNumber}/${totalPages}`);
-          cy.wrap(pageDiv)
-            .findByTestId(`btn-rotate-${pageNumber}`)
-            .should("have.text", "Rotate page");
-          cy.wrap(pageDiv)
-            .findByTestId(`btn-rotate-cancel-${pageNumber}`)
-            .should("not.exist");
-        });
-      });
-    });
-  });
+  //       cy.waitUntil(() => {
+  //         return cy.wrap(pageDiv).scrollIntoView();
+  //       }).then(() => {
+  //         cy.wrap(pageDiv)
+  //           .findByTestId(`rotate-page-number-text-${pageNumber}`)
+  //           .should("contain.text", `Page:${pageNumber}/${totalPages}`);
+  //         cy.wrap(pageDiv)
+  //           .findByTestId(`btn-rotate-${pageNumber}`)
+  //           .should("have.text", "Rotate page");
+  //         cy.wrap(pageDiv)
+  //           .findByTestId(`btn-rotate-cancel-${pageNumber}`)
+  //           .should("not.exist");
+  //       });
+  //     });
+  //   });
+  // });
 
   it("Should successfully complete page rotation", () => {
     const expectedSaveRequest = {

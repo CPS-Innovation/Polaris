@@ -1,4 +1,5 @@
 using Common.Domain.Ocr;
+using Common.Extensions;
 using Common.Services.BlobStorage;
 using Common.Services.OcrService;
 using PolarisGateway.Services.Artefact.Domain;
@@ -19,13 +20,12 @@ public class OcrArtefactService : IOcrArtefactService
         ICacheService cacheService,
         IArtefactServiceResponseFactory artefactServiceResponseFactory,
         IOcrService ocrService,
-        IPdfArtefactService pdfArtefactService
-        )
+        IPdfArtefactService pdfArtefactService)
     {
-        _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
-        _artefactServiceResponseFactory = artefactServiceResponseFactory ?? throw new ArgumentNullException(nameof(artefactServiceResponseFactory));
-        _ocrService = ocrService ?? throw new ArgumentNullException(nameof(ocrService));
-        _pdfArtefactService = pdfArtefactService ?? throw new ArgumentNullException(nameof(pdfArtefactService));
+        _cacheService = cacheService.ExceptionIfNull();
+        _artefactServiceResponseFactory = artefactServiceResponseFactory.ExceptionIfNull();
+        _ocrService = ocrService.ExceptionIfNull();
+        _pdfArtefactService = pdfArtefactService.ExceptionIfNull();
     }
 
     public async Task<ArtefactResult<AnalyzeResults>> GetOcrAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null)
