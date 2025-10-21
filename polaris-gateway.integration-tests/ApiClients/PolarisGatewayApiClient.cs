@@ -1,4 +1,5 @@
 ﻿using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
@@ -67,6 +68,18 @@ public class PolarisGatewayApiClient : BaseApiClient
         return await SendAsync<IEnumerable<DocumentNoteDto>>(route, HttpMethod.Get, cancellationToken);
     }
 
+    public async Task<ApiClientResponse<IEnumerable<ExhibitProducerDto>>> GetExhibitProducersAsync(string urn, int caseId, CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/exhibit-producers";
+        return await SendAsync<IEnumerable<ExhibitProducerDto>>(route, HttpMethod.Get, cancellationToken);
+    }
+
+    public async Task<ApiClientResponse<IEnumerable<MaterialTypeDto>>> GetMaterialTypeListAsync(CancellationToken cancellationToken)
+    {
+        var route = "reference/reclassification";
+        return await SendAsync<IEnumerable<MaterialTypeDto>>(route, HttpMethod.Get, cancellationToken);
+    }
+
     public async Task<ApiClientResponse<IEnumerable<CaseWitnessDto>>> GetWitnessesAsync(string urn, int caseId, CancellationToken cancellationToken)
     {
         var route = $"urns/{urn}/cases/{caseId}/witnesses";
@@ -81,17 +94,17 @@ public class PolarisGatewayApiClient : BaseApiClient
         var httpResponseMessage = await SendAsync(httpRequestMessage, cancellationToken);
         return new ApiClientResponse(httpResponseMessage);
     }
-    
+
     private async Task<ApiClientResponse> SendAsync<TRequest>(string route, HttpMethod httpMethod, TRequest request, CancellationToken cancellationToken = default)
     {
         var token = await _tokenAuthApiClient.GetTokenAsync(cancellationToken);
         var cmsAuthValues = await _cmsAuthApiClient.GetCmsAuthTokenAsync(cancellationToken);
         var content = new StringContent(JsonSerializer.Serialize(request));
-        var httpRequestMessage = CreateHttpRequestMessage(route, httpMethod, content,string.Empty, token, cmsAuthValues);
+        var httpRequestMessage = CreateHttpRequestMessage(route, httpMethod, content, string.Empty, token, cmsAuthValues);
         var httpResponseMessage = await SendAsync(httpRequestMessage, cancellationToken);
         return new ApiClientResponse(httpResponseMessage);
     }
-    
+
     private async Task<ApiClientResponse<TResponse>> SendAsync<TResponse>(string route, HttpMethod httpMethod, CancellationToken cancellationToken = default)
     {
         var token = await _tokenAuthApiClient.GetTokenAsync(cancellationToken);
