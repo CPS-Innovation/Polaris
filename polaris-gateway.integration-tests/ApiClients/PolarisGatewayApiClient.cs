@@ -67,6 +67,12 @@ public class PolarisGatewayApiClient : BaseApiClient
         return await SendAsync<IEnumerable<DocumentNoteDto>>(route, HttpMethod.Get, cancellationToken);
     }
 
+    public async Task<ApiClientResponse<IEnumerable<ExhibitProducerDto>>> GetExhibitProducersAsync(string urn, int caseId, CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/exhibit-producers";
+        return await SendAsync<IEnumerable<ExhibitProducerDto>>(route, HttpMethod.Get, cancellationToken);
+    }
+
     public async Task<ApiClientResponse<IEnumerable<MaterialTypeDto>>> GetMaterialTypeListAsync(CancellationToken cancellationToken)
     {
         var route = "reference/reclassification";
