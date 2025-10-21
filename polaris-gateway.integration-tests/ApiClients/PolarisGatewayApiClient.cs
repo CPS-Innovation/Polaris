@@ -7,6 +7,7 @@ using Ddei.Domain.Response;
 using NUnit.Framework;
 using shared.integration_tests.ApiClients;
 using shared.integration_tests.Models;
+using System.Reflection.Metadata;
 using System.Text.Json;
 
 namespace polaris_gateway.integration_tests.ApiClients;
@@ -77,6 +78,12 @@ public class PolarisGatewayApiClient : BaseApiClient
     {
         var route = "reference/reclassification";
         return await SendAsync<IEnumerable<MaterialTypeDto>>(route, HttpMethod.Get, cancellationToken);
+    }
+
+    public async Task<ApiClientResponse<IEnumerable<CaseWitnessDto>>> GetWitnessesAsync(string urn, int caseId, CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/witnesses";
+        return await SendAsync<IEnumerable<CaseWitnessDto>>(route, HttpMethod.Get, cancellationToken);
     }
 
     private async Task<ApiClientResponse> SendAsync(string route, HttpMethod httpMethod, CancellationToken cancellationToken = default)
