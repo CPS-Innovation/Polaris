@@ -23,8 +23,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Cps.Fct.Hk.Ui.Interfaces\Cps.Fct.Hk.Ui.Interfaces.csproj" />
-  </ItemGroup>
-
 </Project>
