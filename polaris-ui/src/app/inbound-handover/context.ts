@@ -37,12 +37,13 @@ const isNakedContext = (o: RecordObject): o is NakedContext =>
 
 // Triage task handover
 type TriageContext = {
-  taskId: number;
-  taskTypeId: number;
+  taskId: number | string;
+  taskTypeId: number | string;
 };
 
 const isTriageContext = (o: RecordObject): o is TriageContext =>
-  Number.isInteger(o["taskId"]) && Number.isInteger(o["taskTypeId"]);
+  (typeof o["taskId"] === "string" || Number.isInteger(o["taskId"])) &&
+  (typeof o["taskTypeId"] === "string" || Number.isInteger(o["taskTypeId"]));
 
 export type TaggedTriageContext = {
   contextType: "triage";
