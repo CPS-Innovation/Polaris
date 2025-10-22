@@ -301,6 +301,9 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: "build"
