@@ -301,6 +301,9 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: "build"
@@ -333,6 +336,9 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: "build"
@@ -372,7 +378,9 @@ stages:
               contents: Aspose.Total.NET.lic
               targetFolder: "polaris-pipeline/pdf-generator"
             displayName: "Copy Aspose.Total.NET.lic to project folder before any builds occur"
-      
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: "build"
@@ -412,7 +420,10 @@ stages:
               contents: Aspose.Total.NET.lic
               targetFolder: "polaris-pipeline/pdf-redactor"
             displayName: "Copy Aspose.Total.NET.lic to project folder before any builds occur"
-      
+
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: "build"
@@ -440,6 +451,9 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: "build"
@@ -467,6 +481,9 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: "build"
@@ -494,6 +511,9 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             inputs:
               command: "build"
@@ -659,6 +679,9 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+          - task: NuGetAuthenticate@1
+            displayName: 'Authenticate to NuGet Feed'
+
           - task: DotNetCoreCLI@2
             displayName: "Install ReportGenerator"
             inputs:
