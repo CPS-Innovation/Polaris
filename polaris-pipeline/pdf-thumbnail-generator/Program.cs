@@ -13,6 +13,7 @@ using Common.Wrappers;
 using Microsoft.ApplicationInsights.Extensibility;
 using Common.Middleware;
 using Microsoft.ApplicationInsights.WorkerService;
+using Microsoft.Extensions.Logging;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication(options =>
@@ -23,8 +24,7 @@ var host = new HostBuilder()
     .ConfigureHostConfiguration(builder => builder.AddConfigurationSettings())
     .ConfigureServices((context, services) =>
     {
-        StartupHelpers.SetAsposeLicence();
-
+        
         services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions
         {
             EnableAdaptiveSampling = false,
@@ -50,5 +50,9 @@ var host = new HostBuilder()
         services.AddBlobStorageWithDefaultAzureCredential(context.Configuration);
     })
     .Build();
+
+ILogger<Program> logger = host.Services.GetRequiredService<ILogger<Program>>();
+
+StartupHelpers.SetAsposeLicence(logger);
 
 host.Run();
