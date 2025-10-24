@@ -211,7 +211,7 @@ namespace pdf_generator.tests.Services.PdfService
         }
 
         [Fact]
-        public void ReadToPdfStreamAsync_CallsEmailServiceWhenFileTypeIsMsg()
+        public void ReadToPdfStream_CallsEmailServiceWhenFileTypeIsMsg()
         {
             _pdfOrchestratorService.ReadToPdfStreamAsync(_inputStream, FileType.MSG, _documentId, _correlationId);
 
@@ -223,7 +223,7 @@ namespace pdf_generator.tests.Services.PdfService
         {
             _pdfOrchestratorService.ReadToPdfStreamAsync(_inputStream, FileType.PDF, _documentId, _correlationId);
 
-            _mockPdfRendererService.Verify(service => service.ReadToPdfStreamAsync(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()));
+            _mockWordsPdfService.Verify(service => service.ReadToPdfStream(It.IsAny<MemoryStream>(), It.IsAny<string>(), It.IsAny<Guid>()));
         }
 
         [Fact]
