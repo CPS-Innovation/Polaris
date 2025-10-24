@@ -74,7 +74,7 @@ jobs:
 
     - name: Add GitHub Packages NuGet source
       run: |
-        dotnet nuget add source “https://pkgs.dev.azure.com/CPSDTS/_packaging/cps-fct-feed/nuget/v3/index.json" -n ADO --username information-management-cps-fct-feed -p ${{ secrets.INFORMATION_MANAGEMENT_CPS_FCT_FEED }}
+        dotnet nuget add source "https://pkgs.dev.azure.com/CPSDTS/_packaging/cps-fct-feed/nuget/v3/index.json" -n ADO --username information-management-cps-fct-feed -p ${{ secrets.INFORMATION_MANAGEMENT_CPS_FCT_FEED }}
 
     - run: |
         echo "Run, Build Application using script"
