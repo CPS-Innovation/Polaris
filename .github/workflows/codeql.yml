@@ -20,6 +20,9 @@ on:
   schedule:
     - cron: '41 2 * * 2'
 
+env:
+  nuget_feed_source: 'https://pkgs.dev.azure.com/CPSDTS/_packaging/cps-fct-feed/nuget/v3/index.json'
+
 jobs:
   analyze:
     name: Analyze
@@ -71,6 +74,13 @@ jobs:
 
     #   If the Autobuild fails above, remove it and uncomment the following three lines.
     #   modify them (or add more) to build your code if your project, please refer to the EXAMPLE below for guidance.
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        source-url: ${{ env.nuget_feed_source }}
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.INFORMATION_MANAGEMENT_CPS_FCT_FEED }}
 
     - run: |
         echo "Run, Build Application using script"
