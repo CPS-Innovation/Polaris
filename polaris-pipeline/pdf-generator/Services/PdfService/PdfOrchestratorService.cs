@@ -71,6 +71,7 @@ namespace pdf_generator.Services.PdfService
                     case FileType.HTM:
                     case FileType.MHT:
                     case FileType.MHTML:
+                    case FileType.PDF:
                         converterType = PdfConverterType.AsposeWords;
                         conversionResult = _wordsPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
                         break;
@@ -118,11 +119,6 @@ namespace pdf_generator.Services.PdfService
                     case FileType.MSG:
                         converterType = PdfConverterType.AsposeEmail;
                         conversionResult = _emailPdfService.ReadToPdfStream(inputStream, documentId, correlationId);
-                        break;
-
-                    case FileType.PDF:
-                        converterType = PdfConverterType.AsposePdf;
-                        conversionResult = await _pdfRendererService.ReadToPdfStreamAsync(inputStream, documentId, correlationId);
                         break;
 
                     case FileType.XPS:
