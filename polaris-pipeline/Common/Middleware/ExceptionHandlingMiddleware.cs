@@ -44,6 +44,7 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
                 ArgumentNullException or BadRequestException _ => HttpStatusCode.BadRequest,
                 CpsAuthenticationException _ => HttpStatusCode.ProxyAuthenticationRequired,
                 CmsAuthValuesMissingException _ => HttpStatusCode.Unauthorized,
+                OcrDocumentNotFoundException _ => HttpStatusCode.NotFound,
                 _ => HttpStatusCode.InternalServerError,
             };
 

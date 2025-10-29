@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Dto.Response;
 using coordinator.Durable.Payloads;
@@ -23,4 +24,5 @@ public interface IOrchestrationProvider
         HttpRequest req);
 
     Task<DeleteCaseOrchestrationResult> DeleteCaseOrchestrationAsync(DurableTaskClient client, int caseId);
+    Task<bool> BulkSearchDocumentAsync(DurableTaskClient orchestrationClient, BulkRedactionSearchPayload bulkRedactionSearchPayload, CancellationToken cancellationToken = default);
 }
