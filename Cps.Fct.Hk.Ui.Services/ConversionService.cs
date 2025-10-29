@@ -12,26 +12,31 @@ using System.Threading.Tasks;
 using Aspose.Email.Mapi;
 using Aspose.Pdf.Facades;
 using Azure.Storage.Blobs;
+using Common.Configuration;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Cps.Fct.Hk.Ui.Interfaces.Model;
 using DdeiClient.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Image = Aspose.Imaging.Image;
 
 /// <summary>
 /// Provides services for converting documents related to a case.
 /// </summary>
-public class ConversionService(ILogger<ConversionService> logger, BlobServiceClient? blobServiceClient)
+public class ConversionService(ILogger<ConversionService> logger,
+    BlobServiceClient? blobServiceClient,
+    IConfiguration configuration)
     : IConversionService
 {
     private readonly ILogger<ConversionService> logger = logger;
     private readonly BlobServiceClient? blobServiceClient = blobServiceClient;
+    private readonly IConfiguration configuration = configuration;
 
     /// <inheritdoc />
     public async Task<bool> SaveDownloadedDocumentToTemporaryStorageAsync(FileStreamResult downloadedDocument)
     {
-        string? blobContainerName = Environment.GetEnvironmentVariable("BlobContainerName");
+        string? blobContainerName = this.configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty;
 
         if (string.IsNullOrEmpty(blobContainerName))
         {
@@ -789,7 +794,7 @@ public class ConversionService(ILogger<ConversionService> logger, BlobServiceCli
         }
 
         // Get the blob container name from the environment or config
-        string? blobContainerName = Environment.GetEnvironmentVariable("BlobContainerName");
+        string? blobContainerName = this.configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty;
 
         // Check if the blobContainerName is null or empty
         if (string.IsNullOrEmpty(blobContainerName))

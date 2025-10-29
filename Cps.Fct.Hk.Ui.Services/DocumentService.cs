@@ -16,6 +16,8 @@ using DdeiClient.Clients.Interfaces;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
 using DdeiClient.Utils;
+using Microsoft.Extensions.Configuration;
+using Common.Configuration;
 
 /// <summary>
 /// Provides services for retrieving documents related to a case.
@@ -24,18 +26,22 @@ public class DocumentService(
     ILogger<DocumentService> logger,
     IMasterDataServiceClient apiClient,
     IConversionService conversionService,
+    IConfiguration configuration,
     BlobServiceClient blobServiceClient)
     : IDocumentService
 {
     private readonly ILogger<DocumentService> logger = logger;
     private readonly IMasterDataServiceClient apiClient = apiClient;
     private readonly IConversionService conversionService = conversionService;
+    private readonly IConfiguration configuration = configuration;
     private readonly BlobServiceClient? blobServiceClient = blobServiceClient;
 
     /// <inheritdoc/>
     public async Task<FileStreamResult?> GetMaterialDocumentAsync(string caseId, string link, CmsAuthValues cmsAuthValues, bool firstPageOnly = true)
     {
         string? tmpFileDownloadName = null;
+        string? blobContainerName = this.configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty;
+
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Downloading document with file path [{link}] ...");
@@ -63,8 +69,6 @@ public class DocumentService(
 
                 if (tmpSaved)
                 {
-                    string? blobContainerName = Environment.GetEnvironmentVariable("BlobContainerName");
-
                     tmpFileDownloadName = downloadedDocument.FileDownloadName;
                     string fileDownloadName = $"{tmpFileDownloadName}.pdf";
 
@@ -117,8 +121,6 @@ public class DocumentService(
             // Delete the temporary files from Blob Storage
             if (!string.IsNullOrEmpty(tmpFileDownloadName) && this.blobServiceClient != null)
             {
-                string? blobContainerName = Environment.GetEnvironmentVariable("BlobContainerName");
-
                 if (!string.IsNullOrEmpty(blobContainerName))
                 {
                     await this.DeleteBlobAsync(blobContainerName, $"tmp_{tmpFileDownloadName}", "Temporary file").ConfigureAwait(false);
