@@ -113,20 +113,30 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const { hash } = useLocation();
 
   useEffect(() => {
-    const DB_THRESSHOLD = 100;
-    const getCopiedSting = () => {
-      // add es6+ solution to patch non-working
-      // ctrl+c keypress only inside pdf documents
-      document?.addEventListener("selectionchange", (): void => {
-        if (window.getSelection()?.toString().length) {
-          const exactText = window?.getSelection()?.toString();
-          navigator.clipboard.writeText(exactText as string);
-        }
-      });
+    const copySelectedText = () => {
+      const selectedText = window.getSelection()?.toString();
+      if (selectedText) navigator.clipboard.writeText(selectedText);
     };
 
-    const debounceCopiedValue = debounce(getCopiedSting, DB_THRESSHOLD);
-    debounceCopiedValue();
+    const handleCopyShortcut = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === "c") copySelectedText();
+    };
+
+    const handleRightClickCopy = () => copySelectedText();
+
+    const suppressMiniMenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+
+    window.addEventListener("mouseup", suppressMiniMenu);
+    document.addEventListener("keydown", handleCopyShortcut);
+    document.addEventListener("contextmenu", handleRightClickCopy);
+
+    return () => {
+      window.removeEventListener("mouseup", suppressMiniMenu);
+      document.removeEventListener("keydown", handleCopyShortcut);
+      document.removeEventListener("contextmenu", handleRightClickCopy);
+    };
   }, []);
 
   useEffect(() => {
