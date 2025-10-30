@@ -11,7 +11,7 @@ namespace pdf_generator
         {
             try
             {
-                const string licenceFileName = "Licenses/Aspose.Total.NET.lic";
+                const string licenceFileName = "Aspose.Total.NET.lic";
 
                 new Aspose.Cells.License().SetLicense(licenceFileName);
                 new Aspose.Email.License().SetLicense(licenceFileName);
