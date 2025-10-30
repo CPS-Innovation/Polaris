@@ -9,10 +9,15 @@
 		<_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="Services\HouseKeeping\**" />
+	  <EmbeddedResource Remove="Services\HouseKeeping\**" />
+	  <None Remove="Services\HouseKeeping\**" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
-		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.0" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.1" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.OpenApi" Version="1.5.1" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="9.0.4" />
@@ -35,7 +40,9 @@
 		</None>
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\Cps.Fct.Hk.Ui.Interfaces\Cps.Fct.Hk.Ui.Interfaces.csproj" />
+		<ProjectReference Include="..\Cps.Fct.Hk.Ui.Services\Cps.Fct.Hk.Ui.Services.csproj" />
+		<ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
 		<ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
-		<ProjectReference Include="..\polaris-pipeline\DdeiClient\DdeiClient.csproj" />
 	</ItemGroup>
 </Project>
