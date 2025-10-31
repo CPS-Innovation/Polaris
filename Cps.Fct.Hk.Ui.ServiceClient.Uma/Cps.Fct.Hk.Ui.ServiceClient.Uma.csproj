@@ -9,7 +9,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="../../stylecop.json" />
+	  <AdditionalFiles Remove="D:\Users\Girma.Bewketu\source\repos\Polaris\stylecop.json" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -2,8 +2,9 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace Cps.Fct.Hk.Ui.Interfaces.Model;
+namespace Common.Dto.Response.HouseKeeping;
 
+using System;
 using System.Text.Json.Serialization;
 
 /// <summary>
@@ -35,7 +36,7 @@ public record Communication(
     [property: JsonPropertyName("category")] string Category,
     [property: JsonPropertyName("type")] string Type,
     [property: JsonPropertyName("hasAttachments")] bool HasAttachments,
-    [property: JsonPropertyName("method")] string? Method = null,
-    [property: JsonPropertyName("direction")] string? Direction = null,
-    [property: JsonPropertyName("party")] string? Party = null,
+    [property: JsonPropertyName("method")] string Method = null,
+    [property: JsonPropertyName("direction")] string Direction = null,
+    [property: JsonPropertyName("party")] string Party = null,
     [property: JsonPropertyName("date")] DateTime? Date = null);

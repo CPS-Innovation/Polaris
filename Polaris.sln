@@ -67,6 +67,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cps.Fct.Hk.Ui.Interfaces", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cps.Fct.Hk.Ui.Services.Tests", "Cps.Fct.Hk.Ui.Services.Tests\Cps.Fct.Hk.Ui.Services.Tests.csproj", "{AE8D537E-204D-4282-8CF8-BF2A29E19BCA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{31700555-E4E7-4CD5-A0C7-8A6EC4BF2D3F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

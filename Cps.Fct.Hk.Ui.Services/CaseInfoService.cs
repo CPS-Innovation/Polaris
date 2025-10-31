@@ -6,7 +6,6 @@ namespace Cps.Fct.Hk.Ui.Services;
 
 using System;
 using System.Threading.Tasks;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using Cps.Fct.Hk.Ui.Interfaces;
@@ -14,6 +13,7 @@ using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Request.HouseKeeping;
 using DdeiClient.Clients.Interfaces;
 using Common.Dto.Request;
+using Common.Constants;
 
 /// <summary>
 /// Provides services for retrieving information related to a case.

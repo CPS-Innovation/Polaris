@@ -1,8 +1,8 @@
-// <copyright file="LoggingConstants.cs" company="TheCrownProsecutionService">
+﻿// <copyright file="LoggingConstants.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace Cps.Fct.Hk.Ui.Interfaces.Model;
+namespace Common.Constants;
 
 /// <summary>
 /// Provides constants used for logging throughout the application.

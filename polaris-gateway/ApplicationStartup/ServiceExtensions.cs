@@ -80,6 +80,12 @@ public static class ServiceExtensions
         services.AddSingleton<ICaseInfoService, CaseInfoService>();
         services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>();
         services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();
+        services.AddSingleton<ICommunicationService, CommunicationService>();
+        services.AddSingleton<ICommunicationMapper, CommunicationMapper>();
+        services.AddSingleton<ICaseMaterialService, CaseMaterialService>();
+        services.AddSingleton<IDocumentService, DocumentService>();
+        services.AddSingleton<IDocumentTypeMapper, DocumentTypeMapper>();
+        services.AddSingleton<IConversionService, ConversionService>();
 
         // Register MasterDataService client options.
         services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);
@@ -90,7 +96,7 @@ public static class ServiceExtensions
         where TInterface : class
         where TImplementation : class, TInterface
     {
-        services.AddHttpClient<TInterface, TImplementation>(client => 
+        services.AddHttpClient<TInterface, TImplementation>(client =>
         {
             client.BaseAddress = new Uri(GetValueFromConfig(configuration, baseUrlKey));
             client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };

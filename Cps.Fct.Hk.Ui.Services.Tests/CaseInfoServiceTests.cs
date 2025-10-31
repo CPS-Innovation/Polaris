@@ -8,12 +8,12 @@ using Xunit;
 using Moq;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
 using DdeiClient.Clients.Interfaces;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response.HouseKeeping;
+using Common.Constants;
 
 /// <summary>
 /// Contains unit tests for the <see cref="CaseInfoService"/> class.
