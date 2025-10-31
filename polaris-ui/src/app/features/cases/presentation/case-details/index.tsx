@@ -113,6 +113,8 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
   const { hash } = useLocation();
 
   useEffect(() => {
+    const DB_THRESSHOLD = 100;
+
     const copySelectedText = () => {
       const selectedText = window.getSelection()?.toString();
       if (selectedText) navigator.clipboard.writeText(selectedText);
@@ -128,9 +130,16 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       e.preventDefault();
     };
 
-    window.addEventListener("mouseup", suppressMiniMenu);
-    document.addEventListener("keydown", handleCopyShortcut);
-    document.addEventListener("contextmenu", handleRightClickCopy);
+    const getCopiedString = () => {
+      // add es6+ solution to patch non-working
+      // ctrl+c keypress only inside pdf documents
+      window.addEventListener("mouseup", suppressMiniMenu);
+      document.addEventListener("keydown", handleCopyShortcut);
+      document.addEventListener("contextmenu", handleRightClickCopy);
+    };
+
+    const debounceCopiedValue = debounce(getCopiedString, DB_THRESSHOLD);
+    debounceCopiedValue();
 
     return () => {
       window.removeEventListener("mouseup", suppressMiniMenu);
@@ -138,6 +147,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
       document.removeEventListener("contextmenu", handleRightClickCopy);
     };
   }, []);
+
 
   useEffect(() => {
     const DCF_ARG = "dcf";
