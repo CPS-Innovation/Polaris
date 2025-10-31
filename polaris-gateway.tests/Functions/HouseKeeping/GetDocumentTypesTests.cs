@@ -6,11 +6,11 @@ namespace PolarisGateway.Tests.Functions.HouseKeeping;
 
 using System;
 using System.Collections.Generic;
+using Common.Constants;
 using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response.HouseKeeping;
 using Cps.Fct.Hk.Ui.Functions.Functions;
 using Cps.Fct.Hk.Ui.Interfaces;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

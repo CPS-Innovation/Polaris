@@ -16,9 +16,9 @@ using Moq;
 using Xunit;
 using Azure.Storage.Blobs.Models;
 using Azure;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Microsoft.Extensions.Configuration;
 using Common.Configuration;
+using Common.Constants;
 
 /// <summary>
 /// Contains unit tests for the <see cref="ConversionService"/> class.

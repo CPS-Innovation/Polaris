@@ -9,11 +9,11 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.ServiceClient.Uma.Configuration;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Common.Constants;
 using Common.Dto.Response.HouseKeeping;
 
 /// <summary>

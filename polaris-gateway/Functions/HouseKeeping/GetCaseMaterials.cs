@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Diagnostics;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.OpenApi.Models;
@@ -26,6 +25,7 @@ using System;
 using PolarisGateway.Helpers;
 using Common.Dto.Request;
 using Common.Configuration;
+using Common.Constants;
 
 /// <summary>
 /// Represents a function that retrieves the case materials for a case,

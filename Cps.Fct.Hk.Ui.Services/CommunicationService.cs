@@ -21,6 +21,7 @@ using Common.Dto.Response.HouseKeeping.Pcd;
 using Microsoft.Identity.Client;
 using Microsoft;
 using System.Diagnostics;
+using Common.Constants;
 
 /// <summary>
 /// Provides services for processing and retrieving communications related to a case.

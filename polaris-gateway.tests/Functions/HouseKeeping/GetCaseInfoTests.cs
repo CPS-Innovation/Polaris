@@ -11,12 +11,12 @@ using Microsoft.AspNetCore.Mvc;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Functions.HouseKeeping;
 using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Request;
 using System;
+using Common.Constants;
 
 /// <summary>
 /// Unit tests for the <see cref="GetCaseInfo"/> class.

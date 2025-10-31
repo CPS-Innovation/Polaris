@@ -7,7 +7,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -20,6 +19,7 @@ using Microsoft.Extensions.Configuration;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
 using Common.Configuration;
+using Common.Constants;
 
 /// <summary>
 /// Unit tests for the <see cref="DocumentService"/> class.

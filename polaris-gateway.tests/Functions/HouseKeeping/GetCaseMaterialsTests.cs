@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Cps.Fct.Hk.Ui.Interfaces;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -18,6 +17,7 @@ using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
 using PolarisGateway.Functions.HouseKeeping;
 using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Request;
+using Common.Constants;
 
 /// <summary>
 /// Unit tests for the <see cref="GetCaseMaterials"/> class.

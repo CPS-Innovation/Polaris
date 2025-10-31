@@ -6,7 +6,6 @@ namespace Cps.Fct.Hk.Ui.Services;
 
 using System;
 using System.Threading.Tasks;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Microsoft.Extensions.Logging;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +17,7 @@ using Common.Dto.Request.HouseKeeping;
 using DdeiClient.Utils;
 using Microsoft.Extensions.Configuration;
 using Common.Configuration;
+using Common.Constants;
 
 /// <summary>
 /// Provides services for retrieving documents related to a case.

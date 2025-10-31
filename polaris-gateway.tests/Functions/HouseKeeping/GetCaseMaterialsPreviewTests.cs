@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 using Cps.Fct.Hk.Ui.Interfaces;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
 using Cps.Fct.Hk.Ui.Functions.Functions;
 using PolarisGateway.Functions.HouseKeeping;
@@ -21,6 +20,7 @@ using Microsoft.Extensions.Configuration;
 using Common.Dto.Request;
 using Common.Dto.Response.HouseKeeping;
 using System;
+using Common.Constants;
 
 /// <summary>
 /// Unit tests for the <see cref="GetCaseMaterialsPreview"/> class.
@@ -71,7 +71,6 @@ public class GetCaseMaterialsPreviewTests
         BadRequestObjectResult badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
         Assert.Equal($"{LoggingConstants.HskUiLogPrefix} Invalid material_id format. It should be an integer.", badRequestResult.Value);
     }
-
 
     /// <summary>
     /// Tests that Run returns a NotFoundObjectResult when no valid link is found for the case material document.

@@ -7,22 +7,19 @@ namespace DdeiClient.Clients
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
     using System.Text.Json;
-    using Azure.Storage.Blobs.Models;
+    using Common.Constants;
     using Common.Dto.Request;
     using Common.Dto.Request.HouseKeeping;
     using Common.Dto.Response.HouseKeeping;
-    using Cps.Fct.Hk.Ui.Interfaces.Model;
     using DdeiClient.Clients.Interfaces;
     using DdeiClient.Diagnostics;
     using DdeiClient.Model;
     using DdeiClient.Utils;
     using Microsoft;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.Extensions.Logging;
 
     /// <summary>

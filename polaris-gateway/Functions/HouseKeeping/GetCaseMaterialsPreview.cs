@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Diagnostics;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.OpenApi.Models;
 using System.Net;
@@ -21,6 +20,7 @@ using PolarisGateway.Helpers;
 using System;
 using System.IO;
 using Common.Configuration;
+using Common.Constants;
 
 /// <summary>
 /// Represents a function that retrieves the case material document for display purposes,

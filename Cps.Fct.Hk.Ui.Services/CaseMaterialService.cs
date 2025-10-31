@@ -16,6 +16,7 @@ using Common.Dto.Request;
 using Cps.Fct.Hk.Ui.Services.Constants;
 using Common.Dto.Request.HouseKeeping;
 using System.Globalization;
+using Common.Constants;
 
 /// <summary>
 /// Provides services for processing and retrieving case materials related to a case.
