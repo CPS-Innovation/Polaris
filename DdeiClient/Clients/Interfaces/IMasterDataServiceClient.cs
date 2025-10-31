@@ -7,7 +7,6 @@ namespace DdeiClient.Clients.Interfaces
     using Common.Dto.Request;
     using Common.Dto.Request.HouseKeeping;
     using Common.Dto.Response.HouseKeeping;
-    using Cps.MasterDataService.Infrastructure.ApiClient;
     using Microsoft.AspNetCore.Mvc;
 
     /// <summary>
@@ -40,7 +39,7 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="request">The request to list used statements.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A list of used statements for a case identifier.</returns>
-        Task<Common.Dto.Response.HouseKeeping.UsedStatementsResponse> GetUsedStatementsAsync(GetUsedStatementsRequest request, CmsAuthValues cmsAuthValues);
+        Task<UsedStatementsResponse> GetUsedStatementsAsync(GetUsedStatementsRequest request, CmsAuthValues cmsAuthValues);
 
         /// <summary>
         /// Lists the used exhibits for a case identifier.
@@ -48,7 +47,7 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="request">The request to list used exhibits.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A list of used exhibits for a case identifier.</returns>
-        Task<Common.Dto.Response.HouseKeeping.UsedExhibitsResponse> GetUsedExhibitsAsync(GetUsedExhibitsRequest request, CmsAuthValues cmsAuthValues);
+        Task<UsedExhibitsResponse> GetUsedExhibitsAsync(GetUsedExhibitsRequest request, CmsAuthValues cmsAuthValues);
 
         /// <summary>
         /// Lists the used MG forms for a case identifier.
@@ -56,7 +55,7 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="request">The request to list used MG forms.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A list of used MG forms for a case identifier.</returns>
-        Task<Common.Dto.Response.HouseKeeping.UsedMgFormsResponse> GetUsedMgFormsAsync(GetUsedMgFormsRequest request, CmsAuthValues cmsAuthValues);
+        Task<UsedMgFormsResponse> GetUsedMgFormsAsync(GetUsedMgFormsRequest request, CmsAuthValues cmsAuthValues);
 
         /// <summary>
         /// Lists the used other materials for a case identifier.
@@ -64,7 +63,7 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="request">The request to list used other materials.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A list of used other materials for a case identifier.</returns>
-        Task<Common.Dto.Response.HouseKeeping.UsedOtherMaterialsResponse> GetUsedOtherMaterialsAsync(GetUsedOtherMaterialsRequest request, CmsAuthValues cmsAuthValues);
+        Task<UsedOtherMaterialsResponse> GetUsedOtherMaterialsAsync(GetUsedOtherMaterialsRequest request, CmsAuthValues cmsAuthValues);
 
         /// <summary>
         /// Lists the unused materials for a case identifier.
@@ -80,7 +79,7 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="request">The request for exhibit producers.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A list of exhibit producers</returns>
-        Task<Common.Dto.Response.HouseKeeping.ExhibitProducersResponse> GetExhibitProducersAsync(GetExhibitProducersRequest request, CmsAuthValues cmsAuthValues);
+        Task<ExhibitProducersResponse> GetExhibitProducersAsync(GetExhibitProducersRequest request, CmsAuthValues cmsAuthValues);
 
         /// <summary>
         /// Asynchronously retrieves the attachments for a given communication identifier.

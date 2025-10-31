@@ -315,6 +315,7 @@ namespace DdeiClient.Clients
             }
         }
 
+        /// <inheritdoc/>
         public async Task<UsedStatementsResponse> GetUsedStatementsAsync(GetUsedStatementsRequest request, CmsAuthValues cmsAuthValues)
         {
             Requires.NotNull(request);
