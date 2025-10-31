@@ -133,19 +133,13 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
     const getCopiedString = () => {
       // add es6+ solution to patch non-working
       // ctrl+c keypress only inside pdf documents
-      window.addEventListener("mouseup", suppressMiniMenu);
+      document.addEventListener("mouseup", suppressMiniMenu);
       document.addEventListener("keydown", handleCopyShortcut);
       document.addEventListener("contextmenu", handleRightClickCopy);
     };
 
     const debounceCopiedValue = debounce(getCopiedString, DB_THRESSHOLD);
     debounceCopiedValue();
-
-    return () => {
-      window.removeEventListener("mouseup", suppressMiniMenu);
-      document.removeEventListener("keydown", handleCopyShortcut);
-      document.removeEventListener("contextmenu", handleRightClickCopy);
-    };
   }, []);
 
 
