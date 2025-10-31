@@ -163,7 +163,9 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
       app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
       app_settings["WEBSITE_WARMUP_PATH"],
-      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"]
+      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
+      app_settings["MasterDataServiceClient__BaseAddress"],
+      app_settings["MasterDataServiceClient__FunctionKey"]
     ]
   }
 

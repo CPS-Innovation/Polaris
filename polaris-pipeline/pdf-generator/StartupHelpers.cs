@@ -1,29 +1,27 @@
-﻿using System;
-using Microsoft.Extensions.Logging;
-using pdf_generator.Domain.Exceptions;
+﻿using Microsoft.Extensions.Logging;
+using System;
 
-namespace pdf_generator
+namespace pdf_generator;
+
+internal static class StartupHelpers
 {
-    internal static class StartupHelpers
+
+    internal static void SetAsposeLicence(ILogger<Program> logger)
     {
-
-        internal static void SetAsposeLicence(ILogger<Program> logger)
+        try
         {
-            try
-            {
-                const string licenceFileName = "Licenses/Aspose.Total.NET.lic";
+            const string licenceFileName = "Aspose.Total.NET.lic";
 
-                new Aspose.Cells.License().SetLicense(licenceFileName);
-                new Aspose.Email.License().SetLicense(licenceFileName);
-                new Aspose.Imaging.License().SetLicense(licenceFileName);
-                new Aspose.Pdf.License().SetLicense(licenceFileName);
-                new Aspose.Slides.License().SetLicense(licenceFileName);
-                new Aspose.Words.License().SetLicense(licenceFileName);
-            }
-            catch (Exception ex)
-            {
-               logger.LogError($"Aspose license not found or invalid. Running in evaluation mode. Error: {ex.Message}");
-            }
+            new Aspose.Cells.License().SetLicense(licenceFileName);
+            new Aspose.Email.License().SetLicense(licenceFileName);
+            new Aspose.Imaging.License().SetLicense(licenceFileName);
+            new Aspose.Pdf.License().SetLicense(licenceFileName);
+            new Aspose.Slides.License().SetLicense(licenceFileName);
+            new Aspose.Words.License().SetLicense(licenceFileName);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError($"Aspose license not found or invalid. Running in evaluation mode. Error: {ex.Message}");
         }
     }
 }

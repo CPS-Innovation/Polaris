@@ -1,0 +1,370 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Cps.Fct.Hk.Ui.Interfaces</name>
+    </assembly>
+    <members>
+        <member name="T:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationMethod">
+            <summary>
+            Communication party display values.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationMethod.Email">
+            <summary>
+            Email display text.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationMethod.Phone">
+            <summary>
+            phone display text.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationMethod.Bundle">
+            <summary>
+            Bundle display text.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationMethod.Item">
+            <summary>
+            Item display text.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationMethod.Document">
+            <summary>
+            Document display text.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationMethod.Meeting">
+            <summary>
+            Meeting display text.
+            </summary>
+        </member>
+        <member name="T:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationParty">
+            <summary>
+            Communication party display values.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationParty.Other">
+            <summary>
+            Other party display text.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationParty.Counsel">
+            <summary>
+            Counsel party display text.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationParty.Court">
+            <summary>
+            Court party display text.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationParty.Defence">
+            <summary>
+            Defence party display text.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationParty.Police">
+            <summary>
+             Police display rext.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationParty.DCS">
+            <summary>
+            Digital case system display text.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.CommunicationParty.WCU">
+            <summary>
+            WCU display text.
+            </summary>
+        </member>
+        <member name="T:Cps.Fct.Hk.Ui.Interfaces.Enums.SetMaterialReadStatusType">
+            <summary>
+            Enum hold material read or unread status.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.SetMaterialReadStatusType.Invalid">
+            <summary>
+            Invalid read status.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.SetMaterialReadStatusType.Read">
+            <summary>
+            Material read status.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Enums.SetMaterialReadStatusType.Unread">
+            <summary>
+            Material read status.
+            </summary>
+        </member>
+        <member name="T:Cps.Fct.Hk.Ui.Interfaces.Exceptions.CaseLockedException">
+            <summary>
+            Represents an exception that is thrown when a request cannot be processed due to Case being locked state.
+            </summary>
+        </member>
+        <member name="M:Cps.Fct.Hk.Ui.Interfaces.Exceptions.CaseLockedException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Cps.Fct.Hk.Ui.Interfaces.Exceptions.CaseLockedException"/> class with a specified error message.
+            </summary>
+            <param name="message">The message that describes the error.</param>
+        </member>
+        <member name="T:Cps.Fct.Hk.Ui.Interfaces.Exceptions.UnprocessableEntityException">
+            <summary>
+            Represents an exception that is thrown when a request cannot be processed due to invalid data or constraints.
+            </summary>
+        </member>
+        <member name="M:Cps.Fct.Hk.Ui.Interfaces.Exceptions.UnprocessableEntityException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Cps.Fct.Hk.Ui.Interfaces.Exceptions.UnprocessableEntityException"/> class with a specified error message.
+            </summary>
+            <param name="message">The message that describes the error.</param>
+        </member>
+        <member name="T:Cps.Fct.Hk.Ui.Interfaces.ICaseInfoService">
+            <summary>
+            Interface for case info service that provides methods to retrieve and log case info.
+            </summary>
+        </member>
+        <member name="M:Cps.Fct.Hk.Ui.Interfaces.ICaseInfoService.GetCaseInfoAsync(System.Int32,Common.Dto.Request.CmsAuthValues)">
+            <summary>
+            Retrieves high-level display information for a specific case.
+            </summary>
+            <param name="caseId">The unique identifier of the case for which communications are being retrieved.</param>
+            <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve communications.</param>
+            <returns>A task that represents the asynchronous operation. The task result contains a read-only <see cref="!:CaseSummary"/> object.</returns>
+        </member>
+        <member name="T:Cps.Fct.Hk.Ui.Interfaces.Model.Communication">
+            <summary>
+            Represents a communication related to a case, containing details such as the original file name,
+            document type, status, and classification.
+            </summary>
+            <param name="Id">The unique ID of the communication.</param>///
+            <param name="OriginalFileName">The original file name of the communication.</param>
+            <param name="Subject">The subject or title of the communication.</param>
+            <param name="DocumentTypeId">The document type ID of the communication, used to identify the document type.</param>
+            <param name="MaterialId">The unique material ID of the communication.</param>
+            <param name="Link">The downloadable link to the communication.</param>
+            <param name="Status">The current status of the communication (e.g., Used, None, Unused).</param>
+            <param name="Category">The category of the communication (e.g., MG Form, Statement).</param>
+            <param name="Type">The document type of the communication, mapped from the document type ID.</param>
+            <param name="HasAttachments">The flag used to identify if the communication has attachments.</param>
+            <param name="Method">The type of communication (e.g. email, phone, Bundle) </param>
+            <param name="Direction">The direction of communication (e.g. incoming, outgoing)</param>
+            <param name="Party">Which party the communication is sitting with (e.g. Counsel, police, DCS)</param>
+            <param name="Date">The received or sent date of the communication.</param>
+        </member>
+        <member name="M:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.#ctor(System.Int32,System.String,System.String,System.Int32,System.Int32,System.String,System.String,System.String,System.String,System.Boolean,System.String,System.String,System.String,System.Nullable{System.DateTime})">
+            <summary>
+            Represents a communication related to a case, containing details such as the original file name,
+            document type, status, and classification.
+            </summary>
+            <param name="Id">The unique ID of the communication.</param>///
+            <param name="OriginalFileName">The original file name of the communication.</param>
+            <param name="Subject">The subject or title of the communication.</param>
+            <param name="DocumentTypeId">The document type ID of the communication, used to identify the document type.</param>
+            <param name="MaterialId">The unique material ID of the communication.</param>
+            <param name="Link">The downloadable link to the communication.</param>
+            <param name="Status">The current status of the communication (e.g., Used, None, Unused).</param>
+            <param name="Category">The category of the communication (e.g., MG Form, Statement).</param>
+            <param name="Type">The document type of the communication, mapped from the document type ID.</param>
+            <param name="HasAttachments">The flag used to identify if the communication has attachments.</param>
+            <param name="Method">The type of communication (e.g. email, phone, Bundle) </param>
+            <param name="Direction">The direction of communication (e.g. incoming, outgoing)</param>
+            <param name="Party">Which party the communication is sitting with (e.g. Counsel, police, DCS)</param>
+            <param name="Date">The received or sent date of the communication.</param>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.Id">
+            <summary>The unique ID of the communication.</summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.OriginalFileName">
+            <summary>The original file name of the communication.</summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.Subject">
+            <summary>The subject or title of the communication.</summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.DocumentTypeId">
+            <summary>The document type ID of the communication, used to identify the document type.</summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.MaterialId">
+            <summary>The unique material ID of the communication.</summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.Link">
+            <summary>The downloadable link to the communication.</summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.Status">
+            <summary>The current status of the communication (e.g., Used, None, Unused).</summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.Category">
+            <summary>The category of the communication (e.g., MG Form, Statement).</summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.Type">
+            <summary>The document type of the communication, mapped from the document type ID.</summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.HasAttachments">
+            <summary>The flag used to identify if the communication has attachments.</summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.Method">
+            <summary>The type of communication (e.g. email, phone, Bundle) </summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.Direction">
+            <summary>The direction of communication (e.g. incoming, outgoing)</summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.Party">
+            <summary>Which party the communication is sitting with (e.g. Counsel, police, DCS)</summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.Communication.Date">
+            <summary>The received or sent date of the communication.</summary>
+        </member>
+        <member name="T:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants">
+            <summary>
+            Provides constants used for logging throughout the application.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.HskUiLogPrefix">
+            <summary>
+            The log prefix for HSK UI-related log messages.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.BulkSetUnusedOperationSuccess">
+            <summary>
+            BulkSetUnused operation success log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.BulkSetUnusedOperationFailed">
+            <summary>
+            BulkSetUnused operation failed log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.UmaReclassifyOperationFailed">
+            <summary>
+            UmaReclassify operation failed log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.UmaReclassifyOperationPartialSuccess">
+            <summary>
+            UmaReclassify operation partial success log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.UmaReclassifyOperationCompleted">
+            <summary>
+            UmaReclassify operation completed log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.RenameMaterialOperationSuccess">
+            <summary>
+            RenameMaterial operation success log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.RenameMaterialOperationFailed">
+            <summary>
+            RenameMaterial operation failed log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.UserLogInSuccess">
+            <summary>
+            User successfully accessed case log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.UnitNameExtractionSuccess">
+            <summary>
+            UnitName extracted and logged successfully log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.DiscardMaterialOperationSuccess">
+            <summary>
+            DiscardMaterial operation success log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.DiscardMaterialOperationFailed">
+            <summary>
+            DiscardMaterial operation failed log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.ReclassifyCaseMaterialOperationFailed">
+            <summary>
+            ReclassifyCaseMaterial operation failed log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.ReclassifyCaseMaterialOperationSuccess">
+            <summary>
+            ReclassifyCaseMaterial operation success log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.AddWitnessOperationSuccess">
+            <summary>
+            AddWitness operation success log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.AddWitnessOperationFailed">
+            <summary>
+            AddWitness operation failed log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.AddCaseActionPlanOperationSuccess">
+            <summary>
+            AddCaseActionPlan operation success log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.AddCaseActionPlanOperationFailed">
+            <summary>
+            AddCaseActionPlan operation failed log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.CaseLockReleaseOperationSuccess">
+            <summary>
+            CaseLockRelease operation success log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.CheckCaseLockOperationSuccess">
+            <summary>
+            CheckCaseLock operation success log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.CaseLockReleaseOperationFailed">
+            <summary>
+            CaseLockRelease operation failed log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.CheckCaseLockOperationFailed">
+            <summary>
+            CaseLockRelease operation failed log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.UpdateExhibitOperationSuccess">
+            <summary>
+            Update exhibit operation success log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.UpdateExhibitOperationFailed">
+            <summary>
+            Update exhibit operation failed.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.UpdateStatementOperationSuccess">
+            <summary>
+            Update statement operation success log message.
+            </summary>
+        </member>
+        <member name="F:Cps.Fct.Hk.Ui.Interfaces.Model.LoggingConstants.UpdateStatementOperationFailed">
+            <summary>
+            Update statement operation failed.
+            </summary>
+        </member>
+        <member name="T:Cps.Fct.Hk.Ui.Interfaces.Model.MatchedCommunication">
+            <summary>
+            Represents a request for a matched communication.
+            </summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.MatchedCommunication.materialId">
+            <summary>
+            Gets or sets the material ID associated with the communication.
+            </summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Interfaces.Model.MatchedCommunication.subject">
+            <summary>
+            Gets or sets the subject of the communication.
+            </summary>
+        </member>
+    </members>
+</doc>
