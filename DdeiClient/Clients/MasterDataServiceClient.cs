@@ -7,12 +7,11 @@ namespace DdeiClient.Clients
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Globalization;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
-    using System.Net;
     using System.Text.Json;
-    using System.Web;
+    using Azure.Storage.Blobs.Models;
     using Common.Dto.Request;
     using Common.Dto.Request.HouseKeeping;
     using Common.Dto.Response.HouseKeeping;
@@ -22,10 +21,9 @@ namespace DdeiClient.Clients
     using DdeiClient.Model;
     using DdeiClient.Utils;
     using Microsoft;
-    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.Extensions.Logging;
-    using Microsoft.Identity.Client;
 
     /// <summary>
     ///  Repesents Mds API client.
@@ -441,7 +439,7 @@ namespace DdeiClient.Clients
 
             var stopwatch = Stopwatch.StartNew();
             const string OperationName = "GetAttachments";
-            AttachmentsResponse results = new ();
+            AttachmentsResponse results = new();
 
             try
             {
@@ -543,7 +541,7 @@ namespace DdeiClient.Clients
 
             var stopwatch = Stopwatch.StartNew();
             const string OperationName = "GetExhibitProducers";
-            ExhibitProducersResponse results = new ();
+            ExhibitProducersResponse results = new();
 
             try
             {
@@ -581,6 +579,403 @@ namespace DdeiClient.Clients
             return results;
         }
 
+        /// <inheritdoc/>
+        public async Task<DefendantsResponse> GetCaseDefendantsAsync(ListCaseDefendantsRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "ListCaseDefendants";
+            List<Defendant> results = new();
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.ListCaseDefendantsAsync(request.CaseId);
+
+                var listCaseDefendantsResponse = new DefendantsResponse
+                {
+                    Defendants = data.Select(defendant => new Defendant(
+                        defendant.Id,
+                        defendant.CaseId,
+                        defendant.ListOrder,
+                        defendant.Type,
+                        defendant.FirstNames,
+                        defendant.Surname,
+                        DateTime.Parse(defendant?.Dob),
+                        defendant.PoliceRemandStatus.ToString(),
+                        defendant.Youth,
+                        defendant?.CustodyTimeLimit.ToString(),
+                        MapOffences(defendant.Offences),
+                        null,
+                        MapProposedCharges(defendant.ProposedCharges),
+                        defendant.NextHearing,
+                        defendant.DefendantPcdReview,
+                        defendant.Solicitor,
+                        MapPersonalDetail(defendant.PersonalDetail))).ToList(),
+                };
+
+                string additionalInfo = listCaseDefendantsResponse?.Defendants is { Count: > 0 }
+                    ? $"received #{listCaseDefendantsResponse.Defendants.Count} defendants"
+                    : "received #0 defendants";
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, additionalInfo);
+
+                return listCaseDefendantsResponse;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<WitnessesResponse> GetCaseWitnessesAsync(GetCaseWitnessesRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "ListCaseWitnesses";
+            string additionalInfo = $"received #0 witnesses";
+            WitnessesResponse results = new();
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.ListCaseWitnessesAsync(request.CaseId);
+
+                if (data is not null)
+                {
+                    results.Witnesses = data.Select(witness => new Common.Dto.Response.HouseKeeping.Witness(
+                        witness.CaseId,
+                        witness.WitnessId,
+                        witness.FirstName,
+                        witness.Surname)).ToList();
+                }
+
+                if (results.Witnesses.Count > 0)
+                {
+                    additionalInfo = $"retrieved #{results.Witnesses.Count} witnesses";
+                }
+
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, additionalInfo);
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+
+            return results;
+        }
+
+        /// <inheritdoc/>
+        public async Task<WitnessStatementsResponse> GetWitnessStatementsAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "GetStatementsForWitness";
+            string additionalInfo = "received #0 statements";
+
+            WitnessStatementsResponse results = new();
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.GetStatementsForWitnessAsync(request.WitnessId);
+
+                if (data?.StatementsForWitness is not null)
+                {
+                    results.WitnessStatements = data.StatementsForWitness.Select(statement =>
+                        new WitnessStatement(statement.Id, statement.Title)).ToList();
+                }
+
+                if (results.WitnessStatements?.Count > 0)
+                {
+                    additionalInfo = $"retrieved #{results.WitnessStatements.Count} statements";
+                }
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+
+            return results;
+        }
+
+        /// <inheritdoc/>
+        public async Task<NoContentResult> AddCaseActionPlanAsync(int caseId, AddActionPlanRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "AddActionPlan";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var mdsRequest = MapApAction(request);
+
+                await client.AddActionPlanAsync(caseId, mdsRequest);
+
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, "");
+                return new NoContentResult();
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<NoContentResult> AddWitnessAsync(AddWitnessRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(request.caseId);
+            Requires.NotNull(request.Surname);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "AddWitness";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var mdsRequest = new Cps.MasterDataService.Infrastructure.ApiClient.Witness()
+                {
+                    CaseId = request.caseId,
+                    Surname = request.Surname,
+                    FirstName = request.FirstName,
+                };
+
+                await client.AddWitnessAsync(request.caseId, mdsRequest);
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+                return new NoContentResult();
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        private static ExhibitAttachmentSubType MapExhibitSubItem(Cps.MasterDataService.Infrastructure.ApiClient.ExhibitAttachmentHkSubType exhibit)
+        {
+            if (exhibit is null)
+            {
+                return null;
+            }
+
+            return new ExhibitAttachmentSubType(exhibit.Reference, exhibit.Item, exhibit.Producer);
+        }
+
+        private static StatementAttachmentSubType MapStatementSubType(Cps.MasterDataService.Infrastructure.ApiClient.StatementAttachmentHkSubType statement)
+        {
+            if (statement == null)
+            {
+                return null;
+            }
+
+            return new StatementAttachmentSubType(
+                statement.WitnessName,
+                statement?.WitnessTitle,
+                statement?.WitnessShoulderNo,
+                statement.StatementNo,
+                statement.Date,
+                statement?.Witness);
+        }
+
+        private static List<Offence> MapOffences(ICollection<Cps.MasterDataService.Infrastructure.ApiClient.Offence> offence)
+        {
+            if (offence is null)
+            {
+                return null;
+            }
+
+            return new List<Offence>(
+                offence.Select(offence =>
+                    new Offence(
+                        offence.Id,
+                        offence.ListOrder,
+                        offence.Code,
+                        offence.Type,
+                        offence.Active,
+                        offence.Description,
+                        offence.FromDate,
+                        offence.ToDate,
+                        offence.LatestPlea,
+                        offence.LatestVerdict,
+                        offence.DisposedReason,
+                        offence.LastHearingOutcome,
+                        offence.CustodyTimeLimit.ToString(),
+                        offence.LatestPleaDescription)));
+        }
+
+        private static List<ProposedCharge> MapProposedCharges(ICollection<Cps.MasterDataService.Infrastructure.ApiClient.ProposedCharge> proposedCharges)
+        {
+            if (proposedCharges is null)
+            {
+                return null;
+            }
+
+            return new List<ProposedCharge>(
+                proposedCharges.Select(charge =>
+                    new ProposedCharge(
+                            charge.Id,
+                            charge.CaseId,
+                            charge.DefendantId,
+                            charge.Surname,
+                            charge.FirstNames,
+                            charge.Code,
+                            charge.Description,
+                            MapLocation(charge.Location),
+                            charge.FromDate,
+                            charge.ToDate,
+                            charge.ChargeParticulars,
+                            charge.AnticipatedPlea.ToString(),
+                            charge.AdjudicationCode.ToString())));
+        }
+
+        private static PersonalDetail MapPersonalDetail(Cps.MasterDataService.Infrastructure.ApiClient.DefendantPersonalDetail defendantPersonalDetail)
+        {
+            if (defendantPersonalDetail is null)
+            {
+                return null;
+            }
+
+            return new PersonalDetail(
+               MappAddress(defendantPersonalDetail.Address),
+               defendantPersonalDetail.Email,
+               defendantPersonalDetail.Ethnicity.ToString(),
+               defendantPersonalDetail.Gender.ToString(),
+               defendantPersonalDetail.Occupation,
+               defendantPersonalDetail.HomePhoneNumber,
+               defendantPersonalDetail.MobilePhoneNumber,
+               defendantPersonalDetail.WorkPhoneNumber,
+               defendantPersonalDetail.PreferredCorrespondenceLanguage.ToString(),
+               defendantPersonalDetail.Religion.ToString(),
+               defendantPersonalDetail.Guardian);
+        }
+
+        private static Address MappAddress(Cps.MasterDataService.Infrastructure.ApiClient.PostalAddress address)
+        {
+            if (address is null)
+            {
+                return null;
+            }
+
+            return new Address(
+                address.Postcode,
+                address.AddressLine1,
+                address.AddressLine2,
+                address.AddressLine3,
+                address.AddressLine4,
+                address.AddressLine5,
+                address.AddressLine6,
+                address.AddressLine7,
+                address.AddressLine8);
+        }
+
+        private static Location MapLocation(Cps.MasterDataService.Infrastructure.ApiClient.InternationalAddress address)
+        {
+            if (address is null)
+            {
+                return null;
+            }
+
+            return new Location(
+                address.Country,
+                address.Postcode,
+                address.AddressLine1,
+                address.AddressLine2,
+                address.AddressLine3,
+                address.AddressLine4,
+                address.AddressLine5,
+                address.AddressLine6,
+                address.AddressLine7,
+                address.AddressLine8);
+        }
+
+        private static Cps.MasterDataService.Infrastructure.ApiClient.ApAction MapApAction(AddActionPlanRequest addActionPlanRequest)
+        {
+            return new Cps.MasterDataService.Infrastructure.ApiClient.ApAction()
+            {
+                FullDefendantName = addActionPlanRequest.fullDefendantName,
+                AllDefendants = addActionPlanRequest.allDefendants,
+                Date = ConvertToDateTimeOffset(addActionPlanRequest.date),
+                DateExpected = ConvertToDateTimeOffset(addActionPlanRequest.dateExpected.Value),
+                DateTimeCreated = addActionPlanRequest.dateTimeCreated,
+                ActionPointText = addActionPlanRequest.actionPointText,
+                Status = addActionPlanRequest.status,
+                StatusDescription = addActionPlanRequest.statusDescription,
+                ExpectedDateUpdated = addActionPlanRequest.expectedDateUpdated,
+                PartyType = addActionPlanRequest.partyType,
+                PoliceChangeReason = addActionPlanRequest.policeChangeReason,
+                StatusUpdated = addActionPlanRequest.statusUpdated,
+                SyncedWithPolice = addActionPlanRequest.syncedWithPolice,
+                CpsChangeReason = addActionPlanRequest.cpsChangeReason,
+                ChaserTaskDate = ConvertToDateTimeOffset(addActionPlanRequest.chaserTaskDate),
+                Steps = MapActionStep(addActionPlanRequest.steps),
+            };
+        }
+
+        private static ICollection<Cps.MasterDataService.Infrastructure.ApiClient.ActionStep> MapActionStep(Common.Dto.Request.HouseKeeping.Step[] steps)
+        {
+            return steps.Select(step => new Cps.MasterDataService.Infrastructure.ApiClient.ActionStep
+            {
+                Code = step.code,
+                Description = step.description,
+                Text = step.text,
+                Hidden = step.hidden,
+                HiddenDraft = step.hiddenDraft,
+            }).ToList();
+        }
+
+        private static DateTimeOffset ConvertToDateTimeOffset(DateOnly? date, TimeOnly? time = null)
+        {
+            if (date is null)
+            {
+                return default;
+            }
+
+            TimeOnly actualTime = time ?? TimeOnly.MinValue;
+            DateTime dateTime = date.Value.ToDateTime(actualTime);
+            TimeSpan offset = TimeZoneInfo.Local.GetUtcOffset(dateTime);
+            return new DateTimeOffset(dateTime, offset);
+        }
+
         /// <summary>
         /// Handles an exception that occurred while calling the MDS API.
         /// </summary>
@@ -588,7 +983,7 @@ namespace DdeiClient.Clients
         /// <param name="exception">The exception to handle.</param>
         /// <param name="request">The request with a correspondence ID.</param>
         /// <param name="duration">The duration of the operation.</param>
-        public void HandleException(
+        private void HandleException(
             string operationName,
             Exception exception,
             BaseRequest request,
@@ -617,7 +1012,7 @@ namespace DdeiClient.Clients
         /// <param name="request">The request with a correspondence ID.</param>
         /// <param name="duration">The duration of the operation.</param>
         /// <param name="additionalInfo">Any additional information.</param>
-        public void LogOperationCompletedEvent(
+        private void LogOperationCompletedEvent(
             string operationName,
             BaseRequest request,
             TimeSpan duration,
@@ -635,13 +1030,14 @@ namespace DdeiClient.Clients
                 additionalInfo);
         }
 
+
         /// <summary>
         /// Builds a string containing information about the unused materials, based on the provided response.
         /// The information includes the number of unused exhibits, mg forms, other materials, and statements.
         /// </summary>
         /// <param name="results">The response object containing the lists of unused materials.</param>
         /// <returns>A string that describes the received unused materials, including counts for each type.</returns>
-        public string BuildAdditionalInfo(UnusedMaterialsResponse results)
+        private string BuildAdditionalInfo(UnusedMaterialsResponse results)
         {
             string additionalInfo = string.Empty;
             bool addedInfo = false;
@@ -675,27 +1071,6 @@ namespace DdeiClient.Clients
             }
 
             return additionalInfo;
-        }
-
-
-        private static ExhibitAttachmentSubType MapExhibitSubItem(Cps.MasterDataService.Infrastructure.ApiClient.ExhibitAttachmentHkSubType exhibit)
-        {
-            if (exhibit is null)
-            {
-                return null;
-            }
-
-            return new ExhibitAttachmentSubType(exhibit.Reference, exhibit.Item, exhibit.Producer);
-        }
-
-        private static StatementAttachmentSubType MapStatementSubType(Cps.MasterDataService.Infrastructure.ApiClient.StatementAttachmentHkSubType statement)
-        {
-            if (statement == null)
-            {
-                return null;
-            }
-
-            return new StatementAttachmentSubType(statement.WitnessName, statement?.WitnessTitle, statement?.WitnessShoulderNo, statement.StatementNo, statement.Date, statement?.Witness);
         }
     }
 }

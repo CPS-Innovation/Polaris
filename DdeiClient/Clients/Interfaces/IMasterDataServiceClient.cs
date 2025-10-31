@@ -89,5 +89,42 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A task representing the asynchronous operation, which returns a <see cref="FileStreamResult"/> if the document is found; otherwise, <c>null</c>.</returns>
         Task<FileStreamResult?> GetMaterialDocumentAsync(GetDocumentRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Gets case defendants.
+        /// </summary>
+        /// <param name="request">The request to list defendants.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <returns>A list of defendants for a case identifier.</returns>
+        Task<DefendantsResponse?> GetCaseDefendantsAsync(ListCaseDefendantsRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Gets witnesses belonging to the case.
+        /// </summary>
+        /// <param name="request">GetWitnessRequest.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <returns>List of witnesses.</returns>
+        Task<WitnessesResponse> GetCaseWitnessesAsync(GetCaseWitnessesRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Gets statements for a witness.
+        /// </summary>
+        /// <param name="request">The request object.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <returns><see cref="Task"/> representing the asynchronous operation.</returns>
+        Task<WitnessStatementsResponse> GetWitnessStatementsAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Adds a case action plan for a given case Id.
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a <see cref="NoContentResult"/> indicating success without a specific content body.</returns>
+        Task<NoContentResult> AddCaseActionPlanAsync(int caseId, AddActionPlanRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Asynchronously adds a new case witness.
+        /// </summary>
+        /// <param name="request">The request to add a witness.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a <see cref="NoContentResult"/> indicating success without a specific content body.</returns>
+        Task<NoContentResult> AddWitnessAsync(AddWitnessRequest request, CmsAuthValues cmsAuthValues);
     }
 }
