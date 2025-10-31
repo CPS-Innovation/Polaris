@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using Aspose.Pdf.Operators;
+using Common.Configuration;
 using Common.Constants;
 using Common.Dto.Response.HouseKeeping;
 using Cps.Fct.Hk.Ui.Interfaces;
@@ -48,7 +49,7 @@ public class GetDocumentTypes(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
     [Function("GetDocumentTypes")]
-    public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "document/document-types")] HttpRequest request, int caseId)
+    public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentTypes)] HttpRequest request, int caseId)
     {
         try
         {

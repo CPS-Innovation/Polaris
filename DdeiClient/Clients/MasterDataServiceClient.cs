@@ -315,7 +315,7 @@ namespace DdeiClient.Clients
             }
         }
 
-        public async Task<Common.Dto.Response.HouseKeeping.UsedStatementsResponse> GetUsedStatementsAsync(GetUsedStatementsRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<UsedStatementsResponse> GetUsedStatementsAsync(GetUsedStatementsRequest request, CmsAuthValues cmsAuthValues)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -327,7 +327,7 @@ namespace DdeiClient.Clients
 
             try
             {
-                Common.Dto.Response.HouseKeeping.UsedStatementsResponse? results = new();
+                UsedStatementsResponse? results = new();
 
                 var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
                 var cookieString = JsonSerializer.Serialize(cookie);
@@ -338,7 +338,7 @@ namespace DdeiClient.Clients
 
                 if (data?.Statements is not null)
                 {
-                    results = new Common.Dto.Response.HouseKeeping.UsedStatementsResponse
+                    results = new UsedStatementsResponse
                     {
                         Statements = data.Statements.Select(statement => new Statement(
                         statement.Id,

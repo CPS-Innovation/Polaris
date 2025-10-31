@@ -30,6 +30,7 @@ namespace DdeiClient.Clients.Interfaces
         /// Lists the communications for a case identifier.
         /// </summary>
         /// <param name="request">The request to list communications.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A list of communications for a case identifier.</returns>
         Task<IReadOnlyCollection<Communication>> ListCommunicationsHkAsync(ListCommunicationsHkRequest request, CmsAuthValues cmsAuthValues);
 
@@ -37,6 +38,7 @@ namespace DdeiClient.Clients.Interfaces
         /// Lists the used statements for a case identifier.
         /// </summary>
         /// <param name="request">The request to list used statements.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A list of used statements for a case identifier.</returns>
         Task<Common.Dto.Response.HouseKeeping.UsedStatementsResponse> GetUsedStatementsAsync(GetUsedStatementsRequest request, CmsAuthValues cmsAuthValues);
 
@@ -44,6 +46,7 @@ namespace DdeiClient.Clients.Interfaces
         /// Lists the used exhibits for a case identifier.
         /// </summary>
         /// <param name="request">The request to list used exhibits.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A list of used exhibits for a case identifier.</returns>
         Task<Common.Dto.Response.HouseKeeping.UsedExhibitsResponse> GetUsedExhibitsAsync(GetUsedExhibitsRequest request, CmsAuthValues cmsAuthValues);
 
@@ -51,6 +54,7 @@ namespace DdeiClient.Clients.Interfaces
         /// Lists the used MG forms for a case identifier.
         /// </summary>
         /// <param name="request">The request to list used MG forms.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A list of used MG forms for a case identifier.</returns>
         Task<Common.Dto.Response.HouseKeeping.UsedMgFormsResponse> GetUsedMgFormsAsync(GetUsedMgFormsRequest request, CmsAuthValues cmsAuthValues);
 
@@ -58,6 +62,7 @@ namespace DdeiClient.Clients.Interfaces
         /// Lists the used other materials for a case identifier.
         /// </summary>
         /// <param name="request">The request to list used other materials.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A list of used other materials for a case identifier.</returns>
         Task<Common.Dto.Response.HouseKeeping.UsedOtherMaterialsResponse> GetUsedOtherMaterialsAsync(GetUsedOtherMaterialsRequest request, CmsAuthValues cmsAuthValues);
 
@@ -65,12 +70,15 @@ namespace DdeiClient.Clients.Interfaces
         /// Lists the unused materials for a case identifier.
         /// </summary>
         /// <param name="request">The request to list unused materials.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A list of unused materials for a case identifier.</returns>
         Task<UnusedMaterialsResponse> GetUnusedMaterialsAsync(GetUnusedMaterialsRequest request, CmsAuthValues cmsAuthValues);
 
         /// <summary>
         /// Gets exhibit producers for a given case Id.
         /// </summary>
+        /// <param name="request">The request for exhibit producers.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A list of exhibit producers</returns>
         Task<Common.Dto.Response.HouseKeeping.ExhibitProducersResponse> GetExhibitProducersAsync(GetExhibitProducersRequest request, CmsAuthValues cmsAuthValues);
 
@@ -117,6 +125,9 @@ namespace DdeiClient.Clients.Interfaces
         /// <summary>
         /// Adds a case action plan for a given case Id.
         /// </summary>
+        /// <param name="caseId">The case Id.</param>
+        /// <param name="request">The request object.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a <see cref="NoContentResult"/> indicating success without a specific content body.</returns>
         Task<NoContentResult> AddCaseActionPlanAsync(int caseId, AddActionPlanRequest request, CmsAuthValues cmsAuthValues);
 
@@ -124,6 +135,7 @@ namespace DdeiClient.Clients.Interfaces
         /// Asynchronously adds a new case witness.
         /// </summary>
         /// <param name="request">The request to add a witness.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a <see cref="NoContentResult"/> indicating success without a specific content body.</returns>
         Task<NoContentResult> AddWitnessAsync(AddWitnessRequest request, CmsAuthValues cmsAuthValues);
     }

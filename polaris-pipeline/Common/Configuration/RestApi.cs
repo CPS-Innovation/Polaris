@@ -30,9 +30,10 @@ public static class RestApi
         public const string CaseInfo = "urns/{caseUrn}/case-info/{caseId:min(1)}";
         public const string CaseMaterials = "urns/{caseUrn}/cases/{caseId:min(1)}/case-materials";
         public const string CaseMaterialsPreview = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/previews";
-        
-        // Internal Pipeline
-        public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";
+        public const string DocumentTypes = "urns/{caseUrn}/documents/{caseId:min(1)}/document-types";
+
+    // Internal Pipeline
+    public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";
         public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/convert-to-pdf";
         public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
         public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
