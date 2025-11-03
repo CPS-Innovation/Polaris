@@ -7,11 +7,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="../../stylecop.json" />
-  </ItemGroup>
-  
+ 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
@@ -22,6 +18,10 @@
   
   <ItemGroup>
     <ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Model\" />
   </ItemGroup>
 
 </Project>

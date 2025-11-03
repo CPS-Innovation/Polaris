@@ -9,10 +9,6 @@
 	</PropertyGroup>
 
   <ItemGroup>
-    <None Remove="../../stylecop.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Aspose.Cells" Version="25.10.0" />
     <PackageReference Include="Aspose.Email" Version="25.9.0" />
     <PackageReference Include="Aspose.Imaging" Version="25.10.0" />
