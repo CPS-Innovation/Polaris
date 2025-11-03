@@ -159,7 +159,7 @@ public class GetMaterialDocumentTests
             .ReturnsAsync("http://example.com/document.unsupported");
 
         // Simulate throwing a NotSupportedException during document retrieval
-        this.mockDocumentService.Setup(s => s.GetMaterialDocumentAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), true))
+        this.mockDocumentService.Setup(s => s.GetMaterialDocumentAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), false))
             .ThrowsAsync(new NotSupportedException("Unsupported content type"));
 
         // Act
@@ -208,7 +208,7 @@ public class GetMaterialDocumentTests
             FileDownloadName = "document.pdf",
         };
 
-        this.mockDocumentService.Setup(s => s.GetMaterialDocumentAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), true))
+        this.mockDocumentService.Setup(s => s.GetMaterialDocumentAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), false))
             .ReturnsAsync(fileStreamResult);
 
         // Act
