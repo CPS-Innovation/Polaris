@@ -1,4 +1,4 @@
-// <copyright file="GetCaseMaterialsPreviewTests.cs" company="TheCrownProsecutionService">
+﻿// <copyright file="GetMaterialDocumentTests.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
@@ -21,27 +21,27 @@ using PolarisGateway.Functions.HouseKeeping;
 using Xunit;
 
 /// <summary>
-/// Unit tests for the <see cref="GetCaseMaterialsPreview"/> class.
+/// Unit tests for the <see cref="GetMaterialDocument"/> class.
 /// </summary>
-public class GetCaseMaterialsPreviewTests
+public class GetMaterialDocumentTests
 {
-    private readonly TestLogger<GetCaseMaterialsPreview> mockLogger;
+    private readonly TestLogger<GetMaterialDocument> mockLogger;
     private readonly Mock<ICommunicationService> mockCommunicationService;
     private readonly Mock<IDocumentService> mockDocumentService;
-    private readonly GetCaseMaterialsPreview getCaseMaterialsPreviewFunction;
+    private readonly GetMaterialDocument getMaterialDocumentunction;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GetCaseMaterialsPreviewTests"/> class.
+    /// Initializes a new instance of the <see cref="GetMaterialDocumentTests"/> class.
     /// </summary>
-    public GetCaseMaterialsPreviewTests()
+    public GetMaterialDocumentTests()
     {
         // Initialize mocks
-        this.mockLogger = new TestLogger<GetCaseMaterialsPreview>();
+        this.mockLogger = new TestLogger<GetMaterialDocument>();
         this.mockCommunicationService = new Mock<ICommunicationService>();
         this.mockDocumentService = new Mock<IDocumentService>();
 
         // Initialize the function class
-        this.getCaseMaterialsPreviewFunction = new GetCaseMaterialsPreview(
+        this.getMaterialDocumentunction = new GetMaterialDocument(
             this.mockLogger,
             this.mockCommunicationService.Object,
             this.mockDocumentService.Object);
@@ -59,12 +59,12 @@ public class GetCaseMaterialsPreviewTests
         int invalidMaterialId = 0;
 
         // Act
-        IActionResult result = await this.getCaseMaterialsPreviewFunction.Run(req, 123, invalidMaterialId);
+        IActionResult result = await this.getMaterialDocumentunction.Run(req, 123, invalidMaterialId);
 
         // Assert
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsPreview function processed a request."));
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetMaterialDocument function processed a request."));
 
         BadRequestObjectResult badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
         Assert.Equal($"{LoggingConstants.HskUiLogPrefix} Invalid material_id format. It should be an integer.", badRequestResult.Value);
@@ -86,12 +86,12 @@ public class GetCaseMaterialsPreviewTests
             .ReturnsAsync(new List<Communication>());
 
         // Act
-        IActionResult result = await this.getCaseMaterialsPreviewFunction.Run(req, 123, validMaterialId);
+        IActionResult result = await this.getMaterialDocumentunction.Run(req, 123, validMaterialId);
 
         // Assert
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsPreview function processed a request."));
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetMaterialDocument function processed a request."));
 
         NotFoundObjectResult notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
         Assert.Equal($"{LoggingConstants.HskUiLogPrefix} No valid link found for the case material document with materialId [12].", notFoundResult.Value);
@@ -124,7 +124,7 @@ public class GetCaseMaterialsPreviewTests
             .ReturnsAsync((FileStreamResult)null);
 
         // Act
-        IActionResult result = await this.getCaseMaterialsPreviewFunction.Run(req, 123, validMaterialId);
+        IActionResult result = await this.getMaterialDocumentunction.Run(req, 123, validMaterialId);
 
         // Assert that the result is a FileStreamResult
         FileStreamResult fileStreamResult = Assert.IsType<FileStreamResult>(result);
@@ -134,7 +134,7 @@ public class GetCaseMaterialsPreviewTests
 
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsPreview function processed a request."));
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetMaterialDocument function processed a request."));
     }
 
     /// <summary>
@@ -163,7 +163,7 @@ public class GetCaseMaterialsPreviewTests
             .ThrowsAsync(new NotSupportedException("Unsupported content type"));
 
         // Act
-        IActionResult result = await this.getCaseMaterialsPreviewFunction.Run(req, 123, validMaterialId);
+        IActionResult result = await this.getMaterialDocumentunction.Run(req, 123, validMaterialId);
 
         // Assert that the result is an UnprocessableEntityObjectResult
         UnprocessableEntityObjectResult unprocessableEntityResult = Assert.IsType<UnprocessableEntityObjectResult>(result);
@@ -173,11 +173,11 @@ public class GetCaseMaterialsPreviewTests
 
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsPreview function processed a request."));
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetMaterialDocument function processed a request."));
 
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Error &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsPreview function encountered unsupported content type."));
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetMaterialDocument function encountered unsupported content type."));
     }
 
     /// <summary>
@@ -212,7 +212,7 @@ public class GetCaseMaterialsPreviewTests
             .ReturnsAsync(fileStreamResult);
 
         // Act
-        IActionResult result = await this.getCaseMaterialsPreviewFunction.Run(req, 123, validMaterialId);
+        IActionResult result = await this.getMaterialDocumentunction.Run(req, 123, validMaterialId);
 
         // Assert
         FileStreamResult fileResult = Assert.IsType<FileStreamResult>(result);
@@ -222,10 +222,10 @@ public class GetCaseMaterialsPreviewTests
 
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsPreview function processed a request."));
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetMaterialDocument function processed a request."));
 
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [123] GetCaseMaterialsPreview function completed"));
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [123] GetMaterialDocument function completed"));
     }
 }

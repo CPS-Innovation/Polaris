@@ -29,7 +29,8 @@ public static class RestApi
         // House keeping endpoints
         public const string CaseInfo = "urns/{caseUrn}/case-info/{caseId:min(1)}";
         public const string CaseMaterials = "urns/{caseUrn}/cases/{caseId:min(1)}/case-materials";
-        public const string CaseMaterialsPreview = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/previews";
+        public const string CaseMaterialsPreview = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/preview";
+        public const string MaterialDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/document";
         public const string DocumentTypes = "urns/{caseUrn}/documents/{caseId:min(1)}/document-types";
 
     // Internal Pipeline
