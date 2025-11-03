@@ -11,12 +11,12 @@ using Microsoft.AspNetCore.Mvc;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Microsoft.Extensions.Logging;
 using PolarisGateway.Functions.HouseKeeping;
 using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Request;
 using System;
+using Common.Constants;
 
 /// <summary>
 /// Unit tests for the <see cref="GetCaseInfo"/> class.
@@ -93,12 +93,7 @@ public class GetCaseInfoTests
     public async Task Run_ReturnsUnprocessableEntityError_WhenInvalidOperationExceptionIsThrown()
     {
         // Arrange
-        var mockRequest = new Mock<HttpRequest>();
-
-        // Set up a DefaultHttpContext to support setting headers
-        var context = new DefaultHttpContext();
-        mockRequest.Setup(r => r.HttpContext).Returns(context);
-        mockRequest.Setup(r => r.Headers.Add("corelation", "1232131231"));
+        Mock<HttpRequest> mockRequest = SetUpMockRequest();
 
         this.mockCaseInfoService
             .Setup(x => x.GetCaseInfoAsync(123, It.IsAny<CmsAuthValues>()))
@@ -129,12 +124,7 @@ public class GetCaseInfoTests
     public async Task Run_ReturnsUnprocessableEntityError_WhenExceptionIsThrown()
     {
         // Arrange
-        var mockRequest = new Mock<HttpRequest>();
-
-        // Set up a DefaultHttpContext to support setting headers
-        var context = new DefaultHttpContext();
-        mockRequest.Setup(r => r.HttpContext).Returns(context);
-        mockRequest.Setup(r => r.Headers.Add("corelation", "1232131231"));
+        Mock<HttpRequest> mockRequest = SetUpMockRequest();
 
         this.mockCaseInfoService
             .Setup(x => x.GetCaseInfoAsync(123, It.IsAny<CmsAuthValues>()))
@@ -155,5 +145,17 @@ public class GetCaseInfoTests
             log.LogLevel == LogLevel.Error &&
             log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function encountered an unprocessable entity error: " +
             "GetCaseInfo function encountered an error fetching case information for caseId [123]"));
+    }
+
+    private static Mock<HttpRequest> SetUpMockRequest()
+    {
+        var mockRequest = new Mock<HttpRequest>();
+
+        // Set up a DefaultHttpContext to support setting headers
+        var context = new DefaultHttpContext();
+        mockRequest.Setup(r => r.HttpContext).Returns(context);
+        mockRequest.Setup(r => r.Headers.Add("corelation", "1232131231"));
+
+        return mockRequest;
     }
 }

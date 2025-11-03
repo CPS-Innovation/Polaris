@@ -11,6 +11,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.4" />
+    <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
     <PackageReference Include="Polly.Contrib.WaitAndRetry" Version="1.1.1" />
   </ItemGroup>
 
@@ -20,6 +21,7 @@
 	</ItemGroup>
 	
   <ItemGroup>
+    <ProjectReference Include="..\Cps.Fct.Hk.Ui.Interfaces\Cps.Fct.Hk.Ui.Interfaces.csproj" />
     <ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
   </ItemGroup>
 

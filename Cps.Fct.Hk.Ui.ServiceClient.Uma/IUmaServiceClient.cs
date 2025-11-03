@@ -5,7 +5,7 @@
 namespace Cps.Fct.Hk.Ui.ServiceClient.Uma;
 
 using System.Threading.Tasks;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
+using Common.Dto.Response.HouseKeeping;
 
 /// <summary>
 /// The interface for the UMA API service client.

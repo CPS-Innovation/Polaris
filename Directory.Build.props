@@ -1,0 +1,7 @@
+﻿<Project>
+	<ItemGroup>
+		<!-- Include the shared stylecop.json file for all projects -->
+		<AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" />
+	</ItemGroup>
+</Project>
+
