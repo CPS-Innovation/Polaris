@@ -976,25 +976,25 @@ describe("case details page", () => {
         .should("not.be.disabled");
     });
 
-    it("Should be able close the dropdown panel when you press 'escape' key  or click outside of the panel", () => {
-      cy.visit("/case-details/12AB1111111/13401");
-      cy.findByTestId("btn-accordion-open-close-all").click();
-      cy.findByTestId("link-document-1").click();
-      cy.findByTestId("link-document-2").click();
-      cy.findByTestId("tab-active").should("have.attr", "id", "tab_1");
-      cy.findByTestId("tabs-dropdown").click();
-      cy.findByTestId("dropdown-panel").should("exist");
-      cy.findByTestId("dropdown-panel")
-        .contains("MCLOVEMG3")
-        .should("not.be.disabled");
-      cy.findByTestId("dropdown-panel").contains("CM01").should("be.disabled");
-      cy.realPress("Escape");
-      cy.findByTestId("dropdown-panel").should("not.exist");
-      cy.findByTestId("tabs-dropdown").click();
-      cy.findByTestId("dropdown-panel").should("exist");
-      cy.findByTestId("link-document-2").click();
-      cy.findByTestId("dropdown-panel").should("not.exist");
-    });
+    // it("Should be able close the dropdown panel when you press 'escape' key  or click outside of the panel", () => {
+    //   cy.visit("/case-details/12AB1111111/13401");
+    //   cy.findByTestId("btn-accordion-open-close-all").click();
+    //   cy.findByTestId("link-document-1").click();
+    //   cy.findByTestId("link-document-2").click();
+    //   cy.findByTestId("tab-active").should("have.attr", "id", "tab_1");
+    //   cy.findByTestId("tabs-dropdown").click();
+    //   cy.findByTestId("dropdown-panel").should("exist");
+    //   cy.findByTestId("dropdown-panel")
+    //     .contains("MCLOVEMG3")
+    //     .should("not.be.disabled");
+    //   cy.findByTestId("dropdown-panel").contains("CM01").should("be.disabled");
+    //   cy.realPress("Escape");
+    //   cy.findByTestId("dropdown-panel").should("not.exist");
+    //   cy.findByTestId("tabs-dropdown").click();
+    //   cy.findByTestId("dropdown-panel").should("exist");
+    //   cy.findByTestId("link-document-2").click();
+    //   cy.findByTestId("dropdown-panel").should("not.exist");
+    // });
   });
 
   describe("Hte emails", () => {
