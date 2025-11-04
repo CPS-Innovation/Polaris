@@ -4,6 +4,7 @@ using PolarisGateway.Services.Artefact.Factories;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Common.Extensions;
 
 namespace PolarisGateway.Services.Artefact;
 
@@ -16,17 +17,16 @@ public class PdfArtefactService : IPdfArtefactService
     public PdfArtefactService(
         ICacheService cacheService,
         IArtefactServiceResponseFactory artefactServiceResponseFactory,
-        IPdfRetrievalService pdfRetrievalService
-        )
+        IPdfRetrievalService pdfRetrievalService)
     {
-        _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
-        _artefactServiceResponseFactory = artefactServiceResponseFactory ?? throw new ArgumentNullException(nameof(artefactServiceResponseFactory));
-        _pdfRetrievalService = pdfRetrievalService ?? throw new ArgumentNullException(nameof(pdfRetrievalService));
+        _cacheService = cacheService.ExceptionIfNull();
+        _artefactServiceResponseFactory = artefactServiceResponseFactory.ExceptionIfNull();
+        _pdfRetrievalService = pdfRetrievalService.ExceptionIfNull();
     }
 
-    public async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed)
+    public async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, bool forceRefresh = false)
     {
-        if (await _cacheService.TryGetPdfAsync(caseId, documentId, versionId, isOcrProcessed) is (true, var stream))
+        if (!forceRefresh && await _cacheService.TryGetPdfAsync(caseId, documentId, versionId, isOcrProcessed) is (true, var stream))
         {
             return _artefactServiceResponseFactory.CreateOkfResult(stream, true);
         }

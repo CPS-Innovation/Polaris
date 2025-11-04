@@ -28,9 +28,9 @@ public class OcrArtefactService : IOcrArtefactService
         _pdfArtefactService = pdfArtefactService.ExceptionIfNull();
     }
 
-    public async Task<ArtefactResult<AnalyzeResults>> GetOcrAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null)
+    public async Task<ArtefactResult<AnalyzeResults>> GetOcrAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null, bool forceRefresh = false)
     {
-        if (await _cacheService.TryGetJsonObjectAsync<AnalyzeResults>(caseId, documentId, versionId, BlobType.Ocr) is (true, var results))
+        if (!forceRefresh && await _cacheService.TryGetJsonObjectAsync<AnalyzeResults>(caseId, documentId, versionId, BlobType.Ocr) is (true, var results))
         {
             // If we have OCR in blob cache then return it
             return _artefactServiceResponseFactory.CreateOkfResult(results, true);
@@ -52,7 +52,7 @@ public class OcrArtefactService : IOcrArtefactService
         }
 
         // If we are being called without an operationId and there is nothing in cache then we need to start a new OCR operation...
-        var pdfResult = await _pdfArtefactService.GetPdfAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed);
+        var pdfResult = await _pdfArtefactService.GetPdfAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed, forceRefresh);
 
         if (pdfResult.Status != ResultStatus.ArtefactAvailable)
         {
