@@ -2,7 +2,7 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace Cps.Fct.Hk.Ui.Interfaces.Model;
+namespace Common.Dto.Response.HouseKeeping;
 
 /// <summary>
 /// Represents a request for a matched communication.
