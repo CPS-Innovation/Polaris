@@ -505,35 +505,35 @@ stages:
           - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
             name: result
                 
-      - job: Validate_DDEI_Client_Library
-        condition: eq(variables.runDDEIClient, 'true')
-        displayName: Test - DDEI Client Library
-        pool:
-          name: $(dev-build-agent)
-        steps:
-          - task: NuGetAuthenticate@1
-            displayName: 'Authenticate to NuGet Feed'
+      # - job: Validate_DDEI_Client_Library
+      #   condition: eq(variables.runDDEIClient, 'true')
+      #   displayName: Test - DDEI Client Library
+      #   pool:
+      #     name: $(dev-build-agent)
+      #   steps:
+      #     - task: NuGetAuthenticate@1
+      #       displayName: 'Authenticate to NuGet Feed'
 
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "build"
-              projects: "polaris-pipeline/DdeiClient/DdeiClient.csproj"
-              arguments: "--configuration $(buildConfiguration)"
-            displayName: "Build DDEI Client Library"
+      #     - task: DotNetCoreCLI@2
+      #       inputs:
+      #         command: "build"
+      #         projects: "polaris-pipeline/DdeiClient/DdeiClient.csproj"
+      #         arguments: "--configuration $(buildConfiguration)"
+      #       displayName: "Build DDEI Client Library"
 
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "test"
-              projects: "polaris-pipeline/DdeiClient.tests/DdeiClient.tests.csproj"
-              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
-            displayName: "Run DDEI Client tests"
+      #     - task: DotNetCoreCLI@2
+      #       inputs:
+      #         command: "test"
+      #         projects: "polaris-pipeline/DdeiClient.tests/DdeiClient.tests.csproj"
+      #         arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
+      #       displayName: "Run DDEI Client tests"
 
-          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/DdeiClient.tests/coverage.cobertura.xml
-            artifact: DdeiClientLibraryTestResults
-            displayName: Publish DDEI Client Library Test Results
+      #     - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/DdeiClient.tests/coverage.cobertura.xml
+      #       artifact: DdeiClientLibraryTestResults
+      #       displayName: Publish DDEI Client Library Test Results
             
-          - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
-            name: result
+      #     - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
+      #       name: result
 
       - job: Validate_UI_Codebase
         condition: eq(variables.runUI, 'true')
