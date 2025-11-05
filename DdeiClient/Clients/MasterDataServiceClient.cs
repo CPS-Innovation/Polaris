@@ -10,6 +10,7 @@ namespace DdeiClient.Clients
     using System.IO;
     using System.Linq;
     using System.Text.Json;
+    using Azure.Core;
     using Common.Constants;
     using Common.Dto.Request;
     using Common.Dto.Request.HouseKeeping;
@@ -21,6 +22,7 @@ namespace DdeiClient.Clients
     using Microsoft;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
+    using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
 
     /// <summary>
     ///  Repesents Mds API client.
@@ -789,7 +791,126 @@ namespace DdeiClient.Clients
             }
         }
 
-        private static ExhibitAttachmentSubType MapExhibitSubItem(Cps.MasterDataService.Infrastructure.ApiClient.ExhibitAttachmentHkSubType exhibit)
+        public async Task<RenameMaterialResponse> RenameMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(request.materialId);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "RenameMaterial";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var mdsRequest = new Cps.MasterDataService.Infrastructure.ApiClient.RenameMaterialRequest()
+                {
+                    MaterialId = request.materialId,
+                    Subject = request.subject,
+                };
+
+                var data = await client.RenameMaterialAsync(request.materialId, mdsRequest);
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+
+                RenameMaterialResponse result = new(new RenameMaterialData { Id = data.UpdateCommunication.Id });
+                return result;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<ReclassificationResponse> ReclassifyCommunicationAsync(ReclassifyCommunicationRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "ReclassifyCommunication";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var mdsRequest = new ApiClient.HkReclassifyCommunicationRequest()
+                {
+                    Classification = request.classification,
+                    MaterialId = request.materialId,
+                    DocumentTypeId = request.documentTypeId,
+                    Used = request.used,
+                    Subject = request.subject,
+                    Statement = MapStatement(request.Statement),
+                    Exhibit = MapExhibit(request.Exhibit),
+                };
+
+                var data = await client.ReclassifyCommunicationAsync(mdsRequest);
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+
+                ReclassificationResponse result = new ReclassificationResponse(new ReclassifyCommunication { Id = data.ReclassifyCommunication.Id });
+                return result;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<CaseLockedStatusResult> CheckCaseLockAsync(int caseId, CmsAuthValues cmsAuthValues)
+        {
+            if (caseId <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(caseId), "Case ID must be a positive integer.");
+            }
+
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "CaseLockStatus";
+
+            var dummyRequest = new BaseRequest(Guid.NewGuid());
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.GetCaseLockStatusAsync(caseId);
+
+                var result = new CaseLockedStatusResult
+                {
+                    IsLocked = data.IsLocked,
+                    LockedByUser = data.LockedByUser,
+                    CaseLockedMessage = data.CaseLockedMessage,
+                    IsLockedByCurrentUser = data.IsLockedByCurrentUser,
+                };
+                this.LogOperationCompletedEvent(OperationName, dummyRequest, stopwatch.Elapsed, string.Empty);
+                return result;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, dummyRequest, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        private static ExhibitAttachmentSubType MapExhibitSubItem(ApiClient.ExhibitAttachmentHkSubType exhibit)
         {
             if (exhibit is null)
             {
@@ -799,7 +920,7 @@ namespace DdeiClient.Clients
             return new ExhibitAttachmentSubType(exhibit.Reference, exhibit.Item, exhibit.Producer);
         }
 
-        private static StatementAttachmentSubType MapStatementSubType(Cps.MasterDataService.Infrastructure.ApiClient.StatementAttachmentHkSubType statement)
+        private static StatementAttachmentSubType MapStatementSubType(ApiClient.StatementAttachmentHkSubType statement)
         {
             if (statement == null)
             {
@@ -815,7 +936,7 @@ namespace DdeiClient.Clients
                 statement?.Witness);
         }
 
-        private static List<Offence> MapOffences(ICollection<Cps.MasterDataService.Infrastructure.ApiClient.Offence> offence)
+        private static List<Offence> MapOffences(ICollection<ApiClient.Offence> offence)
         {
             if (offence is null)
             {
@@ -841,7 +962,7 @@ namespace DdeiClient.Clients
                         offence.LatestPleaDescription)));
         }
 
-        private static List<ProposedCharge> MapProposedCharges(ICollection<Cps.MasterDataService.Infrastructure.ApiClient.ProposedCharge> proposedCharges)
+        private static List<ProposedCharge> MapProposedCharges(ICollection<ApiClient.ProposedCharge> proposedCharges)
         {
             if (proposedCharges is null)
             {
@@ -866,7 +987,7 @@ namespace DdeiClient.Clients
                             charge.AdjudicationCode.ToString())));
         }
 
-        private static PersonalDetail MapPersonalDetail(Cps.MasterDataService.Infrastructure.ApiClient.DefendantPersonalDetail defendantPersonalDetail)
+        private static PersonalDetail MapPersonalDetail(ApiClient.DefendantPersonalDetail defendantPersonalDetail)
         {
             if (defendantPersonalDetail is null)
             {
@@ -887,11 +1008,11 @@ namespace DdeiClient.Clients
                defendantPersonalDetail.Guardian);
         }
 
-        private static Address MappAddress(Cps.MasterDataService.Infrastructure.ApiClient.PostalAddress address)
+        private static Address MappAddress(ApiClient.PostalAddress address)
         {
             if (address is null)
             {
-                return null;
+                return default;
             }
 
             return new Address(
@@ -906,11 +1027,11 @@ namespace DdeiClient.Clients
                 address.AddressLine8);
         }
 
-        private static Location MapLocation(Cps.MasterDataService.Infrastructure.ApiClient.InternationalAddress address)
+        private static Location MapLocation(ApiClient.InternationalAddress address)
         {
             if (address is null)
             {
-                return null;
+                return default;
             }
 
             return new Location(
@@ -926,9 +1047,9 @@ namespace DdeiClient.Clients
                 address.AddressLine8);
         }
 
-        private static Cps.MasterDataService.Infrastructure.ApiClient.ApAction MapApAction(AddActionPlanRequest addActionPlanRequest)
+        private static ApiClient.ApAction MapApAction(AddActionPlanRequest addActionPlanRequest)
         {
-            return new Cps.MasterDataService.Infrastructure.ApiClient.ApAction()
+            return new ApiClient.ApAction()
             {
                 FullDefendantName = addActionPlanRequest.fullDefendantName,
                 AllDefendants = addActionPlanRequest.allDefendants,
@@ -949,9 +1070,9 @@ namespace DdeiClient.Clients
             };
         }
 
-        private static ICollection<Cps.MasterDataService.Infrastructure.ApiClient.ActionStep> MapActionStep(Common.Dto.Request.HouseKeeping.Step[] steps)
+        private static ICollection<ApiClient.ActionStep> MapActionStep(Step[] steps)
         {
-            return steps.Select(step => new Cps.MasterDataService.Infrastructure.ApiClient.ActionStep
+            return steps.Select(step => new ApiClient.ActionStep
             {
                 Code = step.code,
                 Description = step.description,
@@ -959,6 +1080,38 @@ namespace DdeiClient.Clients
                 Hidden = step.hidden,
                 HiddenDraft = step.hiddenDraft,
             }).ToList();
+        }
+
+        private static ApiClient.CommunicationStatementType MapStatement(ReclassifyStatementRequest statement)
+        {
+            if (statement == null)
+            {
+                return default;
+            }
+
+            return new ApiClient.CommunicationStatementType
+            {
+                Witness = statement.Witness,
+                StatementNo = statement.StatementNo,
+                Date = ConvertToDateTime(statement.Date),
+            };
+        }
+
+        private static ApiClient.CommunicationExhibitType MapExhibit(ReclassifyExhibitRequest exhibit)
+        {
+            if (exhibit == null)
+            {
+                return default;
+            }
+
+            return new ApiClient.CommunicationExhibitType
+            {
+                Item = exhibit.Item,
+                Reference = exhibit.Reference,
+                Producer = exhibit.Producer,
+                NewProducer = exhibit.NewProducer,
+                ExistingProducerOrWitnessId = exhibit.ExistingProducerOrWitnessId,
+            };
         }
 
         private static DateTimeOffset ConvertToDateTimeOffset(DateOnly? date, TimeOnly? time = null)
@@ -972,6 +1125,20 @@ namespace DdeiClient.Clients
             DateTime dateTime = date.Value.ToDateTime(actualTime);
             TimeSpan offset = TimeZoneInfo.Local.GetUtcOffset(dateTime);
             return new DateTimeOffset(dateTime, offset);
+        }
+
+        private static DateTime ConvertToDateTime(DateOnly? date, TimeOnly? time = null)
+        {
+            if (date is null)
+            {
+                return default;
+            }
+
+            TimeOnly actualTime = time ?? TimeOnly.MinValue;
+            DateTime dateTime = date.Value.ToDateTime(actualTime);
+
+            // Mark as local time
+            return DateTime.SpecifyKind(dateTime, DateTimeKind.Local);
         }
 
         /// <summary>
@@ -1027,7 +1194,6 @@ namespace DdeiClient.Clients
                 request.CorrespondenceId,
                 additionalInfo);
         }
-
 
         /// <summary>
         /// Builds a string containing information about the unused materials, based on the provided response.

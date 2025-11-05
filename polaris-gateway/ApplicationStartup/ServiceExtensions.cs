@@ -86,6 +86,12 @@ public static class ServiceExtensions
         services.AddSingleton<IDocumentService, DocumentService>();
         services.AddSingleton<IDocumentTypeMapper, DocumentTypeMapper>();
         services.AddSingleton<IConversionService, ConversionService>();
+        services.AddSingleton<IReclassificationService, ReclassificationService>();
+        services.AddSingleton<IReclassifyDocumentRequestMapper, ReclassifyDocumentRequestMapper>();
+        services.AddSingleton<IMaterialReclassificationOrchestrationService, MaterialReclassificationOrchestrationService>();
+        services.AddSingleton<IWitnessService, WitnessService>();
+        services.AddSingleton<ICaseActionPlanService, CaseActionPlanService>();
+        services.AddSingleton<ICaseLockService, CaseLockService>();
 
         // Register MasterDataService client options.
         services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);

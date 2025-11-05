@@ -385,4 +385,25 @@ public class CommunicationService(
             throw;
         }
     }
+
+    /// <inheritdoc/>
+    public async Task<RenameMaterialResponse> RenameMaterialAsync(int caseId, int materialId, string subject, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)
+    {
+        try
+        {
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to rename material with materialId [{materialId}]");
+
+            var request = new RenameMaterialRequest(correspondenceId == default ? Guid.NewGuid() : correspondenceId, materialId, subject);
+            RenameMaterialResponse renameMaterialResponse = await this.apiClient.RenameMaterialAsync(request, cmsAuthValues).ConfigureAwait(false);
+            this.logger.LogInformation(LoggingConstants.RenameMaterialOperationSuccess, LoggingConstants.HskUiLogPrefix, caseId, materialId);
+
+            return renameMaterialResponse;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, LoggingConstants.RenameMaterialOperationFailed, LoggingConstants.HskUiLogPrefix, caseId, materialId);
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
 }

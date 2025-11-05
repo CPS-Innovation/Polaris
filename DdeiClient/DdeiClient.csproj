@@ -16,7 +16,7 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Cps.MasterDataService.Infrastructure.ApiClient" Version="1.1.119549" />
+		<PackageReference Include="Cps.MasterDataService.Infrastructure.ApiClient" Version="1.1.127952" />
 		<PackageReference Include="StyleCop.Analyzers" Version="1.1.118" />
 	</ItemGroup>
 	
