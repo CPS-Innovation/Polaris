@@ -89,7 +89,7 @@ public class PiiArtefactServiceTests
         };
 
         _ocrArtefactServiceMock
-            .Setup(x => x.GetOcrAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, null))
+            .Setup(x => x.GetOcrAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, null, false))
             .ReturnsAsync(ocrResult);
 
         var expectedResult = new ArtefactResult<IEnumerable<PiiLine>>();
@@ -116,7 +116,7 @@ public class PiiArtefactServiceTests
         };
 
         _ocrArtefactServiceMock
-            .Setup(x => x.GetOcrAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, null))
+            .Setup(x => x.GetOcrAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, null, false))
             .ReturnsAsync(ocrResult);
 
         var expectedResult = new ArtefactResult<IEnumerable<PiiLine>>();
@@ -143,7 +143,7 @@ public class PiiArtefactServiceTests
         };
 
         _ocrArtefactServiceMock
-            .Setup(x => x.GetOcrAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, null))
+            .Setup(x => x.GetOcrAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, null, false))
             .ReturnsAsync(ocrResult);
 
         var piiResult = _fixture.CreateMany<PiiLine>();
