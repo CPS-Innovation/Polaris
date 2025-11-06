@@ -31,9 +31,9 @@ public static class RestApi
     public const string CaseMaterials = "urns/{caseUrn}/cases/{caseId:min(1)}/case-materials";
     public const string CaseMaterialsPreview = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/preview";
     public const string MaterialDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/document";
-    public const string DocumentTypes = "urns/{caseUrn}/documents/{caseId:min(1)}/document-types";
-    public const string ExhibitProducers = "urns/{caseUrn}/exhibits/{caseId:min(1)}/exhibit-producers";
-    public const string WitnessStatementsHk = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/witness-statements";
+    public const string DocumentTypes = "urns/{caseUrn}/cases/{caseId:min(1)}/document-types";
+    public const string ExhibitProducers = "urns/{caseUrn}/cases/{caseId:min(1)}/case-exhibit-producers";
+    public const string CaseWitnessStatements = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/witness-statements";
     public const string CompleteReclassification = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/reclassify-complete";
     public const string CaseWitnessesHk = "urns/{caseUrn}/cases/{caseId:min(1)}/case-witnesses";
     public const string CaseLockInfo = "urns/{caseUrn}/cases/{caseId:min(1)}/case-lock-info";

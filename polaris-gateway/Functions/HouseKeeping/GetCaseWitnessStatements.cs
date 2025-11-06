@@ -28,11 +28,11 @@ using PolarisGateway.Helpers;
 /// <param name="logger">The logger instance used for logging.</param>
 /// <param name="witnessService">The service used to process request and return result.</param>
 /// <param name="cookieService">Handles cookie related operations.</param>
-public class GetWitnessStatements(
-    ILogger<GetWitnessStatements> logger,
+public class GetCaseWitnessStatements(
+    ILogger<GetCaseWitnessStatements> logger,
     IWitnessService witnessService) : BaseFunction(logger)
 {
-    private readonly ILogger<GetWitnessStatements> logger = logger;
+    private readonly ILogger<GetCaseWitnessStatements> logger = logger;
     private readonly IWitnessService witnessService = witnessService;
 
     /// <summary>
@@ -42,20 +42,20 @@ public class GetWitnessStatements(
     /// <param name="caseId">The case Id.</param>
     /// <param name="witnessId">The Id of the witness to get statements for.</param>
     /// <returns>An <see cref="IActionResult"/> The response of the function.</returns>
-    [OpenApiOperation(operationId: nameof(GetWitnessStatements), tags: ["Statement"], Description = "Represents a function that retrieves statements for a witness.")]
+    [OpenApiOperation(operationId: nameof(GetCaseWitnessStatements), tags: ["Statement"], Description = "Represents a function that retrieves statements for a witness.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(WitnessStatementsResponse), Description = "Return success response with body.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
-    [Function(nameof(GetWitnessStatements))]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.WitnessStatementsHk)] HttpRequest request, int caseId, int witnessId)
+    [Function(nameof(GetCaseWitnessStatements))]
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseWitnessStatements)] HttpRequest request, int caseId, int witnessId)
     {
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} {nameof(GetWitnessStatements)} function processed a request.");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} {nameof(GetCaseWitnessStatements)} function processed a request.");
 
             if (witnessId < 1)
             {
@@ -67,7 +67,7 @@ public class GetWitnessStatements(
 
             WitnessStatementsResponse? result = await this.witnessService.GetWitnessStatementsAsync(witnessId, cmsAuthValues).ConfigureAwait(false);
 
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] witnessId [{witnessId}] {nameof(GetWitnessStatements)} function completed in [{stopwatch.Elapsed}]");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] witnessId [{witnessId}] {nameof(GetCaseWitnessStatements)} function completed in [{stopwatch.Elapsed}]");
 
             var response = new OkObjectResult(result);
 
@@ -79,17 +79,17 @@ public class GetWitnessStatements(
         }
         catch (InvalidOperationException ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} {nameof(GetWitnessStatements)} function encountered an invalid operation error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} {nameof(GetCaseWitnessStatements)} function encountered an invalid operation error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"{ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} {nameof(GetWitnessStatements)} function encountered an unauthorized access error: {ex.Message}");
-            return new UnauthorizedObjectResult($"{nameof(GetWitnessStatements)} error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} {nameof(GetCaseWitnessStatements)} function encountered an unauthorized access error: {ex.Message}");
+            return new UnauthorizedObjectResult($"{nameof(GetCaseWitnessStatements)} error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} {nameof(GetWitnessStatements)} function encountered an error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} {nameof(GetCaseWitnessStatements)} function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }

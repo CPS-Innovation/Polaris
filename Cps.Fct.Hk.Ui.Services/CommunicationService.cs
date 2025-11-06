@@ -48,8 +48,8 @@ public class CommunicationService(
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching inbox communications for caseId [{caseIdString}] ...");
 
             var request = new ListCommunicationsHkRequest(caseId, Guid.NewGuid());
-            //IReadOnlyCollection<Communication> communications = await this.apiClient.ListCommunicationsHkAsync(request, cmsAuthValues).ConfigureAwait(false);
-            List<Communication> communications = new List<Communication>();
+            IReadOnlyCollection<Communication> communications = await this.apiClient.ListCommunicationsHkAsync(request, cmsAuthValues).ConfigureAwait(false);
+          
             // Map the document type to each communication
             var mappedCommunications = communications.Select(c =>
             {

@@ -13,17 +13,18 @@ using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Request;
 using Common.Constants;
 using DdeiClient.Clients;
+using DdeiClient.Clients.Interfaces;
 
 /// <summary>
 /// Provides services for unlocking a case.
 /// </summary>
 public class CaseLockService(
     ILogger<CaseLockService> logger,
-    MasterDataServiceClient apiClient)
+    IMasterDataServiceClient apiClient)
     : ICaseLockService
 {
     private readonly ILogger<CaseLockService> logger = logger;
-    private readonly MasterDataServiceClient apiClient = apiClient;
+    private readonly IMasterDataServiceClient apiClient = apiClient;
 
     /// <inheritdoc />
     public async Task<CaseLockedStatusResult> CheckCaseLockAsync(int caseId, CmsAuthValues cmsAuthValues)

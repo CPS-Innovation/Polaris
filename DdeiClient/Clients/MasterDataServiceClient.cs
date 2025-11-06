@@ -391,7 +391,7 @@ namespace DdeiClient.Clients
                 var client = this.mdsApiClientFactory.Create(cookieString);
                 string additionalInfo = $"received #0 communications";
 
-                ICollection<Cps.MasterDataService.Infrastructure.ApiClient.HkCommunicationsInfo>? data = await client.ListCommunicationsHkAsync(request.CaseId);
+                var data = await client.ListCommunicationsHkAsync(request.CaseId);
 
                 if (data is not null)
                 {
