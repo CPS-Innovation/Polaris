@@ -12,7 +12,7 @@ using System.Text.Json.Serialization;
 public record CompleteReclassificationRequest(
     [property: JsonPropertyName("reclassification")] ReclassifyCaseMaterialRequest reclassification,
     [property: JsonPropertyName("actionPlan")] AddCaseActionPlanRequest actionPlan,
-    [property: JsonPropertyName("witness")] Witness? witness)
+    [property: JsonPropertyName("witness")] WitnessRequest? witness)
 {
     /// <summary>
     /// Gets the content type of the request.

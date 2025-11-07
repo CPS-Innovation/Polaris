@@ -559,7 +559,8 @@ namespace DdeiClient.Clients
                     {
                         ExhibitProducers = data.ExhibitProducers?.Select(x => new ExhibitProducer(
                             x.Id,
-                            x.Producer)).ToList(),
+                            x.Producer,
+                            false)).ToList(),
                     };
 
                     if (results.ExhibitProducers?.Count > 0)

@@ -1,4 +1,6 @@
-﻿namespace Common.Configuration;
+﻿using System.Security.AccessControl;
+
+namespace Common.Configuration;
 
 public static class RestApi
 {
@@ -37,6 +39,7 @@ public static class RestApi
     public const string CompleteReclassification = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/reclassify-complete";
     public const string CaseWitnessesHk = "urns/{caseUrn}/cases/{caseId:min(1)}/case-witnesses";
     public const string CaseLockInfo = "urns/{caseUrn}/cases/{caseId:min(1)}/case-lock-info";
+    public const string RenameMaterial = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/rename";
 
     // Internal Pipeline
     public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";

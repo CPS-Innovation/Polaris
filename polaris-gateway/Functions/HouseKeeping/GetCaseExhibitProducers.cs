@@ -81,7 +81,7 @@ public class GetCaseExhibitProducers(ILogger<GetCaseExhibitProducers> logger,
 
                 result.ExhibitProducers.AddRange(
                     witnesses.Select(w =>
-                        new ExhibitProducer(w.WitnessId!.Value, GetFullName(w))));
+                        new ExhibitProducer(w.WitnessId!.Value, GetFullName(w), true)));
             }
 
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] {nameof(GetCaseExhibitProducers)} function completed in [{stopwatch.Elapsed}]");

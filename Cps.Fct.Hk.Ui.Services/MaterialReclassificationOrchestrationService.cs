@@ -231,7 +231,7 @@ public class MaterialReclassificationOrchestrationService(
     private async Task<OperationResult> ExecuteAddWitness(
         string urn,
         int caseId,
-        Common.Dto.Request.HouseKeeping.Witness request,
+        Common.Dto.Request.HouseKeeping.WitnessRequest request,
         CmsAuthValues cmsAuthValues,
         Guid transactionId)
     {

@@ -11,10 +11,10 @@ using System.Globalization;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
-using DdeiClient.Clients;
 using Common.Constants;
 using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Request;
+using DdeiClient.Clients.Interfaces;
 
 /// <summary>
 /// Provides services for creating and sending action plans related to a case.
@@ -22,12 +22,12 @@ using Common.Dto.Request;
 public class CaseActionPlanService(
     ILogger<CaseActionPlanService> logger,
     ICaseLockService caseLockService,
-    MasterDataServiceClient apiClient)
+    IMasterDataServiceClient apiClient)
     : ICaseActionPlanService
 {
     private readonly ILogger<CaseActionPlanService> logger = logger;
     private readonly ICaseLockService caseLockService = caseLockService;
-    private readonly MasterDataServiceClient apiClient = apiClient;
+    private readonly IMasterDataServiceClient apiClient = apiClient;
 
     /// <inheritdoc />
     public async Task<NoContentResult> AddCaseActionPlanAsync(string urn, int caseId, AddCaseActionPlanRequest addCaseActionPlanRequest, CmsAuthValues cmsAuthValues)

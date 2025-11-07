@@ -12,7 +12,7 @@ using System.Text.Json.Serialization;
 /// <param name="WitnessId">The unique witness ID.</param>
 /// <param name="FirstName">First name of witness.</param>
 /// <param name="Surname">Surname of witness.</param>
-public record Witness(
+public record WitnessRequest(
     [property: JsonPropertyName("caseId")] int CaseId,
     [property: JsonPropertyName("witnessId")] int? WitnessId,
     [property: JsonPropertyName("firstName")] string FirstName,
