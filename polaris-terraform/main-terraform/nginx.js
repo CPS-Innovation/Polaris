@@ -79,7 +79,6 @@ function polarisAuthRedirect(r) {
   _redirectToAbsoluteUrl(r, `/init?${querystring}`)
 }
 
-
 function taskListAuthRedirect(r) {
   const args = _argsShim(r.args)
   const taskListHostAddress = r.variables["taskListHostAddress"] ?? ""
