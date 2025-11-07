@@ -76,7 +76,7 @@ cms_details = {
 }
 
 wm_task_list_host_name  = "https://cps-tst.outsystemsenterprise.com"
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst.outsystemsenterprise.com/,https://housekeeping-fn-staging.int.cps.gov.uk/,/task-list,https://fa-lacc-api-staging.azurewebsites.net/,https://fa-cm-api-staging.azurewebsites.net/"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst.outsystemsenterprise.com/,https://housekeeping-fn-staging.int.cps.gov.uk/,/task-list,https://fa-lacc-api-staging.azurewebsites.net/,https://fa-cm-api-staging.azurewebsites.net/,https://polaris-qa-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
