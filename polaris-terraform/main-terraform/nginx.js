@@ -80,20 +80,6 @@ function polarisAuthRedirect(r) {
 }
 
 
-function materialsAuthRedirect(r) {
-  const serializedArgs = qs.stringify(r.args)
-  const clonedArgs = qs.parse(serializedArgs)
-  clonedArgs.cookie = r.headersIn.Cookie
-  clonedArgs.referer = r.headersIn.Referer
-
-  // Add the Materials query parameter
-  clonedArgs['polaris-ui-url'] = '/materials-ui'
-
-  const querystring = qs.stringify(clonedArgs)
-  _redirectToAbsoluteUrl(r, `/init?${querystring}`)
-}
-
-
 function taskListAuthRedirect(r) {
   const args = _argsShim(r.args)
   const taskListHostAddress = r.variables["taskListHostAddress"] ?? ""
@@ -104,4 +90,4 @@ function taskListAuthRedirect(r) {
   )
 }
 
-export default { polarisAuthRedirect, taskListAuthRedirect, appAuthRedirect, materialsAuthRedirect }
+export default { polarisAuthRedirect, taskListAuthRedirect, appAuthRedirect }
