@@ -20,7 +20,6 @@ namespace Ddei.Domain.Response
         public string EarliestCtlDate { get; set; }
         public CaseLockingDto Locking { get; set; }
         public bool IsDcfCase { get; set; }
-        public bool IsLocked => "true".Equals(Locking?.Locked, StringComparison.InvariantCultureIgnoreCase);
         public string? Operation { get; set; }
         public string? RegistrationDate { get; set; }
         public bool Secure { get; set; }
