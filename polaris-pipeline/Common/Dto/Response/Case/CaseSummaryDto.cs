@@ -18,6 +18,5 @@
         public string OwningUnit { get; set; }
         public bool CtlActive { get; set; }
         public string EarliestCtlDate { get; set; }
-        public CaseLockingDto Locking { get; set; }
     }
 }
