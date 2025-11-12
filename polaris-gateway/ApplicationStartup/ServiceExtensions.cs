@@ -29,6 +29,7 @@ using DdeiClient.Clients.Interfaces;
 using DdeiClient.Clients;
 using DdeiClient.Configuration;
 using Common.Mappers;
+using Cps.Fct.Hk.Ui.Services.Validators;
 
 namespace PolarisGateway.ApplicationStartup;
 
@@ -92,6 +93,12 @@ public static class ServiceExtensions
         services.AddSingleton<IWitnessService, WitnessService>();
         services.AddSingleton<ICaseActionPlanService, CaseActionPlanService>();
         services.AddSingleton<ICaseLockService, CaseLockService>();
+
+        // Add validators
+        services.AddSingleton<RenameMaterialRequestValidator>();
+        services.AddSingleton<CompleteReclassificationRequestValidator>();
+        services.AddSingleton<UpdateStatementRequestValidator>();
+        services.AddSingleton<UpdateExhibitRequestValidator>();
 
         // Register MasterDataService client options.
         services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);

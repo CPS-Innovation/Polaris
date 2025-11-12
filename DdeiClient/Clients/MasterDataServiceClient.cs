@@ -1071,9 +1071,9 @@ namespace DdeiClient.Clients
             };
         }
 
-        private static ICollection<ApiClient.ActionStep> MapActionStep(Step[] steps)
+        private static ICollection<ApiClient.ActionPlanStep> MapActionStep(Step[] steps)
         {
-            return steps.Select(step => new ApiClient.ActionStep
+            return steps.Select(step => new ApiClient.ActionPlanStep
             {
                 Code = step.code,
                 Description = step.description,
