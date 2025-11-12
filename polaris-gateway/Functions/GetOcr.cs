@@ -18,6 +18,7 @@ public class GetOcr : BaseFunction
 {
     private const string tokenQueryParamName = "token";
     private const string isOcrProcessedParamName = "isOcrProcessed";
+    private const string ForceRefreshParamName = "ForceRefresh";
     private readonly ILogger<GetOcr> _logger;
     private readonly IOcrArtefactService _ocrArtefactService;
 
@@ -39,16 +40,15 @@ public class GetOcr : BaseFunction
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var isOcrProcessed = req.Query.ContainsKey(isOcrProcessedParamName) && bool.Parse(req.Query[isOcrProcessedParamName]);
+        var forceRefresh = req.Query.ContainsKey(ForceRefreshParamName) && bool.Parse(req.Query[ForceRefreshParamName]);
         var token = req.Query.ContainsKey(tokenQueryParamName) ?
             Guid.Parse(req.Query[tokenQueryParamName]) :
             (Guid?)null;
 
-        var ocrResult = await _ocrArtefactService.GetOcrAsync(cmsAuthValues, correlationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, token);
+        var ocrResult = await _ocrArtefactService.GetOcrAsync(cmsAuthValues, correlationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, token, forceRefresh);
         return ocrResult.Status switch
         {
-            ResultStatus.ArtefactAvailable => new JsonResult(
-                ocrResult.Artefact
-            )
+            ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Artefact)
             {
                 StatusCode = (int)HttpStatusCode.OK
             },

@@ -126,14 +126,6 @@ namespace Ddei.Mappers
                 OwningUnit = ddeiResult.UnitName,
                 CtlActive = ddeiResult.CtlActive,
                 EarliestCtlDate = ddeiResult.EarliestCtlDate,
-                Locking = new Common.Dto.Response.Case.CaseLockingDto
-                {
-                    Application = ddeiResult.Locking?.Application,
-                    BySurname = ddeiResult.Locking?.BySurname,
-                    ByFirstNames = ddeiResult.Locking?.ByFirstNames,
-                    Locked = ddeiResult.Locking?.Locked,
-                    Since = ddeiResult.Locking?.Since,
-                }
             };
         }
 

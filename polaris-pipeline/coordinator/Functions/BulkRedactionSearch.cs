@@ -3,8 +3,6 @@ using Common.Extensions;
 using coordinator.Domain;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
-using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -19,16 +17,12 @@ public class BulkRedactionSearch
 {
     private readonly ILogger<BulkRedactionSearch> _logger;
     private readonly IOrchestrationProvider _orchestrationProvider;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
-    private readonly IDdeiAuthClient _ddeiAuthClient;
     private const string SearchTextHeader = "SearchText";
 
-    public BulkRedactionSearch(ILogger<BulkRedactionSearch> logger, IOrchestrationProvider orchestrationProvider, IDdeiArgFactory ddeiArgFactory, IDdeiAuthClient ddeiAuthClient)
+    public BulkRedactionSearch(ILogger<BulkRedactionSearch> logger, IOrchestrationProvider orchestrationProvider)
     {
         _logger = logger;
         _orchestrationProvider = orchestrationProvider;
-        _ddeiArgFactory = ddeiArgFactory;
-        _ddeiAuthClient = ddeiAuthClient;
     }
 
     [Function(nameof(BulkRedactionSearch))]
@@ -36,7 +30,6 @@ public class BulkRedactionSearch
     {
         var currentCorrelationId = req.Headers.GetCorrelationId();
         var cmsAuthValues = req.Headers.GetCmsAuthValues();
-        await _ddeiAuthClient.VerifyCmsAuthAsync(_ddeiArgFactory.CreateCmsCaseDataArgDto(cmsAuthValues, currentCorrelationId));
         var searchText = req.Query[SearchTextHeader];
         var bulkRedactionPayload = new BulkRedactionSearchPayload
         {
