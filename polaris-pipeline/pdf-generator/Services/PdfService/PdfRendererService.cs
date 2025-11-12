@@ -7,6 +7,8 @@ using pdf_generator.Domain.Document;
 using pdf_generator.Extensions;
 using pdf_generator.Factories.Contracts;
 using Common.Constants;
+using System.Linq;
+using System.Configuration;
 
 namespace pdf_generator.Services.PdfService;
 
@@ -30,7 +32,18 @@ public class PdfRendererService : IPdfService
             if (doc.IsEncrypted)
                 throw new PdfEncryptionException();
 
-            AppendHttpsToInvalidUrls(doc);
+
+            var linkAnnotations = doc.Pages.SelectMany(page => page.Annotations.OfType<Aspose.Pdf.Annotations.LinkAnnotation>());
+            foreach (var annotation in linkAnnotations)
+            {
+                var uriAction = annotation.Action as Aspose.Pdf.Annotations.GoToURIAction;
+                if (uriAction == null || string.IsNullOrEmpty(uriAction.URI)) continue;
+
+                uriAction.URI = SetLinkUri(uriAction.URI);
+
+            }
+
+            //AppendHttpsToInvalidUrls(doc);
 
             await doc.SaveAsync(pdfStream, SaveFormat.Pdf, CancellationToken.None);
             pdfStream.Seek(0, SeekOrigin.Begin);
@@ -79,30 +92,44 @@ public class PdfRendererService : IPdfService
         return conversionResult;
     }
 
-    private void AppendHttpsToInvalidUrls(Aspose.Pdf.Document pdfDoc)
+    private string SetLinkUri(string uri)
     {
-        foreach (var page in pdfDoc.Pages)
-        {
-            foreach (var annotation in page.Annotations)
-            {
-                if (annotation is Aspose.Pdf.Annotations.LinkAnnotation link)
-                {
-                    var uriAction = link.Action as Aspose.Pdf.Annotations.GoToURIAction;
-                    if (uriAction != null && !string.IsNullOrEmpty(uriAction.URI))
-                    {
-                        if (uriAction.URI.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
-                        {
-                            uriAction.URI = uriAction.URI.Replace("file://", "https://");
-                        }
-                        else if (uriAction.URI.StartsWith("//"))
-                        {
-                            uriAction.URI = "https:" + uriAction.URI;
-                        }
-                    }
-                }
-            }
-        }
+        const string fileScheme = "file://";
+        const string httpsScheme = "https:";
+        
+        if (uri.StartsWith(fileScheme, StringComparison.OrdinalIgnoreCase))
+            return uri.Replace(fileScheme, $"{httpsScheme}//");
+
+        if (uri.StartsWith("//"))
+           return httpsScheme + uri;
+
+        return uri;
     }
+
+    //private void AppendHttpsToInvalidUrls(Aspose.Pdf.Document pdfDoc)
+    //{
+    //    foreach (var page in pdfDoc.Pages)
+    //    {
+    //        foreach (var annotation in page.Annotations)
+    //        {
+    //            if (annotation is Aspose.Pdf.Annotations.LinkAnnotation link)
+    //            {
+    //                var uriAction = link.Action as Aspose.Pdf.Annotations.GoToURIAction;
+    //                if (uriAction != null && !string.IsNullOrEmpty(uriAction.URI))
+    //                {
+    //                    if (uriAction.URI.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
+    //                    {
+    //                        uriAction.URI = uriAction.URI.Replace("file://", "https://");
+    //                    }
+    //                    else if (uriAction.URI.StartsWith("//"))
+    //                    {
+    //                        uriAction.URI = "https:" + uriAction.URI;
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
 
     public PdfConversionResult ReadToPdfStream(Stream inputStream, string documentId, Guid correlationId)
