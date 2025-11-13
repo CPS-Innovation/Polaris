@@ -395,20 +395,20 @@ namespace DdeiClient.Clients
                 {
                     results = data.Select(
                         communication => new Communication(
-                         communication.Id.GetValueOrDefault(),
-                         communication.OriginalFileName,
-                         communication.Subject,
-                         communication.DocumentId,
-                         communication.MaterialId.GetValueOrDefault(),
-                         communication.Status,
-                         string.Empty,
-                         string.Empty,
-                         null,
-                         communication.HasAttachments,
-                         communication.Method,
-                         communication.Direction,
-                         communication.Party,
-                         communication.Date?.DateTime)).ToList();
+                         Id: communication.Id.GetValueOrDefault(), 
+                         OriginalFileName: communication.OriginalFileName,
+                         Subject: communication.Subject,
+                         DocumentTypeId: communication.DocumentId,
+                         MaterialId: communication.MaterialId.GetValueOrDefault(),
+                         Link: communication.Link,
+                         Status: communication.Status,
+                         Category: string.Empty,
+                         Type: null,
+                         HasAttachments: communication.HasAttachments,
+                         Method: communication.Method,
+                         Direction: communication.Direction,
+                         Party: communication.Party,
+                         Date: communication.Date?.DateTime)).ToList();
                 }
 
                 if (results.Count != 0)
