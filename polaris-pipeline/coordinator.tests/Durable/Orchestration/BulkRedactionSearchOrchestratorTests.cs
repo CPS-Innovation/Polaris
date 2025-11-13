@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Dto.Request.Redaction;
+using Common.Telemetry;
 using coordinator.Domain;
 using coordinator.Durable.Activity;
 using coordinator.Durable.Orchestration;
@@ -13,10 +14,12 @@ namespace coordinator.tests.Durable.Orchestration;
 
 public class BulkRedactionSearchOrchestratorTests
 {
+    private readonly Mock<ITelemetryClient> _telemetryClientMock;
     private readonly BulkRedactionSearchOrchestrator _bulkRedactionSearchOrchestrator;
     public BulkRedactionSearchOrchestratorTests()
     {
-        _bulkRedactionSearchOrchestrator = new BulkRedactionSearchOrchestrator();
+        _telemetryClientMock = new Mock<ITelemetryClient>();
+        _bulkRedactionSearchOrchestrator = new BulkRedactionSearchOrchestrator(_telemetryClientMock.Object);
     }
 
     [Fact]
