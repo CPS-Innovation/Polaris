@@ -73,7 +73,7 @@ public class BulkRedactionSearchOrchestrator
         };
         var initiateOcrResponse = await context.CallActivityAsync<InitiateOcrResponse>(nameof(InitiateOcr), documentPayload, _durableActivityOptions);
 
-        if (initiateOcrResponse == null && initiateOcrResponse.BlobAlreadyExists)
+        if (initiateOcrResponse is { BlobAlreadyExists: true })
         {
             return;
         }
