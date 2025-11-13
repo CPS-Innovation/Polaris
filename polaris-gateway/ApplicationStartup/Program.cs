@@ -47,6 +47,9 @@ var host = new HostBuilder()
     })
     .Build();
 
+ILogger<Program> logger = host.Services.GetRequiredService<ILogger<Program>>();
+StartupHelpers.SetAsposeLicence(logger);
+
 host.Run();
 
 namespace ApplicationStartup
