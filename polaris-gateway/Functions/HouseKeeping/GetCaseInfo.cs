@@ -13,7 +13,6 @@ namespace PolarisGateway.Functions.HouseKeeping
     using Common.Dto.Response.HouseKeeping;
     using Common.Exceptions;
     using Cps.Fct.Hk.Ui.Interfaces;
-    using Cps.Fct.Hk.Ui.Services.Constants;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Azure.Functions.Worker;
@@ -32,7 +31,6 @@ namespace PolarisGateway.Functions.HouseKeeping
     /// </remarks>
     /// <param name="logger">The logger instance used to log information and errors.</param>
     /// <param name="caseInfoService">The service used to process the request and generate the result.</param>
-    /// <param name="cookieService">The service used to handle cookie-related operations.</param>
     public class GetCaseInfo(ILogger<GetCaseInfo> logger, ICaseInfoService caseInfoService) : BaseFunction(logger)
     {
         private readonly ILogger<GetCaseInfo> logger = logger;

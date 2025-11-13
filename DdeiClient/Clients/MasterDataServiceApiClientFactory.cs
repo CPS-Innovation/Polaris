@@ -10,6 +10,8 @@ namespace DdeiClient.Clients
     using Microsoft;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
+    using Newtonsoft.Json.Serialization;
+    using Newtonsoft.Json;
 
     /// <summary>
     /// Mds api client factory.
@@ -65,13 +67,31 @@ namespace DdeiClient.Clients
                     throw new InvalidOperationException("Missing MDS base url in configuration.");
                 }
 
+
                 // Create the HttpClient using a named client
-                var client = this.httpClientFactory.CreateClient("MdsClient");
+                var httpClient = this.httpClientFactory.CreateClient("MdsClient");
+                httpClient.DefaultRequestHeaders.Add("x-functions-key", functionKey);
+                httpClient.DefaultRequestHeaders.Add("Cms-Auth-Values", cookieHeader);
 
-                client.DefaultRequestHeaders.Add("x-functions-key", functionKey);
-                client.DefaultRequestHeaders.Add("Cms-Auth-Values", cookieHeader);
+                var apiClient = new MdsApiClient(httpClient)
+                {
+                    BaseUrl = baseUrl,
+                };
 
-                return new MdsApiClient(client) { BaseUrl = baseUrl };
+                // --- Mutate existing JsonSerializerSettings instead of replacing it ---
+                apiClient.JsonSerializerSettings.MissingMemberHandling = MissingMemberHandling.Ignore;
+                apiClient.JsonSerializerSettings.NullValueHandling = NullValueHandling.Include;
+                apiClient.JsonSerializerSettings.ContractResolver = new DefaultContractResolver
+                {
+                    IgnoreSerializableAttribute = true,
+                };
+
+                apiClient.JsonSerializerSettings.Error += (sender, args) =>
+                {
+                    args.ErrorContext.Handled = true;
+                };
+
+                return apiClient;
             }
             catch (Exception ex)
             {
