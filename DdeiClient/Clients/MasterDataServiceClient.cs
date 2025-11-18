@@ -939,7 +939,7 @@ namespace DdeiClient.Clients
                     DiscardReasonDescription = request.discardReasonDescription,
                 };
 
-                var data = await client.DiscardMaterialAsync(mdsReqest);
+                var data = await client.DiscardMaterialAsync(request.materialId, mdsReqest);
                 this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
 
                 DiscardMaterialResponse result = new DiscardMaterialResponse(new DiscardMaterialData { Id = data.DiscardMaterial.Id });
