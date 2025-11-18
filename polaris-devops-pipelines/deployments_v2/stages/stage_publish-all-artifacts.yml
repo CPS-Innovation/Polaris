@@ -82,6 +82,20 @@ stages:
               targetFolder: 'polaris-pipeline/pdf-generator'
               OverWrite: true
             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
+           
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: 'Aspose.Total.NET.lic'
+            displayName: 'Download Aspose Licence'
+
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: 'polaris-gateway'
+              OverWrite: true
+            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
 
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'

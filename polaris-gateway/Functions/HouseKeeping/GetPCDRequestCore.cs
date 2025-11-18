@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using Common.Constants;
 using System.IO;
 using System;
+using Common.Configuration;
 
 /// <summary>
 /// Represents a function that returns the material name/subject,
@@ -56,7 +57,7 @@ public class GetPcdRequestCore(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError)]
     [Function(nameof(GetPcdRequestCore))]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "case/{caseId}/pcd-requests/core")] HttpRequest request, int caseId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PcdRequestCore)] HttpRequest request, int caseId)
     {
         try
         {
