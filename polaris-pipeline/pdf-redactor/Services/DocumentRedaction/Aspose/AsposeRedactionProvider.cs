@@ -1,7 +1,6 @@
 ﻿using Aspose.Pdf;
 using Aspose.Pdf.Facades;
 using Common.Dto.Request;
-using Common.Telemetry;
 using Color = System.Drawing.Color;
 
 namespace pdf_redactor.Services.DocumentRedaction.Aspose;
