@@ -83,20 +83,6 @@ stages:
               OverWrite: true
             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
            
-          - task: DownloadSecureFile@1
-            name: licence
-            inputs:
-              secureFile: 'Aspose.Total.NET.lic'
-            displayName: 'Download Aspose Licence'
-
-          - task: CopyFiles@2
-            inputs:
-              sourceFolder: $(Agent.TempDirectory)
-              contents: Aspose.Total.NET.lic
-              targetFolder: 'polaris-gateway'
-              OverWrite: true
-            displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
-
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
 
@@ -253,34 +239,47 @@ stages:
 
       - job: Build_Gateway_Artifact
         steps:
-          - task: NuGetAuthenticate@1
-            displayName: 'Authenticate to NuGet Feed'
+           - task: DownloadSecureFile@1
+             name: licence
+             inputs:
+              secureFile: 'Aspose.Total.NET.lic'
+              displayName: 'Download Aspose Licence'
 
-          - task: DotNetCoreCLI@2
-            inputs:
+           - task: CopyFiles@2
+             inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: 'polaris-gateway'
+              OverWrite: true
+             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur' 
+           - task: NuGetAuthenticate@1
+             displayName: 'Authenticate to NuGet Feed'
+
+           - task: DotNetCoreCLI@2
+             inputs:
               command: publish
               publishWebProjects: false
               projects: "polaris-gateway/polaris-gateway.csproj"
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
-            displayName: "Build Gateway artifact"
+              displayName: "Build Gateway artifact"
           
           # Add build version
-          - task: PowerShell@2
-            inputs:
+           - task: PowerShell@2
+             inputs:
               targetType: 'inline'
               workingDirectory: '$(Build.ArtifactStagingDirectory)/polaris-gateway'
               script: |
                 New-Item build-version.txt -force
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"Gateway`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
-            displayName: "Record version details"
+             displayName: "Record version details"
 
-          - task: PublishPipelineArtifact@1
-            inputs:
+           - task: PublishPipelineArtifact@1
+             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
               artifact: "polaris-gateway-drop"
-            displayName: "Publish Gateway artifact"
+              displayName: "Publish Gateway artifact"
 
       - job: Build_Maintenance_Function_Artifact
         steps:
