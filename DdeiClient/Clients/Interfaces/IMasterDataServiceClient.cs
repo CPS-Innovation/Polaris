@@ -7,6 +7,7 @@ namespace DdeiClient.Clients.Interfaces
     using Common.Dto.Request;
     using Common.Dto.Request.HouseKeeping;
     using Common.Dto.Response.HouseKeeping;
+    using Common.Dto.Response.HouseKeeping.Pcd;
     using Microsoft.AspNetCore.Mvc;
 
     /// <summary>
@@ -161,5 +162,31 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
         Task<CaseLockedStatusResult> CheckCaseLockAsync(int caseId, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Asynchronously discards a material using material id.
+        /// </summary>
+        /// <param name="request">The discard material request.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<DiscardMaterialResponse> DiscardMaterialAsync(DiscardMaterialRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Get PCD Requests core/basic info by case id.
+        /// </summary>
+        /// <param name="request">The GetPcdRequestsCore request.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<List<PcdRequestCore>> GetPcdRequestCoreAsync(GetPcdRequestsCoreRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Get PCD request overview by case id and PCD id.
+        /// </summary>
+        /// <param name="request">The GetPcdRequestByPcdIdCore request.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(GetPcdRequestByPcdIdCoreRequest request, CmsAuthValues cmsAuthValues);
+
+
     }
 }

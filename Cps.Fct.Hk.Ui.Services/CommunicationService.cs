@@ -406,4 +406,69 @@ public class CommunicationService(
             throw;
         }
     }
+
+    public async Task<IReadOnlyCollection<PcdRequestCore>> GetPcdRequestCore(int caseId, CmsAuthValues cmsAuthValues)
+    {
+        string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
+
+        try
+        {
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching unused materials for caseId [{caseIdString}] ...");
+            Guid correlationId = cmsAuthValues.CorrelationId == Guid.Empty ? Guid.NewGuid() : cmsAuthValues.CorrelationId;
+
+            var request = new GetPcdRequestsCoreRequest(caseId, correlationId);
+            IReadOnlyCollection<PcdRequestCore> unusedMaterials = await this.apiClient.GetPcdRequestCoreAsync(request, cmsAuthValues).ConfigureAwait(false);
+
+            return unusedMaterials;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching unused materials for caseId [{caseIdString}]");
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues)
+    {
+        string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
+
+        try
+        {
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching PCD Request overview for caseId [{caseIdString}] and PCD ID [{pcdId}].");
+            Guid correlationId = cmsAuthValues.CorrelationId == Guid.Empty ? Guid.NewGuid() : cmsAuthValues.CorrelationId;
+            var request = new GetPcdRequestByPcdIdCoreRequest(caseId, pcdId, correlationId);
+            PcdRequestDto unusedMaterials = await this.apiClient.GetPcdRequestByPcdIdAsync(request, cmsAuthValues).ConfigureAwait(false);
+
+            return unusedMaterials;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching PCD Request overview for caseId [{caseIdString}] and PCD id [{pcdId}]");
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<DiscardMaterialResponse> DiscardMaterialAsync(int caseId, int materialId, string discardReason, string discardReasonDescription, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)
+    {
+        try
+        {
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to discard material with materialId [{materialId}]");
+
+            var request = new DiscardMaterialRequest(correspondenceId == default ? Guid.NewGuid() : correspondenceId, materialId, discardReason, discardReasonDescription);
+            DiscardMaterialResponse discardMaterialResponse = await this.apiClient.DiscardMaterialAsync(request, cmsAuthValues).ConfigureAwait(false);
+            this.logger.LogInformation(LoggingConstants.DiscardMaterialOperationSuccess, LoggingConstants.HskUiLogPrefix, caseId, materialId);
+
+            return discardMaterialResponse;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, LoggingConstants.DiscardMaterialOperationFailed, LoggingConstants.HskUiLogPrefix, caseId, materialId);
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
 }

@@ -180,6 +180,7 @@ public class GeCaseWitnessesTests
         var context = new DefaultHttpContext();
         mockRequest.Setup(r => r.HttpContext).Returns(context);
         mockRequest.Setup(r => r.Headers.Add("corelation", "1232131231"));
+        mockRequest.Setup(c => c.Cookies["token"]);
 
         return mockRequest;
     }
