@@ -18,7 +18,7 @@ steps:
 
         $ThisBuildDefinitionID = $(System.DefinitionId)
         [int]$ThisBuildID = $(Build.BuildId)
-        $PipelineName = $(Build.DefinitionName)
+        $PipelineName = "$(Build.DefinitionName)"
 
         $GET_BUILDS_BY_DEFINITION_URL = "https://dev.azure.com/$organization/$project/_apis/build/builds?api-version=7.1&definitions=$ThisBuildDefinitionID&statusFilter=inProgress"
 
