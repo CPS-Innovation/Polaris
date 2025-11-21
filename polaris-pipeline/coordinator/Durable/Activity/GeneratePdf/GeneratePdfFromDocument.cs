@@ -15,13 +15,18 @@ namespace coordinator.Durable.Activity;
 
 public class GeneratePdfFromDocument : BaseGeneratePdf
 {
+    private readonly IDdeiAuthClient _ddeiAuthClient;
     public GeneratePdfFromDocument(
         IPdfGeneratorClient pdfGeneratorClient,
         IDdeiArgFactory ddeiArgFactory,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IConfiguration configuration,
-        IMdsClient mdsClient)
-        : base(ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient) { }
+        IMdsClient mdsClient, 
+        IDdeiAuthClient ddeiAuthClient)
+        : base(ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient)
+    {
+        _ddeiAuthClient = ddeiAuthClient;
+    }
 
     [Function(nameof(GeneratePdfFromDocument))]
     public new async Task<PdfConversionResponse> Run([ActivityTrigger] DocumentPayload payload)
@@ -39,7 +44,7 @@ public class GeneratePdfFromDocument : BaseGeneratePdf
             payload.DocumentId,
             payload.VersionId);
 
-        var result = await MdsClient.GetDocumentAsync(arg);
+        var result = await _ddeiAuthClient.GetDocumentAsync(arg);
 
         return result.Stream;
     }
