@@ -44,7 +44,7 @@ resource "azapi_resource_action" "set_min_tls_cipher_suite" {
   resource_id = data.azapi_resource_id.function_apps[each.key].id
   method      = "PUT"
   body = {
-    name = data.azapi_resource_id.id[each.key].name
+    name = data.azapi_resource_id.function_apps[each.key].name
     properties = {
       minTlsCipherSuite = "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA"
     }
