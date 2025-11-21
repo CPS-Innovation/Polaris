@@ -41,7 +41,7 @@ data "azapi_resource_id" "function_apps" {
 resource "azapi_resource_action" "set_min_tls_cipher_suite" {
   for_each    = local.function_apps
   type        = "Microsoft.Web/sites/config@2024-11-01"
-  resource_id = data.azapi_resource_id.id[each.key].id
+  resource_id = data.azapi_resource_id.function_apps[each.key].id
   method      = "PUT"
   body = {
     name = data.azapi_resource_id.id[each.key].name
