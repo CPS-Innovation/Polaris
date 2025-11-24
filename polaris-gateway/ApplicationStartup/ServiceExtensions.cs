@@ -93,6 +93,7 @@ public static class ServiceExtensions
         services.AddSingleton<IWitnessService, WitnessService>();
         services.AddSingleton<ICaseActionPlanService, CaseActionPlanService>();
         services.AddSingleton<ICaseLockService, CaseLockService>();
+        services.AddSingleton<ICaseDefendantsService, CaseDefendantsService>();
 
         // Add validators
         services.AddSingleton<RenameMaterialRequestValidator>();
