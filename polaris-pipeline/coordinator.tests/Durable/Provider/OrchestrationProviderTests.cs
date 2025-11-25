@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Telemetry;
 using Xunit;
 
 namespace coordinator.tests.Durable.Provider;
@@ -17,6 +18,7 @@ public class OrchestrationProviderTests
     private readonly Mock<IConfiguration> _configurationMock;
     private readonly Mock<IQueryConditionFactory> _queryConditionFactoryMock;
     private readonly Mock<ILogger<OrchestrationProvider>> _loggerMock;
+    private readonly Mock<ITelemetryClient> _telemetryClientMock;
     private readonly OrchestrationProvider _orchestrationProvider;
 
     public OrchestrationProviderTests()
@@ -24,7 +26,8 @@ public class OrchestrationProviderTests
         _configurationMock = new Mock<IConfiguration>();
         _queryConditionFactoryMock = new Mock<IQueryConditionFactory>();
         _loggerMock = new Mock<ILogger<OrchestrationProvider>>();
-        _orchestrationProvider = new OrchestrationProvider(_configurationMock.Object, _queryConditionFactoryMock.Object, _loggerMock.Object);
+        _telemetryClientMock = new Mock<ITelemetryClient>();
+        _orchestrationProvider = new OrchestrationProvider(_configurationMock.Object, _queryConditionFactoryMock.Object, _loggerMock.Object, _telemetryClientMock.Object);
     }
 
     [Theory]
