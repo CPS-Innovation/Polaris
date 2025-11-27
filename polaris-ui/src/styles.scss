@@ -52,11 +52,11 @@ $fullHeightWidth: 100% !important;
 }
 
 .pdfViewer .page {
-  height: $heightWidthPercentage;
+  // height: $heightWidthPercentage;
   width: $heightWidthPercentage;
 
   .textLayer {
-    height: $fullHeightWidth;
+    // height: $fullHeightWidth;
     width: $fullHeightWidth;
   }
 }
