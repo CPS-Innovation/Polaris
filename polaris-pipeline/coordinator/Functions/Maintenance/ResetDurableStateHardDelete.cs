@@ -37,10 +37,11 @@ public class ResetDurableStateHardDelete
         var settings = new AzureStorageOrchestrationServiceSettings
         {
             TaskHubName = _configuration.GetValue<string>("CoordinatorTaskHub"),
-        };
-
+        }; 
+        var connectionString = _configuration.GetValue<string>("Storage");
+        settings.StorageAccountClientProvider = new StorageAccountClientProvider(connectionString);
         var storageService = new AzureStorageOrchestrationService(settings);
-
+        
         await storageService.DeleteAsync();
 
         return new OkResult();
