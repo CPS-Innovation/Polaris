@@ -5,6 +5,10 @@ jobs:
     displayName: Run DotNet Tests
     dependsOn: Prepare_DotNet_Tests
     steps:
+
+      - task: NuGetAuthenticate@1
+        displayName: 'Authenticate to NuGet Feed'
+        
       - download: current
         displayName: Download PDF Redactor Tests
         artifact: "pdf-redactor-tests-drop"
