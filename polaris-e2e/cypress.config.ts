@@ -1,73 +1,71 @@
-import { defineConfig } from "cypress";
-import fs from "fs-extra";
-import path from "path";
+import { defineConfig } from "cypress"
+import fs from "fs-extra"
+import path from "path"
 
-const globalAny: any = global;
+const globalAny: any = global
 
 const getConfigurationByFile = (file: string) => {
-	const regexp = /[-=./]/gm;
-	const localFile = file.replace(regexp, "");
-	const pathToConfigFile = path.resolve("config", `${localFile}.json`);
-	return fs.readJsonSync(pathToConfigFile);
-};
+  const pathToConfigFile = path.resolve("config", `${file}.json`)
+  return fs.readJsonSync(pathToConfigFile)
+}
 
 export default defineConfig({
-	e2e: {
-		setupNodeEvents(on, config) {
-			if (!config.env.ENVIRONMENT) {
-				throw new Error("Please provide an ENVIRONMENT variable");
-			}
-			require("cypress-timestamps/plugin")(on);
-			require("cypress-terminal-report/src/installLogsPrinter")(on);
-			require("@cypress/grep/src/plugin")(config);
+  e2e: {
+    setupNodeEvents(on, config) {
+      if (!config.env.ENVIRONMENT) {
+        throw new Error("Please provide an ENVIRONMENT variable")
+      }
+      require("cypress-timestamps/plugin")(on)
+      require("cypress-terminal-report/src/installLogsPrinter")(on)
+      require("@cypress/grep/src/plugin")(config)
 
-			on("task", {
-				storeTokenResponseInNode: (tokenResponse: any) => {
-					globalAny.tokenResponse = tokenResponse;
-					return null;
-				},
-				retrieveTokenResponseFromNode: () => {
-					return globalAny.tokenResponse || null;
-				},
-				log: (message) => {
-					console.log(message);
-					return null;
-				},
-			});
+      on("task", {
+        storeTokenResponseInNode: (tokenResponse: any) => {
+          globalAny.tokenResponse = tokenResponse
+          return null
+        },
+        retrieveTokenResponseFromNode: () => {
+          return globalAny.tokenResponse || null
+        },
+        log: (message) => {
+          console.log(message)
+          return null
+        },
+      })
 
-			const baseEnvFromFile = getConfigurationByFile("base");
-			const environmentEnvFromFile = getConfigurationByFile(
-				"env." + config.env.ENVIRONMENT
-			);
-			const env = {
-				...baseEnvFromFile,
-				...environmentEnvFromFile,
-			};
+      const baseEnvFromFile = getConfigurationByFile("base")
+      const environmentEnvFromFile = getConfigurationByFile(
+        "env." + config.env.ENVIRONMENT
+      )
+      const env = {
+        ...baseEnvFromFile,
+        ...environmentEnvFromFile,
+      }
 
-			config.baseUrl = env.BASE_URL;
+      config.baseUrl = env.BASE_URL
 
-			const resolvedEnv = { ...config.env, ...env };
-			console.log("Resolved env: ", resolvedEnv);
+      const resolvedEnv = { ...config.env, ...env }
+      console.log("Resolved env: ", resolvedEnv)
 
-			return { ...config, env: resolvedEnv };
-		},
-		baseUrl: "http://example.org",
-		video: true,
-		screenshotOnRunFailure: true,
-		// reporter: "junit",
-		// reporterOptions: {
-		//     mochaFile: "report/test-results-[hash].xml",
-		//     attachments: true,
-		// },
-		viewportHeight: 1000,
-		viewportWidth: 1500,
-		defaultCommandTimeout: 60000,
-		trashAssetsBeforeRuns: false,
-		experimentalModifyObstructiveThirdPartyCode: true,
-		env: {
-			grepOmitFiltered: true,
-			grepFilterSpecs: true,
-		},
-	},
-	videoCompression: false,
-});
+      return { ...config, env: resolvedEnv }
+    },
+    baseUrl: "http://example.org",
+    video: true,
+    screenshotOnRunFailure: true,
+    // reporter: "junit",
+    // reporterOptions: {
+    //     mochaFile: "report/test-results-[hash].xml",
+    //     attachments: true,
+    // },
+    viewportHeight: 1000,
+    viewportWidth: 1500,
+    defaultCommandTimeout: 60000,
+    trashAssetsBeforeRuns: false,
+    experimentalModifyObstructiveThirdPartyCode: true,
+    env: {
+      grepOmitFiltered: true,
+      grepFilterSpecs: true,
+    },
+  },
+  videoCompression: false,
+})
