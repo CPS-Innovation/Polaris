@@ -11,6 +11,7 @@ export const App: FC = () => {
   const reactPlugin = initializeAppInsights();
   useEffect(() => {
     clearDownStorage();
+    console.log("v0.1.0");
   }, []);
 
   return (
