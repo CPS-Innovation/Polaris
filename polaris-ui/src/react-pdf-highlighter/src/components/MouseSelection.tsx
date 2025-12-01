@@ -75,12 +75,8 @@ class MouseSelection extends Component<Props, State> {
       return;
     }
 
-    let containerBoundingRect: DOMRect | null = null;
-
     const containerCoords = (pageX: number, pageY: number) => {
-      if (!containerBoundingRect) {
-        containerBoundingRect = container.getBoundingClientRect();
-      }
+      const containerBoundingRect = container.getBoundingClientRect();
 
       return {
         x: pageX - containerBoundingRect.left + container.scrollLeft,
