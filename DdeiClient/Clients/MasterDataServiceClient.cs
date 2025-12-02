@@ -15,6 +15,7 @@ namespace DdeiClient.Clients
     using Common.Dto.Request;
     using Common.Dto.Request.HouseKeeping;
     using Common.Dto.Response.HouseKeeping;
+    using Common.Dto.Response.HouseKeeping.Pcd;
     using DdeiClient.Clients.Interfaces;
     using DdeiClient.Diagnostics;
     using DdeiClient.Model;
@@ -23,6 +24,7 @@ namespace DdeiClient.Clients
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
     using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
+    using Pcd = Common.Dto.Response.HouseKeeping.Pcd;
 
     /// <summary>
     ///  Repesents Mds API client.
@@ -397,15 +399,15 @@ namespace DdeiClient.Clients
                 {
                     results = data.Select(
                         communication => new Communication(
-                         Id: communication.Id.GetValueOrDefault(), 
+                         Id: communication.Id.GetValueOrDefault(),
                          OriginalFileName: communication.OriginalFileName,
                          Subject: communication.Subject,
-                         DocumentTypeId: communication.DocumentId,
+                         DocumentTypeId: communication.DocumentTypeId.GetValueOrDefault(),
                          MaterialId: communication.MaterialId.GetValueOrDefault(),
                          Link: communication.Link,
                          Status: communication.Status,
                          Category: string.Empty,
-                         Type: null,
+                         Type: communication.DocumentTypeId?.ToString(),
                          HasAttachments: communication.HasAttachments,
                          Method: communication.Method,
                          Direction: communication.Direction,
@@ -659,7 +661,7 @@ namespace DdeiClient.Clients
 
                 if (data is not null)
                 {
-                    results.Witnesses = data.Select(witness => new Common.Dto.Response.HouseKeeping.Witness(
+                    results.Witnesses = data.Select(witness => new Witness(
                         witness.CaseId,
                         witness.WitnessId,
                         witness.FirstName,
@@ -774,7 +776,7 @@ namespace DdeiClient.Clients
                 var cookieString = JsonSerializer.Serialize(cookie);
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
-                var mdsRequest = new Cps.MasterDataService.Infrastructure.ApiClient.Witness()
+                var mdsRequest = new ApiClient.Witness()
                 {
                     CaseId = request.caseId,
                     Surname = request.Surname,
@@ -792,6 +794,7 @@ namespace DdeiClient.Clients
             }
         }
 
+        /// <inheritdoc/>
         public async Task<RenameMaterialResponse> RenameMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues)
         {
             Requires.NotNull(request);
@@ -809,7 +812,7 @@ namespace DdeiClient.Clients
                 var cookieString = JsonSerializer.Serialize(cookie);
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
-                var mdsRequest = new Cps.MasterDataService.Infrastructure.ApiClient.RenameMaterialRequest()
+                var mdsRequest = new ApiClient.RenameMaterialRequest()
                 {
                     MaterialId = request.materialId,
                     Subject = request.subject,
@@ -907,6 +910,163 @@ namespace DdeiClient.Clients
             catch (Exception exception)
             {
                 this.HandleException(OperationName, exception, dummyRequest, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<DiscardMaterialResponse> DiscardMaterialAsync(DiscardMaterialRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(request.materialId);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "DiscardMaterial";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var mdsReqest = new ApiClient.DiscardMaterialRequest()
+                {
+                    MaterialId = request.materialId,
+                    DiscardReason = request.discardReason,
+                    DiscardReasonDescription = request.discardReasonDescription,
+                };
+
+                var data = await client.DiscardMaterialAsync(request.materialId, mdsReqest);
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+
+                DiscardMaterialResponse result = new DiscardMaterialResponse(new DiscardMaterialData { Id = data.DiscardMaterial.Id });
+                return result;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<List<PcdRequestCore>> GetPcdRequestCoreAsync(GetPcdRequestsCoreRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            if (string.IsNullOrEmpty(cmsAuthValues.CmsCookies))
+            {
+                throw new ArgumentException($"{LoggingConstants.HskUiLogPrefix} CMS Cookies cannot be null or empty.", nameof(request));
+            }
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "PcdRequestCore";
+
+            List<PcdRequestCore> results = new();
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.GetCasePcdRequestCoreAsync(request.caseId);
+
+                if (data is not null)
+                {
+                    results = data.Select(pcd => new PcdRequestCore()
+                    {
+                        Id = pcd.Id,
+                        Type = pcd.Type,
+                        DecisionRequiredBy = pcd.DecisionRequiredBy,
+                        DecisionRequested = pcd.DecisionRequested,
+                    }).ToList();
+                }
+
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+
+                return results;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(GetPcdRequestByPcdIdCoreRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            if (string.IsNullOrEmpty(cmsAuthValues.CmsCookies))
+            {
+                throw new ArgumentException($"{LoggingConstants.HskUiLogPrefix} CMS Cookies cannot be null or empty.", nameof(request));
+            }
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "GetCasePcdRequestByPcdId";
+
+            var results = new PcdRequestDto();
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.GetCasePcdRequestByPcdIdAsync(request.caseId, request.pcdId);
+
+                if (data is not null)
+                {
+                    results =
+                        new PcdRequestDto()
+                        {
+                            CaseOutline = data.CaseOutline.Select(co => new PcdCaseOutlineLine()
+                            {
+                                Heading = co.Heading,
+                                Text = co.Text,
+                                TextWithCmsMarkup = co.TextWithCmsMarkup,
+                            }).ToList(),
+                            Suspects = data.Suspects.Select(sus => new PcdRequestSuspect()
+                            {
+                                Surname = sus.Surname,
+                                FirstNames = sus.FirstNames,
+                                Dob = sus.Dob,
+                                BailConditions = sus.BailConditions,
+                                BailDate = sus.BailDate,
+                                RemandStatus = sus.RemandStatus,
+                                ProposedCharges = sus.ProposedCharges.Select(charge => new PcdProposedCharge() { Charge = charge.Charge, EarlyDate = charge.EarlyDate, LateDate = charge.LateDate, Location = charge.Location, Category = charge.Category }).ToList(),
+                            }).ToList(),
+                            PoliceContactDetails = data.PoliceContactDetails.Select(police => new PCDPoliceContactDetails()
+                            {
+                                Role = police.Role,
+                                Rank = police.Rank,
+                                Name = police.Name,
+                                Number = police.Number,
+                            }).ToList(),
+                            MaterialProvided = data.MaterialProvided.Select(mat => new MaterialProvided()
+                            {
+                                Subject = mat.Subject,
+                                Date = mat.Date,
+                            }).ToList(),
+                        };
+                }
+
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+                return results;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
                 throw;
             }
         }
