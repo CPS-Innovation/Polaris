@@ -48,13 +48,4 @@ $fullHeightWidth: 100% !important;
 
 .canvasWrapper canvas {
   height: $fullHeightWidth;
-  width: $fullHeightWidth;
-}
-
-.pdfViewer .page {
-  width: $heightWidthPercentage;
-
-  .textLayer {
-    width: $fullHeightWidth;
-  }
 }
