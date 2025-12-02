@@ -19,6 +19,16 @@ namespace Common.Telemetry
             _telemetryClient = telemetryClient;
         }
 
+        public void TrackTrace(string message)
+        {
+            _telemetryClient.TrackTrace(message);
+        }
+
+        public void TrackException(Exception ex)
+        {
+            _telemetryClient.TrackException(ex);
+        }
+
         public void TrackEvent(BaseTelemetryEvent baseTelemetryEvent)
         {
             TrackEventInternal(baseTelemetryEvent, isFailure: false);
