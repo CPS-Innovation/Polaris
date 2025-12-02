@@ -18,7 +18,7 @@
     <!-- See for reason why we need version 2.41.0 explicitly https://github.com/microsoft/durabletask-dotnet/issues/148#issuecomment-1729006827 -->
     <PackageReference Include="Contrib.Grpc.Core.M1" Version="2.41.0" />
   
-    <PackageReference Include="Aspose.PDF.Drawing" Version="25.9.0" />
+    <PackageReference Include="Aspose.PDF.Drawing" Version="24.4.0" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.2.2" />
