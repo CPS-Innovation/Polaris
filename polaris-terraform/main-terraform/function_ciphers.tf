@@ -11,7 +11,7 @@ locals {
   function_apps = merge(
     {
       fa_coordinator                      = azurerm_linux_function_app.fa_coordinator.id
-      # fa_coordinator_staging1             = azurerm_linux_function_app_slot.fa_coordinator_staging1.id
+      fa_coordinator_staging1             = azurerm_linux_function_app_slot.fa_coordinator_staging1.id
       # fa_polaris                          = azurerm_linux_function_app.fa_polaris.id
       # fa_polaris_staging1                 = azurerm_linux_function_app_slot.fa_polaris_staging1.id
       # fa_pdf_generator                    = azurerm_windows_function_app.fa_pdf_generator.id
