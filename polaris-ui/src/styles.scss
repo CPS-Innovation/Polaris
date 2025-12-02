@@ -3,7 +3,8 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("./fonts/NewTransport-RegularWEB.woff") format("woff"),
+  src:
+    url("./fonts/NewTransport-RegularWEB.woff") format("woff"),
     url("./fonts/NewTransport-RegularWEB.woff2") format("woff2");
 }
 
@@ -12,7 +13,8 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("./fonts/NewTransport-BoldWEB.woff") format("woff"),
+  src:
+    url("./fonts/NewTransport-BoldWEB.woff") format("woff"),
     url("./fonts/NewTransport-BoldWEB.woff2") format("woff2");
 }
 
@@ -40,12 +42,4 @@ a {
   border-radius: 0.25rem;
   background-color: rgba(0, 0, 0, 0.5);
   -webkit-box-shadow: 0 0 0.0625rem rgba(255, 255, 255, 0.5);
-}
-
-/* FCT2-8541 - images are too big on screens*/
-$heightWidthPercentage: 93% !important;
-$fullHeightWidth: 100% !important;
-
-.canvasWrapper canvas {
-  height: $fullHeightWidth;
 }
