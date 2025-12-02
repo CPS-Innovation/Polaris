@@ -8,20 +8,24 @@
 
 ## Function Apps: 
 locals {
-  function_apps = merge(
+  web_function_apps = merge(
     {
       fa_coordinator                      = azurerm_linux_function_app.fa_coordinator.id
       fa_coordinator_staging1             = azurerm_linux_function_app_slot.fa_coordinator_staging1.id
-      # fa_polaris                          = azurerm_linux_function_app.fa_polaris.id
-      # fa_polaris_staging1                 = azurerm_linux_function_app_slot.fa_polaris_staging1.id
-      # fa_pdf_generator                    = azurerm_windows_function_app.fa_pdf_generator.id
-      # fa_pdf_generator_staging1           = azurerm_windows_function_app_slot.fa_pdf_generator_staging1.id
-      # fa_pdf_redactor                     = azurerm_windows_function_app.fa_pdf_redactor.id
-      # fa_pdf_redactor_staging1            = azurerm_windows_function_app_slot.fa_pdf_redactor_staging1.id
-      # fa_pdf_thumbnail_generator          = azurerm_windows_function_app.fa_pdf_thumbnail_generator.id
-      # fa_pdf_thumbnail_generator_staging1 = azurerm_windows_function_app_slot.fa_pdf_thumbnail_generator_staging1.id
-      # fa_text_extractor                   = azurerm_linux_function_app.fa_text_extractor.id
-      # fa_text_extractor_staging1          = azurerm_linux_function_app_slot.fa_text_extractor_staging1.id
+      fa_polaris                          = azurerm_linux_function_app.fa_polaris.id
+      fa_polaris_staging1                 = azurerm_linux_function_app_slot.fa_polaris_staging1.id
+      fa_pdf_generator                    = azurerm_windows_function_app.fa_pdf_generator.id
+      fa_pdf_generator_staging1           = azurerm_windows_function_app_slot.fa_pdf_generator_staging1.id
+      fa_pdf_redactor                     = azurerm_windows_function_app.fa_pdf_redactor.id
+      fa_pdf_redactor_staging1            = azurerm_windows_function_app_slot.fa_pdf_redactor_staging1.id
+      fa_pdf_thumbnail_generator          = azurerm_windows_function_app.fa_pdf_thumbnail_generator.id
+      fa_pdf_thumbnail_generator_staging1 = azurerm_windows_function_app_slot.fa_pdf_thumbnail_generator_staging1.id
+      fa_text_extractor                   = azurerm_linux_function_app.fa_text_extractor.id
+      fa_text_extractor_staging1          = azurerm_linux_function_app_slot.fa_text_extractor_staging1.id
+      web_polaris_proxy                   = azurerm_linux_web_app.polaris_proxy.id
+      web_polaris_proxy_staging1          = azurerm_linux_web_app_slot.polaris_proxy_staging1.id
+      web_polaris                         = azurerm_linux_web_app.as_web_polaris.id
+      web_polaris_staging1                = azurerm_linux_web_app_slot.as_web_polaris_staging1.id
     },
     var.env == "dev" ? {
       fa_polaris_maintenance              = azurerm_linux_function_app.fa_polaris_maintenance[0].id
@@ -29,8 +33,8 @@ locals {
   )
 }
 
-data "azapi_resource_id" "function_apps" {
-  for_each = local.function_apps
+data "azapi_resource_id" "web_function_apps" {
+  for_each = local.web_function_apps
   
   type      = contains(split("_", each.key), "staging1") ? "Microsoft.Web/sites/slots/config@2024-11-01" : "Microsoft.Web/sites/config@2024-11-01"
   parent_id = each.value
@@ -38,12 +42,12 @@ data "azapi_resource_id" "function_apps" {
 }
 
 resource "azapi_resource_action" "set_min_tls_cipher_suite" {
-  for_each    = local.function_apps
+  for_each    = local.web_function_apps
   type        = contains(split("_", each.key), "staging1") ? "Microsoft.Web/sites/slots/config@2024-11-01" : "Microsoft.Web/sites/config@2024-11-01"
-  resource_id = data.azapi_resource_id.function_apps[each.key].id
+  resource_id = data.azapi_resource_id.web_function_apps[each.key].id
   method      = "PUT"
   body = {
-    name = data.azapi_resource_id.function_apps[each.key].name
+    name = data.azapi_resource_id.web_function_apps[each.key].name
     properties = {
       minTlsCipherSuite = "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA"
     }
