@@ -1058,6 +1058,10 @@ namespace DdeiClient.Clients
                                 Subject = mat.Subject,
                                 Date = mat.Date,
                             }).ToList(),
+                            Id = data.Id,
+                            Type = data.Type,
+                            DecisionRequested = data.DecisionRequested,
+                            DecisionRequiredBy = data.DecisionRequiredBy,
                         };
                 }
 
