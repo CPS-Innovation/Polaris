@@ -1,5 +1,9 @@
 import qs from "querystring"
 
+const IS_PROXY_SESSION_PARAM_NAME = "is-proxy-session"
+const SESSION_HINT_COOKIE_NAME = "Cms-Session-Hint"
+const SESSION_HINT_COOKIE_LIFESPAN_MS = 30 * 24 * 60 * 60 * 1000
+
 function _argsShim(args) {
   if (args["r"]) {
     return args
@@ -14,7 +18,10 @@ function _argsShim(args) {
   const serializedArgs = qs.stringify(args)
   const clonedArgsToMutate = qs.parse(serializedArgs)
   delete clonedArgsToMutate["cookie"]
-  // do not serialize cookie into our manufactured r param because cookie will be attached as the cc param later on
+  delete clonedArgsToMutate[IS_PROXY_SESSION_PARAM_NAME]
+  // Do not serialize cookie into our manufactured r param because cookie will be attached as the cc param later on.
+  // Similarly do not include our "is-proxy-session" query parameter as that is artificially added by our
+  // simulated proxy endpoint (if the user is using proxied CMS)
   const queryStringWithoutCookie = qs.stringify(clonedArgsToMutate)
 
   const clonedArgs = qs.parse(serializedArgs)
@@ -39,7 +46,48 @@ function _redirectToAbsoluteUrl(r, redirectUrl) {
   )
 }
 
+function setSessionHintCookie(r) {
+  let cookieValue
+  try {
+    const isProxySession = r.args[IS_PROXY_SESSION_PARAM_NAME] === "true"
+    // Match lowercase subdomain(s) followed by .cps.gov.uk (terminated by _POOL)
+    // This avoids matching uppercase prefixes like CPSACP-LTM-CM-WAN-CIN3-
+    const cmsDomains =
+      r.args["cookie"].match(
+        /[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)*\.cps\.gov\.uk(?=_POOL)/g
+      ) || []
+
+    const handoverEndpoint = isProxySession
+      ? `https://${r.headersIn["Host"]}/polaris`
+      : cmsDomains.length
+      ? // If there is more than one domain string found let's take the first
+        // one. Analytics in global nav will tell us if there are ever multiple
+        // domains found.
+        `https://${cmsDomains[0]}/polaris`
+      : null
+
+    cookieValue = {
+      cmsDomains,
+      isProxySession,
+      handoverEndpoint,
+    }
+  } catch (error) {
+    cookieValue = {
+      error,
+    }
+  } finally {
+    const expires = new Date(Date.now() + SESSION_HINT_COOKIE_LIFESPAN_MS)
+    r.headersOut[
+      "Set-Cookie"
+    ] = `${SESSION_HINT_COOKIE_NAME}=${encodeURIComponent(
+      JSON.stringify(cookieValue)
+    )}; Path=/; Expires=${expires.toUTCString()}; Secure; SameSite=None`
+  }
+}
+
 function appAuthRedirect(r) {
+  setSessionHintCookie(r)
+
   const args = _argsShim(r.args)
 
   const whitelistedUrls = process.env.AUTH_HANDOVER_WHITELIST ?? ""
@@ -74,6 +122,7 @@ function polarisAuthRedirect(r) {
   const clonedArgs = qs.parse(serializedArgs)
   clonedArgs.cookie = r.headersIn.Cookie
   clonedArgs.referer = r.headersIn.Referer
+  clonedArgs[IS_PROXY_SESSION_PARAM_NAME] = "true"
 
   const querystring = qs.stringify(clonedArgs)
   _redirectToAbsoluteUrl(r, `/init?${querystring}`)
@@ -82,10 +131,10 @@ function polarisAuthRedirect(r) {
 function taskListAuthRedirect(r) {
   const args = _argsShim(r.args)
   const taskListHostAddress = r.variables["taskListHostAddress"] ?? ""
-  const cookie = encodeURIComponent(args["cc"] ?? (r.headersIn.Cookie ?? ""))
+  const cookie = encodeURIComponent(args["cc"] ?? r.headersIn.Cookie ?? "")
   _redirectToAbsoluteUrl(
-      r,
-      `${taskListHostAddress}/WorkManagementApp/Redirect?Cookie=${cookie}`
+    r,
+    `${taskListHostAddress}/WorkManagementApp/Redirect?Cookie=${cookie}`
   )
 }
 
