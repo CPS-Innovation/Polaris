@@ -1,7 +1,7 @@
 import qs from "querystring"
 
 const IS_PROXY_SESSION_PARAM_NAME = "is-proxy-session"
-const SESSION_HINT_COOKIE_NAME = "cms-session-hint"
+const SESSION_HINT_COOKIE_NAME = "Cms-Session-Hint"
 
 function _argsShim(args) {
   if (args["r"]) {
@@ -58,10 +58,10 @@ function setSessionHintCookie(r) {
     const handoverEndpoint = isProxySession
       ? `https://${r.headersIn["Host"]}/polaris`
       : cmsDomains.length
-      // If there is more than one domain string found let's take the first 
-      // one. Analytics in global nav will tell us if there are ever multiple
-      // domains found.
-      ? `https://${cmsDomains[0]}/polaris`
+      ? // If there is more than one domain string found let's take the first
+        // one. Analytics in global nav will tell us if there are ever multiple
+        // domains found.
+        `https://${cmsDomains[0]}/polaris`
       : null
 
     const cookieValue = JSON.stringify({
@@ -128,10 +128,10 @@ function polarisAuthRedirect(r) {
 function taskListAuthRedirect(r) {
   const args = _argsShim(r.args)
   const taskListHostAddress = r.variables["taskListHostAddress"] ?? ""
-  const cookie = encodeURIComponent(args["cc"] ?? (r.headersIn.Cookie ?? ""))
+  const cookie = encodeURIComponent(args["cc"] ?? r.headersIn.Cookie ?? "")
   _redirectToAbsoluteUrl(
-      r,
-      `${taskListHostAddress}/WorkManagementApp/Redirect?Cookie=${cookie}`
+    r,
+    `${taskListHostAddress}/WorkManagementApp/Redirect?Cookie=${cookie}`
   )
 }
 
