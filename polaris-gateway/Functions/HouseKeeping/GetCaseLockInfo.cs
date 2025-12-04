@@ -2,7 +2,7 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace Cps.Fct.Hk.Ui.Functions.Functions;
+namespace PolarisGateway.Functions.HouseKeeping;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

@@ -2,7 +2,7 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace Cps.Fct.Hk.Ui.Functions.Functions;
+namespace PolarisGateway.Functions.HouseKeeping;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,8 +21,6 @@ using PolarisGateway.Functions;
 using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response.HouseKeeping;
 using Common.Constants;
-using Common.Dto.Request;
-using Aspose.Pdf.Operators;
 using System.IO;
 using System;
 using Common.Configuration;
@@ -70,7 +68,7 @@ public class CompleteReclassification(
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function processed a request.");
+            logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function processed a request.");
 
             if (caseId < 1)
             {
@@ -83,24 +81,24 @@ public class CompleteReclassification(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = this.BuildCmsAuthValues(request);
+            var cmsAuthValues = BuildCmsAuthValues(request);
 
             string requestBody = await new StreamReader(request.Body).ReadToEndAsync().ConfigureAwait(false);
 
-            CompleteReclassificationRequest? completeReclassificationRequest = JsonConvert.DeserializeObject<CompleteReclassificationRequest>(requestBody);
+            CompleteReclassificationRequest completeReclassificationRequest = JsonConvert.DeserializeObject<CompleteReclassificationRequest>(requestBody);
 
             if (completeReclassificationRequest == null)
             {
                 return new BadRequestObjectResult("completeReclassificationRequest is null or empty");
             }
 
-            FluentValidation.Results.ValidationResult validationResult = this.requestValidator.Validate(completeReclassificationRequest);
+            FluentValidation.Results.ValidationResult validationResult = requestValidator.Validate(completeReclassificationRequest);
             if (!validationResult.IsValid)
             {
                 return new BadRequestObjectResult(validationResult.Errors.ToArray());
             }
 
-            CompleteReclassificationResponse? result = await this.reclassificationOrchestrationService.CompleteReclassificationAsync(
+            CompleteReclassificationResponse result = await reclassificationOrchestrationService.CompleteReclassificationAsync(
                 caseId,
                 materialId,
                 cmsAuthValues,
@@ -109,7 +107,7 @@ public class CompleteReclassification(
             // All operations succeeded.
             if (result?.overallSuccess == true)
             {
-                this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] CompleteReclassification function completed in [{stopwatch.Elapsed}]");
+                logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] CompleteReclassification function completed in [{stopwatch.Elapsed}]");
                 return new OkObjectResult(result);
             }
 
@@ -120,32 +118,32 @@ public class CompleteReclassification(
                 {
                     StatusCode = 207,
                 };
-                this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] CompleteReclassification function completed in [{stopwatch.Elapsed}]");
+                logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] CompleteReclassification function completed in [{stopwatch.Elapsed}]");
                 return multiStatusObjectResult;
             }
 
             // All operations failed.
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an invalid operation error: {result?.errors}");
+            logger.LogError($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an invalid operation error: {result?.errors}");
             return new UnprocessableEntityObjectResult(result ?? null);
         }
         catch (InvalidOperationException ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an invalid operation error: {ex.Message}");
+            logger.LogError($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an invalid operation error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"{ex.Message}");
         }
         catch (NotSupportedException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an unsupported content type error: {ex.Message}");
+            logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an unsupported content type error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"ReclassifyCaseMaterial error: {ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an unauthorized access error: {ex.Message}");
+            logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an unauthorized access error: {ex.Message}");
             return new UnauthorizedObjectResult($"CompleteReclassification error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an error: {ex.Message}");
+            logger.LogError($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }
