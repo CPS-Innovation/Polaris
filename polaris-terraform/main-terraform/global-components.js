@@ -27,13 +27,16 @@ function _getCookieValue(r, cookieName) {
 }
 
 function _maybeDecodeURIComponent(value) {
-  // Check if value appears to be URL-encoded (contains %XX patterns)
-  if (/%[0-9A-Fa-f]{2}/.test(value)) {
-    try {
-      return decodeURIComponent(value)
-    } catch (e) {}
+  // Check if value appears not to be URL-encoded
+  // (does not contain %XX patterns)
+  if (!/%[0-9A-Fa-f]{2}/.test(value)) {
+    return value
   }
-  return value
+  try {
+    return decodeURIComponent(value)
+  } catch (e) {
+    return value
+  }
 }
 
 function readCmsAuthValues(r) {
