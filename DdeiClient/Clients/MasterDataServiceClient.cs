@@ -612,16 +612,16 @@ namespace DdeiClient.Clients
                         defendant.FirstNames,
                         defendant.Surname,
                         DateTime.Parse(defendant?.Dob),
-                        defendant.PoliceRemandStatus.ToString(),
-                        defendant.Youth,
-                        defendant?.CustodyTimeLimit.ToString(),
-                        MapOffences(defendant.Offences),
+                        defendant?.PoliceRemandStatus?.ToString(),
+                        defendant?.Youth,
+                        defendant?.CustodyTimeLimit?.ToString(),
+                        MapOffences(defendant?.Offences),
                         null,
-                        MapProposedCharges(defendant.ProposedCharges),
-                        defendant.NextHearing,
-                        defendant.DefendantPcdReview,
-                        defendant.Solicitor,
-                        MapPersonalDetail(defendant.PersonalDetail))).ToList(),
+                        MapProposedCharges(defendant?.ProposedCharges),
+                        defendant?.NextHearing,
+                        defendant?.DefendantPcdReview,
+                        defendant?.Solicitor,
+                        MapPersonalDetail(defendant?.PersonalDetail))).ToList(),
                 };
 
                 string additionalInfo = listCaseDefendantsResponse?.Defendants is { Count: > 0 }
@@ -1058,6 +1058,10 @@ namespace DdeiClient.Clients
                                 Subject = mat.Subject,
                                 Date = mat.Date,
                             }).ToList(),
+                            Id = data.Id,
+                            Type = data.Type,
+                            DecisionRequested = data.DecisionRequested,
+                            DecisionRequiredBy = data.DecisionRequiredBy,
                         };
                 }
 
@@ -1119,7 +1123,7 @@ namespace DdeiClient.Clients
                         offence.LatestVerdict,
                         offence.DisposedReason,
                         offence.LastHearingOutcome,
-                        offence.CustodyTimeLimit.ToString(),
+                        offence?.CustodyTimeLimit?.ToString(),
                         offence.LatestPleaDescription)));
         }
 

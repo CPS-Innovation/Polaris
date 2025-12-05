@@ -21,15 +21,15 @@ public record Defendant(
     [property: JsonPropertyName("firstNames")] string FirstNames,
     [property: JsonPropertyName("surname")] string Surname,
     [property: JsonPropertyName("dob")] DateTime? Dob,
-    [property: JsonPropertyName("policeRemandStatus")] string PoliceRemandStatus,
+    [property: JsonPropertyName("policeRemandStatus")] string? PoliceRemandStatus,
     [property: JsonPropertyName("youth")] bool? Youth,
-    [property: JsonPropertyName("custodyTimeLimit")] string CustodyTimeLimit,
+    [property: JsonPropertyName("custodyTimeLimit")] string? CustodyTimeLimit,
     [property: JsonPropertyName("offences")] List<Offence> Offences,
     [property: JsonPropertyName("charges")] List<Charge> Charges,
     [property: JsonPropertyName("proposedCharges")] List<ProposedCharge> ProposedCharges,
-    [property: JsonPropertyName("nextHearing")] object NextHearing,
+    [property: JsonPropertyName("nextHearing")] object? NextHearing,
     [property: JsonPropertyName("defendantPcdReview")] object DefendantPcdReview,
-    [property: JsonPropertyName("solicitor")] object Solicitor,
+    [property: JsonPropertyName("solicitor")] object? Solicitor,
     [property: JsonPropertyName("personalDetail")] PersonalDetail PersonalDetail);
 
 /// <summary>
@@ -42,14 +42,14 @@ public record Offence(
     [property: JsonPropertyName("type")] string Type,
     [property: JsonPropertyName("active")] string Active,
     [property: JsonPropertyName("description")] string Description,
-    [property: JsonPropertyName("fromDate")] string FromDate,
-    [property: JsonPropertyName("toDate")] string ToDate,
+    [property: JsonPropertyName("fromDate")] string? FromDate,
+    [property: JsonPropertyName("toDate")] string? ToDate,
     [property: JsonPropertyName("latestPlea")] string LatestPlea,
     [property: JsonPropertyName("latestVerdict")] string LatestVerdict,
     [property: JsonPropertyName("disposedReason")] string DisposedReason,
     [property: JsonPropertyName("lastHearingOutcome")] string LastHearingOutcome,
-    [property: JsonPropertyName("custodyTimeLimit")] string CustodyTimeLimit,
-    [property: JsonPropertyName("latestPleaDescription")] string LatestPleaDescription);
+    [property: JsonPropertyName("custodyTimeLimit")] string? CustodyTimeLimit,
+    [property: JsonPropertyName("latestPleaDescription")] string? LatestPleaDescription);
 
 /// <summary>
 /// Represents a charge. Currently an empty placeholder for future data structure.
