@@ -9,12 +9,12 @@
 	</PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspose.Cells" Version="25.1.2" />
-    <PackageReference Include="Aspose.Email" Version="25.1.0" />
-    <PackageReference Include="Aspose.Imaging" Version="25.2.0" />
-    <PackageReference Include="Aspose.PDF.Drawing" Version="25.1.0" />
-    <PackageReference Include="Aspose.Slides.NET" Version="25.2.0" />
-    <PackageReference Include="Aspose.Words" Version="25.2.0" />
+    <PackageReference Include="Aspose.Cells" Version="24.4.0" />
+    <PackageReference Include="Aspose.Email" Version="23.12.0" />
+    <PackageReference Include="Aspose.Imaging" Version="23.12.0" />
+    <PackageReference Include="Aspose.PDF.Drawing" Version="24.4.0" />
+    <PackageReference Include="Aspose.Slides.NET" Version="23.12.0" />
+    <PackageReference Include="Aspose.Words" Version="24.5.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
     <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.116.1" />
@@ -44,10 +44,6 @@
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>Cps.Fct.Hk.Ui.Services.Tests</_Parameter1>
     </AssemblyAttribute>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Validators\" />
   </ItemGroup>
   
 </Project>

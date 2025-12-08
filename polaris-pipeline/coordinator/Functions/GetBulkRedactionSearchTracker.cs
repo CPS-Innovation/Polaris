@@ -26,7 +26,7 @@ public class GetBulkRedactionSearchTracker
         _logger = logger;
     }
 
-    [Function(nameof(GetTracker))]
+    [Function(nameof(GetBulkRedactionSearchTracker))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

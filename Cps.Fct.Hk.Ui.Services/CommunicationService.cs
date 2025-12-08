@@ -48,8 +48,8 @@ public class CommunicationService(
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching inbox communications for caseId [{caseIdString}] ...");
 
             var request = new ListCommunicationsHkRequest(caseId, Guid.NewGuid());
-            //IReadOnlyCollection<Communication> communications = await this.apiClient.ListCommunicationsHkAsync(request, cmsAuthValues).ConfigureAwait(false);
-            List<Communication> communications = new List<Communication>();
+            IReadOnlyCollection<Communication> communications = await this.apiClient.ListCommunicationsHkAsync(request, cmsAuthValues).ConfigureAwait(false);
+          
             // Map the document type to each communication
             var mappedCommunications = communications.Select(c =>
             {
@@ -381,6 +381,92 @@ public class CommunicationService(
         catch (Exception ex)
         {
             this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching producers for caseId [{caseIdString}]");
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<RenameMaterialResponse> RenameMaterialAsync(int caseId, int materialId, string subject, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)
+    {
+        try
+        {
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to rename material with materialId [{materialId}]");
+
+            var request = new RenameMaterialRequest(correspondenceId == default ? Guid.NewGuid() : correspondenceId, materialId, subject);
+            RenameMaterialResponse renameMaterialResponse = await this.apiClient.RenameMaterialAsync(request, cmsAuthValues).ConfigureAwait(false);
+            this.logger.LogInformation(LoggingConstants.RenameMaterialOperationSuccess, LoggingConstants.HskUiLogPrefix, caseId, materialId);
+
+            return renameMaterialResponse;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, LoggingConstants.RenameMaterialOperationFailed, LoggingConstants.HskUiLogPrefix, caseId, materialId);
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    public async Task<IReadOnlyCollection<PcdRequestCore>> GetPcdRequestCore(int caseId, CmsAuthValues cmsAuthValues)
+    {
+        string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
+
+        try
+        {
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching unused materials for caseId [{caseIdString}] ...");
+            Guid correlationId = cmsAuthValues.CorrelationId == Guid.Empty ? Guid.NewGuid() : cmsAuthValues.CorrelationId;
+
+            var request = new GetPcdRequestsCoreRequest(caseId, correlationId);
+            IReadOnlyCollection<PcdRequestCore> unusedMaterials = await this.apiClient.GetPcdRequestCoreAsync(request, cmsAuthValues).ConfigureAwait(false);
+
+            return unusedMaterials;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching unused materials for caseId [{caseIdString}]");
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues)
+    {
+        string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
+
+        try
+        {
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching PCD Request overview for caseId [{caseIdString}] and PCD ID [{pcdId}].");
+            Guid correlationId = cmsAuthValues.CorrelationId == Guid.Empty ? Guid.NewGuid() : cmsAuthValues.CorrelationId;
+            var request = new GetPcdRequestByPcdIdCoreRequest(caseId, pcdId, correlationId);
+            PcdRequestDto unusedMaterials = await this.apiClient.GetPcdRequestByPcdIdAsync(request, cmsAuthValues).ConfigureAwait(false);
+
+            return unusedMaterials;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching PCD Request overview for caseId [{caseIdString}] and PCD id [{pcdId}]");
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<DiscardMaterialResponse> DiscardMaterialAsync(int caseId, int materialId, string discardReason, string discardReasonDescription, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)
+    {
+        try
+        {
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to discard material with materialId [{materialId}]");
+
+            var request = new DiscardMaterialRequest(correspondenceId == default ? Guid.NewGuid() : correspondenceId, materialId, discardReason, discardReasonDescription);
+            DiscardMaterialResponse discardMaterialResponse = await this.apiClient.DiscardMaterialAsync(request, cmsAuthValues).ConfigureAwait(false);
+            this.logger.LogInformation(LoggingConstants.DiscardMaterialOperationSuccess, LoggingConstants.HskUiLogPrefix, caseId, materialId);
+
+            return discardMaterialResponse;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, LoggingConstants.DiscardMaterialOperationFailed, LoggingConstants.HskUiLogPrefix, caseId, materialId);
             this.logger.LogError(ex, ex.Message);
             throw;
         }

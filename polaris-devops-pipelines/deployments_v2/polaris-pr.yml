@@ -301,6 +301,18 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
+          - task: DownloadSecureFile@1
+            name: licence
+            inputs:
+              secureFile: "Aspose.Total.NET.lic"
+            displayName: "Download Aspose Licence"
+      
+          - task: CopyFiles@2
+            inputs:
+              sourceFolder: $(Agent.TempDirectory)
+              contents: Aspose.Total.NET.lic
+              targetFolder: "polaris-gateway"
+            displayName: "Copy Aspose.Total.NET.lic to project folder before any builds occur"
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
 
@@ -501,36 +513,6 @@ stages:
           - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/Common.tests/coverage.cobertura.xml
             artifact: CommonLibraryTestResults
             displayName: Publish Common Library Test Results
-            
-          - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
-            name: result
-                
-      - job: Validate_DDEI_Client_Library
-        condition: eq(variables.runDDEIClient, 'true')
-        displayName: Test - DDEI Client Library
-        pool:
-          name: $(dev-build-agent)
-        steps:
-          - task: NuGetAuthenticate@1
-            displayName: 'Authenticate to NuGet Feed'
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "build"
-              projects: "polaris-pipeline/DdeiClient/DdeiClient.csproj"
-              arguments: "--configuration $(buildConfiguration)"
-            displayName: "Build DDEI Client Library"
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: "test"
-              projects: "polaris-pipeline/DdeiClient.tests/DdeiClient.tests.csproj"
-              arguments: "--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura"
-            displayName: "Run DDEI Client tests"
-
-          - publish: $(System.DefaultWorkingDirectory)/polaris-pipeline/DdeiClient.tests/coverage.cobertura.xml
-            artifact: DdeiClientLibraryTestResults
-            displayName: Publish DDEI Client Library Test Results
             
           - bash: echo "##vso[task.setvariable variable=testsAvailable;isOutput=true]true"
             name: result

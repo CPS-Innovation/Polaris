@@ -29,6 +29,7 @@ using DdeiClient.Clients.Interfaces;
 using DdeiClient.Clients;
 using DdeiClient.Configuration;
 using Common.Mappers;
+using Cps.Fct.Hk.Ui.Services.Validators;
 
 namespace PolarisGateway.ApplicationStartup;
 
@@ -86,6 +87,19 @@ public static class ServiceExtensions
         services.AddSingleton<IDocumentService, DocumentService>();
         services.AddSingleton<IDocumentTypeMapper, DocumentTypeMapper>();
         services.AddSingleton<IConversionService, ConversionService>();
+        services.AddSingleton<IReclassificationService, ReclassificationService>();
+        services.AddSingleton<IReclassifyDocumentRequestMapper, ReclassifyDocumentRequestMapper>();
+        services.AddSingleton<IMaterialReclassificationOrchestrationService, MaterialReclassificationOrchestrationService>();
+        services.AddSingleton<IWitnessService, WitnessService>();
+        services.AddSingleton<ICaseActionPlanService, CaseActionPlanService>();
+        services.AddSingleton<ICaseLockService, CaseLockService>();
+        services.AddSingleton<ICaseDefendantsService, CaseDefendantsService>();
+
+        // Add validators
+        services.AddSingleton<RenameMaterialRequestValidator>();
+        services.AddSingleton<CompleteReclassificationRequestValidator>();
+        services.AddSingleton<UpdateStatementRequestValidator>();
+        services.AddSingleton<UpdateExhibitRequestValidator>();
 
         // Register MasterDataService client options.
         services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);

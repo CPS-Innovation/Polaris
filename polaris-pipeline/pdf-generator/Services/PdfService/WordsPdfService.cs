@@ -43,6 +43,12 @@ namespace pdf_generator.Services.PdfService
                 conversionResult.RecordConversionFailure(PdfConversionStatus.AsposeWordsPasswordProtected,
                     ex.ToFormattedString());
             }
+            catch (FileCorruptedException ex)
+            {
+                inputStream?.Dispose();
+                conversionResult.RecordConversionFailure(PdfConversionStatus.AsposeWordsUnsupportedFileFormat,
+                    ex.ToFormattedString());
+            }
 
             return conversionResult;
         }

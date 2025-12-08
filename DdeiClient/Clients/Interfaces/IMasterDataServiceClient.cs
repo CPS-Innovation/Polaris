@@ -7,6 +7,7 @@ namespace DdeiClient.Clients.Interfaces
     using Common.Dto.Request;
     using Common.Dto.Request.HouseKeeping;
     using Common.Dto.Response.HouseKeeping;
+    using Common.Dto.Response.HouseKeeping.Pcd;
     using Microsoft.AspNetCore.Mvc;
 
     /// <summary>
@@ -137,5 +138,55 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a <see cref="NoContentResult"/> indicating success without a specific content body.</returns>
         Task<NoContentResult> AddWitnessAsync(AddWitnessRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Asynchronously renames a material name using material id.
+        /// </summary>
+        /// <param name="request">The request to add a witness.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <returns>RenameMaterialResponse object.</returns>
+        Task<RenameMaterialResponse> RenameMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Reclassifies a communication for a material identifier.
+        /// </summary>
+        /// <param name="request">The request to add a witness.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <returns>ReclassificationResponse object.</returns>
+        Task<ReclassificationResponse> ReclassifyCommunicationAsync(ReclassifyCommunicationRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Asynchronously check case lock status.
+        /// </summary>
+        /// <param name="caseId">The ID of the case to be unlocked.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<CaseLockedStatusResult> CheckCaseLockAsync(int caseId, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Asynchronously discards a material using material id.
+        /// </summary>
+        /// <param name="request">The discard material request.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<DiscardMaterialResponse> DiscardMaterialAsync(DiscardMaterialRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Get PCD Requests core/basic info by case id.
+        /// </summary>
+        /// <param name="request">The GetPcdRequestsCore request.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<List<PcdRequestCore>> GetPcdRequestCoreAsync(GetPcdRequestsCoreRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Get PCD request overview by case id and PCD id.
+        /// </summary>
+        /// <param name="request">The GetPcdRequestByPcdIdCore request.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(GetPcdRequestByPcdIdCoreRequest request, CmsAuthValues cmsAuthValues);
+
+
     }
 }

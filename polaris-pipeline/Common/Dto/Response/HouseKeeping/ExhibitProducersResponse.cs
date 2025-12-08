@@ -15,7 +15,7 @@ public record ExhibitProducersResponse
     /// Gets or sets exhibit producers for a case.
     /// </summary>
     [JsonPropertyName("exhibitProducers")]
-    public List<ExhibitProducer> ExhibitProducers { get; set; }
+    public List<ExhibitProducer>? ExhibitProducers { get; set; }
 }
 
 /// <summary>
@@ -23,6 +23,8 @@ public record ExhibitProducersResponse
 /// </summary>
 /// <param name="Id">The unique ID of the exhibit producer.</param>
 /// <param name="Name">The producer's name.</param>
+/// <param name="IsWitness">Flag to indicate if producer is also a witness.</param>
 public record ExhibitProducer(
     [property: JsonPropertyName("id")] int Id,
-    [property: JsonPropertyName("producer")] string Name);
+    [property: JsonPropertyName("producer")] string Name,
+    [property: JsonPropertyName("IsWitness")] bool IsWitness);

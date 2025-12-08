@@ -105,24 +105,24 @@ public interface ICommunicationService
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
     public Task<ExhibitProducersResponse> GetExhibitProducersAsync(int caseId, CmsAuthValues cmsAuthValues);
 
-    /////// <summary>
-    /////// Asynchronously rename a material name with given material ID.
-    /////// </summary>
-    /////// <param name="caseId">The ID of the case from which communications are retrieved.</param>
-    /////// <param name="materialId">The ID of material to be renamed.</param>
-    /////// <param name="subject">New material name to be changed with.</param>
-    /////// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /////// <param name="correspondenceId">correspondenceId.</param>
-    /////// <returns>An object that contains the renamed material id.</returns>
-    ////Task<RenameMaterialResponse> RenameMaterialAsync(int caseId, int materialId, string subject, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
+    /// <summary>
+    /// Asynchronously rename a material name with given material ID.
+    /// </summary>
+    /// <param name="caseId">The ID of the case from which communications are retrieved.</param>
+    /// <param name="materialId">The ID of material to be renamed.</param>
+    /// <param name="subject">New material name to be changed with.</param>
+    /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
+    /// <param name="correspondenceId">correspondenceId.</param>
+    /// <returns>An object that contains the renamed material id.</returns>
+    Task<RenameMaterialResponse> RenameMaterialAsync(int caseId, int materialId, string subject, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
 
-    /////// <summary>
-    /////// Get PCD requests core info by case Id.
-    /////// </summary>
-    /////// <param name="caseId">Get PCD requests by case id.</param>
-    /////// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /////// <returns>Return collection of PCD requests.</returns>
-    ////Task<IReadOnlyCollection<PcdRequestCore>> GetPcdRequestCore(int caseId, CmsAuthValues cmsAuthValues);
+    /// <summary>
+    /// Get PCD requests core info by case Id.
+    /// </summary>
+    /// <param name="caseId">Get PCD requests by case id.</param>
+    /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
+    /// <returns>Return collection of PCD requests.</returns>
+    Task<IReadOnlyCollection<PcdRequestCore>> GetPcdRequestCore(int caseId, CmsAuthValues cmsAuthValues);
 
     /////// <summary>
     /////// Get PCD Requests overview by case Id.
@@ -132,14 +132,14 @@ public interface ICommunicationService
     /////// <returns>Return collection of PCD Requests by case id.</returns>
     ////Task<IReadOnlyCollection<PcdRequestDto>> GetPcdRequestOverview(int caseId, CmsAuthValues cmsAuthValues);
 
-    /////// <summary>
-    /////// Get PCD Request overview by case Id Pcd id.
-    /////// </summary>
-    /////// <param name="caseId">Get PCD requests by case id.</param>
-    /////// <param name="pcdId">Parameter to get PCD requests by PCD id.</param>
-    /////// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /////// <returns>Return single PCD request information by PCD id.</returns>
-    ////Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues);
+    /// <summary>
+    /// Get PCD Request overview by case Id Pcd id.
+    /// </summary>
+    /// <param name="caseId">Get PCD requests by case id.</param>
+    /// <param name="pcdId">Parameter to get PCD requests by PCD id.</param>
+    /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
+    /// <returns>Return single PCD request information by PCD id.</returns>
+    Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues);
 
     /////// <summary>
     /////// Asynchronously sets material read or unread status..
@@ -151,25 +151,17 @@ public interface ICommunicationService
     /////// <returns>An object that contains the renamed material id.</returns>
     ////Task<SetMaterialReadStatusResponse> SetMaterialReadStatusAsync(int materialId, SetMaterialReadStatusType action, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
 
-    /////// <summary>
-    /////// Asynchronously discard a material name with given material ID.
-    /////// </summary>
-    /////// <param name="caseId">The ID of the case from which communications are retrieved.</param>
-    /////// <param name="materialId">The ID of material to be renamed.</param>
-    /////// <param name="discardReason">Discard reason code for the material.</param>
-    /////// <param name="discardReasonDescription">Discard reason description for the material.</param>
-    /////// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /////// <param name="correspondenceId">correspondenceId.</param>
-    /////// <returns>An object that contains the discarded material id.</returns>
-    ////Task<DiscardMaterialResponse> DiscardMaterialAsync(int caseId, int materialId, string discardReason, string discardReasonDescription, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
-
-    /////// <summary>
-    /////// Retrieves list of exhibit producers required as part of exhibit reclassification for a given case Id.
-    /////// </summary>
-    /////// <param name="caseId">The unique ID of the case.</param>
-    /////// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /////// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    ////public Task<ExhibitProducersResponse> GetExhibitProducersAsync(int caseId, CmsAuthValues cmsAuthValues);
+    /// <summary>
+    /// Asynchronously discard a material name with given material ID.
+    /// </summary>
+    /// <param name="caseId">The ID of the case from which communications are retrieved.</param>
+    /// <param name="materialId">The ID of material to be renamed.</param>
+    /// <param name="discardReason">Discard reason code for the material.</param>
+    /// <param name="discardReasonDescription">Discard reason description for the material.</param>
+    /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
+    /// <param name="correspondenceId">correspondenceId.</param>
+    /// <returns>An object that contains the discarded material id.</returns>
+    Task<DiscardMaterialResponse> DiscardMaterialAsync(int caseId, int materialId, string discardReason, string discardReasonDescription, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
 
     /////// <summary>
     /////// Updates exhibit given an exhibit request.

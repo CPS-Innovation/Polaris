@@ -2,7 +2,7 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace Cps.Fct.Hk.Ui.Functions.Tests.Functions;
+namespace PolarisGateway.Tests.Functions.HouseKeeping;
 
 using Xunit;
 using Moq;
@@ -33,11 +33,11 @@ public class GetCaseInfoTests
     public GetCaseInfoTests()
     {
         // Initialize mocks
-        this.mockLogger = new TestLogger<GetCaseInfo>();
-        this.mockCaseInfoService = new Mock<ICaseInfoService>();
+        mockLogger = new TestLogger<GetCaseInfo>();
+        mockCaseInfoService = new Mock<ICaseInfoService>();
 
         // Initialize the function class
-        this.getCaseInfoFunction = new GetCaseInfo(this.mockLogger, this.mockCaseInfoService.Object);
+        getCaseInfoFunction = new GetCaseInfo(mockLogger, mockCaseInfoService.Object);
     }
 
 
@@ -59,12 +59,12 @@ public class GetCaseInfoTests
         var mockCaseInfo = new CaseSummaryResponse(123, "06SC1234572", "Will", "SMITH", 2, "Hull UT");
 
         // Ensure the mock returns the expected list of communications
-        this.mockCaseInfoService
+        mockCaseInfoService
             .Setup(x => x.GetCaseInfoAsync(123, It.IsAny<CmsAuthValues>()))
             .ReturnsAsync(mockCaseInfo);
 
         // Act
-        IActionResult result = await this.getCaseInfoFunction.Run(mockRequest.Object, 123);
+        IActionResult result = await getCaseInfoFunction.Run(mockRequest.Object, 123);
 
         // Assert
         OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
@@ -76,11 +76,11 @@ public class GetCaseInfoTests
         var caseInfo = Assert.IsType<CaseSummaryResponse>(okResult.Value);
         Assert.Equal(mockCaseInfo, caseInfo);
 
-        Assert.Contains(this.mockLogger.Logs, log =>
+        Assert.Contains(mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
             log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function processed a request."));
 
-        Assert.Contains(this.mockLogger.Logs, log =>
+        Assert.Contains(mockLogger.Logs, log =>
            log.LogLevel == LogLevel.Information &&
            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function call returned unitName [Hull UT] for caseId [123]"));
     }
@@ -95,22 +95,22 @@ public class GetCaseInfoTests
         // Arrange
         Mock<HttpRequest> mockRequest = SetUpMockRequest();
 
-        this.mockCaseInfoService
+        mockCaseInfoService
             .Setup(x => x.GetCaseInfoAsync(123, It.IsAny<CmsAuthValues>()))
             .ThrowsAsync(new InvalidOperationException("Invalid operation error"));
 
         // Act
-        IActionResult result = await this.getCaseInfoFunction.Run(mockRequest.Object, 123);
+        IActionResult result = await getCaseInfoFunction.Run(mockRequest.Object, 123);
 
         // Assert
         ObjectResult objectResult = Assert.IsType<ObjectResult>(result);
         Assert.Equal(StatusCodes.Status422UnprocessableEntity, objectResult.StatusCode);
 
-        Assert.Contains(this.mockLogger.Logs, log =>
+        Assert.Contains(mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
             log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function processed a request."));
 
-        Assert.Contains(this.mockLogger.Logs, log =>
+        Assert.Contains(mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Error &&
             log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function encountered an unprocessable entity error: " +
             "GetCaseInfo function encountered an error fetching case information for caseId [123]"));
@@ -126,22 +126,22 @@ public class GetCaseInfoTests
         // Arrange
         Mock<HttpRequest> mockRequest = SetUpMockRequest();
 
-        this.mockCaseInfoService
+        mockCaseInfoService
             .Setup(x => x.GetCaseInfoAsync(123, It.IsAny<CmsAuthValues>()))
             .ThrowsAsync(new Exception("Unexpected error"));
 
         // Act
-        IActionResult result = await this.getCaseInfoFunction.Run(mockRequest.Object, 123);
+        IActionResult result = await getCaseInfoFunction.Run(mockRequest.Object, 123);
 
         // Assert
         ObjectResult objectResult = Assert.IsType<ObjectResult>(result);
         Assert.Equal(StatusCodes.Status422UnprocessableEntity, objectResult.StatusCode);
 
-        Assert.Contains(this.mockLogger.Logs, log =>
+        Assert.Contains(mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
             log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function processed a request."));
 
-        Assert.Contains(this.mockLogger.Logs, log =>
+        Assert.Contains(mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Error &&
             log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function encountered an unprocessable entity error: " +
             "GetCaseInfo function encountered an error fetching case information for caseId [123]"));
