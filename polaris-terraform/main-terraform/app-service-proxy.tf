@@ -58,7 +58,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "CIN5_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"          = var.cms_details.cin5_upstream_cms_services_domain_name
     "CIN5_UPSTREAM_CMS_MODERN_DOMAIN_NAME"            = var.cms_details.cin5_upstream_cms_modern_domain_name
     "APP_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
-    "MATERIALS_APP_ENDPOINT_DOMAIN_NAME"              = "as-materials-web-qa-uks.azurewebsites.net"
+    "MATERIALS_APP_ENDPOINT_DOMAIN_NAME"              = "${local.materials_resource_name}"
     "APP_SUBFOLDER_PATH"                              = var.polaris_ui_sub_folder
     "API_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
     "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"              = "fa-${local.ddei_resource_name}.azurewebsites.net"
