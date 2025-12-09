@@ -45,6 +45,7 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
                 CpsAuthenticationException _ => HttpStatusCode.ProxyAuthenticationRequired,
                 CmsAuthValuesMissingException _ => HttpStatusCode.Unauthorized,
                 OcrDocumentNotFoundException _ => HttpStatusCode.NotFound,
+                DocumentNotFoundException _ => HttpStatusCode.NotFound,
                 _ => HttpStatusCode.InternalServerError,
             };
 

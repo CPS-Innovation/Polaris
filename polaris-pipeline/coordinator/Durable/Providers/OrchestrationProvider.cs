@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Telemetry;
+using coordinator.Enums;
 
 namespace coordinator.Durable.Providers;
 
@@ -117,21 +118,37 @@ public class OrchestrationProvider : IOrchestrationProvider
         }
     }
 
-    public async Task<bool> BulkSearchDocumentAsync(DurableTaskClient client, BulkRedactionSearchPayload bulkRedactionSearchPayload, CancellationToken cancellationToken = default)
+    public async Task<OrchestrationProviderStatuses> BulkSearchDocumentAsync(DurableTaskClient client, DocumentPayload documentPayload, CancellationToken cancellationToken = default)
     {
-        var instanceId = GetKey(bulkRedactionSearchPayload);
+        var instanceId = GetKey(documentPayload);
         var existingInstance = await client.GetInstanceAsync(instanceId, cancellationToken);
 
-        if (existingInstance != null && _inProgressStatuses.Contains(existingInstance.RuntimeStatus))
+        if (existingInstance != null)
         {
-            return false;
+            if (_inProgressStatuses.Contains(existingInstance.RuntimeStatus))
+            {
+                return OrchestrationProviderStatuses.Processing;
+            }
+
+            if (existingInstance.RuntimeStatus == OrchestrationRuntimeStatus.Failed)
+            {
+                return OrchestrationProviderStatuses.Failed;
+            }
+
+            if (_completedStatuses.Contains(existingInstance.RuntimeStatus))
+            {
+                return OrchestrationProviderStatuses.Completed;
+            }
         }
 
-        await client.ScheduleNewOrchestrationInstanceAsync(nameof(BulkRedactionSearchOrchestrator), bulkRedactionSearchPayload, new StartOrchestrationOptions { InstanceId = instanceId }, cancellationToken);
-        return true;
+        await client.ScheduleNewOrchestrationInstanceAsync(nameof(RefreshDocumentOrchestrator), documentPayload, new StartOrchestrationOptions
+        {
+            InstanceId = instanceId
+        }, cancellationToken);
+        return OrchestrationProviderStatuses.Initiated;
     }
 
-    private string GetKey(BulkRedactionSearchPayload bulkRedactionSearchPayload) => $"[{bulkRedactionSearchPayload.CaseId}.{bulkRedactionSearchPayload.DocumentId}.{bulkRedactionSearchPayload.VersionId}.{bulkRedactionSearchPayload.SearchText}]";
+    private string GetKey(DocumentPayload documentPayload) => $"[{documentPayload.CaseId}.{documentPayload.DocumentId}.{documentPayload.VersionId}]";
 
     private static async Task<List<string>> GetInstanceIdsAsync(DurableTaskClient client, OrchestrationQuery condition)
     {

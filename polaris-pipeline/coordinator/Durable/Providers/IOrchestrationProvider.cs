@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Common.Dto.Response;
+using coordinator.Durable.Payloads;
+using coordinator.Enums;
+using Microsoft.AspNetCore.Http;
+using Microsoft.DurableTask.Client;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Dto.Response;
-using coordinator.Durable.Payloads;
-using Microsoft.AspNetCore.Http;
-using Microsoft.DurableTask.Client;
 
 namespace coordinator.Durable.Providers;
 
@@ -24,5 +25,5 @@ public interface IOrchestrationProvider
         HttpRequest req);
 
     Task<DeleteCaseOrchestrationResult> DeleteCaseOrchestrationAsync(DurableTaskClient client, int caseId);
-    Task<bool> BulkSearchDocumentAsync(DurableTaskClient orchestrationClient, BulkRedactionSearchPayload bulkRedactionSearchPayload, CancellationToken cancellationToken = default);
+    Task<OrchestrationProviderStatuses> BulkSearchDocumentAsync(DurableTaskClient orchestrationClient, DocumentPayload documentPayload, CancellationToken cancellationToken = default);
 }

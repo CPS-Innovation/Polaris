@@ -1,4 +1,5 @@
-﻿using Common.Domain.Validators;
+﻿using Common.Domain.Document;
+using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Factories.ComputerVisionClientFactory;
 using Common.Handlers;
@@ -11,12 +12,14 @@ using Common.Services.RenderHtmlService;
 using Common.Streaming;
 using Common.Telemetry;
 using Common.Wrappers;
+using coordinator.Builders;
 using coordinator.Constants;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
 using coordinator.Factories.UploadFileNameFactory;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Mappers;
+using coordinator.OcrDocumentSearch;
 using coordinator.Services;
 using coordinator.Services.ClearDownService;
 using coordinator.Validators;
@@ -88,6 +91,10 @@ public static class ServiceExtensions
         services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
         services.AddSingleton<IStateStorageService, StateStorageService>();
         services.AddSingleton<IRedactionSearchDtoMapper, RedactionSearchDtoMapper>();
+
+        services.AddSingleton<IOcrDocumentSearch, OcrDocumentSearch.OcrDocumentSearch>();
+        services.AddScoped<IBulkRedactionSearchResponseBuilder, BulkRedactionSearchResponseBuilder>();
+        services.AddScoped<IBulkRedactionSearchService, BulkRedactionSearchService>();
         return services;
     }
 
