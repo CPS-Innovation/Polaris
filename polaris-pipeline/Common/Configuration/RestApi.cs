@@ -44,6 +44,8 @@ public static class RestApi
     public const string PcdRequest = "urns/{caseUrn}/cases/{caseId:min(1)}/pcds/{pcdId}/pcd-request";
     public const string PcdRequestCore = "urns/{caseUrn}/cases/{caseId:min(1)}/pcds/{pcdId}/pcd-request-core";
     public const string CaseDefendants = "urns/{caseUrn}/cases/{caseId:min(1)}/case-defendants";
+    public const string UpdateExhibit = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/exhibit";
+    public const string UpdateStatement = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/statement";
 
     // Internal Pipeline
     public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";

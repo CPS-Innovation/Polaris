@@ -471,4 +471,65 @@ public class CommunicationService(
             throw;
         }
     }
+
+    /// <inheritdoc/>
+    public async Task<UpdateExhibitResponse> UpdateExhibitAsync(int caseId, UpdateExhibitRequest exhibit, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)
+    {
+        try
+        {
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to update exhibit with materialId [{exhibit.MaterialId}]");
+
+            var request = new UpdateExhibitRequest(
+                correspondenceId == default ? Guid.NewGuid() : correspondenceId,
+                caseId,
+                exhibit.DocumentType,
+                exhibit.Item,
+                exhibit.MaterialId,
+                exhibit.Reference,
+                exhibit.Subject,
+                exhibit.Used,
+                exhibit.NewProducer,
+                exhibit.ExistingProducerOrWitnessId);
+
+            UpdateExhibitResponse response = await this.apiClient.UpdateExhibitAsync(request, cmsAuthValues).ConfigureAwait(false);
+            this.logger.LogInformation(LoggingConstants.UpdateExhibitOperationSuccess, LoggingConstants.HskUiLogPrefix, caseId, exhibit.MaterialId);
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, LoggingConstants.UpdateExhibitOperationFailed, LoggingConstants.HskUiLogPrefix, caseId, exhibit.MaterialId);
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<UpdateStatementResponse> UpdateStatementAsync(int caseId, UpdateStatementRequest statement, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)
+    {
+        try
+        {
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to update statement with materialId [{statement.MaterialId}]");
+
+            var request = new UpdateStatementRequest(
+                correspondenceId == default ? Guid.NewGuid() : correspondenceId,
+                caseId,
+                statement.MaterialId,
+                statement.WitnessId,
+                statement.StatementDate,
+                statement.StatementNumber,
+                statement.Used);
+
+            UpdateStatementResponse response = await this.apiClient.UpdateStatementAsync(request, cmsAuthValues).ConfigureAwait(false);
+            this.logger.LogInformation(LoggingConstants.UpdateStatementOperationSuccess, LoggingConstants.HskUiLogPrefix, caseId, statement.MaterialId);
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, LoggingConstants.UpdateStatementOperationFailed, LoggingConstants.HskUiLogPrefix, caseId, statement.MaterialId);
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
 }

@@ -4,13 +4,13 @@
 
 namespace Cps.Fct.Hk.Ui.Services.Validators;
 
-using Cps.Fct.Hk.Ui.Interfaces.Model;
+using Common.Dto.Request.HouseKeeping;
 using FluentValidation;
 
 /// <summary>
 /// Edit exhibit request validator.
 /// </summary>
-public class UpdateExhibitRequestValidator : AbstractValidator<EditExhibitRequest>
+public class UpdateExhibitRequestValidator : AbstractValidator<UpdateExhibitRequest>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="UpdateExhibitRequestValidator"/> class.
