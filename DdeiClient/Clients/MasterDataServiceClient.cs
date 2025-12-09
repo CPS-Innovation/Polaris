@@ -1075,6 +1075,96 @@ namespace DdeiClient.Clients
             }
         }
 
+        /// <inheritdoc/>
+        public async Task<UpdateStatementResponse> UpdateStatementAsync(UpdateStatementRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(request.MaterialId);
+            Requires.NotNull(request.WitnessId);
+            Requires.NotNull(request.StatementNumber);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "UpdateStatement";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+
+                var mdsRequest = new ApiClient.UpdateStatementRequest
+                {
+                    MaterialId = request.MaterialId,
+                    WitnessId = request.WitnessId,
+                    StatementNumber = request.StatementNumber,
+                    Used = request.Used,
+                };
+
+                var data = await client.UpdateStatementAsync(request.CaseId, request.MaterialId, mdsRequest);
+
+                UpdateStatementResponse result = new UpdateStatementResponse(new UpdateStatementData { Id = data.UpdateStatement.Id });
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+                return result;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<UpdateExhibitResponse> UpdateExhibitAsync(UpdateExhibitRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(request.CaseId);
+            Requires.NotNull(request.MaterialId);
+            Requires.NotNull(request.DocumentType);
+            Requires.NotNull(request.Item);
+            Requires.NotNull(request.Reference);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "UpdateExhibit";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var mdsRequest = new ApiClient.UpdateExhibitRequest
+                {
+                    CaseId = request.CaseId,
+                    MaterialId = request.MaterialId,
+                    DocumentType = request.DocumentType,
+                    Item = request.Item,
+                    Reference = request.Reference,
+                    Subject = request.Subject,
+                    ExistingProducerOrWitnessId = request.ExistingProducerOrWitnessId,
+                    NewProducer = request.NewProducer,
+                };
+
+                var data = await client.UpdateExhibitAsync(request.CaseId, request.MaterialId, mdsRequest);
+
+                UpdateExhibitResponse result = new UpdateExhibitResponse(new UpdateExhibitData { Id = data.UpdateExhibit.Id });
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+                return result;
+
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
         private static ExhibitAttachmentSubType MapExhibitSubItem(ApiClient.ExhibitAttachmentHkSubType exhibit)
         {
             if (exhibit is null)

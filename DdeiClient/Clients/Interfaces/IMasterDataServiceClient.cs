@@ -187,6 +187,22 @@ namespace DdeiClient.Clients.Interfaces
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
         Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(GetPcdRequestByPcdIdCoreRequest request, CmsAuthValues cmsAuthValues);
 
+        /// <summary>
+        /// Asynchronously updates statemenet.
+        /// </summary>
+        /// <param name="request">The statement request.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<UpdateStatementResponse> UpdateStatementAsync(UpdateStatementRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Asynchronously updates exhibit.
+        /// </summary>
+        /// <param name="request">The exhibit request.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<UpdateExhibitResponse> UpdateExhibitAsync(UpdateExhibitRequest request, CmsAuthValues cmsAuthValues);
+
 
     }
 }

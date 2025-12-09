@@ -4,6 +4,7 @@
 
 namespace Cps.Fct.Hk.Ui.Services.Validators;
 
+using Common.Dto.Request.HouseKeeping;
 using Cps.Fct.Hk.Ui.Interfaces.Model;
 
 using FluentValidation;
@@ -11,7 +12,7 @@ using FluentValidation;
 /// <summary>
 /// UpdateStatementRequest validator.
 /// </summary>
-public class UpdateStatementRequestValidator : AbstractValidator<EditStatementRequest>
+public class UpdateStatementRequestValidator : AbstractValidator<UpdateStatementRequest>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="UpdateStatementRequestValidator"/> class.
