@@ -13,7 +13,7 @@ using System.Text.Json.Serialization;
 public record UpdateStatementRequest(
     Guid id,
     [property: JsonPropertyName("caseId")] int CaseId,
-    int materialId,
+    int materialIdentifier,
     [property: JsonPropertyName("witnessId")] int WitnessId,
     [property: JsonPropertyName("statementDate")] DateOnly? StatementDate,
     [property: JsonPropertyName("statementNumber")] int StatementNumber,
@@ -24,7 +24,7 @@ public record UpdateStatementRequest(
     /// Gets or sets the material id.
     /// </summary>
     [JsonPropertyName("materialId")]
-    public int MaterialId { get; set; } = materialId;
+    public int MaterialId { get; set; } = materialIdentifier;
 
     /// <summary>
     /// Gets the content type of the request.
