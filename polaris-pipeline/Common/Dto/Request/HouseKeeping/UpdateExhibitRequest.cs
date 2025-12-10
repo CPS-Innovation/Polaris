@@ -9,10 +9,10 @@ using System.Text.Json.Serialization;
 
 public record UpdateExhibitRequest(
     Guid id,
-    int caseId,
+    int caseIdentifier,
     [property: JsonPropertyName("documentType")] int DocumentType,
     [property: JsonPropertyName("item")] string Item,
-    int materialId,
+    int materialIdentifier,
     [property: JsonPropertyName("reference")] string Reference,
     [property: JsonPropertyName("subject")] string Subject,
     [property: JsonPropertyName("used")] bool Used,
@@ -27,8 +27,8 @@ public record UpdateExhibitRequest(
     public string ContentType { get; init; } = "application/json";
 
     [JsonPropertyName("caseId")]
-    public int CaseId { get; set; } = caseId;
+    public int CaseId { get; set; } = caseIdentifier;
 
     [JsonPropertyName("materialId")]
-    public int MaterialId { get; set; } = materialId;
+    public int MaterialId { get; set; } = materialIdentifier;
 }
