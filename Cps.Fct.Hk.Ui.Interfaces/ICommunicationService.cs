@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Common.Dto.Request;
 using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Response.HouseKeeping.Pcd;
+using Common.Dto.Request.HouseKeeping;
 
 /// <summary>
 /// Interface for communication service that provides methods to retrieve and log communications.
@@ -163,23 +164,23 @@ public interface ICommunicationService
     /// <returns>An object that contains the discarded material id.</returns>
     Task<DiscardMaterialResponse> DiscardMaterialAsync(int caseId, int materialId, string discardReason, string discardReasonDescription, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
 
-    /////// <summary>
-    /////// Updates exhibit given an exhibit request.
-    /////// </summary>
-    /////// <param name="caseId">The ID of the case.</param>
-    /////// <param name="exhibit">The update exhibit request model.</param>
-    /////// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /////// <param name="correspondenceId">correspondenceId.</param>
-    /////// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    ////public Task<UpdateExhibitResponse> UpdateExhibitAsync(int caseId, EditExhibitRequest exhibit, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
+    /// <summary>
+    /// Updates exhibit given an exhibit request.
+    /// </summary>
+    /// <param name="caseId">The ID of the case.</param>
+    /// <param name="exhibit">The update exhibit request model.</param>
+    /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
+    /// <param name="correspondenceId">correspondenceId.</param>
+    /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+    public Task<UpdateExhibitResponse> UpdateExhibitAsync(int caseId, UpdateExhibitRequest exhibit, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
 
-    /////// <summary>
-    /////// Update statement given a statement request.
-    /////// </summary>
-    /////// <param name="caseId">The ID of the case.</param>
-    /////// <param name="statement">The update statement request.</param>
-    /////// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /////// <param name="correspondenceId">correspondenceId.</param>
-    /////// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    ////public Task<UpdateStatementResponse> UpdateStatementAsync(int caseId, EditStatementRequest statement, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
+    /// <summary>
+    /// Update statement given a statement request.
+    /// </summary>
+    /// <param name="caseId">The ID of the case.</param>
+    /// <param name="statement">The update statement request.</param>
+    /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
+    /// <param name="correspondenceId">correspondenceId.</param>
+    /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+    public Task<UpdateStatementResponse> UpdateStatementAsync(int caseId, UpdateStatementRequest statement, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
 }
