@@ -24,7 +24,6 @@ namespace DdeiClient.Clients
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
     using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
-    using Pcd = Common.Dto.Response.HouseKeeping.Pcd;
 
     /// <summary>
     ///  Repesents Mds API client.
@@ -976,6 +975,9 @@ namespace DdeiClient.Clients
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
                 var data = await client.GetCasePcdRequestCoreAsync(request.caseId);
+               var 1 = await client.FirstInitialReviewGetCaseHistoryAsync(12);
+               var 2 = client.GetInitialReviewByIdAsync(12, 23)
+              var 3 - client.GetCaseHistoryEventsAsync(12);
 
                 if (data is not null)
                 {
@@ -1161,6 +1163,88 @@ namespace DdeiClient.Clients
             catch (Exception exception)
             {
                 this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> FirstInitialReviewGetCaseHistoryAsync(int caseId, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(caseId);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "FirstInitialReviewGetCaseHistory";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.FirstInitialReviewGetCaseHistoryAsync(caseId);
+                return data;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(caseId);
+            Requires.NotNull(historyId);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "GetInitialReviewByHistoryId";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.GetInitialReviewByIdAsync(caseId, historyId);
+                return data;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(caseId);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "GetHistoryEvents";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.GetCaseHistoryEventsAsync(caseId);
+                return data;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
                 throw;
             }
         }

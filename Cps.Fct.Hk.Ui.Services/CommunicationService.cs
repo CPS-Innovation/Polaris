@@ -22,6 +22,8 @@ using Microsoft.Identity.Client;
 using Microsoft;
 using System.Diagnostics;
 using Common.Constants;
+using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
+using Cps.MasterDataService.Infrastructure.ApiClient;
 
 /// <summary>
 /// Provides services for processing and retrieving communications related to a case.
@@ -49,7 +51,7 @@ public class CommunicationService(
 
             var request = new ListCommunicationsHkRequest(caseId, Guid.NewGuid());
             IReadOnlyCollection<Communication> communications = await this.apiClient.ListCommunicationsHkAsync(request, cmsAuthValues).ConfigureAwait(false);
-          
+
             // Map the document type to each communication
             var mappedCommunications = communications.Select(c =>
             {
@@ -528,6 +530,48 @@ public class CommunicationService(
         catch (Exception ex)
         {
             this.logger.LogError(ex, LoggingConstants.UpdateStatementOperationFailed, LoggingConstants.HskUiLogPrefix, caseId, statement.MaterialId);
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> FirstInitialReviewGetCaseHistoryAsync(int caseId, CmsAuthValues cmsAuthValues)
+    {
+        try
+        {
+            return await this.apiClient.FirstInitialReviewGetCaseHistoryAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+    {
+        try
+        {
+            return await this.apiClient.GetInitialReviewByHistoryIdAsync(caseId, historyId, cmsAuthValues);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    {
+        try
+        {
+            return this.apiClient.GetHistoryEventsAsync(caseId, cmsAuthValues);
+        }
+        catch (Exception ex)
+        {
             this.logger.LogError(ex, ex.Message);
             throw;
         }
