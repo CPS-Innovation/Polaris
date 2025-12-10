@@ -7,22 +7,18 @@ namespace PolarisGateway.Tests.Functions.HouseKeeping;
 using System;
 using System.Text;
 using System.Threading.Tasks;
-using Cps.Fct.Hk.Ui.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using FluentAssertions;
-using Cps.Fct.Hk.Ui.Interfaces.Model;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
-using Cps.Fct.Hk.Common.DDEI.Provider.Contracts;
-using Cps.Fct.Hk.Common.DDEI.Provider.Models.Request;
-using Cps.Fct.Hk.Common.DDEI.Provider.Models.Response.CaseHistory;
 using PolarisGateway.Functions.HouseKeeping;
 using Xunit;
 using Common.Constants;
-using System.IO;
-using Cps.Fct.Hk.Common.DDEI.Client.Model;
+using System.IO;using Common.Dto.Request;
+using Cps.Fct.Hk.Ui.Interfaces;
+using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
 
 /// <summary>
 /// Unit tests for GetInitialReview.
@@ -30,7 +26,7 @@ using Cps.Fct.Hk.Common.DDEI.Client.Model;
 public class GetInitialReviewTests
 {
     private readonly TestLogger<GetInitialReview> mockLogger;
-    private readonly Mock<ICaseHistoryEventProvider> mockCaseHistoryEventProvider;
+    private readonly Mock<ICommunicationService> communicationService;
     private readonly GetInitialReview sut;
 
     /// <summary>
@@ -39,9 +35,9 @@ public class GetInitialReviewTests
     public GetInitialReviewTests()
     {
         this.mockLogger = new TestLogger<GetInitialReview>();
-        this.mockCaseHistoryEventProvider = new Mock<ICaseHistoryEventProvider>();
-        
-        this.sut = new GetInitialReview(this.mockLogger, this.mockCaseHistoryEventProvider.Object);
+        this.communicationService = new Mock<ICommunicationService>();
+
+        this.sut = new GetInitialReview(this.mockLogger, this.communicationService.Object);
     }
 
     /// <summary>
@@ -54,12 +50,12 @@ public class GetInitialReviewTests
         // Arrange
         int caseId = 123;
         HttpRequest httpRequest = CreateHttpRequest();
-        var expectedResponse = new PreChargeDecisionAnalysisOutcome
+        var expectedResponse = new ApiClient.PreChargeDecisionAnalysisOutcome
         {
             CaseId = 1212,
         };
 
-        this.mockCaseHistoryEventProvider.Setup(c => c.GetInitialReviewCaseHistoryEventDetailsAsync(It.IsAny<GetCaseHistoryEventRequest>(), It.IsAny<CmsAuthValues>()))
+        this.communicationService.Setup(c => c.FirstInitialReviewGetCaseHistoryAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
             .ReturnsAsync(expectedResponse);
 
         // Act
@@ -83,8 +79,8 @@ public class GetInitialReviewTests
         int caseId = 123;
         HttpRequest httpRequest = CreateHttpRequest();
 
-        this.mockCaseHistoryEventProvider.Setup(c => c.GetInitialReviewCaseHistoryEventDetailsAsync(It.IsAny<GetCaseHistoryEventRequest>(), It.IsAny<CmsAuthValues>()))
-            .ReturnsAsync((PreChargeDecisionAnalysisOutcome)null!);
+        this.communicationService.Setup(c => c.FirstInitialReviewGetCaseHistoryAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync((ApiClient.PreChargeDecisionAnalysisOutcome)null!);
 
         // Act
         IActionResult result = await this.sut.Run(httpRequest, caseId);
@@ -107,7 +103,7 @@ public class GetInitialReviewTests
         int caseId = 123;
         HttpRequest httpRequest = CreateHttpRequest();
 
-        this.mockCaseHistoryEventProvider.Setup(c => c.GetInitialReviewCaseHistoryEventDetailsAsync(It.IsAny<GetCaseHistoryEventRequest>(), It.IsAny<CmsAuthValues>()))
+        this.communicationService.Setup(c => c.FirstInitialReviewGetCaseHistoryAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
                    .ThrowsAsync(new InvalidOperationException("Test Exception"));
 
         // Act
@@ -128,7 +124,7 @@ public class GetInitialReviewTests
         int caseId = 123;
         HttpRequest httpRequest = CreateHttpRequest();
 
-        this.mockCaseHistoryEventProvider.Setup(c => c.GetInitialReviewCaseHistoryEventDetailsAsync(It.IsAny<GetCaseHistoryEventRequest>(), It.IsAny<CmsAuthValues>()))
+        this.communicationService.Setup(c => c.FirstInitialReviewGetCaseHistoryAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
            .ThrowsAsync(new UnauthorizedAccessException("Unauthorized"));
 
         // Act
@@ -152,7 +148,7 @@ public class GetInitialReviewTests
         int caseId = 123;
         HttpRequest httpRequest = CreateHttpRequest();
 
-        this.mockCaseHistoryEventProvider.Setup(c => c.GetInitialReviewCaseHistoryEventDetailsAsync(It.IsAny<GetCaseHistoryEventRequest>(), It.IsAny<CmsAuthValues>()))
+        this.communicationService.Setup(c => c.FirstInitialReviewGetCaseHistoryAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
              .ThrowsAsync(new Exception("General error"));
 
         // Act

@@ -4,25 +4,20 @@
 
 namespace PolarisGateway.Functions.HouseKeeping;
 
+using System;
+using System.Diagnostics;
+using System.Net;
+using System.Threading.Tasks;
+using Common.Configuration;
+using Common.Constants;
+using Cps.Fct.Hk.Ui.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using Microsoft.OpenApi.Models;
-using System.Net;
-using System;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Cps.Fct.Hk.Common.DDEI.Provider.Contracts;
-using Cps.Fct.Hk.Common.DDEI.Provider.Models.Request;
-using Cps.Fct.Hk.Common.DDEI.Provider.Models.Response.CaseHistory;
-using Cps.Fct.Hk.Common.Contracts.Exceptions;
-using Common.Constants;
-using System.IO;
-using Cps.Fct.Hk.Common.DDEI.Client.Model;
-using Common.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 
 /// <summary>
 /// Represents a function that return Case history initial review data by case id and history event id.
@@ -32,13 +27,13 @@ using Common.Configuration;
 /// Initializes a new instance of the <see cref="GetInitialReviewByHistoryId"/> class.
 /// </remarks>
 /// <param name="logger">The logger instance used to log information and errors.</param>
-/// <param name="caseHistoryEventProvider">The service used to get call PCD Review service.</param>
+/// <param name="communicationService">The service used to get call PCD Review service.</param>
 public class GetInitialReviewByHistoryId(
     ILogger<GetInitialReviewByHistoryId> logger,
-    ICaseHistoryEventProvider caseHistoryEventProvider): BaseFunction(logger)
+    ICommunicationService communicationService): BaseFunction(logger)
 {
     private readonly ILogger<GetInitialReviewByHistoryId> logger = logger;
-    private readonly ICaseHistoryEventProvider caseHistoryEventProvider = caseHistoryEventProvider;
+    private readonly ICommunicationService communicationService = communicationService;
 
     /// <summary>
     /// The Azure Function that processes an HTTP request for the 'case/{caseId}/history/initial-review' route.
@@ -52,7 +47,7 @@ public class GetInitialReviewByHistoryId(
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to get initial review.", Required = true)]
     [OpenApiParameter("historyId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the history event to get initial review.", Required = true)]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(PreChargeDecisionAnalysisOutcome), Description = "Return initial review.")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Cps.MasterDataService.Infrastructure.ApiClient.PreChargeDecisionAnalysisOutcome), Description = "Return initial review.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
@@ -79,11 +74,7 @@ public class GetInitialReviewByHistoryId(
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            string requestBody = await new StreamReader(request.Body).ReadToEndAsync().ConfigureAwait(false);
-            var getcaseHistoryRequest = new GetCaseHistoryByHistoryIdRequest(caseId, historyId, Guid.NewGuid());
-
-            var cookie = new CmsAuthValues(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
-            PreChargeDecisionAnalysisOutcome result = await this.caseHistoryEventProvider.GetInitialReviewByIdDetailsAsync(getcaseHistoryRequest, cookie).ConfigureAwait(true);
+            var result = await this.communicationService.GetInitialReviewByHistoryIdAsync(caseId, historyId, cmsAuthValues).ConfigureAwait(true);
 
             if (result == null)
             {
@@ -111,11 +102,6 @@ public class GetInitialReviewByHistoryId(
         {
             this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetInitialReviewByHistoryId function encountered UnauthorizedAccess Exception.");
             return new UnauthorizedObjectResult($"GetInitialReviewByHistoryId error: {ex.Message}");
-        }
-        catch (NotFoundException ex)
-        {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetPreChargeDecisionByHistoryId function return not found error: {ex.Message}");
-            return new StatusCodeResult(StatusCodes.Status404NotFound);
         }
         catch (Exception ex)
         {

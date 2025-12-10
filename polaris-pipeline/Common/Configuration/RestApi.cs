@@ -44,11 +44,12 @@ public static class RestApi
     public const string DiscardMaterial = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/discard";
     public const string PcdRequest = "urns/{caseUrn}/cases/{caseId:min(1)}/pcds/{pcdId}/pcd-request";
     public const string PcdRequestCore = "urns/{caseUrn}/cases/{caseId:min(1)}/pcds/{pcdId}/pcd-request-core";
+    public const string CaseDefendants = "urns/{caseUrn}/cases/{caseId:min(1)}/case-defendants";
+    public const string UpdateExhibit = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/exhibit";
+    public const string UpdateStatement = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/statement";
     public const string CaseHistoryEvent = "urns/{caseUrn}/cases/{caseId:min(1)}/history";
     public const string InitialReviewByHistoryId = "urns/{caseUrn}/cases/{caseId:min(1)}/history/{historyId}/initial-review";
-    public const string InitialReviewByCase = "urns/{caseUrn}/cases/{caseId:min(1)}/history/initial-review";
-
-
+    public const string InitialReviewByCase = "urns/{caseUrn}/cases/{caseId:min(1)}/initial-review";
 
     // Internal Pipeline
     public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";

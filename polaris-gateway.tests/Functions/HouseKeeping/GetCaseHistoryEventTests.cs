@@ -14,15 +14,13 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using FluentAssertions;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
-using Cps.Fct.Hk.Common.DDEI.Provider.Contracts;
-using Cps.Fct.Hk.Common.DDEI.Provider.Models.Request;
-using Cps.Fct.Hk.Common.DDEI.Provider.Models.Response.CaseHistory;
 using PolarisGateway.Functions.HouseKeeping;
 using Xunit;
 using System.Collections.Generic;
 using Common.Constants;
 using System.IO;
-using Cps.Fct.Hk.Common.DDEI.Client.Model;
+using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
+using Common.Dto.Request;
 
 /// <summary>
 /// Unit tests for GetCaseHistoryEvent.
@@ -30,7 +28,7 @@ using Cps.Fct.Hk.Common.DDEI.Client.Model;
 public class GetCaseHistoryEventTests
 {
     private readonly TestLogger<GetCaseHistoryEvent> mockLogger;
-    private readonly Mock<ICaseHistoryEventProvider> mockCaseHistoryEventProvider;
+    private readonly Mock<ICommunicationService> communicationService;
     private readonly GetCaseHistoryEvent sut;
 
     /// <summary>
@@ -39,8 +37,8 @@ public class GetCaseHistoryEventTests
     public GetCaseHistoryEventTests()
     {
         this.mockLogger = new TestLogger<GetCaseHistoryEvent>();
-        this.mockCaseHistoryEventProvider = new Mock<ICaseHistoryEventProvider>();
-        this.sut = new GetCaseHistoryEvent(this.mockLogger, this.mockCaseHistoryEventProvider.Object);
+        this.communicationService = new Mock<ICommunicationService>();
+        this.sut = new GetCaseHistoryEvent(this.mockLogger, this.communicationService.Object);
     }
 
     /// <summary>
@@ -53,9 +51,9 @@ public class GetCaseHistoryEventTests
         // Arrange
         int caseId = 123;
         HttpRequest httpRequest = CreateHttpRequest();
-        var expectedResponse = new List<HistoryEvent>
+        var expectedResponse = new List<ApiClient.HistoryEvent>
         {
-            new HistoryEvent
+            new ApiClient.HistoryEvent
             {
                 AuthorOrVenue = "Nag",
                 Date = "01/02/2022",
@@ -63,7 +61,7 @@ public class GetCaseHistoryEventTests
             },
         };
 
-        this.mockCaseHistoryEventProvider.Setup(c => c.GetCaseHistoryEvents(It.IsAny<GetCaseHistoryEventRequest>(), It.IsAny<CmsAuthValues>()))
+        this.communicationService.Setup(c => c.GetHistoryEventsAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
             .ReturnsAsync(expectedResponse);
 
         // Act
@@ -87,8 +85,8 @@ public class GetCaseHistoryEventTests
         int caseId = 123;
         HttpRequest httpRequest = CreateHttpRequest();
 
-        this.mockCaseHistoryEventProvider.Setup(c => c.GetCaseHistoryEvents(It.IsAny<GetCaseHistoryEventRequest>(), It.IsAny<CmsAuthValues>()))
-            .ReturnsAsync((List<HistoryEvent>)null!);
+        this.communicationService.Setup(c => c.GetHistoryEventsAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync((List<ApiClient.HistoryEvent>)null!);
 
         // Act
         IActionResult result = await this.sut.Run(httpRequest, caseId);
@@ -111,7 +109,7 @@ public class GetCaseHistoryEventTests
         int caseId = 123;
         HttpRequest httpRequest = CreateHttpRequest();
 
-        this.mockCaseHistoryEventProvider.Setup(c => c.GetCaseHistoryEvents(It.IsAny<GetCaseHistoryEventRequest>(), It.IsAny<CmsAuthValues>()))
+        this.communicationService.Setup(c => c.GetHistoryEventsAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
                    .ThrowsAsync(new InvalidOperationException("Test Exception"));
 
         // Act
@@ -132,7 +130,7 @@ public class GetCaseHistoryEventTests
         int caseId = 123;
         HttpRequest httpRequest = CreateHttpRequest();
 
-        this.mockCaseHistoryEventProvider.Setup(c => c.GetCaseHistoryEvents(It.IsAny<GetCaseHistoryEventRequest>(), It.IsAny<CmsAuthValues>()))
+        this.communicationService.Setup(c => c.GetHistoryEventsAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
            .ThrowsAsync(new UnauthorizedAccessException("Unauthorized"));
 
         // Act
@@ -156,7 +154,7 @@ public class GetCaseHistoryEventTests
         int caseId = 123;
         HttpRequest httpRequest = CreateHttpRequest();
 
-        this.mockCaseHistoryEventProvider.Setup(c => c.GetCaseHistoryEvents(It.IsAny<GetCaseHistoryEventRequest>(), It.IsAny<CmsAuthValues>()))
+        this.communicationService.Setup(c => c.GetHistoryEventsAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
              .ThrowsAsync(new Exception("General error"));
 
         // Act

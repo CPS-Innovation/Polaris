@@ -4,26 +4,20 @@
 
 namespace Cps.Fct.Hk.Ui.Services;
 
-using System.Collections.Generic;
 using System;
-using System.Threading.Tasks;
-using Cps.Fct.Hk.Ui.Interfaces;
-using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Globalization;
-using Microsoft.AspNetCore.Mvc;
-using Cps.Fct.Hk.Ui.Interfaces.Enums;
-using DdeiClient.Clients.Interfaces;
+using System.Threading.Tasks;
+using Common.Constants;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response.HouseKeeping;
-using Cps.Fct.Hk.Ui.Services.Constants;
 using Common.Dto.Response.HouseKeeping.Pcd;
-using Microsoft.Identity.Client;
-using Microsoft;
-using System.Diagnostics;
-using Common.Constants;
+using Cps.Fct.Hk.Ui.Interfaces;
+using DdeiClient.Clients.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
-using Cps.MasterDataService.Infrastructure.ApiClient;
 
 /// <summary>
 /// Provides services for processing and retrieving communications related to a case.

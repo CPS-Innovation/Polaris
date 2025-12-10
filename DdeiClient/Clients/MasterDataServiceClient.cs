@@ -975,9 +975,6 @@ namespace DdeiClient.Clients
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
                 var data = await client.GetCasePcdRequestCoreAsync(request.caseId);
-               var 1 = await client.FirstInitialReviewGetCaseHistoryAsync(12);
-               var 2 = client.GetInitialReviewByIdAsync(12, 23)
-              var 3 - client.GetCaseHistoryEventsAsync(12);
 
                 if (data is not null)
                 {
