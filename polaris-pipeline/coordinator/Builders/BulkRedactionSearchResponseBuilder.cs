@@ -12,25 +12,25 @@ public class BulkRedactionSearchResponseBuilder : IBulkRedactionSearchResponseBu
 
     public IBulkRedactionSearchResponseBuilder BuildDocumentRefreshInitiated()
     {
-        _bulkRedactionSearchResponse.DocumentRefreshStatus = OrchestrationProviderStatuses.Initiated;
+        _bulkRedactionSearchResponse.DocumentRefreshStatus = OrchestrationProviderStatus.Initiated;
         return this;
     }
 
     public IBulkRedactionSearchResponseBuilder BuildDocumentRefreshProcessing()
     {
-        _bulkRedactionSearchResponse.DocumentRefreshStatus = OrchestrationProviderStatuses.Processing;
+        _bulkRedactionSearchResponse.DocumentRefreshStatus = OrchestrationProviderStatus.Processing;
         return this;
     }
 
     public IBulkRedactionSearchResponseBuilder BuildDocumentRefreshCompleted()
     {
-        _bulkRedactionSearchResponse.DocumentRefreshStatus = OrchestrationProviderStatuses.Completed;
+        _bulkRedactionSearchResponse.DocumentRefreshStatus = OrchestrationProviderStatus.Completed;
         return this;
     }
 
     public IBulkRedactionSearchResponseBuilder BuildDocumentRefreshFailed(string failedReason, bool isNotFound = false)
     {
-        _bulkRedactionSearchResponse.DocumentRefreshStatus = OrchestrationProviderStatuses.Failed;
+        _bulkRedactionSearchResponse.DocumentRefreshStatus = OrchestrationProviderStatus.Failed;
         _bulkRedactionSearchResponse.FailedReason = failedReason;
         _bulkRedactionSearchResponse.IsNotFound = isNotFound;
         return this;

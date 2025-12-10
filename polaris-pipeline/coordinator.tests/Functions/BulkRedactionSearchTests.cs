@@ -30,11 +30,11 @@ public class BulkRedactionSearchTests
     }
 
     [Theory]
-    [InlineData(OrchestrationProviderStatuses.Initiated, HttpStatusCode.Accepted)]
-    [InlineData(OrchestrationProviderStatuses.Processing, HttpStatusCode.Locked)]
-    [InlineData(OrchestrationProviderStatuses.Completed, HttpStatusCode.OK)]
-    [InlineData(OrchestrationProviderStatuses.Failed, HttpStatusCode.InternalServerError)]
-    public async Task Run_BulkRedactionSearchReturnsInitiated_ShouldReturnAccepted(OrchestrationProviderStatuses status, HttpStatusCode expectedStatusCode)
+    [InlineData(OrchestrationProviderStatus.Initiated, HttpStatusCode.Accepted)]
+    [InlineData(OrchestrationProviderStatus.Processing, HttpStatusCode.Locked)]
+    [InlineData(OrchestrationProviderStatus.Completed, HttpStatusCode.OK)]
+    [InlineData(OrchestrationProviderStatus.Failed, HttpStatusCode.InternalServerError)]
+    public async Task Run_BulkRedactionSearchReturnsInitiated_ShouldReturnAccepted(OrchestrationProviderStatus status, HttpStatusCode expectedStatusCode)
     {
         //arrange
         var searchText = "Hello";

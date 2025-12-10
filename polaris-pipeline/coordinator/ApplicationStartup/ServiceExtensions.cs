@@ -19,7 +19,6 @@ using coordinator.Durable.Providers;
 using coordinator.Factories.UploadFileNameFactory;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Mappers;
-using coordinator.OcrDocumentSearch;
 using coordinator.Services;
 using coordinator.Services.ClearDownService;
 using coordinator.Validators;
@@ -33,6 +32,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using coordinator.Search;
 using PdfGenerator = Common.Clients.PdfGenerator;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
 using TextExtractor = coordinator.Clients.TextExtractor;
@@ -92,7 +92,7 @@ public static class ServiceExtensions
         services.AddSingleton<IStateStorageService, StateStorageService>();
         services.AddSingleton<IRedactionSearchDtoMapper, RedactionSearchDtoMapper>();
 
-        services.AddSingleton<IOcrDocumentSearch, OcrDocumentSearch.OcrDocumentSearch>();
+        services.AddSingleton<IOcrDocumentSearch, OcrDocumentSearch>();
         services.AddScoped<IBulkRedactionSearchResponseBuilder, BulkRedactionSearchResponseBuilder>();
         services.AddScoped<IBulkRedactionSearchService, BulkRedactionSearchService>();
         return services;

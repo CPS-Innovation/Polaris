@@ -1,7 +1,7 @@
 ﻿using Common.Domain.Ocr;
 using coordinator.Domain;
 
-namespace coordinator.OcrDocumentSearch;
+namespace coordinator.Search;
 
 public interface IOcrDocumentSearch
 {

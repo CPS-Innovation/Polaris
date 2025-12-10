@@ -1,6 +1,6 @@
 ﻿namespace coordinator.Enums;
 
-public enum OrchestrationProviderStatuses
+public enum OrchestrationProviderStatus
 {
     Initiated,
     Processing,

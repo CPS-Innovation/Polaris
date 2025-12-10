@@ -32,13 +32,13 @@ public class OrchestrationProviderTests
     }
 
     [Theory]
-    [InlineData(OrchestrationRuntimeStatus.Running, OrchestrationProviderStatuses.Processing)]
-    [InlineData(OrchestrationRuntimeStatus.Pending, OrchestrationProviderStatuses.Processing)]
-    [InlineData(OrchestrationRuntimeStatus.Suspended, OrchestrationProviderStatuses.Processing)]
-    [InlineData(OrchestrationRuntimeStatus.Failed, OrchestrationProviderStatuses.Failed)]
-    [InlineData(OrchestrationRuntimeStatus.Completed, OrchestrationProviderStatuses.Completed)]
-    [InlineData(OrchestrationRuntimeStatus.Terminated, OrchestrationProviderStatuses.Completed)]
-    public async Task BulkSearchDocumentAsync_ExistingInstanceHasInProcessStatus_ShouldReturnFalse(OrchestrationRuntimeStatus orchestrationRuntimeStatus, OrchestrationProviderStatuses orchestrationProviderStatus)
+    [InlineData(OrchestrationRuntimeStatus.Running, OrchestrationProviderStatus.Processing)]
+    [InlineData(OrchestrationRuntimeStatus.Pending, OrchestrationProviderStatus.Processing)]
+    [InlineData(OrchestrationRuntimeStatus.Suspended, OrchestrationProviderStatus.Processing)]
+    [InlineData(OrchestrationRuntimeStatus.Failed, OrchestrationProviderStatus.Failed)]
+    [InlineData(OrchestrationRuntimeStatus.Completed, OrchestrationProviderStatus.Completed)]
+    [InlineData(OrchestrationRuntimeStatus.Terminated, OrchestrationProviderStatus.Completed)]
+    public async Task BulkSearchDocumentAsync_ExistingInstanceHasInProcessStatus_ShouldReturnFalse(OrchestrationRuntimeStatus orchestrationRuntimeStatus, OrchestrationProviderStatus orchestrationProviderStatus)
     {
         //arrange
         var clientMock = new Mock<DurableTaskClient>("name");
@@ -71,6 +71,6 @@ public class OrchestrationProviderTests
 
         //assert
         clientMock.Verify(v => v.ScheduleNewOrchestrationInstanceAsync(nameof(RefreshDocumentOrchestrator), documentPayload, It.IsAny<StartOrchestrationOptions>(), cancellationToken));
-        Assert.Equal(result, OrchestrationProviderStatuses.Initiated);
+        Assert.Equal(result, OrchestrationProviderStatus.Initiated);
     }
 }

@@ -52,11 +52,11 @@ public class BulkRedactionSearch
 
         var statusCode = bulkRedactionSearchResponse.DocumentRefreshStatus switch
         {
-            OrchestrationProviderStatuses.Initiated => HttpStatusCode.Accepted,
-            OrchestrationProviderStatuses.Processing => HttpStatusCode.Locked,
-            OrchestrationProviderStatuses.Completed => HttpStatusCode.OK,
-            OrchestrationProviderStatuses.Failed when bulkRedactionSearchResponse.IsNotFound => HttpStatusCode.NotFound,
-            OrchestrationProviderStatuses.Failed => HttpStatusCode.InternalServerError,
+            OrchestrationProviderStatus.Initiated => HttpStatusCode.Accepted,
+            OrchestrationProviderStatus.Processing => HttpStatusCode.Locked,
+            OrchestrationProviderStatus.Completed => HttpStatusCode.OK,
+            OrchestrationProviderStatus.Failed when bulkRedactionSearchResponse.IsNotFound => HttpStatusCode.NotFound,
+            OrchestrationProviderStatus.Failed => HttpStatusCode.InternalServerError,
             _ => HttpStatusCode.OK
         };
 

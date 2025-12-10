@@ -5,7 +5,7 @@ namespace coordinator.Domain;
 
 public class OcrDocumentSearchResponse
 {
-    public IEnumerable<RedactionDefinitionDto> redactionDefinitionDtos { get; set; }
+    public IEnumerable<RedactionDefinitionDto> RedactionDefinitionDtos { get; set; }
 
     public string FailureReason { get; set; }
 }

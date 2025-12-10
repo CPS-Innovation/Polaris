@@ -1,14 +1,12 @@
-﻿using Common.Domain.Ocr;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Common.Domain.Ocr;
 using Common.Dto.Request.Redaction;
 using Common.Mappers;
 using coordinator.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace coordinator.OcrDocumentSearch;
+namespace coordinator.Search;
 
 public class OcrDocumentSearch : IOcrDocumentSearch
 {
@@ -50,7 +48,6 @@ public class OcrDocumentSearch : IOcrDocumentSearch
                 if (searchTermList.Count != potentialRedactions.Count) continue;
 
                 toBeRedacted.AddRange(potentialRedactions);
-                i += searchTermList.Count;
             }
 
             var pageIndexes = toBeRedacted.Select(x => x.PageIndex).Distinct();
@@ -67,7 +64,7 @@ public class OcrDocumentSearch : IOcrDocumentSearch
                         .ToList()
                 }));
 
-            ocrDocumentSearchResponse.redactionDefinitionDtos = redactionDefinitionDtos;
+            ocrDocumentSearchResponse.RedactionDefinitionDtos = redactionDefinitionDtos;
             return ocrDocumentSearchResponse;
         }
         catch (Exception ex)

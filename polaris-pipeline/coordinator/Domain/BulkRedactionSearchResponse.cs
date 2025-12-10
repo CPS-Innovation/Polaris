@@ -19,7 +19,7 @@ public class BulkRedactionSearchResponse
     public string SearchText { get; set; }
 
     [JsonConverter(typeof(StringEnumConverter))]
-    public OrchestrationProviderStatuses DocumentRefreshStatus { get; set; }
+    public OrchestrationProviderStatus DocumentRefreshStatus { get; set; }
 
     public IEnumerable<RedactionDefinitionDto> RedactionDefinitions { get; set; }
 

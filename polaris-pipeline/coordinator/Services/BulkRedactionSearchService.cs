@@ -11,7 +11,6 @@ using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
 using coordinator.Durable.Providers;
 using coordinator.Enums;
-using coordinator.OcrDocumentSearch;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using Microsoft.DurableTask.Client;
@@ -21,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using coordinator.Search;
 
 namespace coordinator.Services;
 
@@ -72,15 +72,15 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
 
         switch (orchestrationProviderStatus)
         {
-            case OrchestrationProviderStatuses.Initiated:
+            case OrchestrationProviderStatus.Initiated:
                 return _bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshInitiated()
                     .Build(bulkRedactionSearchDto);
-            case OrchestrationProviderStatuses.Processing:
+            case OrchestrationProviderStatus.Processing:
                 return _bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshProcessing()
                     .Build(bulkRedactionSearchDto);
-            case OrchestrationProviderStatuses.Failed:
+            case OrchestrationProviderStatus.Failed:
                 return _bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshFailed("Orchestration failure")
                     .Build(bulkRedactionSearchDto);
@@ -106,7 +106,7 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
 
         return _bulkRedactionSearchResponseBuilder
             .BuildDocumentRefreshCompleted()
-            .BuildRedactionDefinitions(ocrDocumentSearchResponse.redactionDefinitionDtos)
+            .BuildRedactionDefinitions(ocrDocumentSearchResponse.RedactionDefinitionDtos)
             .Build(bulkRedactionSearchDto);
     }
 
