@@ -59,7 +59,7 @@ describe.only("artefact-polling-helper", () => {
         fooUrl
       );
 
-    expect(act).rejects.toThrowError(new RegExp(ERROR_MESSAGES.FAILED_API));
+    await expect(act).rejects.toThrowError(new RegExp(ERROR_MESSAGES.FAILED_API));
   });
 
   it("can throw if api returns an unexpected success status code", async () => {
@@ -70,7 +70,7 @@ describe.only("artefact-polling-helper", () => {
         fooUrl
       );
 
-    expect(act).rejects.toThrowError(
+    await expect(act).rejects.toThrowError(
       new RegExp(ERROR_MESSAGES.UNEXPECTED_STATUS_CODE)
     );
   });
@@ -83,7 +83,7 @@ describe.only("artefact-polling-helper", () => {
         fooUrl
       );
 
-    expect(act).rejects.toThrowError(
+    await expect(act).rejects.toThrowError(
       new RegExp(ERROR_MESSAGES.UNEXPECTED_CONTINUATION_RESULT)
     );
   });
@@ -114,22 +114,35 @@ describe.only("artefact-polling-helper", () => {
         fooUrl
       );
 
-    expect(act).rejects.toThrowError(new RegExp(ERROR_MESSAGES.FAILED_API));
+    await expect(act).rejects.toThrowError(new RegExp(ERROR_MESSAGES.FAILED_API));
   });
 
   it("can wait only two times if API_LOCAL_POLLING_RETRY_COUNT === 3", async () => {
+    // Keep original references to avoid recursion and to return a real Timeout
+    const realSetTimeout = global.setTimeout.bind(global);
+    const realClearTimeout = global.clearTimeout.bind(global);
+
     const setTimeoutSpy = jest
       .spyOn(global, "setTimeout")
-      .mockImplementation((fn) => {
-        if (typeof fn === "function") fn();
-        return 1;
-      });
+      .mockImplementation(((
+        cb: (...args: any[]) => void,
+        delay?: number,
+        ...args: any[]
+      ) => {
+        // Execute immediately for test determinism
+        if (typeof cb === "function") cb(...args);
+
+        // Return a real NodeJS.Timeout to satisfy types
+        const handle = realSetTimeout(() => {}, 0);
+        realClearTimeout(handle);
+        return handle as unknown as NodeJS.Timeout;
+      }) as unknown as typeof setTimeout);
 
     let callCount = 0;
     const act = async () =>
-      await artefactPollingHelper((url) => {
+      await artefactPollingHelper((_url) => {
         callCount += 1;
-        return continueResponse;
+        return continueResponse; // always tell helper to poll again
       }, fooUrl);
 
     let errorMessage: string | undefined = "";
@@ -138,6 +151,7 @@ describe.only("artefact-polling-helper", () => {
     } catch (ex: any) {
       errorMessage = ex?.toString();
     }
+
     expect(errorMessage).toContain(ERROR_MESSAGES.TOO_MANY_ATTEMPTS);
     expect(callCount).toBe(3);
 
@@ -146,5 +160,7 @@ describe.only("artefact-polling-helper", () => {
       expect.any(Function),
       API_LOCAL_POLLING_DELAY_MS
     );
+
+    setTimeoutSpy.mockRestore();
   });
 });
