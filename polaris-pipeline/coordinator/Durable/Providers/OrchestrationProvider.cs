@@ -118,10 +118,10 @@ public class OrchestrationProvider : IOrchestrationProvider
         }
     }
 
-    public async Task<OrchestrationProviderStatuses> BulkSearchDocumentAsync(DurableTaskClient client, DocumentPayload documentPayload, CancellationToken cancellationToken = default)
+    public async Task<OrchestrationProviderStatuses> BulkSearchDocumentAsync(DurableTaskClient orchestrationClient, DocumentPayload documentPayload, CancellationToken cancellationToken = default)
     {
         var instanceId = GetKey(documentPayload);
-        var existingInstance = await client.GetInstanceAsync(instanceId, cancellationToken);
+        var existingInstance = await orchestrationClient.GetInstanceAsync(instanceId, cancellationToken);
 
         if (existingInstance != null)
         {
@@ -141,14 +141,14 @@ public class OrchestrationProvider : IOrchestrationProvider
             }
         }
 
-        await client.ScheduleNewOrchestrationInstanceAsync(nameof(RefreshDocumentOrchestrator), documentPayload, new StartOrchestrationOptions
+        await orchestrationClient.ScheduleNewOrchestrationInstanceAsync(nameof(RefreshDocumentOrchestrator), documentPayload, new StartOrchestrationOptions
         {
             InstanceId = instanceId
         }, cancellationToken);
         return OrchestrationProviderStatuses.Initiated;
     }
 
-    private string GetKey(DocumentPayload documentPayload) => $"[{documentPayload.CaseId}.{documentPayload.DocumentId}.{documentPayload.VersionId}]";
+    private static string GetKey(DocumentPayload documentPayload) => $"[{documentPayload.CaseId}.{documentPayload.DocumentId}.{documentPayload.VersionId}]";
 
     private static async Task<List<string>> GetInstanceIdsAsync(DurableTaskClient client, OrchestrationQuery condition)
     {

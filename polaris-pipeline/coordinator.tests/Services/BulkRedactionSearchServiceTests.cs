@@ -1,5 +1,6 @@
 ﻿using Common.Configuration;
 using Common.Domain.Ocr;
+using Common.Dto.Request;
 using Common.Dto.Response.Document;
 using Common.Services.BlobStorage;
 using coordinator.Builders;
@@ -56,23 +57,26 @@ public class BulkRedactionSearchServiceTests
     public async Task BulkRedactionSearchAsync_DocumentIsNotRedactable_ShouldReturnBulkRedactionSearchResponse(string documentPrefix)
     {
         //arrange
-        var urn = "urn";
-        var caseId = 1;
-        var documentId = $"{documentPrefix}-12345";
-        var versionId = 2;
-        var searchText = "searchText";
         var orchestrationClientMock = new Mock<DurableTaskClient>("name");
-        var cmsAuthValues = "cmsAuthValues";
-        var correlationId = Guid.NewGuid();
         var cancellationToken = CancellationToken.None;
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
         var failureReason = "Document is not redactable";
+        var bulkRedactionSearchDto = new BulkRedactionSearchDto
+        {
+            Urn = "urn",
+            CaseId = 1,
+            DocumentId = $"{documentPrefix}-12345",
+            VersionId = 2,
+            SearchText = "searchText",
+            CmsAuthValues = "cmsAuthValues",
+            CorrelationId = Guid.NewGuid()
+        };
+
         _bulkRedactionSearchResponseBuilderMock.Setup(v => v.BuildDocumentRefreshFailed(failureReason, false)).Returns(_bulkRedactionSearchResponseBuilderMock.Object);
-        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(urn, caseId, documentId, versionId, searchText)).Returns(bulkRedactionSearchResponse);
+        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(bulkRedactionSearchDto)).Returns(bulkRedactionSearchResponse);
 
         //act
-        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(urn, caseId, documentId, versionId,
-            searchText, orchestrationClientMock.Object, cmsAuthValues, correlationId, cancellationToken);
+        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(bulkRedactionSearchDto, orchestrationClientMock.Object, cancellationToken);
 
         //assert
         Assert.Same(result, bulkRedactionSearchResponse);
@@ -82,29 +86,30 @@ public class BulkRedactionSearchServiceTests
     public async Task BulkRedactionSearchAsync_DocumentNotFoundInListDocument_ShouldReturnBulkRedactionSearchResponse()
     {
         //arrange
-        var urn = "urn";
-        var caseId = 1;
-        var documentId = "CMS-12345";
-        var versionId = 2;
-        var searchText = "searchText";
         var orchestrationClientMock = new Mock<DurableTaskClient>("name");
-        var cmsAuthValues = "cmsAuthValues";
-        var correlationId = Guid.NewGuid();
         var cancellationToken = CancellationToken.None;
         var ddeiCaseIdentifiersArgDto = new DdeiCaseIdentifiersArgDto();
         var listDocumentResponse = new List<CmsDocumentDto>();
         var failureReason = "Document not found in list document";
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
-        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId)).Returns(ddeiCaseIdentifiersArgDto);
+        var bulkRedactionSearchDto = new BulkRedactionSearchDto
+        {
+            Urn = "urn",
+            CaseId = 1,
+            DocumentId = "CMS-12345",
+            VersionId = 2,
+            SearchText = "searchText",
+            CmsAuthValues = "cmsAuthValues",
+            CorrelationId = Guid.NewGuid()
+        };
+        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(ddeiCaseIdentifiersArgDto);
         _mdsClientMock.Setup(s => s.ListDocumentsAsync(ddeiCaseIdentifiersArgDto)).ReturnsAsync(listDocumentResponse);
         _bulkRedactionSearchResponseBuilderMock.Setup(v => v.BuildDocumentRefreshFailed(failureReason, true)).Returns(_bulkRedactionSearchResponseBuilderMock.Object);
-        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(urn, caseId, documentId, versionId, searchText)).Returns(bulkRedactionSearchResponse);
+        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(bulkRedactionSearchDto)).Returns(bulkRedactionSearchResponse);
 
 
         //act
-        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(
-            urn, caseId, documentId, versionId,
-            searchText, orchestrationClientMock.Object, cmsAuthValues, correlationId, cancellationToken);
+        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(bulkRedactionSearchDto, orchestrationClientMock.Object, cancellationToken);
 
         //assert
         Assert.Same(result, bulkRedactionSearchResponse);
@@ -114,14 +119,17 @@ public class BulkRedactionSearchServiceTests
     public async Task BulkRedactionSearchAsync_OrchestrationProviderStatusesInitiated_ShouldReturnBulkRedactionSearchResponse()
     {
         //arrange
-        var urn = "urn";
-        var caseId = 1;
-        var documentId = "CMS-12345";
-        var versionId = 2;
-        var searchText = "searchText";
+        var bulkRedactionSearchDto = new BulkRedactionSearchDto
+        {
+            Urn = "urn",
+            CaseId = 1,
+            DocumentId = "CMS-12345",
+            VersionId = 2,
+            SearchText = "searchText",
+            CmsAuthValues = "cmsAuthValues",
+            CorrelationId = Guid.NewGuid()
+        };
         var orchestrationClientMock = new Mock<DurableTaskClient>("name");
-        var cmsAuthValues = "cmsAuthValues";
-        var correlationId = Guid.NewGuid();
         var cancellationToken = CancellationToken.None;
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
         var ddeiCaseIdentifiersArgDto = new DdeiCaseIdentifiersArgDto();
@@ -130,21 +138,20 @@ public class BulkRedactionSearchServiceTests
             new()
             {
                 DocumentId = 12345,
-                VersionId = versionId
+                VersionId = bulkRedactionSearchDto.VersionId
             }
         };
-        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId)).Returns(ddeiCaseIdentifiersArgDto);
+        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(ddeiCaseIdentifiersArgDto);
         _mdsClientMock.Setup(s => s.ListDocumentsAsync(ddeiCaseIdentifiersArgDto)).ReturnsAsync(listDocumentResponse);
         _polarisBlobStorageServiceMock
             .Setup(s => s.TryGetObjectAsync<CaseDurableEntityDocumentsState>(It.IsAny<BlobIdType>())).ReturnsAsync((CaseDurableEntityDocumentsState)null);
         _orchestrationProviderMock
             .Setup(s => s.BulkSearchDocumentAsync(orchestrationClientMock.Object, It.IsAny<DocumentPayload>(), cancellationToken)).ReturnsAsync(OrchestrationProviderStatuses.Initiated);
         _bulkRedactionSearchResponseBuilderMock.Setup(v => v.BuildDocumentRefreshInitiated()).Returns(_bulkRedactionSearchResponseBuilderMock.Object);
-        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(urn, caseId, documentId, versionId, searchText)).Returns(bulkRedactionSearchResponse);
+        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(bulkRedactionSearchDto)).Returns(bulkRedactionSearchResponse);
 
         //act
-        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(urn, caseId, documentId, versionId,
-            searchText, orchestrationClientMock.Object, cmsAuthValues, correlationId, cancellationToken);
+        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(bulkRedactionSearchDto, orchestrationClientMock.Object, cancellationToken);
 
         //assert
         _polarisBlobStorageServiceMock.Verify(v => v.UploadObjectAsync(It.IsAny<CaseDurableEntityDocumentsState>(), It.IsAny<BlobIdType>()));
@@ -155,14 +162,17 @@ public class BulkRedactionSearchServiceTests
     public async Task BulkRedactionSearchAsync_OrchestrationProviderStatusesProcessing_ShouldReturnBulkRedactionSearchResponse()
     {
         //arrange
-        var urn = "urn";
-        var caseId = 1;
-        var documentId = "CMS-12345";
-        var versionId = 2;
-        var searchText = "searchText";
+        var bulkRedactionSearchDto = new BulkRedactionSearchDto
+        {
+            Urn = "urn",
+            CaseId = 1,
+            DocumentId = "CMS-12345",
+            VersionId = 2,
+            SearchText = "searchText",
+            CmsAuthValues = "cmsAuthValues",
+            CorrelationId = Guid.NewGuid()
+        };
         var orchestrationClientMock = new Mock<DurableTaskClient>("name");
-        var cmsAuthValues = "cmsAuthValues";
-        var correlationId = Guid.NewGuid();
         var cancellationToken = CancellationToken.None;
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
         var ddeiCaseIdentifiersArgDto = new DdeiCaseIdentifiersArgDto();
@@ -171,21 +181,20 @@ public class BulkRedactionSearchServiceTests
             new()
             {
                 DocumentId = 12345,
-                VersionId = versionId
+                VersionId = bulkRedactionSearchDto.VersionId
             }
         };
-        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId)).Returns(ddeiCaseIdentifiersArgDto);
+        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(ddeiCaseIdentifiersArgDto);
         _mdsClientMock.Setup(s => s.ListDocumentsAsync(ddeiCaseIdentifiersArgDto)).ReturnsAsync(listDocumentResponse);
         _polarisBlobStorageServiceMock
             .Setup(s => s.TryGetObjectAsync<CaseDurableEntityDocumentsState>(It.IsAny<BlobIdType>())).ReturnsAsync((CaseDurableEntityDocumentsState)null);
         _orchestrationProviderMock
             .Setup(s => s.BulkSearchDocumentAsync(orchestrationClientMock.Object, It.IsAny<DocumentPayload>(), cancellationToken)).ReturnsAsync(OrchestrationProviderStatuses.Processing);
         _bulkRedactionSearchResponseBuilderMock.Setup(v => v.BuildDocumentRefreshProcessing()).Returns(_bulkRedactionSearchResponseBuilderMock.Object);
-        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(urn, caseId, documentId, versionId, searchText)).Returns(bulkRedactionSearchResponse);
+        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(bulkRedactionSearchDto)).Returns(bulkRedactionSearchResponse);
 
         //act
-        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(urn, caseId, documentId, versionId,
-            searchText, orchestrationClientMock.Object, cmsAuthValues, correlationId, cancellationToken);
+        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(bulkRedactionSearchDto, orchestrationClientMock.Object, cancellationToken);
 
         //assert
         _polarisBlobStorageServiceMock.Verify(v => v.UploadObjectAsync(It.IsAny<CaseDurableEntityDocumentsState>(), It.IsAny<BlobIdType>()));
@@ -196,14 +205,17 @@ public class BulkRedactionSearchServiceTests
     public async Task BulkRedactionSearchAsync_OrchestrationProviderStatusesFailed_ShouldReturnBulkRedactionSearchResponse()
     {
         //arrange
-        var urn = "urn";
-        var caseId = 1;
-        var documentId = "CMS-12345";
-        var versionId = 2;
-        var searchText = "searchText";
+        var bulkRedactionSearchDto = new BulkRedactionSearchDto
+        {
+            Urn = "urn",
+            CaseId = 1,
+            DocumentId = "CMS-12345",
+            VersionId = 2,
+            SearchText = "searchText",
+            CmsAuthValues = "cmsAuthValues",
+            CorrelationId = Guid.NewGuid()
+        };
         var orchestrationClientMock = new Mock<DurableTaskClient>("name");
-        var cmsAuthValues = "cmsAuthValues";
-        var correlationId = Guid.NewGuid();
         var cancellationToken = CancellationToken.None;
         var failureReason = "Orchestration failure";
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
@@ -213,21 +225,20 @@ public class BulkRedactionSearchServiceTests
             new()
             {
                 DocumentId = 12345,
-                VersionId = versionId
+                VersionId = bulkRedactionSearchDto.VersionId
             }
         };
-        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId)).Returns(ddeiCaseIdentifiersArgDto);
+        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(ddeiCaseIdentifiersArgDto);
         _mdsClientMock.Setup(s => s.ListDocumentsAsync(ddeiCaseIdentifiersArgDto)).ReturnsAsync(listDocumentResponse);
         _polarisBlobStorageServiceMock
             .Setup(s => s.TryGetObjectAsync<CaseDurableEntityDocumentsState>(It.IsAny<BlobIdType>())).ReturnsAsync((CaseDurableEntityDocumentsState)null);
         _orchestrationProviderMock
             .Setup(s => s.BulkSearchDocumentAsync(orchestrationClientMock.Object, It.IsAny<DocumentPayload>(), cancellationToken)).ReturnsAsync(OrchestrationProviderStatuses.Failed);
         _bulkRedactionSearchResponseBuilderMock.Setup(v => v.BuildDocumentRefreshFailed(failureReason, false)).Returns(_bulkRedactionSearchResponseBuilderMock.Object);
-        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(urn, caseId, documentId, versionId, searchText)).Returns(bulkRedactionSearchResponse);
+        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(bulkRedactionSearchDto)).Returns(bulkRedactionSearchResponse);
 
         //act
-        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(urn, caseId, documentId, versionId,
-            searchText, orchestrationClientMock.Object, cmsAuthValues, correlationId, cancellationToken);
+        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(bulkRedactionSearchDto, orchestrationClientMock.Object, cancellationToken);
 
         //assert
         _polarisBlobStorageServiceMock.Verify(v => v.UploadObjectAsync(It.IsAny<CaseDurableEntityDocumentsState>(), It.IsAny<BlobIdType>()));
@@ -238,14 +249,17 @@ public class BulkRedactionSearchServiceTests
     public async Task BulkRedactionSearchAsync_OcrDocumentNotFound_ShouldReturnBulkRedactionSearchResponse()
     {
         //arrange
-        var urn = "urn";
-        var caseId = 1;
-        var documentId = "CMS-12345";
-        var versionId = 2;
-        var searchText = "searchText";
+        var bulkRedactionSearchDto = new BulkRedactionSearchDto
+        {
+            Urn = "urn",
+            CaseId = 1,
+            DocumentId = "CMS-12345",
+            VersionId = 2,
+            SearchText = "searchText",
+            CmsAuthValues = "cmsAuthValues",
+            CorrelationId = Guid.NewGuid()
+        };
         var orchestrationClientMock = new Mock<DurableTaskClient>("name");
-        var cmsAuthValues = "cmsAuthValues";
-        var correlationId = Guid.NewGuid();
         var cancellationToken = CancellationToken.None;
         var failureReason = "OCR Document Not Found";
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
@@ -255,10 +269,10 @@ public class BulkRedactionSearchServiceTests
             new()
             {
                 DocumentId = 12345,
-                VersionId = versionId
+                VersionId = bulkRedactionSearchDto.VersionId
             }
         };
-        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId)).Returns(ddeiCaseIdentifiersArgDto);
+        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(ddeiCaseIdentifiersArgDto);
         _mdsClientMock.Setup(s => s.ListDocumentsAsync(ddeiCaseIdentifiersArgDto)).ReturnsAsync(listDocumentResponse);
         _polarisBlobStorageServiceMock
             .Setup(s => s.TryGetObjectAsync<CaseDurableEntityDocumentsState>(It.IsAny<BlobIdType>())).ReturnsAsync((CaseDurableEntityDocumentsState)null);
@@ -267,11 +281,10 @@ public class BulkRedactionSearchServiceTests
         _polarisBlobStorageServiceMock.Setup(s => s.TryGetObjectAsync<AnalyzeResults>(It.IsAny<BlobIdType>()))
             .ReturnsAsync((AnalyzeResults)null);
         _bulkRedactionSearchResponseBuilderMock.Setup(v => v.BuildDocumentRefreshFailed(failureReason, true)).Returns(_bulkRedactionSearchResponseBuilderMock.Object);
-        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(urn, caseId, documentId, versionId, searchText)).Returns(bulkRedactionSearchResponse);
+        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(bulkRedactionSearchDto)).Returns(bulkRedactionSearchResponse);
 
         //act
-        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(urn, caseId, documentId, versionId,
-            searchText, orchestrationClientMock.Object, cmsAuthValues, correlationId, cancellationToken);
+        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(bulkRedactionSearchDto, orchestrationClientMock.Object, cancellationToken);
 
         //assert
         _polarisBlobStorageServiceMock.Verify(v => v.UploadObjectAsync(It.IsAny<CaseDurableEntityDocumentsState>(), It.IsAny<BlobIdType>()));
@@ -282,14 +295,17 @@ public class BulkRedactionSearchServiceTests
     public async Task BulkRedactionSearchAsync_SearchFailure_ShouldReturnBulkRedactionSearchResponse()
     {
         //arrange
-        var urn = "urn";
-        var caseId = 1;
-        var documentId = "CMS-12345";
-        var versionId = 2;
-        var searchText = "searchText";
+        var bulkRedactionSearchDto = new BulkRedactionSearchDto
+        {
+            Urn = "urn",
+            CaseId = 1,
+            DocumentId = "CMS-12345",
+            VersionId = 2,
+            SearchText = "searchText",
+            CmsAuthValues = "cmsAuthValues",
+            CorrelationId = Guid.NewGuid()
+        };
         var orchestrationClientMock = new Mock<DurableTaskClient>("name");
-        var cmsAuthValues = "cmsAuthValues";
-        var correlationId = Guid.NewGuid();
         var cancellationToken = CancellationToken.None;
         var failureReason = "SearchFailed";
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
@@ -299,7 +315,7 @@ public class BulkRedactionSearchServiceTests
             new()
             {
                 DocumentId = 12345,
-                VersionId = versionId
+                VersionId = bulkRedactionSearchDto.VersionId
             }
         };
         var results = new AnalyzeResults();
@@ -307,20 +323,19 @@ public class BulkRedactionSearchServiceTests
         {
             FailureReason = failureReason
         };
-        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId)).Returns(ddeiCaseIdentifiersArgDto);
+        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(ddeiCaseIdentifiersArgDto);
         _mdsClientMock.Setup(s => s.ListDocumentsAsync(ddeiCaseIdentifiersArgDto)).ReturnsAsync(listDocumentResponse);
         _polarisBlobStorageServiceMock
             .Setup(s => s.TryGetObjectAsync<CaseDurableEntityDocumentsState>(It.IsAny<BlobIdType>())).ReturnsAsync((CaseDurableEntityDocumentsState)null);
         _orchestrationProviderMock
             .Setup(s => s.BulkSearchDocumentAsync(orchestrationClientMock.Object, It.IsAny<DocumentPayload>(), cancellationToken)).ReturnsAsync(OrchestrationProviderStatuses.Completed);
         _polarisBlobStorageServiceMock.Setup(s => s.TryGetObjectAsync<AnalyzeResults>(It.IsAny<BlobIdType>())).ReturnsAsync(results);
-        _ocrDocumentSearchMock.Setup(s => s.Search(searchText, results)).Returns(ocrDocumentSearchResponse);
+        _ocrDocumentSearchMock.Setup(s => s.Search(bulkRedactionSearchDto.SearchText, results)).Returns(ocrDocumentSearchResponse);
         _bulkRedactionSearchResponseBuilderMock.Setup(v => v.BuildDocumentRefreshFailed(failureReason, false)).Returns(_bulkRedactionSearchResponseBuilderMock.Object);
-        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(urn, caseId, documentId, versionId, searchText)).Returns(bulkRedactionSearchResponse);
+        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(bulkRedactionSearchDto)).Returns(bulkRedactionSearchResponse);
 
         //act
-        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(urn, caseId, documentId, versionId,
-            searchText, orchestrationClientMock.Object, cmsAuthValues, correlationId, cancellationToken);
+        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(bulkRedactionSearchDto, orchestrationClientMock.Object, cancellationToken);
 
         //assert
         _polarisBlobStorageServiceMock.Verify(v => v.UploadObjectAsync(It.IsAny<CaseDurableEntityDocumentsState>(), It.IsAny<BlobIdType>()));
@@ -331,14 +346,17 @@ public class BulkRedactionSearchServiceTests
     public async Task BulkRedactionSearchAsync_Completed_ShouldReturnBulkRedactionSearchResponse()
     {
         //arrange
-        var urn = "urn";
-        var caseId = 1;
-        var documentId = "CMS-12345";
-        var versionId = 2;
-        var searchText = "searchText";
+        var bulkRedactionSearchDto = new BulkRedactionSearchDto
+        {
+            Urn = "urn",
+            CaseId = 1,
+            DocumentId = "CMS-12345",
+            VersionId = 2,
+            SearchText = "searchText",
+            CmsAuthValues = "cmsAuthValues",
+            CorrelationId = Guid.NewGuid()
+        };
         var orchestrationClientMock = new Mock<DurableTaskClient>("name");
-        var cmsAuthValues = "cmsAuthValues";
-        var correlationId = Guid.NewGuid();
         var cancellationToken = CancellationToken.None;
         var failureReason = "SearchFailed";
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
@@ -348,26 +366,25 @@ public class BulkRedactionSearchServiceTests
             new()
             {
                 DocumentId = 12345,
-                VersionId = versionId
+                VersionId = bulkRedactionSearchDto.VersionId
             }
         };
         var results = new AnalyzeResults();
         var ocrDocumentSearchResponse = new OcrDocumentSearchResponse();
-        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId)).Returns(ddeiCaseIdentifiersArgDto);
+        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(ddeiCaseIdentifiersArgDto);
         _mdsClientMock.Setup(s => s.ListDocumentsAsync(ddeiCaseIdentifiersArgDto)).ReturnsAsync(listDocumentResponse);
         _polarisBlobStorageServiceMock
             .Setup(s => s.TryGetObjectAsync<CaseDurableEntityDocumentsState>(It.IsAny<BlobIdType>())).ReturnsAsync((CaseDurableEntityDocumentsState)null);
         _orchestrationProviderMock
             .Setup(s => s.BulkSearchDocumentAsync(orchestrationClientMock.Object, It.IsAny<DocumentPayload>(), cancellationToken)).ReturnsAsync(OrchestrationProviderStatuses.Completed);
         _polarisBlobStorageServiceMock.Setup(s => s.TryGetObjectAsync<AnalyzeResults>(It.IsAny<BlobIdType>())).ReturnsAsync(results);
-        _ocrDocumentSearchMock.Setup(s => s.Search(searchText, results)).Returns(ocrDocumentSearchResponse);
+        _ocrDocumentSearchMock.Setup(s => s.Search(bulkRedactionSearchDto.SearchText, results)).Returns(ocrDocumentSearchResponse);
         _bulkRedactionSearchResponseBuilderMock.Setup(v => v.BuildDocumentRefreshCompleted()).Returns(_bulkRedactionSearchResponseBuilderMock.Object);
         _bulkRedactionSearchResponseBuilderMock.Setup(v => v.BuildRedactionDefinitions(ocrDocumentSearchResponse.redactionDefinitionDtos)).Returns(_bulkRedactionSearchResponseBuilderMock.Object);
-        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(urn, caseId, documentId, versionId, searchText)).Returns(bulkRedactionSearchResponse);
+        _bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(bulkRedactionSearchDto)).Returns(bulkRedactionSearchResponse);
 
         //act
-        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(urn, caseId, documentId, versionId,
-            searchText, orchestrationClientMock.Object, cmsAuthValues, correlationId, cancellationToken);
+        var result = await _bulkRedactionSearchService.BulkRedactionSearchAsync(bulkRedactionSearchDto, orchestrationClientMock.Object, cancellationToken);
 
         //assert
         _polarisBlobStorageServiceMock.Verify(v => v.UploadObjectAsync(It.IsAny<CaseDurableEntityDocumentsState>(), It.IsAny<BlobIdType>()));

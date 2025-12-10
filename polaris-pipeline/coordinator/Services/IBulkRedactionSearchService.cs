@@ -1,14 +1,12 @@
-﻿using Microsoft.DurableTask.Client;
-using System;
+﻿using Common.Dto.Request;
+using coordinator.Domain;
+using Microsoft.DurableTask.Client;
 using System.Threading;
 using System.Threading.Tasks;
-using coordinator.Domain;
 
 namespace coordinator.Services;
 
 public interface IBulkRedactionSearchService
 {
-    Task<BulkRedactionSearchResponse> BulkRedactionSearchAsync(string caseUrn, int caseId, string documentId,
-        long versionId, string searchText, DurableTaskClient orchestrationClient, string cmsAuthValues, Guid correlationId,
-        CancellationToken cancellationToken);
+    Task<BulkRedactionSearchResponse> BulkRedactionSearchAsync(BulkRedactionSearchDto bulkRedactionSearchDto, DurableTaskClient orchestrationClient, CancellationToken cancellationToken);
 }

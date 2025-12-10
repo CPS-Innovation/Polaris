@@ -1,4 +1,5 @@
-﻿using Common.Dto.Request.Redaction;
+﻿using Common.Dto.Request;
+using Common.Dto.Request.Redaction;
 using coordinator.Domain;
 using System.Collections.Generic;
 
@@ -16,5 +17,5 @@ public interface IBulkRedactionSearchResponseBuilder
 
     IBulkRedactionSearchResponseBuilder BuildRedactionDefinitions(IEnumerable<RedactionDefinitionDto> redactionDefinitionDtos);
 
-    BulkRedactionSearchResponse Build(string urn, int caseId, string documentId, long versionId, string searchText);
+    BulkRedactionSearchResponse Build(BulkRedactionSearchDto bulkRedactionSearchDto);
 }

@@ -11,6 +11,7 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Dto.Request;
 using Xunit;
 
 namespace coordinator.tests.Functions;
@@ -54,7 +55,7 @@ public class BulkRedactionSearchTests
             DocumentRefreshStatus = status
         };
 
-        _bulkRedactionSearchServiceMock.Setup(s => s.BulkRedactionSearchAsync(caseUrn, caseId, documentId, versionId, searchText, orchestrationClientMock.Object, cmsAuthValues, correlationId, cancellationToken)).ReturnsAsync(bulkRedactionSearchResponse);
+        _bulkRedactionSearchServiceMock.Setup(s => s.BulkRedactionSearchAsync(It.IsAny<BulkRedactionSearchDto>(), orchestrationClientMock.Object, cancellationToken)).ReturnsAsync(bulkRedactionSearchResponse);
 
         //act
         var result = await _bulkRedactionSearch.Run(req, caseUrn, caseId, documentId, versionId, cancellationToken, orchestrationClientMock.Object);

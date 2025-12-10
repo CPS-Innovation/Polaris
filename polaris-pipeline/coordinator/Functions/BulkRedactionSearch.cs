@@ -1,4 +1,5 @@
 using Common.Configuration;
+using Common.Dto.Request;
 using Common.Extensions;
 using coordinator.Durable.Providers;
 using coordinator.Enums;
@@ -36,7 +37,18 @@ public class BulkRedactionSearch
         var cmsAuthValues = req.Headers.GetCmsAuthValues();
         var searchText = req.Query[SearchTextHeader];
 
-        var bulkRedactionSearchResponse = await _bulkRedactionSearchService.BulkRedactionSearchAsync(caseUrn, caseId, documentId, versionId, searchText, orchestrationClient, cmsAuthValues, currentCorrelationId, cancellationToken);
+        var bulkRedactionSearchDto = new BulkRedactionSearchDto
+        {
+            Urn = caseUrn,
+            CaseId = caseId,
+            DocumentId = documentId,
+            VersionId = versionId,
+            SearchText = searchText,
+            CmsAuthValues = cmsAuthValues,
+            CorrelationId = currentCorrelationId
+        };
+
+        var bulkRedactionSearchResponse = await _bulkRedactionSearchService.BulkRedactionSearchAsync(bulkRedactionSearchDto, orchestrationClient, cancellationToken);
 
         var statusCode = bulkRedactionSearchResponse.DocumentRefreshStatus switch
         {

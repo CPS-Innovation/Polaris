@@ -1,11 +1,10 @@
 ﻿using Common.Configuration;
 using Common.Domain.Document;
 using Common.Domain.Ocr;
+using Common.Dto.Request;
 using Common.Dto.Response.Document;
-using Common.Exceptions;
 using Common.Extensions;
 using Common.Services.BlobStorage;
-using Common.Services.BlobStorage.Factories;
 using coordinator.Builders;
 using coordinator.Domain;
 using coordinator.Durable.Payloads;
@@ -44,30 +43,30 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
         _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
     }
 
-    public async Task<BulkRedactionSearchResponse> BulkRedactionSearchAsync(string urn, int caseId, string documentId, long versionId, string searchText, DurableTaskClient orchestrationClient, string cmsAuthValues, Guid correlationId, CancellationToken cancellationToken)
+    public async Task<BulkRedactionSearchResponse> BulkRedactionSearchAsync(BulkRedactionSearchDto bulkRedactionSearchDto, DurableTaskClient orchestrationClient, CancellationToken cancellationToken)
     {
-        var documentType = DocumentNature.GetDocumentNatureType(documentId);
+        var documentType = DocumentNature.GetDocumentNatureType(bulkRedactionSearchDto.DocumentId);
 
         if (documentType != DocumentNature.Types.Document)
         {
             return _bulkRedactionSearchResponseBuilder
                 .BuildDocumentRefreshFailed("Document is not redactable")
-                .Build(urn, caseId, documentId, versionId, searchText);
+                .Build(bulkRedactionSearchDto);
         }
 
-        var caseIdentifiersArg = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId);
+        var caseIdentifiersArg = _ddeiArgFactory.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId);
         var listDocumentResponse = await _mdsClient.ListDocumentsAsync(caseIdentifiersArg);
 
-        var cmsDocumentDto = listDocumentResponse.FirstOrDefault(x => documentId.Contains(x.DocumentId.ToString()) && x.VersionId == versionId);
+        var cmsDocumentDto = listDocumentResponse.FirstOrDefault(x => bulkRedactionSearchDto.DocumentId.Contains(x.DocumentId.ToString()) && x.VersionId == bulkRedactionSearchDto.VersionId);
 
         if (cmsDocumentDto is null)
             return _bulkRedactionSearchResponseBuilder
                 .BuildDocumentRefreshFailed("Document not found in list document", true)
-                .Build(urn, caseId, documentId, versionId, searchText);
+                .Build(bulkRedactionSearchDto);
 
-        var documentPayload = CreateDocumentPayload(urn, caseId, documentId, versionId, cmsDocumentDto, cmsAuthValues, correlationId);
+        var documentPayload = CreateDocumentPayload(bulkRedactionSearchDto, cmsDocumentDto);
 
-        await SetDocumentStateAsync(cmsDocumentDto, caseId);
+        await SetDocumentStateAsync(cmsDocumentDto, bulkRedactionSearchDto.CaseId);
 
         var orchestrationProviderStatus = await _orchestrationProvider.BulkSearchDocumentAsync(orchestrationClient, documentPayload, cancellationToken);
 
@@ -76,51 +75,51 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
             case OrchestrationProviderStatuses.Initiated:
                 return _bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshInitiated()
-                    .Build(urn, caseId, documentId, versionId, searchText);
+                    .Build(bulkRedactionSearchDto);
             case OrchestrationProviderStatuses.Processing:
                 return _bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshProcessing()
-                    .Build(urn, caseId, documentId, versionId, searchText);
+                    .Build(bulkRedactionSearchDto);
             case OrchestrationProviderStatuses.Failed:
                 return _bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshFailed("Orchestration failure")
-                    .Build(urn, caseId, documentId, versionId, searchText);
+                    .Build(bulkRedactionSearchDto);
         }
 
-        var blobId = new BlobIdType(caseId, documentId, versionId, BlobType.Ocr);
+        var blobId = new BlobIdType(bulkRedactionSearchDto.CaseId, bulkRedactionSearchDto.DocumentId, bulkRedactionSearchDto.VersionId, BlobType.Ocr);
         var results = await _polarisBlobStorageService.TryGetObjectAsync<AnalyzeResults>(blobId);
         if (results is null)
         {
             return _bulkRedactionSearchResponseBuilder
                 .BuildDocumentRefreshFailed("OCR Document Not Found", true)
-                .Build(urn, caseId, documentId, versionId, searchText);
+                .Build(bulkRedactionSearchDto);
         }
 
-        var ocrDocumentSearchResponse = _ocrDocumentSearch.Search(searchText, results);
+        var ocrDocumentSearchResponse = _ocrDocumentSearch.Search(bulkRedactionSearchDto.SearchText, results);
 
         if (!string.IsNullOrEmpty(ocrDocumentSearchResponse.FailureReason))
         {
             return _bulkRedactionSearchResponseBuilder
                 .BuildDocumentRefreshFailed(ocrDocumentSearchResponse.FailureReason)
-                .Build(urn, caseId, documentId, versionId, searchText);
+                .Build(bulkRedactionSearchDto);
         }
 
         return _bulkRedactionSearchResponseBuilder
             .BuildDocumentRefreshCompleted()
             .BuildRedactionDefinitions(ocrDocumentSearchResponse.redactionDefinitionDtos)
-            .Build(urn, caseId, documentId, versionId, searchText);
+            .Build(bulkRedactionSearchDto);
     }
 
-    private DocumentPayload CreateDocumentPayload(string urn, int caseId, string documentId, long versionId, CmsDocumentDto cmsDocumentDto, string cmsAuthValues, Guid correlationId)
+    private DocumentPayload CreateDocumentPayload(BulkRedactionSearchDto bulkRedactionSearchDto, CmsDocumentDto cmsDocumentDto)
     {
         return new DocumentPayload
         {
-            Urn = urn,
-            CaseId = caseId,
-            CmsAuthValues = cmsAuthValues,
-            CorrelationId = correlationId,
-            DocumentId = documentId,
-            VersionId = versionId,
+            Urn = bulkRedactionSearchDto.Urn,
+            CaseId = bulkRedactionSearchDto.CaseId,
+            CmsAuthValues = bulkRedactionSearchDto.CmsAuthValues,
+            CorrelationId = bulkRedactionSearchDto.CorrelationId,
+            DocumentId = bulkRedactionSearchDto.DocumentId,
+            VersionId = bulkRedactionSearchDto.VersionId,
             Path = cmsDocumentDto.Path,
             DocumentType = cmsDocumentDto.CmsDocType,
             DocumentNatureType = DocumentNature.Types.Document,
