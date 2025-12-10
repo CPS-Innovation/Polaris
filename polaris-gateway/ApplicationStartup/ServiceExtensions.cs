@@ -30,7 +30,6 @@ using DdeiClient.Clients;
 using DdeiClient.Configuration;
 using Common.Mappers;
 using Cps.Fct.Hk.Ui.Services.Validators;
-using Cps.Fct.Hk.Common.DDEI.Provider;
 
 namespace PolarisGateway.ApplicationStartup;
 
@@ -94,7 +93,7 @@ public static class ServiceExtensions
         services.AddSingleton<IWitnessService, WitnessService>();
         services.AddSingleton<ICaseActionPlanService, CaseActionPlanService>();
         services.AddSingleton<ICaseLockService, CaseLockService>();
-        services.AddDDEIProvider();
+        services.AddSingleton<ICaseDefendantsService, CaseDefendantsService>();
 
         // Add validators
         services.AddSingleton<RenameMaterialRequestValidator>();
