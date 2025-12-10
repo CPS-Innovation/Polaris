@@ -59,7 +59,9 @@ describe.only("artefact-polling-helper", () => {
         fooUrl
       );
 
-    await expect(act).rejects.toThrowError(new RegExp(ERROR_MESSAGES.FAILED_API));
+    await expect(act).rejects.toThrowError(
+      new RegExp(ERROR_MESSAGES.FAILED_API)
+    );
   });
 
   it("can throw if api returns an unexpected success status code", async () => {
@@ -114,7 +116,9 @@ describe.only("artefact-polling-helper", () => {
         fooUrl
       );
 
-    await expect(act).rejects.toThrowError(new RegExp(ERROR_MESSAGES.FAILED_API));
+    await expect(act).rejects.toThrowError(
+      new RegExp(ERROR_MESSAGES.FAILED_API)
+    );
   });
 
   it("can wait only two times if API_LOCAL_POLLING_RETRY_COUNT === 3", async () => {
@@ -122,21 +126,19 @@ describe.only("artefact-polling-helper", () => {
     const realSetTimeout = global.setTimeout.bind(global);
     const realClearTimeout = global.clearTimeout.bind(global);
 
-    const setTimeoutSpy = jest
-      .spyOn(global, "setTimeout")
-      .mockImplementation(((
-        cb: (...args: any[]) => void,
-        delay?: number,
-        ...args: any[]
-      ) => {
-        // Execute immediately for test determinism
-        if (typeof cb === "function") cb(...args);
+    const setTimeoutSpy = jest.spyOn(global, "setTimeout").mockImplementation(((
+      cb: (...args: any[]) => void,
+      delay?: number,
+      ...args: any[]
+    ) => {
+      // Execute immediately for test determinism
+      if (typeof cb === "function") cb(...args);
 
-        // Return a real NodeJS.Timeout to satisfy types
-        const handle = realSetTimeout(() => {}, 0);
-        realClearTimeout(handle);
-        return handle as unknown as NodeJS.Timeout;
-      }) as unknown as typeof setTimeout);
+      // Return a real NodeJS.Timeout to satisfy types
+      const handle = realSetTimeout(() => {}, 0);
+      realClearTimeout(handle);
+      return handle as unknown as NodeJS.Timeout;
+    }) as unknown as typeof setTimeout);
 
     let callCount = 0;
     const act = async () =>
