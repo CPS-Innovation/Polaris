@@ -1,4 +1,5 @@
-﻿using Common.Domain.Validators;
+﻿using Common.Domain.Document;
+using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Factories.ComputerVisionClientFactory;
 using Common.Handlers;
@@ -11,6 +12,7 @@ using Common.Services.RenderHtmlService;
 using Common.Streaming;
 using Common.Telemetry;
 using Common.Wrappers;
+using coordinator.Builders;
 using coordinator.Constants;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
@@ -30,6 +32,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using coordinator.Search;
 using PdfGenerator = Common.Clients.PdfGenerator;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
 using TextExtractor = coordinator.Clients.TextExtractor;
@@ -88,6 +91,10 @@ public static class ServiceExtensions
         services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
         services.AddSingleton<IStateStorageService, StateStorageService>();
         services.AddSingleton<IRedactionSearchDtoMapper, RedactionSearchDtoMapper>();
+
+        services.AddSingleton<IOcrDocumentSearch, OcrDocumentSearch>();
+        services.AddScoped<IBulkRedactionSearchResponseBuilder, BulkRedactionSearchResponseBuilder>();
+        services.AddScoped<IBulkRedactionSearchService, BulkRedactionSearchService>();
         return services;
     }
 

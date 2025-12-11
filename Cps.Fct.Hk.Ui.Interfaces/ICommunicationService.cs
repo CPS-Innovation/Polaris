@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Common.Dto.Request;
 using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Response.HouseKeeping.Pcd;
+using Common.Dto.Request.HouseKeeping;
+using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
 
 /// <summary>
 /// Interface for communication service that provides methods to retrieve and log communications.
@@ -163,23 +165,49 @@ public interface ICommunicationService
     /// <returns>An object that contains the discarded material id.</returns>
     Task<DiscardMaterialResponse> DiscardMaterialAsync(int caseId, int materialId, string discardReason, string discardReasonDescription, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
 
-    /////// <summary>
-    /////// Updates exhibit given an exhibit request.
-    /////// </summary>
-    /////// <param name="caseId">The ID of the case.</param>
-    /////// <param name="exhibit">The update exhibit request model.</param>
-    /////// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /////// <param name="correspondenceId">correspondenceId.</param>
-    /////// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    ////public Task<UpdateExhibitResponse> UpdateExhibitAsync(int caseId, EditExhibitRequest exhibit, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
+    /// <summary>
+    /// Updates exhibit given an exhibit request.
+    /// </summary>
+    /// <param name="caseId">The ID of the case.</param>
+    /// <param name="exhibit">The update exhibit request model.</param>
+    /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
+    /// <param name="correspondenceId">correspondenceId.</param>
+    /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+    public Task<UpdateExhibitResponse> UpdateExhibitAsync(int caseId, UpdateExhibitRequest exhibit, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
 
-    /////// <summary>
-    /////// Update statement given a statement request.
-    /////// </summary>
-    /////// <param name="caseId">The ID of the case.</param>
-    /////// <param name="statement">The update statement request.</param>
-    /////// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /////// <param name="correspondenceId">correspondenceId.</param>
-    /////// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    ////public Task<UpdateStatementResponse> UpdateStatementAsync(int caseId, EditStatementRequest statement, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
+    /// <summary>
+    /// Update statement given a statement request.
+    /// </summary>
+    /// <param name="caseId">The ID of the case.</param>
+    /// <param name="statement">The update statement request.</param>
+    /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
+    /// <param name="correspondenceId">correspondenceId.</param>
+    /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+    public Task<UpdateStatementResponse> UpdateStatementAsync(int caseId, UpdateStatementRequest statement, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
+
+    /// <summary>
+    /// Get First Initial Review Get Case History.
+    /// </summary>
+    /// <param name="caseId">The caseId.</param>
+    /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+    /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+    Task<ApiClient.PreChargeDecisionAnalysisOutcome> FirstInitialReviewGetCaseHistoryAsync(int caseId, CmsAuthValues cmsAuthValues);
+
+
+    /// <summary>
+    /// Get Initial Review ByHistoryId.
+    /// </summary>
+    /// <param name="caseId">Case id.</param>
+    /// <param name="historyId">History Id.</param>
+    /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+    /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+    Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues);
+
+    /// <summary>
+    /// GetHistoryEvents.
+    /// </summary>
+    /// <param name="caseId">The caseId.</param>
+    /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+    /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+    Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues);
 }
