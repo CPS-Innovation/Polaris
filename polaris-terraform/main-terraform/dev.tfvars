@@ -76,7 +76,7 @@ cms_details = {
 }
 
 wm_task_list_host_name  = "https://cps-dev.outsystemsenterprise.com"
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps-dev.outsystemsenterprise.com/,/task-list,https://polaris-dev-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps-dev.outsystemsenterprise.com/,/task-list,https://polaris-dev-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui,https://polaris-dev-notprod.cps.gov.uk/init?polaris-ui-url=/materials-ui"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
