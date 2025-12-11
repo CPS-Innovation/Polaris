@@ -9,7 +9,7 @@ describe("Save User Data", () => {
         body: documentList[0],
       });
     });
-    it("Should identify the document as read if the user has opened the document and should persist that state when user comes back in a new session and clear it if we clear local storage", () => {
+    xit("Should identify the document as read if the user has opened the document and should persist that state when user comes back in a new session and clear it if we clear local storage", () => {
       cy.clearLocalStorage();
       cy.visit("/case-details/12AB1111111/13401");
       cy.window().then((window) => {

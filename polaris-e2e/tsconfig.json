@@ -1,9 +1,17 @@
 {
-    "compilerOptions": {
-        "target": "es5",
-        "lib": ["es5", "dom"],
-        "types": ["cypress", "node", "@testing-library/cypress", "@cypress/grep"],
-        "esModuleInterop": true
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["cypress", "node", "@testing-library/cypress", "@cypress/grep"],
+    "esModuleInterop": true,
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["cypress/*"]
     },
-    "include": ["**/*.ts"]
+    "skipLibCheck": true
+  },
+  "include": ["**/*.ts", "**/*.tsx", "cypress/**/*.ts", "cypress/**/*.tsx"]
 }

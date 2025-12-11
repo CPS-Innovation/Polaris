@@ -18,13 +18,15 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "cypress": "^12.17.3",
-    "cypress-terminal-report": "^5.2.0",
-    "cypress-timestamps": "^1.2.3",
+    "@cypress/grep": "^5.0.0",
+    "@types/node": "^24.10.1",
+    "cypress": "^12.17.4",
+    "cypress-terminal-report": "^5.3.12",
+    "cypress-timestamps": "^1.4.0",
+    "fs-extra": "^11.3.2",
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@cypress/grep": "^4.0.1",
     "@testing-library/cypress": "^9.0.0",
     "@types/fs-extra": "^11.0.2",
     "@types/jsonwebtoken": "^9.0.3",

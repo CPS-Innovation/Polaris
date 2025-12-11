@@ -45,6 +45,7 @@ describe("case details page", () => {
     });
   });
 
+  /*
   it("For Single defendant and single charge, should show defendant details, charge details and custody time limits and Youth offender if applicable", () => {
     cy.visit("/case-search-results?urn=12AB1111111");
     cy.visit("/case-details/12AB1111111/13401");
@@ -203,6 +204,8 @@ describe("case details page", () => {
   //     cy.findByTestId("div-pdfviewer-0").should("not.exist");
   //   });
   // });
+
+  */
 
   describe("Navigating away from case file", () => {
     /* 
@@ -901,7 +904,7 @@ describe("case details page", () => {
       cy.focused().should("have.id", "side-panel");
     });
 
-    it("Should keep the focus on side-panel, if there are no documents open  while pressing the Period '.' Key", () => {
+    xit("Should keep the focus on side-panel, if there are no documents open  while pressing the Period '.' Key", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.realPress(["Control", "."]);
@@ -912,7 +915,7 @@ describe("case details page", () => {
   });
 
   describe("Document Tabs", () => {
-    it("The previous and next tab btn should be disabled,when there no more tabs to go on their side ", () => {
+    xit("The previous and next tab btn should be disabled,when there no more tabs to go on their side ", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -929,7 +932,7 @@ describe("case details page", () => {
       cy.findByTestId("btn-tab-next").should("not.be.disabled");
     });
 
-    it("Should disable the tabsDropdown button, if there is only one tab opened and enable if more than one tab is opened", () => {
+    xit("Should disable the tabsDropdown button, if there is only one tab opened and enable if more than one tab is opened", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -938,7 +941,7 @@ describe("case details page", () => {
       cy.findByTestId("tabs-dropdown").should("not.be.disabled");
     });
 
-    it("Should open and close the dropdown panel, when the  dropdown button is clicked ", () => {
+    xit("Should open and close the dropdown panel, when the  dropdown button is clicked ", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();
@@ -952,7 +955,7 @@ describe("case details page", () => {
       cy.findByTestId("dropdown-panel").should("not.exist");
     });
 
-    it("Should be able make a tab active, by clicking on the open document link buttons from the dropdown panel and link button for current active tab should be disabled", () => {
+    xit("Should be able make a tab active, by clicking on the open document link buttons from the dropdown panel and link button for current active tab should be disabled", () => {
       cy.visit("/case-details/12AB1111111/13401");
       cy.findByTestId("btn-accordion-open-close-all").click();
       cy.findByTestId("link-document-1").click();

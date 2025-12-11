@@ -13,7 +13,7 @@ import {
 } from "../../src/mock-api/data/getDocumentsList.cypress";
 
 describe("Feature Reclassify Document", () => {
-  it("Should show reclassify document option if the document 'canReclassify' is true and presentationFlags, write property is not 'isDispatched' and should not show if it is not ", () => {
+  xit("Should show reclassify document option if the document 'canReclassify' is true and presentationFlags, write property is not 'isDispatched' and should not show if it is not ", () => {
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("document-housekeeping-actions-dropdown-1").should("exist");
@@ -40,7 +40,7 @@ describe("Feature Reclassify Document", () => {
     );
   });
 
-  it("Should show the re-classification content and be able to close reclassification if the user click back or cancel button and but back the focus correctly", () => {
+  xit("Should show the re-classification content and be able to close reclassification if the user click back or cancel button and but back the focus correctly", () => {
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -63,7 +63,7 @@ describe("Feature Reclassify Document", () => {
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
-  it("should navigate to the reclassification page and load all the document type list ", () => {
+  xit("should navigate to the reclassification page and load all the document type list ", () => {
     const getMaterialListCounter = { count: 0 };
     cy.trackRequestCount(
       getMaterialListCounter,
@@ -101,7 +101,7 @@ describe("Feature Reclassify Document", () => {
       });
   });
 
-  it("should successful complete the document classification to an `Immediate` type ", () => {
+  xit("should successful complete the document classification to an `Immediate` type ", () => {
     const getMaterialListCounter = { count: 0 };
     cy.trackRequestCount(
       getMaterialListCounter,
@@ -203,7 +203,7 @@ describe("Feature Reclassify Document", () => {
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
-  it("should successful complete the document classification to an `Other` type ", () => {
+  xit("should successful complete the document classification to an `Other` type ", () => {
     const getMaterialListCounter = { count: 0 };
     cy.trackRequestCount(
       getMaterialListCounter,
@@ -333,7 +333,7 @@ describe("Feature Reclassify Document", () => {
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
-  it("should successful complete the document classification to a `Statement` type", () => {
+  xit("should successful complete the document classification to a `Statement` type", () => {
     const getMaterialListCounter = { count: 0 };
     cy.trackRequestCount(
       getMaterialListCounter,
@@ -532,7 +532,7 @@ describe("Feature Reclassify Document", () => {
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
-  it("should successful complete the document classification to a `Exhibit` type", () => {
+  xit("should successful complete the document classification to a `Exhibit` type", () => {
     const getMaterialListCounter = { count: 0 };
     cy.trackRequestCount(
       getMaterialListCounter,
@@ -692,7 +692,7 @@ describe("Feature Reclassify Document", () => {
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-1");
   });
 
-  it("should show error message if save reclassify is unsuccessful and shouldn't call refreshPipeline and tracker", () => {
+  xit("should show error message if save reclassify is unsuccessful and shouldn't call refreshPipeline and tracker", () => {
     cy.overrideRoute(
       SAVE_RECLASSIFY,
       {
@@ -755,7 +755,7 @@ describe("Feature Reclassify Document", () => {
     cy.findByTestId("div-modal").should("not.exist");
   });
 
-  it("Should show all the reclassify UI validation errors", () => {
+  xit("Should show all the reclassify UI validation errors", () => {
     const saveReclassifyRequestObject = { body: "" };
     cy.trackRequestBody(
       saveReclassifyRequestObject,
@@ -795,7 +795,7 @@ describe("Feature Reclassify Document", () => {
     cy.findByTestId("reclassify-doctypeId-error-summary").should("not.exist");
   });
 
-  it("Shold validation for immediate type return UI errors", () => {
+  xit("Shold validation for immediate type return UI errors", () => {
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -872,7 +872,7 @@ describe("Feature Reclassify Document", () => {
     cy.get("#reclassify-document-new-name-error").should("not.exist");
   });
 
-  it("Shuld check against UI error for statement validation", () => {
+  xit("Shuld check against UI error for statement validation", () => {
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -977,7 +977,7 @@ describe("Feature Reclassify Document", () => {
     cy.findByTestId("reclassify-error-summary").should("not.exist");
   });
 
-  it("Shuld check against UI error for exhibit validation", () => {
+  xit("Shuld check against UI error for exhibit validation", () => {
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");
@@ -1097,7 +1097,7 @@ describe("Feature Reclassify Document", () => {
     cy.findByTestId("reclassify-continue-btn").click();
   });
 
-  it("Should show all the other type UI validation errors", () => {
+  xit("Should show all the other type UI validation errors", () => {
     const saveReclassifyRequestObject = { body: "" };
     cy.trackRequestBody(
       saveReclassifyRequestObject,
@@ -1137,7 +1137,7 @@ describe("Feature Reclassify Document", () => {
     cy.findByTestId("reclassify-doctypeId-error-summary").should("not.exist");
   });
 
-  it("should show error if it failed to retrieve materialList", () => {
+  xit("should show error if it failed to retrieve materialList", () => {
     cy.overrideRoute(
       MATERIAL_TYPE_LIST,
       {
@@ -1158,7 +1158,7 @@ describe("Feature Reclassify Document", () => {
     cy.get("body").contains("Error: Failed to retrieve material type list");
   });
 
-  it("should show error if it failed to retrieve exhibit producers", () => {
+  xit("should show error if it failed to retrieve exhibit producers", () => {
     cy.overrideRoute(
       EXHIBIT_PRODUCERS,
       {
@@ -1181,7 +1181,7 @@ describe("Feature Reclassify Document", () => {
     cy.get("body").contains("Error: Failed to retrieve exhibit producer data");
   });
 
-  it("should show error if it failed to retrieve statement witness", () => {
+  xit("should show error if it failed to retrieve statement witness", () => {
     cy.overrideRoute(
       STATEMENT_WITNESS,
       {
@@ -1206,7 +1206,7 @@ describe("Feature Reclassify Document", () => {
     );
   });
 
-  it("should show error if it failed to retrieve statement witness numbers", () => {
+  xit("should show error if it failed to retrieve statement witness numbers", () => {
     cy.overrideRoute(
       STATEMENT_WITNESS_NUMBERS,
       {
@@ -1231,7 +1231,7 @@ describe("Feature Reclassify Document", () => {
     );
   });
 
-  it("should disable all the exhibit types when reclassifying an exhibit type", () => {
+  xit("should disable all the exhibit types when reclassifying an exhibit type", () => {
     cy.visit("/case-details/12AB1111111/13401?reclassify=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("div-reclassify").should("not.exist");

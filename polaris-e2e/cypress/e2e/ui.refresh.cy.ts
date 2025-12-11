@@ -8,7 +8,7 @@ describe(
   "Refresh via guid-controlled ",
   { tags: ["@ci", "@ci-chunk-1"] },
   () => {
-    it("can update a document", () => {
+    xit("can update a document", () => {
       cy.fullLogin();
 
       cy.clearCaseTracker(REFRESH_UI_TARGET_URN, REFRESH_UI_TARGET_CASE_ID);

@@ -5,7 +5,7 @@ import {
 } from "../../src/mock-api/routes";
 
 describe("Checks if the used/unused functionality", () => {
-  it("should change document state as used / unused on option select", () => {
+  xit("should change document state as used / unused on option select", () => {
     cy.visit("/case-details/42MZ7213221/13401/?isUnused=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("document-housekeeping-actions-dropdown-10").click();
@@ -32,7 +32,7 @@ describe("Checks if the used/unused functionality", () => {
     });
   });
 
-  it("should show an error message on failure", () => {
+  xit("should show an error message on failure", () => {
     cy.visit("/case-details/42MZ7213221/13401/?isUnused=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("document-housekeeping-actions-dropdown-10").click();

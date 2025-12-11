@@ -20,5 +20,8 @@
     "strictNullChecks": true,
     "ignoreDeprecations": "5.0"
   },
-  "include": ["src"]
+  "include": ["src", "cypress.config.ts", "cypress/**/*.ts"],
+  "types": ["cypress", "node"],
+  "module": "CommonJS",
+  "moduleResolution": "Node"
 }
