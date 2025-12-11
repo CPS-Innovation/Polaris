@@ -14,7 +14,6 @@ using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Text;
-using Cps.Fct.Hk.Ui.Functions.Functions;
 using PolarisGateway.Functions.HouseKeeping;
 using Common.Dto.Request.HouseKeeping;
 using System;

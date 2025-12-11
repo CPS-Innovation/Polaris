@@ -2,13 +2,12 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace Cps.Fct.Hk.Ui.Functions.Functions;
+namespace PolarisGateway.Functions.HouseKeeping;
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
-using Aspose.Pdf.Operators;
 using Common.Configuration;
 using Common.Constants;
 using Common.Dto.Response.HouseKeeping;
@@ -62,32 +61,32 @@ public class GetDocumentTypes(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = this.BuildCmsAuthValues(request);
+            var cmsAuthValues = BuildCmsAuthValues(request);
 
-            IReadOnlyList<DocumentTypeGroup>? result = this.documentTypeMapper.GetDocumentTypesWithClassificationGroup();
+            IReadOnlyList<DocumentTypeGroup> result = documentTypeMapper.GetDocumentTypesWithClassificationGroup();
 
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetDocumentTypes function completed in [{stopwatch.Elapsed}]");
+            logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetDocumentTypes function completed in [{stopwatch.Elapsed}]");
 
             return new OkObjectResult(result);
         }
         catch (InvalidOperationException ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an invalid operation error: {ex.Message}");
+            logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an invalid operation error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"{ex.Message}");
         }
         catch (NotSupportedException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an unsupported content type error: {ex.Message}");
+            logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an unsupported content type error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"GetDocumentTypes error: {ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an unauthorized access error: {ex.Message}");
+            logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an unauthorized access error: {ex.Message}");
             return new UnauthorizedObjectResult($"GetDocumentTypes error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an error: {ex.Message}");
+            logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }

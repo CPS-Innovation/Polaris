@@ -9,7 +9,7 @@ namespace coordinator.Durable.Activity;
 public class SetDocumentIndexingFailed(IStateStorageService stateStorageService) : BaseDocumentUpdateActivity
 {
     [Function(nameof(SetDocumentIndexingFailed))]
-    public async Task<bool> Run([ActivityTrigger] CaseIdAndDocumentIPayload payload)
+    public async Task<bool> Run([ActivityTrigger] CaseIdAndDocumentIdPayload payload)
     {
         var documentsState = await stateStorageService.GetDurableEntityDocumentsStateAsync(payload.CaseId);
         var document = GetDocument(payload.DocumentId, documentsState);

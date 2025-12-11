@@ -1,4 +1,4 @@
-// <copyright file="GetExhibitProducers.cs" company="TheCrownProsecutionService">
+// <copyright file="GetCaseExhibitProducers.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 

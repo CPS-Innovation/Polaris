@@ -13,7 +13,6 @@ using Common.Constants;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response.HouseKeeping;
-using Cps.Fct.Hk.Ui.Functions.Functions;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
 using Cps.Fct.Hk.Ui.Services.Validators;
@@ -21,6 +20,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using PolarisGateway.Functions.HouseKeeping;
 using Xunit;
 
 /// <summary>
