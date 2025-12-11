@@ -106,9 +106,6 @@ describe(
   "Gateway endpoint auth failures",
   { tags: ["@ci", "@ci-chunk-4"] },
   () => {
-    // If CorrelationId is a union type like 'EMPTY' | 'UNDEFINED' | 'NOT_A_GUID',
-    // this typed array will keep TS happy. If your module exports constants,
-    // prefer using those instead.
     (["EMPTY", "UNDEFINED", "NOT_A_GUID"] as CorrelationId[]).forEach(
       (correlationId) => {
         xit(`rejects calls that have a token but do not have an appropriate correlation id: (${correlationId} correlation id)`, () => {
@@ -140,11 +137,6 @@ describe(
     );
 
     describe("Broken AD auth", () => {
-      // Note: local tests and tests in deployed env will fail in a different way:
-      // - Deployed gateway: AD auth enforced before function => often 302 redirect
-      // - Local: request reaches C# => often 400
-      // In either case we can still assert the request fails.
-
       xit("rejects calls that have a correlation id but do not have a token", () => {
         cy.getAuthHeaders().then((headers) => {
           getVersionIdHelper(headers, (versionId) => {

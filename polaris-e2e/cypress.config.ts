@@ -1,4 +1,3 @@
-// Polaris/polaris-e2e/cypress.config.ts
 import { defineConfig } from "cypress";
 import fs from "fs-extra";
 import path from "path";
@@ -6,9 +5,6 @@ import { plugin as cypressGrepPlugin } from "@cypress/grep/plugin";
 
 const globalAny: any = global;
 
-// Safer config file loader:
-// - keeps dots in names (env.dev.json, env.local.json, etc.)
-// - checks existence and throws a helpful error
 const getConfigurationByFile = (fileBaseName: string) => {
   const filename = `${fileBaseName}.json`;
   const pathToConfigFile = path.resolve("config", filename);
@@ -37,14 +33,12 @@ export default defineConfig({
       // Make ENV available to tests via Cypress.env('ENVIRONMENT')
       config.env = { ...config.env, ENVIRONMENT: envName };
 
-      // --- Plugins you already use ---
       require("cypress-timestamps/plugin")(on);
       require("cypress-terminal-report/src/installLogsPrinter")(on);
 
-      // ✅ Correct grep plugin registration (replaces @cypress/grep/src/plugin)
+      // grep plugin registration (replaces @cypress/grep/src/plugin)
       cypressGrepPlugin(config);
 
-      // --- Tasks you already have ---
       on("task", {
         storeTokenResponseInNode: (tokenResponse: any) => {
           globalAny.tokenResponse = tokenResponse;
@@ -80,11 +74,10 @@ export default defineConfig({
       return { ...config, env: resolvedEnv };
     },
 
-    // Keep your patterns and other settings
     specPattern: "cypress/e2e/**/*.cy.{ts,js}",
     supportFile: "cypress/support/e2e.ts",
 
-    // Defaults (adjust as needed)
+    // Defaults
     baseUrl: "http://example.org",
     video: true,
     screenshotOnRunFailure: true,
@@ -94,7 +87,7 @@ export default defineConfig({
     trashAssetsBeforeRuns: false,
     experimentalModifyObstructiveThirdPartyCode: true,
 
-    // Grep defaults (optional)
+    // Grep defaults
     env: {
       grepOmitFiltered: true,
       grepFilterSpecs: true, // enables spec pre-filtering when grep is used

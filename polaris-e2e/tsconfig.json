@@ -1,17 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES2020", // Modern JS target
-    "lib": ["ES2020", "DOM"], // Include DOM + ES2020 features
-    "module": "NodeNext", // Matches Cypress + Node ecosystem
-    "moduleResolution": "NodeNext", // Proper resolution for NodeNext
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "types": ["cypress", "node", "@testing-library/cypress", "@cypress/grep"],
-    "esModuleInterop": true, // For default imports from CommonJS
-    "strict": true, // Enable strict type checking
-    "baseUrl": ".", // ✅ Required for tsconfig-paths
+    "esModuleInterop": true,
+    "strict": true,
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["cypress/*"] // ✅ Adjust alias for Cypress folder
+      "@/*": ["cypress/*"]
     },
-    "skipLibCheck": true // Speeds up compilation
+    "skipLibCheck": true
   },
   "include": ["**/*.ts", "**/*.tsx", "cypress/**/*.ts", "cypress/**/*.tsx"]
 }

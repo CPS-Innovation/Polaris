@@ -17,19 +17,19 @@
 import "cypress-plugin-api";
 import "./commands";
 
-// ✅ Correct way to enable cypress-timestamps support
+// enable cypress-timestamps support
 require("cypress-timestamps/support")({
   terminal: true,
   error: true,
   commandLog: true,
 });
 
-// ✅ Correct way to enable cypress-terminal-report collector
+// enable cypress-terminal-report collector
 require("cypress-terminal-report/src/installLogsCollector")();
 
 // Check dependencies before tests start
 before(() => cy.checkDependencies());
 
-// ✅ Enable @cypress/grep support (latest API)
+// Enable @cypress/grep support (latest API)
 import { register as registerCypressGrep } from "@cypress/grep";
 registerCypressGrep();

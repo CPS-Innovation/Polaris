@@ -22,21 +22,17 @@ describe("Witness Indicators", { tags: ["@ci", "@ci-chunk-3"] }, () => {
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId(`link-document-${WITNESS_DOCUMENT_ID}`);
 
-    // We find all expected indicators, in the order we expect them
     cy.get(`[data-testid^="indicator-${WITNESS_DOCUMENT_ID}-"]`)
       .should("have.length", 10)
       .then(($indicators) => {
-        // Convert jQuery to array of HTMLElements
         const elements: HTMLElement[] = Array.from($indicators);
 
-        // Read the code part from data-testid (safer than getAttribute)
         const codes = elements
           .map((el) => {
             const testid = el.dataset.testid ?? el.getAttribute("data-testid");
             if (!testid) {
               throw new Error("Missing data-testid on indicator element");
             }
-            // "indicator-<docId>-<code>" => take the 4th token (index 3)
             const parts = testid.split("-");
             const code = parts[3];
             if (!code) {
@@ -49,7 +45,6 @@ describe("Witness Indicators", { tags: ["@ci", "@ci-chunk-3"] }, () => {
         expect(codes).to.equal(WITNESS_EXPECTED_INDICATORS);
       });
 
-    // Check that indicators not expected are not there
     (WITNESS_NOT_EXPECTED_INDICATORS as string)
       .split(",")
       .forEach((indicator) => {
