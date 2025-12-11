@@ -14,16 +14,22 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import "cypress-plugin-api"
-import "./commands"
+import "cypress-plugin-api";
+import "./commands";
+
+// ✅ Correct way to enable cypress-timestamps support
 require("cypress-timestamps/support")({
   terminal: true,
   error: true,
   commandLog: true,
-})
-require("cypress-terminal-report/src/installLogsCollector")()
-// Check at the start of the run that all of our dependent functions ar ok
-before(() => cy.checkDependencies())
+});
 
-// Enable @cypress/grep support (no function call needed)
-import "@cypress/grep/src/support";
+// ✅ Correct way to enable cypress-terminal-report collector
+require("cypress-terminal-report/src/installLogsCollector")();
+
+// Check dependencies before tests start
+before(() => cy.checkDependencies());
+
+// ✅ Enable @cypress/grep support (latest API)
+import { register as registerCypressGrep } from "@cypress/grep";
+registerCypressGrep();
