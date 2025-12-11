@@ -1094,12 +1094,14 @@ namespace DdeiClient.Clients
                 var cookieString = JsonSerializer.Serialize(cookie);
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
+                var statementDate = ConvertToDateTimeOffset(request.StatementDate);
 
                 var mdsRequest = new ApiClient.UpdateStatementRequest
                 {
                     MaterialId = request.MaterialId,
                     WitnessId = request.WitnessId,
                     StatementNumber = request.StatementNumber,
+                    StatementDate = statementDate,
                     Used = request.Used,
                 };
 
