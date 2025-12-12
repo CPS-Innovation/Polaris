@@ -10,6 +10,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
+using Common.Exceptions;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -102,6 +103,11 @@ public class GetInitialReviewByHistoryId(
         {
             this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetInitialReviewByHistoryId function encountered UnauthorizedAccess Exception.");
             return new UnauthorizedObjectResult($"GetInitialReviewByHistoryId error: {ex.Message}");
+        }
+        catch (NotFoundException ex)
+        {
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetPreChargeDecisionByHistoryId function return not found error: {ex.Message}");
+            return new StatusCodeResult(StatusCodes.Status404NotFound);
         }
         catch (Exception ex)
         {

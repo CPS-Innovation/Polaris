@@ -18,6 +18,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Common.Configuration;
 using Common.Constants;
+using Common.Exceptions;
 
 /// <summary>
 /// Represents a function that return case offence charge by case id,
