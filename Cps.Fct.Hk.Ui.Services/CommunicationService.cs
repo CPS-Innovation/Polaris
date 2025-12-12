@@ -558,11 +558,53 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues)
     {
         try
         {
-            return this.apiClient.GetHistoryEventsAsync(caseId, cmsAuthValues);
+            return await this.apiClient.GetHistoryEventsAsync(caseId, cmsAuthValues);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<ApiClient.OffenceChangeResponse> GetOffenceChargeByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+    {
+        try
+        {
+            return await this.apiClient.GetOffenceChargeByHistoryIdAsync(caseId, historyId, cmsAuthValues);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionCaseHistoryEventDetailsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    {
+        try
+        {
+            return await this.apiClient.GetPreChargeDecisionCaseHistoryEventDetailsAsync(caseId, cmsAuthValues);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionByHistoryId(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+    {
+        try
+        {
+            return await this.apiClient.GetPreChargeDecisionByHistoryId(caseId, historyId, cmsAuthValues);
         }
         catch (Exception ex)
         {
