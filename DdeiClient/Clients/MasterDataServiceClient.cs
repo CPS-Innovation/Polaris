@@ -610,7 +610,7 @@ namespace DdeiClient.Clients
                         defendant.Type,
                         defendant.FirstNames,
                         defendant.Surname,
-                        DateTime.Parse(defendant?.Dob),
+                        DateTime.TryParse(defendant?.Dob, out var dob) ? dob : (DateTime?)null,
                         defendant?.PoliceRemandStatus?.ToString(),
                         defendant?.Youth,
                         defendant?.CustodyTimeLimit?.ToString(),
