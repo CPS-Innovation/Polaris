@@ -66,11 +66,13 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "SAS_URL_DOMAIN_NAME"                             = "${azurerm_storage_account.sa.name}.blob.core.windows.net"
     "ENDPOINT_HTTP_PROTOCOL"                          = "https"
     "NGINX_ENVSUBST_OUTPUT_DIR"                       = "/etc/nginx"
-    "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}:${md5(file("cmsenv.js"))}::${md5(file("polaris-script.js"))}"
+    "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}:${md5(file("cmsenv.js"))}::${md5(file("polaris-script.js"))}:${md5(file("global-components.conf"))}:${md5(file("global-components.js"))}" 
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
     "WM_TASK_LIST_HOST_NAME"                          = var.wm_task_list_host_name
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
+    "WM_MDS_BASE_URL"                                 = "https://fa-${local.wm_mds_resource_name}.azurewebsites.net/api/"
+    "WM_MDS_ACCESS_KEY"                               = data.azurerm_key_vault_secret.kvs_fa_wm_mds_host_keys.value
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"

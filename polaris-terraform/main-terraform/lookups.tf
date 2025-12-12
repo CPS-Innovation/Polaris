@@ -16,6 +16,12 @@ data "azurerm_key_vault_secret" "kvs_fa_mds_host_keys" {
 }
 # end: MDS FA secret lookup
 
+# See kvs_fa_mds_host_keys comment above
+data "azurerm_key_vault_secret" "kvs_fa_wm_mds_host_keys" {
+  name         = "WM-MDS-FA-AccessKey"
+  key_vault_id = azurerm_key_vault.kv_polaris.id
+}
+
 # begin: vnet lookup
 data "azurerm_virtual_network" "polaris_vnet" {
   name                = "vnet-innovation-${var.environment_tag}"
