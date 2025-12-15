@@ -1,16 +1,30 @@
-﻿using Common.Configuration;
-using System.Text.Json.Serialization;
+﻿using Common.Dto.Request.Redaction;
+using coordinator.Enums;
+using Newtonsoft.Json.Converters;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace coordinator.Domain;
 
-public class BulkRedactionSearchResponse(string caseUrn, int caseId, string documentId, long versionId, string searchText)
+public class BulkRedactionSearchResponse
 {
-    private string CaseUrn { get; } = caseUrn;
-    private int CaseId { get; } = caseId;
-    private string DocumentId { get; } = documentId;
-    private long VersionId { get; } = versionId;
-    private string SearchText { get; } = searchText;
+    public string Urn { get; set; }
 
-    [JsonPropertyName("trackerUrl")]
-    public string TrackerUrl => "/api/" + RestApi.GetBulkRedactionSearchTrackerPath(CaseUrn, CaseId, DocumentId, VersionId, SearchText);
+    public int CaseId { get; set; }
+
+    public string DocumentId { get; set; }
+
+    public long VersionId { get; set; }
+
+    public string SearchText { get; set; }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public OrchestrationProviderStatus DocumentRefreshStatus { get; set; }
+
+    public IEnumerable<RedactionDefinitionDto> RedactionDefinitions { get; set; }
+
+    public string FailedReason { get; set; }
+
+    [JsonIgnore]
+    public bool IsNotFound { get; set; }
 }

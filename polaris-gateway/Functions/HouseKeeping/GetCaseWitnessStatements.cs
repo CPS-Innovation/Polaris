@@ -1,8 +1,8 @@
-// <copyright file="GetWitnessStatements.cs" company="TheCrownProsecutionService">
+// <copyright file="GetCaseWitnessStatements.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace Cps.Fct.Hk.Ui.Functions.Functions;
+namespace PolarisGateway.Functions.HouseKeeping;
 
 using System;
 using System.Diagnostics;

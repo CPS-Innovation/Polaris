@@ -62,6 +62,7 @@ locals {
   //materials_resource_name       = var.env != "qa" ? "as-materials-web-dev-uks.azurewebsites.net" : "as-materials-web-qa-uks.azurewebsites.net"
   mds_resource_name             = var.env != "prod" ? var.env != "dev" ? "eas-app-ddei-staging" : "eas-app-ddei-${var.env}" : "wm-app-ddei"
   mds_mock_resource_name        = var.env != "prod" ? "mock-polaris-ddei-${var.env}" : "mock-polaris-ddei"
+  wm_mds_resource_name          = var.env != "prod" ? var.env != "dev" ? "wm-app-ddei-staging" : "wm-app-ddei-${var.env}" : "wm-app-ddei"
   app_service_certificate_store = var.env != "prod" ? "kv-polaris-cert-${var.env}" : "kv-polaris-cert"
   redaction_log_resource_name   = var.env != "prod" ? "redaction-log-${var.env}" : "redaction-log"
   resource_suffix               = var.env != "prod" ? "-${var.env}" : ""
