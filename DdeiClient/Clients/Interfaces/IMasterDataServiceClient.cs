@@ -1,5 +1,5 @@
-﻿// <copyright file="IMdsClient.cs" company="TheCrownProsecutionService">
-// Copyright (c) The CrownProsecution Service. All rights reserved.
+﻿// <copyright file="IMasterDataServiceClient.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
 namespace DdeiClient.Clients.Interfaces
@@ -212,7 +212,6 @@ namespace DdeiClient.Clients.Interfaces
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
         Task<ApiClient.PreChargeDecisionAnalysisOutcome> FirstInitialReviewGetCaseHistoryAsync(int caseId, CmsAuthValues cmsAuthValues);
 
-
         /// <summary>
         /// Get Initial Review ByHistoryId.
         /// </summary>
@@ -229,5 +228,31 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
         Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Get Offence Charge.
+        /// </summary>
+        /// <param name="caseId">The caseId.</param>
+        /// <param name="historyId">History Id.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<ApiClient.OffenceChangeResponse> GetOffenceChargeByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Get Pre Charge Decision Case History Event Details.
+        /// </summary>
+        /// <param name="caseId">Case Id.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionCaseHistoryEventDetailsAsync(int caseId, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Get Pre Charge Decision By History Id.
+        /// </summary>
+        /// <param name="caseId">Case Id.</param>
+        /// <param name="historyId">History Id.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionByHistoryId(int caseId, int historyId, CmsAuthValues cmsAuthValues);
     }
 }
