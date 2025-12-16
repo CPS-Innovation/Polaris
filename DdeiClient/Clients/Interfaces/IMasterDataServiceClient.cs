@@ -173,6 +173,14 @@ namespace DdeiClient.Clients.Interfaces
         Task<DiscardMaterialResponse> DiscardMaterialAsync(DiscardMaterialRequest request, CmsAuthValues cmsAuthValues);
 
         /// <summary>
+        /// Asynchronously discards a material using material id.
+        /// </summary>
+        /// <param name="request">The discard material request.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<SetMaterialReadStatusResponse> SetMaterialReadStatusAsync(SetMaterialReadStatusRequest request, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
         /// Get PCD Requests core/basic info by case id.
         /// </summary>
         /// <param name="request">The GetPcdRequestsCore request.</param>
@@ -254,5 +262,13 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
         Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionByHistoryId(int caseId, int historyId, CmsAuthValues cmsAuthValues);
+
+        /// <summary>
+        /// Get Pcd review.
+        /// </summary>
+        /// <param name="caseId">The case id.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues);
     }
 }

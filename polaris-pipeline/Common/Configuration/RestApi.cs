@@ -53,6 +53,7 @@ public static class RestApi
     public const string OffenseCharge = "urns/{caseUrn}/cases/{caseId:min(1)}/history/{historyId}/offence-charge";
     public const string PreChargeDecision = "urns/{caseUrn}/cases/{caseId:min(1)}/pre-charge-decision";
     public const string PreChargeDecisionByHistoryId = "urns/{caseUrn}/cases/{caseId:min(1)}/history/{historyId}/pre-charge-decision";
+    public const string PcdReview = "urns/{caseUrn}/cases/{caseId:min(1)}/pcd-review";
 
     // Internal Pipeline
     public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";

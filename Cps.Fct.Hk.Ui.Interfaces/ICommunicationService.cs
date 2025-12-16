@@ -12,6 +12,7 @@ using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Response.HouseKeeping.Pcd;
 using Common.Dto.Request.HouseKeeping;
 using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
+using Common.Enums;
 
 /// <summary>
 /// Interface for communication service that provides methods to retrieve and log communications.
@@ -126,14 +127,6 @@ public interface ICommunicationService
     /// <returns>Return collection of PCD requests.</returns>
     Task<IReadOnlyCollection<PcdRequestCore>> GetPcdRequestCore(int caseId, CmsAuthValues cmsAuthValues);
 
-    /////// <summary>
-    /////// Get PCD Requests overview by case Id.
-    /////// </summary>
-    /////// <param name="caseId">Get PCD requests by case id.</param>
-    /////// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /////// <returns>Return collection of PCD Requests by case id.</returns>
-    ////Task<IReadOnlyCollection<PcdRequestDto>> GetPcdRequestOverview(int caseId, CmsAuthValues cmsAuthValues);
-
     /// <summary>
     /// Get PCD Request overview by case Id Pcd id.
     /// </summary>
@@ -142,16 +135,6 @@ public interface ICommunicationService
     /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
     /// <returns>Return single PCD request information by PCD id.</returns>
     Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues);
-
-    /////// <summary>
-    /////// Asynchronously sets material read or unread status..
-    /////// </summary>
-    /////// <param name="materialId">The ID of material to be renamed.</param>
-    /////// <param name="action">Material read or unread status.</param>
-    /////// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /////// <param name="correspondenceId">correspondenceId.</param>
-    /////// <returns>An object that contains the renamed material id.</returns>
-    ////Task<SetMaterialReadStatusResponse> SetMaterialReadStatusAsync(int materialId, SetMaterialReadStatusType action, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
 
     /// <summary>
     /// Asynchronously discard a material name with given material ID.
@@ -164,6 +147,16 @@ public interface ICommunicationService
     /// <param name="correspondenceId">correspondenceId.</param>
     /// <returns>An object that contains the discarded material id.</returns>
     Task<DiscardMaterialResponse> DiscardMaterialAsync(int caseId, int materialId, string discardReason, string discardReasonDescription, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
+
+    /// <summary>
+    /// Asynchronously sets material read or unread status..
+    /// </summary>
+    /// <param name="materialId">The ID of material to be renamed.</param>
+    /// <param name="action">Material read or unread status.</param>
+    /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
+    /// <param name="correspondenceId">correspondenceId.</param>
+    /// <returns>An object that contains the renamed material id.</returns>
+    Task<SetMaterialReadStatusResponse> SetMaterialReadStatusAsync(int materialId, MaterialReadStatusType action, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
 
     /// <summary>
     /// Updates exhibit given an exhibit request.
@@ -236,4 +229,12 @@ public interface ICommunicationService
     /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
     Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionByHistoryId(int caseId, int historyId, CmsAuthValues cmsAuthValues);
+
+    /// <summary>
+    /// Get Pcd review.
+    /// </summary>
+    /// <param name="caseId">The case id.</param>
+    /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+    /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+    Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues);
 }

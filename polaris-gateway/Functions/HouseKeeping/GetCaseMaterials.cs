@@ -26,6 +26,7 @@ using PolarisGateway.Helpers;
 using Common.Dto.Request;
 using Common.Configuration;
 using Common.Constants;
+using Common.Enums;
 
 /// <summary>
 /// Represents a function that retrieves the case materials for a case,
@@ -158,7 +159,7 @@ public class GetCaseMaterials(
             {
                 foreach (CaseMaterial allCaseMaterial in allCaseMaterials)
                 {
-                    allCaseMaterial.ReadStatus = allCaseMaterial.ReadStatus.Equals("Complete", StringComparison.OrdinalIgnoreCase) ? SetMaterialReadStatusType.Read.ToString() : SetMaterialReadStatusType.Unread.ToString();
+                    allCaseMaterial.ReadStatus = allCaseMaterial.ReadStatus.Equals("Complete", StringComparison.OrdinalIgnoreCase) ? MaterialReadStatusType.Read.ToString() : MaterialReadStatusType.Unread.ToString();
                 }
             }
 
