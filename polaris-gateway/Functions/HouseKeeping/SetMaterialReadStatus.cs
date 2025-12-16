@@ -22,6 +22,7 @@ using Common.Dto.Response.HouseKeeping;
 using Common.Constants;
 using System.IO;
 using System;
+using Common.Configuration;
 
 /// <summary>
 /// Represents a function that sets the material read status as read or unread,
@@ -55,7 +56,7 @@ public class SetMaterialReadStatus(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Description = $"{LoggingConstants.HskUiLogPrefix} SetMaterialReadStatus function encountered an error")]
     [Function("SetMaterialReadStatus")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = "material/read-status")] HttpRequest request, int caseId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.ReadStatus)] HttpRequest request, int caseId, int materialId)
     {
         try
         {
@@ -65,6 +66,11 @@ public class SetMaterialReadStatus(
             if (caseId < 1)
             {
                 return new BadRequestObjectResult($"{LoggingConstants.HskUiLogPrefix} Invalid case Id. It should be an integer.");
+            }
+
+            if (materialId < 1)
+            {
+                return new BadRequestObjectResult($"{LoggingConstants.HskUiLogPrefix} Invalid material Id. It should be an integer.");
             }
 
             // Build CMS auth values from cookie extracted from the request
@@ -84,16 +90,11 @@ public class SetMaterialReadStatus(
                 return new BadRequestObjectResult(nameof(SetMaterialReadStatusRequest.state));
             }
 
-            if (setMaterialReadStatusRequest?.materialId == 0)
-            {
-                return new BadRequestObjectResult(nameof(SetMaterialReadStatusRequest.materialId));
-            }
-
-            SetMaterialReadStatusResponse? result = await this.communicationService.SetMaterialReadStatusAsync(setMaterialReadStatusRequest!.materialId, setMaterialReadStatusRequest.state, cmsAuthValues).ConfigureAwait(true);
+            SetMaterialReadStatusResponse? result = await this.communicationService.SetMaterialReadStatusAsync(materialId, setMaterialReadStatusRequest.state, cmsAuthValues).ConfigureAwait(true);
 
             if (result?.CompleteCommunicationData?.Id == null)
             {
-                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] and Material id [{setMaterialReadStatusRequest.materialId}] SetMaterialReadStatus function failed in [{stopwatch.Elapsed}]");
+                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] and Material id [{materialId}] SetMaterialReadStatus function failed in [{stopwatch.Elapsed}]");
                 return new UnprocessableEntityObjectResult(result);
             }
 

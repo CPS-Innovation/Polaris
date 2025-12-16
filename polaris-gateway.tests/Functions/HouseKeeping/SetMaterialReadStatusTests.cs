@@ -73,7 +73,7 @@ public class SetMaterialReadStatusTests
             .ReturnsAsync(expectedResponse);
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, 123);
+        IActionResult result = await this.sut.Run(httpRequest, 123, 456);
 
         // Assert
         OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
@@ -113,7 +113,7 @@ public class SetMaterialReadStatusTests
             .Throws(new JsonException("Unable to parse object"));
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, 123);
+        IActionResult result = await this.sut.Run(httpRequest, 123, 456);
 
         // Assert
         StatusCodeResult unprocessableEntityResult = Assert.IsType<StatusCodeResult>(result);
@@ -158,7 +158,7 @@ public class SetMaterialReadStatusTests
             .ReturnsAsync(expectedResponse);
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, 123);
+        IActionResult result = await this.sut.Run(httpRequest, 123, 456);
 
         // Assert
         BadRequestObjectResult badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -198,7 +198,7 @@ public class SetMaterialReadStatusTests
            .Throws(mockedException);
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, 123);
+        IActionResult result = await this.sut.Run(httpRequest, 123, 456);
 
         // Assert
         UnprocessableEntityObjectResult unprocessableEntityResult = Assert.IsType<UnprocessableEntityObjectResult>(result);
@@ -242,7 +242,7 @@ public class SetMaterialReadStatusTests
             .Throws(mockedException);
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, 123);
+        IActionResult result = await this.sut.Run(httpRequest, 123, 456);
 
         // Assert
         UnprocessableEntityObjectResult unprocessableEntityResult = Assert.IsType<UnprocessableEntityObjectResult>(result);

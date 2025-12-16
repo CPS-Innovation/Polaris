@@ -974,7 +974,7 @@ namespace DdeiClient.Clients
                     State = (ApiClient.MaterialReadStateRequestState) request.state,
                 };
 
-                var data = await client.SetMaterialReadStateAsync(mdsReqest);
+                var data = await client.SetMaterialReadStateAsync(request.materialId, mdsReqest);
                 this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
 
                 SetMaterialReadStatusResponse result = new SetMaterialReadStatusResponse(new SetMaterialReadStatusResponseData { Id = data.CompleteCommunication.Id });
