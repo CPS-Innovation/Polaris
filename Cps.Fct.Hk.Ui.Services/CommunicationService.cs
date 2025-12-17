@@ -15,7 +15,6 @@ using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Response.HouseKeeping.Pcd;
 using Common.Enums;
 using Cps.Fct.Hk.Ui.Interfaces;
-using Cps.Fct.Hk.Ui.Interfaces.Enums;
 using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
