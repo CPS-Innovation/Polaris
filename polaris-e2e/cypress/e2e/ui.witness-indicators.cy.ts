@@ -30,9 +30,7 @@ describe("Witness Indicators", { tags: ["@ci", "@ci-chunk-3"] }, () => {
         const codes = elements
           .map((el) => {
             const testid =
-              el.dataset && typeof el.dataset.testid !== "undefined"
-                ? el.dataset.testid
-                : null;
+              el.dataset?.testid !== undefined ? el.dataset.testid : null;
 
             if (!testid) {
               throw new Error("Missing data-testid on indicator element");
