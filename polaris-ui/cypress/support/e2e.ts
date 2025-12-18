@@ -23,8 +23,6 @@ import "cypress-axe";
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-// Prevent React error boundaries bubbling to Cypress as "uncaught" test failures.
-// See https://github.com/cypress-io/cypress/issues/7196
 Cypress.on("uncaught:exception", () => {
   return false;
 });

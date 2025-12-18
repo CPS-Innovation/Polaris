@@ -24,9 +24,7 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       // Read ENV from Cypress CLI env bag OR OS env and normalize
       const rawEnv =
-        (config.env && config.env.ENVIRONMENT) ||
-        process.env.ENVIRONMENT ||
-        "dev";
+        config?.env?.ENVIRONMENT ?? process.env?.ENVIRONMENT ?? "dev";
 
       const envName = String(rawEnv).trim(); // avoid trailing spaces, e.g. "dev "
 

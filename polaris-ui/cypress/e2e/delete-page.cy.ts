@@ -158,20 +158,6 @@ describe("Feature Delete Page", () => {
     cy.findByTestId("delete-page-modal").should("not.exist");
     cy.findByTestId("btn-delete-1").click();
 
-    // cy.getElementAsync("select-redaction-type")
-    //   .find("option")
-    //   .then((options) => {
-    //     const optionTexts = Array.from(options).map(
-    //       (option) => option.textContent
-    //     );
-    //     expect(optionTexts).to.deep.equal([
-    //       "-- Please select --",
-    //       "MG11 Backsheet",
-    //       "Contains personal data",
-    //       "Blank page",
-    //     ]);
-    //   });
-
     cy.findByTestId("select-redaction-type").select("MG11 Backsheet");
     cy.findByTestId("delete-page-modal-btn-redact").should("not.be.disabled");
     cy.findByTestId(`delete-page-overlay-1`).should("not.exist");

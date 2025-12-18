@@ -2,40 +2,19 @@ import { CASE_SEARCH_ROUTE } from "../../src/mock-api/routes";
 
 describe("search results", () => {
   xit("displays search result and summarises returned count and URN", () => {
-    cy.visit("/case-search-results?urn=45GD9800103");
+    cy.visit("/case-search-results?urn=12AB1111111");
 
-    // cy.findByTestId("link-45GD9800103", { timeout: 40000 });
+    cy.findByTestId("link-12AB1111111", { timeout: 20000 });
     cy.findByTestId("txt-result-count").contains("1");
-    cy.findByTestId("txt-result-urn").contains("45GD9800103");
+    cy.findByTestId("txt-result-urn").contains("12AB1111111");
 
     cy.visit("/case-search-results?urn=12AB2222222");
 
-    cy.findByTestId("link-45GD9800103/1");
-    cy.findByTestId("link-45GD9800103/2");
+    cy.findByTestId("link-12AB2222222/1");
+    cy.findByTestId("link-12AB2222222/2");
     cy.findByTestId("txt-result-count").contains("2");
-    cy.findByTestId("txt-result-urn").contains("45GD9800103");
+    cy.findByTestId("txt-result-urn").contains("12AB2222222");
   });
-
-  // it("displays search result and summarises returned count and URN", () => {
-  //   const urn1 = "45GD9800103";
-
-  //   // Intercept the real backend call discovered in DevTools
-  //   // Exact match for urn1:
-  //   cy.intercept("GET", "http://localhost:7075/api/urns/45GD9800103/cases").as(
-  //     "searchCases1"
-  //   );
-
-  //   // If your app is served under /polaris-ui in the browser, include that prefix here too.
-  //   cy.visit(`/polaris-ui/case-search-results?urn=${urn1}`);
-
-  //   // Wait for the data that populates the results
-  //   cy.wait("@searchCases1");
-
-  //   // Now the link should be present
-  //   cy.findByTestId(`link-${urn1}`, { timeout: 20000 }).should("be.visible");
-  //   cy.findByTestId("txt-result-count").contains("1");
-  //   cy.findByTestId("txt-result-urn").contains(urn1);
-  // });
 
   xit("can navigate to a split URL case using the root URN in the URL and not the split URN", () => {
     cy.visit("/case-search-results?urn=12AB2222222");

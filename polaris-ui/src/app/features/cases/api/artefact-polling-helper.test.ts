@@ -122,7 +122,6 @@ describe.only("artefact-polling-helper", () => {
   });
 
   it("can wait only two times if API_LOCAL_POLLING_RETRY_COUNT === 3", async () => {
-    // Keep original references to avoid recursion and to return a real Timeout
     const realSetTimeout = global.setTimeout.bind(global);
     const realClearTimeout = global.clearTimeout.bind(global);
 
@@ -131,10 +130,8 @@ describe.only("artefact-polling-helper", () => {
       delay?: number,
       ...args: any[]
     ) => {
-      // Execute immediately for test determinism
       if (typeof cb === "function") cb(...args);
 
-      // Return a real NodeJS.Timeout to satisfy types
       const handle = realSetTimeout(() => {}, 0);
       realClearTimeout(handle);
       return handle as unknown as NodeJS.Timeout;
@@ -144,7 +141,7 @@ describe.only("artefact-polling-helper", () => {
     const act = async () =>
       await artefactPollingHelper((_url) => {
         callCount += 1;
-        return continueResponse; // always tell helper to poll again
+        return continueResponse;
       }, fooUrl);
 
     let errorMessage: string | undefined = "";

@@ -32,4 +32,4 @@ describe("PCD and DAC documents", { tags: ["@ci", "@ci-chunk-1"] }, () => {
   });
 });
 
-export {};
+export default {};
