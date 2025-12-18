@@ -4,24 +4,21 @@
 
 namespace Cps.Fct.Hk.Ui.Services;
 
-using System.Collections.Generic;
 using System;
-using System.Threading.Tasks;
-using Cps.Fct.Hk.Ui.Interfaces;
-using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Globalization;
-using Microsoft.AspNetCore.Mvc;
-using Cps.Fct.Hk.Ui.Interfaces.Enums;
-using DdeiClient.Clients.Interfaces;
+using System.Threading.Tasks;
+using Common.Constants;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response.HouseKeeping;
-using Cps.Fct.Hk.Ui.Services.Constants;
 using Common.Dto.Response.HouseKeeping.Pcd;
-using Microsoft.Identity.Client;
-using Microsoft;
-using System.Diagnostics;
-using Common.Constants;
+using Common.Enums;
+using Cps.Fct.Hk.Ui.Interfaces;
+using DdeiClient.Clients.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
 
 /// <summary>
 /// Provides services for processing and retrieving communications related to a case.
@@ -49,7 +46,7 @@ public class CommunicationService(
 
             var request = new ListCommunicationsHkRequest(caseId, Guid.NewGuid());
             IReadOnlyCollection<Communication> communications = await this.apiClient.ListCommunicationsHkAsync(request, cmsAuthValues).ConfigureAwait(false);
-          
+
             // Map the document type to each communication
             var mappedCommunications = communications.Select(c =>
             {
@@ -407,6 +404,7 @@ public class CommunicationService(
         }
     }
 
+    /// <inheritdoc/>
     public async Task<IReadOnlyCollection<PcdRequestCore>> GetPcdRequestCore(int caseId, CmsAuthValues cmsAuthValues)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
@@ -473,6 +471,27 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
+    public async Task<SetMaterialReadStatusResponse> SetMaterialReadStatusAsync(int materialId, MaterialReadStatusType action, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)
+    {
+        try
+        {
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to mark read/unread state of material with material id [{materialId}]");
+
+            var request = new SetMaterialReadStatusRequest(correspondenceId == default ? Guid.NewGuid() : correspondenceId, materialId, action);
+            SetMaterialReadStatusResponse renameMaterialResponse = await this.apiClient.SetMaterialReadStatusAsync(request, cmsAuthValues).ConfigureAwait(false);
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Successfully marked material read/unread state of material with material id [{materialId}]");
+
+            return renameMaterialResponse;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error occurred while renaming material with material id [{materialId}]");
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
     public async Task<UpdateExhibitResponse> UpdateExhibitAsync(int caseId, UpdateExhibitRequest exhibit, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)
     {
         try
@@ -528,6 +547,104 @@ public class CommunicationService(
         catch (Exception ex)
         {
             this.logger.LogError(ex, LoggingConstants.UpdateStatementOperationFailed, LoggingConstants.HskUiLogPrefix, caseId, statement.MaterialId);
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> FirstInitialReviewGetCaseHistoryAsync(int caseId, CmsAuthValues cmsAuthValues)
+    {
+        try
+        {
+            return await this.apiClient.FirstInitialReviewGetCaseHistoryAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+    {
+        try
+        {
+            return await this.apiClient.GetInitialReviewByHistoryIdAsync(caseId, historyId, cmsAuthValues);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    {
+        try
+        {
+            return await this.apiClient.GetHistoryEventsAsync(caseId, cmsAuthValues);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<ApiClient.OffenceChangeResponse> GetOffenceChargeByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+    {
+        try
+        {
+            return await this.apiClient.GetOffenceChargeByHistoryIdAsync(caseId, historyId, cmsAuthValues);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionCaseHistoryEventDetailsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    {
+        try
+        {
+            return await this.apiClient.GetPreChargeDecisionCaseHistoryEventDetailsAsync(caseId, cmsAuthValues);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionByHistoryId(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+    {
+        try
+        {
+            return await this.apiClient.GetPreChargeDecisionByHistoryId(caseId, historyId, cmsAuthValues);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues)
+    {
+        try
+        {
+            return await this.apiClient.GetPcdReview(caseId, cmsAuthValues);
+        }
+        catch (Exception ex)
+        {
             this.logger.LogError(ex, ex.Message);
             throw;
         }

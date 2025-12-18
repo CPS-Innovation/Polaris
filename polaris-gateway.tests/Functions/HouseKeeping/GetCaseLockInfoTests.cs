@@ -12,11 +12,11 @@ using Cps.Fct.Hk.Ui.Interfaces;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
-using Cps.Fct.Hk.Ui.Functions.Functions;
 using Common.Constants;
 using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Request;
 using System;
+using PolarisGateway.Functions.HouseKeeping;
 
 /// <summary>
 /// Unit tests for the <see cref="GetCaseLockInfo"/> class.
