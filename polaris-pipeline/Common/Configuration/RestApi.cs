@@ -50,6 +50,11 @@ public static class RestApi
     public const string CaseHistoryEvent = "urns/{caseUrn}/cases/{caseId:min(1)}/history";
     public const string InitialReviewByHistoryId = "urns/{caseUrn}/cases/{caseId:min(1)}/history/{historyId}/initial-review";
     public const string InitialReviewByCase = "urns/{caseUrn}/cases/{caseId:min(1)}/initial-review";
+    public const string OffenseCharge = "urns/{caseUrn}/cases/{caseId:min(1)}/history/{historyId}/offence-charge";
+    public const string PreChargeDecision = "urns/{caseUrn}/cases/{caseId:min(1)}/pre-charge-decision";
+    public const string PreChargeDecisionByHistoryId = "urns/{caseUrn}/cases/{caseId:min(1)}/history/{historyId}/pre-charge-decision";
+    public const string PcdReview = "urns/{caseUrn}/cases/{caseId:min(1)}/pcd-review";
+    public const string ReadStatus = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/read-status";
 
     // Internal Pipeline
     public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";

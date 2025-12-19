@@ -1,4 +1,4 @@
-﻿// <copyright file="MdsClient.cs" company="TheCrownProsecutionService">
+﻿// <copyright file="MasterDataServiceClient.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
@@ -610,7 +610,7 @@ namespace DdeiClient.Clients
                         defendant.Type,
                         defendant.FirstNames,
                         defendant.Surname,
-                        DateTime.Parse(defendant?.Dob),
+                        DateTime.TryParse(defendant?.Dob, out var dob) ? dob : (DateTime?)null,
                         defendant?.PoliceRemandStatus?.ToString(),
                         defendant?.Youth,
                         defendant?.CustodyTimeLimit?.ToString(),
@@ -952,6 +952,42 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
+        public async Task<SetMaterialReadStatusResponse> SetMaterialReadStatusAsync(SetMaterialReadStatusRequest request, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(request);
+            Requires.NotNull(request.materialId);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "SetMaterialReadStatus";
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var mdsReqest = new ApiClient.MaterialReadStateRequest()
+                {
+                    MaterialId = request.materialId,
+                    State = (ApiClient.MaterialReadStateRequestState) request.state,
+                };
+
+                var data = await client.SetMaterialReadStateAsync(request.materialId, mdsReqest);
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+
+                SetMaterialReadStatusResponse result = new SetMaterialReadStatusResponse(new SetMaterialReadStatusResponseData { Id = data.CompleteCommunication.Id });
+                return result;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
         public async Task<List<PcdRequestCore>> GetPcdRequestCoreAsync(GetPcdRequestsCoreRequest request, CmsAuthValues cmsAuthValues)
         {
             Requires.NotNull(request);
@@ -1239,6 +1275,116 @@ namespace DdeiClient.Clients
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
                 var data = await client.GetCaseHistoryEventsAsync(caseId);
+                return data;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<ApiClient.OffenceChangeResponse> GetOffenceChargeByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(caseId);
+            Requires.NotNull(historyId);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "GetOffenceCharge";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.GetOffenceChangeByIdAsync(caseId, historyId);
+                return data;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionCaseHistoryEventDetailsAsync(int caseId, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(caseId);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "GetOffenceCharge";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.GetPreChargeDecisionOutcomesAsync(caseId);
+                return data;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionByHistoryId(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(caseId);
+            Requires.NotNull(historyId);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "GetPreChargeDecisionByHistoryId";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.GetPreChargeDecisionByIdAsync(caseId, historyId);
+                return data;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues)
+        {
+            Requires.NotNull(caseId);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "GetPcdReview";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.GetPcdReviewAsync(caseId);
                 return data;
             }
             catch (Exception exception)
