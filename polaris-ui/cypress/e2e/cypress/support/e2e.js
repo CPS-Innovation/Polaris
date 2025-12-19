@@ -1,5 +1,5 @@
 // ***********************************************************
-// This example support/e2e.ts is processed and
+// This example support/e2e.js is processed and
 // loaded automatically before your test files.
 //
 // This is a great place to put global configuration and
@@ -14,22 +14,4 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import "cypress-plugin-api";
 import "./commands";
-
-// enable cypress-timestamps support
-require("cypress-timestamps/support")({
-  terminal: true,
-  error: true,
-  commandLog: true,
-});
-
-// enable cypress-terminal-report collector
-require("cypress-terminal-report/src/installLogsCollector")();
-
-// Check dependencies before tests start
-before(() => cy.checkDependencies());
-
-// Enable @cypress/grep support (latest API)
-import { register as registerCypressGrep } from "@cypress/grep";
-registerCypressGrep();

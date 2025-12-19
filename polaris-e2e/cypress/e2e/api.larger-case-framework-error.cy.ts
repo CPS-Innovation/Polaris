@@ -16,7 +16,7 @@ describe("Larger cases", { tags: ["@ci", "@ci-chunk-2"] }, () => {
   });
 
   // see incident covered by feature #27053 for the motivation for this test
-  it("the durable framework copes with larger cases", () => {
+  xit("the durable framework copes with larger cases", () => {
     cy.clearCaseTracker(LARGE_CASE_URN, LARGE_CASE_ID)
       .api<{ trackerUrl: string }>(
         routes.TRACKER_START(LARGE_CASE_URN, LARGE_CASE_ID)

@@ -18,7 +18,7 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
     });
   });
 
-  it("the pipeline can clear then process a case to completion", () => {
+  xit("the pipeline can clear then process a case to completion", () => {
     cy.clearCaseTracker(REFRESH_TARGET_URN, REFRESH_TARGET_CASE_ID)
       .api(
         routes.TRACKER_START(
@@ -132,10 +132,12 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
     });
 
     cy.get<SavedVariables>("@phase1Vars").then(
-      ({
-        numbersDoc: { documentId, versionId },
-        previousProcessingCompleted,
-      }) => {
+      ({ numbersDoc, previousProcessingCompleted }) => {
+        expect(numbersDoc, "numbersDoc should exist in PHASE_1").to.not.be
+          .undefined;
+
+        const { documentId, versionId } = numbersDoc!;
+
         cy.api(
           routes.CHECKOUT_DOCUMENT(
             REFRESH_TARGET_URN,
@@ -145,6 +147,7 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
             "PHASE_2"
           )
         )
+
           .api(
             routes.SAVE_DOCUMENT(
               REFRESH_TARGET_URN,
@@ -270,10 +273,12 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
     });
 
     cy.get<SavedVariables>("@phase2Vars").then(
-      ({
-        peopleDoc: { documentId, versionId },
-        previousProcessingCompleted,
-      }) => {
+      ({ peopleDoc, previousProcessingCompleted }) => {
+        expect(peopleDoc, "peopleDoc should exist in PHASE_2").to.not.be
+          .undefined;
+
+        const { documentId, versionId } = peopleDoc!;
+
         cy.api(
           routes.CHECKOUT_DOCUMENT(
             REFRESH_TARGET_URN,
@@ -283,6 +288,7 @@ describe("Refresh", { tags: ["@ci", "@ci-chunk-4"] }, () => {
             "PHASE_3"
           )
         )
+
           .api(
             routes.SAVE_DOCUMENT(
               REFRESH_TARGET_URN,

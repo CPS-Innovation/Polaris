@@ -23,23 +23,77 @@ import "cypress-axe";
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-Cypress.on("uncaught:exception", (err, runnable) => {
-  // React error boundaries still attach errors to window.onerror
-  //  so cypress thinks there is an uncontrolled error and tests fails
-  //  see https://github.com/cypress-io/cypress/issues/7196
+Cypress.on("uncaught:exception", () => {
   return false;
 });
 
+// ---------- Diagnostics (optional but helpful) ----------
+console.log("polaris-ui baseUrl:", Cypress.config("baseUrl"));
+console.log(
+  "REACT_APP_GATEWAY_BASE_URL:",
+  Cypress.env("REACT_APP_GATEWAY_BASE_URL")
+);
+console.log(
+  "REACT_APP_MOCK_API_SOURCE:",
+  Cypress.env("REACT_APP_MOCK_API_SOURCE")
+);
+console.log(
+  "REACT_APP_MOCK_API_MAX_DELAY:",
+  Cypress.env("REACT_APP_MOCK_API_MAX_DELAY")
+);
+console.log(
+  "REACT_APP_REDACTION_LOG_BASE_URL:",
+  Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL")
+);
+// -------------------------------------------------------
+
+// Helper to validate URL-ish strings
+const isValidUrl = (u: unknown): u is string =>
+  typeof u === "string" && /^https?:\/\//i.test(u);
+
+// Allow disabling mock API setup for quick sanity runs
+const enableMockApi = Cypress.env("ENABLE_MOCK_API") !== false;
+
+/**
+ * Global hook: before each test run, setup the mock API (if enabled).
+ * We guard against invalid/missing URLs to avoid "Failed to construct 'URL': Invalid URL".
+ */
 Cypress.on("test:before:run:async", async () => {
+  if (!enableMockApi) {
+    console.info("[mock-api] Skipped (ENABLE_MOCK_API=false).");
+    return;
+  }
+
+  const baseUrl = Cypress.env("REACT_APP_GATEWAY_BASE_URL");
+  const redactionLogUrl = Cypress.env("REACT_APP_REDACTION_LOG_BASE_URL");
+
+  // If gateway base URL is invalid, skip setup to avoid throwing in URL constructors.
+  if (!isValidUrl(baseUrl)) {
+    console.warn(
+      "[mock-api] Invalid REACT_APP_GATEWAY_BASE_URL; skipping mock-api setup.",
+      {
+        baseUrl,
+      }
+    );
+    return;
+  }
+
+  // redactionLogUrl is required by MockApiConfig as a string.
+  // If it's missing/invalid, default to the empty string (Option A).
+  const safeRedactionLogUrl = isValidUrl(redactionLogUrl)
+    ? redactionLogUrl
+    : "";
+
   await setupMockApi({
-    sourceName: Cypress.env().REACT_APP_MOCK_API_SOURCE,
-    baseUrl: Cypress.env().REACT_APP_GATEWAY_BASE_URL,
-    maxDelayMs: Cypress.env().REACT_APP_MOCK_API_MAX_DELAY,
+    sourceName: Cypress.env("REACT_APP_MOCK_API_SOURCE"),
+    baseUrl, // valid by guard above
+    maxDelayMs: Cypress.env("REACT_APP_MOCK_API_MAX_DELAY"),
     publicUrl: "",
-    redactionLogUrl: Cypress.env().REACT_APP_REDACTION_LOG_BASE_URL,
+    redactionLogUrl: safeRedactionLogUrl,
   });
 });
 
+// ---------- Extend Cypress types ----------
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {

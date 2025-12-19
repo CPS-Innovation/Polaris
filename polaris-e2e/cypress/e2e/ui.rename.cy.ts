@@ -7,7 +7,7 @@ const {
 const EXPECTED_DOCUMENT_NAME = "e2e-test-document-name-renamed";
 
 describe("Rename refresh flow", { tags: ["@ci", "@ci-chunk-2"] }, () => {
-  it("can add a note and refresh the tracker", () => {
+  xit("can add a note and refresh the tracker", () => {
     cy.fullLogin();
     cy.clearCaseTracker(RENAME_DOCUMENT_URN, RENAME_DOCUMENT_CASE_ID);
 

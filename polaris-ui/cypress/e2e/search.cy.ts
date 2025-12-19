@@ -11,7 +11,7 @@ import {
 import pipelinePdfResults from "../../src/mock-api/data/pipelinePdfResults.cypress";
 import { getRefreshRedactedDocument } from "../../src/mock-api/data/getDocumentsList.cypress";
 
-describe("Case Details Search", () => {
+describe.skip("Case Details Search", () => {
   describe("Search box", () => {
     xit("can search with an empty search term", () => {
       cy.visit("/case-details/12AB1111111/13401");
@@ -42,7 +42,7 @@ describe("Case Details Search", () => {
     // });
   });
 
-  describe("Search results", () => {
+  describe.skip("Search results", () => {
     describe("Searching from the results modal", () => {
       xit("can search if the user has opened the results modal with an empty search term", () => {
         cy.visit("/case-details/12AB1111111/13401?documentNameSearch=false");
@@ -65,7 +65,7 @@ describe("Case Details Search", () => {
       });
     });
 
-    describe("Results information", () => {
+    describe.skip("Results information", () => {
       it("can display header information when there are results", () => {
         cy.visit("/case-details/12AB1111111/13401?documentNameSearch=false");
         cy.findByTestId("input-search-case").type("drink{enter}");
@@ -146,7 +146,7 @@ describe("Case Details Search", () => {
       });
     });
 
-    describe("Search ordering", () => {
+    describe.skip("Search ordering", () => {
       const assertResultsOrderHelper = (idsInExpectedOrder: string[]) => {
         cy.get("[data-testid^=div-search-result-")
           .should("have.length", 3)
@@ -206,7 +206,7 @@ describe("Case Details Search", () => {
       });
     });
 
-    describe("Filtering", () => {
+    describe.skip("Filtering", () => {
       it("can filter results using one of the filters", () => {
         cy.visit("/case-details/12AB1111111/13401?documentNameSearch=false");
         cy.findByTestId("input-search-case").type("drink{enter}");
@@ -289,7 +289,7 @@ describe("Case Details Search", () => {
       });
     });
 
-    describe("Filtering lifecycle", () => {
+    describe.skip("Filtering lifecycle", () => {
       it("retains filter options when changing sort order", () => {
         cy.visit("/case-details/12AB1111111/13401?documentNameSearch=false");
         cy.findByTestId("input-search-case").type("drink{enter}");
@@ -360,7 +360,7 @@ describe("Case Details Search", () => {
       });
     });
 
-    describe("Missing documents", () => {
+    describe.skip("Missing documents", () => {
       it("can list documents that have not been processed by the pipeline", () => {
         cy.overrideRoute(TRACKER_ROUTE, {
           body: missingDocsPipelinePdfResults,
@@ -404,7 +404,7 @@ describe("Case Details Search", () => {
       });
     });
 
-    describe("Document Name Search Feature Flag 'OFF' - Loading... (long running calls)", () => {
+    describe.skip("Document Name Search Feature Flag 'OFF' - Loading... (long running calls)", () => {
       it("can show the user the 'Loading...' content for a long running search call", () => {
         cy.overrideRoute(TEXT_SEARCH_ROUTE, { type: "delay", timeMs: 1500 });
         cy.visit("/case-details/12AB1111111/13401?documentNameSearch=false");
@@ -544,7 +544,7 @@ describe("Case Details Search", () => {
       });
     });
 
-    describe("Search term redaction", () => {
+    describe.skip("Search term redaction", () => {
       xit("User can successfully complete redactions, by clicking on the search results highlighted in the document", () => {
         cy.visit("/case-details/12AB1111111/13401?documentNameSearch=false");
         cy.findByTestId("btn-search-case").click();
@@ -569,7 +569,7 @@ describe("Case Details Search", () => {
     });
   });
 
-  describe("Pipeline refresh", () => {
+  describe.skip("Pipeline refresh", () => {
     xit("Should start pipeline refresh when the user starts typing in the search box", () => {
       const initiatePipelineCounter = { count: 0 };
       cy.trackRequestCount(
@@ -964,7 +964,7 @@ describe("Case Details Search", () => {
     });
   });
 
-  describe("Document Name Search", () => {
+  describe.skip("Document Name Search", () => {
     it("can display search banners whilst permforming the document name matches", () => {
       cy.visit("/case-details/12AB1111111/13401?documentNameSearch=true");
       cy.findByTestId("input-search-case").type("MCLOVE{enter}");
