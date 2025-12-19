@@ -94,6 +94,8 @@ public static class ServiceExtensions
         services.AddSingleton<ICaseActionPlanService, CaseActionPlanService>();
         services.AddSingleton<ICaseLockService, CaseLockService>();
         services.AddSingleton<ICaseDefendantsService, CaseDefendantsService>();
+        services.AddSingleton<IUmaReclassifyService, UmaReclassifyService>();
+        services.AddSingleton<IBulkSetUnusedService, BulkSetUnusedService>();
 
         // Add validators
         services.AddSingleton<RenameMaterialRequestValidator>();
