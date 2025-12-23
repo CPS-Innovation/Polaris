@@ -30,6 +30,8 @@ using DdeiClient.Clients;
 using DdeiClient.Configuration;
 using Common.Mappers;
 using Cps.Fct.Hk.Ui.Services.Validators;
+using Cps.Fct.Hk.Ui.ServiceClient.Uma;
+using Cps.Fct.Hk.Ui.ServiceClient.Uma.Configuration;
 
 namespace PolarisGateway.ApplicationStartup;
 
@@ -94,6 +96,9 @@ public static class ServiceExtensions
         services.AddSingleton<ICaseActionPlanService, CaseActionPlanService>();
         services.AddSingleton<ICaseLockService, CaseLockService>();
         services.AddSingleton<ICaseDefendantsService, CaseDefendantsService>();
+        services.AddSingleton<IUmaReclassifyService, UmaReclassifyService>();
+        services.AddSingleton<IBulkSetUnusedService, BulkSetUnusedService>();
+        services.AddSingleton<IUmaServiceClient,  UmaServiceClient>();
 
         // Add validators
         services.AddSingleton<RenameMaterialRequestValidator>();
@@ -103,6 +108,7 @@ public static class ServiceExtensions
 
         // Register MasterDataService client options.
         services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);
+        services.AddServiceOptions<UmaClientOptions>(UmaClientOptions.DefaultSectionName);
         return services;
     }
 

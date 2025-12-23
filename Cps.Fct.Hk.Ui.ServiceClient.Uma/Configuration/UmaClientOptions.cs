@@ -9,6 +9,14 @@ namespace Cps.Fct.Hk.Ui.ServiceClient.Uma.Configuration;
 /// </summary>
 public class UmaClientOptions
 {
+
+    /// <summary>
+    /// The default section name in the appsettings.json file.
+    /// </summary>
+    public const string DefaultSectionName = $"UmaClient";
+
+    /// <summary>
+    /// 
     /// <summary>
     /// Gets or sets the base address of the Classification Service API.
     /// </summary>
