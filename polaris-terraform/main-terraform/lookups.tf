@@ -16,6 +16,12 @@ data "azurerm_key_vault_secret" "kvs_fa_mds_host_keys" {
 }
 # end: MDS FA secret lookup
 
+# UMA FA secret lookup - Retrieval of secret stored in vault for the host keys of the UMA FA which is in a different subscription. Secret is a manual entry.
+data "azurerm_key_vault_secret" "kvs_fa_uma_host_keys" {
+  name         = "UMA-Client-FA-AccessKey"
+  key_vault_id = azurerm_key_vault.kv_polaris.id
+}
+
 # See kvs_fa_mds_host_keys comment above
 data "azurerm_key_vault_secret" "kvs_fa_wm_mds_host_keys" {
   name         = "WM-MDS-FA-AccessKey"
