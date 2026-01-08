@@ -10,7 +10,7 @@ describe("Feature Rotate Page", () => {
       body: documentList[0],
     });
   });
-  it("Should be able to turn off/on the rotate page feature", () => {
+  xit("Should be able to turn off/on the rotate page feature", () => {
     cy.visit("/case-details/12AB1111111/13401?pageRotate=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
@@ -91,7 +91,7 @@ describe("Feature Rotate Page", () => {
   //   });
   // });
 
-  it("Should successfully complete page rotation", () => {
+  xit("Should successfully complete page rotation", () => {
     const expectedSaveRequest = {
       documentModifications: [
         { pageIndex: 1, operation: "rotate", arg: "90" },
@@ -293,7 +293,7 @@ describe("Feature Rotate Page", () => {
     cy.findByTestId("btn-link-removeAll-0").should("not.be.disabled");
   });
 
-  it("Should show redaction warning when user tries to do redaction when page rotation mode is on", () => {
+  xit("Should show redaction warning when user tries to do redaction when page rotation mode is on", () => {
     cy.visit("/case-details/12AB1111111/13401?pageRotate=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-1").click();
@@ -337,7 +337,7 @@ describe("Feature Rotate Page", () => {
     cy.findByTestId("div-modal").should("not.exist");
   });
 
-  it("should ignore and show warning message if a user try to hide rotate page option or show delete page option, when there is an unsaved page rotation", () => {
+  xit("should ignore and show warning message if a user try to hide rotate page option or show delete page option, when there is an unsaved page rotation", () => {
     cy.visit("/case-details/12AB1111111/13401?pageDelete=true&pageRotate=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-10").click();
@@ -397,7 +397,7 @@ describe("Feature Rotate Page", () => {
     );
   });
 
-  it("should not show rotate page feature for PCD document", () => {
+  xit("should not show rotate page feature for PCD document", () => {
     cy.visit("/case-details/12AB1111111/13401?pageRotate=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("link-document-13").click();

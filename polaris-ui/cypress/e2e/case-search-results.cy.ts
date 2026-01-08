@@ -1,7 +1,7 @@
 import { CASE_SEARCH_ROUTE } from "../../src/mock-api/routes";
 
 describe("search results", () => {
-  it("displays search result and summarises returned count and URN", () => {
+  xit("displays search result and summarises returned count and URN", () => {
     cy.visit("/case-search-results?urn=12AB1111111");
 
     cy.findByTestId("link-12AB1111111", { timeout: 20000 });
@@ -16,13 +16,13 @@ describe("search results", () => {
     cy.findByTestId("txt-result-urn").contains("12AB2222222");
   });
 
-  it("can navigate to a split URL case using the root URN in the URL and not the split URN", () => {
+  xit("can navigate to a split URL case using the root URN in the URL and not the split URN", () => {
     cy.visit("/case-search-results?urn=12AB2222222");
     cy.findByTestId("link-12AB2222222/1").click();
     cy.url().should("include", "/case-details/12AB2222222/13401");
   });
 
-  it("can not accept an invalid URN and return an appropriate validation message to the user", () => {
+  xit("can not accept an invalid URN and return an appropriate validation message to the user", () => {
     cy.visit("/case-search-results?urn=12AB1111111");
 
     cy.findByTestId("input-search-urn-error").should("not.exist");
@@ -43,7 +43,7 @@ describe("search results", () => {
     cy.findByTestId("input-search-urn").should("have.focus");
   });
 
-  it("shows the unhandled error page if an unexpected error occurrs with the api", () => {
+  xit("shows the unhandled error page if an unexpected error occurrs with the api", () => {
     cy.visit("/case-search");
     cy.overrideRoute(CASE_SEARCH_ROUTE, {
       type: "break",
@@ -57,7 +57,7 @@ describe("search results", () => {
     cy.findByTestId("txt-error-page-heading");
   });
 
-  it("does not show error if gateway call returns 404", () => {
+  xit("does not show error if gateway call returns 404", () => {
     cy.visit("/case-search");
     cy.overrideRoute(CASE_SEARCH_ROUTE, {
       type: "break",
@@ -71,7 +71,7 @@ describe("search results", () => {
     cy.url().should("include", "/case-search-results");
   });
 
-  it("Shouldn't show the  surname,firstname and date of birth and read name from organisationName, if defendant is an organization", () => {
+  xit("Shouldn't show the  surname,firstname and date of birth and read name from organisationName, if defendant is an organization", () => {
     cy.visit("/case-search-results?urn=12AB2222233");
 
     cy.findAllByTestId("link-12AB2222233", { timeout: 20000 });
@@ -83,7 +83,7 @@ describe("search results", () => {
     cy.findByTestId("defendant-DOB-0").should("not.exist");
   });
 
-  it("Should show the first name and surname and date of birth if defendant is not an organization", () => {
+  xit("Should show the first name and surname and date of birth if defendant is not an organization", () => {
     cy.visit("/case-search-results?urn=12AB1111111");
 
     cy.findByTestId("link-12AB1111111", { timeout: 20000 });

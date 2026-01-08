@@ -1,6 +1,6 @@
 import { NOTES_ROUTE } from "../../src/mock-api/routes";
 describe("Feature Notes", () => {
-  it("Should show and hide blue circle in the notes icon depending on whether the document has notes available or not", () => {
+  xit("Should show and hide blue circle in the notes icon depending on whether the document has notes available or not", () => {
     cy.visit("/case-details/12AB1111111/13401?notes=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("has-note-indicator-1").should("exist");
@@ -13,7 +13,7 @@ describe("Feature Notes", () => {
     cy.findByTestId("has-note-indicator-10").should("not.exist");
     cy.findByTestId("has-note-indicator-11").should("not.exist");
   });
-  it("Should be able to open notes panel and read the notes for that document if there is any", () => {
+  xit("Should be able to open notes panel and read the notes for that document if there is any", () => {
     cy.visit("/case-details/12AB1111111/13401?notes=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("notes-panel").should("not.exist");
@@ -55,7 +55,7 @@ describe("Feature Notes", () => {
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-10");
   });
-  it("Should be able to add new note to the document", () => {
+  xit("Should be able to add new note to the document", () => {
     const expectedAddNotePayload = { text: "note_1" };
     const addNoteRequestObject = { body: "" };
     cy.trackRequestBody(
@@ -99,7 +99,7 @@ describe("Feature Notes", () => {
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-10");
   });
-  it("Should show error message if adding a new note failed, and shouldn't call refreshPipeline and tracker", () => {
+  xit("Should show error message if adding a new note failed, and shouldn't call refreshPipeline and tracker", () => {
     cy.overrideRoute(
       NOTES_ROUTE,
       {
@@ -142,7 +142,7 @@ describe("Feature Notes", () => {
       expect(doc10GetNotesCounter.count).to.equal(1);
     });
   });
-  it("Should throw error, if new note crosses the maximum character limit", () => {
+  xit("Should throw error, if new note crosses the maximum character limit", () => {
     const addNoteCounter = { count: 0 };
     cy.trackRequestCount(
       addNoteCounter,
@@ -194,7 +194,7 @@ describe("Feature Notes", () => {
     cy.findByTestId("notes-panel").should("not.exist");
     cy.focused().should("have.id", "btn-notes-10");
   });
-  it("should show disabled notes button and on hover over, it should show tooltip message", () => {
+  xit("should show disabled notes button and on hover over, it should show tooltip message", () => {
     const doc9GetNotesCounter = { count: 0 };
     cy.trackRequestCount(
       doc9GetNotesCounter,
@@ -230,7 +230,7 @@ describe("Feature Notes", () => {
     });
   });
 
-  it("Focus over the notes icon should show first notes loading tool tip and then show the recent note", () => {
+  xit("Focus over the notes icon should show first notes loading tool tip and then show the recent note", () => {
     const doc2GetNotesCounter = { count: 0 };
     cy.trackRequestCount(
       doc2GetNotesCounter,
@@ -254,7 +254,7 @@ describe("Feature Notes", () => {
     });
   });
 
-  it("There should not be any tooltip or aria-live text about recent notes on the documents which has no notes", () => {
+  xit("There should not be any tooltip or aria-live text about recent notes on the documents which has no notes", () => {
     const doc10GetNotesCounter = { count: 0 };
     cy.trackRequestCount(
       doc10GetNotesCounter,

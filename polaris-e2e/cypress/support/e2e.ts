@@ -14,19 +14,22 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import "cypress-plugin-api"
-import "./commands"
+import "cypress-plugin-api";
+import "./commands";
+
+// enable cypress-timestamps support
 require("cypress-timestamps/support")({
   terminal: true,
   error: true,
   commandLog: true,
-})
-require("cypress-terminal-report/src/installLogsCollector")()
-// Check at the start of the run that all of our dependent functions ar ok
-before(() => cy.checkDependencies())
+});
 
-// "import" with `@ts-ignore`
-// @see error 2306 https://github.com/microsoft/TypeScript/blob/3fcd1b51a1e6b16d007b368229af03455c7d5794/src/compiler/diagnosticMessages.json#L1635
-// @ts-ignore
-import registerCypressGrep from "@cypress/grep"
-registerCypressGrep()
+// enable cypress-terminal-report collector
+require("cypress-terminal-report/src/installLogsCollector")();
+
+// Check dependencies before tests start
+before(() => cy.checkDependencies());
+
+// Enable @cypress/grep support (latest API)
+import { register as registerCypressGrep } from "@cypress/grep";
+registerCypressGrep();

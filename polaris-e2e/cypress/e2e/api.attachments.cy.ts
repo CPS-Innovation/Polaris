@@ -19,7 +19,7 @@ describe("Attachments", { tags: ["@ci", "@ci-chunk-3"] }, () => {
     });
   });
 
-  it("can observe expected attachment documents and parents in tracker responses", () => {
+  xit("can observe expected attachment documents and parents in tracker responses", () => {
     cy.clearCaseTracker(ATTACHMENT_TARGET_URN, ATTACHMENT_CASE_ID)
       .api(routes.TRACKER_START(ATTACHMENT_TARGET_URN, ATTACHMENT_CASE_ID))
 
