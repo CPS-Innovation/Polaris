@@ -119,6 +119,9 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     // No-op by default, can be overridden
   };
   mouseSelectionRef: React.RefObject<MouseSelection>;
+  // track whether a pointer is currently down (used to defer showing tip until pointerup)
+  isPointerDown = false;
+  pendingRange: Range | null = null;
   constructor(props: Props<T_HT>) {
     super(props);
     if (typeof ResizeObserver !== "undefined") {
@@ -170,6 +173,10 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       eventBus.on("pagesinit", this.onDocumentReady);
       doc.addEventListener("selectionchange", this.onSelectionChange);
       doc.addEventListener("keydown", this.handleKeyDown);
+      // track pointer state to avoid opening tip while user is still dragging
+      doc.addEventListener("pointerdown", this.onPointerDown, true);
+      doc.addEventListener("pointerup", this.onPointerUp, true);
+
       doc.defaultView?.addEventListener("resize", this.debouncedScaleValue);
       if (observer) observer.observe(this.containerNode);
       this.containerNode.addEventListener("wheel", this.handleWheel, {
@@ -180,6 +187,9 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         eventBus.off("textlayerrendered", this.onTextLayerRendered);
         doc.removeEventListener("selectionchange", this.onSelectionChange);
         doc.removeEventListener("keydown", this.handleKeyDown);
+        doc.removeEventListener("pointerdown", this.onPointerDown, true);
+        doc.removeEventListener("pointerup", this.onPointerUp, true);
+
         doc.defaultView?.removeEventListener(
           "resize",
           this.debouncedScaleValue
@@ -414,10 +424,36 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   };
 
   setTip(position: Position, inner: JSX.Element | null) {
-    this.setState({
-      tipPosition: position,
-      tipChildren: inner,
-    });
+    this.setState(
+      {
+        tipPosition: position,
+        tipChildren: inner,
+      },
+      () => {
+        try {
+          // delay re-applying selection slightly so other React DOM updates
+          // (HighlightLayer, Tip children mount, focus changes) finish first.
+          const restoreDelay = 50; // ms — increase if selection still disappears
+          const container = this.containerNode;
+          // prefer the committed state.range (most up-to-date), fall back to pendingRange
+          const range = this.state.range || this.pendingRange;
+          if (!container || !range) return;
+          const win = getWindow(container);
+          const sel = win.getSelection();
+          if (!sel) return;
+          setTimeout(() => {
+            try {
+              sel.removeAllRanges();
+              sel.addRange(range);
+            } catch (err) {
+              // ignore errors from stale range
+            }
+          }, restoreDelay);
+        } catch (err) {
+          // no-op
+        }
+      }
+    );
   }
 
   renderTip = () => {
@@ -509,6 +545,33 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     scrollRef(this.scrollTo);
   };
 
+  onPointerDown = (_event: PointerEvent) => {
+    this.isPointerDown = true;
+    (this.debouncedAfterSelection as any).cancel?.();
+    this.pendingRange = null;
+  };
+
+  onPointerUp = (_event: PointerEvent) => {
+    this.isPointerDown = false;
+    const container = this.containerNode;
+    if (!container) return;
+    const selection = getWindow(container).getSelection();
+    if (!selection) return;
+    if (selection.isCollapsed) {
+      this.setState({ isCollapsed: true, range: null });
+      return;
+    }
+    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+    if (!range || !container.contains(range.commonAncestorContainer)) {
+      return;
+    }
+    // commit range and immediately process selection on pointerup
+    this.setState({ isCollapsed: false, range }, () => {
+      (this.debouncedAfterSelection as any).cancel?.();
+      this.afterSelection();
+    });
+  };
+
   onSelectionChange = () => {
     const container = this.containerNode;
     if (!container) {
@@ -535,12 +598,13 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       return;
     }
 
-    this.setState({
-      isCollapsed: false,
-      range,
+    // set the range but defer running afterSelection while pointer is down
+    this.setState({ isCollapsed: false, range }, () => {
+      this.pendingRange = range;
+      if (!this.isPointerDown) {
+        this.debouncedAfterSelection();
+      }
     });
-
-    this.debouncedAfterSelection();
   };
 
   onScroll = () => {
@@ -637,21 +701,44 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     }
     const scaledPosition = this.viewportPositionToScaled(viewportPosition);
 
-    this.setTip(
-      viewportPosition,
-      onSelectionFinished(
-        scaledPosition,
-        content,
-        () => this.hideTipAndSelection(),
-        () =>
-          this.setState(
-            {
-              ghostHighlight: { position: scaledPosition },
-            },
-            () => this.renderHighlightLayers()
-          )
-      )
-    );
+    // try to preserve the native browser selection (yellow) so the user sees
+    // the same highlight appearance as while they were dragging.
+    try {
+      const container = this.containerNode;
+      if (container) {
+        const win = getWindow(container);
+        const sel = win.getSelection();
+        // re-apply the same range so the browser will draw the native selection
+        if (sel && range) {
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }
+    } catch (err) {
+      // ignore: if re-applying the range fails, we'll fall back to rendering ghostHighlight
+    }
+
+    requestAnimationFrame(() => {
+      this.setTip(
+        viewportPosition,
+        onSelectionFinished(
+          scaledPosition,
+          content,
+          () => this.hideTipAndSelection(),
+
+          () => {
+            this.setState(
+              {
+                ghostHighlight: null,
+              },
+              () => {
+                this.renderHighlightLayers();
+              }
+            );
+          }
+        )
+      );
+    });
   };
 
   debouncedAfterSelection: () => void = debounce(this.afterSelection, 500);
