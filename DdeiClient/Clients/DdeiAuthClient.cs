@@ -1,9 +1,8 @@
-using Common.Dto.Response.Document;
+using Common.Dto.Response;
 using Common.Extensions;
 using Common.Wrappers;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
-using Ddei.Domain.Response.Document;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 
@@ -13,6 +12,7 @@ public class DdeiAuthClient : BaseCmsClient, IDdeiAuthClient
 {
     private readonly HttpClient _httpClient;
     private readonly IDdeiAuthClientRequestFactory _ddeiAuthClientRequestFactory;
+
     public DdeiAuthClient(
         HttpClient httpClient,
         IDdeiAuthClientRequestFactory ddeiAuthClientRequestFactory, 
@@ -24,26 +24,16 @@ public class DdeiAuthClient : BaseCmsClient, IDdeiAuthClient
 
     public async Task VerifyCmsAuthAsync(DdeiBaseArgDto arg) => await CallDdeiAsync(_ddeiAuthClientRequestFactory.CreateVerifyCmsAuthRequest(arg), arg.CmsAuthValues);
 
-    public async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg)
+    public virtual async Task<FileResult> GetDocumentAsync(DdeiDocumentIdAndVersionIdArgDto arg)
     {
-        var response = await CallDdeiAsync<DdeiDocumentReclassifiedResponse>(_ddeiAuthClientRequestFactory.CreateReclassifyDocumentRequest(arg), arg.CmsAuthValues);
+        var response = await CallDdeiAsync(_ddeiAuthClientRequestFactory.CreateGetDocumentRequest(arg), arg.CmsAuthValues);
+        var fileName = response.Content.Headers.GetValues("Content-Disposition").ToList()[0];
 
-        return new DocumentReclassifiedResultDto
+        return new FileResult
         {
-            DocumentId = response.Id,
-            DocumentTypeId = response.DocumentTypeId,
-            ReclassificationType = response.ReclassificationType,
-            OriginalDocumentTypeId = response.OriginalDocumentTypeId,
-            DocumentRenamed = response.DocumentRenamed,
-            DocumentRenamedOperationName = response.DocumentRenamedOperationName
+            Stream = await response.Content.ReadAsStreamAsync(),
+            FileName = fileName
         };
-    }
-
-    public async Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg)
-    {
-        var response = await CallDdeiAsync<DdeiDocumentRenamedResponse>(_ddeiAuthClientRequestFactory.CreateRenameDocumentRequest(arg), arg.CmsAuthValues);
-
-        return new DocumentRenamedResultDto { Id = response.Id, OperationName = response.OperationName };
     }
 
     protected override HttpClient GetHttpClient(string cmsAuthValues) => _httpClient;
