@@ -36,3 +36,4 @@ _ReSharper*/
 /Cps.Fct.Hk.Ui.Services/obj
 /Cps.Fct.Hk.Ui.Services.Tests/obj
 /DdeiClient/obj
+/polaris-gateway.integration-tests/local.settings.json
