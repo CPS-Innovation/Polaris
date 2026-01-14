@@ -446,11 +446,11 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
               sel.removeAllRanges();
               sel.addRange(range);
             } catch (err) {
-              // ignore errors from stale range
+              console.error("Error restoring selection for tip:", err);
             }
           }, restoreDelay);
         } catch (err) {
-          // no-op
+          console.error("Error restoring selection for tip:", err);
         }
       }
     );
@@ -715,7 +715,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         }
       }
     } catch (err) {
-      // ignore: if re-applying the range fails, we'll fall back to rendering ghostHighlight
+      console.error("Error restoring selection for tip:", err);
     }
 
     requestAnimationFrame(() => {
