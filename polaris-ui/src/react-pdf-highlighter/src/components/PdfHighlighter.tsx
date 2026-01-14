@@ -122,6 +122,11 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   // track whether a pointer is currently down (used to defer showing tip until pointerup)
   isPointerDown = false;
   pendingRange: Range | null = null;
+
+  suppressSelection = false;
+  suppressSelectionTimeoutId: number | null = null;
+  static SUPPRESS_SELECTION_MS = 300;
+
   constructor(props: Props<T_HT>) {
     super(props);
     if (typeof ResizeObserver !== "undefined") {
@@ -418,6 +423,18 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       tipChildren: null,
     });
 
+    this.suppressSelection = true;
+    if (this.suppressSelectionTimeoutId) {
+      window.clearTimeout(this.suppressSelectionTimeoutId);
+    }
+    this.suppressSelectionTimeoutId = window.setTimeout(() => {
+      this.suppressSelection = false;
+      this.suppressSelectionTimeoutId = null;
+    }, PdfHighlighter.SUPPRESS_SELECTION_MS);
+
+    // cancel any pending debounced work so it won't run after hide
+    (this.debouncedAfterSelection as any).cancel?.();
+
     this.setState({ ghostHighlight: null, tip: null, isCollapsed: true }, () =>
       this.renderHighlightLayers()
     );
@@ -549,10 +566,19 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     this.isPointerDown = true;
     (this.debouncedAfterSelection as any).cancel?.();
     this.pendingRange = null;
+
+    if (this.state.ghostHighlight) {
+      this.setState({ ghostHighlight: null }, () => {
+        this.renderHighlightLayers();
+      });
+    }
   };
 
   onPointerUp = (_event: PointerEvent) => {
     this.isPointerDown = false;
+    if (this.suppressSelection) {
+      return;
+    }
     const container = this.containerNode;
     if (!container) return;
     const selection = getWindow(container).getSelection();
@@ -573,6 +599,9 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   };
 
   onSelectionChange = () => {
+    if (this.suppressSelection) {
+      return;
+    }
     const container = this.containerNode;
     if (!container) {
       return;
@@ -753,6 +782,36 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     );
   }
 
+  // clear any active text selection state when area selection begins
+  startAreaSelection() {
+    // cancel pending debounced selection work
+    (this.debouncedAfterSelection as any).cancel?.();
+    // clear pending/stored ranges so we don't reapply old selection
+    this.pendingRange = null;
+    // clear native selection in the PDF container (removes yellow highlight)
+    const container = this.containerNode;
+    if (container) {
+      const sel = getWindow(container).getSelection();
+      try {
+        sel?.removeAllRanges();
+      } catch {
+        // ignore stale-range errors; nothing else to do
+      }
+    }
+    // clear ghost highlight and tip state immediately
+    this.setState(
+      {
+        ghostHighlight: null,
+        tip: null,
+        tipPosition: null,
+        tipChildren: null,
+        isCollapsed: true,
+        range: null,
+      },
+      () => this.renderHighlightLayers()
+    );
+  }
+
   handleScaleValue = () => {
     if (this.viewer) {
       this.viewer.currentScaleValue = this.props.pdfScaleValue; //"page-width";
@@ -781,7 +840,10 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
           {typeof enableAreaSelection === "function" ? (
             <MouseSelection
               ref={this.mouseSelectionRef}
-              onDragStart={() => this.toggleTextSelection(true)}
+              onDragStart={() => {
+                this.toggleTextSelection(true);
+                this.startAreaSelection();
+              }}
               onDragEnd={() => this.toggleTextSelection(false)}
               onChange={(isVisible) =>
                 this.setState({ isAreaSelectionInProgress: isVisible })
