@@ -124,8 +124,9 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   pendingRange: Range | null = null;
 
   suppressSelection = false;
-  suppressSelectionTimeoutId: number | null = null;
-  static SUPPRESS_SELECTION_MS = 300;
+  suppressSelectionTimeoutId: ReturnType<typeof globalThis.setTimeout> | null =
+    null;
+  public static readonly SUPPRESS_SELECTION_MS: number = 300;
 
   constructor(props: Props<T_HT>) {
     super(props);
@@ -425,9 +426,9 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
     this.suppressSelection = true;
     if (this.suppressSelectionTimeoutId) {
-      window.clearTimeout(this.suppressSelectionTimeoutId);
+      globalThis.clearTimeout(this.suppressSelectionTimeoutId);
     }
-    this.suppressSelectionTimeoutId = window.setTimeout(() => {
+    this.suppressSelectionTimeoutId = globalThis.setTimeout(() => {
       this.suppressSelection = false;
       this.suppressSelectionTimeoutId = null;
     }, PdfHighlighter.SUPPRESS_SELECTION_MS);
