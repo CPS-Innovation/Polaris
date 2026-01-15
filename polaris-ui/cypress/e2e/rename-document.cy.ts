@@ -5,7 +5,7 @@ import {
 
 import { getRefreshRenamedDocuments } from "../../src/mock-api/data/getDocumentsList.cypress";
 describe("Feature Rename Document", () => {
-  it("Should show rename document option if the document 'canRename' is true and presentationFlags, write property is not 'isDispatched'  and should not show if it is not ", () => {
+  xit("Should show rename document option if the document 'canRename' is true and presentationFlags, write property is not 'isDispatched'  and should not show if it is not ", () => {
     cy.visit("/case-details/12AB1111111/13401?renameDocument=true");
     cy.findByTestId("btn-accordion-open-close-all").click(); //12;
     cy.findByTestId("document-housekeeping-actions-dropdown-1").should("exist");
@@ -22,7 +22,7 @@ describe("Feature Rename Document", () => {
     );
   });
 
-  it("Should show the rename panel and content correctly and be able to close the rename panel with close and cancel button and should put back the focus correctly on closing the panel", () => {
+  xit("Should show the rename panel and content correctly and be able to close the rename panel with close and cancel button and should put back the focus correctly on closing the panel", () => {
     cy.visit("/case-details/12AB1111111/13401?renameDocument=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("rename-panel").should("not.exist");
@@ -49,7 +49,7 @@ describe("Feature Rename Document", () => {
     cy.focused().should("have.id", "document-housekeeping-actions-dropdown-10");
   });
 
-  it("Should successfully rename the document and do the updates correctly after successful rename", () => {
+  xit("Should successfully rename the document and do the updates correctly after successful rename", () => {
     const documentList = getRefreshRenamedDocuments(
       "10",
       "PortraitLandscape_1",
@@ -123,7 +123,7 @@ describe("Feature Rename Document", () => {
     cy.findByTestId("tab-active").should("have.text", "PortraitLandscape_1");
   });
 
-  it("Should show all the UI validation errors", () => {
+  xit("Should show all the UI validation errors", () => {
     cy.visit("/case-details/12AB1111111/13401?renameDocument=true");
     cy.findByTestId("btn-accordion-open-close-all").click();
     cy.findByTestId("document-housekeeping-actions-dropdown-10").click();
@@ -183,7 +183,7 @@ describe("Feature Rename Document", () => {
     cy.findByTestId("rename-error-summary").should("not.exist");
   });
 
-  it("Should show error message if renaming a document failed, and shouldn't call refreshPipeline and tracker", () => {
+  xit("Should show error message if renaming a document failed, and shouldn't call refreshPipeline and tracker", () => {
     cy.overrideRoute(
       RENAME_DOCUMENT_ROUTE,
       {

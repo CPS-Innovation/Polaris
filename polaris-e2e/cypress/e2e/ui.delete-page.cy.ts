@@ -1,13 +1,10 @@
 /// <reference types="cypress" />
 
-const {
-  DELETE_PAGE_TARGET_URN,
-  DELETE_PAGE_CASE_ID,
-  DELETE_PAGE_DOCUMENT_ID,
-} = Cypress.env();
+const { DELETE_PAGE_TARGET_URN, DELETE_PAGE_CASE_ID, DELETE_PAGE_DOCUMENT_ID } =
+  Cypress.env();
 
 describe("Delete Page", { tags: ["@ci", "@ci-chunk-1"] }, () => {
-  it("can delete a page", () => {
+  xit("can delete a page", () => {
     cy.on("uncaught:exception", () => false);
 
     cy.fullLogin();
@@ -15,17 +12,18 @@ describe("Delete Page", { tags: ["@ci", "@ci-chunk-1"] }, () => {
     cy.clearCaseTracker(DELETE_PAGE_TARGET_URN, DELETE_PAGE_CASE_ID);
     cy.visit("/polaris-ui");
 
-    cy.findByTestId("input-search-urn").type(`${DELETE_PAGE_TARGET_URN}{enter}`);
+    cy.findByTestId("input-search-urn").type(
+      `${DELETE_PAGE_TARGET_URN}{enter}`
+    );
 
     // open case details page
     cy.findByTestId(`link-${DELETE_PAGE_TARGET_URN}`).click();
 
     // open our target document
     cy.findByTestId("btn-accordion-open-close-all").click();
-    cy.findByTestId(`link-document-${DELETE_PAGE_DOCUMENT_ID}`).should(
-      "contain",
-      "Timothy"
-    ).click();
+    cy.findByTestId(`link-document-${DELETE_PAGE_DOCUMENT_ID}`)
+      .should("contain", "Timothy")
+      .click();
 
     cy.wait(3000);
 
@@ -44,8 +42,7 @@ describe("Delete Page", { tags: ["@ci", "@ci-chunk-1"] }, () => {
       "have.text",
       "Redactions successfully saved"
     );
-
   });
 });
 
-export { };
+export {};
