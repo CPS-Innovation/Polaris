@@ -128,14 +128,4 @@ function polarisAuthRedirect(r) {
   _redirectToAbsoluteUrl(r, `/init?${querystring}`)
 }
 
-function taskListAuthRedirect(r) {
-  const args = _argsShim(r.args)
-  const taskListHostAddress = r.variables["taskListHostAddress"] ?? ""
-  const cookie = encodeURIComponent(args["cc"] ?? r.headersIn.Cookie ?? "")
-  _redirectToAbsoluteUrl(
-    r,
-    `${taskListHostAddress}/WorkManagementApp/Redirect?Cookie=${cookie}`
-  )
-}
-
-export default { polarisAuthRedirect, taskListAuthRedirect, appAuthRedirect }
+export default { polarisAuthRedirect, appAuthRedirect }
