@@ -33,6 +33,7 @@ import type {
 import { HighlightLayer } from "./HighlightLayer";
 import MouseSelection from "./MouseSelection";
 import TipContainer from "./TipContainer";
+import { DebouncedFunc } from "lodash";
 
 export type T_ViewportHighlight<T_HT> = { position: Position } & T_HT;
 
@@ -124,8 +125,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   pendingRange: Range | null = null;
 
   suppressSelection = false;
-  suppressSelectionTimeoutId: ReturnType<typeof globalThis.setTimeout> | null =
-    null;
+  suppressSelectionTimeoutId: NodeJS.Timeout | null = null;
   public static readonly SUPPRESS_SELECTION_MS: number = 300;
 
   constructor(props: Props<T_HT>) {
@@ -434,7 +434,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     }, PdfHighlighter.SUPPRESS_SELECTION_MS);
 
     // cancel any pending debounced work so it won't run after hide
-    (this.debouncedAfterSelection as any).cancel?.();
+    this.debouncedAfterSelection.cancel();
 
     this.setState({ ghostHighlight: null, tip: null, isCollapsed: true }, () =>
       this.renderHighlightLayers()
@@ -565,7 +565,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
   onPointerDown = (_event: PointerEvent) => {
     this.isPointerDown = true;
-    (this.debouncedAfterSelection as any).cancel?.();
+    this.debouncedAfterSelection.cancel();
     this.pendingRange = null;
 
     if (this.state.ghostHighlight) {
@@ -594,7 +594,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     }
     // commit range and immediately process selection on pointerup
     this.setState({ isCollapsed: false, range }, () => {
-      (this.debouncedAfterSelection as any).cancel?.();
+      this.debouncedAfterSelection.cancel();
       this.afterSelection();
     });
   };
@@ -771,7 +771,10 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     });
   };
 
-  debouncedAfterSelection: () => void = debounce(this.afterSelection, 500);
+  debouncedAfterSelection: DebouncedFunc<() => void> = debounce(
+    this.afterSelection,
+    500
+  );
 
   toggleTextSelection(flag: boolean) {
     if (!this.viewer.viewer) {
@@ -786,7 +789,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   // clear any active text selection state when area selection begins
   startAreaSelection() {
     // cancel pending debounced selection work
-    (this.debouncedAfterSelection as any).cancel?.();
+    this.debouncedAfterSelection.cancel();
     // clear pending/stored ranges so we don't reapply old selection
     this.pendingRange = null;
     // clear native selection in the PDF container (removes yellow highlight)
