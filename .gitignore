@@ -45,4 +45,9 @@ _ReSharper*/
 /DdeiClient/obj
 /Cps.Fct.Hk.Ui.Services.Tests/bin
 /Cps.Fct.Hk.Ui.Services.Tests/obj
+/Cps.Fct.Hk.Ui.Services.Tests/debug
 /polaris-gateway/Aspose.Total.NET.lic
+/E2ETests/bin
+/E2ETests/obj
+/E2ETests/debug
+/HkUiE2ETests/obj/Debug/net8.0
