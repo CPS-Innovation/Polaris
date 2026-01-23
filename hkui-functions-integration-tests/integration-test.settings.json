@@ -1,0 +1,16 @@
+{
+  "QueueStorageConnectionString": "${QueueStorageConnectionString}",
+  "CaseIdQueueName": "${CaseIdQueueName}",
+  "TestDelayInMilliseconds": 3000,
+  "TestCaseId": 2159815,
+    "MasterDataServiceClient": {
+        "FunctionKey": "${MasterDataServiceClient_functionKey}",
+        "BaseAddress": "${MasterDataServiceClient_BaseAddress}",
+        "CredentialName": "${MasterDataServiceClient_CredentialName}",
+        "CredentialPassword": "${MasterDataServiceClient_CredentialPassword}"
+    },
+  "UMAClient": {
+    "BaseAddress": "${UMAClient_BaseAddress}",
+    "FunctionKey": "dummyKey"
+  }
+}
