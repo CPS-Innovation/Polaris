@@ -25,9 +25,9 @@ public class AuthenticationContext
         string token,
         DateTimeOffset expiryTime)
     {
-        Cookies = cookies;
-        Token = token;
-        ExpiryTime = expiryTime;
+        this.Cookies = cookies;
+        this.Token = token;
+        this.ExpiryTime = expiryTime;
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public class AuthenticationContext
     /// <inheritdoc/>
     public override string ToString()
     {
-        json ??= JsonSerializer.Serialize(this);
-        return json;
+        this.json ??= JsonSerializer.Serialize(this);
+        return this.json;
     }
 }

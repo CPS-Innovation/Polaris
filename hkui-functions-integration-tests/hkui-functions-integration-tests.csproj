@@ -30,6 +30,7 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\Cps.Fct.Hk.Ui.Interfaces\Cps.Fct.Hk.Ui.Interfaces.csproj" />
+	  <ProjectReference Include="..\Cps.Fct.Hk.Ui.ServiceClient.Uma\Cps.Fct.Hk.Ui.ServiceClient.Uma.csproj" />
 	  <ProjectReference Include="..\Cps.Fct.Hk.Ui.Services\Cps.Fct.Hk.Ui.Services.csproj" />
 	  <ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
 	  <ProjectReference Include="..\polaris-gateway\polaris-gateway.csproj" />

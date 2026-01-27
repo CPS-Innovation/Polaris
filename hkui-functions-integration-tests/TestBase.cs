@@ -103,7 +103,7 @@ public class TestBase
             .ConfigureServices((context, services) =>
             {
                 // Register MasterDataService client options.
-                //services.AddServiceOptions<MasterDataServiceClientOptions>("DDEIClient");
+                services.AddServiceOptions<MasterDataServiceClientOptions>("DDEIClient");
                 services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);
                 services.AddServiceOptions<UmaClientOptions>(UmaClientOptions.DefaultSectionName);
 
@@ -122,7 +122,7 @@ public class TestBase
                 services.AddSingleton<ICommunicationMapper, CommunicationMapper>();
                 services.AddSingleton<ICommunicationService, CommunicationService>();
                 services.AddSingleton<ICaseMaterialService, CaseMaterialService>();
-                //services.AddDdeiApiClient<ClientEndpointOptions>("DDEIClient");
+               // services.AddDdeiApiClient<ClientEndpointOptions>("DDEIClient");
                 services.AddSingleton<IReclassificationService, ReclassificationService>();
                 services.AddSingleton<IWitnessService, WitnessService>();
                 services.AddSingleton<ICaseDefendantsService, CaseDefendantsService>();
