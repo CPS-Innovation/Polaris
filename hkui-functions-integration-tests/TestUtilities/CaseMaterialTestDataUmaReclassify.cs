@@ -2,7 +2,7 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace HkUiE2ETests.TestUtilities;
+namespace HkuiFunctionsIntegrationTests.TestUtilities;
 
 using Common.Dto.Response.HouseKeeping;
 
