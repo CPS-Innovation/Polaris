@@ -170,6 +170,10 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       eventBus.on("pagesinit", this.onDocumentReady);
       doc.addEventListener("selectionchange", this.onSelectionChange);
       doc.addEventListener("keydown", this.handleKeyDown);
+      
+      // track pointer state to avoid opening tip while user is still dragging
+      doc.addEventListener("pointerup", this.onPointerUp, true);
+
       doc.defaultView?.addEventListener("resize", this.debouncedScaleValue);
       if (observer) observer.observe(this.containerNode);
       this.containerNode.addEventListener("wheel", this.handleWheel, {
@@ -179,6 +183,9 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         eventBus.off("pagesinit", this.onDocumentReady);
         eventBus.off("textlayerrendered", this.onTextLayerRendered);
         doc.removeEventListener("selectionchange", this.onSelectionChange);
+        
+        doc.removeEventListener("pointerup", this.onPointerUp, true);
+
         doc.removeEventListener("keydown", this.handleKeyDown);
         doc.defaultView?.removeEventListener(
           "resize",
@@ -509,74 +516,10 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     scrollRef(this.scrollTo);
   };
 
-  onSelectionChange = () => {
-    const container = this.containerNode;
-    if (!container) {
-      return;
-    }
 
-    const selection = getWindow(container).getSelection();
-    if (!selection) {
-      return;
-    }
+  onPointerUp = (_event: PointerEvent) => {
 
-    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-
-    if (selection.isCollapsed) {
-      this.setState({ isCollapsed: true });
-      return;
-    }
-
-    if (
-      !range ||
-      !container ||
-      !container.contains(range.commonAncestorContainer)
-    ) {
-      return;
-    }
-
-    this.setState({
-      isCollapsed: false,
-      range,
-    });
-
-    this.debouncedAfterSelection();
-  };
-
-  onScroll = () => {
-    const { onScrollChange } = this.props;
-
-    onScrollChange();
-
-    this.setState(
-      {
-        scrolledToHighlightId: EMPTY_ID,
-      },
-      () => this.renderHighlightLayers()
-    );
-
-    this.viewer.container.removeEventListener("scroll", this.onScroll);
-  };
-
-  onMouseDown: PointerEventHandler = (event) => {
-    if (!(event.target instanceof Element) || !isHTMLElement(event.target)) {
-      return;
-    }
-
-    if (event.target.closest(".PdfHighlighter__tip-container")) {
-      return;
-    }
-
-    this.hideTipAndSelection();
-  };
-
-  handleKeyDown = (event: KeyboardEvent) => {
-    if (event.code === "Escape") {
-      this.hideTipAndSelection();
-    }
-  };
-
-  afterSelection = () => {
+    
     const { onSelectionFinished } = this.props;
 
     const { isCollapsed, range } = this.state;
@@ -652,6 +595,78 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
           )
       )
     );
+
+  }
+
+  onSelectionChange = () => {
+    const container = this.containerNode;
+    if (!container) {
+      return;
+    }
+
+    const selection = getWindow(container).getSelection();
+    if (!selection) {
+      return;
+    }
+
+    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+
+    if (selection.isCollapsed) {
+      this.setState({ isCollapsed: true });
+      return;
+    }
+
+    if (
+      !range ||
+      !container ||
+      !container.contains(range.commonAncestorContainer)
+    ) {
+      return;
+    }
+
+    this.setState({
+      isCollapsed: false,
+      range,
+    });
+
+    this.debouncedAfterSelection();
+  };
+
+  onScroll = () => {
+    const { onScrollChange } = this.props;
+
+    onScrollChange();
+
+    this.setState(
+      {
+        scrolledToHighlightId: EMPTY_ID,
+      },
+      () => this.renderHighlightLayers()
+    );
+
+    this.viewer.container.removeEventListener("scroll", this.onScroll);
+  };
+
+  onMouseDown: PointerEventHandler = (event) => {
+    if (!(event.target instanceof Element) || !isHTMLElement(event.target)) {
+      return;
+    }
+
+    if (event.target.closest(".PdfHighlighter__tip-container")) {
+      return;
+    }
+
+    this.hideTipAndSelection();
+  };
+
+  handleKeyDown = (event: KeyboardEvent) => {
+    if (event.code === "Escape") {
+      this.hideTipAndSelection();
+    }
+  };
+
+  afterSelection = () => {
+    console.log();
   };
 
   debouncedAfterSelection: () => void = debounce(this.afterSelection, 500);
