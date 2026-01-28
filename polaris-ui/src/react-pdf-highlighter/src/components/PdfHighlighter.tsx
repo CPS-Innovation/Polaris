@@ -33,6 +33,7 @@ import type {
 import { HighlightLayer } from "./HighlightLayer";
 import MouseSelection from "./MouseSelection";
 import TipContainer from "./TipContainer";
+import { DebouncedFunc } from "lodash";
 
 export type T_ViewportHighlight<T_HT> = { position: Position } & T_HT;
 
@@ -119,6 +120,14 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     // No-op by default, can be overridden
   };
   mouseSelectionRef: React.RefObject<MouseSelection>;
+  // track whether a pointer is currently down (used to defer showing tip until pointerup)
+  isPointerDown = false;
+  pendingRange: Range | null = null;
+
+  suppressSelection = false;
+  suppressSelectionTimeoutId: NodeJS.Timeout | null = null;
+  public static readonly SUPPRESS_SELECTION_MS: number = 300;
+
   constructor(props: Props<T_HT>) {
     super(props);
     if (typeof ResizeObserver !== "undefined") {
@@ -170,6 +179,10 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       eventBus.on("pagesinit", this.onDocumentReady);
       doc.addEventListener("selectionchange", this.onSelectionChange);
       doc.addEventListener("keydown", this.handleKeyDown);
+      // track pointer state to avoid opening tip while user is still dragging
+      doc.addEventListener("pointerdown", this.onPointerDown, true);
+      doc.addEventListener("pointerup", this.onPointerUp, true);
+
       doc.defaultView?.addEventListener("resize", this.debouncedScaleValue);
       if (observer) observer.observe(this.containerNode);
       this.containerNode.addEventListener("wheel", this.handleWheel, {
@@ -180,6 +193,9 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         eventBus.off("textlayerrendered", this.onTextLayerRendered);
         doc.removeEventListener("selectionchange", this.onSelectionChange);
         doc.removeEventListener("keydown", this.handleKeyDown);
+        doc.removeEventListener("pointerdown", this.onPointerDown, true);
+        doc.removeEventListener("pointerup", this.onPointerUp, true);
+
         doc.defaultView?.removeEventListener(
           "resize",
           this.debouncedScaleValue
@@ -408,16 +424,54 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       tipChildren: null,
     });
 
+    this.suppressSelection = true;
+    if (this.suppressSelectionTimeoutId) {
+      globalThis.clearTimeout(this.suppressSelectionTimeoutId);
+    }
+    this.suppressSelectionTimeoutId = globalThis.setTimeout(() => {
+      this.suppressSelection = false;
+      this.suppressSelectionTimeoutId = null;
+    }, PdfHighlighter.SUPPRESS_SELECTION_MS);
+
+    // cancel any pending debounced work so it won't run after hide
+    this.debouncedAfterSelection.cancel();
+
     this.setState({ ghostHighlight: null, tip: null, isCollapsed: true }, () =>
       this.renderHighlightLayers()
     );
   };
 
   setTip(position: Position, inner: JSX.Element | null) {
-    this.setState({
-      tipPosition: position,
-      tipChildren: inner,
-    });
+    this.setState(
+      {
+        tipPosition: position,
+        tipChildren: inner,
+      },
+      () => {
+        try {
+          // delay re-applying selection slightly so other React DOM updates
+          // (HighlightLayer, Tip children mount, focus changes) finish first.
+          const restoreDelay = 50; // ms — increase if selection still disappears
+          const container = this.containerNode;
+          // prefer the committed state.range (most up-to-date), fall back to pendingRange
+          const range = this.state.range || this.pendingRange;
+          if (!container || !range) return;
+          const win = getWindow(container);
+          const sel = win.getSelection();
+          if (!sel) return;
+          setTimeout(() => {
+            try {
+              sel.removeAllRanges();
+              sel.addRange(range);
+            } catch (err) {
+              console.error("Error restoring selection for tip:", err);
+            }
+          }, restoreDelay);
+        } catch (err) {
+          console.error("Error restoring selection for tip:", err);
+        }
+      }
+    );
   }
 
   renderTip = () => {
@@ -509,7 +563,46 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     scrollRef(this.scrollTo);
   };
 
+  onPointerDown = (_event: PointerEvent) => {
+    this.isPointerDown = true;
+    this.debouncedAfterSelection.cancel();
+    this.pendingRange = null;
+
+    if (this.state.ghostHighlight) {
+      this.setState({ ghostHighlight: null }, () => {
+        this.renderHighlightLayers();
+      });
+    }
+  };
+
+  onPointerUp = (_event: PointerEvent) => {
+    this.isPointerDown = false;
+    if (this.suppressSelection) {
+      return;
+    }
+    const container = this.containerNode;
+    if (!container) return;
+    const selection = getWindow(container).getSelection();
+    if (!selection) return;
+    if (selection.isCollapsed) {
+      this.setState({ isCollapsed: true, range: null });
+      return;
+    }
+    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+    if (!range || !container.contains(range.commonAncestorContainer)) {
+      return;
+    }
+    // commit range and immediately process selection on pointerup
+    this.setState({ isCollapsed: false, range }, () => {
+      this.debouncedAfterSelection.cancel();
+      this.afterSelection();
+    });
+  };
+
   onSelectionChange = () => {
+    if (this.suppressSelection) {
+      return;
+    }
     const container = this.containerNode;
     if (!container) {
       return;
@@ -535,12 +628,13 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       return;
     }
 
-    this.setState({
-      isCollapsed: false,
-      range,
+    // set the range but defer running afterSelection while pointer is down
+    this.setState({ isCollapsed: false, range }, () => {
+      this.pendingRange = range;
+      if (!this.isPointerDown) {
+        this.debouncedAfterSelection();
+      }
     });
-
-    this.debouncedAfterSelection();
   };
 
   onScroll = () => {
@@ -637,24 +731,50 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     }
     const scaledPosition = this.viewportPositionToScaled(viewportPosition);
 
-    this.setTip(
-      viewportPosition,
-      onSelectionFinished(
-        scaledPosition,
-        content,
-        () => this.hideTipAndSelection(),
-        () =>
-          this.setState(
-            {
-              ghostHighlight: { position: scaledPosition },
-            },
-            () => this.renderHighlightLayers()
-          )
-      )
-    );
+    // try to preserve the native browser selection (yellow) so the user sees
+    // the same highlight appearance as while they were dragging.
+    try {
+      const container = this.containerNode;
+      if (container) {
+        const win = getWindow(container);
+        const sel = win.getSelection();
+        // re-apply the same range so the browser will draw the native selection
+        if (sel && range) {
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }
+    } catch (err) {
+      console.error("Error restoring selection for tip:", err);
+    }
+
+    requestAnimationFrame(() => {
+      this.setTip(
+        viewportPosition,
+        onSelectionFinished(
+          scaledPosition,
+          content,
+          () => this.hideTipAndSelection(),
+
+          () => {
+            this.setState(
+              {
+                ghostHighlight: null,
+              },
+              () => {
+                this.renderHighlightLayers();
+              }
+            );
+          }
+        )
+      );
+    });
   };
 
-  debouncedAfterSelection: () => void = debounce(this.afterSelection, 500);
+  debouncedAfterSelection: DebouncedFunc<() => void> = debounce(
+    this.afterSelection,
+    500
+  );
 
   toggleTextSelection(flag: boolean) {
     if (!this.viewer.viewer) {
@@ -663,6 +783,36 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     this.viewer.viewer.classList.toggle(
       "PdfHighlighter--disable-selection",
       flag
+    );
+  }
+
+  // clear any active text selection state when area selection begins
+  startAreaSelection() {
+    // cancel pending debounced selection work
+    this.debouncedAfterSelection.cancel();
+    // clear pending/stored ranges so we don't reapply old selection
+    this.pendingRange = null;
+    // clear native selection in the PDF container (removes yellow highlight)
+    const container = this.containerNode;
+    if (container) {
+      const sel = getWindow(container).getSelection();
+      try {
+        sel?.removeAllRanges();
+      } catch {
+        // ignore stale-range errors; nothing else to do
+      }
+    }
+    // clear ghost highlight and tip state immediately
+    this.setState(
+      {
+        ghostHighlight: null,
+        tip: null,
+        tipPosition: null,
+        tipChildren: null,
+        isCollapsed: true,
+        range: null,
+      },
+      () => this.renderHighlightLayers()
     );
   }
 
@@ -694,7 +844,10 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
           {typeof enableAreaSelection === "function" ? (
             <MouseSelection
               ref={this.mouseSelectionRef}
-              onDragStart={() => this.toggleTextSelection(true)}
+              onDragStart={() => {
+                this.toggleTextSelection(true);
+                this.startAreaSelection();
+              }}
               onDragEnd={() => this.toggleTextSelection(false)}
               onChange={(isVisible) =>
                 this.setState({ isAreaSelectionInProgress: isVisible })
