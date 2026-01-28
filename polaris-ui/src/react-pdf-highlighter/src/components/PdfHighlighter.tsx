@@ -565,6 +565,28 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     this.viewer.container.removeEventListener("scroll", this.onScroll);
   };
 
+    onMouseDown: PointerEventHandler = (event) => {
+    if (!(event.target instanceof Element) || !isHTMLElement(event.target)) {
+      return;
+    }
+
+    if (event.target.closest(".PdfHighlighter__tip-container")) {
+      return;
+    }
+
+    this.hideTipAndSelection();
+  };
+
+  handleKeyDown = (event: KeyboardEvent) => {
+    if (event.code === "Escape") {
+      this.hideTipAndSelection();
+    }
+  };
+
+  afterSelection = () => {
+    console.log();
+  };
+
   onPointerUp = (_event: PointerEvent) => {
 
     
@@ -650,27 +672,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
   
 
-  onMouseDown: PointerEventHandler = (event) => {
-    if (!(event.target instanceof Element) || !isHTMLElement(event.target)) {
-      return;
-    }
-
-    if (event.target.closest(".PdfHighlighter__tip-container")) {
-      return;
-    }
-
-    this.hideTipAndSelection();
-  };
-
-  handleKeyDown = (event: KeyboardEvent) => {
-    if (event.code === "Escape") {
-      this.hideTipAndSelection();
-    }
-  };
-
-  afterSelection = () => {
-    console.log();
-  };
 
   debouncedAfterSelection: () => void = debounce(this.afterSelection, 500);
 
