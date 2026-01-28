@@ -564,7 +564,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     this.viewer.container.removeEventListener("scroll", this.onScroll);
   };
 
-    onMouseDown: PointerEventHandler = (event) => {
+  onMouseDown: PointerEventHandler = (event) => {
     if (!(event.target instanceof Element) || !isHTMLElement(event.target)) {
       return;
     }
