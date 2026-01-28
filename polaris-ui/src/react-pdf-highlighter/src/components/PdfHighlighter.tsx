@@ -170,9 +170,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       eventBus.on("pagesinit", this.onDocumentReady);
       doc.addEventListener("selectionchange", this.onSelectionChange);
       doc.addEventListener("keydown", this.handleKeyDown);
-
-      // track pointer state to avoid opening tip while user is still dragging
-      doc.addEventListener("pointerup", this.onPointerUp, true);
+      doc.addEventListener("pointerup", this.fireTextRedact, true);
 
       doc.defaultView?.addEventListener("resize", this.debouncedScaleValue);
       if (observer) observer.observe(this.containerNode);
@@ -183,8 +181,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         eventBus.off("pagesinit", this.onDocumentReady);
         eventBus.off("textlayerrendered", this.onTextLayerRendered);
         doc.removeEventListener("selectionchange", this.onSelectionChange);
-
-        doc.removeEventListener("pointerup", this.onPointerUp, true);
+        doc.removeEventListener("pointerup", this.fireTextRedact, true);
 
         doc.removeEventListener("keydown", this.handleKeyDown);
         doc.defaultView?.removeEventListener(
@@ -581,7 +578,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     }
   };
 
-  onPointerUp = (_event: PointerEvent) => {
+  fireTextRedact = (_event: PointerEvent) => {
     const { onSelectionFinished } = this.props;
 
     const { isCollapsed, range } = this.state;
