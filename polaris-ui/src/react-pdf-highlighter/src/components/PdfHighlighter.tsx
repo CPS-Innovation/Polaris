@@ -516,6 +516,40 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     scrollRef(this.scrollTo);
   };
 
+  onSelectionChange = () => {
+    const container = this.containerNode;
+    if (!container) {
+      return;
+    }
+
+    const selection = getWindow(container).getSelection();
+    if (!selection) {
+      return;
+    }
+
+    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+
+    if (selection.isCollapsed) {
+      this.setState({ isCollapsed: true });
+      return;
+    }
+
+    if (
+      !range ||
+      !container ||
+      !container.contains(range.commonAncestorContainer)
+    ) {
+      return;
+    }
+
+    this.setState({
+      isCollapsed: false,
+      range,
+    });
+
+    this.debouncedAfterSelection();
+  };
+
 
   onPointerUp = (_event: PointerEvent) => {
 
@@ -598,39 +632,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
   }
 
-  onSelectionChange = () => {
-    const container = this.containerNode;
-    if (!container) {
-      return;
-    }
-
-    const selection = getWindow(container).getSelection();
-    if (!selection) {
-      return;
-    }
-
-    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-
-    if (selection.isCollapsed) {
-      this.setState({ isCollapsed: true });
-      return;
-    }
-
-    if (
-      !range ||
-      !container ||
-      !container.contains(range.commonAncestorContainer)
-    ) {
-      return;
-    }
-
-    this.setState({
-      isCollapsed: false,
-      range,
-    });
-
-    this.debouncedAfterSelection();
-  };
+  
 
   onScroll = () => {
     const { onScrollChange } = this.props;
