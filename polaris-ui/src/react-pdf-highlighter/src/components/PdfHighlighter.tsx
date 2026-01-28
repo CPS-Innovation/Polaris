@@ -547,7 +547,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       range,
     });
 
-    this.debouncedAfterSelection();
   };
 
   onScroll = () => {
@@ -583,9 +582,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     }
   };
 
-  afterSelection = () => {
-    console.log();
-  };
 
   onPointerUp = (_event: PointerEvent) => {
 
@@ -673,7 +669,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   
 
 
-  debouncedAfterSelection: () => void = debounce(this.afterSelection, 500);
 
   toggleTextSelection(flag: boolean) {
     if (!this.viewer.viewer) {
