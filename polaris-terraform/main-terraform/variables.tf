@@ -378,7 +378,7 @@ variable "coordinator" {
 variable "cps_global_components" {
   type = object({
     script_url      = string
-    storage_domain  = string
+    blob_storage_domain  = string
   })
 }
 
