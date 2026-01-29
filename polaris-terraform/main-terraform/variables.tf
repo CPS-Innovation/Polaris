@@ -375,8 +375,11 @@ variable "coordinator" {
   })
 }
 
-variable "cps_global_components_url" {
-  type = string
+variable "cps_global_components" {
+  type = object({
+    script_url      = string
+    storage_domain  = string
+  })
 }
 
 variable "sp_polaris_web_enabled" {
