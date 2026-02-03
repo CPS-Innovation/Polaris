@@ -23,7 +23,7 @@ namespace PolarisGateway.Tests.Services.Artefact;
 
 public class PdfRetrievalServiceTests
 {
-    private readonly Mock<IDdeiArgFactory> _ddeiArgFactoryMock;
+    private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IConvertModelToHtmlService> _convertModelToHtmlServiceMock;
     private readonly Mock<IPdfGeneratorClient> _pdfGeneratorClientMock;
     private readonly Mock<IMdsClient> _mdsClientMock;
@@ -31,11 +31,11 @@ public class PdfRetrievalServiceTests
 
     public PdfRetrievalServiceTests()
     {
-        _ddeiArgFactoryMock = new Mock<IDdeiArgFactory>();
+        _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _convertModelToHtmlServiceMock = new Mock<IConvertModelToHtmlService>();
         _pdfGeneratorClientMock = new Mock<IPdfGeneratorClient>();
         _mdsClientMock = new Mock<IMdsClient>();
-        _pdfRetrievalService = new PdfRetrievalService(_ddeiArgFactoryMock.Object, _convertModelToHtmlServiceMock.Object, _pdfGeneratorClientMock.Object, _mdsClientMock.Object);
+        _pdfRetrievalService = new PdfRetrievalService(_mdsArgFactoryMock.Object, _convertModelToHtmlServiceMock.Object, _pdfGeneratorClientMock.Object, _mdsClientMock.Object);
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class PdfRetrievalServiceTests
         var caseId = 1;
         var documentId = "PCD-123456";
         long versionId = 1;
-        var ddeiPcdArgDto = new DdeiPcdArgDto();
+        var ddeiPcdArgDto = new MdsPcdArgDto();
         var pcdRequest = new PcdRequestDto();
         var stream = new MemoryStream();
         var pdfResult = new ConvertToPdfResponse()
@@ -56,7 +56,7 @@ public class PdfRetrievalServiceTests
             PdfStream = new MemoryStream(),
             Status = PdfConversionStatus.DocumentConverted
         };
-        _ddeiArgFactoryMock.Setup(s => s.CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, documentId)).Returns(ddeiPcdArgDto);
+        _mdsArgFactoryMock.Setup(s => s.CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, documentId)).Returns(ddeiPcdArgDto);
         _mdsClientMock.Setup(s => s.GetPcdRequestAsync(ddeiPcdArgDto)).ReturnsAsync(pcdRequest);
         _convertModelToHtmlServiceMock.Setup(s => s.ConvertAsync(pcdRequest)).ReturnsAsync(stream);
         _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(correlationId, urn, caseId, documentId, versionId, stream, FileTypeHelper.PseudoDocumentFileType)).ReturnsAsync(pdfResult);
@@ -90,7 +90,7 @@ public class PdfRetrievalServiceTests
         var caseId = 1;
         var documentId = "PCD-123456";
         long versionId = 1;
-        var ddeiPcdArgDto = new DdeiPcdArgDto();
+        var ddeiPcdArgDto = new MdsPcdArgDto();
         var pcdRequest = new PcdRequestDto();
         var stream = new MemoryStream();
         var pdfResult = new ConvertToPdfResponse()
@@ -98,7 +98,7 @@ public class PdfRetrievalServiceTests
             PdfStream = new MemoryStream(),
             Status = status
         };
-        _ddeiArgFactoryMock.Setup(s => s.CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, documentId)).Returns(ddeiPcdArgDto);
+        _mdsArgFactoryMock.Setup(s => s.CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, documentId)).Returns(ddeiPcdArgDto);
         _mdsClientMock.Setup(s => s.GetPcdRequestAsync(ddeiPcdArgDto)).ReturnsAsync(pcdRequest);
         _convertModelToHtmlServiceMock.Setup(s => s.ConvertAsync(pcdRequest)).ReturnsAsync(stream);
         _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(correlationId, urn, caseId, documentId, versionId, stream, FileTypeHelper.PseudoDocumentFileType)).ReturnsAsync(pdfResult);
@@ -121,7 +121,7 @@ public class PdfRetrievalServiceTests
         var caseId = 1;
         var documentId = "DAC-123456";
         long versionId = 1;
-        var ddeiCaseIdentifiersArgDto = new DdeiCaseIdentifiersArgDto();
+        var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
         var defendantsAndCharges = new DefendantsAndChargesListDto();
         var stream = new MemoryStream();
         var pdfResult = new ConvertToPdfResponse()
@@ -129,8 +129,8 @@ public class PdfRetrievalServiceTests
             PdfStream = new MemoryStream(),
             Status = PdfConversionStatus.DocumentConverted
         };
-        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId)).Returns(ddeiCaseIdentifiersArgDto);
-        _mdsClientMock.Setup(s => s.GetDefendantAndChargesAsync(ddeiCaseIdentifiersArgDto)).ReturnsAsync(defendantsAndCharges);
+        _mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId)).Returns(mdsCaseIdentifiersArgDto);
+        _mdsClientMock.Setup(s => s.GetDefendantAndChargesAsync(mdsCaseIdentifiersArgDto)).ReturnsAsync(defendantsAndCharges);
         _convertModelToHtmlServiceMock.Setup(s => s.ConvertAsync(defendantsAndCharges)).ReturnsAsync(stream);
         _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(correlationId, urn, caseId, documentId, versionId, stream, FileTypeHelper.PseudoDocumentFileType)).ReturnsAsync(pdfResult);
 
@@ -163,7 +163,7 @@ public class PdfRetrievalServiceTests
         var caseId = 1;
         var documentId = "DAC-123456";
         long versionId = 1;
-        var ddeiCaseIdentifiersArgDto = new DdeiCaseIdentifiersArgDto();
+        var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
         var defendantsAndCharges = new DefendantsAndChargesListDto();
         var stream = new MemoryStream();
         var pdfResult = new ConvertToPdfResponse()
@@ -171,8 +171,8 @@ public class PdfRetrievalServiceTests
             PdfStream = new MemoryStream(),
             Status = status
         };
-        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId)).Returns(ddeiCaseIdentifiersArgDto);
-        _mdsClientMock.Setup(s => s.GetDefendantAndChargesAsync(ddeiCaseIdentifiersArgDto)).ReturnsAsync(defendantsAndCharges);
+        _mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId)).Returns(mdsCaseIdentifiersArgDto);
+        _mdsClientMock.Setup(s => s.GetDefendantAndChargesAsync(mdsCaseIdentifiersArgDto)).ReturnsAsync(defendantsAndCharges);
         _convertModelToHtmlServiceMock.Setup(s => s.ConvertAsync(defendantsAndCharges)).ReturnsAsync(stream);
         _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(correlationId, urn, caseId, documentId, versionId, stream, FileTypeHelper.PseudoDocumentFileType)).ReturnsAsync(pdfResult);
 
@@ -225,7 +225,7 @@ public class PdfRetrievalServiceTests
         var caseId = 1;
         var documentId = "CMS-123456";
         long versionId = 1;
-        var ddeiDocumentIdAndVersionIdArgDto = new DdeiDocumentIdAndVersionIdArgDto();
+        var ddeiDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
         var fileResult = new FileResult()
         {
             FileName = $"name.{fileType}",
@@ -236,7 +236,7 @@ public class PdfRetrievalServiceTests
             PdfStream = new MemoryStream(),
             Status = PdfConversionStatus.DocumentConverted
         };
-        _ddeiArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId,documentId, versionId)).Returns(ddeiDocumentIdAndVersionIdArgDto);
+        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId,documentId, versionId)).Returns(ddeiDocumentIdAndVersionIdArgDto);
         _mdsClientMock.Setup(s => s.GetDocumentAsync(ddeiDocumentIdAndVersionIdArgDto)).ReturnsAsync(fileResult);
         _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(correlationId, urn, caseId, documentId, versionId, fileResult.Stream, fileType)).ReturnsAsync(pdfResult);
 
@@ -257,16 +257,16 @@ public class PdfRetrievalServiceTests
         var caseId = 1;
         var documentId = "CMS-123456";
         long versionId = 1;
-        var ddeiDocumentIdAndVersionIdArgDto = new DdeiDocumentIdAndVersionIdArgDto();
+        var ddeiDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
         var fileResult = new FileResult()
         {
             FileName = "name.nonFileType",
             Stream = new MemoryStream()
         };
-        
-        _ddeiArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId,documentId, versionId)).Returns(ddeiDocumentIdAndVersionIdArgDto);
+
+        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId,documentId, versionId)).Returns(ddeiDocumentIdAndVersionIdArgDto);
         _mdsClientMock.Setup(s => s.GetDocumentAsync(ddeiDocumentIdAndVersionIdArgDto)).ReturnsAsync(fileResult);
-        
+
 
         //act
         var result = await _pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId);

@@ -66,21 +66,21 @@ public class RenameDocument : BaseFunction
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
-            var ddeiCaseIdentifiersArgDto = new DdeiCaseIdentifiersArgDto
+            var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
                 Urn = caseUrn,
                 CaseId = caseId,
             };
-            var documents = await _mdsClient.ListDocumentsAsync(ddeiCaseIdentifiersArgDto);
+            var documents = await _mdsClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto);
             var documentIdNumber = DocumentNature.ToNumericDocumentId(documentId, DocumentNature.Types.Document);
 
             var document = documents.SingleOrDefault(x => x.DocumentId == documentIdNumber);
 
             if (document == null) return new NotFoundObjectResult("Document not found");
 
-            var ddeiRenameDocumentArgDto = new DdeiRenameDocumentArgDto
+            var mdsRenameDocumentArgDto = new MdsRenameDocumentArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -91,11 +91,11 @@ public class RenameDocument : BaseFunction
             };
             if (string.Equals(document.Classification, ExhibitClassification, StringComparison.InvariantCultureIgnoreCase))
             {
-                await _mdsClient.RenameExhibitAsync(ddeiRenameDocumentArgDto);
+                await _mdsClient.RenameExhibitAsync(mdsRenameDocumentArgDto);
             }
             else if (!string.Equals(document.Classification, StatementClassification, StringComparison.InvariantCultureIgnoreCase))
             {
-                await _mdsClient.RenameDocumentAsync(ddeiRenameDocumentArgDto);
+                await _mdsClient.RenameDocumentAsync(mdsRenameDocumentArgDto);
             }
 
             telemetryEvent.IsSuccess = true;

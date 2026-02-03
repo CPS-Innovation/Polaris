@@ -7,7 +7,7 @@ namespace DdeiClient.Factories;
 public abstract class BaseDdeiClientRequestFactory
 {
     protected const string CorrelationId = "Correlation-Id";
-    protected virtual void AddAuthHeaders(HttpRequestMessage request, DdeiBaseArgDto arg)
+    protected virtual void AddAuthHeaders(HttpRequestMessage request, MdsBaseArgDto arg) // VERIFY if MdsBaseArgDto is correct here
     {
         request.Headers.Add(HttpHeaderKeys.CmsAuthValues, arg.CmsAuthValues);
         request.Headers.Add(CorrelationId, arg.CorrelationId.ToString());

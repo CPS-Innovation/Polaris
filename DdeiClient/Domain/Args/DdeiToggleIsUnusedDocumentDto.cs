@@ -2,7 +2,7 @@
 
 namespace DdeiClient.Domain.Args;
 
-public  class DdeiToggleIsUnusedDocumentDto : DdeiDocumentArgDto
+public  class DdeiToggleIsUnusedDocumentDto : MdsDocumentArgDto
 {
     public string IsUnused { get; set; }
 }

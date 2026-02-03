@@ -31,16 +31,16 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
     private readonly IBulkRedactionSearchResponseBuilder _bulkRedactionSearchResponseBuilder;
     private readonly IOcrDocumentSearch _ocrDocumentSearch;
     private readonly IMdsClient _mdsClient;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
 
-    public BulkRedactionSearchService(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOrchestrationProvider orchestrationProvider, IBulkRedactionSearchResponseBuilder bulkRedactionSearchResponseBuilder, IOcrDocumentSearch ocrDocumentSearch, IConfiguration configuration, IMdsClient mdsClient, IDdeiArgFactory ddeiArgFactory)
+    public BulkRedactionSearchService(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOrchestrationProvider orchestrationProvider, IBulkRedactionSearchResponseBuilder bulkRedactionSearchResponseBuilder, IOcrDocumentSearch ocrDocumentSearch, IConfiguration configuration, IMdsClient mdsClient, IMdsArgFactory mdsArgFactory)
     {
         _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
         _orchestrationProvider = orchestrationProvider.ExceptionIfNull();
         _bulkRedactionSearchResponseBuilder = bulkRedactionSearchResponseBuilder.ExceptionIfNull();
         _ocrDocumentSearch = ocrDocumentSearch.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
     }
 
     public async Task<BulkRedactionSearchResponse> BulkRedactionSearchAsync(BulkRedactionSearchDto bulkRedactionSearchDto, DurableTaskClient orchestrationClient, CancellationToken cancellationToken)
@@ -54,7 +54,7 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
                 .Build(bulkRedactionSearchDto);
         }
 
-        var caseIdentifiersArg = _ddeiArgFactory.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId);
+        var caseIdentifiersArg = _mdsArgFactory.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId);
         var listDocumentResponse = await _mdsClient.ListDocumentsAsync(caseIdentifiersArg);
 
         var cmsDocumentDto = listDocumentResponse.FirstOrDefault(x => bulkRedactionSearchDto.DocumentId.Contains(x.DocumentId.ToString()) && x.VersionId == bulkRedactionSearchDto.VersionId);

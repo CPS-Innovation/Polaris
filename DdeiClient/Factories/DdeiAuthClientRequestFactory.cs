@@ -10,14 +10,14 @@ namespace DdeiClient.Factories;
 
 public class DdeiAuthClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiAuthClientRequestFactory
 {
-    public HttpRequestMessage CreateVerifyCmsAuthRequest(DdeiBaseArgDto arg)
+    public HttpRequestMessage CreateVerifyCmsAuthRequest(MdsBaseArgDto arg) // VERIFY if MdsBaseArgDto is correct here
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/verify-cms-auth");
         AddAuthHeaders(request, arg);
         return request;
     }
 
-    public HttpRequestMessage CreateReclassifyDocumentRequest(DdeiReclassifyDocumentArgDto arg)
+    public HttpRequestMessage CreateReclassifyDocumentRequest(MdsReclassifyDocumentArgDto arg)
     {
         var content = JsonSerializer.Serialize(new ReclassifyDocumentDto
         {
@@ -33,7 +33,7 @@ public class DdeiAuthClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiA
         return request;
     }
 
-    public HttpRequestMessage CreateRenameDocumentRequest(DdeiRenameDocumentArgDto arg)
+    public HttpRequestMessage CreateRenameDocumentRequest(MdsRenameDocumentArgDto arg)
     {
         var content = JsonSerializer.Serialize(new RenameDocumentDto
         {

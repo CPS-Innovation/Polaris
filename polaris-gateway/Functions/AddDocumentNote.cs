@@ -19,18 +19,18 @@ namespace PolarisGateway.Functions;
 public class AddDocumentNote : BaseFunction
 {
     private readonly ILogger<AddDocumentNote> _logger;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
     private readonly ITelemetryClient _telemetryClient;
     private readonly IMdsClient _mdsClient;
 
     public AddDocumentNote(
         ILogger<AddDocumentNote> logger,
-        IDdeiArgFactory ddeiArgFactory,
+        IMdsArgFactory mdsArgFactory,
         ITelemetryClient telemetryClient, 
         IMdsClient mdsClient)
     {
         _logger = logger.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _telemetryClient = telemetryClient.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
     }
@@ -64,7 +64,7 @@ public class AddDocumentNote : BaseFunction
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
-            var arg = _ddeiArgFactory.CreateAddDocumentNoteArgDto(cmsAuthValues, correlationId, caseUrn, caseId, documentId, body.Value.Text);
+            var arg = _mdsArgFactory.CreateAddDocumentNoteArgDto(cmsAuthValues, correlationId, caseUrn, caseId, documentId, body.Value.Text);
             await _mdsClient.AddDocumentNoteAsync(arg);
 
             telemetryEvent.IsSuccess = true;

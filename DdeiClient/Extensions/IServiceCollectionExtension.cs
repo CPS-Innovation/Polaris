@@ -43,7 +43,7 @@ public static class IServiceCollectionExtension
 
     private static void AddDdeiServices(this IServiceCollection services)
     {
-        services.AddTransient<IDdeiArgFactory, DdeiArgFactory>();
+        services.AddTransient<IMdsArgFactory, MdsArgFactory>();
         services.AddTransient<IDdeiAuthClientRequestFactory, DdeiAuthClientRequestFactory>();
         services.AddTransient<IMdsClientRequestFactory, MdsClientRequestFactory>();
         services.AddTransient<ICaseDocumentMapper<DdeiDocumentResponse>, CaseDocumentMapper>();

@@ -15,16 +15,16 @@ namespace PolarisGateway.Tests.Functions;
 public class CancelCheckoutDocumentTests
 {
     private readonly Mock<ILogger<CancelCheckoutDocument>> _loggerMock;
-    private readonly Mock<IDdeiArgFactory> _ddeiArgFactoryMock;
+    private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IMdsClient> _mdsClientMock;
     private readonly CancelCheckoutDocument _cancelCheckoutDocument;
 
     public CancelCheckoutDocumentTests()
     {
         _loggerMock = new Mock<ILogger<CancelCheckoutDocument>>();
-        _ddeiArgFactoryMock = new Mock<IDdeiArgFactory>();
+        _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _mdsClientMock = new Mock<IMdsClient>();
-        _cancelCheckoutDocument = new CancelCheckoutDocument(_loggerMock.Object, _ddeiArgFactoryMock.Object, _mdsClientMock.Object);
+        _cancelCheckoutDocument = new CancelCheckoutDocument(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsClientMock.Object);
     }
 
     [Fact]
@@ -36,10 +36,10 @@ public class CancelCheckoutDocumentTests
         var caseId = 1;
         var documentId = "documentId";
         long versionId = 2;
-        var ddeiDocumentIdAndVersionIdArgDto = new DdeiDocumentIdAndVersionIdArgDto();
-        _ddeiArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, versionId)).Returns(ddeiDocumentIdAndVersionIdArgDto);
-        
-        
+        var ddeiDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
+        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, versionId)).Returns(ddeiDocumentIdAndVersionIdArgDto);
+
+
         //act
         var result = await _cancelCheckoutDocument.Run(req, caseUrn, caseId, documentId, versionId);
 

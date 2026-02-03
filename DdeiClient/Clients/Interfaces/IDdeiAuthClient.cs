@@ -6,7 +6,7 @@ namespace DdeiClient.Clients.Interfaces;
 
 public interface IDdeiAuthClient
 {
-    Task VerifyCmsAuthAsync(DdeiBaseArgDto arg);
-    Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg);
-    Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg);
+    Task VerifyCmsAuthAsync(MdsBaseArgDto arg);
+    //Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg);
+    //Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg);
 }

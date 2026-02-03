@@ -5,7 +5,7 @@ namespace Ddei.Factories;
 
 public interface IDdeiAuthClientRequestFactory
 {
-    HttpRequestMessage CreateVerifyCmsAuthRequest(DdeiBaseArgDto arg);
-    HttpRequestMessage CreateReclassifyDocumentRequest(DdeiReclassifyDocumentArgDto arg);
-    HttpRequestMessage CreateRenameDocumentRequest(DdeiRenameDocumentArgDto arg);
+    HttpRequestMessage CreateVerifyCmsAuthRequest(MdsBaseArgDto arg); // VERIFY if MdsBaseArgDto is correct here
+    HttpRequestMessage CreateReclassifyDocumentRequest(MdsReclassifyDocumentArgDto arg);
+    HttpRequestMessage CreateRenameDocumentRequest(MdsRenameDocumentArgDto arg);
 }

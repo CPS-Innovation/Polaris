@@ -13,16 +13,16 @@ namespace PolarisGateway.Functions;
 public class CancelCheckoutDocument : BaseFunction
 {
     private readonly ILogger<CancelCheckoutDocument> _logger;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
     private readonly IMdsClient _mdsClient;
 
     public CancelCheckoutDocument(
         ILogger<CancelCheckoutDocument> logger,
-        IDdeiArgFactory ddeiArgFactory,
+        IMdsArgFactory mdsArgFactory,
         IMdsClient mdsClient)
     {
         _logger = logger.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
     }
 
@@ -34,7 +34,7 @@ public class CancelCheckoutDocument : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var ddeiDocumentIdAndVersionIdArgDto = _ddeiArgFactory.CreateDocumentVersionArgDto(
+        var ddeiDocumentIdAndVersionIdArgDto = _mdsArgFactory.CreateDocumentVersionArgDto(
                 cmsAuthValues: cmsAuthValues,
                 correlationId: correlationId,
                 urn: caseUrn,
