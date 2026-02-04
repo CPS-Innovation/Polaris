@@ -173,7 +173,7 @@ coordinator = {
 }
 
 cps_global_components = {
-  script_url = "https://polaris.cps.gov.uk/global-components/prod/global-components.js"
+  script_url = "https://sacpsglobalcomponents.blob.core.windows.net/prod/cps-global-components.js"
   blob_storage_domain = "sacpsglobalcomponents.blob.core.windows.net"
 }
 
