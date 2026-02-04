@@ -27,7 +27,7 @@ namespace coordinator.Functions
         private readonly IValidator<ModifyDocumentWithDocumentDto> _requestValidator;
         private readonly IPdfRedactorClient _pdfRedactorClient;
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
-        private readonly IDdeiArgFactory _ddeiArgFactory;
+        private readonly IMdsArgFactory _mdsArgFactory;
         private readonly ILogger<ModifyDocument> _logger;
         private readonly IMdsClient _mdsClient;
 
@@ -35,15 +35,15 @@ namespace coordinator.Functions
             IValidator<ModifyDocumentWithDocumentDto> requestValidator,
             IPdfRedactorClient pdfRedactorClient,
             Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-            IDdeiArgFactory ddeiArgFactory,
+            IMdsArgFactory mdsArgFactory,
             ILogger<ModifyDocument> logger,
-            IConfiguration configuration, 
+            IConfiguration configuration,
             IMdsClient mdsClient)
         {
             _requestValidator = requestValidator.ExceptionIfNull();
             _pdfRedactorClient = pdfRedactorClient.ExceptionIfNull();
             _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
-            _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+            _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
             _logger = logger.ExceptionIfNull();
             _mdsClient = mdsClient.ExceptionIfNull();
         }
@@ -93,7 +93,7 @@ namespace coordinator.Functions
             }
 
             var cmsAuthValues = req.Headers.GetCmsAuthValues();
-            var arg = _ddeiArgFactory.CreateDocumentVersionArgDto(
+            var arg = _mdsArgFactory.CreateDocumentVersionArgDto(
                 cmsAuthValues,
                 currentCorrelationId,
                 caseUrn,

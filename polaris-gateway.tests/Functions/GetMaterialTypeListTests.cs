@@ -17,16 +17,16 @@ namespace PolarisGateway.Tests.Functions;
 public class GetMaterialTypeListTests
 {
     private readonly Mock<ILogger<GetMaterialTypeList>> _loggerMock;
-    private readonly Mock<IDdeiArgFactory> _ddeiArgFactoryMock;
+    private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IMdsClient> _mdsClientMock;
     private readonly GetMaterialTypeList _getMaterialTypeList;
 
     public GetMaterialTypeListTests()
     {
         _loggerMock = new Mock<ILogger<GetMaterialTypeList>>();
-        _ddeiArgFactoryMock = new Mock<IDdeiArgFactory>();
+        _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _mdsClientMock = new Mock<IMdsClient>();
-        _getMaterialTypeList = new GetMaterialTypeList(_loggerMock.Object, _ddeiArgFactoryMock.Object, _mdsClientMock.Object);
+        _getMaterialTypeList = new GetMaterialTypeList(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsClientMock.Object);
     }
 
     [Fact]
@@ -34,10 +34,10 @@ public class GetMaterialTypeListTests
     {
         //arrange
         var req = new DefaultHttpContext().Request;
-        var ddeiBaseArgDto = new DdeiBaseArgDto();
+        var mdsBaseArgDto = new MdsBaseArgDto();
         var materialTypes = new List<MaterialTypeDto>();
-        _ddeiArgFactoryMock.Setup(s => s.CreateCmsCaseDataArgDto(It.IsAny<string>(), It.IsAny<Guid>())).Returns(ddeiBaseArgDto);
-        _mdsClientMock.Setup(s => s.GetMaterialTypeListAsync(ddeiBaseArgDto)).ReturnsAsync(materialTypes);
+        _mdsArgFactoryMock.Setup(s => s.CreateCmsCaseDataArgDto(It.IsAny<string>(), It.IsAny<Guid>())).Returns(mdsBaseArgDto);
+        _mdsClientMock.Setup(s => s.GetMaterialTypeListAsync(mdsBaseArgDto)).ReturnsAsync(materialTypes);
         
         //act
         var result = await _getMaterialTypeList.Run(req);

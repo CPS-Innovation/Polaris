@@ -5,35 +5,35 @@ using Ddei.Domain.CaseData.Args.Core;
 
 namespace Ddei.Factories
 {
-    public class DdeiArgFactory : IDdeiArgFactory
+    public class MdsArgFactory : IMdsArgFactory
     {
-        public DdeiArgFactory()
+        public MdsArgFactory()
         {
         }
 
-        public DdeiBaseArgDto CreateCmsCaseDataArgDto(string cmsAuthValues, Guid correlationId)
+        public MdsBaseArgDto CreateCmsCaseDataArgDto(string cmsAuthValues, Guid correlationId)
         {
-            return new DdeiBaseArgDto
-            {
-                CmsAuthValues = cmsAuthValues,
-                CorrelationId = correlationId
-            };
-        }
-
-        public DdeiCaseIdOnlyArgDto CreateCaseIdArg(string cmsAuthValues, Guid correlationId, int caseId, string urn = null)
-        {
-            return new DdeiCaseIdOnlyArgDto
+            return new MdsBaseArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
-                CaseId = caseId, 
-                Urn = urn
             };
         }
 
-        public DdeiUrnArgDto CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn)
+        public MdsCaseIdOnlyArgDto CreateCaseIdArg(string cmsAuthValues, Guid correlationId, int caseId, string urn = null)
         {
-            return new DdeiUrnArgDto
+            return new MdsCaseIdOnlyArgDto
+            {
+                CmsAuthValues = cmsAuthValues,
+                CorrelationId = correlationId,
+                CaseId = caseId,
+                Urn = urn,
+            };
+        }
+
+        public MdsUrnArgDto CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn)
+        {
+            return new MdsUrnArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -41,9 +41,9 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiCaseIdentifiersArgDto CreateCaseIdentifiersArg(string cmsAuthValues, Guid correlationId, string urn, int caseId)
+        public MdsCaseIdentifiersArgDto CreateCaseIdentifiersArg(string cmsAuthValues, Guid correlationId, string urn, int caseId)
         {
-            return new DdeiCaseIdentifiersArgDto
+            return new MdsCaseIdentifiersArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -52,9 +52,9 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiPcdArgDto CreatePcdArg(string cmsAuthValues, Guid correlationId, string urn, int caseId, int pcdId)
+        public MdsPcdArgDto CreatePcdArg(string cmsAuthValues, Guid correlationId, string urn, int caseId, int pcdId)
         {
-            return new DdeiPcdArgDto
+            return new MdsPcdArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -64,23 +64,23 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiPcdArgDto CreatePcdArg(string cmsAuthValues, Guid correlationId, string urn, int caseId, string pcdId)
+        public MdsPcdArgDto CreatePcdArg(string cmsAuthValues, Guid correlationId, string urn, int caseId, string pcdId)
             => CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiPcdId(pcdId));
 
-        public DdeiCaseIdentifiersArgDto CreateCaseArgFromUrnArg(DdeiUrnArgDto arg, int caseId)
+        public MdsCaseIdentifiersArgDto CreateCaseArgFromUrnArg(MdsUrnArgDto arg, int caseId)
         {
-            return new DdeiCaseIdentifiersArgDto
+            return new MdsCaseIdentifiersArgDto
             {
                 CmsAuthValues = arg.CmsAuthValues,
                 CorrelationId = arg.CorrelationId,
                 Urn = arg.Urn,
-                CaseId = caseId
+                CaseId = caseId,
             };
         }
 
-        public DdeiDocumentArgDto CreateDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId)
+        public MdsDocumentArgDto CreateDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId)
         {
-            return new DdeiDocumentArgDto
+            return new MdsDocumentArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -90,44 +90,44 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiDocumentArgDto CreateDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId)
+        public MdsDocumentArgDto CreateDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId)
             => CreateDocumentArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId));
 
-        public DdeiDocumentIdAndVersionIdArgDto CreateDocumentVersionArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, long versionId)
+        public MdsDocumentIdAndVersionIdArgDto CreateDocumentVersionArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, long versionId)
         {
-            return new DdeiDocumentIdAndVersionIdArgDto
+            return new MdsDocumentIdAndVersionIdArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
                 Urn = urn,
                 CaseId = caseId,
                 DocumentId = documentId,
-                VersionId = versionId
+                VersionId = versionId,
             };
         }
 
-        public DdeiDocumentIdAndVersionIdArgDto CreateDocumentVersionArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
+        public MdsDocumentIdAndVersionIdArgDto CreateDocumentVersionArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
             => CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId), versionId);
 
-        public DdeiAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, string text)
+        public MdsAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, string text)
         {
-            return new DdeiAddDocumentNoteArgDto
+            return new MdsAddDocumentNoteArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
                 Urn = urn,
                 CaseId = caseId,
                 DocumentId = documentId,
-                Text = text
+                Text = text,
             };
         }
 
-        public DdeiAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, string text)
+        public MdsAddDocumentNoteArgDto CreateAddDocumentNoteArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, string text)
             => CreateAddDocumentNoteArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId), text);
 
-        public DdeiRenameDocumentArgDto CreateRenameDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, string documentName)
+        public MdsRenameDocumentArgDto CreateRenameDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, string documentName)
         {
-            return new DdeiRenameDocumentArgDto
+            return new MdsRenameDocumentArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -138,12 +138,13 @@ namespace Ddei.Factories
             };
         }
 
-        public DdeiRenameDocumentArgDto CreateRenameDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, string documentName)
-            => CreateRenameDocumentArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId), documentName);
+        public MdsRenameDocumentArgDto CreateRenameDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, string documentName)
+            =>
+            CreateRenameDocumentArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId), documentName);
 
-        public DdeiReclassifyDocumentArgDto CreateReclassifyDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, ReclassifyDocumentDto dto)
+        public MdsReclassifyDocumentArgDto CreateReclassifyDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long documentId, ReclassifyDocumentDto dto)
         {
-            return new DdeiReclassifyDocumentArgDto
+            return new MdsReclassifyDocumentArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,
@@ -154,16 +155,16 @@ namespace Ddei.Factories
                 Exhibit = dto.Exhibit,
                 Statement = dto.Statement,
                 Other = dto.Other,
-                Immediate = dto.Immediate
+                Immediate = dto.Immediate,
             };
         }
 
-        public DdeiReclassifyDocumentArgDto CreateReclassifyDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, ReclassifyDocumentDto dto)
+        public MdsReclassifyDocumentArgDto CreateReclassifyDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, ReclassifyDocumentDto dto)
             => CreateReclassifyDocumentArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(documentId), dto);
 
-        public DdeiWitnessStatementsArgDto CreateWitnessStatementsArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int witnessId)
+        public MdsWitnessStatementsArgDto CreateWitnessStatementsArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, int witnessId)
         {
-            return new DdeiWitnessStatementsArgDto
+            return new MdsWitnessStatementsArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,

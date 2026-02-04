@@ -14,16 +14,16 @@ public class GetExhibitProducers : BaseFunction
 {
     private readonly ILogger<GetExhibitProducers> _logger;
     private readonly IMdsClient _mdsClient;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
 
     public GetExhibitProducers(ILogger<GetExhibitProducers> logger,
         IMdsClient mdsClient,
-        IDdeiArgFactory ddeiArgFactory)
+        IMdsArgFactory mdsArgFactory)
         : base()
     {
         _logger = logger.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
     }
 
     [Function(nameof(GetExhibitProducers))]
@@ -33,9 +33,9 @@ public class GetExhibitProducers : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var ddeiCaseIdentifiersArgDto = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
+        var mdsCaseIdentifiersArgDto = _mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
         
-        var exhibitProducerDtos = await _mdsClient.GetExhibitProducersAsync(ddeiCaseIdentifiersArgDto);
+        var exhibitProducerDtos = await _mdsClient.GetExhibitProducersAsync(mdsCaseIdentifiersArgDto);
 
         return new OkObjectResult(exhibitProducerDtos);
     }

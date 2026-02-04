@@ -21,7 +21,7 @@ namespace PolarisGateway.Tests.Functions;
 public class ReclassifyDocumentTests
 {
     private readonly Mock<ILogger<ReclassifyDocument>> _loggerMock;
-    private readonly Mock<IDdeiArgFactory> _ddeiArgFactoryMock;
+    private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IDdeiReclassifyDocumentOrchestrationService> _orchestrationServiceMock;
     private readonly Mock<ITelemetryClient> _telemetryClientMock;
     private readonly ReclassifyDocument _reclassifyDocument;
@@ -29,10 +29,10 @@ public class ReclassifyDocumentTests
     public ReclassifyDocumentTests()
     {
         _loggerMock = new Mock<ILogger<ReclassifyDocument>>();
-        _ddeiArgFactoryMock = new Mock<IDdeiArgFactory>();
+        _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _orchestrationServiceMock = new Mock<IDdeiReclassifyDocumentOrchestrationService>();
         _telemetryClientMock = new Mock<ITelemetryClient>();
-        _reclassifyDocument = new ReclassifyDocument(_loggerMock.Object, _ddeiArgFactoryMock.Object, _telemetryClientMock.Object, _orchestrationServiceMock.Object);
+        _reclassifyDocument = new ReclassifyDocument(_loggerMock.Object, _mdsArgFactoryMock.Object, _telemetryClientMock.Object, _orchestrationServiceMock.Object);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class ReclassifyDocumentTests
         var caseUrn = "caseUrn";
         var caseId = 1;
         var documentId = "12345";
-        var ddeiReclassifyDocumentArgDto = new DdeiReclassifyDocumentArgDto();
+        var mdsReclassifyDocumentArgDto = new MdsReclassifyDocumentArgDto();
         var reclassifyDocumentDto = new ReclassifyDocumentDto()
         {
             DocumentTypeId = 1001,
@@ -51,7 +51,7 @@ public class ReclassifyDocumentTests
             {
                 DocumentName = "New Document Name",
                 Used = true,
-            }
+            },
         };
         req.Body = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(reclassifyDocumentDto)));
         req.ContentType = "application/json";
@@ -64,11 +64,11 @@ public class ReclassifyDocumentTests
                 DocumentId = 12345,
                 ReclassificationType = "OTHER",
                 OriginalDocumentTypeId = 2001,
-                DocumentTypeId = 1001
-            }
+                DocumentTypeId = 1001,
+            },
         };
-        _ddeiArgFactoryMock.Setup(s => s.CreateReclassifyDocumentArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, reclassifyDocumentDto)).Returns(ddeiReclassifyDocumentArgDto);
-        _orchestrationServiceMock.Setup(s => s.ReclassifyDocument(It.IsAny<DdeiReclassifyDocumentArgDto>())).ReturnsAsync(reclassifyResult);
+        _mdsArgFactoryMock.Setup(s => s.CreateReclassifyDocumentArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, reclassifyDocumentDto)).Returns(mdsReclassifyDocumentArgDto);
+        _orchestrationServiceMock.Setup(s => s.ReclassifyDocument(It.IsAny<MdsReclassifyDocumentArgDto>())).ReturnsAsync(reclassifyResult);
 
         //act
         var result = await _reclassifyDocument.Run(req, caseUrn, caseId, documentId);
@@ -85,7 +85,7 @@ public class ReclassifyDocumentTests
         var caseUrn = "caseUrn";
         var caseId = 1;
         var documentId = "12345";
-        var ddeiReclassifyDocumentArgDto = new DdeiReclassifyDocumentArgDto();
+        var mdsReclassifyDocumentArgDto = new MdsReclassifyDocumentArgDto();
         var reclassifyDocumentDto = new ReclassifyDocumentDto();
         req.Body = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(reclassifyDocumentDto)));
         req.ContentType = "application/json";

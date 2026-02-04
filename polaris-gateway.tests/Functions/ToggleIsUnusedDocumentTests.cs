@@ -34,7 +34,7 @@ public class ToggleIsUnusedDocumentTests
         var caseId = 1;
         string documentId = "CMS-1";
         var isUnused = "unused";
-        _mdsClientMock.Setup(s => s.ToggleIsUnusedDocumentAsync(It.IsAny<DdeiToggleIsUnusedDocumentDto>())).ReturnsAsync(true);
+        _mdsClientMock.Setup(s => s.ToggleIsUnusedDocumentAsync(It.IsAny<MdsToggleIsUnusedDocumentDto>())).ReturnsAsync(true);
 
         //act
         var result = await _toggleIsUnusedDocument.Run(req, caseUrn, caseId, documentId, isUnused);
@@ -52,7 +52,7 @@ public class ToggleIsUnusedDocumentTests
         var caseId = 1;
         string documentId = "CMS-1";
         var isUnused = "unused";
-        _mdsClientMock.Setup(s => s.ToggleIsUnusedDocumentAsync(It.IsAny<DdeiToggleIsUnusedDocumentDto>())).ReturnsAsync(false);
+        _mdsClientMock.Setup(s => s.ToggleIsUnusedDocumentAsync(It.IsAny<MdsToggleIsUnusedDocumentDto>())).ReturnsAsync(false);
 
         //act
         var result = await _toggleIsUnusedDocument.Run(req, caseUrn, caseId, documentId, isUnused);

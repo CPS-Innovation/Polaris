@@ -15,19 +15,19 @@ public class GetDocumentList : BaseFunction
 {
     private readonly ILogger<GetDocumentList> _logger;
     private readonly IDdeiCaseDocumentsOrchestrationService _ddeiOrchestrationService;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
     private readonly ITelemetryClient _telemetryClient;
 
     public GetDocumentList(
         ILogger<GetDocumentList> logger,
         IDdeiCaseDocumentsOrchestrationService ddeiOrchestrationService,
-        IDdeiArgFactory ddeiArgFactory,
+        IMdsArgFactory mdsArgFactory,
         ITelemetryClient telemetryClient)
         : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _ddeiOrchestrationService = ddeiOrchestrationService ?? throw new ArgumentNullException(nameof(ddeiOrchestrationService));
-        _ddeiArgFactory = ddeiArgFactory ?? throw new ArgumentNullException(nameof(ddeiArgFactory));
+        _mdsArgFactory = mdsArgFactory ?? throw new ArgumentNullException(nameof(mdsArgFactory));
         _telemetryClient = telemetryClient;
     }
 
@@ -38,7 +38,7 @@ public class GetDocumentList : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
+        var arg = _mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
         var result = await _ddeiOrchestrationService.GetCaseDocuments(arg);
 
         return new OkObjectResult(result);

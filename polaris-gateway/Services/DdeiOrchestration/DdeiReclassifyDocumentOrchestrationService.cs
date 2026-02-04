@@ -20,18 +20,18 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
     private const string DefenceStatementClassification = "DEFENCESTATEMENT";
     private const int DefenceStatementTypeId = -2;
     private readonly IMdsClient _mdsClient;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
 
     public DdeiReclassifyDocumentOrchestrationService(
             IMdsClient mdsClient,
-            IDdeiArgFactory ddeiArgFactory
+            IMdsArgFactory mdsArgFactory
         )
     {
         _mdsClient = mdsClient.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
     }
 
-    public async Task<DocumentReclassifiedResult> ReclassifyDocument(DdeiReclassifyDocumentArgDto arg)
+    public async Task<DocumentReclassifiedResult> ReclassifyDocument(MdsReclassifyDocumentArgDto arg)
     {
         var (caseDocuments, materialTypeList) = await FetchDocumentAndMaterialTypes(_mdsClient, arg);
 
@@ -55,12 +55,12 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
                 OriginalDocumentTypeId = document.CmsDocType.DocumentTypeId ?? 0,
                 ReclassificationType = materialType.Classification,
                 DocumentRenamed = documentRenamed,
-                DocumentRenamedOperationName = documentRenamedResult.OperationName
-            }
+                DocumentRenamedOperationName = documentRenamedResult.OperationName,
+            },
         };
     }
 
-    private async Task<(IEnumerable<CmsDocumentDto> caseDocuments, IEnumerable<MaterialTypeDto> materialTypeList)> FetchDocumentAndMaterialTypes(IMdsClient mdsClient, DdeiReclassifyDocumentArgDto arg)
+    private async Task<(IEnumerable<CmsDocumentDto> caseDocuments, IEnumerable<MaterialTypeDto> materialTypeList)> FetchDocumentAndMaterialTypes(IMdsClient mdsClient, MdsReclassifyDocumentArgDto arg)
     {
         var caseDocumentsTask = mdsClient.ListDocumentsAsync(arg);
         var materialTypeListTask = mdsClient.GetMaterialTypeListAsync(arg);
@@ -70,9 +70,9 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         return (caseDocumentsTask.Result, materialTypeListTask.Result);
     }
 
-    private async Task<DdeiCommunicationReclassifiedResponse> ReclassifyDocument(IMdsClient mdsClient, DdeiReclassifyDocumentArgDto arg, CmsDocumentDto document, MaterialTypeDto materialType)
+    private async Task<MdsCommunicationReclassifiedResponse> ReclassifyDocument(IMdsClient mdsClient, MdsReclassifyDocumentArgDto arg, CmsDocumentDto document, MaterialTypeDto materialType)
     {
-        var reclassifyCommunicationRequest = new DdeiReclassifyCommunicationArgDto
+        var reclassifyCommunicationRequest = new MdsReclassifyCommunicationArgDto
         {
             CmsAuthValues = arg.CmsAuthValues,
             CorrelationId = arg.CorrelationId,
@@ -85,15 +85,15 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
             Subject = document.PresentationTitle,
             Statement = SetReclassifyDocumentStatement(materialType, document, arg),
             Exhibit = SetReclassifyDocumentExhibit(materialType, arg),
-            Used = SetReclassifyDocumentUsed(materialType, arg)
+            Used = SetReclassifyDocumentUsed(materialType, arg),
         };
 
         return await mdsClient.ReclassifyCommunicationAsync(reclassifyCommunicationRequest);
     }
 
-    private async Task<DocumentRenamedResultDto> RenameDocument(DdeiReclassifyDocumentArgDto arg, IMdsClient mdsClient, MaterialTypeDto materialType, string documentName)
+    private async Task<DocumentRenamedResultDto> RenameDocument(MdsReclassifyDocumentArgDto arg, IMdsClient mdsClient, MaterialTypeDto materialType, string documentName)
     {
-        var renameDocumentArg = _ddeiArgFactory.CreateRenameDocumentArgDto(arg.CmsAuthValues, arg.CorrelationId, arg.Urn, arg.CaseId, arg.DocumentId, documentName);
+        var renameDocumentArg = _mdsArgFactory.CreateRenameDocumentArgDto(arg.CmsAuthValues, arg.CorrelationId, arg.Urn, arg.CaseId, arg.DocumentId, documentName);
         DocumentRenamedResultDto response = new();
 
         if (materialType.Classification == ExhibitClassification)
@@ -110,7 +110,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         return response;
     }
 
-    private async Task<(bool documentRenamed, DocumentRenamedResultDto documentRenamedResult)> HandleDocumentRenaming(DdeiReclassifyDocumentArgDto arg, IMdsClient mdsClient, MaterialTypeDto materialType)
+    private async Task<(bool documentRenamed, DocumentRenamedResultDto documentRenamedResult)> HandleDocumentRenaming(MdsReclassifyDocumentArgDto arg, IMdsClient mdsClient, MaterialTypeDto materialType)
     {
         if (string.IsNullOrEmpty(arg.Other?.DocumentName) && string.IsNullOrEmpty(arg.Immediate?.DocumentName))
         {
@@ -123,7 +123,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         return (true, documentRenamedResult);
     }
 
-    private static ReclassificationStatement SetReclassifyDocumentStatement(MaterialTypeDto materialType, CmsDocumentDto document, DdeiReclassifyDocumentArgDto documentReclassify)
+    private static ReclassificationStatement SetReclassifyDocumentStatement(MaterialTypeDto materialType, CmsDocumentDto document, MdsReclassifyDocumentArgDto documentReclassify)
     {
         if (materialType.Classification == StatementClassification)
         {
@@ -147,7 +147,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         return null;
     }
 
-    private static ReclassificationExhibit SetReclassifyDocumentExhibit(MaterialTypeDto materialType, DdeiReclassifyDocumentArgDto documentReclassify)
+    private static ReclassificationExhibit SetReclassifyDocumentExhibit(MaterialTypeDto materialType, MdsReclassifyDocumentArgDto documentReclassify)
     {
         if (materialType.Classification == ExhibitClassification)
         {
@@ -156,14 +156,14 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
                 Item = documentReclassify.Exhibit.Item,
                 Reference = documentReclassify.Exhibit.Reference,
                 ExistingProducerOrWitnessId = documentReclassify.Exhibit.ExistingProducerOrWitnessId,
-                NewProducer = documentReclassify.Exhibit.NewProducer
+                NewProducer = documentReclassify.Exhibit.NewProducer,
             };
         }
-        
+
         return null;
     }
 
-    private static bool? SetReclassifyDocumentUsed(MaterialTypeDto materialType, DdeiReclassifyDocumentArgDto documentReclassifyArgument)
+    private static bool? SetReclassifyDocumentUsed(MaterialTypeDto materialType, MdsReclassifyDocumentArgDto documentReclassifyArgument)
     {
         if (materialType.AddAsUsedOrUnused == "N" || materialType.AddAsUsedOrUnused == null) return null;
 
