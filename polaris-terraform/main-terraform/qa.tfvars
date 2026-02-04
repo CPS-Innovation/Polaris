@@ -117,7 +117,7 @@ private_beta = {
   feature_user_group6 = "21c21011-b568-4ebb-b013-02d4cd15681a"
 }
 
-case_review_app_redirect_url = "https://cps-tst.outsystemsenterprise.com/CaseReview/RedirectCW"
+case_review_app_redirect_url = "https://polaris-qa-notprod.cps.gov.uk/polaris?r=https%3A%2F%2Fcps-tst.outsystemsenterprise.com%2FCasework_Patterns%2Fauth-handover-test.html%3Fstage%3Dos-cookie-return%26r%3Dhttps%253A%252F%252Fcps-tst.outsystemsenterprise.com%252FCaseReview%252FLandingPage%253FCMSCaseId%253D"
 bulk_um_redirect_url         = "https://housekeeping-fn-staging.int.cps.gov.uk/api/init"
 
 polaris_ui_reauth = {
