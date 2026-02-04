@@ -73,6 +73,7 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
     "WM_MDS_BASE_URL"                                 = "https://fa-${local.wm_mds_resource_name}.azurewebsites.net/api/"
     "WM_MDS_ACCESS_KEY"                               = data.azurerm_key_vault_secret.kvs_fa_wm_mds_host_keys.value
+    "CPS_GLOBAL_COMPONENTS_BLOB_STORAGE_DOMAIN"       = var.cps_global_components.blob_storage_domain
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"
