@@ -33,7 +33,7 @@ public class CheckoutDocument : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var ddeiDocumentIdAndVersionIdArgDto = _mdsArgFactory.CreateDocumentVersionArgDto(
+        var mdsDocumentIdAndVersionIdArgDto = _mdsArgFactory.CreateDocumentVersionArgDto(
                      cmsAuthValues: cmsAuthValues,
                      correlationId: correlationId,
                      urn: caseUrn,
@@ -41,7 +41,7 @@ public class CheckoutDocument : BaseFunction
                      documentId: documentId,
                      versionId: versionId);
 
-        var checkoutDocumentDto = await _mdsClient.CheckoutDocumentAsync(ddeiDocumentIdAndVersionIdArgDto);
+        var checkoutDocumentDto = await _mdsClient.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto);
 
         return checkoutDocumentDto.IsSuccess ? new OkResult() : new ConflictObjectResult(checkoutDocumentDto.LockingUserName);
     }

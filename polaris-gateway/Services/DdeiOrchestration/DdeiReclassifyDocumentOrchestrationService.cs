@@ -55,8 +55,8 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
                 OriginalDocumentTypeId = document.CmsDocType.DocumentTypeId ?? 0,
                 ReclassificationType = materialType.Classification,
                 DocumentRenamed = documentRenamed,
-                DocumentRenamedOperationName = documentRenamedResult.OperationName
-            }
+                DocumentRenamedOperationName = documentRenamedResult.OperationName,
+            },
         };
     }
 
@@ -70,9 +70,9 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         return (caseDocumentsTask.Result, materialTypeListTask.Result);
     }
 
-    private async Task<DdeiCommunicationReclassifiedResponse> ReclassifyDocument(IMdsClient mdsClient, MdsReclassifyDocumentArgDto arg, CmsDocumentDto document, MaterialTypeDto materialType)
+    private async Task<MdsCommunicationReclassifiedResponse> ReclassifyDocument(IMdsClient mdsClient, MdsReclassifyDocumentArgDto arg, CmsDocumentDto document, MaterialTypeDto materialType)
     {
-        var reclassifyCommunicationRequest = new DdeiReclassifyCommunicationArgDto
+        var reclassifyCommunicationRequest = new MdsReclassifyCommunicationArgDto
         {
             CmsAuthValues = arg.CmsAuthValues,
             CorrelationId = arg.CorrelationId,
@@ -85,7 +85,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
             Subject = document.PresentationTitle,
             Statement = SetReclassifyDocumentStatement(materialType, document, arg),
             Exhibit = SetReclassifyDocumentExhibit(materialType, arg),
-            Used = SetReclassifyDocumentUsed(materialType, arg)
+            Used = SetReclassifyDocumentUsed(materialType, arg),
         };
 
         return await mdsClient.ReclassifyCommunicationAsync(reclassifyCommunicationRequest);

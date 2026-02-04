@@ -36,15 +36,15 @@ public class CancelCheckoutDocumentTests
         var caseId = 1;
         var documentId = "documentId";
         long versionId = 2;
-        var ddeiDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
-        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, versionId)).Returns(ddeiDocumentIdAndVersionIdArgDto);
+        var mdsDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
+        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, versionId)).Returns(mdsDocumentIdAndVersionIdArgDto);
 
 
         //act
         var result = await _cancelCheckoutDocument.Run(req, caseUrn, caseId, documentId, versionId);
 
         //assert
-        _mdsClientMock.Verify(v => v.CancelCheckoutDocumentAsync(ddeiDocumentIdAndVersionIdArgDto), Times.Once);
+        _mdsClientMock.Verify(v => v.CancelCheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto), Times.Once);
         Assert.IsType<OkResult>(result);
     }
 }

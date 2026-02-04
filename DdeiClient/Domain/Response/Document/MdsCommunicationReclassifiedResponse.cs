@@ -1,6 +1,6 @@
 namespace Ddei.Domain.Response.Document
 {
-    public class DdeiCommunicationReclassifiedResponse
+    public class MdsCommunicationReclassifiedResponse
     {
         public ReclassifyCommunication ReclassifyCommunication { get; set; }
     }

@@ -24,27 +24,5 @@ public class DdeiAuthClient : BaseCmsClient, IDdeiAuthClient
 
     public async Task VerifyCmsAuthAsync(MdsBaseArgDto arg) => await CallDdeiAsync(_ddeiAuthClientRequestFactory.CreateVerifyCmsAuthRequest(arg), arg.CmsAuthValues);
 
-    //public async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(DdeiReclassifyDocumentArgDto arg)
-    //{
-    //    var response = await CallDdeiAsync<DdeiDocumentReclassifiedResponse>(_ddeiAuthClientRequestFactory.CreateReclassifyDocumentRequest(arg), arg.CmsAuthValues);
-
-    //    return new DocumentReclassifiedResultDto
-    //    {
-    //        DocumentId = response.Id,
-    //        DocumentTypeId = response.DocumentTypeId,
-    //        ReclassificationType = response.ReclassificationType,
-    //        OriginalDocumentTypeId = response.OriginalDocumentTypeId,
-    //        DocumentRenamed = response.DocumentRenamed,
-    //        DocumentRenamedOperationName = response.DocumentRenamedOperationName
-    //    };
-    //}
-
-    //public async Task<DocumentRenamedResultDto> RenameDocumentAsync(DdeiRenameDocumentArgDto arg)
-    //{
-    //    var response = await CallDdeiAsync<DdeiDocumentRenamedResponse>(_ddeiAuthClientRequestFactory.CreateRenameDocumentRequest(arg), arg.CmsAuthValues);
-
-    //    return new DocumentRenamedResultDto { Id = response.Id, OperationName = response.OperationName };
-    //}
-
     protected override HttpClient GetHttpClient(string cmsAuthValues) => _httpClient;
 }

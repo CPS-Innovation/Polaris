@@ -37,13 +37,13 @@ public class CheckoutDocumentTests
         var caseId = 1;
         var documentId = "documentId";
         long versionId = 2;
-        var ddeiDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
+        var mdsDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
         var checkoutDocumentDto = new CheckoutDocumentDto()
         {
             IsSuccess = true
         };
-        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, versionId)).Returns(ddeiDocumentIdAndVersionIdArgDto);
-        _mdsClientMock.Setup(s => s.CheckoutDocumentAsync(ddeiDocumentIdAndVersionIdArgDto)).ReturnsAsync(checkoutDocumentDto);
+        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, versionId)).Returns(mdsDocumentIdAndVersionIdArgDto);
+        _mdsClientMock.Setup(s => s.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto)).ReturnsAsync(checkoutDocumentDto);
 
         //act
         var result = await _checkoutDocument.Run(req, caseUrn, caseId, documentId, versionId);
@@ -61,14 +61,14 @@ public class CheckoutDocumentTests
         var caseId = 1;
         var documentId = "documentId";
         long versionId = 2;
-        var ddeiDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
+        var mdsDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
         var checkoutDocumentDto = new CheckoutDocumentDto()
         {
             IsSuccess = false,
             LockingUserName = "lockingUserName"
         };
-        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, versionId)).Returns(ddeiDocumentIdAndVersionIdArgDto);
-        _mdsClientMock.Setup(s => s.CheckoutDocumentAsync(ddeiDocumentIdAndVersionIdArgDto)).ReturnsAsync(checkoutDocumentDto);
+        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, versionId)).Returns(mdsDocumentIdAndVersionIdArgDto);
+        _mdsClientMock.Setup(s => s.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto)).ReturnsAsync(checkoutDocumentDto);
 
         //act
         var result = await _checkoutDocument.Run(req, caseUrn, caseId, documentId, versionId);

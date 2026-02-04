@@ -50,7 +50,7 @@ public interface IMdsClient
 
     Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(MdsReclassifyDocumentArgDto arg);
 
-    Task<DdeiCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(DdeiReclassifyCommunicationArgDto arg);
+    Task<MdsCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(MdsReclassifyCommunicationArgDto arg);
 
     Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(MdsCaseIdentifiersArgDto arg);
 
@@ -60,7 +60,7 @@ public interface IMdsClient
 
     Task<IEnumerable<WitnessStatementDto>> GetWitnessStatementsAsync(MdsWitnessStatementsArgDto arg);
 
-    Task<bool> ToggleIsUnusedDocumentAsync(DdeiToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto);
+    Task<bool> ToggleIsUnusedDocumentAsync(MdsToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto);
 
     Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(MdsUrnArgDto arg);
 }

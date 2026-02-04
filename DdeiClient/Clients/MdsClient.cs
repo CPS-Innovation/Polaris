@@ -78,7 +78,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return _caseIdentifiersMapper.MapCaseIdentifiers(ddeiCaseIdentifiersDto);
     }
 
-    // VERIFY IF USED - triggers CallDdeiAsync()
     public async Task<IEnumerable<CaseDto>> ListCasesAsync(MdsUrnArgDto arg)
     {
         var caseIdentifiers = await ListCaseIdsAsync(arg);
@@ -152,7 +151,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
     public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)
     {
         var response = await CallDdeiAsync(
-            _mdsClientRequestFactory.CreateDocumentFromFileStoreRequest(new DdeiFileStoreArgDto
+            _mdsClientRequestFactory.CreateDocumentFromFileStoreRequest(new MdsFileStoreArgDto
             {
                 Path = path,
                 CmsAuthValues = cmsAuthValues,
@@ -238,9 +237,9 @@ public class MdsClient : BaseCmsClient, IMdsClient
         };
     }
 
-    public async Task<DdeiCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(DdeiReclassifyCommunicationArgDto arg)
+    public async Task<MdsCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(MdsReclassifyCommunicationArgDto arg)
     {
-        return await CallDdeiAsync<DdeiCommunicationReclassifiedResponse>(_mdsClientRequestFactory.CreateReclassifyCommunicationRequest(arg), arg.CmsAuthValues);
+        return await CallDdeiAsync<MdsCommunicationReclassifiedResponse>(_mdsClientRequestFactory.CreateReclassifyCommunicationRequest(arg), arg.CmsAuthValues);
     }
 
     public async Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(MdsCaseIdentifiersArgDto arg)
@@ -271,7 +270,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return ddeiResults.StatementsForWitness.Select(_caseWitnessStatementMapper.Map).ToArray();
     }
 
-    public async Task<bool> ToggleIsUnusedDocumentAsync(DdeiToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto) =>
+    public async Task<bool> ToggleIsUnusedDocumentAsync(MdsToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto) =>
         (await CallDdeiAsync(_mdsClientRequestFactory.CreateToggleIsUnusedDocumentRequest(toggleIsUnusedDocumentDto), toggleIsUnusedDocumentDto.CmsAuthValues))
         .IsSuccessStatusCode;
 

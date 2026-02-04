@@ -83,7 +83,7 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IMdsClientR
         return request;
     }
 
-    public HttpRequestMessage CreateDocumentFromFileStoreRequest(DdeiFileStoreArgDto arg)
+    public HttpRequestMessage CreateDocumentFromFileStoreRequest(MdsFileStoreArgDto arg)
     {
         throw new NotImplementedException();
     }
@@ -152,7 +152,7 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IMdsClientR
         throw new NotImplementedException();
     }
 
-    public HttpRequestMessage CreateReclassifyCommunicationRequest(DdeiReclassifyCommunicationArgDto arg)
+    public HttpRequestMessage CreateReclassifyCommunicationRequest(MdsReclassifyCommunicationArgDto arg)
     {
         var content = JsonSerializer.Serialize(new ReclassifyCommunicationDto
         {
@@ -213,7 +213,7 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IMdsClientR
         return request;
     }
 
-    public HttpRequestMessage CreateToggleIsUnusedDocumentRequest(DdeiToggleIsUnusedDocumentDto dto)
+    public HttpRequestMessage CreateToggleIsUnusedDocumentRequest(MdsToggleIsUnusedDocumentDto dto)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, $"api/cases/{dto.CaseId}/documents/{dto.DocumentId}/toggle/{dto.IsUnused}");
         CreateRequest(request, dto);
@@ -227,7 +227,7 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IMdsClientR
         return request;
     }
 
-    protected override void AddAuthHeaders(HttpRequestMessage request, MdsBaseArgDto arg) // VERIFY if MdsBaseArgDto is correct here
+    protected override void AddAuthHeaders(HttpRequestMessage request, MdsBaseArgDto arg)
     {
         request.Headers.Add(HttpHeaderKeys.CmsAuthValues, WebUtility.UrlDecode(arg.CmsAuthValues));
         request.Headers.Add(CorrelationId, arg.CorrelationId.ToString());

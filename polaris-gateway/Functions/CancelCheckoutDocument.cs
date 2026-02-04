@@ -34,7 +34,7 @@ public class CancelCheckoutDocument : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var ddeiDocumentIdAndVersionIdArgDto = _mdsArgFactory.CreateDocumentVersionArgDto(
+        var mdsDocumentIdAndVersionIdArgDto = _mdsArgFactory.CreateDocumentVersionArgDto(
                 cmsAuthValues: cmsAuthValues,
                 correlationId: correlationId,
                 urn: caseUrn,
@@ -42,7 +42,7 @@ public class CancelCheckoutDocument : BaseFunction
                 documentId: documentId,
                 versionId: versionId);
 
-        await _mdsClient.CancelCheckoutDocumentAsync(ddeiDocumentIdAndVersionIdArgDto);
+        await _mdsClient.CancelCheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto);
 
         return new OkResult();
     }

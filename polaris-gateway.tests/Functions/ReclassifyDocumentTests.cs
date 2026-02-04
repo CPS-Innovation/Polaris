@@ -43,7 +43,7 @@ public class ReclassifyDocumentTests
         var caseUrn = "caseUrn";
         var caseId = 1;
         var documentId = "12345";
-        var ddeiReclassifyDocumentArgDto = new MdsReclassifyDocumentArgDto();
+        var mdsReclassifyDocumentArgDto = new MdsReclassifyDocumentArgDto();
         var reclassifyDocumentDto = new ReclassifyDocumentDto()
         {
             DocumentTypeId = 1001,
@@ -67,7 +67,7 @@ public class ReclassifyDocumentTests
                 DocumentTypeId = 1001,
             },
         };
-        _mdsArgFactoryMock.Setup(s => s.CreateReclassifyDocumentArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, reclassifyDocumentDto)).Returns(ddeiReclassifyDocumentArgDto);
+        _mdsArgFactoryMock.Setup(s => s.CreateReclassifyDocumentArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, reclassifyDocumentDto)).Returns(mdsReclassifyDocumentArgDto);
         _orchestrationServiceMock.Setup(s => s.ReclassifyDocument(It.IsAny<MdsReclassifyDocumentArgDto>())).ReturnsAsync(reclassifyResult);
 
         //act
@@ -85,7 +85,7 @@ public class ReclassifyDocumentTests
         var caseUrn = "caseUrn";
         var caseId = 1;
         var documentId = "12345";
-        var ddeiReclassifyDocumentArgDto = new MdsReclassifyDocumentArgDto();
+        var mdsReclassifyDocumentArgDto = new MdsReclassifyDocumentArgDto();
         var reclassifyDocumentDto = new ReclassifyDocumentDto();
         req.Body = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(reclassifyDocumentDto)));
         req.ContentType = "application/json";

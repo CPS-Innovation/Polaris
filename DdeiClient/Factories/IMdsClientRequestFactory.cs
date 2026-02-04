@@ -26,7 +26,7 @@ public interface IMdsClientRequestFactory
 
     HttpRequestMessage CreateGetDocumentRequest(MdsDocumentIdAndVersionIdArgDto arg);
 
-    HttpRequestMessage CreateDocumentFromFileStoreRequest(DdeiFileStoreArgDto arg);
+    HttpRequestMessage CreateDocumentFromFileStoreRequest(MdsFileStoreArgDto arg);
 
     HttpRequestMessage CreateUploadPdfRequest(MdsDocumentIdAndVersionIdArgDto arg, Stream stream);
 
@@ -42,7 +42,7 @@ public interface IMdsClientRequestFactory
 
     HttpRequestMessage CreateReclassifyDocumentRequest(MdsReclassifyDocumentArgDto arg);
 
-    HttpRequestMessage CreateReclassifyCommunicationRequest(DdeiReclassifyCommunicationArgDto arg);
+    HttpRequestMessage CreateReclassifyCommunicationRequest(MdsReclassifyCommunicationArgDto arg);
 
     HttpRequestMessage CreateGetExhibitProducersRequest(MdsCaseIdentifiersArgDto arg);
 
@@ -52,7 +52,7 @@ public interface IMdsClientRequestFactory
 
     HttpRequestMessage CreateGetWitnessStatementsRequest(MdsWitnessStatementsArgDto arg);
 
-    HttpRequestMessage CreateToggleIsUnusedDocumentRequest(DdeiToggleIsUnusedDocumentDto dto);
+    HttpRequestMessage CreateToggleIsUnusedDocumentRequest(MdsToggleIsUnusedDocumentDto dto);
 
     HttpRequestMessage CreateGetCaseSummary(MdsCaseIdOnlyArgDto arg);
 }
