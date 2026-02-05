@@ -34,10 +34,10 @@ public class GetMaterialTypeListTests
     {
         //arrange
         var req = new DefaultHttpContext().Request;
-        var mdsBaseArgDto = new MdsBaseArgDto();
+        var cmsBaseArgDto = new CmsBaseArgDto();
         var materialTypes = new List<MaterialTypeDto>();
-        _mdsArgFactoryMock.Setup(s => s.CreateCmsCaseDataArgDto(It.IsAny<string>(), It.IsAny<Guid>())).Returns(mdsBaseArgDto);
-        _mdsClientMock.Setup(s => s.GetMaterialTypeListAsync(mdsBaseArgDto)).ReturnsAsync(materialTypes);
+        _mdsArgFactoryMock.Setup(s => s.CreateCmsCaseDataArgDto(It.IsAny<string>(), It.IsAny<Guid>())).Returns(cmsBaseArgDto);
+        _mdsClientMock.Setup(s => s.GetMaterialTypeListAsync(cmsBaseArgDto)).ReturnsAsync(materialTypes);
         
         //act
         var result = await _getMaterialTypeList.Run(req);

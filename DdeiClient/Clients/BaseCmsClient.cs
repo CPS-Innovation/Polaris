@@ -15,14 +15,14 @@ public abstract class BaseCmsClient
     }
 
     protected abstract HttpClient GetHttpClient(string cmsAuthValues);
-    protected virtual async Task<T> CallDdeiAsync<T>(HttpRequestMessage request, string cmsAuthValues)
+    protected virtual async Task<T> CallHttpClientAsync<T>(HttpRequestMessage request, string cmsAuthValues)
     {
-        using var response = await CallDdeiAsync(request, cmsAuthValues);
+        using var response = await CallHttpClientAsync(request, cmsAuthValues);
         var content = await response.Content.ReadAsStringAsync();
         return JsonConvertWrapper.DeserializeObject<T>(content);
     }
 
-    protected virtual async Task<HttpResponseMessage> CallDdeiAsync(HttpRequestMessage request, string cmsAuthValues, params HttpStatusCode[] expectedUnhappyStatusCodes)
+    protected virtual async Task<HttpResponseMessage> CallHttpClientAsync(HttpRequestMessage request, string cmsAuthValues, params HttpStatusCode[] expectedUnhappyStatusCodes)
     {
         var httpClient = GetHttpClient(cmsAuthValues);
         var response = await httpClient.SendAsync(request);
