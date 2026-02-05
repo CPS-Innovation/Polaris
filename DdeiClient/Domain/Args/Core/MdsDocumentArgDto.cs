@@ -1,6 +1,6 @@
 namespace Ddei.Domain.CaseData.Args.Core
 {
-    public class DdeiDocumentArgDto : DdeiCaseIdentifiersArgDto
+    public class MdsDocumentArgDto : MdsCaseIdentifiersArgDto
     {
         public long DocumentId { get; set; }
     }

@@ -7,5 +7,5 @@ namespace PolarisGateway.Services.DdeiOrchestration;
 
 public interface IDdeiCaseDocumentsOrchestrationService
 {
-    Task<IEnumerable<DocumentDto>> GetCaseDocuments(DdeiCaseIdentifiersArgDto arg);
+    Task<IEnumerable<DocumentDto>> GetCaseDocuments(MdsCaseIdentifiersArgDto arg);
 }

@@ -6,53 +6,53 @@ namespace Ddei.Factories;
 
 public interface IMdsClientRequestFactory
 {
-    HttpRequestMessage CreateUrnLookupRequest(DdeiCaseIdOnlyArgDto arg);
+    HttpRequestMessage CreateUrnLookupRequest(MdsCaseIdOnlyArgDto arg);
 
-    HttpRequestMessage CreateListCasesRequest(DdeiUrnArgDto arg);
+    HttpRequestMessage CreateListCasesRequest(MdsUrnArgDto arg);
 
-    HttpRequestMessage CreateGetCaseRequest(DdeiCaseIdentifiersArgDto arg);
+    HttpRequestMessage CreateGetCaseRequest(MdsCaseIdentifiersArgDto arg);
 
-    HttpRequestMessage CreateGetPcdRequestsRequest(DdeiCaseIdentifiersArgDto arg);
+    HttpRequestMessage CreateGetPcdRequestsRequest(MdsCaseIdentifiersArgDto arg);
 
-    HttpRequestMessage CreateGetPcdRequest(DdeiPcdArgDto arg);
+    HttpRequestMessage CreateGetPcdRequest(MdsPcdArgDto arg);
 
-    HttpRequestMessage CreateGetDefendantAndChargesRequest(DdeiCaseIdentifiersArgDto arg);
+    HttpRequestMessage CreateGetDefendantAndChargesRequest(MdsCaseIdentifiersArgDto arg);
 
-    HttpRequestMessage CreateListCaseDocumentsRequest(DdeiCaseIdentifiersArgDto arg);
+    HttpRequestMessage CreateListCaseDocumentsRequest(MdsCaseIdentifiersArgDto arg);
 
-    HttpRequestMessage CreateCheckoutDocumentRequest(DdeiDocumentIdAndVersionIdArgDto arg);
+    HttpRequestMessage CreateCheckoutDocumentRequest(MdsDocumentIdAndVersionIdArgDto arg);
 
-    HttpRequestMessage CreateCancelCheckoutDocumentRequest(DdeiDocumentIdAndVersionIdArgDto arg);
+    HttpRequestMessage CreateCancelCheckoutDocumentRequest(MdsDocumentIdAndVersionIdArgDto arg);
 
-    HttpRequestMessage CreateGetDocumentRequest(DdeiDocumentIdAndVersionIdArgDto arg);
+    HttpRequestMessage CreateGetDocumentRequest(MdsDocumentIdAndVersionIdArgDto arg);
 
-    HttpRequestMessage CreateDocumentFromFileStoreRequest(DdeiFileStoreArgDto arg);
+    HttpRequestMessage CreateDocumentFromFileStoreRequest(MdsFileStoreArgDto arg);
 
-    HttpRequestMessage CreateUploadPdfRequest(DdeiDocumentIdAndVersionIdArgDto arg, Stream stream);
+    HttpRequestMessage CreateUploadPdfRequest(MdsDocumentIdAndVersionIdArgDto arg, Stream stream);
 
     HttpRequestMessage CreateStatusRequest();
 
-    HttpRequestMessage CreateGetDocumentNotesRequest(DdeiDocumentArgDto arg);
+    HttpRequestMessage CreateGetDocumentNotesRequest(MdsDocumentArgDto arg);
 
-    HttpRequestMessage CreateAddDocumentNoteRequest(DdeiAddDocumentNoteArgDto arg);
+    HttpRequestMessage CreateAddDocumentNoteRequest(MdsAddDocumentNoteArgDto arg);
 
-    HttpRequestMessage CreateRenameDocumentRequest(DdeiRenameDocumentArgDto arg);
+    HttpRequestMessage CreateRenameDocumentRequest(MdsRenameDocumentArgDto arg);
 
-    HttpRequestMessage CreateRenameExhibitRequest(DdeiRenameDocumentArgDto arg);
+    HttpRequestMessage CreateRenameExhibitRequest(MdsRenameDocumentArgDto arg);
 
-    HttpRequestMessage CreateReclassifyDocumentRequest(DdeiReclassifyDocumentArgDto arg);
+    HttpRequestMessage CreateReclassifyDocumentRequest(MdsReclassifyDocumentArgDto arg);
 
-    HttpRequestMessage CreateReclassifyCommunicationRequest(DdeiReclassifyCommunicationArgDto arg);
+    HttpRequestMessage CreateReclassifyCommunicationRequest(MdsReclassifyCommunicationArgDto arg);
 
-    HttpRequestMessage CreateGetExhibitProducersRequest(DdeiCaseIdentifiersArgDto arg);
+    HttpRequestMessage CreateGetExhibitProducersRequest(MdsCaseIdentifiersArgDto arg);
 
-    HttpRequestMessage CreateCaseWitnessesRequest(DdeiCaseIdentifiersArgDto arg);
+    HttpRequestMessage CreateCaseWitnessesRequest(MdsCaseIdentifiersArgDto arg);
 
-    HttpRequestMessage CreateGetMaterialTypeListRequest(DdeiBaseArgDto arg);
+    HttpRequestMessage CreateGetMaterialTypeListRequest(MdsBaseArgDto arg);
 
-    HttpRequestMessage CreateGetWitnessStatementsRequest(DdeiWitnessStatementsArgDto arg);
+    HttpRequestMessage CreateGetWitnessStatementsRequest(MdsWitnessStatementsArgDto arg);
 
-    HttpRequestMessage CreateToggleIsUnusedDocumentRequest(DdeiToggleIsUnusedDocumentDto dto);
+    HttpRequestMessage CreateToggleIsUnusedDocumentRequest(MdsToggleIsUnusedDocumentDto dto);
 
-    HttpRequestMessage CreateGetCaseSummary(DdeiCaseIdOnlyArgDto arg);
+    HttpRequestMessage CreateGetCaseSummary(MdsCaseIdOnlyArgDto arg);
 }

@@ -21,10 +21,10 @@ public class GeneratePdfFromPcdRequest : BaseGeneratePdf
         IPdfGeneratorClient pdfGeneratorClient,
         IMdsClient mdsClient,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-        IDdeiArgFactory ddeiArgFactory,
+        IMdsArgFactory mdsArgFactory,
         IConvertModelToHtmlService convertPcdRequestToHtmlService,
         IConfiguration configuration)
-        : base(ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient)
+        : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient)
     {
         _convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
 
@@ -38,7 +38,7 @@ public class GeneratePdfFromPcdRequest : BaseGeneratePdf
 
     protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload)
     {
-        var arg = DdeiArgFactory.CreatePcdArg(
+        var arg = MdsArgFactory.CreatePcdArg(
             payload.CmsAuthValues,
             payload.CorrelationId,
             payload.Urn,

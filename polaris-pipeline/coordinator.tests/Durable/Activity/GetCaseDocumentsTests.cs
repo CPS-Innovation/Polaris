@@ -46,18 +46,18 @@ public class GetCaseDocumentsTests
         _mockStateStorageService = new Mock<IStateStorageService>();
         _mdsClientMock = new Mock<IMdsClient>();
         _mdsClientMock
-            .Setup(client => client.GetCaseAsync(It.IsAny<DdeiCaseIdentifiersArgDto>()))
+            .Setup(client => client.GetCaseAsync(It.IsAny<MdsCaseIdentifiersArgDto>()))
             .ReturnsAsync(_case);
 
-        var mockDdeiCaseIdentifiersArgDto = fixture.Create<DdeiCaseIdentifiersArgDto>();
+        var mockMdsCaseIdentifiersArgDto = fixture.Create<MdsCaseIdentifiersArgDto>();
 
-        var mockDdeiArgFactory = new Mock<IDdeiArgFactory>();
-        mockDdeiArgFactory
+        var mockMdsArgFactory = new Mock<IMdsArgFactory>();
+        mockMdsArgFactory
             .Setup(factory => factory.CreateCaseIdentifiersArg(_payload.CmsAuthValues, _payload.CorrelationId, _payload.Urn, _payload.CaseId))
-            .Returns(mockDdeiCaseIdentifiersArgDto);
+            .Returns(mockMdsCaseIdentifiersArgDto);
 
         _mdsClientMock
-            .Setup(client => client.ListDocumentsAsync(mockDdeiCaseIdentifiersArgDto))
+            .Setup(client => client.ListDocumentsAsync(mockMdsCaseIdentifiersArgDto))
             .ReturnsAsync(_caseDocuments);
 
         var mockDocumentToggleService = new Mock<IDocumentToggleService>();
@@ -72,7 +72,7 @@ public class GetCaseDocumentsTests
 
         _getCaseDocuments = new GetCaseDocuments(
             _mdsClientMock.Object,
-            mockDdeiArgFactory.Object,
+            mockMdsArgFactory.Object,
             mockDocumentToggleService.Object,
             _mockStateStorageService.Object,
             mockLogger.Object);
