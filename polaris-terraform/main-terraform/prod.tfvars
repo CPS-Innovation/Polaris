@@ -172,7 +172,10 @@ coordinator = {
   max_queue_polling_interval            = "00:00:02"
 }
 
-cps_global_components_url = "https://sacpsglobalcomponents.blob.core.windows.net/prod/cps-global-components.js"
+cps_global_components = {
+  script_url = "https://sacpsglobalcomponents.blob.core.windows.net/prod/cps-global-components.js"
+  blob_storage_domain = "sacpsglobalcomponents.blob.core.windows.net"
+}
 
 sp_polaris_web_enabled = true
 

@@ -13,16 +13,16 @@ namespace PolarisGateway.Functions;
 public class GetMaterialTypeList : BaseFunction
 {
     private readonly ILogger<GetMaterialTypeList> _logger;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
     private readonly IMdsClient _mdsClient;
 
     public GetMaterialTypeList(
         ILogger<GetMaterialTypeList> logger,
-        IDdeiArgFactory ddeiArgFactory, 
+        IMdsArgFactory mdsArgFactory,
         IMdsClient mdsClient)
     {
         _logger = logger.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
     }
 
@@ -33,8 +33,8 @@ public class GetMaterialTypeList : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var ddeiBaseArgDto = _ddeiArgFactory.CreateCmsCaseDataArgDto(cmsAuthValues, correlationId);
-        var materialTypes = await _mdsClient.GetMaterialTypeListAsync(ddeiBaseArgDto);
+        var mdsBaseArgDto = _mdsArgFactory.CreateCmsCaseDataArgDto(cmsAuthValues, correlationId);
+        var materialTypes = await _mdsClient.GetMaterialTypeListAsync(mdsBaseArgDto);
 
         return new OkObjectResult(materialTypes);
     }

@@ -14,17 +14,17 @@ public class LookupUrn : BaseFunction
 {
     private readonly ILogger<LookupUrn> _logger;
     private readonly IMdsClient _mdsClient;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
 
     public LookupUrn(
         ILogger<LookupUrn> logger,
         IMdsClient mdsClient,
-        IDdeiArgFactory ddeiArgFactory)
+        IMdsArgFactory mdsArgFactory)
         : base()
     {
         _logger = logger.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
     }
 
     [Function(nameof(LookupUrn))]
@@ -35,7 +35,7 @@ public class LookupUrn : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var arg = _ddeiArgFactory.CreateCaseIdArg(cmsAuthValues, correlationId, caseId);
+        var arg = _mdsArgFactory.CreateCaseIdArg(cmsAuthValues, correlationId, caseId);
 
         var result = await _mdsClient.GetUrnFromCaseIdAsync(arg);
 

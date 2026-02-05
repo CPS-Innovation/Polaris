@@ -25,7 +25,7 @@ public class RedactDocument
     private readonly IValidator<RedactPdfRequestWithDocumentDto> _requestValidator;
     private readonly IPdfRedactorClient _redactionClient;
     private readonly IPolarisBlobStorageService _polarisBlobStorageService;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
     private readonly IMdsClient _mdsClient;
     private readonly ILogger<RedactDocument> _logger;
 
@@ -33,15 +33,15 @@ public class RedactDocument
         IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
         IPdfRedactorClient redactionClient,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-        IDdeiArgFactory ddeiArgFactory,
+        IMdsArgFactory mdsArgFactory,
         ILogger<RedactDocument> logger,
-        IConfiguration configuration, 
+        IConfiguration configuration,
         IMdsClient mdsClient)
     {
         _requestValidator = requestValidator.ExceptionIfNull();
         _redactionClient = redactionClient.ExceptionIfNull();
         _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _logger = logger.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
     }
@@ -129,7 +129,7 @@ public class RedactDocument
         }
 
         var cmsAuthValues = req.Headers.GetCmsAuthValues();
-        var arg = _ddeiArgFactory.CreateDocumentVersionArgDto(
+        var arg = _mdsArgFactory.CreateDocumentVersionArgDto(
             cmsAuthValues,
             correlationId: currentCorrelationId,
             caseUrn,
@@ -137,7 +137,7 @@ public class RedactDocument
             DocumentNature.ToNumericDocumentId(documentId, DocumentNature.Types.Document),
             versionId);
 
-            
+
         var ddeiResult = await _mdsClient.UploadPdfAsync(arg, modifiedDocumentStream ?? redactedDocumentStream);
 
         if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
