@@ -18,15 +18,15 @@ public class GetExhibitProducersTests
 {
     private readonly Mock<ILogger<GetExhibitProducers>> _loggerMock;
     private readonly Mock<IMdsClient> _mdsClientMock;
-    private readonly Mock<IDdeiArgFactory> _ddeiArgFactoryMock;
+    private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly GetExhibitProducers _getExhibitProducers;
 
     public GetExhibitProducersTests()
     {
         _loggerMock = new Mock<ILogger<GetExhibitProducers>>();
         _mdsClientMock = new Mock<IMdsClient>();
-        _ddeiArgFactoryMock = new Mock<IDdeiArgFactory>();
-        _getExhibitProducers = new GetExhibitProducers(_loggerMock.Object, _mdsClientMock.Object, _ddeiArgFactoryMock.Object);
+        _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
+        _getExhibitProducers = new GetExhibitProducers(_loggerMock.Object, _mdsClientMock.Object, _mdsArgFactoryMock.Object);
     }
 
     [Fact]
@@ -36,10 +36,10 @@ public class GetExhibitProducersTests
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
-        var ddeiCaseIdentifiersArgDto = new DdeiCaseIdentifiersArgDto();
+        var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
         var exhibitProducerDtos = new List<ExhibitProducerDto>();
-        _ddeiArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId)).Returns(ddeiCaseIdentifiersArgDto);
-        _mdsClientMock.Setup(s => s.GetExhibitProducersAsync(ddeiCaseIdentifiersArgDto)).ReturnsAsync(exhibitProducerDtos);
+        _mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId)).Returns(mdsCaseIdentifiersArgDto);
+        _mdsClientMock.Setup(s => s.GetExhibitProducersAsync(mdsCaseIdentifiersArgDto)).ReturnsAsync(exhibitProducerDtos);
 
         //act
         var result = await _getExhibitProducers.Run(req, caseUrn, caseId);

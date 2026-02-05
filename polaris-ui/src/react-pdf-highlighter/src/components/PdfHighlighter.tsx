@@ -170,6 +170,8 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       eventBus.on("pagesinit", this.onDocumentReady);
       doc.addEventListener("selectionchange", this.onSelectionChange);
       doc.addEventListener("keydown", this.handleKeyDown);
+      doc.addEventListener("pointerup", this.fireTextRedact, true);
+
       doc.defaultView?.addEventListener("resize", this.debouncedScaleValue);
       if (observer) observer.observe(this.containerNode);
       this.containerNode.addEventListener("wheel", this.handleWheel, {
@@ -179,6 +181,8 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         eventBus.off("pagesinit", this.onDocumentReady);
         eventBus.off("textlayerrendered", this.onTextLayerRendered);
         doc.removeEventListener("selectionchange", this.onSelectionChange);
+        doc.removeEventListener("pointerup", this.fireTextRedact, true);
+
         doc.removeEventListener("keydown", this.handleKeyDown);
         doc.defaultView?.removeEventListener(
           "resize",
@@ -539,8 +543,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       isCollapsed: false,
       range,
     });
-
-    this.debouncedAfterSelection();
   };
 
   onScroll = () => {
@@ -576,7 +578,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     }
   };
 
-  afterSelection = () => {
+  fireTextRedact = (_event: PointerEvent) => {
     const { onSelectionFinished } = this.props;
 
     const { isCollapsed, range } = this.state;
@@ -653,8 +655,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       )
     );
   };
-
-  debouncedAfterSelection: () => void = debounce(this.afterSelection, 500);
 
   toggleTextSelection(flag: boolean) {
     if (!this.viewer.viewer) {

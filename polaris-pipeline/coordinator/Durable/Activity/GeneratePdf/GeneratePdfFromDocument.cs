@@ -17,11 +17,11 @@ public class GeneratePdfFromDocument : BaseGeneratePdf
 {
     public GeneratePdfFromDocument(
         IPdfGeneratorClient pdfGeneratorClient,
-        IDdeiArgFactory ddeiArgFactory,
+        IMdsArgFactory mdsArgFactory,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IConfiguration configuration,
         IMdsClient mdsClient)
-        : base(ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient) { }
+        : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient) { }
 
     [Function(nameof(GeneratePdfFromDocument))]
     public new async Task<PdfConversionResponse> Run([ActivityTrigger] DocumentPayload payload)
@@ -31,7 +31,7 @@ public class GeneratePdfFromDocument : BaseGeneratePdf
 
     protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload)
     {
-        var arg = DdeiArgFactory.CreateDocumentVersionArgDto(
+        var arg = MdsArgFactory.CreateDocumentVersionArgDto(
             payload.CmsAuthValues,
             payload.CorrelationId,
             payload.Urn,

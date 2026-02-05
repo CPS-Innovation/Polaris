@@ -3,7 +3,7 @@ using Common.Dto.Request;
 
 namespace Ddei.Domain.CaseData.Args
 {
-    public class DdeiReclassifyDocumentArgDto : DdeiDocumentArgDto
+    public class MdsReclassifyDocumentArgDto : MdsDocumentArgDto
     {
         public int DocumentTypeId { get; set; }
         public ReclassificationStatement Statement { get; set; }

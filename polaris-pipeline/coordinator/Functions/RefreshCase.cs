@@ -18,18 +18,18 @@ public class RefreshCase
 {
     private readonly ILogger<RefreshCase> _logger;
     private readonly IOrchestrationProvider _orchestrationProvider;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
     private readonly IDdeiAuthClient _ddeiAuthClient; 
 
     public RefreshCase(
         ILogger<RefreshCase> logger,
         IOrchestrationProvider orchestrationProvider,
-        IDdeiArgFactory ddeiArgFactory,
+        IMdsArgFactory mdsArgFactory,
         IDdeiAuthClient ddeiAuthClient)
     {
         _logger = logger;
         _orchestrationProvider = orchestrationProvider;
-        _ddeiArgFactory = ddeiArgFactory;
+        _mdsArgFactory = mdsArgFactory;
         _ddeiAuthClient = ddeiAuthClient;
     }
 
@@ -65,7 +65,7 @@ public class RefreshCase
         //  VerifyCmsAuthAsync will throw an exception if the auth values are invalid, and the HandleUnhandledException
         //  process will deal with translating to a 401 Unauthorized response. 
         await _ddeiAuthClient.VerifyCmsAuthAsync(
-            _ddeiArgFactory.CreateCmsCaseDataArgDto(cmsAuthValues, currentCorrelationId)
+            _mdsArgFactory.CreateCmsCaseDataArgDto(cmsAuthValues, currentCorrelationId)
         );
 
         var casePayload = new CasePayload(caseUrn, caseId, cmsAuthValues, currentCorrelationId);

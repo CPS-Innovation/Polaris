@@ -19,20 +19,20 @@ namespace coordinator.Durable.Activity;
 public class GetCaseDocuments
 {
     private readonly IMdsClient _mdsClient;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
     private readonly IDocumentToggleService _documentToggleService;
     private readonly IStateStorageService _stateStorageService;
     private readonly ILogger<GetCaseDocuments> _log;
 
     public GetCaseDocuments(
         IMdsClient mdsClient,
-        IDdeiArgFactory ddeiArgFactory,
+        IMdsArgFactory mdsArgFactory,
         IDocumentToggleService documentToggleService,
         IStateStorageService stateStorageService,
         ILogger<GetCaseDocuments> logger)
     {
         _mdsClient = mdsClient.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _documentToggleService = documentToggleService.ExceptionIfNull();
         _stateStorageService = stateStorageService.ExceptionIfNull();
         _log = logger.ExceptionIfNull();
@@ -62,7 +62,7 @@ public class GetCaseDocuments
         }
 
 
-        var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(
+        var arg = _mdsArgFactory.CreateCaseIdentifiersArg(
             payload.CmsAuthValues,
             payload.CorrelationId,
             payload.Urn,
