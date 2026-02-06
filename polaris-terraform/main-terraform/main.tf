@@ -59,6 +59,7 @@ locals {
   pipeline_resource_name        = var.env != "prod" ? "${var.resource_name_prefix}-pipeline-${var.env}" : "${var.resource_name_prefix}-pipeline"
   ddei_resource_name            = var.env != "prod" ? "${var.resource_name_prefix}-ddei-${var.env}" : "${var.resource_name_prefix}-ddei"
   mds_resource_name             = var.env != "prod" ? var.env != "dev" ? "eas-app-ddei-staging" : "eas-app-ddei-${var.env}" : "wm-app-ddei"
+  materials_resource_name       = var.env != "prod" ? var.env != "dev" ? "as-materials-web-stg-uks" : "as-materials-web-${var.env}-uks" : "as-materials-web-uks"
   mds_mock_resource_name        = var.env != "prod" ? "mock-polaris-ddei-${var.env}" : "mock-polaris-ddei"
   wm_mds_resource_name          = var.env != "prod" ? var.env != "dev" ? "wm-app-ddei-staging" : "wm-app-ddei-${var.env}" : "wm-app-ddei"
   app_service_certificate_store = var.env != "prod" ? "kv-polaris-cert-${var.env}" : "kv-polaris-cert"
