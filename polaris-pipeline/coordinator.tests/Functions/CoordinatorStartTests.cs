@@ -34,7 +34,7 @@ public class CoordinatorStartTests
     private readonly Guid _correlationId;
     private readonly HttpRequest _httpRequest;
     private readonly IHeaderDictionary _httpRequestHeaders;
-    private readonly MdsBaseArgDto _mockVerifyArg;
+    private readonly CmsBaseArgDto _mockVerifyArg;
     private readonly Mock<DurableTaskClient> _mockDurableOrchestrationClient;
     private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
     private readonly Mock<IMdsArgFactory> _mockMdsArgFactory;
@@ -82,7 +82,7 @@ public class CoordinatorStartTests
         _mockOrchestrationProvider.Setup(s => s.DeleteCaseOrchestrationAsync(_mockDurableOrchestrationClient.Object,
             It.IsAny<int>()));
 
-        _mockVerifyArg = fixture.Create<MdsBaseArgDto>();
+        _mockVerifyArg = fixture.Create<CmsBaseArgDto>();
         _mockMdsArgFactory = new Mock<IMdsArgFactory>();
         _mockMdsArgFactory.Setup(factory => factory.CreateCmsCaseDataArgDto(cmsAuthValues, _correlationId))
             .Returns(_mockVerifyArg);

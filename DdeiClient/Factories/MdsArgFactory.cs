@@ -11,9 +11,9 @@ namespace Ddei.Factories
         {
         }
 
-        public MdsBaseArgDto CreateCmsCaseDataArgDto(string cmsAuthValues, Guid correlationId)
+        public CmsBaseArgDto CreateCmsCaseDataArgDto(string cmsAuthValues, Guid correlationId)
         {
-            return new MdsBaseArgDto
+            return new CmsBaseArgDto
             {
                 CmsAuthValues = cmsAuthValues,
                 CorrelationId = correlationId,

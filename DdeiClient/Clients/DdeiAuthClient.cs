@@ -22,7 +22,7 @@ public class DdeiAuthClient : BaseCmsClient, IDdeiAuthClient
         _ddeiAuthClientRequestFactory = ddeiAuthClientRequestFactory.ExceptionIfNull();
     }
 
-    public async Task VerifyCmsAuthAsync(MdsBaseArgDto arg) => await CallDdeiAsync(_ddeiAuthClientRequestFactory.CreateVerifyCmsAuthRequest(arg), arg.CmsAuthValues);
+    public async Task VerifyCmsAuthAsync(CmsBaseArgDto arg) => await CallHttpClientAsync(_ddeiAuthClientRequestFactory.CreateVerifyCmsAuthRequest(arg), arg.CmsAuthValues);
 
     protected override HttpClient GetHttpClient(string cmsAuthValues) => _httpClient;
 }

@@ -6,7 +6,7 @@ namespace Ddei.Factories
 {
     public interface IMdsArgFactory
     {
-        MdsBaseArgDto CreateCmsCaseDataArgDto(string cmsAuthValues, Guid correlationId);
+        CmsBaseArgDto CreateCmsCaseDataArgDto(string cmsAuthValues, Guid correlationId);
         MdsCaseIdOnlyArgDto CreateCaseIdArg(string cmsAuthValues, Guid correlationId, int caseId, string urn = null);
         MdsUrnArgDto CreateUrnArg(string cmsAuthValues, Guid correlationId, string urn);
         MdsCaseIdentifiersArgDto CreateCaseIdentifiersArg(string cmsAuthValues, Guid correlationId, string urn, int caseId);
