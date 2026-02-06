@@ -6,5 +6,5 @@ namespace DdeiClient.Clients.Interfaces;
 
 public interface IDdeiAuthClient
 {
-    Task VerifyCmsAuthAsync(MdsBaseArgDto arg);
+    Task VerifyCmsAuthAsync(CmsBaseArgDto arg);
 }
