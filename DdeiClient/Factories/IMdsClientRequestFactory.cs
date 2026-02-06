@@ -48,7 +48,7 @@ public interface IMdsClientRequestFactory
 
     HttpRequestMessage CreateCaseWitnessesRequest(MdsCaseIdentifiersArgDto arg);
 
-    HttpRequestMessage CreateGetMaterialTypeListRequest(MdsBaseArgDto arg);
+    HttpRequestMessage CreateGetMaterialTypeListRequest(CmsBaseArgDto arg);
 
     HttpRequestMessage CreateGetWitnessStatementsRequest(MdsWitnessStatementsArgDto arg);
 

@@ -199,7 +199,7 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IMdsClientR
         return request;
     }
 
-    public HttpRequestMessage CreateGetMaterialTypeListRequest(MdsBaseArgDto arg)
+    public HttpRequestMessage CreateGetMaterialTypeListRequest(CmsBaseArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/reference/reclassification");
         AddAuthHeaders(request, arg);
@@ -227,7 +227,7 @@ public class MdsClientRequestFactory : BaseDdeiClientRequestFactory, IMdsClientR
         return request;
     }
 
-    protected override void AddAuthHeaders(HttpRequestMessage request, MdsBaseArgDto arg)
+    protected override void AddAuthHeaders(HttpRequestMessage request, CmsBaseArgDto arg)
     {
         request.Headers.Add(HttpHeaderKeys.CmsAuthValues, WebUtility.UrlDecode(arg.CmsAuthValues));
         request.Headers.Add(CorrelationId, arg.CorrelationId.ToString());

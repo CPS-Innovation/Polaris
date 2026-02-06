@@ -56,11 +56,11 @@ public interface IMdsClient
 
     Task<IEnumerable<BaseCaseWitnessResponse>> GetWitnessesAsync(MdsCaseIdentifiersArgDto arg);
 
-    Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(MdsBaseArgDto arg);
+    Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(CmsBaseArgDto arg);
 
     Task<IEnumerable<WitnessStatementDto>> GetWitnessStatementsAsync(MdsWitnessStatementsArgDto arg);
 
     Task<bool> ToggleIsUnusedDocumentAsync(MdsToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto);
 
-    Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(MdsUrnArgDto arg);
+    Task<IEnumerable<MdsCaseIdentifiersDto>> ListCaseIdsAsync(MdsUrnArgDto arg);
 }

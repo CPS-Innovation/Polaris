@@ -1,6 +1,6 @@
 namespace Ddei.Domain.Response
 {
-    public class DdeiCaseIdentifiersDto
+    public class MdsCaseIdentifiersDto
     {
         public int Id { get; set; }
 
