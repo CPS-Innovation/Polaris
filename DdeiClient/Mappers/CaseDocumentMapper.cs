@@ -6,35 +6,35 @@ namespace Ddei.Mappers;
 
 public class CaseDocumentMapper : ICaseDocumentMapper<MdsDocumentResponse>
 {
-    public CmsDocumentDto Map(MdsDocumentResponse ddeiResponse)
+    public CmsDocumentDto Map(MdsDocumentResponse response)
     {
         return new CmsDocumentDto
         {
-            DocumentId = ddeiResponse.Id,
-            VersionId = ddeiResponse.VersionId,
-            Path = ddeiResponse.Path,
-            FileName = ddeiResponse.OriginalFileName,
-            PresentationTitle = ddeiResponse.PresentationTitle,
-            MimeType = ddeiResponse.MimeType,
-            FileExtension = ddeiResponse.FileExtension,
-            CmsDocType = new DocumentTypeDto(ddeiResponse.DocumentType, ddeiResponse.DocumentTypeId, ddeiResponse.CmsDocCategory),
-            DocumentDate = ddeiResponse.DocumentDate,
-            CategoryListOrder = ddeiResponse.CategoryListOrder,
-            IsOcrProcessed = ddeiResponse.IsOcrProcessed == true,
-            IsDispatched = ddeiResponse.IsDispatched,
-            ParentDocumentId = ddeiResponse.ParentId.ToString(),
-            WitnessId = ddeiResponse.WitnessId,
-            HasFailedAttachments = ddeiResponse.HasFailedAttachments,
-            HasNotes = ddeiResponse.HasNotes,
-            IsUnused = ddeiResponse.IsUnused,
-            IsInbox = ddeiResponse.IsInbox,
-            Classification = ddeiResponse.Classification,
-            IsWitnessManagement = ddeiResponse.IsWitnessManagement,
-            CanReclassify = ddeiResponse.CanReclassify,
-            CanRename = ddeiResponse.CanRename,
-            RenameStatus = ddeiResponse.RenameStatus,
-            Reference = ddeiResponse.Reference,
-            Title = ddeiResponse.Title
+            DocumentId = response.Id,
+            VersionId = response.VersionId,
+            Path = response.Path,
+            FileName = response.OriginalFileName,
+            PresentationTitle = response.PresentationTitle,
+            MimeType = response.MimeType,
+            FileExtension = response.FileExtension,
+            CmsDocType = new DocumentTypeDto(response.DocumentType, response.DocumentTypeId, response.CmsDocCategory),
+            DocumentDate = response.DocumentDate,
+            CategoryListOrder = response.CategoryListOrder,
+            IsOcrProcessed = response.IsOcrProcessed == true,
+            IsDispatched = response.IsDispatched,
+            ParentDocumentId = response.ParentId.ToString(),
+            WitnessId = response.WitnessId,
+            HasFailedAttachments = response.HasFailedAttachments,
+            HasNotes = response.HasNotes,
+            IsUnused = response.IsUnused,
+            IsInbox = response.IsInbox,
+            Classification = response.Classification,
+            IsWitnessManagement = response.IsWitnessManagement,
+            CanReclassify = response.CanReclassify,
+            CanRename = response.CanRename,
+            RenameStatus = response.RenameStatus,
+            Reference = response.Reference,
+            Title = response.Title,
         };
     }
 }
