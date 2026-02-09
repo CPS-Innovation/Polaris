@@ -17,7 +17,7 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
     public async Task CheckoutDocument_ShouldReturn200()
     {
         //arrange
-        var urn = "urn";
+        var urn = "54KR7689125";
         var caseId = 1;
         var documentId = "CMS-12345";
         var versionId = 1;

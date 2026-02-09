@@ -37,3 +37,9 @@ _ReSharper*/
 /Cps.Fct.Hk.Ui.Services.Tests/obj
 /DdeiClient/obj
 /polaris-gateway.integration-tests/local.settings.json
+/Cps.Fct.Hk.Ui.Interfaces/bin/Debug/net8.0
+/Cps.Fct.Hk.Ui.ServiceClient.Uma/bin/Debug/net8.0
+/Cps.Fct.Hk.Ui.Services/bin/Debug/net8.0
+/Cps.Fct.Hk.Ui.Services.Tests/bin/Debug/net8.0
+/DdeiClient/bin/Debug/net8.0
+/polaris-gateway.integration-tests/test.runsettings
