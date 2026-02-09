@@ -684,7 +684,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                         <Button
                           onClick={() => {
                             openInNewTab(
-                              `${CASE_REVIEW_APP_REDIRECT_URL}?URN=${urn}&CMSCaseId=${caseId}`
+                              `${CASE_REVIEW_APP_REDIRECT_URL}${caseId}`
                             );
                           }}
                           data-testid="btn-case-review-app"
