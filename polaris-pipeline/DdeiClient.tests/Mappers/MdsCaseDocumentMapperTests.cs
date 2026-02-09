@@ -8,16 +8,16 @@ using Ddei.Domain.Response.Document;
 
 namespace Ddei.tests.Mappers;
 
-public class DdeiCaseDocumentMapperTests
+public class MdsCaseDocumentMapperTests
 {
-    private readonly ICaseDocumentMapper<DdeiDocumentResponse> _mapper;
-    private readonly DdeiDocumentResponse _documentResponse;
+    private readonly ICaseDocumentMapper<MdsDocumentResponse> _mapper;
+    private readonly MdsDocumentResponse _documentResponse;
 
-    public DdeiCaseDocumentMapperTests()
+    public MdsCaseDocumentMapperTests()
     {
         var fixture = new Fixture();
         _mapper = new CaseDocumentMapper();
-        _documentResponse = fixture.Create<DdeiDocumentResponse>();
+        _documentResponse = fixture.Create<MdsDocumentResponse>();
     }
 
     [Fact]

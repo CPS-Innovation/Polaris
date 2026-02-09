@@ -46,9 +46,9 @@ public static class IServiceCollectionExtension
         services.AddTransient<IMdsArgFactory, MdsArgFactory>();
         services.AddTransient<IDdeiAuthClientRequestFactory, DdeiAuthClientRequestFactory>();
         services.AddTransient<IMdsClientRequestFactory, MdsClientRequestFactory>();
-        services.AddTransient<ICaseDocumentMapper<DdeiDocumentResponse>, CaseDocumentMapper>();
+        services.AddTransient<ICaseDocumentMapper<MdsDocumentResponse>, CaseDocumentMapper>();
         services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
-        services.AddTransient<ICaseDocumentMapper<DdeiDocumentResponse>, CaseDocumentMapper>();
+        services.AddTransient<ICaseDocumentMapper<MdsDocumentResponse>, CaseDocumentMapper>();
         services.AddTransient<ICaseDocumentNoteMapper, CaseDocumentNoteMapper>();
         services.AddTransient<ICaseDocumentNoteResultMapper, CaseDocumentNoteResultMapper>();
         services.AddTransient<ICaseExhibitProducerMapper, CaseExhibitProducerMapper>();

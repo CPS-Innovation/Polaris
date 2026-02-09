@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{0CB26D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pdf-generator.test-harness", "polaris-pipeline\pdf-generator.test-harness\pdf-generator.test-harness.csproj", "{2B74B1CD-3739-48EF-AC63-9BCE6F5F3DB4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DdeiClient.tests", "polaris-pipeline\DdeiClient.tests\DdeiClient.tests.csproj", "{D2C07576-2FCE-482B-AB22-D902E7282BDF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MdsClient.tests", "polaris-pipeline\DdeiClient.tests\MdsClient.tests.csproj", "{D2C07576-2FCE-482B-AB22-D902E7282BDF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "polaris-gateway.tests", "polaris-gateway.tests\polaris-gateway.tests.csproj", "{DE6D023B-2169-4522-ABEE-B456A600B76F}"
 EndProject

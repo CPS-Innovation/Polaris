@@ -4,9 +4,9 @@ using Ddei.Domain.Response.Document;
 
 namespace Ddei.Mappers;
 
-public class CaseDocumentMapper : ICaseDocumentMapper<DdeiDocumentResponse>
+public class CaseDocumentMapper : ICaseDocumentMapper<MdsDocumentResponse>
 {
-    public CmsDocumentDto Map(DdeiDocumentResponse ddeiResponse)
+    public CmsDocumentDto Map(MdsDocumentResponse ddeiResponse)
     {
         return new CmsDocumentDto
         {
