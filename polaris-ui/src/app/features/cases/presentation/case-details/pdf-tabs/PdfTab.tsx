@@ -410,7 +410,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             </span>
           </div>
         )}
-        url: {urlWithHeader?.url}
+
         {urlWithHeader?.url ? (
           <PdfViewer
             key={`${documentId}-${versionId}-${urlWithHeader?.url ?? ""}`}
@@ -461,6 +461,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
             handleHideSaveRotationModal(documentId)
           }
         />
+
         {showRedactionWarning && (
           <SearchPIIRedactionWarningModal
             documentId={documentId}
