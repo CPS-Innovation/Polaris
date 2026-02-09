@@ -1,6 +1,6 @@
 namespace Ddei.Domain.Response.Document
 {
-    public class DdeiDocumentReclassifiedResponse
+    public class MdsDocumentReclassifiedResponse
     {
         public int Id { get; set; }
         public int DocumentTypeId { get; set; }

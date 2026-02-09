@@ -5,7 +5,7 @@ namespace Ddei.Mappers;
 
 public class CaseIdentifiersMapper : ICaseIdentifiersMapper
 {
-    public CaseIdentifiersDto MapCaseIdentifiers(DdeiCaseIdentifiersDto caseIdentifiers)
+    public CaseIdentifiersDto MapCaseIdentifiers(MdsCaseIdentifiersDto caseIdentifiers)
     {
         return new CaseIdentifiersDto
         {

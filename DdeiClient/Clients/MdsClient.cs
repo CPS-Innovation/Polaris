@@ -73,9 +73,9 @@ public class MdsClient : BaseCmsClient, IMdsClient
 
     public async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(MdsCaseIdOnlyArgDto arg)
     {
-        var ddeiCaseIdentifiersDto = await CallDdeiAsync<DdeiCaseIdentifiersDto>(_mdsClientRequestFactory.CreateUrnLookupRequest(arg), arg.CmsAuthValues);
+        var mdsCaseIdentifiersDto = await CallHttpClientAsync<MdsCaseIdentifiersDto>(_mdsClientRequestFactory.CreateUrnLookupRequest(arg), arg.CmsAuthValues);
 
-        return _caseIdentifiersMapper.MapCaseIdentifiers(ddeiCaseIdentifiersDto);
+        return _caseIdentifiersMapper.MapCaseIdentifiers(mdsCaseIdentifiersDto);
     }
 
     public async Task<IEnumerable<CaseDto>> ListCasesAsync(MdsUrnArgDto arg)
@@ -97,31 +97,31 @@ public class MdsClient : BaseCmsClient, IMdsClient
 
     public async Task<CaseSummaryDto> GetCaseSummaryAsync(MdsCaseIdOnlyArgDto arg)
     {
-        var ddeiResult = await CallDdeiAsync<MdsCaseSummaryDto>(_mdsClientRequestFactory.CreateGetCaseSummary(arg), arg.CmsAuthValues);
-        return _caseDetailsMapper.Map(ddeiResult);
+        var mdsResult = await CallHttpClientAsync<MdsCaseSummaryDto>(_mdsClientRequestFactory.CreateGetCaseSummary(arg), arg.CmsAuthValues);
+        return _caseDetailsMapper.Map(mdsResult);
     }
 
     public async Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsCoreAsync(MdsCaseIdentifiersArgDto arg)
     {
-        var pcdRequests = await CallDdeiAsync<IEnumerable<DdeiPcdRequestCoreDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues);
+        var pcdRequests = await CallHttpClientAsync<IEnumerable<DdeiPcdRequestCoreDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues);
         return _caseDetailsMapper.MapCorePreChargeDecisionRequests(pcdRequests);
     }
 
     public async Task<IEnumerable<PcdRequestDto>> GetPcdRequestsAsync(MdsCaseIdentifiersArgDto arg)
     {
-        var pcdRequests = await CallDdeiAsync<IEnumerable<DdeiPcdRequestDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues);
+        var pcdRequests = await CallHttpClientAsync<IEnumerable<DdeiPcdRequestDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues);
         return _caseDetailsMapper.MapPreChargeDecisionRequests(pcdRequests);
     }
 
     public async Task<PcdRequestDto> GetPcdRequestAsync(MdsPcdArgDto arg)
     {
-        var pcdRequest = await CallDdeiAsync<DdeiPcdRequestDto>(_mdsClientRequestFactory.CreateGetPcdRequest(arg), arg.CmsAuthValues);
+        var pcdRequest = await CallHttpClientAsync<DdeiPcdRequestDto>(_mdsClientRequestFactory.CreateGetPcdRequest(arg), arg.CmsAuthValues);
         return _caseDetailsMapper.MapPreChargeDecisionRequest(pcdRequest);
     }
 
     public async Task<DefendantsAndChargesListDto> GetDefendantAndChargesAsync(MdsCaseIdentifiersArgDto arg)
     {
-        var response = await CallDdeiAsync(_mdsClientRequestFactory.CreateGetDefendantAndChargesRequest(arg), arg.CmsAuthValues);
+        var response = await CallHttpClientAsync(_mdsClientRequestFactory.CreateGetDefendantAndChargesRequest(arg), arg.CmsAuthValues);
         var content = await response.Content.ReadAsStringAsync();
         var defendantAndCharges = _jsonConvertWrapper.DeserializeObject<IEnumerable<DdeiCaseDefendantDto>>(content);
         var etag = response.Headers.ETag?.Tag;
@@ -131,14 +131,14 @@ public class MdsClient : BaseCmsClient, IMdsClient
 
     public async Task<IEnumerable<CmsDocumentDto>> ListDocumentsAsync(MdsCaseIdentifiersArgDto arg)
     {
-        var ddeiResults = await CallDdeiAsync<List<DdeiDocumentResponse>>(_mdsClientRequestFactory.CreateListCaseDocumentsRequest(arg), arg.CmsAuthValues);
+        var mdsResults = await CallHttpClientAsync<List<DdeiDocumentResponse>>(_mdsClientRequestFactory.CreateListCaseDocumentsRequest(arg), arg.CmsAuthValues);
 
-        return ddeiResults.Select(ddeiResult => _caseDocumentMapper.Map(ddeiResult));
+        return mdsResults.Select(mdsResult => _caseDocumentMapper.Map(mdsResult));
     }
 
     public async Task<FileResult> GetDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg)
     {
-        var response = await CallDdeiAsync(_mdsClientRequestFactory.CreateGetDocumentRequest(arg), arg.CmsAuthValues);
+        var response = await CallHttpClientAsync(_mdsClientRequestFactory.CreateGetDocumentRequest(arg), arg.CmsAuthValues);
         var fileName = response.Content.Headers.GetValues("Content-Disposition").ToList()[0];
 
         return new FileResult
@@ -150,7 +150,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
 
     public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)
     {
-        var response = await CallDdeiAsync(
+        var response = await CallHttpClientAsync(
             _mdsClientRequestFactory.CreateDocumentFromFileStoreRequest(new MdsFileStoreArgDto
             {
                 Path = path,
@@ -165,7 +165,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
 
     public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg)
     {
-        var response = await CallDdeiAsync(
+        var response = await CallHttpClientAsync(
             _mdsClientRequestFactory.CreateCheckoutDocumentRequest(arg), arg.CmsAuthValues, HttpStatusCode.Conflict);
 
         return response.StatusCode == HttpStatusCode.Conflict ?
@@ -182,12 +182,12 @@ public class MdsClient : BaseCmsClient, IMdsClient
 
     public async Task CancelCheckoutDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg)
     {
-        await CallDdeiAsync(_mdsClientRequestFactory.CreateCancelCheckoutDocumentRequest(arg), arg.CmsAuthValues);
+        await CallHttpClientAsync(_mdsClientRequestFactory.CreateCancelCheckoutDocumentRequest(arg), arg.CmsAuthValues);
     }
 
     public async Task<HttpResponseMessage> UploadPdfAsync(MdsDocumentIdAndVersionIdArgDto arg, Stream stream)
     {
-        return await CallDdeiAsync(_mdsClientRequestFactory.CreateUploadPdfRequest(arg, stream), arg.CmsAuthValues,
+        return await CallHttpClientAsync(_mdsClientRequestFactory.CreateUploadPdfRequest(arg, stream), arg.CmsAuthValues,
         [
             HttpStatusCode.Gone,
             HttpStatusCode.RequestEntityTooLarge
@@ -196,35 +196,35 @@ public class MdsClient : BaseCmsClient, IMdsClient
 
     public async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotesAsync(MdsDocumentArgDto arg)
     {
-        var ddeiResults = await CallDdeiAsync<List<DocumentNoteResponse>>(_mdsClientRequestFactory.CreateGetDocumentNotesRequest(arg), arg.CmsAuthValues);
+        var mdsResults = await CallHttpClientAsync<List<DocumentNoteResponse>>(_mdsClientRequestFactory.CreateGetDocumentNotesRequest(arg), arg.CmsAuthValues);
 
-        return ddeiResults.Select(ddeiResult => _caseDocumentNoteMapper.Map(ddeiResult)).ToArray();
+        return mdsResults.Select(mdsResult => _caseDocumentNoteMapper.Map(mdsResult)).ToArray();
     }
 
     public async Task<DocumentNoteResult> AddDocumentNoteAsync(MdsAddDocumentNoteArgDto arg)
     {
-        var response = await CallDdeiAsync<DdeiDocumentNoteAddedResponse>(_mdsClientRequestFactory.CreateAddDocumentNoteRequest(arg), arg.CmsAuthValues);
+        var response = await CallHttpClientAsync<DdeiDocumentNoteAddedResponse>(_mdsClientRequestFactory.CreateAddDocumentNoteRequest(arg), arg.CmsAuthValues);
 
         return _caseDocumentNoteResultMapper.Map(response);
     }
 
     public async Task<DocumentRenamedResultDto> RenameDocumentAsync(MdsRenameDocumentArgDto arg)
     {
-        var response = await CallDdeiAsync<RenameMaterialResponse>(_mdsClientRequestFactory.CreateRenameDocumentRequest(arg), arg.CmsAuthValues);
+        var response = await CallHttpClientAsync<RenameMaterialResponse>(_mdsClientRequestFactory.CreateRenameDocumentRequest(arg), arg.CmsAuthValues);
 
         return new DocumentRenamedResultDto { Id = response.UpdateCommunication.Id };
     }
 
     public async Task<DocumentRenamedResultDto> RenameExhibitAsync(MdsRenameDocumentArgDto arg)
     {
-        var response = await CallDdeiAsync<RenameMaterialDescriptionResponse>(_mdsClientRequestFactory.CreateRenameExhibitRequest(arg), arg.CmsAuthValues);
+        var response = await CallHttpClientAsync<RenameMaterialDescriptionResponse>(_mdsClientRequestFactory.CreateRenameExhibitRequest(arg), arg.CmsAuthValues);
 
         return new DocumentRenamedResultDto { Id = response.UpdateCommunicationDescription.Id };
     }
 
     public async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(MdsReclassifyDocumentArgDto arg)
     {
-        var response = await CallDdeiAsync<DdeiDocumentReclassifiedResponse>(_mdsClientRequestFactory.CreateReclassifyDocumentRequest(arg), arg.CmsAuthValues);
+        var response = await CallHttpClientAsync<MdsDocumentReclassifiedResponse>(_mdsClientRequestFactory.CreateReclassifyDocumentRequest(arg), arg.CmsAuthValues);
 
         return new DocumentReclassifiedResultDto
         {
@@ -233,52 +233,52 @@ public class MdsClient : BaseCmsClient, IMdsClient
             ReclassificationType = response.ReclassificationType,
             OriginalDocumentTypeId = response.OriginalDocumentTypeId,
             DocumentRenamed = response.DocumentRenamed,
-            DocumentRenamedOperationName = response.DocumentRenamedOperationName
+            DocumentRenamedOperationName = response.DocumentRenamedOperationName,
         };
     }
 
     public async Task<MdsCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(MdsReclassifyCommunicationArgDto arg)
     {
-        return await CallDdeiAsync<MdsCommunicationReclassifiedResponse>(_mdsClientRequestFactory.CreateReclassifyCommunicationRequest(arg), arg.CmsAuthValues);
+        return await CallHttpClientAsync<MdsCommunicationReclassifiedResponse>(_mdsClientRequestFactory.CreateReclassifyCommunicationRequest(arg), arg.CmsAuthValues);
     }
 
     public async Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(MdsCaseIdentifiersArgDto arg)
     {
-        var ddeiResults = await CallDdeiAsync<MdsDocumentExhibitProducerResponse>(_mdsClientRequestFactory.CreateGetExhibitProducersRequest(arg), arg.CmsAuthValues);
+        var mdsResults = await CallHttpClientAsync<MdsDocumentExhibitProducerResponse>(_mdsClientRequestFactory.CreateGetExhibitProducersRequest(arg), arg.CmsAuthValues);
 
-        return ddeiResults.ExhibitProducers.Select(_caseExhibitProducerMapper.Map);
+        return mdsResults.ExhibitProducers.Select(_caseExhibitProducerMapper.Map);
     }
 
     public async Task<IEnumerable<BaseCaseWitnessResponse>> GetWitnessesAsync(MdsCaseIdentifiersArgDto arg)
     {
-        var ddeiResults = await CallDdeiAsync<List<MdsCaseWitnessResponse>>(_mdsClientRequestFactory.CreateCaseWitnessesRequest(arg), arg.CmsAuthValues);
+        var mdsResults = await CallHttpClientAsync<List<MdsCaseWitnessResponse>>(_mdsClientRequestFactory.CreateCaseWitnessesRequest(arg), arg.CmsAuthValues);
 
-        return ddeiResults;
+        return mdsResults;
     }
 
-    public async Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(MdsBaseArgDto arg)
+    public async Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(CmsBaseArgDto arg)
     {
-        var ddeiResults = await CallDdeiAsync<List<MdsMaterialTypeListResponse>>(_mdsClientRequestFactory.CreateGetMaterialTypeListRequest(arg), arg.CmsAuthValues);
+        var mdsResults = await CallHttpClientAsync<List<MdsMaterialTypeListResponse>>(_mdsClientRequestFactory.CreateGetMaterialTypeListRequest(arg), arg.CmsAuthValues);
 
-        return ddeiResults.Select(ddeiResult => _cmsMaterialTypeMapper.Map(ddeiResult)).ToArray();
+        return mdsResults.Select(mdsResult => _cmsMaterialTypeMapper.Map(mdsResult)).ToArray();
     }
 
     public async Task<IEnumerable<WitnessStatementDto>> GetWitnessStatementsAsync(MdsWitnessStatementsArgDto arg)
     {
-        var ddeiResults = await CallDdeiAsync<StatementsForWitnessResponse>(_mdsClientRequestFactory.CreateGetWitnessStatementsRequest(arg), arg.CmsAuthValues);
+        var mdsResults = await CallHttpClientAsync<StatementsForWitnessResponse>(_mdsClientRequestFactory.CreateGetWitnessStatementsRequest(arg), arg.CmsAuthValues);
 
-        return ddeiResults.StatementsForWitness.Select(_caseWitnessStatementMapper.Map).ToArray();
+        return mdsResults.StatementsForWitness.Select(_caseWitnessStatementMapper.Map).ToArray();
     }
 
     public async Task<bool> ToggleIsUnusedDocumentAsync(MdsToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto) =>
-        (await CallDdeiAsync(_mdsClientRequestFactory.CreateToggleIsUnusedDocumentRequest(toggleIsUnusedDocumentDto), toggleIsUnusedDocumentDto.CmsAuthValues))
+        (await CallHttpClientAsync(_mdsClientRequestFactory.CreateToggleIsUnusedDocumentRequest(toggleIsUnusedDocumentDto), toggleIsUnusedDocumentDto.CmsAuthValues))
         .IsSuccessStatusCode;
 
-    public async Task<IEnumerable<DdeiCaseIdentifiersDto>> ListCaseIdsAsync(MdsUrnArgDto arg) =>
-        await CallDdeiAsync<IEnumerable<DdeiCaseIdentifiersDto>>(_mdsClientRequestFactory.CreateListCasesRequest(arg), arg.CmsAuthValues);
+    public async Task<IEnumerable<MdsCaseIdentifiersDto>> ListCaseIdsAsync(MdsUrnArgDto arg) =>
+        await CallHttpClientAsync<IEnumerable<MdsCaseIdentifiersDto>>(_mdsClientRequestFactory.CreateListCasesRequest(arg), arg.CmsAuthValues);
 
     private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(MdsCaseIdentifiersArgDto arg) =>
-        await CallDdeiAsync<DdeiCaseDetailsDto>(_mdsClientRequestFactory.CreateGetCaseRequest(arg), arg.CmsAuthValues);
+        await CallHttpClientAsync<DdeiCaseDetailsDto>(_mdsClientRequestFactory.CreateGetCaseRequest(arg), arg.CmsAuthValues);
 
     protected override HttpClient GetHttpClient(string cmsAuthValues)
     {

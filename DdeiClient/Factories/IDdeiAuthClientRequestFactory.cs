@@ -5,5 +5,5 @@ namespace Ddei.Factories;
 
 public interface IDdeiAuthClientRequestFactory
 {
-    HttpRequestMessage CreateVerifyCmsAuthRequest(MdsBaseArgDto arg);
+    HttpRequestMessage CreateVerifyCmsAuthRequest(CmsBaseArgDto arg);
 }

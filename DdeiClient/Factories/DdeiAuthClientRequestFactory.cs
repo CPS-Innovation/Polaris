@@ -10,7 +10,7 @@ namespace DdeiClient.Factories;
 
 public class DdeiAuthClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiAuthClientRequestFactory
 {
-    public HttpRequestMessage CreateVerifyCmsAuthRequest(MdsBaseArgDto arg)
+    public HttpRequestMessage CreateVerifyCmsAuthRequest(CmsBaseArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/verify-cms-auth");
         AddAuthHeaders(request, arg);
