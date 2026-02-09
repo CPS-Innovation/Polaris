@@ -16,18 +16,18 @@ namespace coordinator.Durable.Activity.GeneratePdf;
 
 public abstract class BaseGeneratePdf
 {
-    protected readonly IDdeiArgFactory DdeiArgFactory;
+    protected readonly IMdsArgFactory MdsArgFactory;
     protected readonly IMdsClient MdsClient;
     private readonly IPdfGeneratorClient _pdfGeneratorClient;
     private readonly IPolarisBlobStorageService _polarisBlobStorageService;
 
-    protected BaseGeneratePdf(IDdeiArgFactory ddeiArgFactory,
+    protected BaseGeneratePdf(IMdsArgFactory mdsArgFactory,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IPdfGeneratorClient pdfGeneratorClient,
         IConfiguration configuration, 
         IMdsClient mdsClient)
     {
-        DdeiArgFactory = ddeiArgFactory;
+        MdsArgFactory = mdsArgFactory;
         _pdfGeneratorClient = pdfGeneratorClient;
         _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
         MdsClient = mdsClient.ExceptionIfNull();

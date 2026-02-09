@@ -58,6 +58,7 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "CIN5_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"          = var.cms_details.cin5_upstream_cms_services_domain_name
     "CIN5_UPSTREAM_CMS_MODERN_DOMAIN_NAME"            = var.cms_details.cin5_upstream_cms_modern_domain_name
     "APP_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
+    "MATERIALS_APP_ENDPOINT_DOMAIN_NAME"              = "${local.materials_resource_name}.azurewebsites.net"
     "APP_SUBFOLDER_PATH"                              = var.polaris_ui_sub_folder
     "API_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
     "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"              = "fa-${local.ddei_resource_name}.azurewebsites.net"
@@ -73,6 +74,7 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
     "WM_MDS_BASE_URL"                                 = "https://fa-${local.wm_mds_resource_name}.azurewebsites.net/api/"
     "WM_MDS_ACCESS_KEY"                               = data.azurerm_key_vault_secret.kvs_fa_wm_mds_host_keys.value
+    "CPS_GLOBAL_COMPONENTS_BLOB_STORAGE_DOMAIN"       = var.cps_global_components.blob_storage_domain
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"

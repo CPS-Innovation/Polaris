@@ -58,6 +58,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "CIN5_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"          = var.cms_details.cin5_upstream_cms_services_domain_name
     "CIN5_UPSTREAM_CMS_MODERN_DOMAIN_NAME"            = var.cms_details.cin5_upstream_cms_modern_domain_name
     "APP_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_web_app.as_web_polaris.name}.azurewebsites.net"
+    "MATERIALS_APP_ENDPOINT_DOMAIN_NAME"              = "${local.materials_resource_name}.azurewebsites.net"
     "APP_SUBFOLDER_PATH"                              = var.polaris_ui_sub_folder
     "API_ENDPOINT_DOMAIN_NAME"                        = "${azurerm_linux_function_app.fa_polaris.name}.azurewebsites.net"
     "AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"              = "fa-${local.ddei_resource_name}.azurewebsites.net"
@@ -73,6 +74,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
     "WM_MDS_BASE_URL"                                 = "https://fa-${local.wm_mds_resource_name}.azurewebsites.net/api/"
     "WM_MDS_ACCESS_KEY"                               = data.azurerm_key_vault_secret.kvs_fa_wm_mds_host_keys.value
+    "CPS_GLOBAL_COMPONENTS_BLOB_STORAGE_DOMAIN"       = var.cps_global_components.blob_storage_domain
     "WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"    = "0"
     "WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"      = "0"
     "WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"             = "10"
@@ -195,6 +197,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       app_settings["CIN5_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
       app_settings["CIN5_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
       app_settings["APP_ENDPOINT_DOMAIN_NAME"],
+      app_settings["MATERIALS_APP_ENDPOINT_DOMAIN_NAME"],
       app_settings["APP_SUBFOLDER_PATH"],
       app_settings["API_ENDPOINT_DOMAIN_NAME"],
       app_settings["AUTH_HANDOVER_ENDPOINT_DOMAIN_NAME"],
@@ -210,6 +213,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       app_settings["AUTH_HANDOVER_WHITELIST"],
       app_settings["WM_MDS_BASE_URL"],
       app_settings["WM_MDS_ACCESS_KEY"],
+      app_settings["CPS_GLOBAL_COMPONENTS_BLOB_STORAGE_DOMAIN"],
       app_settings["WEBSITE_OVERRIDE_STICKY_DIAGNOSTICS_SETTINGS"],
       app_settings["WEBSITE_OVERRIDE_STICKY_EXTENSION_VERSIONS"],
       app_settings["WEBSITE_SLOT_MAX_NUMBER_OF_TIMEOUTS"],

@@ -17,15 +17,15 @@ namespace PolarisGateway.Tests.Functions;
 public class GetWitnessStatementsTests
 {
     private readonly Mock<ILogger<GetWitnessStatements>> _loggerMock;
-    private readonly Mock<IDdeiArgFactory> _ddeiArgFactoryMock;
+    private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IMdsClient> _mdsClientMock;
     private readonly GetWitnessStatements _getWitnessStatements;
     public GetWitnessStatementsTests()
     {
         _loggerMock = new Mock<ILogger<GetWitnessStatements>>();
-        _ddeiArgFactoryMock = new Mock<IDdeiArgFactory>();
+        _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _mdsClientMock = new Mock<IMdsClient>();
-        _getWitnessStatements = new GetWitnessStatements(_loggerMock.Object, _ddeiArgFactoryMock.Object, _mdsClientMock.Object);
+        _getWitnessStatements = new GetWitnessStatements(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsClientMock.Object);
     }
 
     [Fact]
@@ -36,9 +36,9 @@ public class GetWitnessStatementsTests
         var caseUrn = "caseUrn";
         var caseId = 1;
         var witnessId = 2;
-        var witnessStatementsArgDto = new DdeiWitnessStatementsArgDto();
+        var witnessStatementsArgDto = new MdsWitnessStatementsArgDto();
         var witnessStatementDtos = new List<WitnessStatementDto>();
-        _ddeiArgFactoryMock.Setup(s => s.CreateWitnessStatementsArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, witnessId)).Returns(witnessStatementsArgDto);
+        _mdsArgFactoryMock.Setup(s => s.CreateWitnessStatementsArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, witnessId)).Returns(witnessStatementsArgDto);
         _mdsClientMock.Setup(s => s.GetWitnessStatementsAsync(witnessStatementsArgDto)).ReturnsAsync(witnessStatementDtos);
         //act
         var result = await _getWitnessStatements.Run(req, caseUrn, caseId, witnessId);

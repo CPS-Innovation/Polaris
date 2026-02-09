@@ -13,16 +13,16 @@ namespace PolarisGateway.Functions;
 public class GetWitnessStatements : BaseFunction
 {
     private readonly ILogger<GetWitnessStatements> _logger;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
     private readonly IMdsClient _mdsClient;
 
     public GetWitnessStatements(
         ILogger<GetWitnessStatements> logger,
-        IDdeiArgFactory ddeiArgFactory,
+        IMdsArgFactory mdsArgFactory,
         IMdsClient mdsClient)
     {
         _logger = logger.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
     }
 
@@ -33,7 +33,7 @@ public class GetWitnessStatements : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var witnessStatementsArgDto = _ddeiArgFactory.CreateWitnessStatementsArgDto(cmsAuthValues, correlationId, caseUrn, caseId, witnessId);
+        var witnessStatementsArgDto = _mdsArgFactory.CreateWitnessStatementsArgDto(cmsAuthValues, correlationId, caseUrn, caseId, witnessId);
         var witnessStatementDtos = await _mdsClient.GetWitnessStatementsAsync(witnessStatementsArgDto);
 
         return new OkObjectResult(witnessStatementDtos);

@@ -22,10 +22,10 @@ namespace coordinator.Durable.Activity
             IPdfGeneratorClient pdfGeneratorClient,
             IMdsClient mdsClient,
             Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-            IDdeiArgFactory ddeiArgFactory,
+            IMdsArgFactory mdsArgFactory,
             IConvertModelToHtmlService convertPcdRequestToHtmlService,
             IConfiguration configuration)
-            : base(ddeiArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient)
+            : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient)
         {
             _convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
         }
@@ -38,7 +38,7 @@ namespace coordinator.Durable.Activity
 
         protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload)
         {
-            var arg = DdeiArgFactory.CreateCaseIdentifiersArg(
+            var arg = MdsArgFactory.CreateCaseIdentifiersArg(
                             payload.CmsAuthValues,
                             payload.CorrelationId,
                             payload.Urn,
