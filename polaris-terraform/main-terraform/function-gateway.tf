@@ -62,6 +62,10 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITE_WARMUP_PATH"                             = "/api/status"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+    "MasterDataServiceClient__BaseAddress"            = "https://fa-${local.mds_resource_name}.azurewebsites.net/api/"
+    "MasterDataServiceClient__FunctionKey"            = data.azurerm_key_vault_secret.kvs_fa_mds_host_keys.value
+    "UMAClient__BaseAddress"                          = "https://fa-hsk-class-svc-${local.env_name}.azurewebsites.net/"
+    "UMAClient__FunctionKey"                          = data.azurerm_key_vault_secret.kvs_fa_uma_host_keys.value
   }
 
   sticky_settings {
@@ -161,7 +165,11 @@ resource "azurerm_linux_function_app" "fa_polaris" {
       app_settings["WEBSITE_SWAP_WARMUP_PING_PATH"],
       app_settings["WEBSITE_SWAP_WARMUP_PING_STATUSES"],
       app_settings["WEBSITE_WARMUP_PATH"],
-      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"]
+      app_settings["WEBSITES_ENABLE_APP_SERVICE_STORAGE"],
+      app_settings["MasterDataServiceClient__BaseAddress"],
+      app_settings["MasterDataServiceClient__FunctionKey"],
+      app_settings["UmaClient__BaseAddress"],
+      app_settings["UmaClient__FunctionKey"]
     ]
   }
 

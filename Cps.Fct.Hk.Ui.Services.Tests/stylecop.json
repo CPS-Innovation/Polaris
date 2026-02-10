@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
+  "settings": {
+    "documentationRules": {
+      "companyName": "TheCrownProsecutionService",
+      "copyrightText": "Copyright (c) The Crown Prosecution Service. All rights reserved.",
+      "xmlHeader": true,
+      "fileNamingConvention": "stylecop"
+    },
+    "layoutRules": {
+      "newlineAtEndOfFile": "require"
+    }
+  }
+}

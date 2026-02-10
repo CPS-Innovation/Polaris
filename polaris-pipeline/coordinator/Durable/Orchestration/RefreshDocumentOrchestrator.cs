@@ -61,7 +61,7 @@ namespace coordinator.Durable.Orchestration
                 return new RefreshDocumentOrchestratorResponse { PdfConversionResponse = pdfConversionResponse, DocumentId = payload.DocumentId };
             }
 
-            await context.CallActivityAsync(nameof(SetDocumentPdfConversionSucceeded), new CaseIdAndDocumentIPayload { CaseId = payload.CaseId, DocumentId = payload.DocumentId });
+            await context.CallActivityAsync(nameof(SetDocumentPdfConversionSucceeded), new CaseIdAndDocumentIdPayload { CaseId = payload.CaseId, DocumentId = payload.DocumentId });
 
             var telemetryEvent = new IndexedDocumentEvent(payload.CorrelationId)
             {
@@ -93,7 +93,7 @@ namespace coordinator.Durable.Orchestration
                 telemetryEvent.IndexSettleTargetCount = indexStoredResult.LineCount;
                 telemetryEvent.EndTime = context.CurrentUtcDateTime;
 
-                await context.CallActivityAsync(nameof(SetDocumentIndexingSucceeded),new CaseIdAndDocumentIPayload { CaseId = payload.CaseId, DocumentId = payload.DocumentId });
+                await context.CallActivityAsync(nameof(SetDocumentIndexingSucceeded),new CaseIdAndDocumentIdPayload { CaseId = payload.CaseId, DocumentId = payload.DocumentId });
 
                 // by this point we may be replaying, so good to keep a record
                 telemetryEvent.DidOrchestratorReplay = context.IsReplaying;
@@ -109,7 +109,7 @@ namespace coordinator.Durable.Orchestration
                 // todo: there is no durable replay protection here, and there is evidence of several failure event records for the same failure event in our analytics.
                 _telemetryClient.TrackEventFailure(telemetryEvent);
 
-                await context.CallActivityAsync(nameof(SetDocumentIndexingFailed), new CaseIdAndDocumentIPayload { DocumentId = payload.DocumentId, CaseId = payload.CaseId });
+                await context.CallActivityAsync(nameof(SetDocumentIndexingFailed), new CaseIdAndDocumentIdPayload { DocumentId = payload.DocumentId, CaseId = payload.CaseId });
 
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshDocumentOrchestrator), $"Error when running {nameof(RefreshDocumentOrchestrator)} orchestration: {exception.Message}", exception);
 

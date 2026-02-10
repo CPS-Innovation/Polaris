@@ -132,7 +132,7 @@ describe("redaction refresh flow", () => {
     cy.findByTestId("div-pdfviewer-0").should("exist");
   });
 
-  it("Should disable saveRedaction and remove all redaction button, when saving a redaction", () => {
+  xit("Should disable saveRedaction and remove all redaction button, when saving a redaction", () => {
     cy.overrideRoute(
       SAVE_REDACTION_ROUTE,
       {

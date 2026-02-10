@@ -15,18 +15,18 @@ namespace PolarisGateway.Functions;
 public class GetWitnesses : BaseFunction
 {
     private readonly ILogger<GetWitnesses> _logger;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
     private readonly IMdsClient _mdsClient;
     private readonly ICaseWitnessMapper _caseWitnessMapper;
     public GetWitnesses(
         ILogger<GetWitnesses> logger,
-        IDdeiArgFactory ddeiArgFactory, 
-        IMdsClient mdsClient, 
+        IMdsArgFactory mdsArgFactory,
+        IMdsClient mdsClient,
         ICaseWitnessMapper caseWitnessMapper)
         : base()
     {
         _logger = logger.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
         _caseWitnessMapper = caseWitnessMapper.ExceptionIfNull();
     }
@@ -38,8 +38,8 @@ public class GetWitnesses : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var arg = _ddeiArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
-        
+        var arg = _mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
+
         var caseWitnessResponses = await _mdsClient.GetWitnessesAsync(arg);
         var caseWitnesses = caseWitnessResponses.Select(_caseWitnessMapper.Map);
 

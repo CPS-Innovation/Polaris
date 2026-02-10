@@ -15,8 +15,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
 		<ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
-		<ProjectReference Include="..\polaris-pipeline\DdeiClient\DdeiClient.csproj" />
 		<ProjectReference Include="..\shared.integration-tests\shared.integration-tests.csproj" />
 	</ItemGroup>
 

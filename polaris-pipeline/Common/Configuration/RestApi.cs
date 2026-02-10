@@ -1,4 +1,7 @@
-﻿namespace Common.Configuration;
+﻿using System.Security.AccessControl;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+namespace Common.Configuration;
 
 public static class RestApi
 {
@@ -26,6 +29,34 @@ public static class RestApi
     public const string OcrSearch = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/search";
     public const string OcrSearchTracker = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/search/tracker";
 
+    // House keeping endpoints
+    public const string CaseInfo = "urns/{caseUrn}/case-info/{caseId:min(1)}";
+    public const string CaseMaterials = "urns/{caseUrn}/cases/{caseId:min(1)}/case-materials";
+    public const string CaseMaterialsPreview = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/preview";
+    public const string MaterialDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/document";
+    public const string DocumentTypes = "urns/{caseUrn}/cases/{caseId:min(1)}/document-types";
+    public const string ExhibitProducers = "urns/{caseUrn}/cases/{caseId:min(1)}/case-exhibit-producers";
+    public const string CaseWitnessStatements = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/witness-statements";
+    public const string CompleteReclassification = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/reclassify-complete";
+    public const string CaseWitnessesHk = "urns/{caseUrn}/cases/{caseId:min(1)}/case-witnesses";
+    public const string CaseLockInfo = "urns/{caseUrn}/cases/{caseId:min(1)}/case-lock-info";
+    public const string RenameMaterial = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/rename";
+    public const string DiscardMaterial = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/discard";
+    public const string PcdRequest = "urns/{caseUrn}/cases/{caseId:min(1)}/pcds/{pcdId}/pcd-request";
+    public const string PcdRequestCore = "urns/{caseUrn}/cases/{caseId:min(1)}/pcds/{pcdId}/pcd-request-core";
+    public const string CaseDefendants = "urns/{caseUrn}/cases/{caseId:min(1)}/case-defendants";
+    public const string UpdateExhibit = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/exhibit";
+    public const string UpdateStatement = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/statement";
+    public const string CaseHistoryEvent = "urns/{caseUrn}/cases/{caseId:min(1)}/history";
+    public const string InitialReviewByHistoryId = "urns/{caseUrn}/cases/{caseId:min(1)}/history/{historyId}/initial-review";
+    public const string InitialReviewByCase = "urns/{caseUrn}/cases/{caseId:min(1)}/initial-review";
+    public const string OffenseCharge = "urns/{caseUrn}/cases/{caseId:min(1)}/history/{historyId}/offence-charge";
+    public const string PreChargeDecision = "urns/{caseUrn}/cases/{caseId:min(1)}/pre-charge-decision";
+    public const string PreChargeDecisionByHistoryId = "urns/{caseUrn}/cases/{caseId:min(1)}/history/{historyId}/pre-charge-decision";
+    public const string PcdReview = "urns/{caseUrn}/cases/{caseId:min(1)}/pcd-review";
+    public const string ReadStatus = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/read-status";
+    public const string UmaReclassify = "urns/{caseUrn}/cases/{caseId:min(1)}/uma-reclassify";
+    public const string BulkSetUnused = "urns/{caseUrn}/cases/{caseId:min(1)}/bulk-set-unused";
     // Internal Pipeline
     public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";
     public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/convert-to-pdf";

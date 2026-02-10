@@ -7,6 +7,7 @@ using PolarisGateway.Services.Artefact.Factories;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Common.Extensions;
 
 namespace PolarisGateway.Services.Artefact;
 
@@ -24,20 +25,20 @@ public class PiiArtefactService : IPiiArtefactService
         IOcrArtefactService ocrArtefactService
         )
     {
-        _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
-        _artefactServiceResponseFactory = artefactServiceResponseFactory ?? throw new ArgumentNullException(nameof(artefactServiceResponseFactory));
-        _piiService = piiService ?? throw new ArgumentNullException(nameof(piiService));
-        _ocrArtefactService = ocrArtefactService ?? throw new ArgumentNullException(nameof(ocrArtefactService));
+        _cacheService = cacheService.ExceptionIfNull();
+        _artefactServiceResponseFactory = artefactServiceResponseFactory.ExceptionIfNull();
+        _piiService = piiService.ExceptionIfNull();
+        _ocrArtefactService = ocrArtefactService.ExceptionIfNull();
     }
 
-    public async Task<ArtefactResult<IEnumerable<PiiLine>>> GetPiiAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null)
+    public async Task<ArtefactResult<IEnumerable<PiiLine>>> GetPiiAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null, bool forceRefresh = false)
     {
-        if (await _cacheService.TryGetJsonObjectAsync<IEnumerable<PiiLine>>(caseId, documentId, versionId, BlobType.Pii) is (true, var results))
+        if (!forceRefresh && await _cacheService.TryGetJsonObjectAsync<IEnumerable<PiiLine>>(caseId, documentId, versionId, BlobType.Pii) is (true, var results))
         {
             return _artefactServiceResponseFactory.CreateOkfResult(results, true);
         }
 
-        var ocrResult = await _ocrArtefactService.GetOcrAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed, operationId);
+        var ocrResult = await _ocrArtefactService.GetOcrAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed, operationId, forceRefresh);
 
         if (ocrResult.Status != ResultStatus.ArtefactAvailable)
         {

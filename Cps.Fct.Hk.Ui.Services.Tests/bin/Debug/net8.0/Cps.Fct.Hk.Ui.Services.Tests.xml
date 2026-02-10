@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Cps.Fct.Hk.Ui.Services.Tests</name>
+    </assembly>
+    <members>
+        <member name="T:Cps.Fct.Hk.Ui.Services.Tests.CaseInfoServiceTests">
+            <summary>
+            Contains unit tests for the <see cref="T:Cps.Fct.Hk.Ui.Services.CaseInfoService"/> class.
+            </summary>
+        </member>
+        <member name="M:Cps.Fct.Hk.Ui.Services.Tests.CaseInfoServiceTests.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Cps.Fct.Hk.Ui.Services.Tests.CaseInfoServiceTests"/> class.
+            Sets up the test dependencies, including a mock logger and API client.
+            </summary>
+        </member>
+        <member name="M:Cps.Fct.Hk.Ui.Services.Tests.CaseInfoServiceTests.GetCaseInfoAsync_ReturnsCaseSummary_WhenApiCallIsSuccessful">
+            <summary>
+            Tests that GetCaseInfoAsync successfully retrieves case information when provided valid inputs.
+            </summary>
+            <returns>A task representing the asynchronous test operation.</returns>
+        </member>
+        <member name="M:Cps.Fct.Hk.Ui.Services.Tests.CaseInfoServiceTests.GetCaseInfoAsync_ThrowsInvalidOperationException_WhenCaseSummaryNotFound">
+            <summary>
+            Tests that GetCaseInfoAsync throws an InvalidOperationException when no case summary is found.
+            </summary>
+            <returns>A task representing the asynchronous test operation.</returns>
+        </member>
+        <member name="M:Cps.Fct.Hk.Ui.Services.Tests.CaseInfoServiceTests.GetCaseInfoAsync_ThrowsException_WhenApiCallFails">
+            <summary>
+            Tests that GetCaseInfoAsync logs an error and throws an exception when the API call fails.
+            </summary>
+            <returns>A task representing the asynchronous test operation.</returns>
+        </member>
+        <member name="T:Cps.Fct.Hk.Ui.Services.Tests.TestUtilities.TestLogger`1">
+            <summary>
+            A test logger implementation for capturing log entries during unit tests.
+            </summary>
+            <typeparam name="T">The type associated with the logger.</typeparam>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Services.Tests.TestUtilities.TestLogger`1.Logs">
+            <summary>
+            Gets the captured log entries as a read-only list.
+            </summary>
+        </member>
+        <member name="M:Cps.Fct.Hk.Ui.Services.Tests.TestUtilities.TestLogger`1.Microsoft#Extensions#Logging#ILogger#BeginScope``1(``0)">
+            <summary>
+            Begins a logical operation scope. This method is not used in this test logger.
+            </summary>
+            <typeparam name="TState">The type of the state to begin scope for.</typeparam>
+            <param name="state">The state to begin scope for.</param>
+            <returns>An IDisposable that ends the logical operation scope on disposal.</returns>
+        </member>
+        <member name="M:Cps.Fct.Hk.Ui.Services.Tests.TestUtilities.TestLogger`1.IsEnabled(Microsoft.Extensions.Logging.LogLevel)">
+            <summary>
+            Checks if the given log level is enabled. This implementation always returns true.
+            </summary>
+            <param name="logLevel">The log level to check.</param>
+            <returns>true if the log level is enabled, otherwise false.</returns>
+        </member>
+        <member name="M:Cps.Fct.Hk.Ui.Services.Tests.TestUtilities.TestLogger`1.Log``1(Microsoft.Extensions.Logging.LogLevel,Microsoft.Extensions.Logging.EventId,``0,System.Exception,System.Func{``0,System.Exception,System.String})">
+            <summary>
+            Logs a message with the specified log level, event ID, state, and exception.
+            </summary>
+            <typeparam name="TState">The type of the state.</typeparam>
+            <param name="logLevel">The log level of the message.</param>
+            <param name="eventId">The event ID of the log message.</param>
+            <param name="state">The state associated with the log message.</param>
+            <param name="exception">The exception associated with the log message, if any.</param>
+            <param name="formatter">The function to format the state and exception into a log message.</param>
+        </member>
+        <member name="T:Cps.Fct.Hk.Ui.Services.Tests.TestUtilities.TestLogger`1.LogEntry">
+            <summary>
+            Represents a log entry with log level, message, and exception information.
+            </summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Services.Tests.TestUtilities.TestLogger`1.LogEntry.LogLevel">
+            <summary>
+            Gets or sets the log level of the log entry.
+            </summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Services.Tests.TestUtilities.TestLogger`1.LogEntry.Message">
+            <summary>
+            Gets or sets the message of the log entry.
+            </summary>
+        </member>
+        <member name="P:Cps.Fct.Hk.Ui.Services.Tests.TestUtilities.TestLogger`1.LogEntry.Exception">
+            <summary>
+            Gets or sets the exception associated with the log entry, if any.
+            </summary>
+        </member>
+    </members>
+</doc>

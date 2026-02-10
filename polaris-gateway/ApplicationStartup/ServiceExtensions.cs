@@ -23,7 +23,15 @@ using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.DdeiOrchestration;
 using System.Net.Http;
 using System;
+using Cps.Fct.Hk.Ui.Interfaces;
+using Cps.Fct.Hk.Ui.Services;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Clients;
+using DdeiClient.Configuration;
 using Common.Mappers;
+using Cps.Fct.Hk.Ui.Services.Validators;
+using Cps.Fct.Hk.Ui.ServiceClient.Uma;
+using Cps.Fct.Hk.Ui.ServiceClient.Uma.Configuration;
 
 namespace PolarisGateway.ApplicationStartup;
 
@@ -70,6 +78,37 @@ public static class ServiceExtensions
         services.AddPiiService();
         services.AddArtefactService();
         services.AddDdeiOrchestrationService();
+
+        // House keeping.
+        services.AddSingleton<ICaseInfoService, CaseInfoService>();
+        services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>();
+        services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();
+        services.AddSingleton<ICommunicationService, CommunicationService>();
+        services.AddSingleton<ICommunicationMapper, CommunicationMapper>();
+        services.AddSingleton<ICaseMaterialService, CaseMaterialService>();
+        services.AddSingleton<IDocumentService, DocumentService>();
+        services.AddSingleton<IDocumentTypeMapper, DocumentTypeMapper>();
+        services.AddSingleton<IConversionService, ConversionService>();
+        services.AddSingleton<IReclassificationService, ReclassificationService>();
+        services.AddSingleton<IReclassifyDocumentRequestMapper, ReclassifyDocumentRequestMapper>();
+        services.AddSingleton<IMaterialReclassificationOrchestrationService, MaterialReclassificationOrchestrationService>();
+        services.AddSingleton<IWitnessService, WitnessService>();
+        services.AddSingleton<ICaseActionPlanService, CaseActionPlanService>();
+        services.AddSingleton<ICaseLockService, CaseLockService>();
+        services.AddSingleton<ICaseDefendantsService, CaseDefendantsService>();
+        services.AddSingleton<IUmaReclassifyService, UmaReclassifyService>();
+        services.AddSingleton<IBulkSetUnusedService, BulkSetUnusedService>();
+        services.AddSingleton<IUmaServiceClient,  UmaServiceClient>();
+
+        // Add validators
+        services.AddSingleton<RenameMaterialRequestValidator>();
+        services.AddSingleton<CompleteReclassificationRequestValidator>();
+        services.AddSingleton<UpdateStatementRequestValidator>();
+        services.AddSingleton<UpdateExhibitRequestValidator>();
+
+        // Register MasterDataService client options.
+        services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);
+        services.AddServiceOptions<UmaClientOptions>(UmaClientOptions.DefaultSectionName);
         return services;
     }
 
@@ -77,7 +116,7 @@ public static class ServiceExtensions
         where TInterface : class
         where TImplementation : class, TInterface
     {
-        services.AddHttpClient<TInterface, TImplementation>(client => 
+        services.AddHttpClient<TInterface, TImplementation>(client =>
         {
             client.BaseAddress = new Uri(GetValueFromConfig(configuration, baseUrlKey));
             client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };

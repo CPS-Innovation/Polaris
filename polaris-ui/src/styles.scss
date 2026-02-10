@@ -44,18 +44,17 @@ a {
 
 /* FCT2-8541 - images are too big on screens*/
 $heightWidthPercentage: 93% !important;
+$fullHeightWidth: 100% !important;
 
 .canvasWrapper canvas {
-  height: $heightWidthPercentage;
-  width: $heightWidthPercentage;
+  height: $fullHeightWidth;
+  // width: $fullHeightWidth;
 }
 
 .pdfViewer .page {
-  height: $heightWidthPercentage;
-  width: $heightWidthPercentage;
+  // width: $heightWidthPercentage;
 
   .textLayer {
-    height: $heightWidthPercentage;
-    width: $heightWidthPercentage;
+    // width: $fullHeightWidth;
   }
 }

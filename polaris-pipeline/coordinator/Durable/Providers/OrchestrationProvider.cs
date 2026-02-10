@@ -12,6 +12,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Common.Telemetry;
+using coordinator.Enums;
 
 namespace coordinator.Durable.Providers;
 
@@ -20,6 +22,7 @@ public class OrchestrationProvider : IOrchestrationProvider
     private readonly IConfiguration _configuration;
     private readonly IQueryConditionFactory _queryConditionFactory;
     private readonly ILogger<OrchestrationProvider> _logger;
+    private readonly ITelemetryClient _telemetryClient;
     private static readonly OrchestrationRuntimeStatus[] _inProgressStatuses =
     [
         OrchestrationRuntimeStatus.Running,
@@ -43,11 +46,13 @@ public class OrchestrationProvider : IOrchestrationProvider
     public OrchestrationProvider(
             IConfiguration configuration,
             IQueryConditionFactory queryConditionFactory,
-            ILogger<OrchestrationProvider> logger)
+            ILogger<OrchestrationProvider> logger,
+            ITelemetryClient telemetryClient)
     {
         _configuration = configuration;
         _queryConditionFactory = queryConditionFactory;
         _logger = logger;
+        _telemetryClient = telemetryClient;
     }
 
     public static string GetKey(int caseId) => $"[{caseId}]";
@@ -106,27 +111,44 @@ public class OrchestrationProvider : IOrchestrationProvider
             result.IsSuccess = true;
             return result;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _telemetryClient.TrackException(ex);
             return result;
         }
     }
 
-    public async Task<bool> BulkSearchDocumentAsync(DurableTaskClient client, BulkRedactionSearchPayload bulkRedactionSearchPayload, CancellationToken cancellationToken = default)
+    public async Task<OrchestrationProviderStatus> BulkSearchDocumentAsync(DurableTaskClient orchestrationClient, DocumentPayload documentPayload, CancellationToken cancellationToken = default)
     {
-        var instanceId = GetKey(bulkRedactionSearchPayload);
-        var existingInstance = await client.GetInstanceAsync(instanceId, cancellationToken);
+        var instanceId = GetKey(documentPayload);
+        var existingInstance = await orchestrationClient.GetInstanceAsync(instanceId, cancellationToken);
 
-        if (existingInstance != null && _inProgressStatuses.Contains(existingInstance.RuntimeStatus))
+        if (existingInstance != null)
         {
-            return false;
+            if (_inProgressStatuses.Contains(existingInstance.RuntimeStatus))
+            {
+                return OrchestrationProviderStatus.Processing;
+            }
+
+            if (existingInstance.RuntimeStatus == OrchestrationRuntimeStatus.Failed)
+            {
+                return OrchestrationProviderStatus.Failed;
+            }
+
+            if (_completedStatuses.Contains(existingInstance.RuntimeStatus))
+            {
+                return OrchestrationProviderStatus.Completed;
+            }
         }
 
-        await client.ScheduleNewOrchestrationInstanceAsync(nameof(BulkRedactionSearchOrchestrator), bulkRedactionSearchPayload, new StartOrchestrationOptions { InstanceId = instanceId }, cancellationToken);
-        return true;
+        await orchestrationClient.ScheduleNewOrchestrationInstanceAsync(nameof(RefreshDocumentOrchestrator), documentPayload, new StartOrchestrationOptions
+        {
+            InstanceId = instanceId
+        }, cancellationToken);
+        return OrchestrationProviderStatus.Initiated;
     }
 
-    private string GetKey(BulkRedactionSearchPayload bulkRedactionSearchPayload) => $"[{bulkRedactionSearchPayload.CaseId}.{bulkRedactionSearchPayload.DocumentId}.{bulkRedactionSearchPayload.VersionId}.{bulkRedactionSearchPayload.SearchText}]";
+    private static string GetKey(DocumentPayload documentPayload) => $"[{documentPayload.CaseId}.{documentPayload.DocumentId}.{documentPayload.VersionId}]";
 
     private static async Task<List<string>> GetInstanceIdsAsync(DurableTaskClient client, OrchestrationQuery condition)
     {

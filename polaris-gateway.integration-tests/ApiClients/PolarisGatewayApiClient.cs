@@ -1,9 +1,15 @@
 ﻿using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Dto.Response.Case;
+using Common.Dto.Response.Document;
+using Common.Dto.Response.Documents;
+using Ddei.Domain.Response;
 using NUnit.Framework;
 using shared.integration_tests.ApiClients;
 using shared.integration_tests.Models;
+using System.Reflection.Metadata;
 using System.Text.Json;
+using Common.Dto.Response;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
 using Ddei.Domain.Response;
@@ -64,6 +70,36 @@ public class PolarisGatewayApiClient : BaseApiClient
     {
         var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/notes";
         return await SendAsync<IEnumerable<DocumentNoteDto>>(route, HttpMethod.Get, cancellationToken);
+    }
+
+    public async Task<ApiClientResponse<IEnumerable<ExhibitProducerDto>>> GetExhibitProducersAsync(string urn, int caseId, CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/exhibit-producers";
+        return await SendAsync<IEnumerable<ExhibitProducerDto>>(route, HttpMethod.Get, cancellationToken);
+    }
+
+    public async Task<ApiClientResponse<IEnumerable<MaterialTypeDto>>> GetMaterialTypeListAsync(CancellationToken cancellationToken)
+    {
+        var route = "reference/reclassification";
+        return await SendAsync<IEnumerable<MaterialTypeDto>>(route, HttpMethod.Get, cancellationToken);
+    }
+
+    public async Task<ApiClientResponse<IEnumerable<CaseWitnessDto>>> GetWitnessesAsync(string urn, int caseId, CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/witnesses";
+        return await SendAsync<IEnumerable<CaseWitnessDto>>(route, HttpMethod.Get, cancellationToken);
+    }
+
+    public async Task<ApiClientResponse<IEnumerable<WitnessStatementDto>>> GetWitnessStatementsAsync(string urn, int caseId, int witnessId, CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/witnesses/{witnessId}/statements";
+        return await SendAsync<IEnumerable<WitnessStatementDto>>(route, HttpMethod.Get, cancellationToken);
+    }
+
+    public async Task<ApiClientResponse<CaseIdentifiersDto>> LookupUrnAsync(int caseId, CancellationToken cancellationToken)
+    {
+        var route = $"urn-lookup/{caseId}";
+        return await SendAsync<CaseIdentifiersDto>(route, HttpMethod.Get, cancellationToken);
     }
 
     public async Task<ApiClientResponse<DocumentReclassifiedResultDto>> ReclassifyDocumentAsync(int urn, int caseId, string documentId, ReclassifyDocumentDto request, CancellationToken cancellationToken)

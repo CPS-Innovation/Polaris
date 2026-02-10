@@ -13,17 +13,17 @@ namespace PolarisGateway.Functions;
 public class GetCases : BaseFunction
 {
     private readonly ILogger<GetCases> _logger;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
     private readonly IDdeiCaseOrchestrationService _ddeiOrchestrationService;
 
     public GetCases(
         ILogger<GetCases> logger,
-        IDdeiArgFactory ddeiArgFactory,
+        IMdsArgFactory mdsArgFactory,
         IDdeiCaseOrchestrationService ddeiOrchestrationService)
         : base()
     {
         _logger = logger.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _ddeiOrchestrationService = ddeiOrchestrationService.ExceptionIfNull();
     }
 
@@ -34,7 +34,7 @@ public class GetCases : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var arg = _ddeiArgFactory.CreateUrnArg(cmsAuthValues, correlationId, caseUrn);
+        var arg = _mdsArgFactory.CreateUrnArg(cmsAuthValues, correlationId, caseUrn);
 
         var result = await _ddeiOrchestrationService.GetCases(arg);
 

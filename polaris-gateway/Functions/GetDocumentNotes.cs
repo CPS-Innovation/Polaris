@@ -14,16 +14,16 @@ public class GetDocumentNotes : BaseFunction
 {
     private readonly ILogger<GetDocumentNotes> _logger;
     private readonly IMdsClient _mdsClient;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
 
     public GetDocumentNotes(ILogger<GetDocumentNotes> logger,
         IMdsClient mdsClient,
-        IDdeiArgFactory ddeiArgFactory)
+        IMdsArgFactory mdsArgFactory)
         : base()
     {
         _logger = logger.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
     }
 
     [Function(nameof(GetDocumentNotes))]
@@ -33,7 +33,7 @@ public class GetDocumentNotes : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var arg = _ddeiArgFactory.CreateDocumentArgDto(cmsAuthValues, correlationId, caseUrn, caseId, documentId);
+        var arg = _mdsArgFactory.CreateDocumentArgDto(cmsAuthValues, correlationId, caseUrn, caseId, documentId);
 
         var result = await _mdsClient.GetDocumentNotesAsync(arg);
 

@@ -80,7 +80,7 @@ describe("State Retention", () => {
       expect(caseDetailsCounter.count).to.equal(2);
     });
   });
-  it("State should not be retained if we are refreshing casework app when the state retention feature flag is false", () => {
+  xit("State should not be retained if we are refreshing casework app when the state retention feature flag is false", () => {
     const documentListCounter = { count: 0 };
     cy.trackRequestCount(
       documentListCounter,

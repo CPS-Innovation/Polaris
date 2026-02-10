@@ -76,7 +76,7 @@ cms_details = {
 }
 
 wm_task_list_host_name  = "https://cps-dev.outsystemsenterprise.com"
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps-dev.outsystemsenterprise.com/,/task-list"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps-dev.outsystemsenterprise.com/,/task-list,https://polaris-dev-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
@@ -173,7 +173,10 @@ coordinator = {
   max_queue_polling_interval            = "00:00:02"
 }
 
-cps_global_components_url = "https://sacpsglobalcomponents.blob.core.windows.net/dev/cps-global-components.js"
+cps_global_components = {
+  script_url = "https://polaris-qa-notprod.cps.gov.uk/global-components/dev/global-components.js"
+  blob_storage_domain = "sacpsglobalcomponents.blob.core.windows.net"
+}
 
 sp_polaris_web_enabled = true # this SP has been temporarily disabled for Dev on the 29/07/2025.
 

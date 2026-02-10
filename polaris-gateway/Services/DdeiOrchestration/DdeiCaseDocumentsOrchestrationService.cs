@@ -23,7 +23,7 @@ public class DdeiCaseDocumentsOrchestrationService : IDdeiCaseDocumentsOrchestra
 
     public DdeiCaseDocumentsOrchestrationService(
             IMdsClient ddeiClient,
-            IDdeiArgFactory ddeiArgFactory,
+            IMdsArgFactory mdsArgFactory,
             IDocumentToggleService documentToggleService,
             IDocumentDtoMapper cmsDocumentMapper
         )
@@ -33,7 +33,7 @@ public class DdeiCaseDocumentsOrchestrationService : IDdeiCaseDocumentsOrchestra
         _cmsDocumentMapper = cmsDocumentMapper.ExceptionIfNull();
     }
 
-    public async Task<IEnumerable<DocumentDto>> GetCaseDocuments(DdeiCaseIdentifiersArgDto arg)
+    public async Task<IEnumerable<DocumentDto>> GetCaseDocuments(MdsCaseIdentifiersArgDto arg)
     {
         var getDocumentsTask = _mdsClient.ListDocumentsAsync(arg);
         var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg);

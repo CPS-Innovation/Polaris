@@ -18,19 +18,19 @@ namespace PolarisGateway.Functions;
 public class ReclassifyDocument : BaseFunction
 {
     private readonly ILogger<ReclassifyDocument> _logger;
-    private readonly IDdeiArgFactory _ddeiArgFactory;
+    private readonly IMdsArgFactory _mdsArgFactory;
     private readonly IDdeiReclassifyDocumentOrchestrationService _ddeiOrchestrationService;
     private readonly ITelemetryClient _telemetryClient;
 
     public ReclassifyDocument(
         ILogger<ReclassifyDocument> logger,
-        IDdeiArgFactory ddeiArgFactory,
+        IMdsArgFactory mdsArgFactory,
         ITelemetryClient telemetryClient,
         IDdeiReclassifyDocumentOrchestrationService ddeiOrchestrationService)
         : base()
     {
         _logger = logger.ExceptionIfNull();
-        _ddeiArgFactory = ddeiArgFactory.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _telemetryClient = telemetryClient.ExceptionIfNull();
         _ddeiOrchestrationService = ddeiOrchestrationService.ExceptionIfNull();
     }
@@ -64,7 +64,7 @@ public class ReclassifyDocument : BaseFunction
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
-            var arg = _ddeiArgFactory.CreateReclassifyDocumentArgDto
+            var arg = _mdsArgFactory.CreateReclassifyDocumentArgDto
             (
                 cmsAuthValues: cmsAuthValues,
                 correlationId: correlationId,

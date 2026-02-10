@@ -35,7 +35,7 @@ public class ToggleIsUnusedDocument : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var toggleIsUnusedDocumentDto = new DdeiToggleIsUnusedDocumentDto
+        var toggleIsUnusedDocumentDto = new MdsToggleIsUnusedDocumentDto
         {
             CaseId = caseId,
             CmsAuthValues = cmsAuthValues,

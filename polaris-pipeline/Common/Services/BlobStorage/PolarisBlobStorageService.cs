@@ -60,7 +60,6 @@ public class PolarisBlobStorageService : IPolarisBlobStorageService
             BlobType.CaseState => $"{blobId.CaseId}/caseState/caseState-{blobId.CaseId}.json",
             BlobType.CaseDelta => $"{blobId.CaseId}/caseState/caseDelta-{blobId.CaseId}.json",
             BlobType.DocumentState => $"{blobId.CaseId}/caseState/caseDocumentsState-{blobId.CaseId}.json",
-            BlobType.BulkRedactionSearchState => $"{blobId.CaseId}/BulkRedactionSearchState/BulkRedactionSearchState-{blobId.CaseId}-{blobId.DocumentId}-{blobId.VersionId}-{blobId.SearchText}.json",
             _ => throw new NotImplementedException()
         };
     }

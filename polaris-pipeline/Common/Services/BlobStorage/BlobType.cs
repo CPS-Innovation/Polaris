@@ -9,6 +9,5 @@ public enum BlobType
     DocumentState,
     CaseState,
     CaseDelta,
-    DocumentsList,
-    BulkRedactionSearchState
+    DocumentsList
 }
