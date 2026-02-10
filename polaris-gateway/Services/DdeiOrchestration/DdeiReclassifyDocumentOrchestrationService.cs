@@ -33,7 +33,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
 
     public async Task<DocumentReclassifiedResult> ReclassifyDocument(MdsReclassifyDocumentArgDto arg)
     {
-        var (caseDocuments, materialTypeList) = await FetchDocumentAndMaterialTypes(arg);
+        var (caseDocuments, materialTypeList) = await FetchDocumentAndMaterialTypes(_mdsClient, arg);
 
         var document = caseDocuments.SingleOrDefault(x => x.DocumentId == arg.DocumentId);
         if (document == null) return new DocumentReclassifiedResult { IsSuccess = false, Result = null };
@@ -41,9 +41,9 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         var materialType = materialTypeList.SingleOrDefault(x => x.TypeId == arg.DocumentTypeId);
         if (materialType == null) return new DocumentReclassifiedResult { IsSuccess = false, Result = null };
 
-        var reclassifyResponse = await ReclassifyDocument(arg, document, materialType);
+        var reclassifyResponse = await ReclassifyDocument(_mdsClient, arg, document, materialType);
 
-        var (documentRenamed, documentRenamedResult) = await HandleDocumentRenaming(arg, materialType);
+        var (documentRenamed, documentRenamedResult) = await HandleDocumentRenaming(arg, _mdsClient, materialType);
 
         return new DocumentReclassifiedResult
         {
@@ -62,8 +62,8 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
 
     private async Task<(IEnumerable<CmsDocumentDto> caseDocuments, IEnumerable<MaterialTypeDto> materialTypeList)> FetchDocumentAndMaterialTypes(IMdsClient mdsClient, MdsReclassifyDocumentArgDto arg)
     {
-        var caseDocumentsTask = _mdsClient.ListDocumentsAsync(arg);
-        var materialTypeListTask = _mdsClient.GetMaterialTypeListAsync(arg);
+        var caseDocumentsTask = mdsClient.ListDocumentsAsync(arg);
+        var materialTypeListTask = mdsClient.GetMaterialTypeListAsync(arg);
 
         await Task.WhenAll(caseDocumentsTask, materialTypeListTask);
 
@@ -88,7 +88,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
             Used = SetReclassifyDocumentUsed(materialType, arg),
         };
 
-        return await _mdsClient.ReclassifyCommunicationAsync(reclassifyCommunicationRequest);
+        return await mdsClient.ReclassifyCommunicationAsync(reclassifyCommunicationRequest);
     }
 
     private async Task<DocumentRenamedResultDto> RenameDocument(MdsReclassifyDocumentArgDto arg, IMdsClient mdsClient, MaterialTypeDto materialType, string documentName)
@@ -98,13 +98,13 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
 
         if (materialType.Classification == ExhibitClassification)
         {
-            response = await _mdsClient.RenameExhibitAsync(renameDocumentArg);
-            response.OperationName = nameof(_mdsClient.RenameExhibitAsync);
+            response = await mdsClient.RenameExhibitAsync(renameDocumentArg);
+            response.OperationName = nameof(mdsClient.RenameExhibitAsync);
         }
         else if (materialType.Classification != StatementClassification)
         {
-            response = await _mdsClient.RenameDocumentAsync(renameDocumentArg);
-            response.OperationName = nameof(_mdsClient.RenameDocumentAsync);
+            response = await mdsClient.RenameDocumentAsync(renameDocumentArg);
+            response.OperationName = nameof(mdsClient.RenameDocumentAsync);
         }
 
         return response;
@@ -118,7 +118,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
         }
 
         var documentName = !string.IsNullOrEmpty(arg.Other?.DocumentName) ? arg.Other?.DocumentName : arg.Immediate?.DocumentName;
-        var documentRenamedResult = await RenameDocument(arg, materialType, documentName);
+        var documentRenamedResult = await RenameDocument(arg, mdsClient, materialType, documentName);
 
         return (true, documentRenamedResult);
     }
@@ -143,7 +143,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
                 Date = statementDate.ToString("yyyy-MM-dd")
             };
         }
-        
+
         return null;
     }
 
