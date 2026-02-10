@@ -151,7 +151,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   lifecycle {
     ignore_changes = [
       app_settings["HostType"],
-      app_settings["ENVIRONMENT"],
+      # app_settings["ENVIRONMENT"],
       app_settings["WEBSITE_CONTENTOVERVNET"],
       app_settings["WEBSITE_DNS_SERVER"],
       app_settings["WEBSITE_DNS_ALT_SERVER"],
