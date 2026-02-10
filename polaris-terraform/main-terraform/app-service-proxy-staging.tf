@@ -11,7 +11,7 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
 
   app_settings = {
     "HostType"                                        = "Staging1"
-    "ENVIRONMENT"                                     = var.environment
+    "ENVIRONMENT"                                     = var.env
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                          = var.dns_alt_server
