@@ -11,6 +11,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
 
   app_settings = {
     "HostType"                                        = "Production"
+    "ENVIRONMENT"                                     = var.env
     "WEBSITE_CONTENTOVERVNET"                         = "1"
     "WEBSITE_DNS_SERVER"                              = var.dns_server
     "WEBSITE_DNS_ALT_SERVER"                          = var.dns_alt_server
@@ -150,6 +151,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   lifecycle {
     ignore_changes = [
       app_settings["HostType"],
+      app_settings["ENVIRONMENT"],
       app_settings["WEBSITE_CONTENTOVERVNET"],
       app_settings["WEBSITE_DNS_SERVER"],
       app_settings["WEBSITE_DNS_ALT_SERVER"],
