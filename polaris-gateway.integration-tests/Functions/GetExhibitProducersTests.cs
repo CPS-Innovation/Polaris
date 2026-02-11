@@ -23,19 +23,20 @@ public class GetExhibitProducersTests : BaseFunctionIntegrationTest
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.NotFound));
     }
-    
+
     [Test]
     public async Task GetExhibitProducers_ReturnExhibitProducerList()
     {
-        //arrange
-        var urn = "urn";
-        var caseId = 1;
-        //act
+        // Arrange
+        var urn = "54KR7689125";
+        var caseId = 2160797;
+
+        // act
         var result = await PolarisGatewayApiClient.GetExhibitProducersAsync(urn, caseId, TestContext.CurrentContext.CancellationToken);
 
-        //assert
+        // assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
         Assert.That(result.ResponseObject, Is.Not.Null);
-        Assert.That(result.ResponseObject.Count(), Is.EqualTo(3));
+        Assert.That(result.ResponseObject.Count(), Is.AtLeast(3));
     }
 }

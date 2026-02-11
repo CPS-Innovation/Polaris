@@ -48,9 +48,9 @@ public class GetDocumentNotesTests : BaseFunctionIntegrationTest
     public async Task GetDocumentNotes_ShouldReturnOkAndDocumentNoteList()
     {
         //arrange
-        var urn = "urn";
-        var caseId = 1;
-        var documentId = "CMS-12345";
+        var urn = "54KR7689125";
+        var caseId = 2160797;
+        var documentId = "CMS-8880088";
 
         //act
         var result = await PolarisGatewayApiClient.GetDocumentNotesAsync(urn, caseId, documentId,
@@ -58,7 +58,7 @@ public class GetDocumentNotesTests : BaseFunctionIntegrationTest
 
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
-        Assert.That(result.ResponseObject.Count(), Is.EqualTo(1));
+        Assert.That(result.ResponseObject.Count(), Is.AtLeast(3));
         Assert.That(result.ResponseObject.ToList()[0].Id, Is.EqualTo(int.Parse(documentId.Split('-')[1])));
     }
 }

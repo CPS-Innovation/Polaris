@@ -1,5 +1,16 @@
-﻿<RunSettings>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
 	<TestRunParameters>
-		
+		<Parameter name="PolarisGatewayUri" value="https://fa-polaris-dev-gateway-staging1.azurewebsites.net/api/" />
+		<Parameter name="CmsProxyUri" value="https://polaris-dev-cmsproxy.azurewebsites.net/api" />
+		<Parameter name="CmsUsername" value="secret" />
+		<Parameter name="CmsPassword" value="secret!" />
+		<Parameter name="TokenAuthUri" value="https://login.microsoftonline.com/secret/oauth2/v2.0/token" />
+		<Parameter name="ClientId" value="43957614-e3f3-4cf8-8fb6-df460776b5b3" />
+		<Parameter name="GrantType" value="password" />
+		<Parameter name="Scope" value="https://CPSGOVUK.onmicrosoft.com/fa-polaris-dev-gateway/user_impersonation" />
+		<Parameter name="ClientSecret" value="secret" />
+		<Parameter name="Username" value="secret@cps.gov.uk" />
+		<Parameter name="Password" value="secret" />
 	</TestRunParameters>
 </RunSettings>

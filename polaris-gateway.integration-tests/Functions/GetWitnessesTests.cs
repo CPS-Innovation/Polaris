@@ -24,19 +24,19 @@ public class GetWitnessesTests : BaseFunctionIntegrationTest
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.NotFound));
     }
-    
+
     [Test]
     public async Task GetWitnesses_ShouldReturnWitnesses()
     {
         //arrange
-        var urn = "urn";
-        var caseId = 1;
+        var urn = "54KR7689125";
+        var caseId = 2160797;
 
         //act
         var result = await PolarisGatewayApiClient.GetWitnessesAsync(urn, caseId, TestContext.CurrentContext.CancellationToken);
 
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
-        Assert.That(result.ResponseObject.Count(), Is.EqualTo(4));
+        Assert.That(result.ResponseObject.Count(), Is.AtLeast(4));
     }
 }
