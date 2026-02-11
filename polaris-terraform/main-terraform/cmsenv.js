@@ -124,12 +124,13 @@ function __addAppLaunchButtonsToMenuBar(r, data, flags) {
         '"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAJKSURBVEhLtZXPS9tgGMe/6Q9r01Y7pyiWlWFRmTpXNybOy2AIO6gTBwpWYV4Ezz3sH1AP/gPuphdF1It49bLD8FAnMoa0MBXGJrYeiiFNbU2b+OTHac2yRNYPNHngffJ++zzfJ28YmUAVcej3qmFawfr6d8iyBIYBampcKJeBqaluiGIZbrdTzzLHVIBlP+LmpqjGLpcPXq8DR0dxrK5+xcDAQ4yNvVDXzDBtUTAYoGu9EqGhoQ7NzUESOMfgYAjb2yns75/h5CSt5v4Nyx4wjIxi0UFVsNjZSSIWe47Fxc9oa2tEMnmlZ1Vi2qLW1gVcXooUMQgEnJidjSKXKyGd5mktiJ6eehwe/sTGxgftAQMsV8DzBczPv6L+v8fISCdt/Fv999FohPz4pGdVYmtMeV4zfG7uJdrbH2Bv7weamnxYWnqL21saMQPu9R44nQxKJRkcJ9KUichkBEiScadtCfj9HvW+ufmNNs1hZqYb2WweKytfUFvrUtf+xKbJz5DPSzg9zaKjoxGRiB+pVAZrazHtAQMsV8CybuzunmF0tBPhcB36+0M4OEhjefkdEolfelYllgWUOj0eiXqex/j4E9r8HJOTT3FxwZHYIz2rEssCDB1IHCfQWD7G8fEVhobCmJ7uRV9fSM8wxrIHXi8Qj7+mt/cNBKEIn08z/F9YrkAZx4mJLjW2urmCrTEtFEp6ZB1bAsp3wS6mAtfXAl15/Zej09T4ODDD1OStrQQZqn3RJEnC8HAvWlr8+qo1TAX+B7Y8uA9VFgDuAGLN1z00rPbxAAAAAElFTkSuQmCC"'
     );
 
-    // Add the "Task List" button (always added)
+    // Add the Task List button 
     data = data.replace(
         'var sMenuBarRight',
         'sMenuBarLeft += \'<td class="menu"><img alt="Launch Task List" border="0" class="clickable" onclick="openTaskList()" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsSAAALEgHS3X78AAACg0lEQVRIic2Wzys0cRzHX9+1MxO1HKbIr3a0pbF+bBFNyoGbOOCgHDZOwsHJwcW/4KA4yEVydHBBbiIZcZPnuTlwoZU2dkntfp7Dk83+GE/U1POuz2E+33p95j3vme98VSRsCT4qCHD1+5cv8Da7hYAv5E/6PwY8PT2RzWb9GXB6eopt2+zv7/9oQLCwkUwm2dvbY3x8HNd1GR0dpbu7m4GBAZaWljg6OvKEhcNhNjc3CQQ+3XckbMnr62uujo+PJRgMyvDwsFRWVkpvb6/c399LOp2W/v5+MQzDsxoaGuTl5SXHioQtUZGwJZ9fUxFha2uLubk5HMdhZ2eHqqoqAN7f30mn054ODMOgvLw8d91mtxQ/IqUU8Xic5uZmWltbCYVCuTVd19F13XNAKZUMWSmF4ziEQiESiQQjIyNcXFx8C/yhIgfZbJaHhwdqamp4fHxkaGiIRCKBaZocHBxwdnbmCWtqamJycjK/WRjy4eGhaJomKysr0tXVJaZpyvn5uaRSKbFtWwDP0jRNnp+f80IucuA4DmNjY8zPz2OaJru7u7S3twOwvb3N9fW1p4O6ujqCwXxk0QBN01hfX8e2bQYHB4nFYrm1aDRKNBr1HFBKJUPWdZ3FxUVisRiZTIbV1VXu7u6+Bf5QkQP4+y0opchkMiwsLLCxsUFnZyeGYXBzc+MJq66uxrKs/GZhyK7rSk9Pj1xeXsrMzIwEAgFZW1uTVColHR0dX4ZcUVHx75Bra2tJJpP09fXx9vbG8vIyU1NTAMzOzuK6rqeD+vp6ysrK8npFWwXA7e0tExMTxONxpqenUUp5Qr9Sya0CoLGxkZOTkx9BC+X7H035fapQIr7y+QMKpjOoViG+vQAAAABJRU5ErkJggg=="></td>\';\n\tvar sMenuBarRight'
     );
 
+    // Add the Materials button 
     if (r.variables.environment !== "prod") {
         data = data.replace(
             'var sMenuBarRight',
