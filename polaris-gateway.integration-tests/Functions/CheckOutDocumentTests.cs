@@ -17,10 +17,10 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
     public async Task CheckoutDocument_ShouldReturn200()
     {
         //arrange
-        var urn = "urn";
-        var caseId = 1;
-        var documentId = "CMS-12345";
-        var versionId = 1;
+        var urn = "54KR7689125";
+        var caseId = 2160797;
+        var documentId = "CMS-8930494";
+        var versionId = 8155871;
 
         //act
         var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
@@ -85,10 +85,10 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
     public async Task CheckoutDocument_UrnIsCheckOut_ShouldReturn409()
     {
         //arrange
-        var urn = "urn-CheckedOut";
-        var caseId = 1;
-        var documentId = "CMS-12345";
-        var versionId = 2;
+        var urn = "45AA4200123";
+        var caseId = 2150969;
+        var documentId = "CMS-8709092";
+        var versionId = 7965216;
 
         //act
         var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);

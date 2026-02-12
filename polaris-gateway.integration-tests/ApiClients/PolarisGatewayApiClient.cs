@@ -102,6 +102,12 @@ public class PolarisGatewayApiClient : BaseApiClient
         return await SendAsync<CaseIdentifiersDto>(route, HttpMethod.Get, cancellationToken);
     }
 
+    public async Task<ApiClientResponse<DocumentReclassifiedResultDto>> ReclassifyDocumentAsync(int urn, int caseId, string documentId, ReclassifyDocumentDto request, CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/reclassify";
+        return await SendAsync<ReclassifyDocumentDto, DocumentReclassifiedResultDto>(route, HttpMethod.Post, request, cancellationToken);
+    }
+
     private async Task<ApiClientResponse> SendAsync(string route, HttpMethod httpMethod, CancellationToken cancellationToken = default)
     {
         var token = await _tokenAuthApiClient.GetTokenAsync(cancellationToken);
@@ -129,4 +135,15 @@ public class PolarisGatewayApiClient : BaseApiClient
         var httpResponseMessage = await SendAsync(httpRequestMessage, cancellationToken);
         return new ApiClientResponse<TResponse>(httpResponseMessage);
     }
+
+    private async Task<ApiClientResponse<TResponse>> SendAsync<TRequest, TResponse>(string route, HttpMethod httpMethod, TRequest request, CancellationToken cancellationToken = default)
+    {
+        var token = await _tokenAuthApiClient.GetTokenAsync(cancellationToken);
+        var cmsAuthValues = await _cmsAuthApiClient.GetCmsAuthTokenAsync(cancellationToken);
+        var content = new StringContent(JsonSerializer.Serialize(request));
+        var httpRequestMessage = CreateHttpRequestMessage(route, httpMethod, content, string.Empty, token, cmsAuthValues);
+        var httpResponseMessage = await SendAsync(httpRequestMessage, cancellationToken);
+        return new ApiClientResponse<TResponse>(httpResponseMessage);
+    }
+
 }
