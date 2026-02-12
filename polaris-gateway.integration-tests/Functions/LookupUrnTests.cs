@@ -23,12 +23,12 @@ public class LookupUrnTests : BaseFunctionIntegrationTest
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.NotFound));
     }
-    
+
     [Test]
     public async Task LookupUrn_ShouldReturnCaseIdentifiers()
     {
         //arrange
-        var caseId = 1;
+        var caseId = 2146765;
 
         //act
         var result = await PolarisGatewayApiClient.LookupUrnAsync(caseId, TestContext.CurrentContext.CancellationToken);

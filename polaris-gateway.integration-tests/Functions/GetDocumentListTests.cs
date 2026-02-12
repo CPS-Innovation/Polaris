@@ -29,14 +29,14 @@ public class GetDocumentListTests : BaseFunctionIntegrationTest
     public async Task GetDocumentList_ShouldReturnOkWithDocumentDtoList()
     {
         //arrange
-        var urn = "urn";
-        var caseId = 1;
+        var urn = "16XL8836126";
+        var caseId = 2179140;
 
         //act
         var result = await PolarisGatewayApiClient.GetDocumentListAsync(urn, caseId, TestContext.CurrentContext.CancellationToken);
 
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
-        Assert.That(result.ResponseObject.Count(), Is.EqualTo(17));
+        Assert.That(result.ResponseObject.Count(), Is.EqualTo(7));
     }
 }

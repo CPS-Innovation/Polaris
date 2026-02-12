@@ -143,7 +143,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
                 Date = statementDate.ToString("yyyy-MM-dd")
             };
         }
-        
+
         return null;
     }
 

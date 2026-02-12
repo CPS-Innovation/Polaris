@@ -15,8 +15,8 @@ public class GetCasesTests : BaseFunctionIntegrationTest
     [Test]
     public async Task GetCases_ShouldReturnOK()
     {
-        //arrange
-        var urn = "urn";
+        //arrange 
+        var urn = "54KR7689125";
 
         //act
         var result = await PolarisGatewayApiClient.GetCases(urn, TestContext.CurrentContext.CancellationToken);
