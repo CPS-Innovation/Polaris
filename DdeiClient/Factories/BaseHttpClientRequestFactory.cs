@@ -4,7 +4,7 @@ using System.Net;
 
 namespace DdeiClient.Factories;
 
-public abstract class BaseHttpClientRequestFactory
+public abstract class CmsBaseHttpClientRequestFactory
 {
     protected const string CorrelationId = "Correlation-Id";
 
