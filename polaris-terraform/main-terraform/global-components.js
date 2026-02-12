@@ -3,9 +3,6 @@ const CMS_AUTH_VALUES_COOKIE_NAME = "Cms-Auth-Values"
 // Plenty of hardcoded stuff elsewhere in the nginx config. Let's keep only things
 //  that are sensitive or trigger differences in the ENV/App settings.
 const CORS_ALLOWED_ORIGINS = [
-  "https://polaris.cps.gov.uk",
-  "https://polaris-qa-notprod.cps.gov.uk",
-  "https://polaris-dev-notprod.cps.gov.uk",
   "https://cps.outsystemsenterprise.com",
   "https://cps-tst.outsystemsenterprise.com",
   "https://cps-dev.outsystemsenterprise.com",
@@ -50,6 +47,7 @@ function readCmsAuthValues(r) {
 function readCorsOrigin(r) {
   const origin = r.headersIn["Origin"]
   return CORS_ALLOWED_ORIGINS.includes(origin) ||
+    origin.endsWith(".cps.gov.uk") ||
     origin.startsWith("http://localhost:") ||
     origin.startsWith("https://localhost:") ||
     origin.startsWith("http://127.0.0.1:") ||
