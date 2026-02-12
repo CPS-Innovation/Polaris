@@ -5,9 +5,9 @@ namespace Ddei.Mappers
 {
     public class CaseDocumentNoteResultMapper : ICaseDocumentNoteResultMapper
     {
-        public DocumentNoteResult Map(DdeiDocumentNoteAddedResponse ddeiResponse)
+        public DocumentNoteResult Map(MdsDocumentNoteAddedResponse mdsResponse)
         {
-            return new DocumentNoteResult { Id = ddeiResponse.Id };
+            return new DocumentNoteResult { Id = mdsResponse.Id };
         }
     }
 }

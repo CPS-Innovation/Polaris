@@ -28,7 +28,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
     private readonly IMdsClientRequestFactory _mdsClientRequestFactory;
     private readonly IMdsArgFactory _caseDataServiceArgFactory;
     private readonly ICaseDetailsMapper _caseDetailsMapper;
-    private readonly ICaseDocumentMapper<DdeiDocumentResponse> _caseDocumentMapper;
+    private readonly ICaseDocumentMapper<MdsDocumentResponse> _caseDocumentMapper;
     private readonly ICaseDocumentNoteMapper _caseDocumentNoteMapper;
     private readonly ICaseDocumentNoteResultMapper _caseDocumentNoteResultMapper;
     private readonly ICaseExhibitProducerMapper _caseExhibitProducerMapper;
@@ -43,7 +43,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
         IMdsClientRequestFactory mdsClientRequestFactory, 
         IMdsArgFactory caseDataServiceArgFactory, 
         ICaseDetailsMapper caseDetailsMapper, 
-        ICaseDocumentMapper<DdeiDocumentResponse> caseDocumentMapper, 
+        ICaseDocumentMapper<MdsDocumentResponse> caseDocumentMapper, 
         ICaseDocumentNoteMapper caseDocumentNoteMapper, 
         ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper, 
         ICaseExhibitProducerMapper caseExhibitProducerMapper, 
@@ -103,19 +103,19 @@ public class MdsClient : BaseCmsClient, IMdsClient
 
     public async Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsCoreAsync(MdsCaseIdentifiersArgDto arg)
     {
-        var pcdRequests = await CallHttpClientAsync<IEnumerable<DdeiPcdRequestCoreDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues);
+        var pcdRequests = await CallHttpClientAsync<IEnumerable<MdsPcdRequestCoreDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues);
         return _caseDetailsMapper.MapCorePreChargeDecisionRequests(pcdRequests);
     }
 
     public async Task<IEnumerable<PcdRequestDto>> GetPcdRequestsAsync(MdsCaseIdentifiersArgDto arg)
     {
-        var pcdRequests = await CallHttpClientAsync<IEnumerable<DdeiPcdRequestDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues);
+        var pcdRequests = await CallHttpClientAsync<IEnumerable<MdsPcdRequestDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues);
         return _caseDetailsMapper.MapPreChargeDecisionRequests(pcdRequests);
     }
 
     public async Task<PcdRequestDto> GetPcdRequestAsync(MdsPcdArgDto arg)
     {
-        var pcdRequest = await CallHttpClientAsync<DdeiPcdRequestDto>(_mdsClientRequestFactory.CreateGetPcdRequest(arg), arg.CmsAuthValues);
+        var pcdRequest = await CallHttpClientAsync<MdsPcdRequestDto>(_mdsClientRequestFactory.CreateGetPcdRequest(arg), arg.CmsAuthValues);
         return _caseDetailsMapper.MapPreChargeDecisionRequest(pcdRequest);
     }
 
@@ -131,7 +131,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
 
     public async Task<IEnumerable<CmsDocumentDto>> ListDocumentsAsync(MdsCaseIdentifiersArgDto arg)
     {
-        var mdsResults = await CallHttpClientAsync<List<DdeiDocumentResponse>>(_mdsClientRequestFactory.CreateListCaseDocumentsRequest(arg), arg.CmsAuthValues);
+        var mdsResults = await CallHttpClientAsync<List<MdsDocumentResponse>>(_mdsClientRequestFactory.CreateListCaseDocumentsRequest(arg), arg.CmsAuthValues);
 
         return mdsResults.Select(mdsResult => _caseDocumentMapper.Map(mdsResult));
     }
@@ -144,7 +144,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return new FileResult
         {
             Stream = await response.Content.ReadAsStreamAsync(),
-            FileName = fileName
+            FileName = fileName,
         };
     }
 
@@ -155,7 +155,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
             {
                 Path = path,
                 CmsAuthValues = cmsAuthValues,
-                CorrelationId = correlationId
+                CorrelationId = correlationId,
             }),
             cmsAuthValues
         );
@@ -172,11 +172,11 @@ public class MdsClient : BaseCmsClient, IMdsClient
             new CheckoutDocumentDto
             {
                 IsSuccess = false,
-                LockingUserName = await response.Content.ReadAsStringAsync()
+                LockingUserName = await response.Content.ReadAsStringAsync(),
             } :
             new CheckoutDocumentDto
             {
-                IsSuccess = true
+                IsSuccess = true,
             };
     }
 
@@ -203,7 +203,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
 
     public async Task<DocumentNoteResult> AddDocumentNoteAsync(MdsAddDocumentNoteArgDto arg)
     {
-        var response = await CallHttpClientAsync<DdeiDocumentNoteAddedResponse>(_mdsClientRequestFactory.CreateAddDocumentNoteRequest(arg), arg.CmsAuthValues);
+        var response = await CallHttpClientAsync<MdsDocumentNoteAddedResponse>(_mdsClientRequestFactory.CreateAddDocumentNoteRequest(arg), arg.CmsAuthValues);
 
         return _caseDocumentNoteResultMapper.Map(response);
     }

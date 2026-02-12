@@ -1,6 +1,6 @@
 namespace Ddei.Domain.Response.PreCharge
 {
-    public class DdeiPcdRequestDto : DdeiPcdRequestCoreDto
+    public class MdsPcdRequestDto : MdsPcdRequestCoreDto
     {
         public List<DdeiPcdCaseOutlineLineDto> CaseOutline { get; set; }
 

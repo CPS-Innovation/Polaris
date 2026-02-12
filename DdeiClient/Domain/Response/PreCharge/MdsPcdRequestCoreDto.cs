@@ -1,6 +1,6 @@
 namespace Ddei.Domain.Response.PreCharge
 {
-  public class DdeiPcdRequestCoreDto
+  public class MdsPcdRequestCoreDto
   {
     public int Id { get; set; }
 

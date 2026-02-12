@@ -1,6 +1,6 @@
 namespace Ddei.Domain.Response.Document
 {
-    public class DdeiDocumentNoteAddedResponse
+    public class MdsDocumentNoteAddedResponse
     {
         public int Id { get; set; }
     }
