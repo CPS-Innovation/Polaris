@@ -5,7 +5,7 @@
 namespace PolarisGateway.Tests.Middlewares;
 
 using Microsoft.AspNetCore.Http;
-using PolarisGateway.Middleware.HttpSecurityHeaders;
+using PolarisGateway.Middleware;
 using Xunit;
 
 /// <summary>
@@ -13,18 +13,6 @@ using Xunit;
 /// </summary>
 public class SecureHttpHeadersMiddlewareTests
 {
-    private readonly SecureHttpHeadersOptions optionsMock = new()
-    {
-        StrictTransportSecurity = "max-age=31536000",
-        Server = "CustomServer",
-        XContentTypeOptions = "nosniff",
-        ContentSecurityPolicy = "default-src 'self'",
-        CacheControl = "no-cache",
-        Pragma = "no-cache",
-        XFrameOptions = "DENY",
-        XPermittedCrossDomainPolicies = "none",
-    };
-
     /// <summary>
     /// Check for expected headers.
     /// </summary>
@@ -35,18 +23,18 @@ public class SecureHttpHeadersMiddlewareTests
         var context = new DefaultHttpContext();
 
         // Act
-        SecureHttpHeadersMiddleware.AddStaticHeaders(context, this.optionsMock);
+        SecureHttpHeadersMiddleware.AddStaticHeaders(context);
 
         // Assert
         var headers = context.Response.Headers;
-        Assert.Equal(this.optionsMock.StrictTransportSecurity, headers["Strict-Transport-Security"]);
-        Assert.Equal(this.optionsMock.Server, headers["Server"]);
-        Assert.Equal(this.optionsMock.XContentTypeOptions, headers["X-Content-Type-Options"]);
-        Assert.Equal(this.optionsMock.ContentSecurityPolicy, headers["Content-Security-Policy"]);
-        Assert.Equal(this.optionsMock.CacheControl, headers["Cache-Control"]);
-        Assert.Equal(this.optionsMock.Pragma, headers["Pragma"]);
-        Assert.Equal(this.optionsMock.XFrameOptions, headers["X-Frame-Options"]);
-        Assert.Equal(this.optionsMock.XPermittedCrossDomainPolicies, headers["X-Permitted-Cross-Domain-Policies"]);
+        Assert.Equal("max-age=31536000; includeSubDomains", headers["Strict-Transport-Security"]);
+        Assert.Equal("", headers["Server"]);
+        Assert.Equal("nosniff", headers["X-Content-Type-Options"]);
+        Assert.Equal("default-src 'self'", headers["Content-Security-Policy"]);
+        Assert.Equal("no-store, max-age-0", headers["Cache-Control"]);
+        Assert.Equal("no-cache", headers["Pragma"]);
+        Assert.Equal("deny", headers["X-Frame-Options"]);
+        Assert.Equal("none", headers["X-Permitted-Cross-Domain-Policies"]);
     }
 
     /// <summary>
