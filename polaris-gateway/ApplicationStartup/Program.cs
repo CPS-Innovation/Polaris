@@ -2,6 +2,7 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
+using System.Linq;
 using Common.Extensions;
 using Common.Middleware;
 using Microsoft.ApplicationInsights.WorkerService;
@@ -19,6 +20,11 @@ var host = new HostBuilder()
     {
         options.UseMiddleware<ExceptionHandlingMiddleware>();
         options.UseMiddleware<RequestValidationMiddleware>();
+        options.UseWhen<SecureHttpHeadersMiddleware>(context =>
+        {
+            return context.FunctionDefinition.InputBindings
+            .Any(binding => binding.Value.Type == "httpTrigger");
+        });
     })
     .ConfigureOpenApi()
     .ConfigureLogging(options => options.AddApplicationInsights())
