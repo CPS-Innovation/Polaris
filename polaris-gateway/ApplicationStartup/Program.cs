@@ -2,6 +2,7 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
+using System.Linq;
 using Common.Extensions;
 using Common.Middleware;
 using Microsoft.ApplicationInsights.WorkerService;
