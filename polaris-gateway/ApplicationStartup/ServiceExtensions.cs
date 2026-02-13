@@ -107,6 +107,9 @@ public static class ServiceExtensions
         services.AddSingleton<UpdateStatementRequestValidator>();
         services.AddSingleton<UpdateExhibitRequestValidator>();
 
+        // Remove server header to satisfy ITHC requirement.
+        services.Configure<KestrelServerOptions>(k => k.AddServerHeader = false);
+
         // Register MasterDataService client options.
         services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);
         services.AddServiceOptions<UmaClientOptions>(UmaClientOptions.DefaultSectionName);
