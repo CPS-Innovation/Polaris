@@ -32,6 +32,7 @@ using Common.Mappers;
 using Cps.Fct.Hk.Ui.Services.Validators;
 using Cps.Fct.Hk.Ui.ServiceClient.Uma;
 using Cps.Fct.Hk.Ui.ServiceClient.Uma.Configuration;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace PolarisGateway.ApplicationStartup;
 
@@ -105,6 +106,9 @@ public static class ServiceExtensions
         services.AddSingleton<CompleteReclassificationRequestValidator>();
         services.AddSingleton<UpdateStatementRequestValidator>();
         services.AddSingleton<UpdateExhibitRequestValidator>();
+
+        // Remove server header to satisfy ITHC requirement.
+        services.Configure<KestrelServerOptions>(k => k.AddServerHeader = false);
 
         // Register MasterDataService client options.
         services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);
