@@ -20,7 +20,7 @@
   "devDependencies": {
     "@cypress/grep": "^5.0.0",
     "@types/node": "^24.10.1",
-    "cypress": "^12.17.4",
+    "cypress": "^15.10.0",
     "cypress-terminal-report": "^5.3.12",
     "cypress-timestamps": "^1.4.0",
     "fs-extra": "^11.3.2",
