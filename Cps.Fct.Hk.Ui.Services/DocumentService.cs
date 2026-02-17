@@ -119,7 +119,6 @@ public class DocumentService(
 
             if (ex.Message.Contains(StatusCodes.Status404NotFound.ToString()))
             {
-                this.logger.LogError(ex, ex.Message);
                 throw new NotFoundException($"No document found for file path [{link}]");
             }
 

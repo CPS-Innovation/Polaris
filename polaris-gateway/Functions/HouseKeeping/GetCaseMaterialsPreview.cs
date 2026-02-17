@@ -101,7 +101,7 @@ public class GetCaseMaterialsPreview(
         catch (NotSupportedException ex)
         {
             this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsPreview function encountered unsupported content type.");
-            return new UnprocessableEntityObjectResult($"{ex.Message}");
+            return new UnprocessableEntityObjectResult($"Preview error: {ex.Message}");
         }
         catch (NotFoundException ex)
         {
