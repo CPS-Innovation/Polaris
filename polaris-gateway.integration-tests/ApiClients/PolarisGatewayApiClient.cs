@@ -3,16 +3,10 @@ using Common.Dto.Response;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
-using Ddei.Domain.Response;
 using NUnit.Framework;
 using shared.integration_tests.ApiClients;
 using shared.integration_tests.Models;
-using System.Reflection.Metadata;
 using System.Text.Json;
-using Common.Dto.Response;
-using Common.Dto.Response.Document;
-using Common.Dto.Response.Documents;
-using Ddei.Domain.Response;
 
 namespace polaris_gateway.integration_tests.ApiClients;
 
@@ -106,6 +100,12 @@ public class PolarisGatewayApiClient : BaseApiClient
     {
         var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/reclassify";
         return await SendAsync<ReclassifyDocumentDto, DocumentReclassifiedResultDto>(route, HttpMethod.Post, request, cancellationToken);
+    }
+
+    public async Task<ApiClientResponse> RenameDocumentAsync(string urn, int caseId, string documentId, RenameDocumentRequestDto request, CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/rename";
+        return await SendAsync<RenameDocumentRequestDto>(route, HttpMethod.Put, request, cancellationToken);
     }
 
     private async Task<ApiClientResponse> SendAsync(string route, HttpMethod httpMethod, CancellationToken cancellationToken = default)
