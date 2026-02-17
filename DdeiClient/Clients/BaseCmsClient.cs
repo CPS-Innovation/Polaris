@@ -2,6 +2,8 @@
 using Common.Wrappers;
 using System.Net;
 using Common.Extensions;
+using Common.LayerResponse;
+using System.Net.Http;
 
 namespace DdeiClient.Clients;
 
@@ -22,23 +24,49 @@ public abstract class BaseCmsClient
         return JsonConvertWrapper.DeserializeObject<T>(content);
     }
 
-    protected virtual async Task<HttpResponseMessage> CallHttpClientAsync(HttpRequestMessage request, string cmsAuthValues, params HttpStatusCode[] expectedUnhappyStatusCodes)
+    //protected virtual async Task<HttpResponseMessage> CallHttpClientAsync(HttpRequestMessage request, string cmsAuthValues, params HttpStatusCode[] expectedUnhappyStatusCodes)
+    //{
+    //    var httpClient = GetHttpClient(cmsAuthValues);
+    //    var response = await httpClient.SendAsync(request);
+    //    try
+    //    {
+    //        if (response.IsSuccessStatusCode || expectedUnhappyStatusCodes.Contains(response.StatusCode))
+    //        {
+    //            return response;
+    //        }
+
+    //        var content = await response.Content.ReadAsStringAsync();
+    //        throw new HttpRequestException(content);
+    //    }
+    //    catch (HttpRequestException exception)
+    //    {
+    //        throw new DdeiClientException(response.StatusCode, exception);
+    //    }
+    //}
+
+
+
+    protected virtual async Task<ILayerResponse<HttpResponseMessage>> CallHttpClientAsync(HttpRequestMessage request, string cmsAuthValues, params HttpStatusCode[] expectedUnhappyStatusCodes)
     {
+        var response = new LayerResponse<HttpResponseMessage>();
+        var httpResponse = new HttpResponseMessage();
         var httpClient = GetHttpClient(cmsAuthValues);
-        var response = await httpClient.SendAsync(request);
+
         try
         {
-            if (response.IsSuccessStatusCode || expectedUnhappyStatusCodes.Contains(response.StatusCode))
-            {
-                return response;
-            }
-
-            var content = await response.Content.ReadAsStringAsync();
-            throw new HttpRequestException(content);
+            httpResponse = await httpClient.SendAsync(request);
         }
-        catch (HttpRequestException exception)
+        catch (Exception ex)
         {
-            throw new DdeiClientException(response.StatusCode, exception);
+            return response.AddError(new HttpError(httpResponse));
         }
+
+        if (httpResponse.IsSuccessStatusCode)
+        {
+            response.Content = httpResponse;
+            return response;
+        }
+
+        return response.AddError(new HttpError(httpResponse));
     }
 }
