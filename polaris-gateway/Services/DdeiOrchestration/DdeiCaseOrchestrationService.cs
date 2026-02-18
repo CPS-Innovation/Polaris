@@ -1,6 +1,7 @@
 using Common.Dto.Response;
 using Common.Dto.Response.Case;
 using Common.Extensions;
+using Common.LayerResponse;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using Ddei.Mappers;
@@ -45,27 +46,32 @@ public class DdeiCaseOrchestrationService : IDdeiCaseOrchestrationService
         return cases.Select(@case => _caseDetailsMapper.MapCaseDetails(@case));
     }
 
-    private async Task<CaseDetailsDto> GetCaseDetails(MdsCaseIdentifiersArgDto arg)
+    private async Task<ILayerResponse<CaseDetailsDto>> GetCaseDetails(MdsCaseIdentifiersArgDto arg)
     {
-        var getCaseSummaryTask = _mdsClient.GetCaseSummaryAsync(_mdsArgFactory.CreateCaseIdArg(arg.CmsAuthValues, arg.CorrelationId, arg.CaseId, arg.Urn));
-        var getDefendantsAndChargesTask = _mdsClient.GetDefendantAndChargesAsync(arg);
-        var witnessesTask = _mdsClient.GetWitnessesAsync(arg);
-        var getPcdRequestTask = _mdsClient.GetPcdRequestsAsync(arg);
+        var response = new LayerResponse<CaseDetailsDto>();
 
-        await Task.WhenAll(getCaseSummaryTask, getDefendantsAndChargesTask, witnessesTask, getPcdRequestTask);
+        var mdsCaseIdOnlyArgDto = new MdsCaseIdOnlyArgDto { CaseId = arg.CaseId, CmsAuthValues = arg.CmsAuthValues, CorrelationId = arg.CorrelationId, Urn = arg.Urn };
+        var caseSummaryResponse =  await _mdsClient.GetCaseSummaryAsync(mdsCaseIdOnlyArgDto);
+        if (caseSummaryResponse.HasError) return response.AddErrors(caseSummaryResponse);
+        
+        var defendantsAndChargesResponse = await _mdsClient.GetDefendantAndChargesAsync(arg);
+        if (defendantsAndChargesResponse.HasError) return response.AddErrors(defendantsAndChargesResponse);
 
-        var summary = getCaseSummaryTask.Result;
-        var defendantsAndCharges = getDefendantsAndChargesTask.Result.DefendantsAndCharges;
-        var witnesses = MapWitnesses(witnessesTask.Result);
-        var preChargeDecisionRequests = getPcdRequestTask.Result;
+        var witnessesResponse = await _mdsClient.GetWitnessesAsync(arg);
+        if (witnessesResponse.HasError) return response.AddErrors(witnessesResponse);
 
-        return new CaseDetailsDto
+        var pcdRequestResponse = await _mdsClient.GetPcdRequestsAsync(arg);
+        if (pcdRequestResponse.HasError) return response.AddErrors(pcdRequestResponse);
+
+        response.Content = new CaseDetailsDto
         {
-            Summary = summary,
-            DefendantsAndCharges = defendantsAndCharges,
-            Witnesses = witnesses,
-            PreChargeDecisionRequests = preChargeDecisionRequests
+            Summary = caseSummaryResponse.Content,
+            DefendantsAndCharges = defendantsAndChargesResponse.Content.DefendantsAndCharges,
+            Witnesses = MapWitnesses(witnessesResponse.Content),
+            PreChargeDecisionRequests = pcdRequestResponse.Content,
         };
+
+        return response;
     }
 
     private IEnumerable<WitnessDto> MapWitnesses(IEnumerable<BaseCaseWitnessResponse> witnesses) =>

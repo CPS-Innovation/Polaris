@@ -7,6 +7,7 @@ using Ddei.Domain.CaseData.Args.Core;
 using DdeiClient.Domain.Args;
 using Ddei.Domain.Response.Document;
 using Ddei.Domain.Response;
+using Common.LayerResponse;
 
 namespace DdeiClient.Clients.Interfaces;
 
@@ -18,15 +19,15 @@ public interface IMdsClient
 
     Task<CaseDto> GetCaseAsync(MdsCaseIdentifiersArgDto arg);
 
-    Task<CaseSummaryDto> GetCaseSummaryAsync(MdsCaseIdOnlyArgDto arg);
+    Task<ILayerResponse<CaseSummaryDto>> GetCaseSummaryAsync(MdsCaseIdOnlyArgDto arg);
 
     Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsCoreAsync(MdsCaseIdentifiersArgDto arg);
 
-    Task<IEnumerable<PcdRequestDto>> GetPcdRequestsAsync(MdsCaseIdentifiersArgDto arg);
+    Task<ILayerResponse<IEnumerable<PcdRequestDto>>> GetPcdRequestsAsync(MdsCaseIdentifiersArgDto arg);
 
     Task<PcdRequestDto> GetPcdRequestAsync(MdsPcdArgDto arg);
 
-    Task<DefendantsAndChargesListDto> GetDefendantAndChargesAsync(MdsCaseIdentifiersArgDto arg);
+    Task<ILayerResponse<DefendantsAndChargesListDto>> GetDefendantAndChargesAsync(MdsCaseIdentifiersArgDto arg);
 
     Task<IEnumerable<CmsDocumentDto>> ListDocumentsAsync(MdsCaseIdentifiersArgDto arg);
 
@@ -54,7 +55,7 @@ public interface IMdsClient
 
     Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(MdsCaseIdentifiersArgDto arg);
 
-    Task<IEnumerable<BaseCaseWitnessResponse>> GetWitnessesAsync(MdsCaseIdentifiersArgDto arg);
+    Task<ILayerResponse<IEnumerable<BaseCaseWitnessResponse>>> GetWitnessesAsync(MdsCaseIdentifiersArgDto arg);
 
     Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(CmsBaseArgDto arg);
 
