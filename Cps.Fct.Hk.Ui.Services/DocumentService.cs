@@ -18,6 +18,8 @@ using DdeiClient.Utils;
 using Microsoft.Extensions.Configuration;
 using Common.Configuration;
 using Common.Constants;
+using Common.Exceptions;
+using Microsoft.AspNetCore.Http;
 
 /// <summary>
 /// Provides services for retrieving documents related to a case.
@@ -114,6 +116,12 @@ public class DocumentService(
         {
             this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error occurred while downloading document with file path [{link}]");
             this.logger.LogError(ex, ex.Message);
+
+            if (ex.Message.Contains(StatusCodes.Status404NotFound.ToString()))
+            {
+                throw new NotFoundException($"No document found for file path [{link}]");
+            }
+
             throw;
         }
         finally
