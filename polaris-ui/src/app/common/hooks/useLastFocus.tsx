@@ -11,13 +11,16 @@ export const useLastFocus = (defaultFocusId?: string) => {
       ) {
         return;
       }
-      if (lastFocusElement && document.contains(lastFocusElement))
-        (lastFocusElement as HTMLElement).focus();
-      else {
+      if (lastFocusElement && document.contains(lastFocusElement)) {
+        const elm = lastFocusElement as HTMLElement;
+        if (elm.classList.contains("textLayer")) return;
+        elm.focus();
+      } else {
         if (defaultFocusId) {
           const defaultElement = document.querySelector(
             `${defaultFocusId}`
           ) as HTMLElement;
+          console.log({ defaultElement });
           if (defaultElement) defaultElement.focus();
         }
       }
