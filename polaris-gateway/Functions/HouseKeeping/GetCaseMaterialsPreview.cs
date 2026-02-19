@@ -21,6 +21,7 @@ using System;
 using System.IO;
 using Common.Configuration;
 using Common.Constants;
+using Common.Exceptions;
 
 /// <summary>
 /// Represents a function that retrieves the case material document for display purposes,
@@ -101,6 +102,11 @@ public class GetCaseMaterialsPreview(
         {
             this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsPreview function encountered unsupported content type.");
             return new UnprocessableEntityObjectResult($"Preview error: {ex.Message}");
+        }
+        catch (NotFoundException ex)
+        {
+            this.logger.LogError($"{ex.Message}");
+            return new NotFoundObjectResult(ex.Message);
         }
         catch (Exception ex)
         {
