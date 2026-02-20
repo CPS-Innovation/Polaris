@@ -2014,7 +2014,7 @@ public class CommunicationServiceTests
         // Act
         DiscardMaterialResponse result = await this.communicationService.DiscardMaterialAsync(
             caseId,
-            expectedResponse.DiscardMaterialData!.Id,
+            1212,
             request.discardReason,
             request.discardReasonDescription,
             cmsAuthValues,
