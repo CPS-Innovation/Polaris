@@ -85,18 +85,21 @@ public class OrchestrationProvider : IOrchestrationProvider
         var result = new DeleteCaseOrchestrationResult();
         try
         {
-            var terminateInstanceIds = await GetInstanceIdsAsync(client, _queryConditionFactory.Create(_inProgressStatuses, GetKey(caseId)));
+            var key = GetKey(caseId);
+            var inProgressCondition = _queryConditionFactory.Create(_inProgressStatuses, key);
+            var completedCondition = _queryConditionFactory.Create(_completedStatuses, key);
+            var terminateInstanceIds = await GetInstanceIdsAsync(client, inProgressCondition);
             result.TerminatedInstancesCount = terminateInstanceIds.Count;
             result.GotTerminateInstancesDateTime = DateTime.UtcNow;
 
             await Task.WhenAll(terminateInstanceIds.Select(instanceId => client.TerminateInstanceAsync(instanceId, "Forcibly terminated DELETE")));
             result.TerminatedInstancesTime = DateTime.UtcNow;
 
-            var didComplete = await WaitForOrchestrationsToCompleteAsync(client);
+            var didComplete = await WaitForOrchestrationsToCompleteAsync(client, inProgressCondition);
             result.DidOrchestrationsTerminate = didComplete;
             result.TerminatedInstancesSettledDateTime = DateTime.UtcNow;
 
-            var orchestratorPurgeInstanceIds = await GetInstanceIdsAsync(client, _queryConditionFactory.Create(_completedStatuses, GetKey(caseId)));
+            var orchestratorPurgeInstanceIds = await GetInstanceIdsAsync(client, completedCondition);
 
             result.GotPurgeInstancesDateTime = DateTime.UtcNow;
             result.PurgeInstancesCount = orchestratorPurgeInstanceIds.Count;
@@ -162,14 +165,14 @@ public class OrchestrationProvider : IOrchestrationProvider
         return instanceIds;
     }
 
-    private static async Task<bool> WaitForOrchestrationsToCompleteAsync(DurableTaskClient client)
+    private static async Task<bool> WaitForOrchestrationsToCompleteAsync(DurableTaskClient client, OrchestrationQuery condition)
     {
         int remainingRetryAttempts = 10;
         const int retryDelayMilliseconds = 1000;
         do
         {
             var allInstancesAreTerminated = true;
-            await foreach (var page in client.GetAllInstancesAsync(new OrchestrationQuery(Statuses: _inProgressStatuses)).AsPages())
+            await foreach (var page in client.GetAllInstancesAsync(condition).AsPages())
             {
                 allInstancesAreTerminated &= page.Values.All(i => i.RuntimeStatus == OrchestrationRuntimeStatus.Terminated);
             }
