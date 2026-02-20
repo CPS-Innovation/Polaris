@@ -96,7 +96,7 @@ public class DiscardMaterial(
             if (result?.DiscardMaterialData?.Id == null)
             {
                 this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] DiscardMaterial function failed in [{stopwatch.Elapsed}]");
-                return new UnprocessableEntityObjectResult(result);
+                return new UnprocessableEntityObjectResult($"Material with Id [{materialId}] has not been found to discard.");
             }
 
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] DiscardMaterial function completed in [{stopwatch.Elapsed}]");

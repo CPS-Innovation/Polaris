@@ -31,5 +31,5 @@ public class DiscardMaterialData
     /// Gets or sets the material id of the renamed material.
     /// </summary>
     [JsonPropertyName("id")]
-    public int Id { get; set; }
+    public int? Id { get; set; }
 }

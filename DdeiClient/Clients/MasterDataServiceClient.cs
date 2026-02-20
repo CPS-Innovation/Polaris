@@ -941,6 +941,11 @@ namespace DdeiClient.Clients
                 var data = await client.DiscardMaterialAsync(request.materialId, mdsReqest);
                 this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
 
+                if (data?.DiscardMaterial?.Id == null)
+                {
+                    return default;
+                }
+
                 DiscardMaterialResponse result = new DiscardMaterialResponse(new DiscardMaterialData { Id = data.DiscardMaterial.Id });
                 return result;
             }
@@ -971,7 +976,7 @@ namespace DdeiClient.Clients
                 var mdsReqest = new ApiClient.MaterialReadStateRequest()
                 {
                     MaterialId = request.materialId,
-                    State = (ApiClient.MaterialReadStateRequestState) request.state,
+                    State = (ApiClient.MaterialReadStateRequestState)request.state,
                 };
 
                 var data = await client.SetMaterialReadStateAsync(request.materialId, mdsReqest);
