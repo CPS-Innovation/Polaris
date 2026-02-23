@@ -29,8 +29,6 @@ export const Tabs: React.FC<TabsProps> = ({
 }) => {
   const [showDocumentNavAlert, setShowDocumentNavAlert] = useState(false);
 
-  useLastFocus("#case-details-search");
-
   const activeTabArrayPos = items.findIndex((item) => item.id === activeTabId);
   const activeTabIndex = activeTabArrayPos === -1 ? 0 : activeTabArrayPos;
 
