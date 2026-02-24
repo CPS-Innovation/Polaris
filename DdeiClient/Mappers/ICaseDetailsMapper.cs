@@ -12,9 +12,9 @@ namespace Ddei.Mappers
         CaseDto MapCaseDetails(DdeiCaseDetailsDto caseDetails);
         CaseDto MapCaseDetails(CaseDetailsDto caseDetails);
         DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<DdeiCaseDefendantDto> defendants, int caseId, string etag);
-        PcdRequestDto MapPreChargeDecisionRequest(DdeiPcdRequestDto pcdr);
-        IEnumerable<PcdRequestCoreDto> MapCorePreChargeDecisionRequests(IEnumerable<DdeiPcdRequestCoreDto> pcdRequests);
-        IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<DdeiPcdRequestDto> pcdRequests);
+        PcdRequestDto MapPreChargeDecisionRequest(MdsPcdRequestDto pcdr);
+        IEnumerable<PcdRequestCoreDto> MapCorePreChargeDecisionRequests(IEnumerable<MdsPcdRequestCoreDto> pcdRequests);
+        IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<MdsPcdRequestDto> pcdRequests);
         CaseSummaryDto Map(MdsCaseSummaryDto ddeiResult);
         IEnumerable<WitnessDto> MapWitnesses(IEnumerable<BaseCaseWitnessResponse> witnesses);
     }

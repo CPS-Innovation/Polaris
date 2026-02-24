@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace DdeiClient.Factories;
 
-public class DdeiAuthClientRequestFactory : BaseDdeiClientRequestFactory, IDdeiAuthClientRequestFactory
+public class DdeiAuthClientRequestFactory : CmsBaseHttpClientRequestFactory, IDdeiAuthClientRequestFactory
 {
     public HttpRequestMessage CreateVerifyCmsAuthRequest(CmsBaseArgDto arg)
     {
