@@ -15,20 +15,20 @@ using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.DdeiOrchestration;
 
-public class DdeiCaseDocumentsOrchestrationService : IDdeiCaseDocumentsOrchestrationService
+public class MdsCaseDocumentsOrchestrationService : IMdsCaseDocumentsOrchestrationService
 {
     private readonly IMdsClient _mdsClient;
     private readonly IDocumentToggleService _documentToggleService;
     private readonly IDocumentDtoMapper _cmsDocumentMapper;
 
-    public DdeiCaseDocumentsOrchestrationService(
-            IMdsClient ddeiClient,
+    public MdsCaseDocumentsOrchestrationService(
+            IMdsClient mdsClient,
             IMdsArgFactory mdsArgFactory,
             IDocumentToggleService documentToggleService,
             IDocumentDtoMapper cmsDocumentMapper
         )
     {
-        _mdsClient = ddeiClient.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
         _documentToggleService = documentToggleService.ExceptionIfNull();
         _cmsDocumentMapper = cmsDocumentMapper.ExceptionIfNull();
     }

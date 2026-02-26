@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.DdeiOrchestration;
 
-public interface IDdeiCaseDocumentsOrchestrationService
+public interface IMdsCaseDocumentsOrchestrationService
 {
     Task<IEnumerable<DocumentDto>> GetCaseDocuments(MdsCaseIdentifiersArgDto arg);
 }

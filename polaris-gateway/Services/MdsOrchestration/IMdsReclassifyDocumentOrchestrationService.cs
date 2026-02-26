@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.DdeiOrchestration;
 
-public interface IDdeiReclassifyDocumentOrchestrationService
+public interface IMdsReclassifyDocumentOrchestrationService
 {
     Task<DocumentReclassifiedResult> ReclassifyDocument(MdsReclassifyDocumentArgDto arg);
 }
