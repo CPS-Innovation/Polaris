@@ -54,6 +54,19 @@ public class PolarisGatewayApiClient : BaseApiClient
         return await SendAsync<IEnumerable<CaseDto>>(route, HttpMethod.Get, cancellationToken);
     }
 
+    public async Task<ApiClientFileResponse> GetPdfAsync(
+        string urn,
+        int caseId,
+        string documentId,
+        int versionId,
+        CancellationToken cancellationToken,
+        bool? isOcrProcessed = null,
+        bool? forceRefresh = null)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/pdf";
+        return await SendFileAsync(route, HttpMethod.Get, cancellationToken);
+    }
+
     public async Task<ApiClientResponse<IEnumerable<DocumentDto>>> GetDocumentListAsync(string urn, int caseId, CancellationToken cancellationToken)
     {
         var route = $"urns/{urn}/cases/{caseId}/documents";
@@ -134,6 +147,24 @@ public class PolarisGatewayApiClient : BaseApiClient
         var httpRequestMessage = CreateHttpRequestMessage(route, httpMethod, null, string.Empty, token, cmsAuthValues);
         var httpResponseMessage = await SendAsync(httpRequestMessage, cancellationToken);
         return new ApiClientResponse<TResponse>(httpResponseMessage);
+    }
+
+    private async Task<ApiClientFileResponse> SendFileAsync(
+        string route,
+        HttpMethod httpMethod,
+        CancellationToken cancellationToken = default)
+    {
+        var token = await _tokenAuthApiClient.GetTokenAsync(cancellationToken);
+        var cmsAuthValues = await _cmsAuthApiClient.GetCmsAuthTokenAsync(cancellationToken);
+
+        var httpRequestMessage = CreateHttpRequestMessage(route, httpMethod, null, string.Empty, token, cmsAuthValues);
+        var httpResponseMessage = await SendAsync(httpRequestMessage, cancellationToken);
+
+        var bytes = await httpResponseMessage.Content.ReadAsByteArrayAsync(cancellationToken);
+        var contentType = httpResponseMessage.Content.Headers.ContentType?.MediaType;
+        var fileName = httpResponseMessage.Content.Headers.ContentDisposition?.FileName?.Trim('"');
+
+        return new ApiClientFileResponse(httpResponseMessage.StatusCode, bytes, contentType, fileName);
     }
 
     private async Task<ApiClientResponse<TResponse>> SendAsync<TRequest, TResponse>(string route, HttpMethod httpMethod, TRequest request, CancellationToken cancellationToken = default)
