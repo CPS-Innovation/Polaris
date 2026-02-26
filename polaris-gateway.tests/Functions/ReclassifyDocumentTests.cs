@@ -22,7 +22,7 @@ public class ReclassifyDocumentTests
 {
     private readonly Mock<ILogger<ReclassifyDocument>> _loggerMock;
     private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
-    private readonly Mock<IDdeiReclassifyDocumentOrchestrationService> _orchestrationServiceMock;
+    private readonly Mock<IMdsReclassifyDocumentOrchestrationService> _orchestrationServiceMock;
     private readonly Mock<ITelemetryClient> _telemetryClientMock;
     private readonly ReclassifyDocument _reclassifyDocument;
 
@@ -30,7 +30,7 @@ public class ReclassifyDocumentTests
     {
         _loggerMock = new Mock<ILogger<ReclassifyDocument>>();
         _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
-        _orchestrationServiceMock = new Mock<IDdeiReclassifyDocumentOrchestrationService>();
+        _orchestrationServiceMock = new Mock<IMdsReclassifyDocumentOrchestrationService>();
         _telemetryClientMock = new Mock<ITelemetryClient>();
         _reclassifyDocument = new ReclassifyDocument(_loggerMock.Object, _mdsArgFactoryMock.Object, _telemetryClientMock.Object, _orchestrationServiceMock.Object);
     }

@@ -17,15 +17,15 @@ public class GetCaseTests
 {
     private readonly Mock<ILogger<GetCase>> _loggerMock;
     private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
-    private readonly Mock<IDdeiCaseOrchestrationService> _ddeiCaseOrchestrationServiceMock;
+    private readonly Mock<IMdsCaseOrchestrationService> _mdsCaseOrchestrationServiceMock;
     private readonly GetCase _getCase;
 
     public GetCaseTests()
     {
         _loggerMock = new Mock<ILogger<GetCase>>();
         _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
-        _ddeiCaseOrchestrationServiceMock = new Mock<IDdeiCaseOrchestrationService>();
-        _getCase = new GetCase(_loggerMock.Object, _mdsArgFactoryMock.Object, _ddeiCaseOrchestrationServiceMock.Object);
+        _mdsCaseOrchestrationServiceMock = new Mock<IMdsCaseOrchestrationService>();
+        _getCase = new GetCase(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsCaseOrchestrationServiceMock.Object);
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public class GetCaseTests
         var caseDetails = new CaseDetailsDto();
         var caseDto = new CaseDto();
         _mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId)).Returns(caseIdentifiersArgDto);
-        _ddeiCaseOrchestrationServiceMock.Setup(s => s.GetCase(caseIdentifiersArgDto)).ReturnsAsync(caseDto);
+        _mdsCaseOrchestrationServiceMock.Setup(s => s.GetCase(caseIdentifiersArgDto)).ReturnsAsync(caseDto);
 
         //act
         var result = await _getCase.Run(req, caseUrn, caseId);

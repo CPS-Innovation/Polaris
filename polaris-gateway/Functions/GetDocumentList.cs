@@ -14,19 +14,19 @@ namespace PolarisGateway.Functions;
 public class GetDocumentList : BaseFunction
 {
     private readonly ILogger<GetDocumentList> _logger;
-    private readonly IDdeiCaseDocumentsOrchestrationService _ddeiOrchestrationService;
+    private readonly IMdsCaseDocumentsOrchestrationService _mdsOrchestrationService;
     private readonly IMdsArgFactory _mdsArgFactory;
     private readonly ITelemetryClient _telemetryClient;
 
     public GetDocumentList(
         ILogger<GetDocumentList> logger,
-        IDdeiCaseDocumentsOrchestrationService ddeiOrchestrationService,
+        IMdsCaseDocumentsOrchestrationService mdsOrchestrationService,
         IMdsArgFactory mdsArgFactory,
         ITelemetryClient telemetryClient)
         : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _ddeiOrchestrationService = ddeiOrchestrationService ?? throw new ArgumentNullException(nameof(ddeiOrchestrationService));
+        _mdsOrchestrationService = mdsOrchestrationService ?? throw new ArgumentNullException(nameof(mdsOrchestrationService));
         _mdsArgFactory = mdsArgFactory ?? throw new ArgumentNullException(nameof(mdsArgFactory));
         _telemetryClient = telemetryClient;
     }
@@ -39,7 +39,7 @@ public class GetDocumentList : BaseFunction
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var arg = _mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
-        var result = await _ddeiOrchestrationService.GetCaseDocuments(arg);
+        var result = await _mdsOrchestrationService.GetCaseDocuments(arg);
 
         return new OkObjectResult(result);
     }
