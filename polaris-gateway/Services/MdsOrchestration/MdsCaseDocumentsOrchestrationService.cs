@@ -7,13 +7,13 @@ using Common.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
-using PolarisGateway.Services.DdeiOrchestration.Mappers;
+using PolarisGateway.Services.MdsOrchestration.Mappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Services.DdeiOrchestration;
+namespace PolarisGateway.Services.MdsOrchestration;
 
 public class MdsCaseDocumentsOrchestrationService : IMdsCaseDocumentsOrchestrationService
 {

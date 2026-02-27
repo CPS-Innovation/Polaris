@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using PolarisGateway.Functions;
-using PolarisGateway.Services.DdeiOrchestration;
+using PolarisGateway.Services.MdsOrchestration;
 using System;
 using System.IO;
 using System.Text;

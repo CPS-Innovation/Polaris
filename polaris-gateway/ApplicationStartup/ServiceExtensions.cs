@@ -20,7 +20,7 @@ using Common.Services.BlobStorage;
 using Common.Services.PiiService;
 using PolarisGateway.Clients.PdfThumbnailGenerator;
 using PolarisGateway.Services.Artefact;
-using PolarisGateway.Services.DdeiOrchestration;
+using PolarisGateway.Services.MdsOrchestration;
 using System.Net.Http;
 using System;
 using Cps.Fct.Hk.Ui.Interfaces;
@@ -77,7 +77,7 @@ public static class ServiceExtensions
         services.AddBlobStorageWithDefaultAzureCredential(configuration);
         services.AddPiiService();
         services.AddArtefactService();
-        services.AddDdeiOrchestrationService();
+        services.AddMdsOrchestrationService();
 
         // House keeping.
         services.AddSingleton<ICaseInfoService, CaseInfoService>();

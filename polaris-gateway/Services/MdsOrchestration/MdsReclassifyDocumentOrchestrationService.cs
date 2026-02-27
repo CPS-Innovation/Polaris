@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Services.DdeiOrchestration;
+namespace PolarisGateway.Services.MdsOrchestration;
 
 public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentOrchestrationService
 {

@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using PolarisGateway.Services.DdeiOrchestration.Mappers;
+using PolarisGateway.Services.MdsOrchestration.Mappers;
 
-namespace PolarisGateway.Services.DdeiOrchestration
+namespace PolarisGateway.Services.MdsOrchestration
 {
     public static class IServiceCollectionExtension
     {
-        public static void AddDdeiOrchestrationService(this IServiceCollection services)
+        public static void AddMdsOrchestrationService(this IServiceCollection services)
         {
             services.AddSingleton<IMdsCaseDocumentsOrchestrationService, MdsCaseDocumentsOrchestrationService>();
             services.AddSingleton<IMdsReclassifyDocumentOrchestrationService, MdsReclassifyDocumentOrchestrationService>();
