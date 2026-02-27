@@ -38,14 +38,18 @@ public static class IServiceCollectionExtension
 
         services.AddScoped<IMdsClient, MdsClient>();
 
-        services.AddDdeiServices();
+        services.AddDdeiAuthServices();
+        services.AddMdsServices();
     }
 
-    // should this be 'AddDdeiAndMdsServices()' ?
-    private static void AddDdeiServices(this IServiceCollection services)
+    private static void AddDdeiAuthServices(this IServiceCollection services)
+    {
+        services.AddTransient<IDdeiAuthClientRequestFactory, DdeiAuthClientRequestFactory>();
+    }
+
+    private static void AddMdsServices(this IServiceCollection services)
     {
         services.AddTransient<IMdsArgFactory, MdsArgFactory>();
-        services.AddTransient<IDdeiAuthClientRequestFactory, DdeiAuthClientRequestFactory>();
         services.AddTransient<IMdsClientRequestFactory, MdsClientRequestFactory>();
         services.AddTransient<ICaseDocumentMapper<MdsDocumentResponse>, CaseDocumentMapper>();
         services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
