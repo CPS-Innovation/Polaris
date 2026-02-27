@@ -83,7 +83,7 @@ namespace Ddei.Mappers
             };
         }
 
-        public PcdRequestDto MapPreChargeDecisionRequest(DdeiPcdRequestDto pcdr)
+        public PcdRequestDto MapPreChargeDecisionRequest(MdsPcdRequestDto pcdr)
         {
             return new PcdRequestDto
             {
@@ -96,12 +96,12 @@ namespace Ddei.Mappers
             };
         }
 
-        public IEnumerable<PcdRequestCoreDto> MapCorePreChargeDecisionRequests(IEnumerable<DdeiPcdRequestCoreDto> pcdRequests)
+        public IEnumerable<PcdRequestCoreDto> MapCorePreChargeDecisionRequests(IEnumerable<MdsPcdRequestCoreDto> pcdRequests)
         {
             return pcdRequests.Select(pcd => MapCorePreChargeDecisionRequest(pcd));
         }
 
-        public IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<DdeiPcdRequestDto> preChargeDecisionRequests)
+        public IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<MdsPcdRequestDto> preChargeDecisionRequests)
         {
             return preChargeDecisionRequests.Select(pcdr => MapPreChargeDecisionRequest(pcdr));
         }
@@ -134,7 +134,7 @@ namespace Ddei.Mappers
             return witnesses.Select(witness => MapWitness(witness));
         }
 
-        private PcdRequestCoreDto MapCorePreChargeDecisionRequest(DdeiPcdRequestCoreDto pcd)
+        private PcdRequestCoreDto MapCorePreChargeDecisionRequest(MdsPcdRequestCoreDto pcd)
         {
             return new PcdRequestCoreDto
             {
@@ -161,7 +161,7 @@ namespace Ddei.Mappers
             return caseDetails.Defendants.Select(defendant => MapDefendant(defendant, caseDetails.PreChargeDecisionRequests));
         }
 
-        private DefendantAndChargesDto MapDefendant(DdeiCaseDefendantDto defendant, IEnumerable<DdeiPcdRequestDto> pcdRequests)
+        private DefendantAndChargesDto MapDefendant(DdeiCaseDefendantDto defendant, IEnumerable<MdsPcdRequestDto> pcdRequests)
         {
             return new DefendantAndChargesDto
             {
@@ -261,7 +261,7 @@ namespace Ddei.Mappers
                 .Select(offence => MapCharge(offence, nextHearingDate));
         }
 
-        private IEnumerable<ProposedChargeDto> MapProposedCharges(DdeiCaseDefendantDto defendant, IEnumerable<DdeiPcdRequestDto> pcdRequests)
+        private IEnumerable<ProposedChargeDto> MapProposedCharges(DdeiCaseDefendantDto defendant, IEnumerable<MdsPcdRequestDto> pcdRequests)
         {
             return pcdRequests
                       .SelectMany(pcdRequest => pcdRequest.Suspects)

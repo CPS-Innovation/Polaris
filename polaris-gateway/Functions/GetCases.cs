@@ -14,17 +14,17 @@ public class GetCases : BaseFunction
 {
     private readonly ILogger<GetCases> _logger;
     private readonly IMdsArgFactory _mdsArgFactory;
-    private readonly IDdeiCaseOrchestrationService _ddeiOrchestrationService;
+    private readonly IMdsCaseOrchestrationService _mdsOrchestrationService;
 
     public GetCases(
         ILogger<GetCases> logger,
         IMdsArgFactory mdsArgFactory,
-        IDdeiCaseOrchestrationService ddeiOrchestrationService)
+        IMdsCaseOrchestrationService mdsOrchestrationService)
         : base()
     {
         _logger = logger.ExceptionIfNull();
         _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        _ddeiOrchestrationService = ddeiOrchestrationService.ExceptionIfNull();
+        _mdsOrchestrationService = mdsOrchestrationService.ExceptionIfNull();
     }
 
     [Function(nameof(GetCases))]
@@ -36,7 +36,7 @@ public class GetCases : BaseFunction
 
         var arg = _mdsArgFactory.CreateUrnArg(cmsAuthValues, correlationId, caseUrn);
 
-        var result = await _ddeiOrchestrationService.GetCases(arg);
+        var result = await _mdsOrchestrationService.GetCases(arg);
 
         return new OkObjectResult(result);
     }

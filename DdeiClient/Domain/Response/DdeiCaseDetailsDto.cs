@@ -11,6 +11,6 @@ namespace Ddei.Domain.Response
 
         public IEnumerable<DdeiWitnessDto> Witnesses { get; set; }
 
-        public IEnumerable<DdeiPcdRequestDto> PreChargeDecisionRequests { get; set; }
+        public IEnumerable<MdsPcdRequestDto> PreChargeDecisionRequests { get; set; }
     }
 }

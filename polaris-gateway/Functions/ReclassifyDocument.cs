@@ -19,20 +19,20 @@ public class ReclassifyDocument : BaseFunction
 {
     private readonly ILogger<ReclassifyDocument> _logger;
     private readonly IMdsArgFactory _mdsArgFactory;
-    private readonly IDdeiReclassifyDocumentOrchestrationService _ddeiOrchestrationService;
+    private readonly IMdsReclassifyDocumentOrchestrationService _mdsOrchestrationService;
     private readonly ITelemetryClient _telemetryClient;
 
     public ReclassifyDocument(
         ILogger<ReclassifyDocument> logger,
         IMdsArgFactory mdsArgFactory,
         ITelemetryClient telemetryClient,
-        IDdeiReclassifyDocumentOrchestrationService ddeiOrchestrationService)
+        IMdsReclassifyDocumentOrchestrationService mdsOrchestrationService)
         : base()
     {
         _logger = logger.ExceptionIfNull();
         _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _telemetryClient = telemetryClient.ExceptionIfNull();
-        _ddeiOrchestrationService = ddeiOrchestrationService.ExceptionIfNull();
+        _mdsOrchestrationService = mdsOrchestrationService.ExceptionIfNull();
     }
 
     [Function(nameof(ReclassifyDocument))]
@@ -74,7 +74,7 @@ public class ReclassifyDocument : BaseFunction
                 dto: body.Value
             );
 
-            var reclassifyDocumentResult = await _ddeiOrchestrationService.ReclassifyDocument(arg);
+            var reclassifyDocumentResult = await _mdsOrchestrationService.ReclassifyDocument(arg);
 
             if (!reclassifyDocumentResult.IsSuccess)
             {

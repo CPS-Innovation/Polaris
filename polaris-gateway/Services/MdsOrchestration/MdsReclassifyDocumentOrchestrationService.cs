@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.DdeiOrchestration;
 
-public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumentOrchestrationService
+public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentOrchestrationService
 {
     private const string ExhibitClassification = "EXHIBIT";
     private const string StatementClassification = "STATEMENT";
@@ -22,7 +22,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
     private readonly IMdsClient _mdsClient;
     private readonly IMdsArgFactory _mdsArgFactory;
 
-    public DdeiReclassifyDocumentOrchestrationService(
+    public MdsReclassifyDocumentOrchestrationService(
             IMdsClient mdsClient,
             IMdsArgFactory mdsArgFactory
         )
