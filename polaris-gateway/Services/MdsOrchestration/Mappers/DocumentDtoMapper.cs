@@ -7,7 +7,7 @@ using Common.Dto.Response.Document.FeatureFlags;
 using Common.Dto.Response.Documents;
 using System;
 
-namespace PolarisGateway.Services.DdeiOrchestration.Mappers;
+namespace PolarisGateway.Services.MdsOrchestration.Mappers;
 
 public class DocumentDtoMapper : IDocumentDtoMapper
 {

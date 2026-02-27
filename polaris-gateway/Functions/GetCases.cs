@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using PolarisGateway.Services.DdeiOrchestration;
+using PolarisGateway.Services.MdsOrchestration;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
