@@ -9,15 +9,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Services.DdeiOrchestration;
+namespace PolarisGateway.Services.MdsOrchestration;
 
-public class DdeiCaseOrchestrationService : IDdeiCaseOrchestrationService
+public class MdsCaseOrchestrationService : IMdsCaseOrchestrationService
 {
     private readonly IMdsClient _mdsClient;
     private readonly IMdsArgFactory _mdsArgFactory;
     private readonly ICaseDetailsMapper _caseDetailsMapper;
 
-    public DdeiCaseOrchestrationService(
+    public MdsCaseOrchestrationService(
             IMdsClient mdsClient,
             IMdsArgFactory mdsArgFactory,
             ICaseDetailsMapper caseDetailsMapper
@@ -64,7 +64,7 @@ public class DdeiCaseOrchestrationService : IDdeiCaseOrchestrationService
             Summary = summary,
             DefendantsAndCharges = defendantsAndCharges,
             Witnesses = witnesses,
-            PreChargeDecisionRequests = preChargeDecisionRequests
+            PreChargeDecisionRequests = preChargeDecisionRequests,
         };
     }
 

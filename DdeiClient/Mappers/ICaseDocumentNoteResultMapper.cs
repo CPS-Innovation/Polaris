@@ -5,6 +5,6 @@ namespace Ddei.Mappers
 {
     public interface ICaseDocumentNoteResultMapper
     {
-        DocumentNoteResult Map(DdeiDocumentNoteAddedResponse ddeiResponse);
+        DocumentNoteResult Map(MdsDocumentNoteAddedResponse mdsResponse);
     }
 }

@@ -3,9 +3,9 @@ using Ddei.Domain.CaseData.Args.Core;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Services.DdeiOrchestration;
+namespace PolarisGateway.Services.MdsOrchestration;
 
-public interface IDdeiCaseDocumentsOrchestrationService
+public interface IMdsCaseDocumentsOrchestrationService
 {
     Task<IEnumerable<DocumentDto>> GetCaseDocuments(MdsCaseIdentifiersArgDto arg);
 }

@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Ddei.Domain.Response.Document;
 
-public class DdeiDocumentResponse
+public class MdsDocumentResponse
 {
     [JsonPropertyName("id")]
     public long Id { get; set; }

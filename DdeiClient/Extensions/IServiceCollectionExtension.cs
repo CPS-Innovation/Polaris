@@ -38,17 +38,22 @@ public static class IServiceCollectionExtension
 
         services.AddScoped<IMdsClient, MdsClient>();
 
-        services.AddDdeiServices();
+        services.AddDdeiAuthServices();
+        services.AddMdsServices();
     }
 
-    private static void AddDdeiServices(this IServiceCollection services)
+    private static void AddDdeiAuthServices(this IServiceCollection services)
+    {
+        services.AddTransient<IDdeiAuthClientRequestFactory, DdeiAuthClientRequestFactory>();
+    }
+
+    private static void AddMdsServices(this IServiceCollection services)
     {
         services.AddTransient<IMdsArgFactory, MdsArgFactory>();
-        services.AddTransient<IDdeiAuthClientRequestFactory, DdeiAuthClientRequestFactory>();
         services.AddTransient<IMdsClientRequestFactory, MdsClientRequestFactory>();
-        services.AddTransient<ICaseDocumentMapper<DdeiDocumentResponse>, CaseDocumentMapper>();
+        services.AddTransient<ICaseDocumentMapper<MdsDocumentResponse>, CaseDocumentMapper>();
         services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
-        services.AddTransient<ICaseDocumentMapper<DdeiDocumentResponse>, CaseDocumentMapper>();
+        services.AddTransient<ICaseDocumentMapper<MdsDocumentResponse>, CaseDocumentMapper>();
         services.AddTransient<ICaseDocumentNoteMapper, CaseDocumentNoteMapper>();
         services.AddTransient<ICaseDocumentNoteResultMapper, CaseDocumentNoteResultMapper>();
         services.AddTransient<ICaseExhibitProducerMapper, CaseExhibitProducerMapper>();
