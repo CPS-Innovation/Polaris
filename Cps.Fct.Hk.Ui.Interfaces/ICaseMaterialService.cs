@@ -27,12 +27,13 @@ public interface ICaseMaterialService
     /// The <see cref="UsedExhibitsResponse"/> containing a collection of used exhibits to be mapped.
     /// </param>
     /// <param name="exhibitProducers">contains collection of exhibit producers associated with the case.</param>
+    /// <param name="communications">Inbox communications.</param>
     /// <param name="caseId">The case Id.</param>
     /// <returns>
     /// A list of <see cref="CaseMaterial"/> objects representing the mapped used exhibits.
     /// Returns an empty list if no exhibits are available.
     /// </returns>
-    List<CaseMaterial> MapUsedExhibitsToCaseMaterials(UsedExhibitsResponse? usedExhibits, ExhibitProducersResponse? exhibitProducers, int caseId);
+    List<CaseMaterial> MapUsedExhibitsToCaseMaterials(UsedExhibitsResponse? usedExhibits, ExhibitProducersResponse? exhibitProducers, IReadOnlyCollection<Communication>? communications, int caseId);
 
     /// <summary>
     /// Maps a <see cref="UsedStatementsResponse"/> object to a list of <see cref="CaseMaterial"/> objects.
