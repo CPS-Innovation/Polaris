@@ -37,7 +37,7 @@ public class GetOcr : BaseFunction
 
     [Function(nameof(GetOcr))]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [OpenApiOperation(operationId: nameof(CheckoutDocument), tags: ["Documents"], Summary = "Artefact Result", Description = "Gives the artefact results")]
+    [OpenApiOperation(operationId: nameof(GetOcr), tags: ["Documents"], Summary = "Artefact Result", Description = "Gives the artefact results")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
     [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
