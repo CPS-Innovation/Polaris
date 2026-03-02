@@ -18,7 +18,7 @@ export const MissingDocs: React.FC<Props> = ({ missingDocs }) => {
         <p>
           The following documents could not be searched. There are multiple
           possible reasons for this, for example the file is password protected,
-          the file format is not supported or the file is corrupted
+          the file format is not supported or the file is:
         </p>
         <ul className={classes.docList}>
           {firstFourDocs.map(({ documentId, fileName }) => (
