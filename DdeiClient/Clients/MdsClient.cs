@@ -78,22 +78,24 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return _caseIdentifiersMapper.MapCaseIdentifiers(mdsCaseIdentifiersDto);
     }
 
-    public async Task<IEnumerable<CaseDto>> ListCasesAsync(MdsUrnArgDto arg)
-    {
-        var caseIdentifiers = await ListCaseIdsAsync(arg);
+    // NOT USED...
+    //public async Task<IEnumerable<CaseDto>> ListCasesAsync(MdsUrnArgDto arg)
+    //{
+    //    var caseIdentifiers = await ListCaseIdsAsync(arg);
 
-        var calls = caseIdentifiers.Select(async caseIdentifier =>
-            await GetCaseInternalAsync(_caseDataServiceArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id)));
+    //    var calls = caseIdentifiers.Select(async caseIdentifier =>
+    //        await GetCaseInternalAsync(_caseDataServiceArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id)));
 
-        var cases = await Task.WhenAll(calls);
-        return cases.Select(@case => _caseDetailsMapper.MapCaseDetails(@case));
-    }
+    //    var cases = await Task.WhenAll(calls);
+    //    return cases.Select(@case => _caseDetailsMapper.MapCaseDetails(@case));
+    //}
 
-    public async Task<CaseDto> GetCaseAsync(MdsCaseIdentifiersArgDto arg)
-    {
-        var @case = await GetCaseInternalAsync(arg);
-        return _caseDetailsMapper.MapCaseDetails(@case);
-    }
+    // NOT USED... except in a test file. Deleting ...
+    //public async Task<CaseDto> GetCaseAsync(MdsCaseIdentifiersArgDto arg)
+    //{
+    //    var @case = await GetCaseInternalAsync(arg);
+    //    return _caseDetailsMapper.MapCaseDetails(@case);
+    //}
 
     public async Task<CaseSummaryDto> GetCaseSummaryAsync(MdsCaseIdOnlyArgDto arg)
     {
@@ -123,7 +125,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
     {
         var response = await CallHttpClientAsync(_mdsClientRequestFactory.CreateGetDefendantAndChargesRequest(arg), arg.CmsAuthValues);
         var content = await response.Content.ReadAsStringAsync();
-        var defendantAndCharges = _jsonConvertWrapper.DeserializeObject<IEnumerable<DdeiCaseDefendantDto>>(content);
+        var defendantAndCharges = _jsonConvertWrapper.DeserializeObject<IEnumerable<MdsCaseDefendantDto>>(content);
         var etag = response.Headers.ETag?.Tag;
 
         return _caseDetailsMapper.MapDefendantsAndCharges(defendantAndCharges, arg.CaseId, etag);
@@ -148,6 +150,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
         };
     }
 
+    // NOT USED...
     public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)
     {
         var response = await CallHttpClientAsync(
@@ -222,6 +225,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return new DocumentRenamedResultDto { Id = response.UpdateCommunicationDescription.Id };
     }
 
+    // NOT USED...
     public async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(MdsReclassifyDocumentArgDto arg)
     {
         var response = await CallHttpClientAsync<MdsDocumentReclassifiedResponse>(_mdsClientRequestFactory.CreateReclassifyDocumentRequest(arg), arg.CmsAuthValues);
@@ -277,8 +281,8 @@ public class MdsClient : BaseCmsClient, IMdsClient
     public async Task<IEnumerable<MdsCaseIdentifiersDto>> ListCaseIdsAsync(MdsUrnArgDto arg) =>
         await CallHttpClientAsync<IEnumerable<MdsCaseIdentifiersDto>>(_mdsClientRequestFactory.CreateListCasesRequest(arg), arg.CmsAuthValues);
 
-    private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(MdsCaseIdentifiersArgDto arg) =>
-        await CallHttpClientAsync<DdeiCaseDetailsDto>(_mdsClientRequestFactory.CreateGetCaseRequest(arg), arg.CmsAuthValues);
+    private async Task<MdsCaseDetailsDto> GetCaseInternalAsync(MdsCaseIdentifiersArgDto arg) =>
+        await CallHttpClientAsync<MdsCaseDetailsDto>(_mdsClientRequestFactory.CreateGetCaseRequest(arg), arg.CmsAuthValues);
 
     protected override HttpClient GetHttpClient(string cmsAuthValues)
     {

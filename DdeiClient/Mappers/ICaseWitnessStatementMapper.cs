@@ -5,6 +5,7 @@ namespace Ddei.Mappers;
 
 public interface ICaseWitnessStatementMapper
 {
-    WitnessStatementDto Map(DdeiCaseWitnessStatementsResponse ddeiResponse);
+    //WitnessStatementDto Map(DdeiCaseWitnessStatementsResponse ddeiResponse);
+    //  Verify if this may be needed in the future
     WitnessStatementDto Map(StatementForWitness ddeiResponse);
 }

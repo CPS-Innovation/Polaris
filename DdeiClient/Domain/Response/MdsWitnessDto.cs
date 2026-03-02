@@ -1,6 +1,6 @@
 namespace Ddei.Domain.Response
 {
-    public class DdeiWitnessDto
+    public class MdsWitnessDto
     {
         public int Id { get; set; }
         public string ShoulderNumber { get; set; }

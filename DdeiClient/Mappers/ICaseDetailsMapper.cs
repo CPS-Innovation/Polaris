@@ -9,13 +9,14 @@ namespace Ddei.Mappers
 {
     public interface ICaseDetailsMapper
     {
-        CaseDto MapCaseDetails(DdeiCaseDetailsDto caseDetails);
+        // NOT USED... Deleting ...
+        //CaseDto MapCaseDetails(MdsCaseDetailsDto caseDetails);
         CaseDto MapCaseDetails(CaseDetailsDto caseDetails);
-        DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<DdeiCaseDefendantDto> defendants, int caseId, string etag);
+        DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<MdsCaseDefendantDto> defendants, int caseId, string etag);
         PcdRequestDto MapPreChargeDecisionRequest(MdsPcdRequestDto pcdr);
         IEnumerable<PcdRequestCoreDto> MapCorePreChargeDecisionRequests(IEnumerable<MdsPcdRequestCoreDto> pcdRequests);
         IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<MdsPcdRequestDto> pcdRequests);
-        CaseSummaryDto Map(MdsCaseSummaryDto ddeiResult);
+        CaseSummaryDto Map(MdsCaseSummaryDto mdsResult);
         IEnumerable<WitnessDto> MapWitnesses(IEnumerable<BaseCaseWitnessResponse> witnesses);
     }
 }

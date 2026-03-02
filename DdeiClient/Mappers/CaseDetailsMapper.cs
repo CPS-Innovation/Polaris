@@ -12,31 +12,32 @@ namespace Ddei.Mappers
     {
         private const string NotYetChargedCode = "NYC";
 
-        public CaseDto MapCaseDetails(DdeiCaseDetailsDto caseDetails)
-        {
-            var summary = caseDetails.Summary;
+        // MapCaseDetails called in a method that is not used... So technically not used... Deleting this method
+        //public CaseDto MapCaseDetails(MdsCaseDetailsDto caseDetails)
+        //{
+        //    var summary = caseDetails.Summary;
 
-            var defendants = MapDefendants(caseDetails);
-            var leadDefendant = FindLeadDefendant(defendants, (summary.LeadDefendantFirstNames, summary.LeadDefendantSurname, summary.LeadDefendantType));
-            var witnesses = MapWitnesses(caseDetails);
-            var headlineCharge = FindHeadlineCharge(leadDefendant);
-            var isCaseCharged = FindIsCaseCharged(defendants);
-            var preChargeDecisionRequests = MapPreChargeDecisionRequests(caseDetails.PreChargeDecisionRequests);
+        //    var defendants = MapDefendants(caseDetails);
+        //    var leadDefendant = FindLeadDefendant(defendants, (summary.LeadDefendantFirstNames, summary.LeadDefendantSurname, summary.LeadDefendantType));
+        //    var witnesses = MapWitnesses(caseDetails);
+        //    var headlineCharge = FindHeadlineCharge(leadDefendant);
+        //    var isCaseCharged = FindIsCaseCharged(defendants);
+        //    var preChargeDecisionRequests = MapPreChargeDecisionRequests(caseDetails.PreChargeDecisionRequests);
 
-            return new CaseDto
-            {
-                Id = summary.Id,
-                UniqueReferenceNumber = summary.Urn,
-                IsCaseCharged = isCaseCharged,
-                NumberOfDefendants = summary.NumberOfDefendants,
-                OwningUnit = summary.OwningUnit,
-                LeadDefendantDetails = leadDefendant != null ? leadDefendant.DefendantDetails : null,
-                DefendantsAndCharges = defendants,
-                HeadlineCharge = headlineCharge,
-                PreChargeDecisionRequests = preChargeDecisionRequests,
-                Witnesses = witnesses
-            };
-        }
+        //    return new CaseDto
+        //    {
+        //        Id = summary.Id,
+        //        UniqueReferenceNumber = summary.Urn,
+        //        IsCaseCharged = isCaseCharged,
+        //        NumberOfDefendants = summary.NumberOfDefendants,
+        //        OwningUnit = summary.OwningUnit,
+        //        LeadDefendantDetails = leadDefendant != null ? leadDefendant.DefendantDetails : null,
+        //        DefendantsAndCharges = defendants,
+        //        HeadlineCharge = headlineCharge,
+        //        PreChargeDecisionRequests = preChargeDecisionRequests,
+        //        Witnesses = witnesses
+        //    };
+        //}
 
         public CaseDto MapCaseDetails(CaseDetailsDto caseDetails)
         {
@@ -68,7 +69,7 @@ namespace Ddei.Mappers
             };
         }
 
-        public DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<DdeiCaseDefendantDto> defendants, int caseId, string etag)
+        public DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<MdsCaseDefendantDto> defendants, int caseId, string etag)
         {
             var defendantsAndCharges = defendants
                 .Select(defendant => MapDefendantAndCharges(defendant))
@@ -106,26 +107,26 @@ namespace Ddei.Mappers
             return preChargeDecisionRequests.Select(pcdr => MapPreChargeDecisionRequest(pcdr));
         }
 
-        public CaseSummaryDto Map(MdsCaseSummaryDto ddeiResult)
+        public CaseSummaryDto Map(MdsCaseSummaryDto mdsResult)
         {
             return new CaseSummaryDto
             {
-                Urn = ddeiResult.Urn,
-                Id = ddeiResult.Id,
-                NumberOfDefendants = ddeiResult.NumberOfDefendants,
-                LeadDefendantFirstNames = ddeiResult.LeadDefendantFirstNames,
-                LeadDefendantSurname = ddeiResult.LeadDefendantSurname,
-                LeadDefendantType = ddeiResult.LeadDefendantType,
-                Deleted = ddeiResult.Deleted,
-                Finalised = ddeiResult.Finalised,
-                NextHearingDate = ddeiResult.NextHearingDate,
-                NextHearingType = ddeiResult.NextHearingType,
-                NextHearingTypeCode = ddeiResult.NextHearingTypeCode,
-                NextHearingVenue = ddeiResult.NextHearingVenue,
-                NextHearingVenueCode = ddeiResult.NextHearingVenueCode,
-                OwningUnit = ddeiResult.UnitName,
-                CtlActive = ddeiResult.CtlActive,
-                EarliestCtlDate = ddeiResult.EarliestCtlDate,
+                Urn = mdsResult.Urn,
+                Id = mdsResult.Id,
+                NumberOfDefendants = mdsResult.NumberOfDefendants,
+                LeadDefendantFirstNames = mdsResult.LeadDefendantFirstNames,
+                LeadDefendantSurname = mdsResult.LeadDefendantSurname,
+                LeadDefendantType = mdsResult.LeadDefendantType,
+                Deleted = mdsResult.Deleted,
+                Finalised = mdsResult.Finalised,
+                NextHearingDate = mdsResult.NextHearingDate,
+                NextHearingType = mdsResult.NextHearingType,
+                NextHearingTypeCode = mdsResult.NextHearingTypeCode,
+                NextHearingVenue = mdsResult.NextHearingVenue,
+                NextHearingVenueCode = mdsResult.NextHearingVenueCode,
+                OwningUnit = mdsResult.UnitName,
+                CtlActive = mdsResult.CtlActive,
+                EarliestCtlDate = mdsResult.EarliestCtlDate,
             };
         }
 
@@ -144,7 +145,7 @@ namespace Ddei.Mappers
             };
         }
 
-        private DefendantAndChargesDto MapDefendantAndCharges(DdeiCaseDefendantDto defendant)
+        private DefendantAndChargesDto MapDefendantAndCharges(MdsCaseDefendantDto defendant)
         {
             return new DefendantAndChargesDto
             {
@@ -156,12 +157,12 @@ namespace Ddei.Mappers
             };
         }
 
-        private IEnumerable<DefendantAndChargesDto> MapDefendants(DdeiCaseDetailsDto caseDetails)
+        private IEnumerable<DefendantAndChargesDto> MapDefendants(MdsCaseDetailsDto caseDetails)
         {
             return caseDetails.Defendants.Select(defendant => MapDefendant(defendant, caseDetails.PreChargeDecisionRequests));
         }
 
-        private DefendantAndChargesDto MapDefendant(DdeiCaseDefendantDto defendant, IEnumerable<MdsPcdRequestDto> pcdRequests)
+        private DefendantAndChargesDto MapDefendant(MdsCaseDefendantDto defendant, IEnumerable<MdsPcdRequestDto> pcdRequests)
         {
             return new DefendantAndChargesDto
             {
@@ -174,7 +175,7 @@ namespace Ddei.Mappers
             };
         }
 
-        private DefendantDetailsDto MapDefendantDetails(DdeiCaseDefendantDto defendant)
+        private DefendantDetailsDto MapDefendantDetails(MdsCaseDefendantDto defendant)
         {
             return new DefendantDetailsDto
             {
@@ -200,12 +201,12 @@ namespace Ddei.Mappers
             };
         }
 
-        private IEnumerable<WitnessDto> MapWitnesses(DdeiCaseDetailsDto caseDetails)
+        private IEnumerable<WitnessDto> MapWitnesses(MdsCaseDetailsDto caseDetails)
         {
             return caseDetails.Witnesses.Select(witness => MapWitness(witness));
         }
 
-        private WitnessDto MapWitness(DdeiWitnessDto witness)
+        private WitnessDto MapWitness(MdsWitnessDto witness)
         {
             return new WitnessDto
             {
@@ -252,7 +253,7 @@ namespace Ddei.Mappers
             };
         }
 
-        private IEnumerable<ChargeDto> MapCharges(DdeiCaseDefendantDto defendant)
+        private IEnumerable<ChargeDto> MapCharges(MdsCaseDefendantDto defendant)
         {
             var charges = new List<ChargeDto>();
             var nextHearingDate = defendant.NextHearing?.Date;
@@ -261,7 +262,7 @@ namespace Ddei.Mappers
                 .Select(offence => MapCharge(offence, nextHearingDate));
         }
 
-        private IEnumerable<ProposedChargeDto> MapProposedCharges(DdeiCaseDefendantDto defendant, IEnumerable<MdsPcdRequestDto> pcdRequests)
+        private IEnumerable<ProposedChargeDto> MapProposedCharges(MdsCaseDefendantDto defendant, IEnumerable<MdsPcdRequestDto> pcdRequests)
         {
             return pcdRequests
                       .SelectMany(pcdRequest => pcdRequest.Suspects)

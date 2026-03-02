@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Ddei.Domain.Response.Defendant;
 
-public class DdeiCaseDefendantDto
+public class MdsCaseDefendantDto
 {
     public int Id { get; set; }
     public int? ListOrder { get; set; }
