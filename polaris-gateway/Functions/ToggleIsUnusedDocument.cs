@@ -29,7 +29,7 @@ public class ToggleIsUnusedDocument : BaseFunction
 
     [Function(nameof(ToggleIsUnusedDocument))]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [OpenApiOperation(operationId: nameof(ReclassifyDocument), tags: ["Documents"], Summary = "Toggle Is Unused Document", Description = "Toggle Is Unused Document")]
+    [OpenApiOperation(operationId: nameof(ToggleIsUnusedDocument), tags: ["Documents"], Summary = "Toggle Is Unused Document", Description = "Toggle Is Unused Document")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
     [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
