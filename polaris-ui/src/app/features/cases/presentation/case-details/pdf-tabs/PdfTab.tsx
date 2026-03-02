@@ -413,6 +413,7 @@ export const PdfTab: React.FC<PdfTabProps> = ({
 
         {urlWithHeader?.url ? (
           <PdfViewer
+            key={`${documentId}-${versionId}-${urlWithHeader?.url ?? ""}`}
             redactionTypesData={redactionTypesData}
             url={urlWithHeader?.url}
             tabIndex={tabIndex}
