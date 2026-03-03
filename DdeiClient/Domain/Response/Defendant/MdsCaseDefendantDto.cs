@@ -12,7 +12,7 @@ public class MdsCaseDefendantDto
     public string Dob { get; set; }
     public string RemandStatus { get; set; }
     [JsonPropertyName("policeRemandStatus")]
-    public string PoliceRemandStatus { set => RemandStatus = value; }
+    public string PoliceRemandStatus { get => RemandStatus; set => RemandStatus = value; }
     public bool Youth { get; set; }
     public DdeiCustodyTimeLimitDto CustodyTimeLimit { get; set; }
 

@@ -26,7 +26,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IMdsClientRequestFactory _mdsClientRequestFactory;
-    private readonly IMdsArgFactory _caseDataServiceArgFactory;
     private readonly ICaseDetailsMapper _caseDetailsMapper;
     private readonly ICaseDocumentMapper<MdsDocumentResponse> _caseDocumentMapper;
     private readonly ICaseDocumentNoteMapper _caseDocumentNoteMapper;
@@ -39,25 +38,23 @@ public class MdsClient : BaseCmsClient, IMdsClient
     private readonly ILogger<MdsClient> _logger;
     private readonly IMdsClientFactory _mdsClientFactory;
     public MdsClient(
-        IHttpClientFactory httpClientFactory, 
-        IMdsClientRequestFactory mdsClientRequestFactory, 
-        IMdsArgFactory caseDataServiceArgFactory, 
-        ICaseDetailsMapper caseDetailsMapper, 
-        ICaseDocumentMapper<MdsDocumentResponse> caseDocumentMapper, 
-        ICaseDocumentNoteMapper caseDocumentNoteMapper, 
-        ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper, 
-        ICaseExhibitProducerMapper caseExhibitProducerMapper, 
-        ICaseIdentifiersMapper caseIdentifiersMapper, 
-        ICmsMaterialTypeMapper cmsMaterialTypeMapper, 
-        ICaseWitnessStatementMapper caseWitnessStatementMapper, 
-        ILogger<MdsClient> logger, 
-        IMdsClientFactory mdsClientFactory, 
-        IJsonConvertWrapper jsonConvertWrapper) 
+        IHttpClientFactory httpClientFactory,
+        IMdsClientRequestFactory mdsClientRequestFactory,
+        ICaseDetailsMapper caseDetailsMapper,
+        ICaseDocumentMapper<MdsDocumentResponse> caseDocumentMapper,
+        ICaseDocumentNoteMapper caseDocumentNoteMapper,
+        ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper,
+        ICaseExhibitProducerMapper caseExhibitProducerMapper,
+        ICaseIdentifiersMapper caseIdentifiersMapper,
+        ICmsMaterialTypeMapper cmsMaterialTypeMapper,
+        ICaseWitnessStatementMapper caseWitnessStatementMapper,
+        ILogger<MdsClient> logger,
+        IMdsClientFactory mdsClientFactory,
+        IJsonConvertWrapper jsonConvertWrapper)
         : base(jsonConvertWrapper)
     {
         _httpClientFactory = httpClientFactory.ExceptionIfNull();
         _mdsClientRequestFactory = mdsClientRequestFactory.ExceptionIfNull();
-        _caseDataServiceArgFactory = caseDataServiceArgFactory.ExceptionIfNull();
         _caseDetailsMapper = caseDetailsMapper.ExceptionIfNull();
         _caseDocumentMapper = caseDocumentMapper.ExceptionIfNull();
         _caseDocumentNoteMapper = caseDocumentNoteMapper.ExceptionIfNull();
