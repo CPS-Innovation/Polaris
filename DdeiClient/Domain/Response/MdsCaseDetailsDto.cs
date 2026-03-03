@@ -7,8 +7,6 @@ namespace Ddei.Domain.Response
     {
         public IEnumerable<MdsCaseDefendantDto> Defendants { get; set; }
 
-        public IEnumerable<MdsWitnessDto> Witnesses { get; set; }
-
         public IEnumerable<MdsPcdRequestDto> PreChargeDecisionRequests { get; set; }
     }
 }
