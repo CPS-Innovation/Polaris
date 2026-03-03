@@ -39,7 +39,7 @@ public class GetThumbnail : BaseFunction
 
     [Function(nameof(GetThumbnail))]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [OpenApiOperation(operationId: nameof(GetThumbnail), tags: ["Documents"], Summary = "Get pdf", Description = "Gives the pdf")]
+    [OpenApiOperation(operationId: nameof(GetThumbnail), tags: ["Documents"], Summary = "Get Thumbnail", Description = "Gives the thumbnail")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
     [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
@@ -48,7 +48,7 @@ public class GetThumbnail : BaseFunction
     [OpenApiParameter("maxDimensionPixel", In = ParameterLocation.Path, Type = typeof(int), Description = "The max Dimension Pixel of the document", Required = true)]
     [OpenApiParameter("pageIndex", In = ParameterLocation.Path, Type = typeof(int), Description = "The page index of the document", Required = true)]
 
-    [OpenApiResponseWithBody(HttpStatusCode.OK, "application/json", typeof(HttpResponseMessage), Description = "OCR processing completed successfully")]
+    [OpenApiResponseWithBody(HttpStatusCode.OK, "application/json", typeof(object), Description = "OCR processing completed successfully")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
 

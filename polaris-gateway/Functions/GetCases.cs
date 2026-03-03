@@ -35,7 +35,7 @@ public class GetCases : BaseFunction
 
     [Function(nameof(GetCases))]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [OpenApiOperation(operationId: nameof(GetCases), tags: ["Cases"], Summary = "Get Case List", Description = "Returns cases list information using caseURN")]
+    [OpenApiOperation(operationId: nameof(GetCases), tags: ["Case"], Summary = "Get Case List", Description = "Returns cases list information using caseURN")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
     [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(IEnumerable<CaseDto>), Summary = "List of cases for a case URN", Description = "Returns case list for the given URN")]
