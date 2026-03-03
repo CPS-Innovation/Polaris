@@ -174,34 +174,6 @@ namespace Ddei.Mappers
             };
         }
 
-        private IEnumerable<WitnessDto> MapWitnesses(MdsCaseDetailsDto caseDetails)
-        {
-            return caseDetails.Witnesses.Select(witness => MapWitness(witness));
-        }
-
-        private WitnessDto MapWitness(MdsWitnessDto witness)
-        {
-            return new WitnessDto
-            {
-                Id = witness.Id,
-                ShoulderNumber = witness.ShoulderNumber,
-                Title = witness.Title,
-                Name = witness.Name,
-                HasStatements = witness.HasStatements,
-                ListOrder = witness.ListOrder,
-                Child = witness.Child,
-                Expert = witness.Expert,
-                GreatestNeed = witness.GreatestNeed,
-                Prisoner = witness.Prisoner,
-                Interpreter = witness.Interpreter,
-                Vulnerable = witness.Vulnerable,
-                Police = witness.Police,
-                Professional = witness.Professional,
-                SpecialNeeds = witness.SpecialNeeds,
-                Intimidated = witness.Intimidated,
-                Victim = witness.Victim
-            };
-        }
         private WitnessDto MapWitness(BaseCaseWitnessResponse witness)
         {
             return new WitnessDto
