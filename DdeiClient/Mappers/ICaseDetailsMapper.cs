@@ -9,8 +9,6 @@ namespace Ddei.Mappers
 {
     public interface ICaseDetailsMapper
     {
-        // NOT USED... Deleting ...
-        //CaseDto MapCaseDetails(MdsCaseDetailsDto caseDetails);
         CaseDto MapCaseDetails(CaseDetailsDto caseDetails);
         DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<MdsCaseDefendantDto> defendants, int caseId, string etag);
         PcdRequestDto MapPreChargeDecisionRequest(MdsPcdRequestDto pcdr);

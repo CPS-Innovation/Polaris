@@ -12,33 +12,6 @@ namespace Ddei.Mappers
     {
         private const string NotYetChargedCode = "NYC";
 
-        // MapCaseDetails called in a method that is not used... So technically not used... Deleting this method
-        //public CaseDto MapCaseDetails(MdsCaseDetailsDto caseDetails)
-        //{
-        //    var summary = caseDetails.Summary;
-
-        //    var defendants = MapDefendants(caseDetails);
-        //    var leadDefendant = FindLeadDefendant(defendants, (summary.LeadDefendantFirstNames, summary.LeadDefendantSurname, summary.LeadDefendantType));
-        //    var witnesses = MapWitnesses(caseDetails);
-        //    var headlineCharge = FindHeadlineCharge(leadDefendant);
-        //    var isCaseCharged = FindIsCaseCharged(defendants);
-        //    var preChargeDecisionRequests = MapPreChargeDecisionRequests(caseDetails.PreChargeDecisionRequests);
-
-        //    return new CaseDto
-        //    {
-        //        Id = summary.Id,
-        //        UniqueReferenceNumber = summary.Urn,
-        //        IsCaseCharged = isCaseCharged,
-        //        NumberOfDefendants = summary.NumberOfDefendants,
-        //        OwningUnit = summary.OwningUnit,
-        //        LeadDefendantDetails = leadDefendant != null ? leadDefendant.DefendantDetails : null,
-        //        DefendantsAndCharges = defendants,
-        //        HeadlineCharge = headlineCharge,
-        //        PreChargeDecisionRequests = preChargeDecisionRequests,
-        //        Witnesses = witnesses
-        //    };
-        //}
-
         public CaseDto MapCaseDetails(CaseDetailsDto caseDetails)
         {
             var summary = caseDetails.Summary;

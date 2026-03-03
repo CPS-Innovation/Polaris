@@ -78,25 +78,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return _caseIdentifiersMapper.MapCaseIdentifiers(mdsCaseIdentifiersDto);
     }
 
-    // NOT USED...
-    //public async Task<IEnumerable<CaseDto>> ListCasesAsync(MdsUrnArgDto arg)
-    //{
-    //    var caseIdentifiers = await ListCaseIdsAsync(arg);
-
-    //    var calls = caseIdentifiers.Select(async caseIdentifier =>
-    //        await GetCaseInternalAsync(_caseDataServiceArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id)));
-
-    //    var cases = await Task.WhenAll(calls);
-    //    return cases.Select(@case => _caseDetailsMapper.MapCaseDetails(@case));
-    //}
-
-    // NOT USED... except in a test file. Deleting ...
-    //public async Task<CaseDto> GetCaseAsync(MdsCaseIdentifiersArgDto arg)
-    //{
-    //    var @case = await GetCaseInternalAsync(arg);
-    //    return _caseDetailsMapper.MapCaseDetails(@case);
-    //}
-
     public async Task<CaseSummaryDto> GetCaseSummaryAsync(MdsCaseIdOnlyArgDto arg)
     {
         var mdsResult = await CallHttpClientAsync<MdsCaseSummaryDto>(_mdsClientRequestFactory.CreateGetCaseSummary(arg), arg.CmsAuthValues);
@@ -148,22 +129,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
             Stream = await response.Content.ReadAsStreamAsync(),
             FileName = fileName,
         };
-    }
-
-    // NOT USED...
-    public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)
-    {
-        var response = await CallHttpClientAsync(
-            _mdsClientRequestFactory.CreateDocumentFromFileStoreRequest(new MdsFileStoreArgDto
-            {
-                Path = path,
-                CmsAuthValues = cmsAuthValues,
-                CorrelationId = correlationId,
-            }),
-            cmsAuthValues
-        );
-
-        return await response.Content.ReadAsStreamAsync();
     }
 
     public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg)
@@ -223,22 +188,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         var response = await CallHttpClientAsync<RenameMaterialDescriptionResponse>(_mdsClientRequestFactory.CreateRenameExhibitRequest(arg), arg.CmsAuthValues);
 
         return new DocumentRenamedResultDto { Id = response.UpdateCommunicationDescription.Id };
-    }
-
-    // NOT USED...
-    public async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(MdsReclassifyDocumentArgDto arg)
-    {
-        var response = await CallHttpClientAsync<MdsDocumentReclassifiedResponse>(_mdsClientRequestFactory.CreateReclassifyDocumentRequest(arg), arg.CmsAuthValues);
-
-        return new DocumentReclassifiedResultDto
-        {
-            DocumentId = response.Id,
-            DocumentTypeId = response.DocumentTypeId,
-            ReclassificationType = response.ReclassificationType,
-            OriginalDocumentTypeId = response.OriginalDocumentTypeId,
-            DocumentRenamed = response.DocumentRenamed,
-            DocumentRenamedOperationName = response.DocumentRenamedOperationName,
-        };
     }
 
     public async Task<MdsCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(MdsReclassifyCommunicationArgDto arg)

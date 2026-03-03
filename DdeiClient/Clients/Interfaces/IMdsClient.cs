@@ -14,12 +14,6 @@ public interface IMdsClient
 {
     Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(MdsCaseIdOnlyArgDto arg);
 
-    // NOT USED...
-    //Task<IEnumerable<CaseDto>> ListCasesAsync(MdsUrnArgDto arg);
-
-    // NOT USED... except in a test file. Deleting...
-    //Task<CaseDto> GetCaseAsync(MdsCaseIdentifiersArgDto arg);
-
     Task<CaseSummaryDto> GetCaseSummaryAsync(MdsCaseIdOnlyArgDto arg);
 
     Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsCoreAsync(MdsCaseIdentifiersArgDto arg);
@@ -34,9 +28,6 @@ public interface IMdsClient
 
     Task<FileResult> GetDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg);
 
-    // NOT USED...
-    Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId);
-
     Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg);
 
     Task CancelCheckoutDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg);
@@ -50,9 +41,6 @@ public interface IMdsClient
     Task<DocumentRenamedResultDto> RenameDocumentAsync(MdsRenameDocumentArgDto arg);
 
     Task<DocumentRenamedResultDto> RenameExhibitAsync(MdsRenameDocumentArgDto arg);
-
-    // NOT USED...
-    Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(MdsReclassifyDocumentArgDto arg);
 
     Task<MdsCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(MdsReclassifyCommunicationArgDto arg);
 
