@@ -107,7 +107,7 @@ public class GetCaseMaterials(
             this.caseMaterialService.AddCaseMaterials(allCaseMaterials!, usedExhibits.Exhibits ?? Enumerable.Empty<Exhibit>(), "Exhibit", "Other Exhibit", "Used");
             if (usedExhibits.Exhibits != null && usedExhibits.Exhibits.Count != 0)
             {
-                allCaseMaterials?.AddRange(this.caseMaterialService.MapUsedExhibitsToCaseMaterials(usedExhibits, exhibitProducers, caseId));
+                allCaseMaterials?.AddRange(this.caseMaterialService.MapUsedExhibitsToCaseMaterials(usedExhibits, exhibitProducers, communications, caseId));
             }
 
             // Add Used statements
