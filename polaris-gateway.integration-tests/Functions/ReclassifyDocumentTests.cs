@@ -27,7 +27,7 @@ public class ReclassifyDocumentTests : BaseFunctionIntegrationTest
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.NotFound));
     }
-    
+
     [Test]
     public async Task ReclassifyDocument_RequestIsInvalid_ShouldReturnBadRequest()
     {
@@ -62,7 +62,7 @@ public class ReclassifyDocumentTests : BaseFunctionIntegrationTest
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
     }
-    
+
     [Test]
     public async Task ReclassifyDocument_DocumentTypeIdNotFound_ShouldReturnInternalServiceError()
     {
