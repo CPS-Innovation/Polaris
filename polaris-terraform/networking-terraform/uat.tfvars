@@ -36,5 +36,6 @@ insights_configuration = {
   insights_internet_query_enabled      = false
 }
 
-teams_account = "Mark.Jones3@cps.gov.uk"
-dns_server    = "10.7.200.68"
+teams_account  = "Daniel.Barber@cps.gov.uk"
+dns_server     = "10.7.136.4"
+dns_alt_server = "10.14.136.4"
