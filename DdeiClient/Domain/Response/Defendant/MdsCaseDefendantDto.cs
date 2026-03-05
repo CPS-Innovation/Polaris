@@ -16,7 +16,7 @@ public class MdsCaseDefendantDto
     public bool Youth { get; set; }
     public DdeiCustodyTimeLimitDto CustodyTimeLimit { get; set; }
 
-    public IEnumerable<DdeiOffenceDto> Offences { get; set; }
+    public IEnumerable<MdsOffenceDto> Offences { get; set; }
 
-    public DdeiNextHearingDto NextHearing { get; set; }
+    public MdsNextHearingDto NextHearing { get; set; }
 }

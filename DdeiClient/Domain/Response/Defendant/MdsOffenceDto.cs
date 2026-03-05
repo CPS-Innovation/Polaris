@@ -1,7 +1,7 @@
 
 namespace Ddei.Domain.Response.Defendant
 {
-    public class DdeiOffenceDto
+    public class MdsOffenceDto
     {
         public int Id { get; set; }
         public int? ListOrder { get; set; }
@@ -16,6 +16,6 @@ namespace Ddei.Domain.Response.Defendant
         public string DisposedReason { get; set; }
         public string LastHearingOutcome { get; set; }
 
-        public DdeiCustodyTimeLimitDto CustodyTimeLimit { get; set; }
+        public MdsCustodyTimeLimitDto CustodyTimeLimit { get; set; }
     }
 }
