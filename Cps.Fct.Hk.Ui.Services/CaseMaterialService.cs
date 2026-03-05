@@ -67,7 +67,7 @@ public class CaseMaterialService(
     }
 
     /// <inheritdoc />
-    public List<CaseMaterial> MapUsedExhibitsToCaseMaterials(UsedExhibitsResponse? usedExhibits, ExhibitProducersResponse? exhibitProducers, int caseId)
+    public List<CaseMaterial> MapUsedExhibitsToCaseMaterials(UsedExhibitsResponse? usedExhibits, ExhibitProducersResponse? exhibitProducers, IReadOnlyCollection<Communication>? communications, int caseId)
     {
         var caseMaterials = new List<CaseMaterial>();
 
@@ -84,10 +84,12 @@ public class CaseMaterialService(
 
             bool canReclassfy = this.IsCaseMaterialReclassifiable(e.DocumentType);
 
+            string? exhibitName = communications?.FirstOrDefault(x => x.MaterialId == e.MaterialId)?.Subject ?? e.Title;
+
             return new CaseMaterial(
                 e.Id,
                 e.OriginalFileName,
-                e.Title,
+                subject: exhibitName,
                 e.DocumentType ?? 0,
                 e.Id,
                 e.Link,

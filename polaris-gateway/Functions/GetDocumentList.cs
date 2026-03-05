@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Ddei.Factories;
-using PolarisGateway.Services.DdeiOrchestration;
 using Microsoft.Azure.Functions.Worker;
 using System.Threading.Tasks;
 using System;
 using Common.Telemetry;
+using PolarisGateway.Services.MdsOrchestration;
 
 namespace PolarisGateway.Functions;
 

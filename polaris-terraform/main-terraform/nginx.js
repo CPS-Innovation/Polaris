@@ -46,6 +46,25 @@ function _redirectToAbsoluteUrl(r, redirectUrl) {
   )
 }
 
+function _getCookieValue(r, cookieName) {
+  const cookies = (r.headersIn["Cookie"]) || "";
+  const match = cookies.match(new RegExp(`(?:^|;\\s*)${cookieName}=([^;]*)`));
+  return match ? match[1] : "";
+}
+
+function _maybeDecodeURIComponent(value) {
+  // Check if value appears not to be URL-encoded
+  // (does not contain %XX patterns)
+  if (!/%[0-9A-Fa-f]{2}/.test(value)) {
+    return value;
+  }
+  try {
+    return decodeURIComponent(value);
+  } catch (e) {
+    return value;
+  }
+}
+
 function setSessionHintCookie(r) {
   let cookieValue
   try {
@@ -138,4 +157,44 @@ function taskListAuthRedirect(r) {
   )
 }
 
-export default { polarisAuthRedirect, taskListAuthRedirect, appAuthRedirect }
+function handleAuthRefreshOutbound(r) {
+  const tryGetHandoverEndpointFromCookie = () => {
+    try {
+      const rawCookie = _getCookieValue(r, "Cms-Session-Hint");
+      if (rawCookie) {
+        const decoded = _maybeDecodeURIComponent(rawCookie);
+        const parsed = JSON.parse(decoded);
+        if (parsed.handoverEndpoint) {
+          return parsed.handoverEndpoint;
+        }
+      }
+    } catch (e) {
+      // JSON parse failure: fall through to default
+    }
+    return null;
+  };
+
+  const tryGetDefaultHandoverEndpoint = () => {
+    const defaultDomain = process.env["DEFAULT_UPSTREAM_CMS_DOMAIN_NAME"] || "";
+    return defaultDomain ? `https://${defaultDomain}/polaris` : null;
+  };
+
+  const redirectTarget =
+    tryGetHandoverEndpointFromCookie() || tryGetDefaultHandoverEndpoint();
+
+  if (!redirectTarget) {
+    r.return(
+      502,
+      "auth-refresh-outbound: no handoverEndpoint in cookie and no DEFAULT_UPSTREAM_CMS_DOMAIN_NAME configured",
+    );
+    return;
+  }
+
+  const args = r.variables.args || "";
+  const redirectUrl = args ? `${redirectTarget}?${args}` : redirectTarget;
+
+  r.headersOut["X-InternetExplorerMode"] = "1";
+  r.return(302, redirectUrl);
+}
+
+export default { polarisAuthRedirect, taskListAuthRedirect, appAuthRedirect, handleAuthRefreshOutbound }
