@@ -3,16 +3,10 @@ using Common.Dto.Response;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
-using Ddei.Domain.Response;
 using NUnit.Framework;
 using shared.integration_tests.ApiClients;
 using shared.integration_tests.Models;
-using System.Reflection.Metadata;
 using System.Text.Json;
-using Common.Dto.Response;
-using Common.Dto.Response.Document;
-using Common.Dto.Response.Documents;
-using Ddei.Domain.Response;
 
 namespace polaris_gateway.integration_tests.ApiClients;
 
@@ -58,6 +52,19 @@ public class PolarisGatewayApiClient : BaseApiClient
     {
         var route = $"urns/{urn}/cases";
         return await SendAsync<IEnumerable<CaseDto>>(route, HttpMethod.Get, cancellationToken);
+    }
+
+    public async Task<ApiClientFileResponse> GetPdfAsync(
+        string urn,
+        int caseId,
+        string documentId,
+        int versionId,
+        CancellationToken cancellationToken,
+        bool? isOcrProcessed = null,
+        bool? forceRefresh = null)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/pdf";
+        return await SendFileAsync(route, HttpMethod.Get, cancellationToken);
     }
 
     public async Task<ApiClientResponse<IEnumerable<DocumentDto>>> GetDocumentListAsync(string urn, int caseId, CancellationToken cancellationToken)
@@ -108,6 +115,12 @@ public class PolarisGatewayApiClient : BaseApiClient
         return await SendAsync<ReclassifyDocumentDto, DocumentReclassifiedResultDto>(route, HttpMethod.Post, request, cancellationToken);
     }
 
+    public async Task<ApiClientResponse> RenameDocumentAsync(string urn, int caseId, string documentId, RenameDocumentRequestDto request, CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/rename";
+        return await SendAsync<RenameDocumentRequestDto>(route, HttpMethod.Put, request, cancellationToken);
+    }
+
     private async Task<ApiClientResponse> SendAsync(string route, HttpMethod httpMethod, CancellationToken cancellationToken = default)
     {
         var token = await _tokenAuthApiClient.GetTokenAsync(cancellationToken);
@@ -134,6 +147,24 @@ public class PolarisGatewayApiClient : BaseApiClient
         var httpRequestMessage = CreateHttpRequestMessage(route, httpMethod, null, string.Empty, token, cmsAuthValues);
         var httpResponseMessage = await SendAsync(httpRequestMessage, cancellationToken);
         return new ApiClientResponse<TResponse>(httpResponseMessage);
+    }
+
+    private async Task<ApiClientFileResponse> SendFileAsync(
+        string route,
+        HttpMethod httpMethod,
+        CancellationToken cancellationToken = default)
+    {
+        var token = await _tokenAuthApiClient.GetTokenAsync(cancellationToken);
+        var cmsAuthValues = await _cmsAuthApiClient.GetCmsAuthTokenAsync(cancellationToken);
+
+        var httpRequestMessage = CreateHttpRequestMessage(route, httpMethod, null, string.Empty, token, cmsAuthValues);
+        var httpResponseMessage = await SendAsync(httpRequestMessage, cancellationToken);
+
+        var bytes = await httpResponseMessage.Content.ReadAsByteArrayAsync(cancellationToken);
+        var contentType = httpResponseMessage.Content.Headers.ContentType?.MediaType;
+        var fileName = httpResponseMessage.Content.Headers.ContentDisposition?.FileName?.Trim('"');
+
+        return new ApiClientFileResponse(httpResponseMessage.StatusCode, bytes, contentType, fileName);
     }
 
     private async Task<ApiClientResponse<TResponse>> SendAsync<TRequest, TResponse>(string route, HttpMethod httpMethod, TRequest request, CancellationToken cancellationToken = default)

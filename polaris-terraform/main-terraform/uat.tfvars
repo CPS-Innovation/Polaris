@@ -1,8 +1,8 @@
 env             = "uat"
 location        = "UK South"
 environment_tag = "uat"
-dns_server      = "10.7.200.68"
-dns_alt_server  = "168.63.129.16"
+dns_server      = "10.7.136.4"
+dns_alt_server  = "10.14.136.4"
 
 ui_component_service_plans = {
   gateway_service_plan_sku     = "P1v3"
@@ -117,7 +117,7 @@ private_beta = {
   feature_user_group6 = "21c21011-b568-4ebb-b013-02d4cd15681a"
 }
 
-case_review_app_redirect_url = "https://cps-dev.outsystemsenterprise.com/CaseReview/Redirect"
+case_review_app_redirect_url = "https://polaris-qa-notprod.cps.gov.uk/case-review-redirect/cps-dev/dev"
 bulk_um_redirect_url         = "https://housekeeping-fn-staging.int.cps.gov.uk/api/init"
 
 polaris_ui_reauth = {
