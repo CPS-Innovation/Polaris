@@ -2,9 +2,11 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
+using System.Linq;
 using Common.Extensions;
 using Common.Middleware;
 using Microsoft.ApplicationInsights.WorkerService;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +21,11 @@ var host = new HostBuilder()
     {
         options.UseMiddleware<ExceptionHandlingMiddleware>();
         options.UseMiddleware<RequestValidationMiddleware>();
+        options.UseWhen<SecureHttpHeadersMiddleware>(context =>
+        {
+            return context.FunctionDefinition.InputBindings
+            .Any(binding => binding.Value.Type == "httpTrigger");
+        });
     })
     .ConfigureOpenApi()
     .ConfigureLogging(options => options.AddApplicationInsights())
@@ -44,6 +51,9 @@ var host = new HostBuilder()
             telemetryConfiguration.DisableTelemetry = false;
         }); */
         services.ConfigureLoggerFilterOptions();
+
+        // Remove server header to satisfy ITHC requirement.
+        services.Configure<KestrelServerOptions>(k => k.AddServerHeader = false);
     })
     .Build();
 

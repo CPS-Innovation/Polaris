@@ -12,6 +12,7 @@ using Common.Extensions;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Common.Telemetry;
+using System.Net.Http;
 
 namespace Common.Middleware;
 
@@ -46,6 +47,7 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
                 CmsAuthValuesMissingException _ => HttpStatusCode.Unauthorized,
                 OcrDocumentNotFoundException _ => HttpStatusCode.NotFound,
                 DocumentNotFoundException _ => HttpStatusCode.NotFound,
+                HttpRequestException _ => HttpStatusCode.BadGateway,
                 _ => HttpStatusCode.InternalServerError,
             };
 

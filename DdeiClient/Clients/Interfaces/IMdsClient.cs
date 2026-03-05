@@ -14,10 +14,6 @@ public interface IMdsClient
 {
     Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(MdsCaseIdOnlyArgDto arg);
 
-    Task<IEnumerable<CaseDto>> ListCasesAsync(MdsUrnArgDto arg);
-
-    Task<CaseDto> GetCaseAsync(MdsCaseIdentifiersArgDto arg);
-
     Task<CaseSummaryDto> GetCaseSummaryAsync(MdsCaseIdOnlyArgDto arg);
 
     Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsCoreAsync(MdsCaseIdentifiersArgDto arg);
@@ -32,8 +28,6 @@ public interface IMdsClient
 
     Task<FileResult> GetDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg);
 
-    Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId);
-
     Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg);
 
     Task CancelCheckoutDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg);
@@ -47,8 +41,6 @@ public interface IMdsClient
     Task<DocumentRenamedResultDto> RenameDocumentAsync(MdsRenameDocumentArgDto arg);
 
     Task<DocumentRenamedResultDto> RenameExhibitAsync(MdsRenameDocumentArgDto arg);
-
-    Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(MdsReclassifyDocumentArgDto arg);
 
     Task<MdsCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(MdsReclassifyCommunicationArgDto arg);
 

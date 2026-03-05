@@ -1,8 +1,8 @@
 env             = "prod"
 location        = "UK South"
 environment_tag = "production"
-dns_server      = "10.7.204.164"
-dns_alt_server  = "168.63.129.16"
+dns_server      = "10.7.136.4"
+dns_alt_server  = "10.14.136.4"
 
 ui_component_service_plans = {
   gateway_service_plan_sku     = "P2v3"
@@ -74,7 +74,7 @@ cms_details = {
 }
 
 wm_task_list_host_name  = "https://cps.outsystemsenterprise.com"
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps.outsystemsenterprise.com/,https://housekeeping-fn.cps.gov.uk/,/task-list,https://lcc-api.cps.gov.uk/"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps.outsystemsenterprise.com/,https://housekeeping-fn.cps.gov.uk/,/task-list,https://lcc-api.cps.gov.uk/, https://polaris.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555

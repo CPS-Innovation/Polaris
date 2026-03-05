@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Common.Constants;
 using Common.Dto.Request;
 using Common.Dto.Response.HouseKeeping;
+using Common.Exceptions;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
 using Microsoft.AspNetCore.Http;
@@ -227,5 +228,48 @@ public class GetCaseMaterialsPreviewTests
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
             log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [123] GetCaseMaterialsPreview function completed"));
+    }
+
+    /// <summary>
+    /// Tests that Run returns a NotFoundException when document is not found for a given link.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Fact]
+    public async Task Run_ShouldReturnNotFoundObjectResult_WhenNotFoundExceptionThrown()
+    {
+        // Arrange
+        HttpRequest req = new DefaultHttpContext().Request;
+        int validMaterialId = 12;
+
+        this.mockCommunicationService.Setup(s => s.GetCommunicationsAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync(new List<Communication>
+            {
+                new Communication(1, "File1.unsupported", "Subject A", 123, 1, "http://example.com/document.unsupported", "None", "Administrative", "Type A", false),
+            });
+
+        this.mockCommunicationService
+            .Setup(s => s.GetCaseMaterialLinkAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync("http://example.com/document.unsupported");
+
+        // Simulate throwing a NotSupportedException during document retrieval
+        this.mockDocumentService.Setup(s => s.GetMaterialDocumentAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), true))
+            .ThrowsAsync(new NotFoundException("Preview error: docucment not found."));
+
+        // Act
+        IActionResult result = await this.getCaseMaterialsPreviewFunction.Run(req, 123, validMaterialId);
+
+        // Assert that the result is an UnprocessableEntityObjectResult
+        NotFoundObjectResult notFoundObjectResult = Assert.IsType<NotFoundObjectResult>(result);
+
+        // Assert the FileDownloadName is correct
+        Assert.Equal("Preview error: docucment not found.", notFoundObjectResult.Value);
+
+        Assert.Contains(this.mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsPreview function processed a request."));
+
+        Assert.Contains(this.mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Error &&
+            log.Message != null && log.Message.Contains("docucment not found."));
     }
 }

@@ -234,6 +234,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         textLayerMode: 2,
         // removePageBorders: true,
         linkService: linkService,
+        annotationEditorMode: -1,
       });
 
     linkService.setDocument(pdfDocument);

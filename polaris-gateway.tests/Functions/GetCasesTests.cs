@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using PolarisGateway.Functions;
-using PolarisGateway.Services.DdeiOrchestration;
+using PolarisGateway.Services.MdsOrchestration;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -18,15 +18,15 @@ public class GetCasesTests
 {
     private readonly Mock<ILogger<GetCases>> _loggerMock;
     private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
-    private readonly Mock<IDdeiCaseOrchestrationService> _ddeiCaseOrchestrationServiceMock;
+    private readonly Mock<IMdsCaseOrchestrationService> _mdsCaseOrchestrationServiceMock;
     private readonly GetCases _getCases;
 
     public GetCasesTests()
     {
         _loggerMock = new Mock<ILogger<GetCases>>();
         _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
-        _ddeiCaseOrchestrationServiceMock = new Mock<IDdeiCaseOrchestrationService>();
-        _getCases = new GetCases(_loggerMock.Object, _mdsArgFactoryMock.Object, _ddeiCaseOrchestrationServiceMock.Object);
+        _mdsCaseOrchestrationServiceMock = new Mock<IMdsCaseOrchestrationService>();
+        _getCases = new GetCases(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsCaseOrchestrationServiceMock.Object);
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class GetCasesTests
         var urnArgDto = new MdsUrnArgDto();
         var caseDtos = new List<CaseDto>();
         _mdsArgFactoryMock.Setup(s => s.CreateUrnArg(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn)).Returns(urnArgDto);
-        _ddeiCaseOrchestrationServiceMock.Setup(s => s.GetCases(urnArgDto)).ReturnsAsync(caseDtos);
+        _mdsCaseOrchestrationServiceMock.Setup(s => s.GetCases(urnArgDto)).ReturnsAsync(caseDtos);
 
         //act
         var result = await _getCases.Run(req, caseUrn);

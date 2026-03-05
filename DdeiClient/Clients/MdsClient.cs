@@ -26,9 +26,8 @@ public class MdsClient : BaseCmsClient, IMdsClient
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IMdsClientRequestFactory _mdsClientRequestFactory;
-    private readonly IMdsArgFactory _caseDataServiceArgFactory;
     private readonly ICaseDetailsMapper _caseDetailsMapper;
-    private readonly ICaseDocumentMapper<DdeiDocumentResponse> _caseDocumentMapper;
+    private readonly ICaseDocumentMapper<MdsDocumentResponse> _caseDocumentMapper;
     private readonly ICaseDocumentNoteMapper _caseDocumentNoteMapper;
     private readonly ICaseDocumentNoteResultMapper _caseDocumentNoteResultMapper;
     private readonly ICaseExhibitProducerMapper _caseExhibitProducerMapper;
@@ -39,25 +38,23 @@ public class MdsClient : BaseCmsClient, IMdsClient
     private readonly ILogger<MdsClient> _logger;
     private readonly IMdsClientFactory _mdsClientFactory;
     public MdsClient(
-        IHttpClientFactory httpClientFactory, 
-        IMdsClientRequestFactory mdsClientRequestFactory, 
-        IMdsArgFactory caseDataServiceArgFactory, 
-        ICaseDetailsMapper caseDetailsMapper, 
-        ICaseDocumentMapper<DdeiDocumentResponse> caseDocumentMapper, 
-        ICaseDocumentNoteMapper caseDocumentNoteMapper, 
-        ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper, 
-        ICaseExhibitProducerMapper caseExhibitProducerMapper, 
-        ICaseIdentifiersMapper caseIdentifiersMapper, 
-        ICmsMaterialTypeMapper cmsMaterialTypeMapper, 
-        ICaseWitnessStatementMapper caseWitnessStatementMapper, 
-        ILogger<MdsClient> logger, 
-        IMdsClientFactory mdsClientFactory, 
-        IJsonConvertWrapper jsonConvertWrapper) 
+        IHttpClientFactory httpClientFactory,
+        IMdsClientRequestFactory mdsClientRequestFactory,
+        ICaseDetailsMapper caseDetailsMapper,
+        ICaseDocumentMapper<MdsDocumentResponse> caseDocumentMapper,
+        ICaseDocumentNoteMapper caseDocumentNoteMapper,
+        ICaseDocumentNoteResultMapper caseDocumentNoteResultMapper,
+        ICaseExhibitProducerMapper caseExhibitProducerMapper,
+        ICaseIdentifiersMapper caseIdentifiersMapper,
+        ICmsMaterialTypeMapper cmsMaterialTypeMapper,
+        ICaseWitnessStatementMapper caseWitnessStatementMapper,
+        ILogger<MdsClient> logger,
+        IMdsClientFactory mdsClientFactory,
+        IJsonConvertWrapper jsonConvertWrapper)
         : base(jsonConvertWrapper)
     {
         _httpClientFactory = httpClientFactory.ExceptionIfNull();
         _mdsClientRequestFactory = mdsClientRequestFactory.ExceptionIfNull();
-        _caseDataServiceArgFactory = caseDataServiceArgFactory.ExceptionIfNull();
         _caseDetailsMapper = caseDetailsMapper.ExceptionIfNull();
         _caseDocumentMapper = caseDocumentMapper.ExceptionIfNull();
         _caseDocumentNoteMapper = caseDocumentNoteMapper.ExceptionIfNull();
@@ -78,23 +75,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return _caseIdentifiersMapper.MapCaseIdentifiers(mdsCaseIdentifiersDto);
     }
 
-    public async Task<IEnumerable<CaseDto>> ListCasesAsync(MdsUrnArgDto arg)
-    {
-        var caseIdentifiers = await ListCaseIdsAsync(arg);
-
-        var calls = caseIdentifiers.Select(async caseIdentifier =>
-            await GetCaseInternalAsync(_caseDataServiceArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id)));
-
-        var cases = await Task.WhenAll(calls);
-        return cases.Select(@case => _caseDetailsMapper.MapCaseDetails(@case));
-    }
-
-    public async Task<CaseDto> GetCaseAsync(MdsCaseIdentifiersArgDto arg)
-    {
-        var @case = await GetCaseInternalAsync(arg);
-        return _caseDetailsMapper.MapCaseDetails(@case);
-    }
-
     public async Task<CaseSummaryDto> GetCaseSummaryAsync(MdsCaseIdOnlyArgDto arg)
     {
         var mdsResult = await CallHttpClientAsync<MdsCaseSummaryDto>(_mdsClientRequestFactory.CreateGetCaseSummary(arg), arg.CmsAuthValues);
@@ -103,19 +83,19 @@ public class MdsClient : BaseCmsClient, IMdsClient
 
     public async Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsCoreAsync(MdsCaseIdentifiersArgDto arg)
     {
-        var pcdRequests = await CallHttpClientAsync<IEnumerable<DdeiPcdRequestCoreDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues);
+        var pcdRequests = await CallHttpClientAsync<IEnumerable<MdsPcdRequestCoreDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues);
         return _caseDetailsMapper.MapCorePreChargeDecisionRequests(pcdRequests);
     }
 
     public async Task<IEnumerable<PcdRequestDto>> GetPcdRequestsAsync(MdsCaseIdentifiersArgDto arg)
     {
-        var pcdRequests = await CallHttpClientAsync<IEnumerable<DdeiPcdRequestDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues);
+        var pcdRequests = await CallHttpClientAsync<IEnumerable<MdsPcdRequestDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues);
         return _caseDetailsMapper.MapPreChargeDecisionRequests(pcdRequests);
     }
 
     public async Task<PcdRequestDto> GetPcdRequestAsync(MdsPcdArgDto arg)
     {
-        var pcdRequest = await CallHttpClientAsync<DdeiPcdRequestDto>(_mdsClientRequestFactory.CreateGetPcdRequest(arg), arg.CmsAuthValues);
+        var pcdRequest = await CallHttpClientAsync<MdsPcdRequestDto>(_mdsClientRequestFactory.CreateGetPcdRequest(arg), arg.CmsAuthValues);
         return _caseDetailsMapper.MapPreChargeDecisionRequest(pcdRequest);
     }
 
@@ -123,7 +103,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
     {
         var response = await CallHttpClientAsync(_mdsClientRequestFactory.CreateGetDefendantAndChargesRequest(arg), arg.CmsAuthValues);
         var content = await response.Content.ReadAsStringAsync();
-        var defendantAndCharges = _jsonConvertWrapper.DeserializeObject<IEnumerable<DdeiCaseDefendantDto>>(content);
+        var defendantAndCharges = _jsonConvertWrapper.DeserializeObject<IEnumerable<MdsCaseDefendantDto>>(content);
         var etag = response.Headers.ETag?.Tag;
 
         return _caseDetailsMapper.MapDefendantsAndCharges(defendantAndCharges, arg.CaseId, etag);
@@ -131,7 +111,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
 
     public async Task<IEnumerable<CmsDocumentDto>> ListDocumentsAsync(MdsCaseIdentifiersArgDto arg)
     {
-        var mdsResults = await CallHttpClientAsync<List<DdeiDocumentResponse>>(_mdsClientRequestFactory.CreateListCaseDocumentsRequest(arg), arg.CmsAuthValues);
+        var mdsResults = await CallHttpClientAsync<List<MdsDocumentResponse>>(_mdsClientRequestFactory.CreateListCaseDocumentsRequest(arg), arg.CmsAuthValues);
 
         return mdsResults.Select(mdsResult => _caseDocumentMapper.Map(mdsResult));
     }
@@ -144,23 +124,8 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return new FileResult
         {
             Stream = await response.Content.ReadAsStreamAsync(),
-            FileName = fileName
+            FileName = fileName,
         };
-    }
-
-    public async Task<Stream> GetDocumentFromFileStoreAsync(string path, string cmsAuthValues, Guid correlationId)
-    {
-        var response = await CallHttpClientAsync(
-            _mdsClientRequestFactory.CreateDocumentFromFileStoreRequest(new MdsFileStoreArgDto
-            {
-                Path = path,
-                CmsAuthValues = cmsAuthValues,
-                CorrelationId = correlationId
-            }),
-            cmsAuthValues
-        );
-
-        return await response.Content.ReadAsStreamAsync();
     }
 
     public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg)
@@ -172,11 +137,11 @@ public class MdsClient : BaseCmsClient, IMdsClient
             new CheckoutDocumentDto
             {
                 IsSuccess = false,
-                LockingUserName = await response.Content.ReadAsStringAsync()
+                LockingUserName = await response.Content.ReadAsStringAsync(),
             } :
             new CheckoutDocumentDto
             {
-                IsSuccess = true
+                IsSuccess = true,
             };
     }
 
@@ -203,7 +168,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
 
     public async Task<DocumentNoteResult> AddDocumentNoteAsync(MdsAddDocumentNoteArgDto arg)
     {
-        var response = await CallHttpClientAsync<DdeiDocumentNoteAddedResponse>(_mdsClientRequestFactory.CreateAddDocumentNoteRequest(arg), arg.CmsAuthValues);
+        var response = await CallHttpClientAsync<MdsDocumentNoteAddedResponse>(_mdsClientRequestFactory.CreateAddDocumentNoteRequest(arg), arg.CmsAuthValues);
 
         return _caseDocumentNoteResultMapper.Map(response);
     }
@@ -220,21 +185,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         var response = await CallHttpClientAsync<RenameMaterialDescriptionResponse>(_mdsClientRequestFactory.CreateRenameExhibitRequest(arg), arg.CmsAuthValues);
 
         return new DocumentRenamedResultDto { Id = response.UpdateCommunicationDescription.Id };
-    }
-
-    public async Task<DocumentReclassifiedResultDto> ReclassifyDocumentAsync(MdsReclassifyDocumentArgDto arg)
-    {
-        var response = await CallHttpClientAsync<MdsDocumentReclassifiedResponse>(_mdsClientRequestFactory.CreateReclassifyDocumentRequest(arg), arg.CmsAuthValues);
-
-        return new DocumentReclassifiedResultDto
-        {
-            DocumentId = response.Id,
-            DocumentTypeId = response.DocumentTypeId,
-            ReclassificationType = response.ReclassificationType,
-            OriginalDocumentTypeId = response.OriginalDocumentTypeId,
-            DocumentRenamed = response.DocumentRenamed,
-            DocumentRenamedOperationName = response.DocumentRenamedOperationName,
-        };
     }
 
     public async Task<MdsCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(MdsReclassifyCommunicationArgDto arg)
@@ -277,8 +227,8 @@ public class MdsClient : BaseCmsClient, IMdsClient
     public async Task<IEnumerable<MdsCaseIdentifiersDto>> ListCaseIdsAsync(MdsUrnArgDto arg) =>
         await CallHttpClientAsync<IEnumerable<MdsCaseIdentifiersDto>>(_mdsClientRequestFactory.CreateListCasesRequest(arg), arg.CmsAuthValues);
 
-    private async Task<DdeiCaseDetailsDto> GetCaseInternalAsync(MdsCaseIdentifiersArgDto arg) =>
-        await CallHttpClientAsync<DdeiCaseDetailsDto>(_mdsClientRequestFactory.CreateGetCaseRequest(arg), arg.CmsAuthValues);
+    private async Task<MdsCaseDetailsDto> GetCaseInternalAsync(MdsCaseIdentifiersArgDto arg) =>
+        await CallHttpClientAsync<MdsCaseDetailsDto>(_mdsClientRequestFactory.CreateGetCaseRequest(arg), arg.CmsAuthValues);
 
     protected override HttpClient GetHttpClient(string cmsAuthValues)
     {
