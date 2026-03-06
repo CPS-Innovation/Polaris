@@ -26,4 +26,10 @@ public record CompleteReclassificationResponse(
     /// </summary>
     [JsonPropertyName("contentType")]
     public string ContentType { get; init; } = "application/json";
+
+    /// <summary>
+    /// Gets the parent ID, which is a synonym for material ID.
+    /// </summary>
+    [JsonPropertyName("parentId")]
+    public int ParentId => materialId;
 }
