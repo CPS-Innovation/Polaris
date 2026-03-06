@@ -134,7 +134,7 @@ public class RenameDocumentTests : BaseFunctionIntegrationTest
             TestContext.CurrentContext.CancellationToken);
 
         // assert
-        Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.InternalServerError));
+        Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 
     [Test]
