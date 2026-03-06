@@ -146,7 +146,7 @@ export const searchCase = async (
   searchTerm: string
 ) => {
   const path = fullUrl(
-    `/api/urns/${urn}/cases/${caseId}/search/?query=${searchTerm}`
+    `/api/urns/${urn}/cases/${caseId}/search/?query=${encodeURIComponent(searchTerm)}`
   );
   const response = await fetchImplementation("reauth-if-in-situ", path, {
     headers: await buildHeaders(),
