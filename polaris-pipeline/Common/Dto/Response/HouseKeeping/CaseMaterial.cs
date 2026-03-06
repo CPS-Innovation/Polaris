@@ -40,6 +40,11 @@ public record CaseMaterial
     public int MaterialId { get; init; }
 
     /// <summary>
+    /// Gets the parent ID which is a  synonym for the material ID
+    /// </summary>
+    public int ParentId => MaterialId;
+
+    /// <summary>
     /// Gets the link to the case material.
     /// </summary>
     public string Link { get; init; }
