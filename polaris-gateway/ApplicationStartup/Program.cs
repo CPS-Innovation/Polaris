@@ -2,7 +2,6 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-using System.Linq;
 using Common.Extensions;
 using Common.Middleware;
 using Microsoft.ApplicationInsights.WorkerService;
@@ -15,12 +14,24 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
 using PolarisGateway.ApplicationStartup;
 using PolarisGateway.Middleware;
+using System;
+using System.Linq;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication(options =>
     {
         options.UseMiddleware<ExceptionHandlingMiddleware>();
-        options.UseMiddleware<RequestValidationMiddleware>();
+        options.UseWhen<RequestValidationMiddleware>(context =>
+        {
+            // Apply middleware only for non-swagger endpoints
+            var path = context.GetHttpContext()?.Request?.Path.Value;
+
+            if (string.IsNullOrEmpty(path))
+                return false;
+
+            return !path.Contains("swagger", StringComparison.OrdinalIgnoreCase)
+                   && !path.Contains("openapi", StringComparison.OrdinalIgnoreCase);
+        });
         options.UseWhen<SecureHttpHeadersMiddleware>(context =>
         {
             return context.FunctionDefinition.InputBindings
