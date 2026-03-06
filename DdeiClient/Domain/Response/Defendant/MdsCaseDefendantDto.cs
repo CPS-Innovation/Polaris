@@ -14,7 +14,7 @@ public class MdsCaseDefendantDto
     [JsonPropertyName("policeRemandStatus")]
     public string PoliceRemandStatus { get => RemandStatus; set => RemandStatus = value; }
     public bool Youth { get; set; }
-    public DdeiCustodyTimeLimitDto CustodyTimeLimit { get; set; }
+    public MdsCustodyTimeLimitDto CustodyTimeLimit { get; set; }
 
     public IEnumerable<MdsOffenceDto> Offences { get; set; }
 
