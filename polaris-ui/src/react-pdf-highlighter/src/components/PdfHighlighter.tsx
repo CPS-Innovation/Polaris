@@ -251,14 +251,13 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
 
   findOrCreateHighlightLayer(page: number) {
     const pageView = this.viewer.getPageView(page - 1) || {};
-    const { textLayer } = pageView;
 
-    if (!textLayer) {
+    if (!pageView.div) {
       return null;
     }
 
     return findOrCreateContainerLayer(
-      textLayer.div,
+      pageView.div,
       "PdfHighlighter__highlight-layer"
     );
   }
