@@ -15,12 +15,18 @@ namespace Common.Dto.Response.Documents
         [JsonPropertyName("documentId")]
         public string DocumentId { get; set; }
 
+        [JsonPropertyName("parentId")]
+        public string ParentId => DocumentId;
+
         [JsonConverter(typeof(JsonStringEnumConverter))]
         [JsonPropertyName("status")]
         public DocumentStatus Status { get; set; }
 
         [JsonPropertyName("versionId")]
         public long VersionId { get; set; }
+
+        [JsonPropertyName("childId")]
+        public long ChildId => VersionId;
 
         [JsonPropertyName("cmsDocType")]
         public DocumentTypeDto CmsDocType { get; set; }
@@ -32,6 +38,10 @@ namespace Common.Dto.Response.Documents
 
         [JsonPropertyName("presentationTitle")]
         public string PresentationTitle { get; set; }
+
+
+        [JsonPropertyName("subject")]
+        public string Subject => PresentationTitle;
 
         [JsonPropertyName("cmsFileCreatedDate")]
         public string CmsFileCreatedDate { get; set; }
