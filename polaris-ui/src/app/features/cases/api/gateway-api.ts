@@ -515,6 +515,9 @@ export const toggleUsedDocumentState = async (
   return true;
 };
 
+/**
+ * preference PREFERRED_AUTH_MODE,
+ */
 const fetchImplementation = (
   reauthBehaviour:
     | "no-reauth"
