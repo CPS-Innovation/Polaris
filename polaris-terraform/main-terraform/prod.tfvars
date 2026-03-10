@@ -115,7 +115,7 @@ private_beta = {
   feature_user_group6 = "21c21011-b568-4ebb-b013-02d4cd15681a"
 }
 
-case_review_app_redirect_url = "https://cps.outsystemsenterprise.com/CaseReview/RedirectCW"
+case_review_app_redirect_url = "https://polaris.cps.gov.uk/case-review-redirect/cps/prod"
 bulk_um_redirect_url         = "https://housekeeping-fn.cps.gov.uk/api/init"
 
 polaris_ui_reauth = {
@@ -173,7 +173,7 @@ coordinator = {
 }
 
 cps_global_components = {
-  script_url = "https://sacpsglobalcomponents.blob.core.windows.net/prod/cps-global-components.js"
+  script_url = "https://polaris.cps.gov.uk/global-components/prod/global-components.js"
   blob_storage_domain = "sacpsglobalcomponents.blob.core.windows.net"
 }
 

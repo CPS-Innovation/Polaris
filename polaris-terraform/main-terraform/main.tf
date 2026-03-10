@@ -65,7 +65,7 @@ locals {
   app_service_certificate_store = var.env != "prod" ? "kv-polaris-cert-${var.env}" : "kv-polaris-cert"
   redaction_log_resource_name   = var.env != "prod" ? "redaction-log-${var.env}" : "redaction-log"
   resource_suffix               = var.env != "prod" ? "-${var.env}" : ""
-  env_name                      = var.env != "prod" ? var.env : ""
+  hsk_resource_name             = var.env != "prod" ? var.env != "dev" ? "hsk-class-svc-staging" : "hsk-class-svc-${var.env}" : "hsk-class-svc-prod" 
 
   common_tags = {
     environment = var.environment_tag
