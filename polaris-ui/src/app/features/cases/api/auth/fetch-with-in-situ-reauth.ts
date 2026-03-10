@@ -118,7 +118,7 @@ const askUserToLogInToCms = async (error: CmsAuthError) => {
 };
 
 /**
- * inSituReauth => reauthWithCorrelationIdForceUserToLoginifUnsuccessful
+ * tryObtainAuth => reauthWithCorrelationIdIf401ForceUserToLogin
  *
  * Uses the correlationId to reauth without getting the user to sign in again.
  * If it fails it asks the user to sign in again
@@ -129,7 +129,7 @@ const tryObtainAuth = async (correlationId: string | null) => {
   const { isSuccess, failReason } = await inSituReauth(correlationId);
 
   if (!isSuccess) {
-    // Auth is just not there in this browser so we need to ask the user to log in
+    // Auth is not there in this browser so we need to ask the user to log in
     await askUserToLogInToCms(buildCmsAuthError(failReason));
   }
 };
