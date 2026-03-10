@@ -630,6 +630,11 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
         }}
       >
         <div className={classes.selectInputWrapper}>
+          <p id="mandatoryInfo" className={classes.fullWidthMessage}>
+            Please select all mandatory fields showing below for either CPS Area
+            or Central Casework:
+          </p>
+
           <section className={classes.selectSection}>
             <Controller
               name="cpsArea"
@@ -655,6 +660,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                     }}
                     id="select-cps-area"
                     data-testid="select-cps-area"
+                    aria-describedby="mandatoryInfo"
                     formGroup={{
                       className: classes.select,
                     }}
@@ -912,7 +918,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             className={classes.saveBtn}
             data-testid="btn-save-redaction-log"
           >
-            Save and Close
+            Save and ClosesZ
           </Button>
 
           {handleCloseRedactionLog && (
