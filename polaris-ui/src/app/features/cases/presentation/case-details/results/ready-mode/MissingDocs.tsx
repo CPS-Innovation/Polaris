@@ -15,7 +15,11 @@ export const MissingDocs: React.FC<Props> = ({ missingDocs }) => {
   return (
     <>
       <div>
-        <p>Technical problems stopped us from searching these documents:</p>
+        <p>
+          The following documents could not be searched. There are multiple
+          possible reasons for this, for example the file is password protected,
+          the file format is not supported or the file is:
+        </p>
         <ul className={classes.docList}>
           {firstFourDocs.map(({ documentId, fileName }) => (
             <li key={documentId} data-testid={`txt-missing-doc-${documentId}`}>
