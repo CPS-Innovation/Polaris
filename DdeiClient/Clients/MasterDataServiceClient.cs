@@ -1148,6 +1148,11 @@ namespace DdeiClient.Clients
 
                 var data = await client.UpdateStatementAsync(request.CaseId, request.MaterialId, mdsRequest);
 
+                if (data?.UpdateStatement?.Id == null)
+                {
+                    return default;
+                }
+
                 UpdateStatementResponse result = new UpdateStatementResponse(new UpdateStatementData { Id = data.UpdateStatement.Id });
                 this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
                 return result;
@@ -1195,7 +1200,13 @@ namespace DdeiClient.Clients
 
                 var data = await client.UpdateExhibitAsync(request.CaseId, request.MaterialId, mdsRequest);
 
+                if (data?.UpdateExhibit?.Id == null)
+                {
+                    return default;
+                }
+
                 UpdateExhibitResponse result = new UpdateExhibitResponse(new UpdateExhibitData { Id = data.UpdateExhibit.Id });
+
                 this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
                 return result;
 

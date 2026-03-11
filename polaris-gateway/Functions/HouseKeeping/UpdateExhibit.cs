@@ -101,7 +101,7 @@ public class UpdateExhibit(
             if (result?.UpdateExhibitData?.Id == null)
             {
                 this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] UpdateExhibit function failed in [{stopwatch.Elapsed}]");
-                return new UnprocessableEntityObjectResult(result);
+                return new UnprocessableEntityObjectResult($"UpdateExhibit function failed for caseId [{caseId}]");
             }
 
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] UpdateExhibit function completed in [{stopwatch.Elapsed}]");
