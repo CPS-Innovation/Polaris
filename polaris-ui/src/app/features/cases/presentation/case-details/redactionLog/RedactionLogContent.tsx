@@ -918,7 +918,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             className={classes.saveBtn}
             data-testid="btn-save-redaction-log"
           >
-            Save and ClosesZ
+            Save and Close
           </Button>
 
           {handleCloseRedactionLog && (
