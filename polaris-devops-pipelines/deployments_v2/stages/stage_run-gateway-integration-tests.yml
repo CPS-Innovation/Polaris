@@ -47,6 +47,9 @@ stages:
               targetName: "Integration Tests"
               appInsightsKey: ${{ parameters.appInsightsKey }}
 
+      - task: NuGetAuthenticate@1
+        displayName: 'Authenticate to NuGet Feed'
+
       - job: Run_Integration_Tests
         condition: succeeded()
         dependsOn: Log_Start
