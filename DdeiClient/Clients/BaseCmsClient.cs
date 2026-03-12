@@ -2,6 +2,7 @@
 using Common.Wrappers;
 using System.Net;
 using Common.Extensions;
+using System.Text.Json;
 
 namespace DdeiClient.Clients;
 
@@ -19,7 +20,19 @@ public abstract class BaseCmsClient
     {
         using var response = await CallHttpClientAsync(request, cmsAuthValues);
         var content = await response.Content.ReadAsStringAsync();
-        return JsonConvertWrapper.DeserializeObject<T>(content);
+
+        try
+        {
+            return this.JsonConvertWrapper.DeserializeObject<T>(content);
+        }
+        catch (JsonException ex)
+        {
+            // CMS service returned invalid or incompatible JSON
+            throw new HttpRequestException(
+                "Invalid JSON received from cms.",
+                ex,
+                HttpStatusCode.BadGateway);
+        }
     }
 
     protected virtual async Task<HttpResponseMessage> CallHttpClientAsync(HttpRequestMessage request, string cmsAuthValues, params HttpStatusCode[] expectedUnhappyStatusCodes)

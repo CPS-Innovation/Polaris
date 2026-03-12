@@ -1,4 +1,5 @@
 using Common.Domain.Document;
+using Common.Exceptions;
 using FluentAssertions;
 using Xunit;
 
@@ -31,7 +32,7 @@ public class DocumentNatureTests
     [Fact]
     public void DocumentNature_ToNumericDocumentId_ThrowsExceptionForInvalidDocumentId()
     {
-        Assert.Throws<ArgumentException>(() => DocumentNature.ToNumericDocumentId("CMS-123456", DocumentNature.Types.PreChargeDecisionRequest));
+        Assert.Throws<BadRequestException>(() => DocumentNature.ToNumericDocumentId("CMS-123456", DocumentNature.Types.PreChargeDecisionRequest));
     }
 
     [Theory]

@@ -11,9 +11,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Services.DdeiOrchestration;
+namespace PolarisGateway.Services.MdsOrchestration;
 
-public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumentOrchestrationService
+public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentOrchestrationService
 {
     private const string ExhibitClassification = "EXHIBIT";
     private const string StatementClassification = "STATEMENT";
@@ -22,7 +22,7 @@ public class DdeiReclassifyDocumentOrchestrationService : IDdeiReclassifyDocumen
     private readonly IMdsClient _mdsClient;
     private readonly IMdsArgFactory _mdsArgFactory;
 
-    public DdeiReclassifyDocumentOrchestrationService(
+    public MdsReclassifyDocumentOrchestrationService(
             IMdsClient mdsClient,
             IMdsArgFactory mdsArgFactory
         )

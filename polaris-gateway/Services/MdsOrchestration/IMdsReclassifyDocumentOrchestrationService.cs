@@ -2,9 +2,9 @@ using Common.Dto.Response.Document;
 using Ddei.Domain.CaseData.Args;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Services.DdeiOrchestration;
+namespace PolarisGateway.Services.MdsOrchestration;
 
-public interface IDdeiReclassifyDocumentOrchestrationService
+public interface IMdsReclassifyDocumentOrchestrationService
 {
     Task<DocumentReclassifiedResult> ReclassifyDocument(MdsReclassifyDocumentArgDto arg);
 }

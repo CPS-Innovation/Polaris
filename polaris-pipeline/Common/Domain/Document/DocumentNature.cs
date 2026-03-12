@@ -1,5 +1,6 @@
 using System;
 using System.Text.RegularExpressions;
+using Common.Exceptions;
 
 namespace Common.Domain.Document;
 
@@ -43,7 +44,7 @@ public static class DocumentNature
 
         return match.Success
             ? long.Parse(match.Groups[1].Value)
-            : throw new ArgumentException($"Invalid document id: {documentId}. Expected format with a three letter prefix e.g.: '{prefix}-123456'");
+            : throw new BadRequestException($"Invalid document id: {documentId}. Expected format with a three letter prefix e.g.: '{prefix}-123456'", documentId);
     }
 
     public static string ToQualifiedStringDocumentId(long documentId, Types type) => ToQualifiedStringDocumentId(documentId.ToString(), type);
