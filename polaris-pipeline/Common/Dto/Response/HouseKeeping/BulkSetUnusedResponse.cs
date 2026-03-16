@@ -49,6 +49,12 @@ public class ReclassifiedMaterial
     public int MaterialId { get; set; }
 
     /// <summary>
+    /// Gets the parent ID that was successfully reclassified. Parent ID is a synonym for Material ID
+    /// </summary>
+    [JsonPropertyName("ParentId")]
+    public int ParentId => MaterialId;
+
+    /// <summary>
     /// Gets or sets the subject of the material.
     /// </summary>
     [JsonPropertyName("subject")]
