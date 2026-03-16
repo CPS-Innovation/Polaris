@@ -20,6 +20,7 @@ export const MissingDocs: React.FC<Props> = ({ missingDocs }) => {
           possible reasons for this, for example the file is password protected,
           the file format is not supported or the file is:
         </p>
+
         <ul className={classes.docList}>
           {firstFourDocs.map(({ documentId, fileName }) => (
             <li key={documentId} data-testid={`txt-missing-doc-${documentId}`}>
