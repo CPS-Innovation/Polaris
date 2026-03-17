@@ -254,11 +254,18 @@ export const PdfViewer: React.FC<Props> = ({
     [areaOnlyRedactionMode]
   );
 
+  const hasFooter = !!(
+    redactionHighlights.length +
+    pageDeleteRedactions.length +
+    unSavedRotation.length
+  );
+
   const getWrapperClassName = () => {
     let className = classes.pdfViewer;
     if (areaOnlyRedactionMode)
       className = `${className} ${classes.areaOnlyRedaction}`;
     if (isSearchPIIOn) className = `${className} ${classes.searchPiiOn}`;
+    if (hasFooter) className = `${className} ${classes.hasFooter}`;
     return className;
   };
 

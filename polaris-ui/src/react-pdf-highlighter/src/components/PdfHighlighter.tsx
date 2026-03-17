@@ -108,7 +108,6 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   };
 
   viewer!: PDFViewer;
-  eventBus?: EventBus;
 
   resizeObserver: ResizeObserver | null = null;
   containerNode?: HTMLDivElement | null = null;
@@ -216,10 +215,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     const { pdfDocument } = this.props;
     const pdfjs = await import("pdfjs-dist/web/pdf_viewer.mjs");
 
-    if (!this.eventBus) {
-      this.eventBus = new pdfjs.EventBus();
-    }
-    const eventBus = this.eventBus;
+    const eventBus = new pdfjs.EventBus();
     const linkService = new pdfjs.PDFLinkService({
       eventBus,
       externalLinkTarget: 2,

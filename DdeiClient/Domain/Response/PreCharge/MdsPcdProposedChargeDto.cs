@@ -1,6 +1,6 @@
 namespace Ddei.Domain.Response.PreCharge
 {
-    public class DdeiPcdProposedChargeDto
+    public class MdsPcdProposedChargeDto
     {
         public string Charge { get; set; }
         public string EarlyDate { get; set; }
