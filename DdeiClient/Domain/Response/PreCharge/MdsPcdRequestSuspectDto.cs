@@ -1,8 +1,8 @@
 namespace Ddei.Domain.Response.PreCharge
 {
-    public class DdeiPcdRequestSuspectDto
+    public class MdsPcdRequestSuspectDto
     {
-        public DdeiPcdRequestSuspectDto()
+        public MdsPcdRequestSuspectDto()
         {
             ProposedCharges = [];
         }
@@ -19,6 +19,6 @@ namespace Ddei.Domain.Response.PreCharge
 
         public string RemandStatus { get; set; }
 
-        public List<DdeiPcdProposedChargeDto> ProposedCharges { get; set; }
+        public List<MdsPcdProposedChargeDto> ProposedCharges { get; set; }
     }
 }

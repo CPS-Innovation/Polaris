@@ -28,7 +28,6 @@ export const ListItem: React.FC<Props> = ({
     cmsDocType,
     isDocumentNameMatch,
     occurrences,
-    occurrencesInDocumentCount,
   },
   submittedSearchTerm,
   featureFlags,
@@ -86,16 +85,15 @@ export const ListItem: React.FC<Props> = ({
           isDefaultLeftBorderHidden
           onClick={() => {
             trackEvent("View 'x' More", {
-              viewMoreCount:
-                occurrencesInDocumentCount -
-                firstOccurrence.occurrencesInLine.length +
-                (shouldShowDocumentNameMatches ? 1 : 0),
+              viewMoreCount: shouldShowDocumentNameMatches
+                ? occurrences.length
+                : subsequentOccurrences.length,
             });
           }}
           summaryChildren={`View ${
-            occurrencesInDocumentCount -
-            firstOccurrence.occurrencesInLine.length +
-            (shouldShowDocumentNameMatches ? 1 : 0)
+            shouldShowDocumentNameMatches
+              ? occurrences.length
+              : subsequentOccurrences.length
           } more`}
           children={
             shouldShowDocumentNameMatches
