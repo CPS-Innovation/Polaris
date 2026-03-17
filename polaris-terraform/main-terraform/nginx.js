@@ -148,13 +148,20 @@ function polarisAuthRedirect(r) {
 }
 
 function taskListAuthRedirect(r) {
-  const args = _argsShim(r.args)
-  const taskListHostAddress = r.variables["taskListHostAddress"] ?? ""
-  const cookie = encodeURIComponent(args["cc"] ?? r.headersIn.Cookie ?? "")
-  _redirectToAbsoluteUrl(
-    r,
-    `${taskListHostAddress}/WorkManagementApp/Redirect?Cookie=${cookie}`
-  )
+  const proto = r.headersIn["X-Forwarded-Proto"] || "https"
+  const host = r.headersIn["Host"] || ""
+  const taskListHost = r.variables["taskListHostAddress"] ?? ""
+  const envFolder = host === "polaris.cps.gov.uk" ? "prod" : "test"
+
+  const finalDest = `${taskListHost}/WorkManagementApp/TaskList`
+  const authHandoverJs = `${proto}://${host}/global-components/${envFolder}/auth-handover.js`
+  const authHandoverPage =
+    `${taskListHost}/Casework_Patterns/auth-handover.html` +
+    `?src=${encodeURIComponent(authHandoverJs)}` +
+    `&stage=os-cookie-return` +
+    `&r=${encodeURIComponent(finalDest)}`
+
+  r.return(302, `${proto}://${host}/polaris?r=${encodeURIComponent(authHandoverPage)}`)
 }
 
 function handleAuthRefreshOutbound(r) {
