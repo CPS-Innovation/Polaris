@@ -1,6 +1,6 @@
 namespace Ddei.Domain.Response.PreCharge
 {
-    public class DdeiPcdCaseOutlineLineDto
+    public class MdsPcdCaseOutlineLineDto
     {
         public string Heading { get; set; }
         public string Text { get; set; }

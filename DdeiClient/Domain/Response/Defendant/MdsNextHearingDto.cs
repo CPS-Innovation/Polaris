@@ -1,7 +1,7 @@
 
 namespace Ddei.Domain.Response.Defendant
 {
-    public class DdeiNextHearingDto
+    public class MdsNextHearingDto
     {
         public string Date { get; set; }
         public bool Recorded { get; set; }
