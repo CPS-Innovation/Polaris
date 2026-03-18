@@ -10,6 +10,8 @@ const CORS_ALLOWED_ORIGINS = [
   "https://localhost",
   "http://127.0.0.1",
   "https://127.0.0.1",
+  "https://lacc-app-ui-spa-staging.azurewebsites.net",
+  "https://lacc-app-ui-spa-dev.azurewebsites.net",
   // see later for check for localhost with port
 ]
 const STATE_COOKIE_NAME = "cps-global-components-state";
