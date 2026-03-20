@@ -7,6 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using PolarisGateway.Mappers;
 using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.Artefact.Domain;
 using System.IO;
@@ -23,14 +24,17 @@ public class GetPdf : BaseFunction
     private const string ForceRefreshParamName = "ForceRefresh";
     private readonly ILogger<GetPdf> _logger;
     private readonly IPdfArtefactService _pdfArtefactService;
+    private readonly IHttpStatusCodeMapper _httpStatusCodeMapper;
 
     public GetPdf(
         ILogger<GetPdf> logger,
-        IPdfArtefactService pdfArtefactService)
+        IPdfArtefactService pdfArtefactService,
+        IHttpStatusCodeMapper httpStatusCodeMapper)
         : base()
     {
         _logger = logger.ExceptionIfNull();
         _pdfArtefactService = pdfArtefactService.ExceptionIfNull();
+        _httpStatusCodeMapper = httpStatusCodeMapper.ExceptionIfNull();
     }
 
     [Function(nameof(GetPdf))]
@@ -55,10 +59,10 @@ public class GetPdf : BaseFunction
         var forceRefresh = req.Query.ContainsKey(ForceRefreshParamName) && bool.Parse(req.Query[ForceRefreshParamName]);
         var getPdfResult = await _pdfArtefactService.GetPdfAsync(cmsAuthValues, correlationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, forceRefresh);
         return getPdfResult.Status == ResultStatus.ArtefactAvailable ?
-            new FileStreamResult(getPdfResult.Artefact, PdfContentType) :
-            new JsonResult(getPdfResult)
-            {
-                StatusCode = (int)HttpStatusCode.UnsupportedMediaType,
-            };
+         new FileStreamResult(getPdfResult.Artefact, PdfContentType) :
+         new JsonResult(getPdfResult)
+         {
+             StatusCode = _httpStatusCodeMapper.Map(getPdfResult.FailedStatus),
+         };
     }
 }
