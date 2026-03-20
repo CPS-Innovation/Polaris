@@ -7,17 +7,15 @@ namespace PolarisGateway.Mappers
     {
         public int Map(PdfConversionStatus? status)
         {
-            switch (status)
+            return status switch
             {
-                case PdfConversionStatus.AsposeWordsPasswordProtected:
-                    return (int)HttpStatusCode.Forbidden;
+                PdfConversionStatus.AsposeWordsPasswordProtected
+                or PdfConversionStatus.AsposePdfPasswordProtected
+                or PdfConversionStatus.AsposeSlidesPasswordProtected
+                    => (int)HttpStatusCode.Forbidden,
 
-                case PdfConversionStatus.AsposePdfPasswordProtected:
-                    return (int)HttpStatusCode.Forbidden;
-
-                default:
-                    return (int)HttpStatusCode.UnsupportedMediaType;
-            }
+                _ => (int)HttpStatusCode.UnsupportedMediaType
+            };
         }
     }
 }
