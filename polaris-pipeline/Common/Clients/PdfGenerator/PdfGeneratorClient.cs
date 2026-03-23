@@ -61,7 +61,7 @@ namespace Common.Clients.PdfGenerator
             };
         }
 
-        public static int MapPdfConversionStatusToHttpStatusCode(PdfConversionStatus? status)
+        private static int MapPdfConversionStatusToHttpStatusCode(PdfConversionStatus? status)
         {
             return status switch
             {
