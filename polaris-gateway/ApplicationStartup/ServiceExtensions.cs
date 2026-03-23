@@ -61,7 +61,6 @@ public static class ServiceExtensions
 
         services.AddSingleton<IRedactPdfRequestMapper, RedactPdfRequestMapper>();
         services.AddSingleton<ITelemetryClient, TelemetryClient>();
-        services.AddSingleton<IHttpStatusCodeMapper, HttpStatusCodeMapper>();
         services.AddSingleton<IModifyDocumentRequestMapper, ModifyDocumentRequestMapper>();
         services.AddSingleton<IReclassifyDocumentRequestMapper, ReclassifyDocumentRequestMapper>();
         services.AddTransient<IRequestFactory, RequestFactory>();

@@ -2,6 +2,7 @@
 using Common.Constants;
 using PolarisGateway.Services.Artefact.Domain;
 using System;
+using System.Net;
 
 namespace PolarisGateway.Services.Artefact.Factories;
 
@@ -27,12 +28,13 @@ public class ArtefactServiceResponseFactory : IArtefactServiceResponseFactory
         };
     }
 
-    public ArtefactResult<T> CreateFailedResult<T>(PdfConversionStatus? pdfConversionStatus)
+    public ArtefactResult<T> CreateFailedResult<T>(PdfConversionStatus? pdfConversionStatus, int? httpStatusCode)
     {
         return new ArtefactResult<T>
         {
             Status = ResultStatus.Failed,
             FailedStatus = pdfConversionStatus,
+            FailedHttpStatusCode = httpStatusCode,
         };
     }
 

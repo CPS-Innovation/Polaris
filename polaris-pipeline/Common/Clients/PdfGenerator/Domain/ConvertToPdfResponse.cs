@@ -1,5 +1,6 @@
 
 using System.IO;
+using System.Net;
 using Common.Constants;
 
 namespace Common.Clients.PdfGeneratorDomain.Domain;
@@ -8,4 +9,5 @@ public class ConvertToPdfResponse
 {
   public Stream PdfStream { get; set; }
   public PdfConversionStatus Status { get; set; }
+  public int? FailedStatusCode { get; set; }
 }
