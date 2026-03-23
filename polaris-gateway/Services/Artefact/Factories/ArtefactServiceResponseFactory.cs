@@ -2,7 +2,6 @@
 using Common.Constants;
 using PolarisGateway.Services.Artefact.Domain;
 using System;
-using System.Net;
 
 namespace PolarisGateway.Services.Artefact.Factories;
 

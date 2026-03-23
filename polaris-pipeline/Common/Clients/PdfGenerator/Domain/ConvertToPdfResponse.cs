@@ -1,6 +1,5 @@
 
 using System.IO;
-using System.Net;
 using Common.Constants;
 
 namespace Common.Clients.PdfGeneratorDomain.Domain;

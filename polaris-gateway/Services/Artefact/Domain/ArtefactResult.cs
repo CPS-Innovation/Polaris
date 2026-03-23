@@ -1,6 +1,5 @@
 using Common.Constants;
 using System;
-using System.Net;
 
 namespace PolarisGateway.Services.Artefact.Domain;
 
