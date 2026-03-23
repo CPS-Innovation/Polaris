@@ -68,7 +68,7 @@ public class CacheServiceTests
         var cachedPdfStream = new MemoryStream(_fixture.Create<byte[]>());
 
         _polarisBlobStorageServiceMock
-            .Setup(x => x.TryGetBlobAsync(_blobIdType, _isOcrProcessed))
+            .Setup(x => x.TryGetBlobAsync(_blobIdType, _isOcrProcessed, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync(cachedPdfStream);
 
         // Act
@@ -86,7 +86,7 @@ public class CacheServiceTests
         var cachedPdfStream = new MemoryStream(_fixture.Create<byte[]>());
 
         _polarisBlobStorageServiceMock
-            .Setup(x => x.TryGetBlobAsync(_blobIdType, _isOcrProcessed));
+            .Setup(x => x.TryGetBlobAsync(_blobIdType, _isOcrProcessed, It.IsAny<System.Threading.CancellationToken>()));
 
 
         // Act
@@ -108,7 +108,7 @@ public class CacheServiceTests
 
         // Assert
         _polarisBlobStorageServiceMock
-            .Verify(x => x.UploadBlobAsync(pdfStream, _blobIdType, _isOcrProcessed), Times.Once);
+            .Verify(x => x.UploadBlobAsync(pdfStream, _blobIdType, _isOcrProcessed, It.IsAny<System.Threading.CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -118,7 +118,7 @@ public class CacheServiceTests
         var cachedJsonObject = _fixture.Create<object>();
 
         _polarisBlobStorageServiceMock
-            .Setup(x => x.TryGetObjectAsync<object>(_blobIdType))
+            .Setup(x => x.TryGetObjectAsync<object>(_blobIdType, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync(cachedJsonObject);
 
         // Act
@@ -134,7 +134,7 @@ public class CacheServiceTests
     {
         // Arrange
         _polarisBlobStorageServiceMock
-            .Setup(x => x.TryGetObjectAsync<object>(_blobIdType));
+            .Setup(x => x.TryGetObjectAsync<object>(_blobIdType, It.IsAny<System.Threading.CancellationToken>()));
 
         // Act
         var (isCached, result) = await _cacheService.TryGetJsonObjectAsync<object>(_caseId, _documentId, _versionId, BlobType.Pdf);
@@ -155,7 +155,7 @@ public class CacheServiceTests
 
         // Assert
         _polarisBlobStorageServiceMock
-            .Verify(x => x.UploadObjectAsync(jsonObject, _blobIdType), Times.Once);
+            .Verify(x => x.UploadObjectAsync(jsonObject, _blobIdType, It.IsAny<System.Threading.CancellationToken>()), Times.Once);
     }
 
 }

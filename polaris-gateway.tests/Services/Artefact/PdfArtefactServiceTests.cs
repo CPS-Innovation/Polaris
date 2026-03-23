@@ -54,7 +54,7 @@ public class PdfArtefactServiceTests
         var cachedPdfStream = new MemoryStream(_fixture.Create<byte[]>()) as Stream;
 
         _cacheServiceMock
-            .Setup(x => x.TryGetPdfAsync(_caseId, _documentId, _versionId, false))
+            .Setup(x => x.TryGetPdfAsync(_caseId, _documentId, _versionId, false, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync((true, cachedPdfStream));
 
         var expectedResult = new ArtefactResult<Stream>();
@@ -75,11 +75,11 @@ public class PdfArtefactServiceTests
     {
         // Arrange
         _cacheServiceMock
-            .Setup(x => x.TryGetPdfAsync(_caseId, _documentId, _versionId, false))
+            .Setup(x => x.TryGetPdfAsync(_caseId, _documentId, _versionId, false, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync((false, null));
 
         _pdfRetrievalServiceMock
-            .Setup(x => x.GetPdfStreamAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId))
+            .Setup(x => x.GetPdfStreamAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync(new DocumentRetrievalResult { Status = PdfConversionStatus.DocumentTypeUnsupported });
 
         var expectedResult = new ArtefactResult<Stream>();
@@ -102,16 +102,16 @@ public class PdfArtefactServiceTests
         var pdfStream = new MemoryStream(_fixture.Create<byte[]>()) as Stream;
 
         _cacheServiceMock
-            .SetupSequence(x => x.TryGetPdfAsync(_caseId, _documentId, _versionId, false))
+            .SetupSequence(x => x.TryGetPdfAsync(_caseId, _documentId, _versionId, false, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync((false, null))
             .ReturnsAsync((true, pdfStream));
 
         _cacheServiceMock
-            .Setup(x => x.UploadPdfAsync(_caseId, _documentId, _versionId, false, pdfStream))
+            .Setup(x => x.UploadPdfAsync(_caseId, _documentId, _versionId, false, pdfStream, It.IsAny<System.Threading.CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         _pdfRetrievalServiceMock
-            .Setup(x => x.GetPdfStreamAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId))
+            .Setup(x => x.GetPdfStreamAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync(new DocumentRetrievalResult { Status = PdfConversionStatus.DocumentConverted, PdfStream = pdfStream });
 
         var expectedResult = new ArtefactResult<Stream>();
@@ -125,6 +125,6 @@ public class PdfArtefactServiceTests
 
         // Assert
         result.Should().Be(expectedResult);
-        _cacheServiceMock.Verify(x => x.UploadPdfAsync(_caseId, _documentId, _versionId, false, pdfStream), Times.Once);
+        _cacheServiceMock.Verify(x => x.UploadPdfAsync(_caseId, _documentId, _versionId, false, pdfStream, It.IsAny<System.Threading.CancellationToken>()), Times.Once);
     }
 }

@@ -24,22 +24,22 @@ public class PdfArtefactService : IPdfArtefactService
         _pdfRetrievalService = pdfRetrievalService.ExceptionIfNull();
     }
 
-    public async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, bool forceRefresh = false)
+    public async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, bool forceRefresh = false, System.Threading.CancellationToken cancellationToken = default)
     {
-        if (!forceRefresh && await _cacheService.TryGetPdfAsync(caseId, documentId, versionId, isOcrProcessed) is (true, var stream))
+        if (!forceRefresh && await _cacheService.TryGetPdfAsync(caseId, documentId, versionId, isOcrProcessed, cancellationToken) is (true, var stream))
         {
             return _artefactServiceResponseFactory.CreateOkfResult(stream, true);
         }
 
-        var result = await _pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId);
+        var result = await _pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, cancellationToken);
 
         if (result.Status != PdfConversionStatus.DocumentConverted)
         {
             return _artefactServiceResponseFactory.CreateFailedResult<Stream>(result.Status);
         }
 
-        await _cacheService.UploadPdfAsync(caseId, documentId, versionId, isOcrProcessed, result.PdfStream);
-        var (_, pdfStream) = await _cacheService.TryGetPdfAsync(caseId, documentId, versionId, isOcrProcessed);
+        await _cacheService.UploadPdfAsync(caseId, documentId, versionId, isOcrProcessed, result.PdfStream, cancellationToken);
+        var (_, pdfStream) = await _cacheService.TryGetPdfAsync(caseId, documentId, versionId, isOcrProcessed, cancellationToken);
         return _artefactServiceResponseFactory.CreateOkfResult(pdfStream, false);
     }
 }

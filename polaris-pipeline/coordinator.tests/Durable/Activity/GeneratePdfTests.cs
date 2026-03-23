@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Moq;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -49,7 +50,7 @@ public class GeneratePdfFromDocumentTests
     {
         //arrange
         var payload = new DocumentPayload();
-        _polarisBlobStorageServiceMock.Setup(s => s.BlobExistsAsync(It.IsAny<BlobIdType>(), payload.IsOcredProcessedPreference)).ReturnsAsync(true);
+        _polarisBlobStorageServiceMock.Setup(s => s.BlobExistsAsync(It.IsAny<BlobIdType>(), payload.IsOcredProcessedPreference, It.IsAny<System.Threading.CancellationToken>())).ReturnsAsync(true);
 
         //act
         var result = await _generatePdfFromDocument.Run(payload);
@@ -64,7 +65,7 @@ public class GeneratePdfFromDocumentTests
     {
         //arrange
         var payload = new DocumentPayload();
-        _polarisBlobStorageServiceMock.Setup(s => s.BlobExistsAsync(It.IsAny<BlobIdType>(), payload.IsOcredProcessedPreference)).ReturnsAsync(false);
+        _polarisBlobStorageServiceMock.Setup(s => s.BlobExistsAsync(It.IsAny<BlobIdType>(), payload.IsOcredProcessedPreference, It.IsAny<System.Threading.CancellationToken>())).ReturnsAsync(false);
 
         //act
         var result = await _generatePdfFromDocument.Run(payload);
@@ -100,10 +101,10 @@ public class GeneratePdfFromDocumentTests
         {
             Status = pdfConversionStatus
         };
-        _polarisBlobStorageServiceMock.Setup(s => s.BlobExistsAsync(It.IsAny<BlobIdType>(), payload.IsOcredProcessedPreference)).ReturnsAsync(false);
+        _polarisBlobStorageServiceMock.Setup(s => s.BlobExistsAsync(It.IsAny<BlobIdType>(), payload.IsOcredProcessedPreference, It.IsAny<System.Threading.CancellationToken>())).ReturnsAsync(false);
         _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(payload.CmsAuthValues, payload.CorrelationId, payload.Urn, payload.CaseId, payload.DocumentId, payload.VersionId)).Returns(arg);
-        _mdsClientMock.Setup(s => s.GetDocumentAsync(arg)).ReturnsAsync(fileResult);
-        _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(payload.CorrelationId, payload.Urn, payload.CaseId, payload.DocumentId, payload.VersionId, fileResult.Stream, payload.FileType.Value)).ReturnsAsync(convertToPdfResponse);
+        _mdsClientMock.Setup(s => s.GetDocumentAsync(arg, It.IsAny<System.Threading.CancellationToken>())).ReturnsAsync(fileResult);
+        _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(payload.CorrelationId, payload.Urn, payload.CaseId, payload.DocumentId, payload.VersionId, fileResult.Stream, payload.FileType.Value, It.IsAny<CancellationToken>())).ReturnsAsync(convertToPdfResponse);
 
         //act
         var result = await _generatePdfFromDocument.Run(payload);
@@ -129,10 +130,10 @@ public class GeneratePdfFromDocumentTests
             Status = PdfConversionStatus.DocumentConverted,
             PdfStream = new MemoryStream()
         };
-        _polarisBlobStorageServiceMock.Setup(s => s.BlobExistsAsync(It.IsAny<BlobIdType>(), payload.IsOcredProcessedPreference)).ReturnsAsync(false);
+        _polarisBlobStorageServiceMock.Setup(s => s.BlobExistsAsync(It.IsAny<BlobIdType>(), payload.IsOcredProcessedPreference, It.IsAny<System.Threading.CancellationToken>())).ReturnsAsync(false);
         _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(payload.CmsAuthValues, payload.CorrelationId, payload.Urn, payload.CaseId, payload.DocumentId, payload.VersionId)).Returns(arg);
-        _mdsClientMock.Setup(s => s.GetDocumentAsync(arg)).ReturnsAsync(fileResult);
-        _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(payload.CorrelationId, payload.Urn, payload.CaseId, payload.DocumentId, payload.VersionId, fileResult.Stream, payload.FileType.Value)).ReturnsAsync(convertToPdfResponse);
+        _mdsClientMock.Setup(s => s.GetDocumentAsync(arg, It.IsAny<System.Threading.CancellationToken>())).ReturnsAsync(fileResult);
+        _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(payload.CorrelationId, payload.Urn, payload.CaseId, payload.DocumentId, payload.VersionId, fileResult.Stream, payload.FileType.Value, It.IsAny<CancellationToken>())).ReturnsAsync(convertToPdfResponse);
 
         //act
         var result = await _generatePdfFromDocument.Run(payload);
@@ -140,6 +141,6 @@ public class GeneratePdfFromDocumentTests
         //assert
         Assert.False(result.BlobAlreadyExists);
         Assert.Equal(PdfConversionStatus.DocumentConverted, result.PdfConversionStatus);
-        _polarisBlobStorageServiceMock.Verify(s => s.UploadBlobAsync(convertToPdfResponse.PdfStream, It.IsAny<BlobIdType>(),payload.IsOcredProcessedPreference), Times.Once);
+        _polarisBlobStorageServiceMock.Verify(s => s.UploadBlobAsync(convertToPdfResponse.PdfStream, It.IsAny<BlobIdType>(),payload.IsOcredProcessedPreference, It.IsAny<System.Threading.CancellationToken>()), Times.Once);
     }
 }

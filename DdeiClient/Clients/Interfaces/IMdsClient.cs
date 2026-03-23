@@ -14,19 +14,19 @@ public interface IMdsClient
 {
     Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(MdsCaseIdOnlyArgDto arg);
 
-    Task<CaseSummaryDto> GetCaseSummaryAsync(MdsCaseIdOnlyArgDto arg);
+    Task<CaseSummaryDto> GetCaseSummaryAsync(MdsCaseIdOnlyArgDto arg, System.Threading.CancellationToken cancellationToken = default);
 
     Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsCoreAsync(MdsCaseIdentifiersArgDto arg);
 
-    Task<IEnumerable<PcdRequestDto>> GetPcdRequestsAsync(MdsCaseIdentifiersArgDto arg);
+    Task<IEnumerable<PcdRequestDto>> GetPcdRequestsAsync(MdsCaseIdentifiersArgDto arg, System.Threading.CancellationToken cancellationToken = default);
 
-    Task<PcdRequestDto> GetPcdRequestAsync(MdsPcdArgDto arg);
+    Task<PcdRequestDto> GetPcdRequestAsync(MdsPcdArgDto arg, System.Threading.CancellationToken cancellationToken = default);
 
-    Task<DefendantsAndChargesListDto> GetDefendantAndChargesAsync(MdsCaseIdentifiersArgDto arg);
+    Task<DefendantsAndChargesListDto> GetDefendantAndChargesAsync(MdsCaseIdentifiersArgDto arg, System.Threading.CancellationToken cancellationToken = default);
 
     Task<IEnumerable<CmsDocumentDto>> ListDocumentsAsync(MdsCaseIdentifiersArgDto arg);
 
-    Task<FileResult> GetDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg);
+    Task<FileResult> GetDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg, System.Threading.CancellationToken cancellationToken = default);
 
     Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg);
 
@@ -46,7 +46,7 @@ public interface IMdsClient
 
     Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(MdsCaseIdentifiersArgDto arg);
 
-    Task<IEnumerable<BaseCaseWitnessResponse>> GetWitnessesAsync(MdsCaseIdentifiersArgDto arg);
+    Task<IEnumerable<BaseCaseWitnessResponse>> GetWitnessesAsync(MdsCaseIdentifiersArgDto arg, System.Threading.CancellationToken cancellationToken = default);
 
     Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(CmsBaseArgDto arg);
 
@@ -54,5 +54,5 @@ public interface IMdsClient
 
     Task<bool> ToggleIsUnusedDocumentAsync(MdsToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto);
 
-    Task<IEnumerable<MdsCaseIdentifiersDto>> ListCaseIdsAsync(MdsUrnArgDto arg);
+    Task<IEnumerable<MdsCaseIdentifiersDto>> ListCaseIdsAsync(MdsUrnArgDto arg, System.Threading.CancellationToken cancellationToken = default);
 }

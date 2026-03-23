@@ -1,13 +1,14 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Common.Clients.PdfGeneratorDomain.Domain;
+﻿using Common.Clients.PdfGeneratorDomain.Domain;
 using Common.Configuration;
 using Common.Constants;
 using Common.Domain.Document;
 using Common.Streaming;
+using System;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Common.Clients.PdfGenerator
 {
@@ -27,7 +28,7 @@ namespace Common.Clients.PdfGenerator
             _httpResponseMessageStreamFactory = httpResponseMessageStreamFactory ?? throw new ArgumentNullException(nameof(httpResponseMessageStreamFactory));
         }
 
-        public async Task<ConvertToPdfResponse> ConvertToPdfAsync(Guid correlationId, string caseUrn, int caseId, string documentId, long versionId, Stream documentStream, FileType fileType)
+        public async Task<ConvertToPdfResponse> ConvertToPdfAsync(Guid correlationId, string caseUrn, int caseId, string documentId, long versionId, Stream documentStream, FileType fileType, CancellationToken cancellationToken)
         {
             // note: it is useful for analytics to have our case and document ids etc in the url in the call to the pdf generator.  Not strictly necessary 
             //  as all it is doing is converting one stream to another.

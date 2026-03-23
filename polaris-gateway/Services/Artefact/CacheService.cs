@@ -21,31 +21,30 @@ namespace PolarisGateway.Services.Artefact
             _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
             _blobTypeIdFactory = blobTypeIdFactory ?? throw new ArgumentNullException(nameof(blobTypeIdFactory));
         }
-
-        public async Task<(bool, Stream)> TryGetPdfAsync(int caseId, string documentId, long versionId, bool isOcrProcessed)
+        public async Task<(bool, Stream)> TryGetPdfAsync(int caseId, string documentId, long versionId, bool isOcrProcessed, System.Threading.CancellationToken cancellationToken = default)
         {
             var blobId = _blobTypeIdFactory.CreateBlobId(caseId, documentId, versionId, BlobType.Pdf);
-            var result = await _polarisBlobStorageService.TryGetBlobAsync(blobId, isOcrProcessed);
+            var result = await _polarisBlobStorageService.TryGetBlobAsync(blobId, isOcrProcessed, cancellationToken);
             return (result != null, result);
         }
 
-        public async Task UploadPdfAsync(int caseId, string documentId, long versionId, bool isOcrProcessed, Stream stream)
+        public async Task UploadPdfAsync(int caseId, string documentId, long versionId, bool isOcrProcessed, Stream stream, System.Threading.CancellationToken cancellationToken = default)
         {
             var blobId = _blobTypeIdFactory.CreateBlobId(caseId, documentId, versionId, BlobType.Pdf);
-            await _polarisBlobStorageService.UploadBlobAsync(stream, blobId, isOcrProcessed);
+            await _polarisBlobStorageService.UploadBlobAsync(stream, blobId, isOcrProcessed, cancellationToken);
         }
 
-        public async Task<(bool, T)> TryGetJsonObjectAsync<T>(int caseId, string documentId, long versionId, BlobType blobType)
+        public async Task<(bool, T)> TryGetJsonObjectAsync<T>(int caseId, string documentId, long versionId, BlobType blobType, System.Threading.CancellationToken cancellationToken = default)
         {
             var blobId = _blobTypeIdFactory.CreateBlobId(caseId, documentId, versionId, blobType);
-            var result = await _polarisBlobStorageService.TryGetObjectAsync<T>(blobId);
+            var result = await _polarisBlobStorageService.TryGetObjectAsync<T>(blobId, cancellationToken);
             return (result != null, result);
         }
 
-        public async Task UploadJsonObjectAsync<T>(int caseId, string documentId, long versionId, BlobType blobType, T obj)
+        public async Task UploadJsonObjectAsync<T>(int caseId, string documentId, long versionId, BlobType blobType, T obj, System.Threading.CancellationToken cancellationToken = default)
         {
             var blobId = _blobTypeIdFactory.CreateBlobId(caseId, documentId, versionId, blobType);
-            await _polarisBlobStorageService.UploadObjectAsync(obj, blobId);
+            await _polarisBlobStorageService.UploadObjectAsync(obj, blobId, cancellationToken);
         }
     }
 }

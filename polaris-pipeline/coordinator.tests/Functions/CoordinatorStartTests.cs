@@ -70,7 +70,7 @@ public class CoordinatorStartTests
         _httpRequestHeaders.Append(HttpHeaderKeys.CorrelationId, _correlationId.ToString());
         _httpRequestHeaders.Append(HttpHeaderKeys.CmsAuthValues, cmsAuthValues);
 
-        mockBlobStorageClient.Setup(s => s.DeleteBlobsByPrefixAsync(It.IsAny<int>()))
+        mockBlobStorageClient.Setup(s => s.DeleteBlobsByPrefixAsync(It.IsAny<int>(), It.IsAny<System.Threading.CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         _mockDurableOrchestrationClient.Setup(client => client.GetInstanceAsync(_instanceId, default))

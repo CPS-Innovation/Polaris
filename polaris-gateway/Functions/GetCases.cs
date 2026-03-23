@@ -12,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 using System.Net;
 using PolarisGateway.Services.MdsOrchestration;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -41,14 +42,14 @@ public class GetCases : BaseFunction
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(IEnumerable<CaseDto>), Summary = "List of cases for a case URN", Description = "Returns case list for the given URN")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequest req, string caseUrn)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Cases)] HttpRequest req, string caseUrn, CancellationToken cancellationToken)
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var arg = _mdsArgFactory.CreateUrnArg(cmsAuthValues, correlationId, caseUrn);
 
-        var result = await _mdsOrchestrationService.GetCases(arg);
+        var result = await _mdsOrchestrationService.GetCases(arg, cancellationToken);
 
         return new OkObjectResult(result);
     }

@@ -9,6 +9,7 @@ using PolarisGateway.Functions;
 using PolarisGateway.Services.MdsOrchestration;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -37,11 +38,12 @@ public class GetCasesTests
         var caseUrn = "caseUrn";
         var urnArgDto = new MdsUrnArgDto();
         var caseDtos = new List<CaseDto>();
+        var cancellationToken = CancellationToken.None;
         _mdsArgFactoryMock.Setup(s => s.CreateUrnArg(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn)).Returns(urnArgDto);
-        _mdsCaseOrchestrationServiceMock.Setup(s => s.GetCases(urnArgDto)).ReturnsAsync(caseDtos);
+        _mdsCaseOrchestrationServiceMock.Setup(s => s.GetCases(urnArgDto, cancellationToken)).ReturnsAsync(caseDtos);
 
         //act
-        var result = await _getCases.Run(req, caseUrn);
+        var result = await _getCases.Run(req, caseUrn, cancellationToken);
 
         //assert
         Assert.IsType<OkObjectResult>(result);

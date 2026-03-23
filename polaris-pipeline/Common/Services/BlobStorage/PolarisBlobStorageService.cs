@@ -16,27 +16,25 @@ public class PolarisBlobStorageService : IPolarisBlobStorageService
         _blobStorageService = blobStorageService ?? throw new ArgumentNullException(nameof(blobStorageService));
     }
 
-    public Task<bool> BlobExistsAsync(BlobIdType blobId, bool? mustBeOcred = null)
-        => _blobStorageService.BlobExistsAsync(GetBlobName(blobId), CreateMetaData(mustBeOcred));
+    public Task<bool> BlobExistsAsync(BlobIdType blobId, bool? mustBeOcred = null, System.Threading.CancellationToken cancellationToken = default)
+        => _blobStorageService.BlobExistsAsync(GetBlobName(blobId), CreateMetaData(mustBeOcred), cancellationToken);
 
-    public Task DeleteBlobsByPrefixAsync(int prefix) => _blobStorageService.DeleteBlobsByPrefix(GetSafePrefix(prefix));
+    public Task DeleteBlobsByPrefixAsync(int prefix, System.Threading.CancellationToken cancellationToken = default) => _blobStorageService.DeleteBlobsByPrefix(GetSafePrefix(prefix), cancellationToken);
 
     public Task<Stream> GetBlobAsync(BlobIdType blobId) => _blobStorageService.GetBlob(GetBlobName(blobId));
 
-    public Task<Stream> TryGetBlobAsync(BlobIdType blobId, bool? mustBeOcred = null)
-        => _blobStorageService.TryGetBlobAsync(GetBlobName(blobId), CreateMetaData(mustBeOcred));
+    public Task<Stream> TryGetBlobAsync(BlobIdType blobId, bool? mustBeOcred = null, System.Threading.CancellationToken cancellationToken = default)
+        => _blobStorageService.TryGetBlobAsync(GetBlobName(blobId), CreateMetaData(mustBeOcred), cancellationToken);
 
-    public Task<T> TryGetObjectAsync<T>(BlobIdType blobId) => _blobStorageService.TryGetObjectAsync<T>(GetBlobName(blobId));
+    public Task<T> TryGetObjectAsync<T>(BlobIdType blobId, System.Threading.CancellationToken cancellationToken = default) => _blobStorageService.TryGetObjectAsync<T>(GetBlobName(blobId), cancellationToken);
 
-    public Task UploadBlobAsync(Stream stream, BlobIdType blobId) => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId));
+    public Task UploadBlobAsync(Stream stream, BlobIdType blobId, bool? isOcred = null, System.Threading.CancellationToken cancellationToken = default)
+        => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId), CreateMetaData(isOcred), cancellationToken);
 
-    public Task UploadBlobAsync(Stream stream, BlobIdType blobId, bool? isOcred = null)
-        => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId), CreateMetaData(isOcred));
+    public Task UploadBlobAsync(Stream stream, BlobIdType blobId, int? pageIndex = null, int? maxDimensionPixel = null, System.Threading.CancellationToken cancellationToken = default)
+        => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId, pageIndex, maxDimensionPixel), null, cancellationToken);
 
-    public Task UploadBlobAsync(Stream stream, BlobIdType blobId, int? pageIndex = null, int? maxDimensionPixel = null)
-        => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId, pageIndex, maxDimensionPixel));
-
-    public Task UploadObjectAsync<T>(T obj, BlobIdType blobId) => _blobStorageService.UploadObjectAsync(obj, GetBlobName(blobId));
+    public Task UploadObjectAsync<T>(T obj, BlobIdType blobId, System.Threading.CancellationToken cancellationToken = default) => _blobStorageService.UploadObjectAsync(obj, GetBlobName(blobId), cancellationToken);
 
     private static string GetBlobName(BlobIdType blobId, int? pageIndex = null, int? maxDimensionPixel = null)
     {

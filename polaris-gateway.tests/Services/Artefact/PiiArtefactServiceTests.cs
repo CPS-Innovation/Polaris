@@ -63,7 +63,7 @@ public class PiiArtefactServiceTests
         var cachedPii = _fixture.CreateMany<PiiLine>();
 
         _cacheServiceMock
-            .Setup(x => x.TryGetJsonObjectAsync<IEnumerable<PiiLine>>(_caseId, _documentId, _versionId, BlobType.Pii))
+            .Setup(x => x.TryGetJsonObjectAsync<IEnumerable<PiiLine>>(_caseId, _documentId, _versionId, BlobType.Pii, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync((true, cachedPii));
 
         var expectedResult = new ArtefactResult<IEnumerable<PiiLine>>();
@@ -89,7 +89,7 @@ public class PiiArtefactServiceTests
         };
 
         _ocrArtefactServiceMock
-            .Setup(x => x.GetOcrAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, null, false))
+            .Setup(x => x.GetOcrAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, null, false, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync(ocrResult);
 
         var expectedResult = new ArtefactResult<IEnumerable<PiiLine>>();
@@ -116,7 +116,7 @@ public class PiiArtefactServiceTests
         };
 
         _ocrArtefactServiceMock
-            .Setup(x => x.GetOcrAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, null, false))
+            .Setup(x => x.GetOcrAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, null, false, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync(ocrResult);
 
         var expectedResult = new ArtefactResult<IEnumerable<PiiLine>>();
@@ -143,7 +143,7 @@ public class PiiArtefactServiceTests
         };
 
         _ocrArtefactServiceMock
-            .Setup(x => x.GetOcrAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, null, false))
+            .Setup(x => x.GetOcrAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, null, false, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync(ocrResult);
 
         var piiResult = _fixture.CreateMany<PiiLine>();
@@ -163,6 +163,6 @@ public class PiiArtefactServiceTests
 
         // Assert
         result.Should().BeEquivalentTo(expectedResult);
-        _cacheServiceMock.Verify(x => x.UploadJsonObjectAsync(_caseId, _documentId, _versionId, BlobType.Pii, piiResult), Times.Once);
+        _cacheServiceMock.Verify(x => x.UploadJsonObjectAsync(_caseId, _documentId, _versionId, BlobType.Pii, piiResult, It.IsAny<System.Threading.CancellationToken>()), Times.Once);
     }
 }

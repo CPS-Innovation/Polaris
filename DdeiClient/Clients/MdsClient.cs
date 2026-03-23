@@ -75,9 +75,9 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return _caseIdentifiersMapper.MapCaseIdentifiers(mdsCaseIdentifiersDto);
     }
 
-    public async Task<CaseSummaryDto> GetCaseSummaryAsync(MdsCaseIdOnlyArgDto arg)
+    public async Task<CaseSummaryDto> GetCaseSummaryAsync(MdsCaseIdOnlyArgDto arg, System.Threading.CancellationToken cancellationToken = default)
     {
-        var mdsResult = await CallHttpClientAsync<MdsCaseSummaryDto>(_mdsClientRequestFactory.CreateGetCaseSummary(arg), arg.CmsAuthValues);
+        var mdsResult = await CallHttpClientAsync<MdsCaseSummaryDto>(_mdsClientRequestFactory.CreateGetCaseSummary(arg), arg.CmsAuthValues, cancellationToken);
         return _caseDetailsMapper.Map(mdsResult);
     }
 
@@ -87,22 +87,22 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return _caseDetailsMapper.MapCorePreChargeDecisionRequests(pcdRequests);
     }
 
-    public async Task<IEnumerable<PcdRequestDto>> GetPcdRequestsAsync(MdsCaseIdentifiersArgDto arg)
+    public async Task<IEnumerable<PcdRequestDto>> GetPcdRequestsAsync(MdsCaseIdentifiersArgDto arg, System.Threading.CancellationToken cancellationToken = default)
     {
-        var pcdRequests = await CallHttpClientAsync<IEnumerable<MdsPcdRequestDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues);
+        var pcdRequests = await CallHttpClientAsync<IEnumerable<MdsPcdRequestDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues, cancellationToken);
         return _caseDetailsMapper.MapPreChargeDecisionRequests(pcdRequests);
     }
 
-    public async Task<PcdRequestDto> GetPcdRequestAsync(MdsPcdArgDto arg)
+    public async Task<PcdRequestDto> GetPcdRequestAsync(MdsPcdArgDto arg, System.Threading.CancellationToken cancellationToken = default)
     {
-        var pcdRequest = await CallHttpClientAsync<MdsPcdRequestDto>(_mdsClientRequestFactory.CreateGetPcdRequest(arg), arg.CmsAuthValues);
+        var pcdRequest = await CallHttpClientAsync<MdsPcdRequestDto>(_mdsClientRequestFactory.CreateGetPcdRequest(arg), arg.CmsAuthValues, cancellationToken);
         return _caseDetailsMapper.MapPreChargeDecisionRequest(pcdRequest);
     }
 
-    public async Task<DefendantsAndChargesListDto> GetDefendantAndChargesAsync(MdsCaseIdentifiersArgDto arg)
+    public async Task<DefendantsAndChargesListDto> GetDefendantAndChargesAsync(MdsCaseIdentifiersArgDto arg, System.Threading.CancellationToken cancellationToken = default)
     {
-        var response = await CallHttpClientAsync(_mdsClientRequestFactory.CreateGetDefendantAndChargesRequest(arg), arg.CmsAuthValues);
-        var content = await response.Content.ReadAsStringAsync();
+        var response = await CallHttpClientAsync(_mdsClientRequestFactory.CreateGetDefendantAndChargesRequest(arg), arg.CmsAuthValues, cancellationToken);
+        var content = await response.Content.ReadAsStringAsync(cancellationToken);
         var defendantAndCharges = _jsonConvertWrapper.DeserializeObject<IEnumerable<MdsCaseDefendantDto>>(content);
         var etag = response.Headers.ETag?.Tag;
 
@@ -116,14 +116,14 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return mdsResults.Select(mdsResult => _caseDocumentMapper.Map(mdsResult));
     }
 
-    public async Task<FileResult> GetDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg)
+    public async Task<FileResult> GetDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg, System.Threading.CancellationToken cancellationToken = default)
     {
-        var response = await CallHttpClientAsync(_mdsClientRequestFactory.CreateGetDocumentRequest(arg), arg.CmsAuthValues);
+        var response = await CallHttpClientAsync(_mdsClientRequestFactory.CreateGetDocumentRequest(arg), arg.CmsAuthValues, cancellationToken);
         var fileName = response.Content.Headers.GetValues("Content-Disposition").ToList()[0];
 
         return new FileResult
         {
-            Stream = await response.Content.ReadAsStreamAsync(),
+            Stream = await response.Content.ReadAsStreamAsync(cancellationToken),
             FileName = fileName,
         };
     }
@@ -199,9 +199,9 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return mdsResults.ExhibitProducers.Select(_caseExhibitProducerMapper.Map);
     }
 
-    public async Task<IEnumerable<BaseCaseWitnessResponse>> GetWitnessesAsync(MdsCaseIdentifiersArgDto arg)
+    public async Task<IEnumerable<BaseCaseWitnessResponse>> GetWitnessesAsync(MdsCaseIdentifiersArgDto arg, System.Threading.CancellationToken cancellationToken = default)
     {
-        var mdsResults = await CallHttpClientAsync<List<MdsCaseWitnessResponse>>(_mdsClientRequestFactory.CreateCaseWitnessesRequest(arg), arg.CmsAuthValues);
+        var mdsResults = await CallHttpClientAsync<List<MdsCaseWitnessResponse>>(_mdsClientRequestFactory.CreateCaseWitnessesRequest(arg), arg.CmsAuthValues, cancellationToken);
 
         return mdsResults;
     }
@@ -224,8 +224,8 @@ public class MdsClient : BaseCmsClient, IMdsClient
         (await CallHttpClientAsync(_mdsClientRequestFactory.CreateToggleIsUnusedDocumentRequest(toggleIsUnusedDocumentDto), toggleIsUnusedDocumentDto.CmsAuthValues))
         .IsSuccessStatusCode;
 
-    public async Task<IEnumerable<MdsCaseIdentifiersDto>> ListCaseIdsAsync(MdsUrnArgDto arg) =>
-        await CallHttpClientAsync<IEnumerable<MdsCaseIdentifiersDto>>(_mdsClientRequestFactory.CreateListCasesRequest(arg), arg.CmsAuthValues);
+    public async Task<IEnumerable<MdsCaseIdentifiersDto>> ListCaseIdsAsync(MdsUrnArgDto arg, System.Threading.CancellationToken cancellationToken = default) =>
+        await CallHttpClientAsync<IEnumerable<MdsCaseIdentifiersDto>>(_mdsClientRequestFactory.CreateListCasesRequest(arg), arg.CmsAuthValues, cancellationToken);
 
     private async Task<MdsCaseDetailsDto> GetCaseInternalAsync(MdsCaseIdentifiersArgDto arg) =>
         await CallHttpClientAsync<MdsCaseDetailsDto>(_mdsClientRequestFactory.CreateGetCaseRequest(arg), arg.CmsAuthValues);

@@ -63,7 +63,7 @@ public class OcrArtefactServiceTests
         var cachedOcrResult = _fixture.Create<AnalyzeResults>();
 
         _cacheServiceMock
-            .Setup(x => x.TryGetJsonObjectAsync<AnalyzeResults>(_caseId, _documentId, _versionId, BlobType.Ocr))
+            .Setup(x => x.TryGetJsonObjectAsync<AnalyzeResults>(_caseId, _documentId, _versionId, BlobType.Ocr, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync((true, cachedOcrResult));
 
         var expectedResult = new ArtefactResult<AnalyzeResults>();
@@ -85,7 +85,7 @@ public class OcrArtefactServiceTests
         // Arrange
 
         _cacheServiceMock
-            .Setup(x => x.TryGetJsonObjectAsync<AnalyzeResults>(_caseId, _documentId, _versionId, BlobType.Ocr))
+            .Setup(x => x.TryGetJsonObjectAsync<AnalyzeResults>(_caseId, _documentId, _versionId, BlobType.Ocr, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync((false, null));
 
         var operationId = _fixture.Create<Guid>();
@@ -100,7 +100,7 @@ public class OcrArtefactServiceTests
             });
 
         _cacheServiceMock
-            .Setup(x => x.UploadJsonObjectAsync(_caseId, _documentId, _versionId, BlobType.Ocr, analyzeResults))
+            .Setup(x => x.UploadJsonObjectAsync(_caseId, _documentId, _versionId, BlobType.Ocr, analyzeResults, It.IsAny<System.Threading.CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         var expectedResult = new ArtefactResult<AnalyzeResults>();
@@ -114,7 +114,7 @@ public class OcrArtefactServiceTests
 
         // Assert
         result.Should().Be(expectedResult);
-        _cacheServiceMock.Verify(x => x.UploadJsonObjectAsync(_caseId, _documentId, _versionId, BlobType.Ocr, analyzeResults), Times.Once);
+        _cacheServiceMock.Verify(x => x.UploadJsonObjectAsync(_caseId, _documentId, _versionId, BlobType.Ocr, analyzeResults, It.IsAny<System.Threading.CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public class OcrArtefactServiceTests
     {
         // Arrange
         _cacheServiceMock
-            .Setup(x => x.TryGetJsonObjectAsync<AnalyzeResults>(_caseId, _documentId, _versionId, BlobType.Ocr))
+            .Setup(x => x.TryGetJsonObjectAsync<AnalyzeResults>(_caseId, _documentId, _versionId, BlobType.Ocr, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync((false, null));
 
         var operationId = _fixture.Create<Guid>();
@@ -152,7 +152,7 @@ public class OcrArtefactServiceTests
     {
         // Arrange
         _cacheServiceMock
-            .Setup(x => x.TryGetJsonObjectAsync<AnalyzeResults>(_caseId, _documentId, _versionId, BlobType.Ocr))
+            .Setup(x => x.TryGetJsonObjectAsync<AnalyzeResults>(_caseId, _documentId, _versionId, BlobType.Ocr, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync((false, null));
 
         var pdfResult = new ArtefactResult<Stream>()
@@ -161,7 +161,7 @@ public class OcrArtefactServiceTests
         };
 
         _pdfArtefactServiceMock
-            .Setup(x => x.GetPdfAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, false))
+            .Setup(x => x.GetPdfAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, false, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync(pdfResult);
 
         var expectedResult = new ArtefactResult<AnalyzeResults>();
@@ -182,7 +182,7 @@ public class OcrArtefactServiceTests
     {
         // Arrange
         _cacheServiceMock
-            .Setup(x => x.TryGetJsonObjectAsync<AnalyzeResults>(_caseId, _documentId, _versionId, BlobType.Ocr))
+            .Setup(x => x.TryGetJsonObjectAsync<AnalyzeResults>(_caseId, _documentId, _versionId, BlobType.Ocr, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync((false, null));
 
         var pdfResult = new ArtefactResult<Stream>()
@@ -192,7 +192,7 @@ public class OcrArtefactServiceTests
         };
 
         _pdfArtefactServiceMock
-            .Setup(x => x.GetPdfAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, false))
+            .Setup(x => x.GetPdfAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, false, It.IsAny<System.Threading.CancellationToken>()))
             .ReturnsAsync(pdfResult);
 
         var newOperationId = _fixture.Create<Guid>();

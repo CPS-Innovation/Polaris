@@ -8,6 +8,7 @@ using Moq;
 using PolarisGateway.Functions;
 using PolarisGateway.Services.MdsOrchestration;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -38,11 +39,12 @@ public class GetCaseTests
         var caseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
         var caseDetails = new CaseDetailsDto();
         var caseDto = new CaseDto();
+        var cancellationToken = CancellationToken.None;
         _mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId)).Returns(caseIdentifiersArgDto);
-        _mdsCaseOrchestrationServiceMock.Setup(s => s.GetCase(caseIdentifiersArgDto)).ReturnsAsync(caseDto);
+        _mdsCaseOrchestrationServiceMock.Setup(s => s.GetCase(caseIdentifiersArgDto, cancellationToken)).ReturnsAsync(caseDto);
 
         //act
-        var result = await _getCase.Run(req, caseUrn, caseId);
+        var result = await _getCase.Run(req, caseUrn, caseId, cancellationToken);
 
         //assert
         Assert.IsType<OkObjectResult>(result);

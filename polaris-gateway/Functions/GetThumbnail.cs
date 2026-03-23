@@ -53,10 +53,10 @@ public class GetThumbnail : BaseFunction
 
 
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Thumbnail)] HttpRequest req,
-        string caseUrn, int caseId, string documentId, int versionId, int maxDimensionPixel, int pageIndex)
+        string caseUrn, int caseId, string documentId, int versionId, int maxDimensionPixel, int pageIndex, System.Threading.CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
-        return await (await _pdfThumbnailGeneratorClient.GetThumbnailAsync(caseUrn, caseId, documentId, versionId, maxDimensionPixel, pageIndex, cmsAuthValues, correlationId)).ToActionResult();
+        return await (await _pdfThumbnailGeneratorClient.GetThumbnailAsync(caseUrn, caseId, documentId, versionId, maxDimensionPixel, pageIndex, cmsAuthValues, correlationId, cancellationToken)).ToActionResult();
     }
 }
