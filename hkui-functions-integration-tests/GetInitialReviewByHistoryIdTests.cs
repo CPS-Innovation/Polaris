@@ -4,7 +4,9 @@
 
 namespace HkuiFunctionsIntegrationTests;
 
+using System;
 using System.Globalization;
+using System.Threading;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Cps.MasterDataService.Infrastructure.ApiClient;
 using FluentAssertions;
@@ -50,7 +52,7 @@ public class GetInitialReviewByHistoryIdTests : TestBase
         this.baseRequest = this.CreateHttpRequestWithCookie(this.baseCaseId, authContext);
 
         // Act
-        IActionResult response = await this.sut.Run(this.baseRequest, this.baseCaseId, 4365088);
+        IActionResult response = await this.sut.Run(this.baseRequest, this.baseCaseId, 4365088, CancellationToken.None);
 
         // Assert
         OkObjectResult okResult = Assert.IsType<OkObjectResult>(response);
@@ -90,7 +92,7 @@ public class GetInitialReviewByHistoryIdTests : TestBase
         this.baseRequest = this.CreateHttpRequestWithCookie(this.baseCaseId, authContext);
 
         // Act
-        IActionResult response = await this.sut.Run(this.baseRequest, this.baseCaseId, 4365081);
+        IActionResult response = await this.sut.Run(this.baseRequest, this.baseCaseId, 4365081, CancellationToken.None);
 
         // Assert
         var result = Assert.IsType<StatusCodeResult>(response);

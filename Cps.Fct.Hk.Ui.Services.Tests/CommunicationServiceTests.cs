@@ -22,6 +22,8 @@ using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
 using Common.Constants;
+using Common.Exceptions;
+using System.Threading;
 
 using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
 using Common.Enums;
@@ -2638,5 +2640,311 @@ public class CommunicationServiceTests
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Error &&
             log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] Failed to update exhibit with materialId [4343]"));
+    }
+
+    /// <summary>
+    /// Tests that <see cref="CommunicationService.GetPcdReviewDetailAsync(int, int, CmsAuthValues, CancellationToken)"/>
+    /// returns the expected PCD review details when the API calls are successful.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [Fact]
+    public async Task GetPcdReviewDetailAsync_ShouldReturnPcdReviewDetails_WhenApiCallIsSuccessful()
+    {
+        // Arrange
+        int caseId = 1234;
+        int pcdId = 5678;
+        string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
+        var cancellationToken = CancellationToken.None;
+
+        var cmsAuthValues = new CmsAuthValues(
+            "cookies",
+            "token",
+            Guid.NewGuid());
+
+        var historyEvents = new List<ApiClient.HistoryEvent>
+        {
+            new() { Id = pcdId, Type = ApiClient.HistoryEventType.InitialReview },
+            new() { Id = pcdId + 1, Type = ApiClient.HistoryEventType.PreChargeDecision },
+        };
+
+        var pcdAnalysisOutcome = new ApiClient.PreChargeDecisionAnalysisOutcome();
+        var preChargeDecisionOutcome = new ApiClient.PreChargeDecisionOutcome();
+
+        this.apiClientMock
+            .Setup(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues))
+            .ReturnsAsync(historyEvents);
+
+        this.apiClientMock
+            .Setup(client => client.GetInitialReviewByHistoryIdAsync(caseId, pcdId, cmsAuthValues, cancellationToken))
+            .ReturnsAsync(pcdAnalysisOutcome);
+
+        this.apiClientMock
+            .Setup(client => client.GetPreChargeDecisionByHistoryId(caseId, pcdId + 1, cmsAuthValues))
+            .ReturnsAsync(preChargeDecisionOutcome);
+
+        // Act
+        PcdReviewDetailResponse result = await this.communicationService.GetPcdReviewDetailAsync(caseId, pcdId, cmsAuthValues, cancellationToken);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(pcdAnalysisOutcome, result.PreChargeDecisionAnalysisOutcome);
+        Assert.Equal(preChargeDecisionOutcome, result.PreChargeDecisionOutcome);
+
+        this.apiClientMock.Verify(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues), Times.Once);
+        this.apiClientMock.Verify(client => client.GetInitialReviewByHistoryIdAsync(caseId, pcdId, cmsAuthValues, cancellationToken), Times.Once);
+        this.apiClientMock.Verify(client => client.GetPreChargeDecisionByHistoryId(caseId, pcdId + 1, cmsAuthValues), Times.Once);
+
+        Assert.Contains(this.mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Fetching case history events with caseId [{caseIdString}]"));
+
+        Assert.Contains(this.mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Fetching PCD analysis overview for caseId [{caseIdString}] and PCD ID [{pcdId}]"));
+
+        Assert.Contains(this.mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Fetching pre charge decision outcome for caseId [{caseIdString}] and PCD ID [{pcdId}]"));
+    }
+
+    /// <summary>
+    /// Tests that <see cref="CommunicationService.GetPcdReviewDetailAsync(int, int, CmsAuthValues, CancellationToken)"/>
+    /// returns the expected PCD review details when the PCD analysis type is PreChargeDecisionAnalysis.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [Fact]
+    public async Task GetPcdReviewDetailAsync_ShouldReturnPcdReviewDetailsWithPreChargeDecisionAnalysis_WhenPcdAnalysisTypeIsPreChargeDecisionAnalysis()
+    {
+        // Arrange
+        int caseId = 1234;
+        int pcdId = 5678;
+        string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
+        var cancellationToken = CancellationToken.None;
+
+        var cmsAuthValues = new CmsAuthValues(
+            "cookies",
+            "token",
+            Guid.NewGuid());
+
+        var historyEvents = new List<ApiClient.HistoryEvent>
+        {
+            new() { Id = pcdId, Type = ApiClient.HistoryEventType.PreChargeDecisionAnalysis },
+            new() { Id = pcdId + 1, Type = ApiClient.HistoryEventType.PreChargeDecision },
+        };
+
+        var pcdAnalysisOutcome = new ApiClient.PreChargeDecisionAnalysisOutcome();
+        var preChargeDecisionOutcome = new ApiClient.PreChargeDecisionOutcome();
+
+        this.apiClientMock
+            .Setup(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues))
+            .ReturnsAsync(historyEvents);
+
+        this.apiClientMock
+            .Setup(client => client.GetPcdAnalysisByIdAsync(caseId, pcdId, cmsAuthValues, cancellationToken))
+            .ReturnsAsync(pcdAnalysisOutcome);
+
+        this.apiClientMock
+            .Setup(client => client.GetPreChargeDecisionByHistoryId(caseId, pcdId + 1, cmsAuthValues))
+            .ReturnsAsync(preChargeDecisionOutcome);
+
+        // Act
+        PcdReviewDetailResponse result = await this.communicationService.GetPcdReviewDetailAsync(caseId, pcdId, cmsAuthValues, cancellationToken);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(pcdAnalysisOutcome, result.PreChargeDecisionAnalysisOutcome);
+        Assert.Equal(preChargeDecisionOutcome, result.PreChargeDecisionOutcome);
+
+        this.apiClientMock.Verify(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues), Times.Once);
+        this.apiClientMock.Verify(client => client.GetPcdAnalysisByIdAsync(caseId, pcdId, cmsAuthValues, cancellationToken), Times.Once);
+        this.apiClientMock.Verify(client => client.GetPreChargeDecisionByHistoryId(caseId, pcdId + 1, cmsAuthValues), Times.Once);
+
+        Assert.Contains(this.mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Fetching case history events with caseId [{caseIdString}]"));
+
+        Assert.Contains(this.mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Fetching PCD analysis overview for caseId [{caseIdString}] and PCD ID [{pcdId}]"));
+    }
+
+    /// <summary>
+    /// Tests that <see cref="CommunicationService.GetPcdReviewDetailAsync(int, int, CmsAuthValues, CancellationToken)"/>
+    /// returns PCD review details without PreChargeDecisionOutcome when no associated PreChargeDecision event is found.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [Fact]
+    public async Task GetPcdReviewDetailAsync_ShouldReturnPcdReviewDetailsWithoutPreChargeDecisionOutcome_WhenNoAssociatedPreChargeDecisionEventFound()
+    {
+        // Arrange
+        int caseId = 1234;
+        int pcdId = 5678;
+        string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
+        var cancellationToken = CancellationToken.None;
+
+        var cmsAuthValues = new CmsAuthValues(
+            "cookies",
+            "token",
+            Guid.NewGuid());
+
+        var historyEvents = new List<ApiClient.HistoryEvent>
+        {
+            new() { Id = pcdId, Type = ApiClient.HistoryEventType.InitialReview },
+        };
+
+        var pcdAnalysisOutcome = new ApiClient.PreChargeDecisionAnalysisOutcome();
+
+        this.apiClientMock
+            .Setup(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues))
+            .ReturnsAsync(historyEvents);
+
+        this.apiClientMock
+            .Setup(client => client.GetInitialReviewByHistoryIdAsync(caseId, pcdId, cmsAuthValues, cancellationToken))
+            .ReturnsAsync(pcdAnalysisOutcome);
+
+        // Act
+        PcdReviewDetailResponse result = await this.communicationService.GetPcdReviewDetailAsync(caseId, pcdId, cmsAuthValues, cancellationToken);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(pcdAnalysisOutcome, result.PreChargeDecisionAnalysisOutcome);
+        Assert.Null(result.PreChargeDecisionOutcome);
+
+        this.apiClientMock.Verify(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues), Times.Once);
+        this.apiClientMock.Verify(client => client.GetInitialReviewByHistoryIdAsync(caseId, pcdId, cmsAuthValues, cancellationToken), Times.Once);
+        this.apiClientMock.Verify(client => client.GetPreChargeDecisionByHistoryId(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CmsAuthValues>()), Times.Never);
+
+        Assert.Contains(this.mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Fetching case history events with caseId [{caseIdString}]"));
+    }
+
+    /// <summary>
+    /// Tests that <see cref="CommunicationService.GetPcdReviewDetailAsync(int, int, CmsAuthValues, CancellationToken)"/>
+    /// throws BadRequestException when the history event with the specified PCD ID is not found.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [Fact]
+    public async Task GetPcdReviewDetailAsync_ShouldThrowBadRequestException_WhenHistoryEventNotFound()
+    {
+        // Arrange
+        int caseId = 1234;
+        int pcdId = 5678;
+        string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
+        var cancellationToken = CancellationToken.None;
+
+        var cmsAuthValues = new CmsAuthValues(
+            "cookies",
+            "token",
+            Guid.NewGuid());
+
+        var historyEvents = new List<ApiClient.HistoryEvent>
+        {
+            new() { Id = 9999, Type = ApiClient.HistoryEventType.InitialReview }, // Different ID
+        };
+
+        this.apiClientMock
+            .Setup(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues))
+            .ReturnsAsync(historyEvents);
+
+        // Act & Assert
+        BadRequestException exception = await Assert.ThrowsAsync<BadRequestException>(() =>
+            this.communicationService.GetPcdReviewDetailAsync(caseId, pcdId, cmsAuthValues, cancellationToken));
+
+        Assert.Contains($"No history event found for PCD analysis with ID [{pcdId}]", exception.Message);
+        Assert.Contains($"for caseId [{caseIdString}]", exception.Message);
+
+        this.apiClientMock.Verify(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues), Times.Once);
+    }
+
+    /// <summary>
+    /// Tests that <see cref="CommunicationService.GetPcdReviewDetailAsync(int, int, CmsAuthValues, CancellationToken)"/>
+    /// logs and rethrows the exception when the API call fails.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [Fact]
+    public async Task GetPcdReviewDetailAsync_ShouldLogAndRethrowException_WhenApiCallFails()
+    {
+        // Arrange
+        int caseId = 1234;
+        int pcdId = 5678;
+        string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
+        var cancellationToken = CancellationToken.None;
+        var exception = new Exception("API Error");
+
+        var cmsAuthValues = new CmsAuthValues(
+            "cookies",
+            "token",
+            Guid.NewGuid());
+
+        this.apiClientMock
+            .Setup(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues))
+            .ThrowsAsync(exception);
+
+        // Act & Assert
+        Exception ex = await Assert.ThrowsAsync<Exception>(() =>
+            this.communicationService.GetPcdReviewDetailAsync(caseId, pcdId, cmsAuthValues, cancellationToken));
+
+        Assert.Equal("API Error", ex.Message);
+
+        this.apiClientMock.Verify(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues), Times.Once);
+
+        Assert.Contains(this.mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Error &&
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching PCD Request overview for caseId [{caseIdString}] and PCD id [{pcdId}]"));
+
+        Assert.Contains(this.mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Error &&
+            log.Message != null && log.Message.Contains("API Error"));
+    }
+
+    /// <summary>
+    /// Tests that <see cref="CommunicationService.GetPcdReviewDetailAsync(int, int, CmsAuthValues, CancellationToken)"/>
+    /// correctly passes the cancellation token to downstream API calls.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    [Fact]
+    public async Task GetPcdReviewDetailAsync_ShouldPassCancellationToken_ToDownstreamApiCalls()
+    {
+        // Arrange
+        int caseId = 1234;
+        int pcdId = 5678;
+        var customCancellationToken = new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token;
+
+        var cmsAuthValues = new CmsAuthValues(
+            "cookies",
+            "token",
+            Guid.NewGuid());
+
+        var historyEvents = new List<ApiClient.HistoryEvent>
+        {
+            new() { Id = pcdId, Type = ApiClient.HistoryEventType.InitialReview },
+            new() { Id = pcdId + 1, Type = ApiClient.HistoryEventType.PreChargeDecision },
+        };
+
+        var pcdAnalysisOutcome = new ApiClient.PreChargeDecisionAnalysisOutcome();
+        var preChargeDecisionOutcome = new ApiClient.PreChargeDecisionOutcome();
+
+        this.apiClientMock
+            .Setup(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues))
+            .ReturnsAsync(historyEvents);
+
+        this.apiClientMock
+            .Setup(client => client.GetInitialReviewByHistoryIdAsync(caseId, pcdId, cmsAuthValues, customCancellationToken))
+            .ReturnsAsync(pcdAnalysisOutcome);
+
+        this.apiClientMock
+            .Setup(client => client.GetPreChargeDecisionByHistoryId(caseId, pcdId + 1, cmsAuthValues))
+            .ReturnsAsync(preChargeDecisionOutcome);
+
+        // Act
+        PcdReviewDetailResponse result = await this.communicationService.GetPcdReviewDetailAsync(caseId, pcdId, cmsAuthValues, customCancellationToken);
+
+        // Assert
+        Assert.NotNull(result);
+
+        this.apiClientMock.Verify(
+            client => client.GetInitialReviewByHistoryIdAsync(caseId, pcdId, cmsAuthValues, customCancellationToken),
+            Times.Once);
     }
 }
