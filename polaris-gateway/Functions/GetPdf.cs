@@ -55,10 +55,10 @@ public class GetPdf : BaseFunction
         var forceRefresh = req.Query.ContainsKey(ForceRefreshParamName) && bool.Parse(req.Query[ForceRefreshParamName]);
         var getPdfResult = await _pdfArtefactService.GetPdfAsync(cmsAuthValues, correlationId, caseUrn, caseId, documentId, versionId, isOcrProcessed, forceRefresh);
         return getPdfResult.Status == ResultStatus.ArtefactAvailable ?
-            new FileStreamResult(getPdfResult.Artefact, PdfContentType) :
-            new JsonResult(getPdfResult)
-            {
-                StatusCode = (int)HttpStatusCode.UnsupportedMediaType,
-            };
+         new FileStreamResult(getPdfResult.Artefact, PdfContentType) :
+         new JsonResult(getPdfResult)
+         {
+             StatusCode = getPdfResult.FailedHttpStatusCode,
+         };
     }
 }

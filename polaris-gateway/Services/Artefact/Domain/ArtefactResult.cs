@@ -16,6 +16,9 @@ public class ArtefactResult<T>
     // if Status == Failed
     public PdfConversionStatus? FailedStatus { get; set; }
 
+    // if Status == Failed
+    public int? FailedHttpStatusCode { get; set; }
+
     // Diagnostic property
     public bool? IsFromStorage { get; set; }
 }

@@ -85,7 +85,7 @@ public class PdfArtefactServiceTests
         var expectedResult = new ArtefactResult<Stream>();
 
         _artefactServiceResponseFactoryMock
-            .Setup(x => x.CreateFailedResult<Stream>(PdfConversionStatus.DocumentTypeUnsupported))
+            .Setup(x => x.CreateFailedResult<Stream>(PdfConversionStatus.DocumentTypeUnsupported, It.IsAny<int?>()))
             .Returns(expectedResult);
 
         // Act
