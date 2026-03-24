@@ -27,12 +27,13 @@ public class ArtefactServiceResponseFactory : IArtefactServiceResponseFactory
         };
     }
 
-    public ArtefactResult<T> CreateFailedResult<T>(PdfConversionStatus? pdfConversionStatus)
+    public ArtefactResult<T> CreateFailedResult<T>(PdfConversionStatus? pdfConversionStatus, int? httpStatusCode)
     {
         return new ArtefactResult<T>
         {
             Status = ResultStatus.Failed,
             FailedStatus = pdfConversionStatus,
+            FailedHttpStatusCode = httpStatusCode,
         };
     }
 

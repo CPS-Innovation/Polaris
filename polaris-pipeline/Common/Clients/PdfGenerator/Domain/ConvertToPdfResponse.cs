@@ -8,4 +8,5 @@ public class ConvertToPdfResponse
 {
   public Stream PdfStream { get; set; }
   public PdfConversionStatus Status { get; set; }
+  public int? FailedStatusCode { get; set; }
 }
