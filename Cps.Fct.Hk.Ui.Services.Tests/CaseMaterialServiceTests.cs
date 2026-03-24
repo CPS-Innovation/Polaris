@@ -332,6 +332,12 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             },
             };
 
+            var communications = new List<Communication>
+            {
+                new Communication(1, "FileA.pdf", "Subject A", 1012, 1, "/some/path/doc1.pdf", "None", "Category1", "TypeA", false, Direction: "Incoming"),
+                new Communication(1, "FileB.pdf", "Subject B", 1012, 2, "/some/path/doc2.pdf", "None", "Category2", "TypeB", false, Direction: "Outgoing"),
+            };
+
             this.mockDocumentTypeMapper
                 .Setup(mapper => mapper.MapDocumentType(1202))
                 .Returns(new DocumentTypeInfo { Category = "Mapped Category A", DocumentType = "Mapped DocumentType A" });
@@ -341,7 +347,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
                 .Returns(new List<DocumentTypeGroup> { new() { Id = 1202, Category = "Mapped category A", Name = "Mapped name A", Group = "Mapped Group A" } });
 
             // Act
-            List<CaseMaterial> result = this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatementsResponse);
+            List<CaseMaterial> result = this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatementsResponse, communications);
 
             // Assert
             Assert.NotNull(result);
@@ -350,7 +356,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             CaseMaterial firstMaterial = result.First();
             Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("OriginalA.pdf", firstMaterial.OriginalFileName);
-            Assert.Equal("OriginalA", firstMaterial.Subject);
+            Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(1202, firstMaterial.DocumentTypeId);
             Assert.Equal(1, firstMaterial.MaterialId);
             Assert.Equal("/some/path/statement1.pdf", firstMaterial.Link);
@@ -369,7 +375,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
         /// when OriginalFileName is null or blank.
         /// </summary>
         [Fact]
-        public void MapUsedStatementsToCaseMaterials_UsesToTitleAsFallbackWhenOriginalFileNameIsNullOrBlank()
+        public void MapUsedStatementsToCaseMaterials_UsesPresentationTitleAsSubjectValueWhenCommunicationSubjectIsNull()
         {
             // Arrange
             DateTime receivedDate = new DateTime(2025, 04, 01);
@@ -389,6 +395,13 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             },
             };
 
+            var communications = new List<Communication>
+            {
+                new Communication(1, "FileA.pdf", "Subject A", 1012, 1, "/some/path/doc1.pdf", "None", "Category1", "TypeA", false, Direction: "Incoming"),
+                new Communication(1, "FileB.pdf", "Subject B", 1012, 2, "/some/path/doc2.pdf", "None", "Category2", "TypeB", false, Direction: "Outgoing"),
+                 new Communication(1, "FileB.pdf", "Subject C", 1012, 3, "/some/path/doc2.pdf", "None", "Category2", "TypeB", false, Direction: "Outgoing"),
+            };
+
             this.mockDocumentTypeMapper
                 .Setup(mapper => mapper.MapDocumentType(1202))
                 .Returns(new DocumentTypeInfo { Category = "Mapped Category A", DocumentType = "Mapped DocumentType A" });
@@ -398,7 +411,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
                 .Returns(new List<DocumentTypeGroup> { new() { Id = 1204, Category = "Mapped category A", Name = "Mapped name A", Group = "Mapped Group A" } });
 
             // Act
-            List<CaseMaterial> result = this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatementsResponse);
+            List<CaseMaterial> result = this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatementsResponse, communications);
 
             // Assert
             Assert.NotNull(result);
@@ -408,20 +421,20 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             CaseMaterial firstMaterial = result[0];
             Assert.Equal(1, firstMaterial.Id);
             Assert.Null(firstMaterial.OriginalFileName);
-            Assert.Equal("1", firstMaterial.Subject); // Should use Title, not PresentationTitle
+            Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(1202, firstMaterial.DocumentTypeId);
 
             // Test empty OriginalFileName case
             CaseMaterial secondMaterial = result[1];
             Assert.Equal(2, secondMaterial.Id);
             Assert.Equal(string.Empty, secondMaterial.OriginalFileName);
-            Assert.Equal("2", secondMaterial.Subject); // Should use Title, not PresentationTitle
+            Assert.Equal("Subject B", secondMaterial.Subject); // Should use Title, not PresentationTitle
 
             // Test whitespace OriginalFileName case
             CaseMaterial thirdMaterial = result[2];
             Assert.Equal(3, thirdMaterial.Id);
             Assert.Equal("   ", thirdMaterial.OriginalFileName);
-            Assert.Equal("3", thirdMaterial.Subject); // Should use Title, not PresentationTitle
+            Assert.Equal("Subject C", thirdMaterial.Subject); // Should use Title, not PresentationTitle
         }
 
         /// <summary>
@@ -443,6 +456,12 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             },
             };
 
+            var communications = new List<Communication>
+            {
+                new Communication(1, "FileA.pdf", "Subject A", 1012, 1, "/some/path/doc1.pdf", "None", "Category1", "TypeA", false, Direction: "Incoming"),
+                new Communication(1, "FileB.pdf", "Subject B", 1012, 2, "/some/path/doc2.pdf", "None", "Category2", "TypeB", false, Direction: "Outgoing"),
+            };
+
             this.mockDocumentTypeMapper
                 .Setup(mapper => mapper.MapDocumentType(1202))
                 .Returns(new DocumentTypeInfo { Category = "Mapped Category A", DocumentType = "Mapped DocumentType A" });
@@ -452,7 +471,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
                 .Returns(new List<DocumentTypeGroup> { new() { Id = 1202, Category = "Mapped category A", Name = "Mapped name A", Group = "Mapped Group A" } });
 
             // Act
-            List<CaseMaterial> result = this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatementsResponse);
+            List<CaseMaterial> result = this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatementsResponse, communications);
 
             // Assert
             Assert.NotNull(result);
@@ -461,7 +480,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             CaseMaterial firstMaterial = result.First();
             Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("OriginalA.pdf", firstMaterial.OriginalFileName);
-            Assert.Equal("OriginalA", firstMaterial.Subject);
+            Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(1202, firstMaterial.DocumentTypeId);
             Assert.Equal(1, firstMaterial.MaterialId);
             Assert.Equal("/some/path/statement1.pdf", firstMaterial.Link);
@@ -494,6 +513,12 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             },
             };
 
+            var communications = new List<Communication>
+            {
+                new Communication(1, "FileA.pdf", "Subject A", 1012, 1, "/some/path/doc1.pdf", "None", "Category1", "TypeA", false, Direction: "Incoming"),
+                new Communication(1, "FileB.pdf", "Subject B", 1012, 2, "/some/path/doc2.pdf", "None", "Category2", "TypeB", false, Direction: "Outgoing"),
+            };
+
             this.mockDocumentTypeMapper
                 .Setup(mapper => mapper.MapDocumentType(0))
                 .Returns(new DocumentTypeInfo { Category = "Unknown", DocumentType = "Unknown" });
@@ -507,7 +532,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
                .Returns(new List<DocumentTypeGroup> { new() { Id = 1204, Category = "Mapped category A", Name = "Mapped name A", Group = "Mapped Group A" } });
 
             // Act
-            List<CaseMaterial> result = this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatementsResponse);
+            List<CaseMaterial> result = this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatementsResponse, communications);
 
             // Assert
             Assert.NotNull(result);
@@ -519,7 +544,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             CaseMaterial firstMaterial = result.First();
             Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("OriginalA.pdf", firstMaterial.OriginalFileName);
-            Assert.Equal("OriginalA", firstMaterial.Subject);
+            Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(0, firstMaterial.DocumentTypeId);
             Assert.Equal(1, firstMaterial.MaterialId);
             Assert.Equal("/some/path/statement1.pdf", firstMaterial.Link);
@@ -545,7 +570,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             };
 
             // Act
-            List<CaseMaterial> result = this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatementsResponse);
+            List<CaseMaterial> result = this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatementsResponse, null);
 
             // Assert
             Assert.NotNull(result);
@@ -560,7 +585,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
         public void MapUsedStatementsToCaseMaterials_WithNullInput_ReturnsEmptyList()
         {
             // Act
-            List<CaseMaterial> result = this.caseMaterialService.MapUsedStatementsToCaseMaterials(null);
+            List<CaseMaterial> result = this.caseMaterialService.MapUsedStatementsToCaseMaterials(null, null);
 
             // Assert
             Assert.NotNull(result);
@@ -581,7 +606,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             };
 
             // Act
-            List<CaseMaterial> result = this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatementsResponse);
+            List<CaseMaterial> result = this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatementsResponse, null);
 
             // Assert
             Assert.NotNull(result);
