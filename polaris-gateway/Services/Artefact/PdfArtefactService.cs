@@ -35,7 +35,7 @@ public class PdfArtefactService : IPdfArtefactService
 
         if (result.Status != PdfConversionStatus.DocumentConverted)
         {
-            return _artefactServiceResponseFactory.CreateFailedResult<Stream>(result.Status);
+            return _artefactServiceResponseFactory.CreateFailedResult<Stream>(result.Status, result.FailedStatusCode);
         }
 
         await _cacheService.UploadPdfAsync(caseId, documentId, versionId, isOcrProcessed, result.PdfStream);

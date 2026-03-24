@@ -47,6 +47,7 @@ namespace Common.Clients.PdfGenerator
                 return new ConvertToPdfResponse
                 {
                     Status = enumResult,
+                    FailedStatusCode = MapPdfConversionStatusToHttpStatusCode(enumResult)
                 };
             }
 
@@ -57,6 +58,19 @@ namespace Common.Clients.PdfGenerator
             {
                 PdfStream = streamResult,
                 Status = PdfConversionStatus.DocumentConverted
+            };
+        }
+
+        private static int MapPdfConversionStatusToHttpStatusCode(PdfConversionStatus? status)
+        {
+            return status switch
+            {
+                PdfConversionStatus.AsposeWordsPasswordProtected
+                or PdfConversionStatus.AsposePdfPasswordProtected
+                or PdfConversionStatus.AsposeSlidesPasswordProtected
+                    => (int)HttpStatusCode.Forbidden,
+
+                _ => (int)HttpStatusCode.UnsupportedMediaType
             };
         }
     }
