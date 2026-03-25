@@ -453,11 +453,9 @@ public class CommunicationService(
     /// <inheritdoc/>
     public async Task<PcdReviewDetailResponse> GetPcdReviewDetailAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken)
     {
-        string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
-
         try
         {
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching case history events with caseId [{caseIdString}].");
+            this.logger.LogInformation("{HskUiLogPrefix} Fetching case history events with caseId {CaseId}.", LoggingConstants.HskUiLogPrefix, caseId);
             var caseHistoryEvents = await this.apiClient.GetHistoryEventsAsync(caseId, cmsAuthValues).ConfigureAwait(false);
             var pcdAnalysisDetails = new PcdReviewDetailResponse();
 
@@ -468,25 +466,25 @@ public class CommunicationService(
             var pcdAnalysis = caseHistoryEvents.FirstOrDefault(x => x.Id == pcdId);
             if (pcdAnalysis == null)
             {
-                throw new BadRequestException($@"{LoggingConstants.HskUiLogPrefix} No history event found for PCD analysis with ID [{pcdId}] for caseId [{caseIdString}].", nameof(pcdId));
+                throw new BadRequestException("{HskUiLogPrefix} No history event found for PCD analysis with ID {PcdId} for caseId {CaseId}.", nameof(pcdId));
             }
 
             if (pcdAnalysis.Type == ApiClient.HistoryEventType.InitialReview)
             {
-                this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching PCD analysis overview for caseId [{caseIdString}] and PCD ID [{pcdId}].");
+                this.logger.LogInformation("{HskUiLogPrefix} Fetching PCD analysis overview for caseId {CaseId} and PCD ID {PcdId}.", LoggingConstants.HskUiLogPrefix, caseId, pcdId);
                 var pcdReview = await this.apiClient.GetInitialReviewByHistoryIdAsync(caseId, pcdId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
                 pcdAnalysisDetails.PreChargeDecisionAnalysisOutcome = pcdReview;
             }
             else if (pcdAnalysis.Type == ApiClient.HistoryEventType.PreChargeDecisionAnalysis)
             {
-                this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching PCD analysis overview for caseId [{caseIdString}] and PCD ID [{pcdId}].");
+                this.logger.LogInformation("{HskUiLogPrefix} Fetching PCD analysis overview for caseId {CaseId} and PCD ID {PcdId}.", LoggingConstants.HskUiLogPrefix, caseId, pcdId);
                 var pcdReview = await this.apiClient.GetPcdAnalysisByIdAsync(caseId, pcdId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
                 pcdAnalysisDetails.PreChargeDecisionAnalysisOutcome = pcdReview;
             }
 
             if (associatedPreChargeDecisionEvent != null)
             {
-                this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching pre charge decision outcome for caseId [{caseIdString}] and PCD ID [{pcdId}].");
+                this.logger.LogInformation("{HskUiLogPrefix} Fetching pre charge decision outcome for caseId {CaseId} and PCD ID {PcdId}.", LoggingConstants.HskUiLogPrefix, caseId, pcdId);
                 var preChargeDecisionAnalysisOutcome = await this.apiClient.GetPreChargeDecisionByHistoryId(caseId, (int)associatedPreChargeDecisionEvent.Id, cmsAuthValues).ConfigureAwait(false);
                 pcdAnalysisDetails.PreChargeDecisionOutcome = preChargeDecisionAnalysisOutcome;
             }
@@ -495,8 +493,7 @@ public class CommunicationService(
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching PCD Request overview for caseId [{caseIdString}] and PCD id [{pcdId}]");
-            this.logger.LogError(ex, ex.Message);
+            this.logger.LogError(ex, "{HskUiLogPrefix} Error occurred while fetching PCD Request overview for caseId {CaseId} and PCD id {PcdId}", LoggingConstants.HskUiLogPrefix, caseId, pcdId);
             throw;
         }
     }
