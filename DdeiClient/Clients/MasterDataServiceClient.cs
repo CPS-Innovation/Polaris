@@ -1266,7 +1266,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+        public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken)
         {
             Requires.NotNull(caseId);
             Requires.NotNull(historyId);
@@ -1283,7 +1283,39 @@ namespace DdeiClient.Clients
                 var cookieString = JsonSerializer.Serialize(cookie);
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
-                var data = await client.GetInitialReviewByIdAsync(caseId, historyId);
+                var data = await client.GetInitialReviewByIdAsync(caseId, historyId, cancellationToken);
+                return data;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetPcdAnalysisByIdAsync(
+            int caseId,
+            int historyId,
+            CmsAuthValues cmsAuthValues,
+            CancellationToken cancellationToken)
+        {
+            Requires.NotNull(caseId);
+            Requires.NotNull(historyId);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "GetInitialReviewByHistoryId";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.GetPcdAnalysisByIdAsync(caseId, historyId);
                 return data;
             }
             catch (Exception exception)

@@ -6,6 +6,7 @@ namespace PolarisGateway.Tests.Functions.HouseKeeping;
 
 using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -56,11 +57,11 @@ public class GetInitialReviewByHistoryIdTests
             CaseId = 1212,
         };
 
-        this.communicationService.Setup(c => c.GetInitialReviewByHistoryIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
+        this.communicationService.Setup(c => c.GetInitialReviewByHistoryIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedResponse);
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, caseId, 121212);
+        IActionResult result = await this.sut.Run(httpRequest, caseId, 121212, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(expectedResponse);
@@ -80,11 +81,11 @@ public class GetInitialReviewByHistoryIdTests
         int caseId = 123;
         HttpRequest httpRequest = CreateHttpRequest();
 
-        this.communicationService.Setup(c => c.GetInitialReviewByHistoryIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
+        this.communicationService.Setup(c => c.GetInitialReviewByHistoryIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ApiClient.PreChargeDecisionAnalysisOutcome)null!);
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, caseId, 121212);
+        IActionResult result = await this.sut.Run(httpRequest, caseId, 121212, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<UnprocessableEntityObjectResult>();
@@ -104,11 +105,11 @@ public class GetInitialReviewByHistoryIdTests
         int caseId = 123;
         HttpRequest httpRequest = CreateHttpRequest();
 
-        this.communicationService.Setup(c => c.GetInitialReviewByHistoryIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
+        this.communicationService.Setup(c => c.GetInitialReviewByHistoryIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
                    .ThrowsAsync(new InvalidOperationException("Test Exception"));
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, caseId, 121212);
+        IActionResult result = await this.sut.Run(httpRequest, caseId, 121212, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<UnprocessableEntityObjectResult>().Which.Value.Should().Be("Test Exception");
@@ -125,11 +126,11 @@ public class GetInitialReviewByHistoryIdTests
         int caseId = 123;
         HttpRequest httpRequest = CreateHttpRequest();
 
-        this.communicationService.Setup(c => c.GetInitialReviewByHistoryIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
+        this.communicationService.Setup(c => c.GetInitialReviewByHistoryIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
            .ThrowsAsync(new UnauthorizedAccessException("Unauthorized"));
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, caseId, 121212);
+        IActionResult result = await this.sut.Run(httpRequest, caseId, 121212, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<UnauthorizedObjectResult>().Which.Value.Should().Be("GetInitialReviewByHistoryId error: Unauthorized");
@@ -149,11 +150,11 @@ public class GetInitialReviewByHistoryIdTests
         int caseId = 123;
         HttpRequest httpRequest = CreateHttpRequest();
 
-        this.communicationService.Setup(c => c.GetInitialReviewByHistoryIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
+        this.communicationService.Setup(c => c.GetInitialReviewByHistoryIdAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
              .ThrowsAsync(new Exception("General error"));
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, caseId, 121212);
+        IActionResult result = await this.sut.Run(httpRequest, caseId, 121212, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(500);
