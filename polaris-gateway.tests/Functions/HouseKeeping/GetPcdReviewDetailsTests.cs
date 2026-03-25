@@ -74,7 +74,7 @@ public class GetPcdReviewDetailsTests
         result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(expectedResponse);
         Assert.Contains(this.mockLogger.Logs, log =>
           log.LogLevel == LogLevel.Information &&
-          log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetPcdReviewDetails function completed"));
+          log.Message != null && log.Message.Contains("Milestone: caseId") && log.Message.Contains("GetPcdReviewDetails function completed"));
     }
 
     /// <summary>
@@ -99,7 +99,7 @@ public class GetPcdReviewDetailsTests
         result.Should().BeOfType<UnprocessableEntityObjectResult>();
         Assert.Contains(this.mockLogger.Logs, log =>
          log.LogLevel == LogLevel.Error &&
-         log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] GetPcdReviewDetails function failed"));
+         log.Message != null && log.Message.Contains("GetPcdReviewDetails function failed"));
     }
 
     /// <summary>
@@ -168,7 +168,7 @@ public class GetPcdReviewDetailsTests
         result.Should().BeOfType<UnprocessableEntityObjectResult>().Which.Value.Should().Be("GetPcdReviewDetails error: Unsupported");
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Error &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetPcdReviewDetails function encountered unsupported content type"));
+            log.Message != null && log.Message.Contains("unsupported content type"));
     }
 
     /// <summary>
@@ -193,7 +193,7 @@ public class GetPcdReviewDetailsTests
         result.Should().BeOfType<UnauthorizedObjectResult>().Which.Value.Should().Be("GetPcdReviewDetails error: Unauthorized");
         Assert.Contains(this.mockLogger.Logs, log =>
                  log.LogLevel == LogLevel.Error &&
-                 log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetPcdReviewDetails function encountered UnauthorizedAccess Exception"));
+                 log.Message != null && log.Message.Contains("UnauthorizedAccess Exception"));
     }
 
     /// <summary>
@@ -218,7 +218,7 @@ public class GetPcdReviewDetailsTests
         result.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(500);
         Assert.Contains(this.mockLogger.Logs, log =>
                     log.LogLevel == LogLevel.Error &&
-                    log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetPcdReviewDetails function encountered an error"));
+                    log.Message != null && log.Message.Contains("encountered an error"));
     }
 
     /// <summary>

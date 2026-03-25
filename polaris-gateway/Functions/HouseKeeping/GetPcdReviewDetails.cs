@@ -63,7 +63,9 @@ public class GetPcdReviewDetails(ILogger<GetPcdReviewDetails> logger, ICommunica
 
             if (caseId < 1)
             {
-                return new BadRequestObjectResult("{HskUiLogPrefix} Invalid case Id. It should be an integer.");
+                return new BadRequestObjectResult(
+                                      string.Format("{0} Invalid case Id. It should be an integer.", LoggingConstants.HskUiLogPrefix)
+                                  );
             }
 
             // Build CMS auth values from cookie extracted from the request

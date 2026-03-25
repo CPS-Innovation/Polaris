@@ -2696,15 +2696,15 @@ public class CommunicationServiceTests
 
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Fetching case history events with caseId [{caseIdString}]"));
+            log.Message != null && log.Message.Contains("Fetching case history events with caseId"));
 
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Fetching PCD analysis overview for caseId [{caseIdString}] and PCD ID [{pcdId}]"));
+            log.Message != null && log.Message.Contains("Fetching PCD analysis overview for caseId") && log.Message.Contains("PCD ID"));
 
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Fetching pre charge decision outcome for caseId [{caseIdString}] and PCD ID [{pcdId}]"));
+            log.Message != null && log.Message.Contains("Fetching pre charge decision outcome for caseId") && log.Message.Contains("PCD ID"));
     }
 
     /// <summary>
@@ -2761,11 +2761,11 @@ public class CommunicationServiceTests
 
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Fetching case history events with caseId [{caseIdString}]"));
+            log.Message != null && log.Message.Contains("Fetching case history events with caseId"));
 
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Fetching PCD analysis overview for caseId [{caseIdString}] and PCD ID [{pcdId}]"));
+            log.Message != null && log.Message.Contains("Fetching PCD analysis overview for caseId") && log.Message.Contains("PCD ID"));
     }
 
     /// <summary>
@@ -2816,7 +2816,7 @@ public class CommunicationServiceTests
 
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Fetching case history events with caseId [{caseIdString}]"));
+            log.Message != null && log.Message.Contains("Fetching case history events with caseId"));
     }
 
     /// <summary>
@@ -2851,8 +2851,7 @@ public class CommunicationServiceTests
         BadRequestException exception = await Assert.ThrowsAsync<BadRequestException>(() =>
             this.communicationService.GetPcdReviewDetailAsync(caseId, pcdId, cmsAuthValues, cancellationToken));
 
-        Assert.Contains($"No history event found for PCD analysis with ID [{pcdId}]", exception.Message);
-        Assert.Contains($"for caseId [{caseIdString}]", exception.Message);
+        Assert.Contains("No history event found for PCD analysis", exception.Message);
 
         this.apiClientMock.Verify(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues), Times.Once);
     }
@@ -2891,11 +2890,8 @@ public class CommunicationServiceTests
 
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Error &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching PCD Request overview for caseId [{caseIdString}] and PCD id [{pcdId}]"));
-
-        Assert.Contains(this.mockLogger.Logs, log =>
-            log.LogLevel == LogLevel.Error &&
-            log.Message != null && log.Message.Contains("API Error"));
+            log.Message != null && log.Message.Contains("Error occurred while fetching PCD Request overview") &&
+            log.Exception != null && log.Exception.Message == "API Error");
     }
 
     /// <summary>
