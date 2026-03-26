@@ -269,10 +269,8 @@ export const AccordionDocument: React.FC<Props> = ({
       data-document-active={activeDocumentId === caseDocument.documentId}
     >
       <div className={classes.listItemWrapper}>
-        <div
-          style={{ display: "flex", justifyContent: "space-between", flex: 1 }}
-        >
-          <span style={{ display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex", gap: "4px", flex: 1 }}>
+          <span style={{ flex: 1, display: "flex", flexDirection: "column" }}>
             <span>
               {activeDocumentId === caseDocument.documentId && (
                 <span>
