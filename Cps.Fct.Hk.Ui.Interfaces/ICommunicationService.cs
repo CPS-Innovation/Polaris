@@ -137,6 +137,16 @@ public interface ICommunicationService
     Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues);
 
     /// <summary>
+    /// Get PCD review detail by case Id Pcd id.
+    /// </summary>
+    /// <param name="caseId">Get PCD requests by case id.</param>
+    /// <param name="pcdId">Parameter to get PCD requests by PCD id.</param>
+    /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
+    /// <param name="cancellationToken">cancellationToken values for downstream systems.</param>
+    /// <returns>Return single PCD request information by PCD id.</returns>
+    Task<PcdReviewDetailResponse> GetPcdReviewDetailAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Asynchronously discard a material name with given material ID.
     /// </summary>
     /// <param name="caseId">The ID of the case from which communications are retrieved.</param>
@@ -193,8 +203,9 @@ public interface ICommunicationService
     /// <param name="caseId">Case id.</param>
     /// <param name="historyId">History Id.</param>
     /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+    /// <param name="cancellationToken">The cancellationToken for downstream systems.</param> 
     /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-    Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues);
+    Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken);
 
     /// <summary>
     /// GetHistoryEvents.
