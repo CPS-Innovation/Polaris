@@ -221,7 +221,7 @@ public class CaseMaterialService(
     }
 
     /// <inheritdoc />
-    public List<CaseMaterial> MapUnusedMaterialsToCaseMaterials(UnusedMaterialsResponse? unusedMaterials)
+    public List<CaseMaterial> MapUnusedMaterialsToCaseMaterials(UnusedMaterialsResponse? unusedMaterials, IReadOnlyCollection<Communication>? communications)
     {
         var caseMaterials = new List<CaseMaterial>();
 
@@ -235,14 +235,16 @@ public class CaseMaterialService(
         {
             caseMaterials.AddRange(unusedMaterials.Exhibits.Select(e =>
             {
-                DocumentTypeInfo documentTypeInfo = this.documentTypeMapper.MapMaterialType(e.MaterialType ?? "0");
+                DocumentTypeInfo documentTypeInfo = this.documentTypeMapper.MapDocumentType(e.DocumentType ?? 0);
 
                 bool canReclassfy = this.IsCaseMaterialReclassifiable(e.DocumentType);
+
+                string? subject = communications?.FirstOrDefault(x => x.MaterialId == e.MaterialId)?.Subject ?? e.Title;
 
                 return new CaseMaterial(
                     e.Id,
                     e.OriginalFileName,
-                    e.Title,
+                    subject,
                     e.DocumentType ?? 0,
                     e.Id,
                     e.Link,
@@ -322,10 +324,13 @@ public class CaseMaterialService(
 
                 bool canReclassfy = this.IsCaseMaterialReclassifiable(s.DocumentType);
 
+                // Assign subject value from original Inbox communication
+                string subject = communications?.FirstOrDefault(x => x.MaterialId == s.MaterialId)?.Subject ?? s.PresentationTitle;
+
                 return new CaseMaterial(
                     s.Id,
                     s.OriginalFileName,
-                    s.PresentationTitle,
+                    subject,
                     s.DocumentType ?? 0,
                     s.Id,
                     s.Link,
