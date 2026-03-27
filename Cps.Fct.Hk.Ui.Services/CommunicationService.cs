@@ -499,6 +499,55 @@ public class CommunicationService(
         }
     }
 
+
+    /// <inheritdoc/>
+    public async Task<PcdReviewDetailResponse> GetPcdReviewDetailAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken)
+    {
+        try
+        {
+            this.logger.LogInformation("{HskUiLogPrefix} Fetching case history events with caseId {CaseId}.", LoggingConstants.HskUiLogPrefix, caseId);
+            var caseHistoryEvents = await this.apiClient.GetHistoryEventsAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+            var pcdAnalysisDetails = new PcdReviewDetailResponse();
+
+            var associatedPreChargeDecisionEvent = caseHistoryEvents
+                .Where(x => x.Type == ApiClient.HistoryEventType.PreChargeDecision && x.Id > pcdId).OrderBy(x => x.Id) // Find the first PreChargeDecision event that occurred after the PCD analysis/initial review event.
+                .FirstOrDefault();
+
+            var pcdAnalysis = caseHistoryEvents.FirstOrDefault(x => x.Id == pcdId);
+            if (pcdAnalysis == null)
+            {
+                throw new BadRequestException("{HskUiLogPrefix} No history event found for PCD analysis with ID {PcdId} for caseId {CaseId}.", nameof(pcdId));
+            }
+
+            if (pcdAnalysis.Type == ApiClient.HistoryEventType.InitialReview)
+            {
+                this.logger.LogInformation("{HskUiLogPrefix} Fetching PCD analysis overview for caseId {CaseId} and PCD ID {PcdId}.", LoggingConstants.HskUiLogPrefix, caseId, pcdId);
+                var pcdReview = await this.apiClient.GetInitialReviewByHistoryIdAsync(caseId, pcdId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+                pcdAnalysisDetails.PreChargeDecisionAnalysisOutcome = pcdReview;
+            }
+            else if (pcdAnalysis.Type == ApiClient.HistoryEventType.PreChargeDecisionAnalysis)
+            {
+                this.logger.LogInformation("{HskUiLogPrefix} Fetching PCD analysis overview for caseId {CaseId} and PCD ID {PcdId}.", LoggingConstants.HskUiLogPrefix, caseId, pcdId);
+                var pcdReview = await this.apiClient.GetPcdAnalysisByIdAsync(caseId, pcdId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+                pcdAnalysisDetails.PreChargeDecisionAnalysisOutcome = pcdReview;
+            }
+
+            if (associatedPreChargeDecisionEvent != null)
+            {
+                this.logger.LogInformation("{HskUiLogPrefix} Fetching pre charge decision outcome for caseId {CaseId} and PCD ID {PcdId}.", LoggingConstants.HskUiLogPrefix, caseId, pcdId);
+                var preChargeDecisionAnalysisOutcome = await this.apiClient.GetPreChargeDecisionByHistoryId(caseId, (int)associatedPreChargeDecisionEvent.Id, cmsAuthValues).ConfigureAwait(false);
+                pcdAnalysisDetails.PreChargeDecisionOutcome = preChargeDecisionAnalysisOutcome;
+            }
+
+            return pcdAnalysisDetails;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "{HskUiLogPrefix} Error occurred while fetching PCD Request overview for caseId {CaseId} and PCD id {PcdId}", LoggingConstants.HskUiLogPrefix, caseId, pcdId);
+            throw;
+        }
+    }
+
     /// <inheritdoc/>
     public async Task<IReadOnlyCollection<PcdReviewCoreResponseDto>> GetPcdReviewCoreAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken)
     {

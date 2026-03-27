@@ -114,7 +114,7 @@ public class GetCaseMaterials(
             this.caseMaterialService.AddCaseMaterials(allCaseMaterials!, usedStatements.Statements ?? Enumerable.Empty<Statement>(), "Statement", "Other Statement", "Used");
             if (usedStatements.Statements != null && usedStatements.Statements.Count != 0)
             {
-                allCaseMaterials?.AddRange(this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatements));
+                allCaseMaterials?.AddRange(this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatements, communications));
             }
 
             // Add Used MG forms
@@ -147,7 +147,7 @@ public class GetCaseMaterials(
             }
 
             // Map and add unused materials only if the result is not empty
-            List<CaseMaterial> mappedUnusedMaterials = this.caseMaterialService.MapUnusedMaterialsToCaseMaterials(unusedMaterials);
+            List<CaseMaterial> mappedUnusedMaterials = this.caseMaterialService.MapUnusedMaterialsToCaseMaterials(unusedMaterials, communications);
             if (mappedUnusedMaterials != null && mappedUnusedMaterials.Any())
             {
                 allCaseMaterials?.AddRange(mappedUnusedMaterials);
