@@ -54,6 +54,7 @@ public static class RestApi
     public const string PreChargeDecision = "urns/{caseUrn}/cases/{caseId:min(1)}/pre-charge-decision";
     public const string PreChargeDecisionByHistoryId = "urns/{caseUrn}/cases/{caseId:min(1)}/history/{historyId}/pre-charge-decision";
     public const string PcdReview = "urns/{caseUrn}/cases/{caseId:min(1)}/pcd-review";
+    public const string PcdReviewCore = "urns/{caseUrn}/cases/{caseId:min(1)}/pcd-review-core";
     public const string PcdReviewDetails = "urns/{caseUrn}/cases/{caseId:min(1)}/history/{historyId}/pcd-review-details";
     public const string ReadStatus = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/read-status";
     public const string UmaReclassify = "urns/{caseUrn}/cases/{caseId:min(1)}/uma-reclassify";
