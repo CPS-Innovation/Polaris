@@ -259,14 +259,16 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         console.log({ error });
         const {
           code,
-          detail = "",
+          message = "",
           customProperties: { username } = {},
         } = error as ApiError & { detail?: string };
+
+        console.log({ error });
 
         const isUsernameValid =
           typeof username === "string" && !!username && !username.includes(":");
 
-        const readableErrorMessage = detail.split("Exception Message: ")[1];
+        const readableErrorMessage = message.split("Exception Message: ")[1];
 
         if (code === CHECKOUT_BLOCKED_STATUS_CODE) {
           dispatch({
