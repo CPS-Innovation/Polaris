@@ -147,7 +147,7 @@ public class GetCaseMaterials(
             }
 
             // Map and add unused materials only if the result is not empty
-            List<CaseMaterial> mappedUnusedMaterials = this.caseMaterialService.MapUnusedMaterialsToCaseMaterials(unusedMaterials);
+            List<CaseMaterial> mappedUnusedMaterials = this.caseMaterialService.MapUnusedMaterialsToCaseMaterials(unusedMaterials, communications);
             if (mappedUnusedMaterials != null && mappedUnusedMaterials.Any())
             {
                 allCaseMaterials?.AddRange(mappedUnusedMaterials);

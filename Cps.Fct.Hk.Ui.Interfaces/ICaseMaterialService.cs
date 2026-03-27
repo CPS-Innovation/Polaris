@@ -78,11 +78,12 @@ public interface ICaseMaterialService
     /// <param name="unusedMaterials">
     /// The <see cref="UnusedMaterialsResponse"/> containing collections of unused materials to be mapped.
     /// </param>
+    /// <param name="communications">Inbox communucations.</param>
     /// <returns>
     /// A list of <see cref="CaseMaterial"/> objects representing the mapped unused materials.
     /// Returns an empty list if no materials are available.
     /// </returns>
-    List<CaseMaterial> MapUnusedMaterialsToCaseMaterials(UnusedMaterialsResponse? unusedMaterials);
+    List<CaseMaterial> MapUnusedMaterialsToCaseMaterials(UnusedMaterialsResponse? unusedMaterials, IReadOnlyCollection<Communication>? communications);
 
     /// <summary>
     /// Retrieves case materials asynchronously, including: communications, unused materials, used statements, used exhibits, used MG forms and used other materials.
