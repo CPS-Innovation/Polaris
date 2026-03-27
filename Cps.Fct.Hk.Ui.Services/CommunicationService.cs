@@ -17,6 +17,7 @@ using Common.Enums;
 using Common.Exceptions;
 using Cps.Fct.Hk.Ui.Interfaces;
 using DdeiClient.Clients.Interfaces;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
@@ -498,6 +499,40 @@ public class CommunicationService(
         }
     }
 
+    /// <inheritdoc/>
+    public async Task<IReadOnlyCollection<PcdReviewCoreResponseDto>> GetPcdReviewCoreAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken)
+    {
+        try
+        {
+            this.logger.LogInformation("{HskUiLogPrefix} Fetching case history events with caseId {CaseId}.", LoggingConstants.HskUiLogPrefix, caseId);
+            var caseHistoryEvents = await this.apiClient.GetHistoryEventsAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+            var pcdAnalysisDetails = new PcdReviewDetailResponse();
+
+            var associatedPreChargeDecisionEvent = caseHistoryEvents
+                .Where(x => x.Type == ApiClient.HistoryEventType.PreChargeDecisionAnalysis
+                || x.Type == ApiClient.HistoryEventType.InitialReview)
+                .OrderBy(x => x.Id) // Find the first PreChargeDecision event that occurred after the PCD analysis/initial review event.
+                .ToList();
+
+            // Determine if the first PCD-related event is a PreChargeDecisionAnalysis (no prior InitialReview)
+            bool isFirstEventPcdAnalysis = associatedPreChargeDecisionEvent.FirstOrDefault()?.Type == ApiClient.HistoryEventType.PreChargeDecisionAnalysis;
+
+            var pcdRreviewCoreItems = (from b in associatedPreChargeDecisionEvent
+                                       let isEarlyAdvice = isFirstEventPcdAnalysis && b.Type == ApiClient.HistoryEventType.PreChargeDecisionAnalysis && b == associatedPreChargeDecisionEvent.First()
+                                       select new PcdReviewCoreResponseDto
+                                       {
+                                           Id = b.Id.ToString(),
+                                           Type = isEarlyAdvice ? PcdReviewCoreType.EarlyAdvice : (b.Type == ApiClient.HistoryEventType.InitialReview ? PcdReviewCoreType.InitialReview : PcdReviewCoreType.PreChargeDecisionAnalysis),
+                                           Date = b.Date.ToString(),
+                                       }).ToList();
+            return pcdRreviewCoreItems;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "{HskUiLogPrefix} Error occurred while fetching PCD Review for caseId {CaseId}", LoggingConstants.HskUiLogPrefix, caseId);
+            throw;
+        }
+    }
 
     /// <inheritdoc/>
     public async Task<DiscardMaterialResponse> DiscardMaterialAsync(int caseId, int materialId, string discardReason, string discardReasonDescription, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)

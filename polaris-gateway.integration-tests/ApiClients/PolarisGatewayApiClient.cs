@@ -342,6 +342,15 @@ public class PolarisGatewayApiClient : BaseApiClient
         return await SendAsync<PcdReviewDetailResponse>(route, HttpMethod.Get, cancellationToken);
     }
 
+    public async Task<ApiClientResponse<IEnumerable<PcdReviewCoreResponseDto>>> GetPcdReviewCoreAsync(
+        string urn,
+        int caseId,
+        CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/pcd-review-core";
+        return await SendAsync<IEnumerable<PcdReviewCoreResponseDto>>(route, HttpMethod.Get, cancellationToken);
+    }
+
     public async Task<ApiClientResponse> RenameDocumentAsync(string urn, int caseId, string documentId, RenameDocumentRequestDto request, CancellationToken cancellationToken)
     {
         var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/rename";
