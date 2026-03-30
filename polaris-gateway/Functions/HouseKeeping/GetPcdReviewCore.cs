@@ -42,6 +42,7 @@ public class GetPcdReviewCore(ILogger<GetPcdReviewCore> logger, ICommunicationSe
     /// </summary>
     /// <param name="request">The HTTP request.</param>
     /// <param name="caseId">The case id to get PCD Review.</param>
+    /// <param name="cancellationToken">The cancellationToken.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
     [OpenApiOperation(operationId: nameof(GetPcdReviewCore), tags: ["PCDReview"], Description = "Returns PCD Review with Case Id.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
@@ -53,7 +54,7 @@ public class GetPcdReviewCore(ILogger<GetPcdReviewCore> logger, ICommunicationSe
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError)]
     [Function(nameof(GetPcdReviewCore))]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PcdReviewCore)] HttpRequest request, string caseUrn, int caseId, CancellationToken cancellationToken)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PcdReviewCore)] HttpRequest request, int caseId, CancellationToken cancellationToken)
     {
         try
         {
