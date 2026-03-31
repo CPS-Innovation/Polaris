@@ -147,6 +147,15 @@ public interface ICommunicationService
     Task<PcdReviewDetailResponse> GetPcdReviewDetailAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Get PCD review items by case Id Pcd id.
+    /// </summary>
+    /// <param name="caseId">Get PCD requests by case id.</param>
+   /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
+    /// <param name="cancellationToken">cancellationToken values for downstream systems.</param>
+    /// <returns>Return single PCD request information by PCD id.</returns>
+    Task<IReadOnlyCollection<PcdReviewCoreResponseDto>> GetPcdReviewCoreAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Asynchronously discard a material name with given material ID.
     /// </summary>
     /// <param name="caseId">The ID of the case from which communications are retrieved.</param>
