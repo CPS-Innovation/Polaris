@@ -64,7 +64,7 @@ public class CompleteReclassificationRequestValidatorTests
             "1212122",
             "OTHER",
             123,
-            432,
+            -1,
             true,
             string.Empty,
             new ReclassifyStatementRequest(),
