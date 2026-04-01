@@ -15,6 +15,7 @@ function addPolarisButton() {
   var secondChild = tableRowElement.children[1];
   var td = document.createElement("td");
   var pLink = document.createElement("a");
+  pLink.style.whiteSpace = "nowrap";
   pLink.href = getPolarisUrl();
   pLink.target = "_blank";
   pLink.innerText = "Open in Manage Materials";
