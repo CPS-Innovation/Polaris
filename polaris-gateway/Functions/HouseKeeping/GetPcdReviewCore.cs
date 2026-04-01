@@ -55,7 +55,7 @@ public class GetPcdReviewCore(ILogger<GetPcdReviewCore> logger, ICommunicationSe
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError)]
     [Function(nameof(GetPcdReviewCore))]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PcdReviewCore)] HttpRequest request, int caseId, CancellationToken cancellationToken)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PcdReviewCore)] HttpRequest request, string caseUrn, int caseId, CancellationToken cancellationToken)
     {
         try
         {
