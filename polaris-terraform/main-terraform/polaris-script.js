@@ -3,10 +3,10 @@ function getPolarisUrl() {
   if (window.iCaseId && window.sURN) {
     polarisUrl =
       polarisUrl +
-      "?polaris-ui-url=/polaris-ui/case-details/" +
+      "?polaris-ui-url=/materials-ui/" +
       window.sURN +
       "/" +
-      window.iCaseId;
+      window.iCaseId + "/materials";
   }
   return polarisUrl;
 }
@@ -17,7 +17,7 @@ function addPolarisButton() {
   var pLink = document.createElement("a");
   pLink.href = getPolarisUrl();
   pLink.target = "_blank";
-  pLink.innerText = "Open in Polaris";
+  pLink.innerText = "Open in Manage Materials";
   pLink.style.color = "white";
   td.style.width = "100px";
   td.appendChild(pLink);
