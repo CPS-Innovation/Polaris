@@ -64,7 +64,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
     "MasterDataServiceClient__BaseAddress"            = "https://fa-${local.wm_mds_resource_name}.azurewebsites.net/api/"
     "MasterDataServiceClient__FunctionKey"            = data.azurerm_key_vault_secret.kvs_fa_wm_mds_host_keys.value
-    "UMAClient__BaseAddress"                          = "https://fa-${local.hsk_resource_name}.azurewebsites.net"
+    "UMAClient__BaseAddress"                          = "https://fa-${local.hsk_resource_name}.azurewebsites.net/"
     "UMAClient__FunctionKey"                          = data.azurerm_key_vault_secret.kvs_fa_uma_host_keys.value
   }
 

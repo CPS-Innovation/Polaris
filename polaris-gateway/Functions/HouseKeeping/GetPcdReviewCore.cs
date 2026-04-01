@@ -17,6 +17,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -42,11 +43,12 @@ public class GetPcdReviewCore(ILogger<GetPcdReviewCore> logger, ICommunicationSe
     /// </summary>
     /// <param name="request">The HTTP request.</param>
     /// <param name="caseId">The case id to get PCD Review.</param>
+    /// <param name="cancellationToken">The cancellationToken.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
     [OpenApiOperation(operationId: nameof(GetPcdReviewCore), tags: ["PCDReview"], Description = "Returns PCD Review with Case Id.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to get PCD review.", Required = true)]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(PcdReviewDetailResponse), Description = "Return PCD review.")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(IReadOnlyCollection<PcdReviewCoreResponseDto>), Description = "Return PCD review.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
