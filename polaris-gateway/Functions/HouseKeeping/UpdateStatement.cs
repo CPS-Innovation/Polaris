@@ -98,7 +98,7 @@ public class UpdateStatement(
             if (result?.UpdateStatementData?.Id == null)
             {
                 this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] UpdateStatement function failed in [{stopwatch.Elapsed}]");
-                return new UnprocessableEntityObjectResult(result);
+                return new UnprocessableEntityObjectResult($"UpdateStatement function failed for caseId [{caseId}]");
             }
 
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] UpdateStatement function completed in [{stopwatch.Elapsed}]");

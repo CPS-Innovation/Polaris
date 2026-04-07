@@ -132,6 +132,44 @@ public class DiscardMaterialTests
             log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} DiscardMaterial function encountered an invalid operation error: Invalid operation error"));
     }
 
+    /// Tests that the function returns an unprocessable entity error when an invalid operation exception is thrown when a material can not be discarded.
+    /// <summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    /// </summary>
+    [Fact]
+    public async Task Run_ReturnsUnprocessableEntityError_WhenInvalidOperationExceptionWithNoResponseIdReturned()
+    {
+        // Arrange
+        var mockRequest = SetUpMockRequest();
+
+        var expectedResponse = new DiscardMaterialResponse(new DiscardMaterialData
+        {
+        });
+
+        this.mockCommunicationService
+            .Setup(service => service.DiscardMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()))
+            .ReturnsAsync(expectedResponse);
+
+        var requestBody = new DiscardMaterialRequest(Guid.NewGuid(), 1212, "discard reason", "discard reason description");
+        string httpRequestString = JsonSerializer.Serialize(requestBody);
+
+        byte[] byteArray = Encoding.UTF8.GetBytes(httpRequestString);
+        var stream = new MemoryStream(byteArray);
+        mockRequest.Setup(x => x.Body).Returns(stream);
+
+        // Act
+        IActionResult result = await this.discardMaterial.Run(mockRequest.Object, 123, 456);
+
+        // Assert
+        ObjectResult objectResult = Assert.IsType<UnprocessableEntityObjectResult>(result);
+        Assert.Equal(StatusCodes.Status422UnprocessableEntity, objectResult.StatusCode);
+        Assert.Equal("Material with Id [456] has not been found to discard.", objectResult.Value.ToString());
+        
+        Assert.Contains(this.mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} DiscardMaterial function processed a request."));
+    }
+
     /// <summary>
     /// Tests that the function returns an unprocessable entity error when a not supported exception is thrown.
     /// </summary>

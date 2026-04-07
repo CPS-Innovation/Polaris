@@ -4,19 +4,16 @@
 
 namespace Cps.Fct.Hk.Ui.Services;
 
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using Common.Constants;
+using Common.Dto.Request;
+using Common.Dto.Response.HouseKeeping;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
-using System.Linq;
-using Common.Dto.Response.HouseKeeping;
-using Common.Dto.Request;
-using Cps.Fct.Hk.Ui.Services.Constants;
-using Common.Dto.Request.HouseKeeping;
-using System.Globalization;
-using Common.Constants;
+using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// Provides services for processing and retrieving case materials related to a case.
@@ -67,7 +64,7 @@ public class CaseMaterialService(
     }
 
     /// <inheritdoc />
-    public List<CaseMaterial> MapUsedExhibitsToCaseMaterials(UsedExhibitsResponse? usedExhibits, ExhibitProducersResponse? exhibitProducers, int caseId)
+    public List<CaseMaterial> MapUsedExhibitsToCaseMaterials(UsedExhibitsResponse? usedExhibits, ExhibitProducersResponse? exhibitProducers, IReadOnlyCollection<Communication>? communications, int caseId)
     {
         var caseMaterials = new List<CaseMaterial>();
 
@@ -84,10 +81,12 @@ public class CaseMaterialService(
 
             bool canReclassfy = this.IsCaseMaterialReclassifiable(e.DocumentType);
 
+            string? exhibitName = communications?.FirstOrDefault(x => x.MaterialId == e.MaterialId)?.Subject ?? e.Title;
+
             return new CaseMaterial(
                 e.Id,
                 e.OriginalFileName,
-                e.Title,
+                subject: exhibitName,
                 e.DocumentType ?? 0,
                 e.Id,
                 e.Link,
@@ -108,7 +107,7 @@ public class CaseMaterialService(
     }
 
     /// <inheritdoc />
-    public List<CaseMaterial> MapUsedStatementsToCaseMaterials(UsedStatementsResponse? usedStatements)
+    public List<CaseMaterial> MapUsedStatementsToCaseMaterials(UsedStatementsResponse? usedStatements, IReadOnlyCollection<Communication>? communications)
     {
         var caseMaterials = new List<CaseMaterial>();
 
@@ -121,8 +120,8 @@ public class CaseMaterialService(
         {
             DocumentTypeInfo documentTypeInfo = this.documentTypeMapper.MapDocumentType(s.DocumentType ?? 0);
 
-            // Use s.Title as fallback when s.OriginalFileName is null or blank
-            string subject = string.IsNullOrWhiteSpace(s.OriginalFileName) ? s.Title : s.PresentationTitle;
+            // Assign subject value from original Inbox communication
+            string subject = communications?.FirstOrDefault(x => x.MaterialId == s.MaterialId)?.Subject ?? s.PresentationTitle;
 
             bool canReclassfy = this.IsCaseMaterialReclassifiable(s.DocumentType);
 
@@ -222,7 +221,7 @@ public class CaseMaterialService(
     }
 
     /// <inheritdoc />
-    public List<CaseMaterial> MapUnusedMaterialsToCaseMaterials(UnusedMaterialsResponse? unusedMaterials)
+    public List<CaseMaterial> MapUnusedMaterialsToCaseMaterials(UnusedMaterialsResponse? unusedMaterials, IReadOnlyCollection<Communication>? communications)
     {
         var caseMaterials = new List<CaseMaterial>();
 
@@ -236,14 +235,16 @@ public class CaseMaterialService(
         {
             caseMaterials.AddRange(unusedMaterials.Exhibits.Select(e =>
             {
-                DocumentTypeInfo documentTypeInfo = this.documentTypeMapper.MapMaterialType(e.MaterialType ?? "0");
+                DocumentTypeInfo documentTypeInfo = this.documentTypeMapper.MapDocumentType(e.DocumentType ?? 0);
 
                 bool canReclassfy = this.IsCaseMaterialReclassifiable(e.DocumentType);
+
+                string? subject = communications?.FirstOrDefault(x => x.MaterialId == e.MaterialId)?.Subject ?? e.Title;
 
                 return new CaseMaterial(
                     e.Id,
                     e.OriginalFileName,
-                    e.Title,
+                    subject,
                     e.DocumentType ?? 0,
                     e.Id,
                     e.Link,
@@ -323,10 +324,13 @@ public class CaseMaterialService(
 
                 bool canReclassfy = this.IsCaseMaterialReclassifiable(s.DocumentType);
 
+                // Assign subject value from original Inbox communication
+                string subject = communications?.FirstOrDefault(x => x.MaterialId == s.MaterialId)?.Subject ?? s.PresentationTitle;
+
                 return new CaseMaterial(
                     s.Id,
                     s.OriginalFileName,
-                    s.PresentationTitle,
+                    subject,
                     s.DocumentType ?? 0,
                     s.Id,
                     s.Link,

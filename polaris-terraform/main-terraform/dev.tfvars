@@ -1,8 +1,8 @@
 env             = "dev"
 location        = "UK South"
 environment_tag = "development"
-dns_server      = "10.7.197.20"
-dns_alt_server  = "168.63.129.16"
+dns_server      = "10.7.136.4"
+dns_alt_server  = "10.14.136.4"
 
 ui_component_service_plans = {
   gateway_service_plan_sku     = "P1v3"
@@ -51,28 +51,28 @@ cms_details = {
   default_upstream_cms_modern_ip_farnborough = "10.3.177.67"
   default_upstream_cms_domain_name           = "cin3.cps.gov.uk"
   default_upstream_cms_modern_domain_name    = "cmsmodcin3.cps.gov.uk"
-  default_upstream_cms_services_domain_name  = "not-used-in-cin3.cps.gov.uk"
+  default_upstream_cms_services_domain_name  = "cin3.cps.gov.uk"
   cin2_upstream_cms_ip_corsham               = "10.2.177.3"
   cin2_upstream_cms_modern_ip_corsham        = "10.2.177.67"
   cin2_upstream_cms_ip_farnborough           = "10.3.177.3"
   cin2_upstream_cms_modern_ip_farnborough    = "10.3.177.67"
   cin2_upstream_cms_domain_name              = "cin2.cps.gov.uk"
   cin2_upstream_cms_modern_domain_name       = "cmsmodcin2.cps.gov.uk"
-  cin2_upstream_cms_services_domain_name     = "not-used-in-cin2.cps.gov.uk"
+  cin2_upstream_cms_services_domain_name     = "cin2.cps.gov.uk"
   cin4_upstream_cms_ip_corsham               = "10.2.177.35"
   cin4_upstream_cms_modern_ip_corsham        = "10.2.177.67"
   cin4_upstream_cms_ip_farnborough           = "10.3.177.35"
   cin4_upstream_cms_modern_ip_farnborough    = "10.3.177.67"
   cin4_upstream_cms_domain_name              = "cin4.cps.gov.uk"
   cin4_upstream_cms_modern_domain_name       = "cmsmodstage.cps.gov.uk"
-  cin4_upstream_cms_services_domain_name     = "not-used-in-cin4.cps.gov.uk"
+  cin4_upstream_cms_services_domain_name     = "cin4.cps.gov.uk"
   cin5_upstream_cms_ip_corsham               = "10.2.177.21"
   cin5_upstream_cms_modern_ip_corsham        = "10.2.177.67"
   cin5_upstream_cms_ip_farnborough           = "10.3.177.21"
   cin5_upstream_cms_modern_ip_farnborough    = "10.3.177.67"
   cin5_upstream_cms_domain_name              = "cin5.cps.gov.uk"
   cin5_upstream_cms_modern_domain_name       = "cmsmodcin5.cps.gov.uk"
-  cin5_upstream_cms_services_domain_name     = "not-used-in-cin5.cps.gov.uk"
+  cin5_upstream_cms_services_domain_name     = "cin5.cps.gov.uk"
 }
 
 wm_task_list_host_name  = "https://cps-dev.outsystemsenterprise.com"
@@ -117,7 +117,7 @@ private_beta = {
   feature_user_group6 = "21c21011-b568-4ebb-b013-02d4cd15681a"
 }
 
-case_review_app_redirect_url = "https://cps-dev.outsystemsenterprise.com/CaseReview/RedirectCW"
+case_review_app_redirect_url = "https://polaris-qa-notprod.cps.gov.uk/case-review-redirect/cps-dev/dev"
 bulk_um_redirect_url         = "https://housekeeping-fn-staging.int.cps.gov.uk/api/init"
 
 polaris_ui_reauth = {
