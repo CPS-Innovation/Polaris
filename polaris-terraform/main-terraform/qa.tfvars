@@ -121,7 +121,7 @@ case_review_app_redirect_url = "https://polaris-qa-notprod.cps.gov.uk/case-revie
 bulk_um_redirect_url         = "https://housekeeping-fn-staging.int.cps.gov.uk/api/init"
 
 polaris_ui_reauth = {
-  outbound_live_url       = "/polaris,https://cin3.cps.gov.uk/polaris,https://cin4.cps.gov.uk/polaris,https://cin2.cps.gov.uk/polaris,https://cin5.cps.gov.uk/polaris"
+  outbound_live_url       = "/auth-refresh-outbound,https://cin3.cps.gov.uk/polaris,https://cin4.cps.gov.uk/polaris,https://cin2.cps.gov.uk/polaris,https://cin5.cps.gov.uk/polaris"
   outbound_e2e_url        = "/polaris"
   inbound_url             = "/auth-refresh-inbound"
   use_in_situ_refresh     = "false"
