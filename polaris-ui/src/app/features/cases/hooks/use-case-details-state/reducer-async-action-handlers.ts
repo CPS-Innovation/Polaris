@@ -256,7 +256,19 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           },
         });
       } catch (error: unknown) {
-        const { code, customProperties: { username } = {} } = error as ApiError;
+        console.log({ error });
+        const {
+          code,
+          message = "",
+          customProperties: { username } = {},
+        } = error as ApiError & { detail?: string };
+
+        console.log({ error });
+
+        const isUsernameValid =
+          typeof username === "string" && !!username && !username.includes(":");
+
+        const readableErrorMessage = message.split("Exception Message: ")[1];
 
         if (code === CHECKOUT_BLOCKED_STATUS_CODE) {
           dispatch({
@@ -271,9 +283,12 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             payload: {
               type: "documentalreadycheckedout",
               title: "Failed to redact document",
-              message: `It is not possible to redact as the document is already checked out by ${username}. Please try again later.`,
+              message: isUsernameValid
+                ? `It is not possible to redact as the document is already checked out by ${username}. Please try again later.`
+                : `It is not possible to redact. ${readableErrorMessage}. Please try again later.`,
             },
           });
+
           return;
         }
         dispatch({
