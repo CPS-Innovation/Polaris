@@ -132,6 +132,7 @@ public class ConversionService(ILogger<ConversionService> logger,
         catch (Exception ex)
         {
             this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error converting to PDF document.");
+            throw;
         }
 
         return pdfFilePath;
@@ -261,6 +262,11 @@ public class ConversionService(ILogger<ConversionService> logger,
                         this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Extracted {pageCount} page(s) from PDF and saved as [{pdfFileName}] in Blob Storage.");
                     }
                 }
+            }
+            catch (Aspose.Pdf.InvalidPasswordException ex)
+            {
+                this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error extracting pages from PDF and saving to Blob Storage as [{pdfFileName}] as the document is password protected.");
+                throw new UnauthorizedAccessException("The document is password protected.", ex);
             }
             catch (Exception ex)
             {
@@ -471,6 +477,11 @@ public class ConversionService(ILogger<ConversionService> logger,
                         this.logger.LogWarning($"{LoggingConstants.HskUiLogPrefix} The document does not contain any pages.");
                     }
                 }
+            }
+            catch (Aspose.Words.IncorrectPasswordException ex)
+            {
+                this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error converting DOC to PDF and saving to Blob Storage as [{pdfFileName}] as the document is password protected.");
+                throw new UnauthorizedAccessException("The document is password protected.", ex);
             }
             catch (Exception ex)
             {
@@ -765,6 +776,11 @@ public class ConversionService(ILogger<ConversionService> logger,
                     }
                 }
             }
+            catch (Aspose.Slides.InvalidPasswordException ex)
+            {
+                this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error converting PPTX to PDF and saving to Blob Storage as [{pdfFileName}] as the document is password protected.");
+                throw new UnauthorizedAccessException("The document is password protected.", ex);
+            }
             catch (Exception ex)
             {
                 this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error converting PPTX to PDF and saving to Blob Storage as [{pdfFileName}].");
@@ -826,7 +842,7 @@ public class ConversionService(ILogger<ConversionService> logger,
         catch (Exception ex)
         {
             this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error converting {conversionType} to PDF document.");
-            return null;
+            throw;
         }
     }
 
