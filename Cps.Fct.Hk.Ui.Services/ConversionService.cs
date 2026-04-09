@@ -32,6 +32,7 @@ public class ConversionService(ILogger<ConversionService> logger,
     private readonly ILogger<ConversionService> logger = logger;
     private readonly BlobServiceClient? blobServiceClient = blobServiceClient;
     private readonly IConfiguration configuration = configuration;
+    private const string PasswordProtectedMessage = "The document is password protected.";
 
     /// <inheritdoc />
     public async Task<bool> SaveDownloadedDocumentToTemporaryStorageAsync(FileStreamResult downloadedDocument)
@@ -133,7 +134,7 @@ public class ConversionService(ILogger<ConversionService> logger,
         {
             this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error converting to PDF document.");
 
-            throw new UnauthorizedAccessException("The document is password protected.", ex);
+            throw new UnauthorizedAccessException(PasswordProtectedMessage, ex);
 
         }
 
@@ -273,7 +274,7 @@ public class ConversionService(ILogger<ConversionService> logger,
                     LoggingConstants.HskUiLogPrefix,
                     pdfFileName);
 
-                throw new UnauthorizedAccessException("The document is password protected.", ex);
+                throw new UnauthorizedAccessException(PasswordProtectedMessage, ex);
             }
             catch (Exception ex)
             {
@@ -469,7 +470,7 @@ public class ConversionService(ILogger<ConversionService> logger,
                         pdfFileName
                     );
 
-                throw new UnauthorizedAccessException("The document is password protected.", ex);
+                throw new UnauthorizedAccessException(PasswordProtectedMessage, ex);
             }
             catch (Exception ex)
             {
@@ -481,7 +482,7 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
 
-    private async Task<string> ExtractPagesAndUploadPdfAsync(Aspose.Words.Document document, BlobContainerClient containerClient, string pdfFileName, bool convertAllPages)
+    private static async Task<string> ExtractPagesAndUploadPdfAsync(Aspose.Words.Document document, BlobContainerClient containerClient, string pdfFileName, bool convertAllPages)
     {
         Aspose.Words.Document wordDocument;
         if (convertAllPages)
@@ -808,7 +809,7 @@ public class ConversionService(ILogger<ConversionService> logger,
                         pdfFileName
                     );
 
-                throw new UnauthorizedAccessException("The document is password protected.", ex);
+                throw new UnauthorizedAccessException(PasswordProtectedMessage, ex);
             }
             catch (Exception ex)
             {
@@ -870,7 +871,13 @@ public class ConversionService(ILogger<ConversionService> logger,
         }
         catch (Exception ex)
         {
-            throw new UnauthorizedAccessException("The document is password protected.", ex);
+            this.logger.LogError(
+                ex,
+                "{LogPrefix} Error converting {ConversionType} to PDF document.",
+                LoggingConstants.HskUiLogPrefix,
+                conversionType);
+
+            throw;
         }
     }
 
