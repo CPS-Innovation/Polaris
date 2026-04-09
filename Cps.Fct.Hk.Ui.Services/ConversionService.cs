@@ -132,7 +132,9 @@ public class ConversionService(ILogger<ConversionService> logger,
         catch (Exception ex)
         {
             this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error converting to PDF document.");
-            throw;
+
+            throw new UnauthorizedAccessException("The document is password protected.", ex);
+
         }
 
         return pdfFilePath;
@@ -265,7 +267,12 @@ public class ConversionService(ILogger<ConversionService> logger,
             }
             catch (Aspose.Pdf.InvalidPasswordException ex)
             {
-                this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error extracting pages from PDF and saving to Blob Storage as [{pdfFileName}] as the document is password protected.");
+                this.logger.LogError(
+                    ex,
+                    "{LogPrefix} Error extracting pages from PDF and saving to Blob Storage as {PdfFileName} because the document is password protected.", 
+                    LoggingConstants.HskUiLogPrefix,
+                    pdfFileName);
+
                 throw new UnauthorizedAccessException("The document is password protected.", ex);
             }
             catch (Exception ex)
@@ -437,40 +444,15 @@ public class ConversionService(ILogger<ConversionService> logger,
                     // Check if the document has at least one page
                     if (document.PageCount > 0)
                     {
-                        Aspose.Words.Document wordDocument;
-                        if (convertAllPages)
-                        {
-                            // Extract all all pages
-                            wordDocument = document.ExtractPages(0, document.PageCount);
-                        }
-                        else
-                        {
-                            // Extract the first page (0-based index)
-                            wordDocument = document.ExtractPages(0, 1);
-                        }
+                        // Extract pages, convert to PDF, upload to Blob Storage, and get the PDF URL
+                        pdfFileUrl = await ExtractPagesAndUploadPdfAsync(document, containerClient, pdfFileName, convertAllPages);
+                        string firstPageText = !convertAllPages ? "(first page)" : string.Empty;
 
-                        // Memory stream to hold the generated PDF
-                        using (var pdfStream = new MemoryStream())
-                        {
-                            // Save the first page as a PDF to the memory stream
-                            wordDocument.Save(pdfStream, Aspose.Words.SaveFormat.Pdf);
-
-                            // Reset stream position before uploading
-                            pdfStream.Position = 0;
-
-                            // Get a reference to the new PDF blob (output file)
-                            BlobClient pdfBlobClient = containerClient.GetBlobClient(pdfFileName);
-
-                            // Upload the generated PDF to Blob Storage
-                            await pdfBlobClient.UploadAsync(pdfStream, overwrite: true).ConfigureAwait(false);
-
-                            // Get the URI of the uploaded PDF file
-                            pdfFileUrl = pdfBlobClient.Uri.ToString();
-
-                            string firstPageText = !convertAllPages ? "(first page)" : string.Empty;
-
-                            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Converted DOC to PDF {firstPageText} and saved as [{pdfFileName}] in Blob Storage.");
-                        }
+                        this.logger.LogInformation(
+                            "{LogPrefix} Converted DOC to PDF {FirstPageText} and saved as {PdfFileName} in Blob Storage.",
+                            LoggingConstants.HskUiLogPrefix,
+                            firstPageText,
+                            pdfFileName);
                     }
                     else
                     {
@@ -480,7 +462,13 @@ public class ConversionService(ILogger<ConversionService> logger,
             }
             catch (Aspose.Words.IncorrectPasswordException ex)
             {
-                this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error converting DOC to PDF and saving to Blob Storage as [{pdfFileName}] as the document is password protected.");
+                this.logger.LogError(
+                        ex,
+                        "{LogPrefix} Error converting DOC to PDF and saving to Blob Storage as {PdfFileName} because the document is password protected.",
+                        LoggingConstants.HskUiLogPrefix,
+                        pdfFileName
+                    );
+
                 throw new UnauthorizedAccessException("The document is password protected.", ex);
             }
             catch (Exception ex)
@@ -490,6 +478,41 @@ public class ConversionService(ILogger<ConversionService> logger,
         }
 
         return pdfFileUrl;
+    }
+
+
+    private async Task<string> ExtractPagesAndUploadPdfAsync(Aspose.Words.Document document, BlobContainerClient containerClient, string pdfFileName, bool convertAllPages)
+    {
+        Aspose.Words.Document wordDocument;
+        if (convertAllPages)
+        {
+            // Extract all pages (0-based index, full page count)
+            wordDocument = document.ExtractPages(0, document.PageCount);
+        }
+        else
+        {
+            // Extract the first page only (0-based index)
+            wordDocument = document.ExtractPages(0, 1);
+        }
+
+        // Memory stream to hold the generated PDF
+        using (var pdfStream = new MemoryStream())
+        {
+            // Save the selected pages as a PDF to the memory stream
+            wordDocument.Save(pdfStream, Aspose.Words.SaveFormat.Pdf);
+
+            // Reset stream position before uploading
+            pdfStream.Position = 0;
+
+            // Get a reference to the new PDF blob (output file)
+            BlobClient pdfBlobClient = containerClient.GetBlobClient(pdfFileName);
+
+            // Upload the generated PDF to Blob Storage
+            await pdfBlobClient.UploadAsync(pdfStream, overwrite: true).ConfigureAwait(false);
+
+            // Return the URI of the uploaded PDF
+            return pdfBlobClient.Uri.ToString();
+        }
     }
 
     /// <inheritdoc />
@@ -778,7 +801,13 @@ public class ConversionService(ILogger<ConversionService> logger,
             }
             catch (Aspose.Slides.InvalidPasswordException ex)
             {
-                this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error converting PPTX to PDF and saving to Blob Storage as [{pdfFileName}] as the document is password protected.");
+                this.logger.LogError(
+                        ex,
+                        "{LogPrefix} Error converting PPTX to PDF and saving to Blob Storage as {PdfFileName} because the document is password protected.",
+                        LoggingConstants.HskUiLogPrefix,
+                        pdfFileName
+                    );
+
                 throw new UnauthorizedAccessException("The document is password protected.", ex);
             }
             catch (Exception ex)
@@ -841,8 +870,7 @@ public class ConversionService(ILogger<ConversionService> logger,
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error converting {conversionType} to PDF document.");
-            throw;
+            throw new UnauthorizedAccessException("The document is password protected.", ex);
         }
     }
 
