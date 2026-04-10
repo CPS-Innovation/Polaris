@@ -102,25 +102,25 @@ public class ConversionService(ILogger<ConversionService> logger,
             {
                 pdfFilePath = contentType switch
                 {
-                    var type when this.IsRasterImage(type) => await this.ConvertWithLoggingAsync(() => this.ConvertRasterImageToPdfDocumentAsync(tmpFileDownloadName), "Raster Image").ConfigureAwait(true),
-                    "application/msword" => await this.ConvertWithLoggingAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "DOC").ConfigureAwait(true), // DOC and DOT files
-                    "application/octet-stream" => await this.ConvertWithLoggingAsync(() => this.ConvertHtmlToPdfDocumentAsync(tmpFileDownloadName), "HTML").ConfigureAwait(true), // HTE, HTM and HTML files
-                    "application/pdf" => await this.ConvertWithLoggingAsync(() => this.ConvertPdfToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "PDF").ConfigureAwait(true),
-                    "application/rtf" => await this.ConvertWithLoggingAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName), "RTF").ConfigureAwait(true),
-                    "application/vnd.ms-excel" => await this.ConvertWithLoggingAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "XLS").ConfigureAwait(true),
-                    "application/vnd.ms-excel.sheet.macroEnabled.12" => await this.ConvertWithLoggingAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "XLSM").ConfigureAwait(true),
-                    "application/vnd.ms-word.document.macroEnabled.12" => await this.ConvertWithLoggingAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "DOCM").ConfigureAwait(true),
-                    "application/vnd.ms-word.template.macroEnabled.12" => await this.ConvertWithLoggingAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "DOTM").ConfigureAwait(true),
-                    "application/vnd.ms-outlook" => await this.ConvertWithLoggingAsync(() => this.ConvertMsgToPdfDocumentAsync(tmpFileDownloadName), "MSG").ConfigureAwait(true),
-                    "application/vnd.ms-powerpoint" => await this.ConvertWithLoggingAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "PPT").ConfigureAwait(true),
-                    "application/vnd.openxmlformats-officedocument.presentationml.presentation" => await this.ConvertWithLoggingAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "PPTX").ConfigureAwait(true),
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => await this.ConvertWithLoggingAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "DOCX").ConfigureAwait(true),
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.template" => await this.ConvertWithLoggingAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "DOTX").ConfigureAwait(true),
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => await this.ConvertWithLoggingAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "XLSX").ConfigureAwait(true),
-                    "application/xml" => await this.ConvertWithLoggingAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName), "XML").ConfigureAwait(true),
-                    "text/csv" => await this.ConvertWithLoggingAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "CSV").ConfigureAwait(true),
-                    "text/plain" => await this.ConvertWithLoggingAsync(() => this.ConvertTxtToPdfDocumentAsync(tmpFileDownloadName), "TXT").ConfigureAwait(true),
-                    "text/xml" => await this.ConvertWithLoggingAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName), "XML").ConfigureAwait(true),
+                    var type when this.IsRasterImage(type) => await ConvertToPdfFilePathAsync(() => this.ConvertRasterImageToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
+                    "application/msword" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true), // DOC and DOT files
+                    "application/octet-stream" => await ConvertToPdfFilePathAsync(() => this.ConvertHtmlToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true), // HTE, HTM and HTML files
+                    "application/pdf" => await ConvertToPdfFilePathAsync(() => this.ConvertPdfToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/rtf" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
+                    "application/vnd.ms-excel" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.ms-excel.sheet.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.ms-word.document.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.ms-word.template.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.ms-outlook" => await ConvertToPdfFilePathAsync(() => this.ConvertMsgToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
+                    "application/vnd.ms-powerpoint" => await ConvertToPdfFilePathAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.openxmlformats-officedocument.presentationml.presentation" => await ConvertToPdfFilePathAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.template" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/xml" => await ConvertToPdfFilePathAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
+                    "text/csv" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "text/plain" => await ConvertToPdfFilePathAsync(() => this.ConvertTxtToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
+                    "text/xml" => await ConvertToPdfFilePathAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
                     _ => throw new NotSupportedException($"Unsupported content type: {contentType}")
                 };
             }
@@ -516,6 +516,16 @@ public class ConversionService(ILogger<ConversionService> logger,
         }
     }
 
+    /// <summary>
+    /// Helper method to handle conversion operations
+    /// </summary>
+    /// <param name="convertFunc">The conversion function to be executed.</param>
+    /// <returns>The PDF file path if successful, or null if an error occurs.</returns>
+    private static async Task<string?> ConvertToPdfFilePathAsync(Func<Task<string?>> convertFunc)
+    {
+        return await convertFunc().ConfigureAwait(true);
+    }
+
     /// <inheritdoc />
     public async Task<string?> ConvertXmlToPdfDocumentAsync(string tmpFileDownloadName)
     {
@@ -855,30 +865,6 @@ public class ConversionService(ILogger<ConversionService> logger,
         await containerClient.CreateIfNotExistsAsync().ConfigureAwait(true);
 
         return containerClient;
-    }
-
-    /// <summary>
-    /// Helper method to handle conversion operations with logging and exception handling.
-    /// </summary>
-    /// <param name="convertFunc">The conversion function to be executed.</param>
-    /// <param name="conversionType">A string indicating the type of conversion.</param>
-    /// <returns>The PDF file path if successful, or null if an error occurs.</returns>
-    private async Task<string?> ConvertWithLoggingAsync(Func<Task<string?>> convertFunc, string conversionType)
-    {
-        try
-        {
-            return await convertFunc().ConfigureAwait(true);
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(
-                ex,
-                "{LogPrefix} Error converting {ConversionType} to PDF document.",
-                LoggingConstants.HskUiLogPrefix,
-                conversionType);
-
-            throw;
-        }
     }
 
     /// <summary>
