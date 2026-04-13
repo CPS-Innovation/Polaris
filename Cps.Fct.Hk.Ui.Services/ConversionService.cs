@@ -32,6 +32,7 @@ public class ConversionService(ILogger<ConversionService> logger,
     private readonly ILogger<ConversionService> logger = logger;
     private readonly BlobServiceClient? blobServiceClient = blobServiceClient;
     private readonly IConfiguration configuration = configuration;
+    private const string PasswordProtectedMessage = "The document is password protected.";
 
     /// <inheritdoc />
     public async Task<bool> SaveDownloadedDocumentToTemporaryStorageAsync(FileStreamResult downloadedDocument)
@@ -101,25 +102,25 @@ public class ConversionService(ILogger<ConversionService> logger,
             {
                 pdfFilePath = contentType switch
                 {
-                    var type when this.IsRasterImage(type) => await this.ConvertWithLoggingAsync(() => this.ConvertRasterImageToPdfDocumentAsync(tmpFileDownloadName), "Raster Image").ConfigureAwait(true),
-                    "application/msword" => await this.ConvertWithLoggingAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "DOC").ConfigureAwait(true), // DOC and DOT files
-                    "application/octet-stream" => await this.ConvertWithLoggingAsync(() => this.ConvertHtmlToPdfDocumentAsync(tmpFileDownloadName), "HTML").ConfigureAwait(true), // HTE, HTM and HTML files
-                    "application/pdf" => await this.ConvertWithLoggingAsync(() => this.ConvertPdfToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "PDF").ConfigureAwait(true),
-                    "application/rtf" => await this.ConvertWithLoggingAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName), "RTF").ConfigureAwait(true),
-                    "application/vnd.ms-excel" => await this.ConvertWithLoggingAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "XLS").ConfigureAwait(true),
-                    "application/vnd.ms-excel.sheet.macroEnabled.12" => await this.ConvertWithLoggingAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "XLSM").ConfigureAwait(true),
-                    "application/vnd.ms-word.document.macroEnabled.12" => await this.ConvertWithLoggingAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "DOCM").ConfigureAwait(true),
-                    "application/vnd.ms-word.template.macroEnabled.12" => await this.ConvertWithLoggingAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "DOTM").ConfigureAwait(true),
-                    "application/vnd.ms-outlook" => await this.ConvertWithLoggingAsync(() => this.ConvertMsgToPdfDocumentAsync(tmpFileDownloadName), "MSG").ConfigureAwait(true),
-                    "application/vnd.ms-powerpoint" => await this.ConvertWithLoggingAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "PPT").ConfigureAwait(true),
-                    "application/vnd.openxmlformats-officedocument.presentationml.presentation" => await this.ConvertWithLoggingAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "PPTX").ConfigureAwait(true),
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => await this.ConvertWithLoggingAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "DOCX").ConfigureAwait(true),
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.template" => await this.ConvertWithLoggingAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "DOTX").ConfigureAwait(true),
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => await this.ConvertWithLoggingAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "XLSX").ConfigureAwait(true),
-                    "application/xml" => await this.ConvertWithLoggingAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName), "XML").ConfigureAwait(true),
-                    "text/csv" => await this.ConvertWithLoggingAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly), "CSV").ConfigureAwait(true),
-                    "text/plain" => await this.ConvertWithLoggingAsync(() => this.ConvertTxtToPdfDocumentAsync(tmpFileDownloadName), "TXT").ConfigureAwait(true),
-                    "text/xml" => await this.ConvertWithLoggingAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName), "XML").ConfigureAwait(true),
+                    var type when this.IsRasterImage(type) => await ConvertToPdfFilePathAsync(() => this.ConvertRasterImageToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
+                    "application/msword" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true), // DOC and DOT files
+                    "application/octet-stream" => await ConvertToPdfFilePathAsync(() => this.ConvertHtmlToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true), // HTE, HTM and HTML files
+                    "application/pdf" => await ConvertToPdfFilePathAsync(() => this.ConvertPdfToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/rtf" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
+                    "application/vnd.ms-excel" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.ms-excel.sheet.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.ms-word.document.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.ms-word.template.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.ms-outlook" => await ConvertToPdfFilePathAsync(() => this.ConvertMsgToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
+                    "application/vnd.ms-powerpoint" => await ConvertToPdfFilePathAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.openxmlformats-officedocument.presentationml.presentation" => await ConvertToPdfFilePathAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.template" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/xml" => await ConvertToPdfFilePathAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
+                    "text/csv" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "text/plain" => await ConvertToPdfFilePathAsync(() => this.ConvertTxtToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
+                    "text/xml" => await ConvertToPdfFilePathAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
                     _ => throw new NotSupportedException($"Unsupported content type: {contentType}")
                 };
             }
@@ -132,6 +133,9 @@ public class ConversionService(ILogger<ConversionService> logger,
         catch (Exception ex)
         {
             this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error converting to PDF document.");
+
+            throw new UnauthorizedAccessException(PasswordProtectedMessage, ex);
+
         }
 
         return pdfFilePath;
@@ -261,6 +265,16 @@ public class ConversionService(ILogger<ConversionService> logger,
                         this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Extracted {pageCount} page(s) from PDF and saved as [{pdfFileName}] in Blob Storage.");
                     }
                 }
+            }
+            catch (Aspose.Pdf.InvalidPasswordException ex)
+            {
+                this.logger.LogError(
+                    ex,
+                    "{LogPrefix} Error extracting pages from PDF and saving to Blob Storage as {PdfFileName} because the document is password protected.", 
+                    LoggingConstants.HskUiLogPrefix,
+                    pdfFileName);
+
+                throw new UnauthorizedAccessException(PasswordProtectedMessage, ex);
             }
             catch (Exception ex)
             {
@@ -431,46 +445,32 @@ public class ConversionService(ILogger<ConversionService> logger,
                     // Check if the document has at least one page
                     if (document.PageCount > 0)
                     {
-                        Aspose.Words.Document wordDocument;
-                        if (convertAllPages)
-                        {
-                            // Extract all all pages
-                            wordDocument = document.ExtractPages(0, document.PageCount);
-                        }
-                        else
-                        {
-                            // Extract the first page (0-based index)
-                            wordDocument = document.ExtractPages(0, 1);
-                        }
+                        // Extract pages, convert to PDF, upload to Blob Storage, and get the PDF URL
+                        pdfFileUrl = await ExtractPagesAndUploadPdfAsync(document, containerClient, pdfFileName, convertAllPages);
+                        string firstPageText = !convertAllPages ? "(first page)" : string.Empty;
 
-                        // Memory stream to hold the generated PDF
-                        using (var pdfStream = new MemoryStream())
-                        {
-                            // Save the first page as a PDF to the memory stream
-                            wordDocument.Save(pdfStream, Aspose.Words.SaveFormat.Pdf);
-
-                            // Reset stream position before uploading
-                            pdfStream.Position = 0;
-
-                            // Get a reference to the new PDF blob (output file)
-                            BlobClient pdfBlobClient = containerClient.GetBlobClient(pdfFileName);
-
-                            // Upload the generated PDF to Blob Storage
-                            await pdfBlobClient.UploadAsync(pdfStream, overwrite: true).ConfigureAwait(false);
-
-                            // Get the URI of the uploaded PDF file
-                            pdfFileUrl = pdfBlobClient.Uri.ToString();
-
-                            string firstPageText = !convertAllPages ? "(first page)" : string.Empty;
-
-                            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Converted DOC to PDF {firstPageText} and saved as [{pdfFileName}] in Blob Storage.");
-                        }
+                        this.logger.LogInformation(
+                            "{LogPrefix} Converted DOC to PDF {FirstPageText} and saved as {PdfFileName} in Blob Storage.",
+                            LoggingConstants.HskUiLogPrefix,
+                            firstPageText,
+                            pdfFileName);
                     }
                     else
                     {
                         this.logger.LogWarning($"{LoggingConstants.HskUiLogPrefix} The document does not contain any pages.");
                     }
                 }
+            }
+            catch (Aspose.Words.IncorrectPasswordException ex)
+            {
+                this.logger.LogError(
+                        ex,
+                        "{LogPrefix} Error converting DOC to PDF and saving to Blob Storage as {PdfFileName} because the document is password protected.",
+                        LoggingConstants.HskUiLogPrefix,
+                        pdfFileName
+                    );
+
+                throw new UnauthorizedAccessException(PasswordProtectedMessage, ex);
             }
             catch (Exception ex)
             {
@@ -479,6 +479,51 @@ public class ConversionService(ILogger<ConversionService> logger,
         }
 
         return pdfFileUrl;
+    }
+
+
+    private static async Task<string> ExtractPagesAndUploadPdfAsync(Aspose.Words.Document document, BlobContainerClient containerClient, string pdfFileName, bool convertAllPages)
+    {
+        Aspose.Words.Document wordDocument;
+        if (convertAllPages)
+        {
+            // Extract all pages (0-based index, full page count)
+            wordDocument = document.ExtractPages(0, document.PageCount);
+        }
+        else
+        {
+            // Extract the first page only (0-based index)
+            wordDocument = document.ExtractPages(0, 1);
+        }
+
+        // Memory stream to hold the generated PDF
+        using (var pdfStream = new MemoryStream())
+        {
+            // Save the selected pages as a PDF to the memory stream
+            wordDocument.Save(pdfStream, Aspose.Words.SaveFormat.Pdf);
+
+            // Reset stream position before uploading
+            pdfStream.Position = 0;
+
+            // Get a reference to the new PDF blob (output file)
+            BlobClient pdfBlobClient = containerClient.GetBlobClient(pdfFileName);
+
+            // Upload the generated PDF to Blob Storage
+            await pdfBlobClient.UploadAsync(pdfStream, overwrite: true).ConfigureAwait(false);
+
+            // Return the URI of the uploaded PDF
+            return pdfBlobClient.Uri.ToString();
+        }
+    }
+
+    /// <summary>
+    /// Helper method to handle conversion operations
+    /// </summary>
+    /// <param name="convertFunc">The conversion function to be executed.</param>
+    /// <returns>The PDF file path if successful, or null if an error occurs.</returns>
+    private static async Task<string?> ConvertToPdfFilePathAsync(Func<Task<string?>> convertFunc)
+    {
+        return await convertFunc().ConfigureAwait(true);
     }
 
     /// <inheritdoc />
@@ -765,6 +810,17 @@ public class ConversionService(ILogger<ConversionService> logger,
                     }
                 }
             }
+            catch (Aspose.Slides.InvalidPasswordException ex)
+            {
+                this.logger.LogError(
+                        ex,
+                        "{LogPrefix} Error converting PPTX to PDF and saving to Blob Storage as {PdfFileName} because the document is password protected.",
+                        LoggingConstants.HskUiLogPrefix,
+                        pdfFileName
+                    );
+
+                throw new UnauthorizedAccessException(PasswordProtectedMessage, ex);
+            }
             catch (Exception ex)
             {
                 this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error converting PPTX to PDF and saving to Blob Storage as [{pdfFileName}].");
@@ -809,25 +865,6 @@ public class ConversionService(ILogger<ConversionService> logger,
         await containerClient.CreateIfNotExistsAsync().ConfigureAwait(true);
 
         return containerClient;
-    }
-
-    /// <summary>
-    /// Helper method to handle conversion operations with logging and exception handling.
-    /// </summary>
-    /// <param name="convertFunc">The conversion function to be executed.</param>
-    /// <param name="conversionType">A string indicating the type of conversion.</param>
-    /// <returns>The PDF file path if successful, or null if an error occurs.</returns>
-    private async Task<string?> ConvertWithLoggingAsync(Func<Task<string?>> convertFunc, string conversionType)
-    {
-        try
-        {
-            return await convertFunc().ConfigureAwait(true);
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Error converting {conversionType} to PDF document.");
-            return null;
-        }
     }
 
     /// <summary>
