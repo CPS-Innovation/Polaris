@@ -97,6 +97,12 @@ public class GetMaterialDocument(
             this.logger.LogError($"{ex.Message}");
             return new UnprocessableEntityObjectResult($"{ex.Message}");
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetMaterialDocument function encountered a password protected document.");
+
+            return new StatusCodeResult(StatusCodes.Status403Forbidden);
+        }
         catch (NotSupportedException ex)
         {
             this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetMaterialDocument function encountered unsupported content type.");
