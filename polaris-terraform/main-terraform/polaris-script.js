@@ -1,7 +1,7 @@
 function getPolarisUrl() {
-  let polarisUrl = "/polaris";
-  if (globalThis.iCaseId && globalThis.sURN) {
-    const cleanUrn = globalThis.sURN.split(/[/(]/)[0];
+  var polarisUrl = "/polaris";
+  if (window.iCaseId && window.sURN) {
+    var cleanUrn = window.sURN.split(/[\/(]/)[0];
     polarisUrl =
       polarisUrl +
       "?polaris-ui-url=/materials-ui/" +
