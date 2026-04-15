@@ -1,86 +1,72 @@
 ﻿function getDomainFromCookie(r) {
     let cookie = r.headersIn.Cookie || '';
     let domainMatch = cookie.match(/([a-z0-9]+)\.cps\.gov\.uk/);
-    
+
     return domainMatch[0];
 }
 
-function proxyDestinationCorsham(r)
-{
+function proxyDestinationCorsham(r) {
     let cmsEnv = __getCmsEnv(r);
     return r.variables.endpointHttpProtocol + '://' + r.variables[cmsEnv + 'UpstreamCmsIpCorsham'];
 }
 
-function proxyDestinationCorshamInternal(r)
-{
+function proxyDestinationCorshamInternal(r) {
     return proxyDestinationCorsham(r);
 }
 
-function proxyDestinationModernCorsham(r)
-{
+function proxyDestinationModernCorsham(r) {
     let cmsEnv = __getCmsEnv(r);
     return r.variables.endpointHttpProtocol + '://' + r.variables[cmsEnv + 'UpstreamCmsModernIpCorsham'];
 }
 
-function proxyDestinationModernCorshamInternal(r)
-{
+function proxyDestinationModernCorshamInternal(r) {
     return proxyDestinationModernCorsham(r);
 }
 
-function proxyDestinationFarnborough(r)
-{
+function proxyDestinationFarnborough(r) {
     let cmsEnv = __getCmsEnv(r);
     return r.variables.endpointHttpProtocol + '://' + r.variables[cmsEnv + 'UpstreamCmsIpFarnborough'];
 }
 
-function proxyDestinationFarnboroughInternal(r)
-{
+function proxyDestinationFarnboroughInternal(r) {
     return proxyDestinationFarnborough(r);
 }
 
-function proxyDestinationModernFarnborough(r)
-{
+function proxyDestinationModernFarnborough(r) {
     let cmsEnv = __getCmsEnv(r);
     return r.variables.endpointHttpProtocol + '://' + r.variables[cmsEnv + 'UpstreamCmsModernIpFarnborough'];
 }
 
-function proxyDestinationModernFarnboroughInternal(r)
-{
+function proxyDestinationModernFarnboroughInternal(r) {
     return proxyDestinationModernFarnborough(r);
 }
 
-function upstreamCmsDomainName(r)
-{
+function upstreamCmsDomainName(r) {
     let cmsEnv = __getCmsEnv(r);
     return r.variables[cmsEnv + 'UpstreamCmsDomainName'];
 }
 
-function upstreamCmsModernDomainName(r)
-{
+function upstreamCmsModernDomainName(r) {
     let cmsEnv = __getCmsEnv(r);
     return r.variables[cmsEnv + 'UpstreamCmsModernDomainName'];
 }
 
-function upstreamCmsServicesDomainName(r)
-{
+function upstreamCmsServicesDomainName(r) {
     let cmsEnv = __getCmsEnv(r);
     return r.variables[cmsEnv + 'UpstreamCmsServicesDomainName'];
 }
 
-function upstreamCmsIpCorsham(r)
-{
+function upstreamCmsIpCorsham(r) {
     let cmsEnv = __getCmsEnv(r);
     return r.variables[cmsEnv + 'UpstreamCmsIpCorsham'];
 }
 
-function upstreamCmsModernIpCorsham(r)
-{
+function upstreamCmsModernIpCorsham(r) {
     let cmsEnv = __getCmsEnv(r);
     return r.variables[cmsEnv + 'UpstreamCmsModernIpCorsham'];
 }
 
-function upstreamCmsIpFarnborough(r) 
-{
+function upstreamCmsIpFarnborough(r) {
     let cmsEnv = __getCmsEnv(r);
     return r.variables[cmsEnv + 'UpstreamCmsIpFarnborough'];
 }
@@ -90,24 +76,20 @@ function upstreamCmsModernIpFarnborough(r) {
     return r.variables[cmsEnv + 'UpstreamCmsModernIpFarnborough'];
 }
 
-function replaceCmsDomains(r, data, flags)
-{
+function replaceCmsDomains(r, data, flags) {
     __replaceCmsDomainsGeneric(r, data, flags, r.variables.host);
 }
 
-function replaceCmsDomainsAjaxViewer(r, data, flags)
-{
+function replaceCmsDomainsAjaxViewer(r, data, flags) {
     __replaceCmsDomainsGeneric(r, data, flags, r.variables.websiteHostname);
 }
 
-function cmsMenuBarFilters(r, data, flags)
-{
+function cmsMenuBarFilters(r, data, flags) {
     data = __addAppLaunchButtonsToMenuBar(r, data, flags);
     replaceCmsDomains(r, data, flags);
 }
 
-function devLoginEnvCookie(r)
-{
+function devLoginEnvCookie(r) {
     let cmsEnv = __getCmsEnvCookieOut(r);
     let cookies = r.headersOut['Set-Cookie'];
     cookies.push('__CMSENV=' + cmsEnv + '; path=/');
@@ -127,7 +109,7 @@ function __addAppLaunchButtonsToMenuBar(r, data, flags) {
     if (r.variables.environment && r.variables.environment !== "prod") {
         data = data.replace(
             'var sMenuBarRight',
-            'sMenuBarLeft += \'<td class="menu"><img alt="Launch Materials" border="0" class="clickable" onclick="openMaterials()" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAACXBIWXMAAAsSAAALEgHS3X78AAABYUlEQVQ4jWNsmHaOgRqAiSqmUNMgFgilIMUT768KF9247+GFm++wakBTuXDj7QfPvuB0kbu1jAAvG6Y4Bzuzv5M8Vi3YDeJgZw73UMIU93eUx2oBToMYGBgkRDgdTCWRRQzUhTQU+XGpxxfY9iYSClI8ELYAL5u7tQwexQRizd9JnoOdmYGBIdxDCcLABVgwhV68+S7AywbRJsDL5u8o//LtdwkRTojsj59/P3z+Befic9GPX3837n8I52oo8tubSMC5K3fc+/HrL6Yu7F67cf/jiUuvMcVPXHoNSTXEGsTAwLDz6JMXb74ji7x4833n0Se41OML7JU77v34CfXFj59/V+64h0cxPoM+fP4FD6ydR598+PwLj2IssYYMbtz/CMl0uLIesQYxMDBs3PeQoBqGwVgeDT6DoIH94u33hRtvQ9hYcwAy2Hn0CQcbM1wjikE/fv7FlfYxAVqKhwCqeQ0ADLZ3Ze4C+AkAAAAASUVORK5CYIKJUE5HDQoaCgAAAA1JSERSAAAAWgAAAFoIAgAAALfK1lUAAAAJcEhZcwAACxIAAAsSAdLdfvwAAANWSURBVHic7ZtdtaMwFEbprBEQCUhIHSABHIADqqCgAAngAByAA6iC1gFxkPvADPce2tITyA+z5uznkoTd5DshpScppUf85ZfrARwL0gEgHQDSASAdANIBIB0A0gEgHQDSASAdAJSOrutOaM7ns+lBbxhV13WYNvXPjmEY8jzX3uwCIUSSJNqbNbJYsixDfhubSZLk8Xhob9ZUdiRJIoQw1HhVVU3TmGjZlI7H42FiMk8tXy4XEy17RitL0zQmvsMoiszNO7OFVvsKz/N8GAaNDS4wq0Nv/nddl2WZrtZeYnwb1nWdlrprqLIukQjatt3ZS9/3mI5WCMNwzwDatsX0YmmTvjP/DKXyM5Z07KmO5mr2M/Ye4TbvnYzu6BZYfaLdUHfzPDe93wdgAmZ/lM4EQYCPz77vdfV7rCidwdddIUQURabHs8Ty7JjA1N04jjX2eNDZMfGx7jZNU1WVreF840bHet21WVkXaNbBGEN+cqXu4isrvjsserOjrmt814yxcRwXfSk9pOEHhswOzTqkYgQu6q5SZU3TVKLf1XGmYxxHzjn+roqimHoZx9H3feRVnPM/N4DDmQ4pZd/3Sqt6qrv4acUYu9/v/4wOKWVZlshLPM/jnCt9vizL7xvA4ViH3H1C8Y44jsEN4HCvQykLkHDOF8UIeaH7XSljTKnuYijLUv9e4wdmd6Wc86IodLVWFIVSzdqCucUyoyVEwjB82TjycveLZaYsy50hwhhTKj2bsaFj/83UdW00MmYsPdEGQbD5F6Msy4Ig0DmaFSxkx8yGu/p4mIhs50DZMaM6561FxoxVHao7kf0ZrIrt07AgCNI0xXwyTVND2/w1bGbHzMfd1PNm/B3IgR0xO2bWQ2SKDDuVdYEbHb7vr2Skjc34G5y9ZhuG4csQCcNQ7y8samBWlPbsmHg+RvR9HxkZM8iBHTo7Jp4zwtpm/B2O30n/eQKQZZmryJj57bZ7z/PiOL7dbkKI6/XqeiwH0OF5nsYjop3QHzgApANAOgCkA0A6AKQDQDoApANAOgCkA0A6AKQDQDoApANAOgCkA0A6AKjTMM659v9w6AI5MOQp7Al/Nv8/QIsFQDoApANAOgCkA0A6AKQDQDoApANAOgCkA0A6AKQD8AUbhFh0ECAh+wAAAABJRU5ErkJggg=="></td>\';\n\tvar sMenuBarRight'
+            'sMenuBarLeft += \'<td class="menu"><img alt="Launch Materials" border="0" class="clickable" onclick="openMaterials()" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAASBJREFUeNpidEjcykANwMRAJUA1g1gglIGGcH+ZOVy0c+6lHUefYNWAprKw6+SFG29xuig7UlNChBNTnIeLtTxJjwSvATU05xhjipcn62G1AF8YqcjxJfirIot4WMvYGIqTE9jx/qrAEIGwgQ4B+pf8WAOGCNCbQAbQpxAGgVhDBncefQLaD9EGZADD5e6jT0CfQmS/fPv94s13OBefi758/wOMfjgXGC7xSIFVO+UcUAGxXjty/uWa3Q8wxYGCkFRDQhhNXX4N6Ec0LwMFyQns2ilngSECDxogl8xYAwYqPLCmLr8O5JIWa2iBBcl0uLIesQZBMvDQLI8Gn0GMkMIfmLOQcxNaUsQsYeAZGKgSktZY4JpxpX2suZqGXgMIMACZaHaNNm2JEgAAAABJRU5ErkJggg=="></td>\';\n\tvar sMenuBarRight'
         );
     }
     // Add the Task List button 
@@ -138,10 +120,9 @@ function __addAppLaunchButtonsToMenuBar(r, data, flags) {
     return data;
 }
 
-function __replaceCmsDomainsGeneric(r, data, flags, host)
-{
+function __replaceCmsDomainsGeneric(r, data, flags, host) {
     // If a 302 has been issued then there's no point in processing in the response body
-    if(r.status === 302) {
+    if (r.status === 302) {
         r.sendBuffer(data, flags);
         return;
     }
@@ -149,21 +130,20 @@ function __replaceCmsDomainsGeneric(r, data, flags, host)
     let cmsEnv = __getCmsEnv(r);
 
     let replacements = [
-        {old: r.variables[cmsEnv + 'UpstreamCmsModernDomainName'], new: host},
-        {old: r.variables[cmsEnv + 'UpstreamCmsServicesDomainName'], new: host},
-        {old: r.variables[cmsEnv + 'UpstreamCmsDomainName'], new: host},
-        {old: r.variables[cmsEnv + 'UpstreamCmsIpCorsham'], new: host},
-        {old: r.variables[cmsEnv + 'UpstreamCmsModernIpCorsham'], new: host},
-        {old: r.variables[cmsEnv + 'UpstreamCmsIpFarnborough'], new: host},
-        {old: r.variables[cmsEnv + 'UpstreamCmsModernIpFarnborough'], new: host}
+        { old: r.variables[cmsEnv + 'UpstreamCmsModernDomainName'], new: host },
+        { old: r.variables[cmsEnv + 'UpstreamCmsServicesDomainName'], new: host },
+        { old: r.variables[cmsEnv + 'UpstreamCmsDomainName'], new: host },
+        { old: r.variables[cmsEnv + 'UpstreamCmsIpCorsham'], new: host },
+        { old: r.variables[cmsEnv + 'UpstreamCmsModernIpCorsham'], new: host },
+        { old: r.variables[cmsEnv + 'UpstreamCmsIpFarnborough'], new: host },
+        { old: r.variables[cmsEnv + 'UpstreamCmsModernIpFarnborough'], new: host }
     ];
 
     r.sendBuffer(__replaceContent(data, replacements), flags);
 }
 
-function __replaceContent(content, replacements)
-{
-    
+function __replaceContent(content, replacements) {
+
     for (let i = 0; i < replacements.length; i++) {
         let reg = /[-=./]/gm;
         let rep = replacements[i];
@@ -177,24 +157,21 @@ function __replaceContent(content, replacements)
 /*
  * Detect the CMS environment from the cookies
  */
-function __getCmsEnv(r)
-{
+function __getCmsEnv(r) {
     let cookie = r.headersIn.Cookie || '';
     return __getCmsEnvInternal(cookie);
 }
 
-function __getCmsEnvCookieOut(r)
-{
+function __getCmsEnvCookieOut(r) {
     let cookies = r.headersOut['Set-Cookie'] || [''];
     return __getCmsEnvInternal(cookies[0]);
 }
 
-function __getCmsEnvInternal(cookie)
-{
-    if(cookie.includes("cin3")) return "default";
-    if(cookie.includes("cin2")) return "cin2";
-    if(cookie.includes("cin4")) return "cin4";
-    if(cookie.includes("cin5")) return "cin5";
+function __getCmsEnvInternal(cookie) {
+    if (cookie.includes("cin3")) return "default";
+    if (cookie.includes("cin2")) return "cin2";
+    if (cookie.includes("cin4")) return "cin4";
+    if (cookie.includes("cin5")) return "cin5";
     return "default";
 }
 

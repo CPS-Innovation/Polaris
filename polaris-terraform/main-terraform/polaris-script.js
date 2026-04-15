@@ -1,10 +1,11 @@
 function getPolarisUrl() {
   var polarisUrl = "/polaris";
   if (window.iCaseId && window.sURN) {
+    var cleanUrn = window.sURN.split(/[\/(]/)[0];
     polarisUrl =
       polarisUrl +
       "?polaris-ui-url=/materials-ui/" +
-      window.sURN +
+      cleanUrn +
       "/" +
       window.iCaseId + "/materials";
   }
