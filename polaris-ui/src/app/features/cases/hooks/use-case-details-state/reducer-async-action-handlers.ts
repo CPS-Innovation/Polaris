@@ -259,6 +259,7 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
         const { code, customProperties: { username } = {} } = error as ApiError;
 
         if (code === CHECKOUT_BLOCKED_STATUS_CODE) {
+          const action = pageRotations ? "rotate" : "redact";
           dispatch({
             type: "UPDATE_DOCUMENT_LOCK_STATE",
             payload: {
@@ -270,8 +271,8 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             type: "SHOW_ERROR_MODAL",
             payload: {
               type: "documentalreadycheckedout",
-              title: "Failed to redact document",
-              message: `It is not possible to redact as the document is already checked out by ${username}. Please try again later.`,
+              title: `Failed to ${action} document`,
+              message: `It is not possible to ${action} as the document is already checked out by ${username}. Please try again later.`,
             },
           });
           return;
