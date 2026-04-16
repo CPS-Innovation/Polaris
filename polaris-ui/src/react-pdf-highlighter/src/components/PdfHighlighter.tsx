@@ -171,6 +171,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
       eventBus.on("pagesinit", this.onDocumentReady);
       doc.addEventListener("selectionchange", this.onSelectionChange);
       doc.addEventListener("keydown", this.handleKeyDown);
+      doc.addEventListener("keyup", this.handleKeyUp);
       doc.addEventListener("pointerup", this.fireTextRedact, true);
 
       doc.defaultView?.addEventListener("resize", this.debouncedScaleValue);
@@ -185,6 +186,7 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
         doc.removeEventListener("pointerup", this.fireTextRedact, true);
 
         doc.removeEventListener("keydown", this.handleKeyDown);
+        doc.removeEventListener("keyup", this.handleKeyUp);
         doc.defaultView?.removeEventListener(
           "resize",
           this.debouncedScaleValue
@@ -582,7 +584,18 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
     }
   };
 
-  fireTextRedact = (_event: PointerEvent) => {
+  handleKeyUp = (event: KeyboardEvent) => {
+    if (event.key !== "Shift") {
+      return;
+    }
+    const { isCollapsed, range } = this.state;
+    if (isCollapsed || !range) {
+      return;
+    }
+    this.fireTextRedact();
+  };
+
+  fireTextRedact = () => {
     const { onSelectionFinished } = this.props;
 
     const { isCollapsed, range } = this.state;
