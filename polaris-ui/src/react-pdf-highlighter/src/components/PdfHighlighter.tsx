@@ -585,14 +585,9 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
   };
 
   handleKeyUp = (event: KeyboardEvent) => {
-    if (event.key !== "Shift") {
-      return;
+    if (event.key === "Shift") {
+      this.fireTextRedact();
     }
-    const { isCollapsed, range } = this.state;
-    if (isCollapsed || !range) {
-      return;
-    }
-    this.fireTextRedact();
   };
 
   fireTextRedact = () => {
