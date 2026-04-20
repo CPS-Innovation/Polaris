@@ -29,7 +29,7 @@ public class CompleteReclassificationRequestValidator : AbstractValidator<Comple
 
         this.RuleFor(x => x.reclassification.documentTypeId)
            .NotEmpty().WithMessage("{PropertyName} is required")
-             .GreaterThan(0).WithMessage("{PropertyName} must be greater than zero.");
+             .NotEqual(0).WithMessage("{PropertyName} must not be zero.");
 
         this.RuleFor(x => x.reclassification.Statement)
              .NotEmpty()

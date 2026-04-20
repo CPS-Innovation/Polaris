@@ -38,8 +38,8 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "FUNCTIONS_EXTENSION_VERSION"                     = "~4"
     "FUNCTIONS_WORKER_RUNTIME"                        = "dotnet-isolated"
     "HostType"                                        = "Production"
-    "MDSBaseUrl"                                      = "https://fa-${local.mds_resource_name}.azurewebsites.net"
-    "MDSAccessKey"                                    = data.azurerm_key_vault_secret.kvs_fa_mds_host_keys.value
+    "MDSBaseUrl"                                      = "https://fa-${local.wm_mds_resource_name}.azurewebsites.net"
+    "MDSAccessKey"                                    = data.azurerm_key_vault_secret.kvs_fa_wm_mds_host_keys.value
     "MDSMockBaseUrl"                                  = "https://as-${local.mds_mock_resource_name}.azurewebsites.net"
     "MDSMockAccessKey"                                = ""
     "MdsClientTimeoutSeconds"                         = "200"

@@ -332,6 +332,25 @@ public class PolarisGatewayApiClient : BaseApiClient
         return await SendAsync<ReclassifyDocumentDto, DocumentReclassifiedResultDto>(route, HttpMethod.Post, request, cancellationToken);
     }
 
+    public async Task<ApiClientResponse<PcdReviewDetailResponse>> GetPcdReviewDetailsAsync(
+        string urn,
+        int caseId,
+        int historyId,
+        CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/history/{historyId}/pcd-review-details";
+        return await SendAsync<PcdReviewDetailResponse>(route, HttpMethod.Get, cancellationToken);
+    }
+
+    public async Task<ApiClientResponse<IEnumerable<PcdReviewCoreResponseDto>>> GetPcdReviewCoreAsync(
+        string urn,
+        int caseId,
+        CancellationToken cancellationToken)
+    {
+        var route = $"urns/{urn}/cases/{caseId}/pcd-review-core";
+        return await SendAsync<IEnumerable<PcdReviewCoreResponseDto>>(route, HttpMethod.Get, cancellationToken);
+    }
+
     public async Task<ApiClientResponse> RenameDocumentAsync(string urn, int caseId, string documentId, RenameDocumentRequestDto request, CancellationToken cancellationToken)
     {
         var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/rename";

@@ -1,12 +1,13 @@
 function getPolarisUrl() {
   var polarisUrl = "/polaris";
   if (window.iCaseId && window.sURN) {
+    var cleanUrn = window.sURN.split(/[\/(]/)[0];
     polarisUrl =
       polarisUrl +
-      "?polaris-ui-url=/polaris-ui/case-details/" +
-      window.sURN +
+      "?polaris-ui-url=/materials-ui/" +
+      cleanUrn +
       "/" +
-      window.iCaseId;
+      window.iCaseId + "/materials";
   }
   return polarisUrl;
 }
@@ -15,9 +16,10 @@ function addPolarisButton() {
   var secondChild = tableRowElement.children[1];
   var td = document.createElement("td");
   var pLink = document.createElement("a");
+  pLink.style.whiteSpace = "nowrap";
   pLink.href = getPolarisUrl();
   pLink.target = "_blank";
-  pLink.innerText = "Open in Polaris";
+  pLink.innerText = "Open in Manage Materials";
   pLink.style.color = "white";
   td.style.width = "100px";
   td.appendChild(pLink);

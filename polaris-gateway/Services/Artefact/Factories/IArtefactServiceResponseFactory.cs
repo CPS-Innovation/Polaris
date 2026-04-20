@@ -10,7 +10,7 @@ namespace PolarisGateway.Services.Artefact.Factories
 
         ArtefactResult<T> CreateInterimResult<T>(Guid continuationToken);
 
-        ArtefactResult<T> CreateFailedResult<T>(PdfConversionStatus? pdfConversionStatus);
+        ArtefactResult<T> CreateFailedResult<T>(PdfConversionStatus? pdfConversionStatus, int? httpStatusCode);
 
         ArtefactResult<U> ConvertNonOkResult<T, U>(ArtefactResult<T> result);
     }
