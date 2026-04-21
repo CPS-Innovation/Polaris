@@ -106,12 +106,10 @@ function __addAppLaunchButtonsToMenuBar(r, data, flags) {
         '"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAJKSURBVEhLtZXPS9tgGMe/6Q9r01Y7pyiWlWFRmTpXNybOy2AIO6gTBwpWYV4Ezz3sH1AP/gPuphdF1It49bLD8FAnMoa0MBXGJrYeiiFNbU2b+OTHac2yRNYPNHngffJ++zzfJ28YmUAVcej3qmFawfr6d8iyBIYBampcKJeBqaluiGIZbrdTzzLHVIBlP+LmpqjGLpcPXq8DR0dxrK5+xcDAQ4yNvVDXzDBtUTAYoGu9EqGhoQ7NzUESOMfgYAjb2yns75/h5CSt5v4Nyx4wjIxi0UFVsNjZSSIWe47Fxc9oa2tEMnmlZ1Vi2qLW1gVcXooUMQgEnJidjSKXKyGd5mktiJ6eehwe/sTGxgftAQMsV8DzBczPv6L+v8fISCdt/Fv999FohPz4pGdVYmtMeV4zfG7uJdrbH2Bv7weamnxYWnqL21saMQPu9R44nQxKJRkcJ9KUichkBEiScadtCfj9HvW+ufmNNs1hZqYb2WweKytfUFvrUtf+xKbJz5DPSzg9zaKjoxGRiB+pVAZrazHtAQMsV8CybuzunmF0tBPhcB36+0M4OEhjefkdEolfelYllgWUOj0eiXqex/j4E9r8HJOTT3FxwZHYIz2rEssCDB1IHCfQWD7G8fEVhobCmJ7uRV9fSM8wxrIHXi8Qj7+mt/cNBKEIn08z/F9YrkAZx4mJLjW2urmCrTEtFEp6ZB1bAsp3wS6mAtfXAl15/Zej09T4ODDD1OStrQQZqn3RJEnC8HAvWlr8+qo1TAX+B7Y8uA9VFgDuAGLN1z00rPbxAAAAAElFTkSuQmCC"'
     );
     // Add the Materials button 
-    if (r.variables.environment && r.variables.environment !== "prod") {
-        data = data.replace(
-            'var sMenuBarRight',
-            'sMenuBarLeft += \'<td class="menu"><img alt="Launch Materials" border="0" class="clickable" onclick="openMaterials()" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAASBJREFUeNpidEjcykANwMRAJUA1g1gglIGGcH+ZOVy0c+6lHUefYNWAprKw6+SFG29xuig7UlNChBNTnIeLtTxJjwSvATU05xhjipcn62G1AF8YqcjxJfirIot4WMvYGIqTE9jx/qrAEIGwgQ4B+pf8WAOGCNCbQAbQpxAGgVhDBncefQLaD9EGZADD5e6jT0CfQmS/fPv94s13OBefi758/wOMfjgXGC7xSIFVO+UcUAGxXjty/uWa3Q8wxYGCkFRDQhhNXX4N6Ec0LwMFyQns2ilngSECDxogl8xYAwYqPLCmLr8O5JIWa2iBBcl0uLIesQZBMvDQLI8Gn0GMkMIfmLOQcxNaUsQsYeAZGKgSktZY4JpxpX2suZqGXgMIMACZaHaNNm2JEgAAAABJRU5ErkJggg=="></td>\';\n\tvar sMenuBarRight'
-        );
-    }
+    data = data.replace(
+        'var sMenuBarRight',
+        'sMenuBarLeft += \'<td class="menu"><img alt="Launch Materials" border="0" class="clickable" onclick="openMaterials()" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAASBJREFUeNpidEjcykANwMRAJUA1g1gglIGGcH+ZOVy0c+6lHUefYNWAprKw6+SFG29xuig7UlNChBNTnIeLtTxJjwSvATU05xhjipcn62G1AF8YqcjxJfirIot4WMvYGIqTE9jx/qrAEIGwgQ4B+pf8WAOGCNCbQAbQpxAGgVhDBncefQLaD9EGZADD5e6jT0CfQmS/fPv94s13OBefi758/wOMfjgXGC7xSIFVO+UcUAGxXjty/uWa3Q8wxYGCkFRDQhhNXX4N6Ec0LwMFyQns2ilngSECDxogl8xYAwYqPLCmLr8O5JIWa2iBBcl0uLIesQZBMvDQLI8Gn0GMkMIfmLOQcxNaUsQsYeAZGKgSktZY4JpxpX2suZqGXgMIMACZaHaNNm2JEgAAAABJRU5ErkJggg=="></td>\';\n\tvar sMenuBarRight'
+    );
     // Add the Task List button 
     data = data.replace(
         'var sMenuBarRight',
