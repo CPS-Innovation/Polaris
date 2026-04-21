@@ -132,10 +132,6 @@ variable "cms_details" {
   })
 }
 
-variable "wm_task_list_host_name" {
-  type = string
-}
-
 variable "auth_handover_whitelist" {
   # Coma-delimited string of URL roots that the proxy will allow auth refresh/handover 
   #  redirects to be forwarded on to.
