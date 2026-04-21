@@ -75,7 +75,6 @@ cms_details = {
   cin5_upstream_cms_services_domain_name     = "cin5.cps.gov.uk"
 }
 
-wm_task_list_host_name  = "https://cps-tst.outsystemsenterprise.com"
 auth_handover_whitelist = "/auth-refresh-inbound"
 
 app_service_log_retention       = 90

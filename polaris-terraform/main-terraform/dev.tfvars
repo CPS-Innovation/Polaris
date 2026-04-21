@@ -75,8 +75,7 @@ cms_details = {
   cin5_upstream_cms_services_domain_name     = "cin5.cps.gov.uk"
 }
 
-wm_task_list_host_name  = "https://cps-dev.outsystemsenterprise.com"
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps-dev.outsystemsenterprise.com/,/task-list,https://polaris-dev-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps-dev.outsystemsenterprise.com/,https://polaris-dev-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
@@ -174,7 +173,7 @@ coordinator = {
 }
 
 cps_global_components = {
-  script_url = "https://polaris-qa-notprod.cps.gov.uk/global-components/dev/global-components.js"
+  script_url          = "https://polaris-qa-notprod.cps.gov.uk/global-components/dev/global-components.js"
   blob_storage_domain = "sacpsglobalcomponents.blob.core.windows.net"
 }
 

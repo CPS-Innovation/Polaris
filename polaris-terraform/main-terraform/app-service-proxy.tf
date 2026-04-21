@@ -71,7 +71,6 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}:${md5(file("cmsenv.js"))}::${md5(file("polaris-script.js"))}:${md5(file("global-components.conf"))}:${md5(file("global-components.js"))}"
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
-    "WM_TASK_LIST_HOST_NAME"                          = var.wm_task_list_host_name
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
     "WM_MDS_BASE_URL"                                 = "https://fa-${local.wm_mds_resource_name}.azurewebsites.net/api/"
     "WM_MDS_ACCESS_KEY"                               = data.azurerm_key_vault_secret.kvs_fa_wm_mds_host_keys.value
@@ -211,7 +210,6 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       app_settings["FORCE_REFRESH_CONFIG"],
       app_settings["CMS_RATE_LIMIT_QUEUE"],
       app_settings["CMS_RATE_LIMIT"],
-      app_settings["WM_TASK_LIST_HOST_NAME"],
       app_settings["AUTH_HANDOVER_WHITELIST"],
       app_settings["WM_MDS_BASE_URL"],
       app_settings["WM_MDS_ACCESS_KEY"],
