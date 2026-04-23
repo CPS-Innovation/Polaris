@@ -79,11 +79,11 @@ function setSessionHintCookie(r) {
     const handoverEndpoint = isProxySession
       ? `https://${r.headersIn["Host"]}/polaris`
       : cmsDomains.length
-      ? // If there is more than one domain string found let's take the first
+        ? // If there is more than one domain string found let's take the first
         // one. Analytics in global nav will tell us if there are ever multiple
         // domains found.
         `https://${cmsDomains[0]}/polaris`
-      : null
+        : null
 
     cookieValue = {
       cmsDomains,
@@ -118,8 +118,7 @@ function appAuthRedirect(r) {
   if (isWhitelisted) {
     _redirectToAbsoluteUrl(
       r,
-      `${redirectUrl}${
-        redirectUrl.includes("?") ? "&" : "?"
+      `${redirectUrl}${redirectUrl.includes("?") ? "&" : "?"
       }cc=${encodeURIComponent(args["cookie"] ?? "")}`
     )
   } else {
@@ -145,23 +144,6 @@ function polarisAuthRedirect(r) {
 
   const querystring = qs.stringify(clonedArgs)
   _redirectToAbsoluteUrl(r, `/init?${querystring}`)
-}
-
-function taskListAuthRedirect(r) {
-  const proto = r.headersIn["X-Forwarded-Proto"] || "https"
-  const host = r.headersIn["Host"] || ""
-  const taskListHost = r.variables["taskListHostAddress"] ?? ""
-  const envFolder = host === "polaris.cps.gov.uk" ? "prod" : "test"
-
-  const finalDest = `${taskListHost}/WorkManagementApp/TaskList`
-  const authHandoverJs = `${proto}://${host}/global-components/${envFolder}/auth-handover.js`
-  const authHandoverPage =
-    `${taskListHost}/Casework_Patterns/auth-handover.html` +
-    `?src=${encodeURIComponent(authHandoverJs)}` +
-    `&stage=os-cookie-return` +
-    `&r=${encodeURIComponent(finalDest)}`
-
-  r.return(302, `${proto}://${host}/polaris?r=${encodeURIComponent(authHandoverPage)}`)
 }
 
 function handleAuthRefreshOutbound(r) {
@@ -204,4 +186,4 @@ function handleAuthRefreshOutbound(r) {
   r.return(302, redirectUrl);
 }
 
-export default { polarisAuthRedirect, taskListAuthRedirect, appAuthRedirect, handleAuthRefreshOutbound }
+export default { polarisAuthRedirect, appAuthRedirect, handleAuthRefreshOutbound }

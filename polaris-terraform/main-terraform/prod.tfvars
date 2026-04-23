@@ -73,8 +73,7 @@ cms_details = {
   cin5_upstream_cms_services_domain_name     = "not-used-in-cin5.cps.gov.uk"
 }
 
-wm_task_list_host_name  = "https://cps.outsystemsenterprise.com"
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps.outsystemsenterprise.com/,https://housekeeping-fn.cps.gov.uk/,/task-list,https://lcc-api.cps.gov.uk/,https://polaris.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps.outsystemsenterprise.com/,https://housekeeping-fn.cps.gov.uk/,https://lcc-api.cps.gov.uk/,https://polaris.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
