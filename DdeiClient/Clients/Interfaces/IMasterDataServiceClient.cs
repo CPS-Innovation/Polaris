@@ -226,8 +226,19 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="caseId">Case id.</param>
         /// <param name="historyId">History Id.</param>
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">The cancellationToken required for the API call.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues);
+        Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Get PCD Analysis ByHistoryId.
+        /// </summary>
+        /// <param name="caseId">Case id.</param>
+        /// <param name="historyId">History Id.</param>
+        /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">The cancellationToken required for the API call.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
+        Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetPcdAnalysisByIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken);
 
         /// <summary>
         /// GetHistoryEvents.

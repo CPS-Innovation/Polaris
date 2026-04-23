@@ -54,6 +54,7 @@ public class PdfRetrievalService : IPdfRetrievalService
         {
             PdfStream = pdfResult.Status == PdfConversionStatus.DocumentConverted ? pdfResult.PdfStream : null,
             Status = pdfResult.Status,
+            FailedStatusCode = pdfResult.Status != PdfConversionStatus.DocumentConverted ? pdfResult.FailedStatusCode : null,
         };
     }
 

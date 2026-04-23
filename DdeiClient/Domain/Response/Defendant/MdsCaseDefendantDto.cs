@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Ddei.Domain.Response.Defendant;
 
-public class DdeiCaseDefendantDto
+public class MdsCaseDefendantDto
 {
     public int Id { get; set; }
     public int? ListOrder { get; set; }
@@ -12,11 +12,11 @@ public class DdeiCaseDefendantDto
     public string Dob { get; set; }
     public string RemandStatus { get; set; }
     [JsonPropertyName("policeRemandStatus")]
-    public string PoliceRemandStatus { set => RemandStatus = value; }
+    public string PoliceRemandStatus { get => RemandStatus; set => RemandStatus = value; }
     public bool Youth { get; set; }
-    public DdeiCustodyTimeLimitDto CustodyTimeLimit { get; set; }
+    public MdsCustodyTimeLimitDto CustodyTimeLimit { get; set; }
 
-    public IEnumerable<DdeiOffenceDto> Offences { get; set; }
+    public IEnumerable<MdsOffenceDto> Offences { get; set; }
 
-    public DdeiNextHearingDto NextHearing { get; set; }
+    public MdsNextHearingDto NextHearing { get; set; }
 }

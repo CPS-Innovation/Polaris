@@ -269,44 +269,66 @@ export const AccordionDocument: React.FC<Props> = ({
       data-document-active={activeDocumentId === caseDocument.documentId}
     >
       <div className={classes.listItemWrapper}>
-        {activeDocumentId === caseDocument.documentId && (
+        <div style={{ display: "flex", gap: "4px", flex: 1 }}>
+          <span style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            <span>
+              {activeDocumentId === caseDocument.documentId && (
+                <span>
+                  <Tag gdsTagColour="blue" className={classes.tag}>
+                    Active Document
+                  </Tag>{" "}
+                </span>
+              )}
+              {caseDocument.tags.map((tag) => (
+                <span key={tag.label}>
+                  <Tag gdsTagColour={tag.color} className={classes.tag}>
+                    {tag.label}
+                  </Tag>{" "}
+                </span>
+              ))}
+            </span>
+            <span>
+              {canViewDocument ? (
+                <LinkButton
+                  onClick={() => {
+                    trackEvent("Open Document From Case Details", {
+                      documentId: caseDocument.documentId,
+                    });
+                    handleOpenPdf({ documentId: caseDocument.documentId });
+                  }}
+                  className={`${classes["accordion-document-link-button"]}`}
+                  dataTestId={`link-document-${caseDocument.documentId}`}
+                  ariaLabel={`Open Document ${caseDocument.presentationTitle}`}
+                >
+                  {caseDocument.presentationTitle}
+                </LinkButton>
+              ) : (
+                <span
+                  className={`${classes["accordion-document-link-name"]}`}
+                  data-testid={`name-text-document-${caseDocument.documentId}`}
+                >
+                  {caseDocument.presentationTitle}
+                </span>
+              )}
+            </span>
+          </span>
+
           <span>
-            <Tag gdsTagColour="blue" className={classes.tag}>
-              Active Document
-            </Tag>{" "}
+            {!!dropDownItems.length && (
+              <DropdownButton
+                name=""
+                dropDownItems={dropDownItems}
+                callBackFn={handleDocumentAction}
+                ariaLabel="document housekeeping actions dropdown"
+                dataTestId={`document-housekeeping-actions-dropdown-${caseDocument.documentId}`}
+                showLastItemSeparator={true}
+                icon={<MoreIcon />}
+              />
+            )}
           </span>
-        )}
-        {caseDocument.tags.map((tag) => (
-          <span key={tag.label}>
-            <Tag gdsTagColour={tag.color} className={classes.tag}>
-              {tag.label}
-            </Tag>{" "}
-          </span>
-        ))}
+        </div>
         <div className={`${classes["accordion-document-item-wrapper"]}`}>
           <div className={`${classes.mainContentWrapper}`}>
-            {canViewDocument ? (
-              <LinkButton
-                onClick={() => {
-                  trackEvent("Open Document From Case Details", {
-                    documentId: caseDocument.documentId,
-                  });
-                  handleOpenPdf({ documentId: caseDocument.documentId });
-                }}
-                className={`${classes["accordion-document-link-button"]}`}
-                dataTestId={`link-document-${caseDocument.documentId}`}
-                ariaLabel={`Open Document ${caseDocument.presentationTitle}`}
-              >
-                {caseDocument.presentationTitle}
-              </LinkButton>
-            ) : (
-              <span
-                className={`${classes["accordion-document-link-name"]}`}
-                data-testid={`name-text-document-${caseDocument.documentId}`}
-              >
-                {caseDocument.presentationTitle}
-              </span>
-            )}
             <div className={`${classes["accordion-information-items"]}`}>
               {caseDocument.cmsFileCreatedDate && (
                 <div className={`${classes["accordion-document-date"]}`}>
@@ -410,18 +432,6 @@ export const AccordionDocument: React.FC<Props> = ({
               </div>
             )}
           </div>
-
-          {!!dropDownItems.length && (
-            <DropdownButton
-              name=""
-              dropDownItems={dropDownItems}
-              callBackFn={handleDocumentAction}
-              ariaLabel="document housekeeping actions dropdown"
-              dataTestId={`document-housekeeping-actions-dropdown-${caseDocument.documentId}`}
-              showLastItemSeparator={true}
-              icon={<MoreIcon />}
-            />
-          )}
         </div>
         {caseDocument.witnessIndicators.length > 0 && (
           <div className={classes.witnessIndicators}>

@@ -818,9 +818,16 @@ namespace DdeiClient.Clients
                 };
 
                 var data = await client.RenameMaterialAsync(request.materialId, mdsRequest);
-                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+
+                if (data?.UpdateCommunication?.Id == null)
+                {
+                    return default;
+                }
 
                 RenameMaterialResponse result = new(new RenameMaterialData { Id = data.UpdateCommunication.Id });
+
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+
                 return result;
             }
             catch (Exception exception)
@@ -859,9 +866,15 @@ namespace DdeiClient.Clients
                 };
 
                 var data = await client.ReclassifyCommunicationAsync(mdsRequest);
-                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+
+                if (data?.ReclassifyCommunication?.Id == null)
+                {
+                    return default;
+                }
 
                 ReclassificationResponse result = new ReclassificationResponse(new ReclassifyCommunication { Id = data.ReclassifyCommunication.Id });
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+
                 return result;
             }
             catch (Exception exception)
@@ -980,9 +993,16 @@ namespace DdeiClient.Clients
                 };
 
                 var data = await client.SetMaterialReadStateAsync(request.materialId, mdsReqest);
-                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+
+                if (data?.CompleteCommunication?.Id == null)
+                {
+                    return default;
+                }
 
                 SetMaterialReadStatusResponse result = new SetMaterialReadStatusResponse(new SetMaterialReadStatusResponseData { Id = data.CompleteCommunication.Id });
+
+                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+
                 return result;
             }
             catch (Exception exception)
@@ -1148,6 +1168,11 @@ namespace DdeiClient.Clients
 
                 var data = await client.UpdateStatementAsync(request.CaseId, request.MaterialId, mdsRequest);
 
+                if (data?.UpdateStatement?.Id == null)
+                {
+                    return default;
+                }
+
                 UpdateStatementResponse result = new UpdateStatementResponse(new UpdateStatementData { Id = data.UpdateStatement.Id });
                 this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
                 return result;
@@ -1195,7 +1220,13 @@ namespace DdeiClient.Clients
 
                 var data = await client.UpdateExhibitAsync(request.CaseId, request.MaterialId, mdsRequest);
 
+                if (data?.UpdateExhibit?.Id == null)
+                {
+                    return default;
+                }
+
                 UpdateExhibitResponse result = new UpdateExhibitResponse(new UpdateExhibitData { Id = data.UpdateExhibit.Id });
+
                 this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
                 return result;
 
@@ -1235,7 +1266,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+        public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken)
         {
             Requires.NotNull(caseId);
             Requires.NotNull(historyId);
@@ -1252,7 +1283,39 @@ namespace DdeiClient.Clients
                 var cookieString = JsonSerializer.Serialize(cookie);
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
-                var data = await client.GetInitialReviewByIdAsync(caseId, historyId);
+                var data = await client.GetInitialReviewByIdAsync(caseId, historyId, cancellationToken);
+                return data;
+            }
+            catch (Exception exception)
+            {
+                this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
+                throw;
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetPcdAnalysisByIdAsync(
+            int caseId,
+            int historyId,
+            CmsAuthValues cmsAuthValues,
+            CancellationToken cancellationToken)
+        {
+            Requires.NotNull(caseId);
+            Requires.NotNull(historyId);
+            Requires.NotNull(cmsAuthValues);
+            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+
+            var stopwatch = Stopwatch.StartNew();
+            const string OperationName = "GetInitialReviewByHistoryId";
+
+            try
+            {
+                var cookie = new MasterDataServiceCookie(cmsAuthValues.CmsCookies, cmsAuthValues.CmsModernToken);
+                var cookieString = JsonSerializer.Serialize(cookie);
+                var client = this.mdsApiClientFactory.Create(cookieString);
+
+                var data = await client.GetPcdAnalysisByIdAsync(caseId, historyId);
                 return data;
             }
             catch (Exception exception)

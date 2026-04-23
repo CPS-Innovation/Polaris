@@ -1,8 +1,8 @@
 env             = "qa"
 location        = "UK South"
 environment_tag = "qa"
-dns_server      = "10.7.198.164"
-dns_alt_server  = "168.63.129.16"
+dns_server      = "10.7.136.4"
+dns_alt_server  = "10.14.136.4"
 
 ui_component_service_plans = {
   gateway_service_plan_sku     = "P1v3"
@@ -75,8 +75,7 @@ cms_details = {
   cin5_upstream_cms_services_domain_name     = "cin5.cps.gov.uk"
 }
 
-wm_task_list_host_name  = "https://cps-tst.outsystemsenterprise.com"
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst.outsystemsenterprise.com/,https://housekeeping-fn-staging.int.cps.gov.uk/,/task-list,https://fa-lacc-api-staging.azurewebsites.net/,https://fa-cm-api-staging.azurewebsites.net/,https://polaris-qa-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst.outsystemsenterprise.com/,https://housekeeping-fn-staging.int.cps.gov.uk/,https://fa-lacc-api-staging.azurewebsites.net/,https://fa-cmrc-api-staging.azurewebsites.net/,https://polaris-qa-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
@@ -117,11 +116,11 @@ private_beta = {
   feature_user_group6 = "21c21011-b568-4ebb-b013-02d4cd15681a"
 }
 
-case_review_app_redirect_url = "https://cps-tst.outsystemsenterprise.com/CaseReview/RedirectCW"
+case_review_app_redirect_url = "https://polaris-qa-notprod.cps.gov.uk/case-review-redirect/cps-tst/test"
 bulk_um_redirect_url         = "https://housekeeping-fn-staging.int.cps.gov.uk/api/init"
 
 polaris_ui_reauth = {
-  outbound_live_url       = "/polaris,https://cin3.cps.gov.uk/polaris,https://cin4.cps.gov.uk/polaris,https://cin2.cps.gov.uk/polaris,https://cin5.cps.gov.uk/polaris"
+  outbound_live_url       = "/auth-refresh-outbound,https://cin3.cps.gov.uk/polaris,https://cin4.cps.gov.uk/polaris,https://cin2.cps.gov.uk/polaris,https://cin5.cps.gov.uk/polaris"
   outbound_e2e_url        = "/polaris"
   inbound_url             = "/auth-refresh-inbound"
   use_in_situ_refresh     = "false"
