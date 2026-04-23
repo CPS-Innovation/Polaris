@@ -20,6 +20,9 @@ public class DocumentVersionDto
     [Required]
     public string DocumentId { get; set; }
 
+    [JsonPropertyName("parentId")]
+    public string ParentId => DocumentId;
+
     [JsonPropertyName("versionId")]
     [RequiredLongGreaterThanZero]
     public long VersionId { get; set; }
