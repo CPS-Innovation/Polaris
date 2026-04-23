@@ -10,7 +10,11 @@ namespace Common.Dto.Response.Document
 
         public long DocumentId { get; set; }
 
+        public long ParentId => DocumentId;
+
         public long VersionId { get; set; }
+
+        public long ChildId => VersionId;
 
         public string Path { get; set; } /* DO NOT LEAK */
 
