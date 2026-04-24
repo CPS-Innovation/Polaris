@@ -1,13 +1,17 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using Aspose.Pdf.Annotations;
 using AutoFixture;
 using Common.Constants;
+using Common.Domain.Ocr;
+using Common.Services.OcrService;
+using Common.Services.BlobStorage;
 using FluentAssertions;
 using Moq;
 using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.Artefact.Domain;
 using PolarisGateway.Services.Artefact.Factories;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace PolarisGateway.Tests.Services.Artefact;
@@ -25,6 +29,7 @@ public class PdfArtefactServiceTests
     private readonly long _versionId;
     private readonly string _documentId;
     private readonly PdfArtefactService _pdfArtefactService;
+    private readonly Mock<IOcrService> _ocrServiceMock;
     public PdfArtefactServiceTests()
     {
         _fixture = new Fixture();
@@ -39,11 +44,13 @@ public class PdfArtefactServiceTests
         _cacheServiceMock = new Mock<ICacheService>();
         _artefactServiceResponseFactoryMock = new Mock<IArtefactServiceResponseFactory>();
         _pdfRetrievalServiceMock = new Mock<IPdfRetrievalService>();
+        _ocrServiceMock = new Mock<IOcrService>();
 
         _pdfArtefactService = new PdfArtefactService(
             _cacheServiceMock.Object,
             _artefactServiceResponseFactoryMock.Object,
-            _pdfRetrievalServiceMock.Object
+            _pdfRetrievalServiceMock.Object,
+            _ocrServiceMock.Object
         );
     }
 
@@ -107,7 +114,27 @@ public class PdfArtefactServiceTests
             .ReturnsAsync((true, pdfStream));
 
         _cacheServiceMock
-            .Setup(x => x.UploadPdfAsync(_caseId, _documentId, _versionId, false, pdfStream))
+            .Setup(x => x.UploadPdfAsync(_caseId, _documentId, _versionId, false, It.IsAny<Stream>()))
+            .Returns(Task.CompletedTask);
+
+        var fakeOcrOperationId = Guid.NewGuid();
+        var fakeOcrResult = new OcrOperationResult
+        {
+            IsSuccess = true,
+            AnalyzeResults = new AnalyzeResults()
+        };
+
+        _ocrServiceMock
+            .Setup(x => x.InitiateOperationAsync(It.IsAny<Stream>(), It.IsAny<Guid>()))
+            .ReturnsAsync(fakeOcrOperationId);
+
+        _ocrServiceMock
+            .Setup(x => x.GetOperationResultsAsync(fakeOcrOperationId, It.IsAny<Guid>()))
+            .ReturnsAsync(fakeOcrResult);
+
+        _cacheServiceMock
+            .Setup(x => x.UploadJsonObjectAsync(
+                _caseId, _documentId, _versionId, BlobType.Ocr, fakeOcrResult.AnalyzeResults))
             .Returns(Task.CompletedTask);
 
         _pdfRetrievalServiceMock
@@ -125,6 +152,6 @@ public class PdfArtefactServiceTests
 
         // Assert
         result.Should().Be(expectedResult);
-        _cacheServiceMock.Verify(x => x.UploadPdfAsync(_caseId, _documentId, _versionId, false, pdfStream), Times.Once);
+        _cacheServiceMock.Verify(x => x.UploadPdfAsync(_caseId, _documentId, _versionId, false, It.IsAny<Stream>()), Times.Once);
     }
 }
