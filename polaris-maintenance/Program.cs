@@ -15,10 +15,6 @@ var host = new HostBuilder()
     .ConfigureHostConfiguration(builder => builder.AddConfigurationSettings())
     .ConfigureServices(services =>
     {
-        services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions
-        {
-            EnableAdaptiveSampling = false,
-        });
         services.ConfigureFunctionsApplicationInsights();
         // Commented out to match WMA instance of DDEI configuration and see if it improves log visibility
         /* services.Configure<TelemetryConfiguration>(telemetryConfiguration =>

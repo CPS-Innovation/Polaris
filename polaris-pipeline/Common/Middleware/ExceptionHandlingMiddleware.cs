@@ -1,18 +1,19 @@
 ﻿using Common.Exceptions;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Azure.Functions.Worker.Middleware;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
-using System.Net;
-using System.Threading.Tasks;
-using System;
-using System.Linq;
-using Common.Logging;
 using Common.Extensions;
+using Common.Logging;
+using Common.Telemetry;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
-using Common.Telemetry;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Azure.Functions.Worker.Middleware;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Abstractions;
+using System;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Common.Middleware;
 
@@ -29,12 +30,16 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
 
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
-        var requestTelemetry = new RequestTelemetry();
-        requestTelemetry.Start();
+        var operation = _telemetryClient.StartOperation<RequestTelemetry>(
+            context.FunctionDefinition.Name);
 
         try
         {
             await next(context);
+
+            // Success case
+            operation.Telemetry.Success = true;
+            operation.Telemetry.ResponseCode = "200";
         }
         catch (Exception exception)
         {
@@ -51,8 +56,6 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
                 _ => HttpStatusCode.InternalServerError,
             };
 
-            var message = string.Empty;
-
             var httpRequestData = await context.GetHttpRequestDataAsync();
 
             if (httpRequestData != null)
@@ -62,43 +65,54 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
                 {
                     correlationId = httpRequestData.EstablishCorrelation();
                 }
-                catch
-                {
-                }
+                catch { }
 
-                _logger.LogMethodError(correlationId, httpRequestData.Url.ToString(), message, exception);
-                requestTelemetry.Properties[TelemetryConstants.CorrelationIdCustomDimensionName] = correlationId.ToString();
+                _logger.LogMethodError(
+                    correlationId,
+                    httpRequestData.Url.ToString(),
+                    string.Empty,
+                    exception);
 
+                // Build response
                 var newHttpResponse = httpRequestData.CreateResponse(statusCode);
 
-                await newHttpResponse.WriteAsJsonAsync(new { ErrorMessage = exception.ToStringFullResponse(), CorrelationId = correlationId });
+                await newHttpResponse.WriteAsJsonAsync(new
+                {
+                    ErrorMessage = exception.ToStringFullResponse(),
+                    CorrelationId = correlationId
+                });
 
                 var invocationResult = context.GetInvocationResult();
 
-                var httpOutputBindingFromMultipleOutputBindings = GetHttpOutputBindingFromMultipleOutputBinding(context);
-                if (httpOutputBindingFromMultipleOutputBindings is not null)
+                var httpOutputBinding = GetHttpOutputBindingFromMultipleOutputBinding(context);
+                if (httpOutputBinding is not null)
                 {
-                    httpOutputBindingFromMultipleOutputBindings.Value = newHttpResponse;
+                    httpOutputBinding.Value = newHttpResponse;
                 }
                 else
                 {
                     invocationResult.Value = newHttpResponse;
                 }
 
-                requestTelemetry.Context.Cloud.RoleName = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
-                requestTelemetry.Context.Operation.Name = context.FunctionDefinition.Name;
-                requestTelemetry.Name = context.FunctionDefinition.Name;
-#pragma warning disable CS0618 // Type or member is obsolete
-                requestTelemetry.HttpMethod = httpRequestData.Method;
-#pragma warning restore CS0618 // Type or member is obsolete
-                requestTelemetry.ResponseCode = ((int)statusCode).ToString();
-                requestTelemetry.Success = false;
-                requestTelemetry.Url = httpRequestData.Url;
-                requestTelemetry.Properties[TelemetryConstants.ErrorMessageCustomDimensionName] = exception.ToStringFullResponse();
-                requestTelemetry.Stop();
+                // ✅ Enrich telemetry (NO manual RequestTelemetry object)
+                operation.Telemetry.Success = false;
+                operation.Telemetry.ResponseCode = ((int)statusCode).ToString();
+                operation.Telemetry.Url = httpRequestData.Url;
 
-                _telemetryClient.TrackRequest(requestTelemetry);
+                // Recommended naming convention
+                operation.Telemetry.Name = $"{httpRequestData.Method} {context.FunctionDefinition.Name}";
+
+                // Custom properties
+                operation.Telemetry.Properties[TelemetryConstants.CorrelationIdCustomDimensionName] = correlationId.ToString();
+                operation.Telemetry.Properties[TelemetryConstants.ErrorMessageCustomDimensionName] = exception.ToStringFullResponse();
+                operation.Telemetry.Properties["HttpMethod"] = httpRequestData.Method;
             }
+
+            throw; // preserve original behavior
+        }
+        finally
+        {
+            _telemetryClient.StopOperation(operation);
         }
     }
 

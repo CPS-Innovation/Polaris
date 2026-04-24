@@ -13,6 +13,7 @@
       "logLevel": {
         "default": "Information"
       },
+      "enableAdaptiveSampling": false,
       "enableLiveMetrics": true,
       "enableDependencyTracking": true,
       "enablePerformanceCountersCollection": true,

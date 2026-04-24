@@ -4,6 +4,7 @@
 
 using Common.Extensions;
 using Common.Middleware;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.WorkerService;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Azure.Functions.Worker;
@@ -49,10 +50,7 @@ var host = new HostBuilder()
         IdentityModelEventSource.LogCompleteSecurityArtifact = true;
 #endif
         services.ConfigureServices();
-        services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions
-        {
-            EnableAdaptiveSampling = false,
-        });
+        services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         // Commented out to match WMA instance of DDEI configuration and see if it improves log visibility
         /* services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
@@ -67,6 +65,7 @@ var host = new HostBuilder()
         services.Configure<KestrelServerOptions>(k => k.AddServerHeader = false);
     })
     .Build();
+
 
 ILogger<Program> logger = host.Services.GetRequiredService<ILogger<Program>>();
 StartupHelpers.SetAsposeLicence(logger);
