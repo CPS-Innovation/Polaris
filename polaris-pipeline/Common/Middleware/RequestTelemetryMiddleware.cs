@@ -13,52 +13,69 @@ public class RequestTelemetryMiddleware(Microsoft.ApplicationInsights.TelemetryC
 {
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
-        var requestTelemetry = new RequestTelemetry();
-        requestTelemetry.Start();
         var requestData = await context.GetHttpRequestDataAsync();
 
+        // If not an HTTP trigger, just continue
         if (requestData is null)
         {
             await next(context);
             return;
         }
 
+        var operation = telemetryClient.StartOperation<RequestTelemetry>(
+            context.FunctionDefinition.Name);
+        var requestTelemetry = operation.Telemetry;
         var correlationId = Guid.NewGuid();
+
+        correlationId = requestData.EstablishCorrelation();
+
+
         try
         {
-            correlationId = requestData.EstablishCorrelation();
+            // Add correlation early
+            operation.Telemetry.Properties[TelemetryConstants.CorrelationIdCustomDimensionName] =
+                correlationId.ToString();
+
+            // Add binding data if present
+            if (context.BindingContext.BindingData.TryGetValue("documentId", out var documentId))
+            {
+                operation.Telemetry.Properties[TelemetryConstants.DocumentIdCustomDimensionName] =
+                    documentId?.ToString();
+            }
+
+            if (context.BindingContext.BindingData.TryGetValue("versionId", out var versionId))
+            {
+                operation.Telemetry.Properties[TelemetryConstants.DocumentVersionIdCustomDimensionName] =
+                    versionId?.ToString();
+            }
+
+            await next(context);
+
+            var response = context.GetHttpResponseData();
+
+            // ✅ Populate telemetry AFTER execution
+            operation.Telemetry.Success = true;
+            operation.Telemetry.ResponseCode = response?.StatusCode.ToString() ?? "200";
+            operation.Telemetry.Url = requestData.Url;
+
+            // Recommended naming
+            operation.Telemetry.Name =
+                $"{requestData.Method} {context.FunctionDefinition.Name}";
         }
         catch
         {
+            operation.Telemetry.Success = false;
+            operation.Telemetry.ResponseCode = "500";
+            throw;
         }
-
-        if (context.BindingContext.BindingData.TryGetValue("documentId", out var documentId))
+        finally
         {
-            requestTelemetry.Properties[TelemetryConstants.DocumentIdCustomDimensionName] = documentId.ToString();
+            telemetryClient.StopOperation(operation);
+
+            // Add correlation header to response
+            context.GetHttpResponseData()?.Headers.Add(
+                "Correlation-Id",
+                correlationId.ToString());
         }
-
-        if (context.BindingContext.BindingData.TryGetValue("versionId", out var versionId))
-        {
-            requestTelemetry.Properties[TelemetryConstants.DocumentVersionIdCustomDimensionName] = versionId.ToString();
-        }
-
-        requestTelemetry.Properties[TelemetryConstants.CorrelationIdCustomDimensionName] = correlationId.ToString();
-
-        await next(context);
-
-        requestTelemetry.Context.Cloud.RoleName = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");
-        requestTelemetry.Context.Operation.Name = context.FunctionDefinition.Name;
-        requestTelemetry.Name = context.FunctionDefinition.Name;
-#pragma warning disable CS0618 // Type or member is obsolete
-        requestTelemetry.HttpMethod = requestData.Method;
-#pragma warning restore CS0618 // Type or member is obsolete
-        requestTelemetry.ResponseCode = context.GetHttpResponseData()?.StatusCode.ToString() ?? string.Empty;
-        requestTelemetry.Success = true;
-        requestTelemetry.Url = requestData.Url;
-        requestTelemetry.Stop();
-
-        telemetryClient.TrackRequest(requestTelemetry);
-
-        context.GetHttpResponseData()?.Headers.Add("Correlation-Id", correlationId.ToString());
     }
 }

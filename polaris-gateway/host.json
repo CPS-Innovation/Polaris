@@ -9,19 +9,23 @@
             "Host.Results": "Information",
             "PolarisGateway.Functions.CmsAuthentication.InitiateCookies": "Information"
         },
-        "applicationInsights": {
-            "logLevel": {
-                "default": "Information"
-            },
-            "enableLiveMetrics": true,
-            "enableDependencyTracking": true,
-            "enablePerformanceCountersCollection": true,
-            "httpAutoCollectionOptions": {
-                "enableHttpTriggerExtendedInfoCollection": true,
-                "enableW3CDistributedTracing": true,
-                "enableResponseHeaderInjection": true
-            }
+      "applicationInsights": {
+        "logLevel": {
+          "default": "Information"
         },
+        "SamplingSettings": {
+          "IsEnabled": false
+        },
+        "enableAdaptiveSampling": false,
+        "enableLiveMetrics": true,
+        "enableDependencyTracking": true,
+        "enablePerformanceCountersCollection": true,
+        "httpAutoCollectionOptions": {
+          "enableHttpTriggerExtendedInfoCollection": true,
+          "enableW3CDistributedTracing": true,
+          "enableResponseHeaderInjection": true
+        }
+      },
         "extensions": {
             "http": {
                 "customHeaders": {
