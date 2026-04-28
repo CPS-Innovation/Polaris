@@ -42,8 +42,6 @@ stages:
     - script: 'dotnet --version'
       displayName: 'Check dotnet version'
 
-  - template: stages/stage_publish-all-artifacts.yml
-    parameters:
-      environment: $(environment)
-
-
+    - template: stages/stage_publish-all-artifacts.yml
+      parameters:
+        environment: $(environment)
