@@ -16,18 +16,18 @@ public static class RestApi
     public const string CaseWitnesses = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses";
     public const string WitnessStatements = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
     public const string Documents = "urns/{caseUrn}/cases/{caseId:min(1)}/documents";
-    public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/notes";
-    public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/redact";
-    public const string ModifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/modify";
-    public const string RenameDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/rename";
-    public const string ReclassifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/reclassify";
-    public const string Pdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/pdf";
-    public const string Ocr = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/ocr";
-    public const string Pii = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/pii";
-    public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/checkout";
-    public const string ToggleIsUnusedDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/toggle/{isUnused}";
-    public const string OcrSearch = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/search";
-    public const string OcrSearchTracker = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/search/tracker";
+    public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/notes";
+    public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/redact";
+    public const string ModifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/modify";
+    public const string RenameDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/rename";
+    public const string ReclassifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/reclassify";
+    public const string Pdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/pdf";
+    public const string Ocr = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/ocr";
+    public const string Pii = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/pii";
+    public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/checkout";
+    public const string ToggleIsUnusedDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/toggle/{isUnused}";
+    public const string OcrSearch = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/search";
+    public const string OcrSearchTracker = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/search/tracker";
 
     // House keeping endpoints
     public const string CaseInfo = "urns/{caseUrn}/case-info/{caseId:min(1)}";
@@ -60,13 +60,13 @@ public static class RestApi
     public const string UmaReclassify = "urns/{caseUrn}/cases/{caseId:min(1)}/uma-reclassify";
     public const string BulkSetUnused = "urns/{caseUrn}/cases/{caseId:min(1)}/bulk-set-unused";
     // Internal Pipeline
-    public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/extract";
-    public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/convert-to-pdf";
+    public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/extract";
+    public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/convert-to-pdf";
     public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
     public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
-    public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/document-index-count";
-    public const string GenerateThumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex?}";
-    public const string Thumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
+    public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/document-index-count";
+    public const string GenerateThumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId}/thumbnails/{maxDimensionPixel}/{pageIndex?}";
+    public const string Thumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
     public const string Status = "status";
     public const string Health = "health";
     public const string GetHostName = "gethostname";
