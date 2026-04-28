@@ -29,7 +29,7 @@ pool:
   name: $(build-agent)
 
 stages:
-  - stage: Setup .NET
+  - stage: Setup.NET
     jobs:
     - job: InstallDotNet
       steps:
