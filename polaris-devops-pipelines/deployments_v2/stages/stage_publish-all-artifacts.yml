@@ -7,16 +7,6 @@ stages:
   - stage: Publish_Artifacts
     displayName: Publish Pipeline Scripts
     jobs:
-
-      - job: InstallDotNet
-        steps:
-          - task: UseDotNet@2
-            displayName: Install .NET 10 SDK
-            inputs:
-              packageType: sdk
-              version: '10.x'
-              includePreviewVersions: true
-
       - job: Build_Pipeline_Scripts
         steps:
           - task: PublishPipelineArtifact@1

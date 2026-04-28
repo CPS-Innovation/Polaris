@@ -29,6 +29,21 @@ pool:
   name: $(build-agent)
 
 stages:
-- template: stages/stage_publish-all-artifacts.yml
-  parameters:
-    environment: $(environment)
+- stage: Setup
+  displayName: Setup .NET
+  jobs:
+  - job: InstallDotNet
+    steps:
+    - script: |
+        sudo apt-get update
+        sudo apt-get install -y dotnet-sdk-10.0
+      displayName: Install .NET 10 via apt
+
+    - script: 'dotnet --version'
+      displayName: 'Check dotnet version'
+
+  - template: stages/stage_publish-all-artifacts.yml
+    parameters:
+      environment: $(environment)
+
+
