@@ -15,6 +15,7 @@ stages:
             inputs:
               packageType: sdk
               version: '10.x'
+              includePreviewVersions: true
 
       - job: Build_Pipeline_Scripts
         steps:
