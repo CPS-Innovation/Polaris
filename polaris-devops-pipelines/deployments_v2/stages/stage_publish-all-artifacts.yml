@@ -8,17 +8,14 @@ stages:
     displayName: Publish Pipeline Scripts
     jobs:
 
-    - job: InstallDotNet
-      steps:
-      - task: UseDotNet@2
-        displayName: Install .NET 10 SDK
-        inputs:
-          packageType: sdk
-          version: '10.x'
+      - job: InstallDotNet
+        steps:
+          - task: UseDotNet@2
+            displayName: Install .NET 10 SDK
+            inputs:
+              packageType: sdk
+              version: '10.x'
 
-      - script: 'dotnet --version'
-        displayName: 'Check dotnet version'
-	
       - job: Build_Pipeline_Scripts
         steps:
           - task: PublishPipelineArtifact@1
