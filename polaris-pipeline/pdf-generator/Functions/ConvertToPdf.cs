@@ -40,7 +40,7 @@ namespace pdf_generator.Functions
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
         [Function(nameof(ConvertToPdf))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
-            string caseUrn, int caseId, string documentId, string versionId)
+            string caseUrn, int caseId, string materialId, string documentId)
         {
             Guid currentCorrelationId = default;
             currentCorrelationId = request.Headers.GetCorrelationId();
@@ -56,8 +56,8 @@ namespace pdf_generator.Functions
                 telemetryEvent.FileType = fileType.ToString();
                 telemetryEvent.CaseId = caseId.ToString();
                 telemetryEvent.CaseUrn = caseUrn;
-                telemetryEvent.DocumentId = documentId;
-                telemetryEvent.VersionId = versionId;
+                telemetryEvent.DocumentId = materialId;
+                telemetryEvent.VersionId = documentId;
 
                 var startTime = DateTime.UtcNow;
                 telemetryEvent.StartTime = startTime;
@@ -74,7 +74,7 @@ namespace pdf_generator.Functions
                 var originalBytes = inputStream.Length;
                 telemetryEvent.OriginalBytes = originalBytes;
 
-                var conversionResult = await _pdfOrchestratorService.ReadToPdfStreamAsync(inputStream, fileType, documentId, currentCorrelationId);
+                var conversionResult = await _pdfOrchestratorService.ReadToPdfStreamAsync(inputStream, fileType, materialId, currentCorrelationId);
 
                 // #25834 - Successfully converted documents may still have a failure reason we need to record
                 if (conversionResult.HasFailureReason())

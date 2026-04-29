@@ -27,7 +27,7 @@ namespace text_extractor.Functions
         }
 
         [Function(nameof(DocumentIndexCount))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentIndexCount)] HttpRequest request, int caseId, string documentId, long versionId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentIndexCount)] HttpRequest request, int caseId, string materialId, long documentId)
         {
             var correlationId = Guid.Empty;
 
@@ -35,7 +35,7 @@ namespace text_extractor.Functions
             {
                 correlationId = request.Headers.GetCorrelationId();
 
-                var result = await _searchIndexService.GetDocumentIndexCount(caseId, documentId, versionId, correlationId);
+                var result = await _searchIndexService.GetDocumentIndexCount(caseId, materialId, documentId, correlationId);
 
                 return CreateJsonResult(result);
             }

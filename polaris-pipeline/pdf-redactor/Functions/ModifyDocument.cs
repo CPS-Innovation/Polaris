@@ -37,7 +37,7 @@ namespace pdf_redactor.Functions
         }
 
         [Function(nameof(ModifyDocument))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest request, string caseUrn, int caseId, string documentId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest request, string caseUrn, int caseId, string materialId)
         {
             Guid currentCorrelationId = default;
 
@@ -72,7 +72,7 @@ namespace pdf_redactor.Functions
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
                 }
 
-                var modifiedPdfStream = await _documentManipulationService.RemoveOrRotatePagesAsync(caseId, documentId, modifications, currentCorrelationId);
+                var modifiedPdfStream = await _documentManipulationService.RemoveOrRotatePagesAsync(caseId, materialId, modifications, currentCorrelationId);
 
                 return new FileStreamResult(modifiedPdfStream, ContentType.Pdf);
             }

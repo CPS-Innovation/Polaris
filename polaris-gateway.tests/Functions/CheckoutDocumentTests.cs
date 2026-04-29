@@ -37,7 +37,7 @@ public class CheckoutDocumentTests
         var caseId = 1;
         var documentId = "documentId";
         long versionId = 2;
-        var mdsDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
+        var mdsDocumentIdAndVersionIdArgDto = new MdsMaterialIdAndDocumentIdArgDto();
         var checkoutDocumentDto = new CheckoutDocumentDto()
         {
             IsSuccess = true
@@ -61,7 +61,7 @@ public class CheckoutDocumentTests
         var caseId = 1;
         var documentId = "documentId";
         long versionId = 2;
-        var mdsDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
+        var mdsDocumentIdAndVersionIdArgDto = new MdsMaterialIdAndDocumentIdArgDto();
         var checkoutDocumentDto = new CheckoutDocumentDto()
         {
             IsSuccess = false,

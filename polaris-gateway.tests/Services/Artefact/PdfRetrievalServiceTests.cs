@@ -225,7 +225,7 @@ public class PdfRetrievalServiceTests
         var caseId = 1;
         var documentId = "CMS-123456";
         long versionId = 1;
-        var mdsDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
+        var mdsDocumentIdAndVersionIdArgDto = new MdsMaterialIdAndDocumentIdArgDto();
         var fileResult = new FileResult()
         {
             FileName = $"name.{fileType}",
@@ -257,7 +257,7 @@ public class PdfRetrievalServiceTests
         var caseId = 1;
         var documentId = "CMS-123456";
         long versionId = 1;
-        var mdsDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
+        var mdsDocumentIdAndVersionIdArgDto = new MdsMaterialIdAndDocumentIdArgDto();
         var fileResult = new FileResult()
         {
             FileName = "name.nonFileType",

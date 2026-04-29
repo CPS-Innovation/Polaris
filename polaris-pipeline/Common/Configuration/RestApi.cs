@@ -1,6 +1,4 @@
 ﻿using System.Security.AccessControl;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
 namespace Common.Configuration;
 
 public static class RestApi
@@ -74,40 +72,40 @@ public static class RestApi
     public static string GetCasePath(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}";
 
     public static string GetCaseTrackerPath(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}/tracker";
-    public static string GetBulkRedactionSearchTrackerPath(string caseUrn, int caseId, string documentId, long versionId, string searchText) => $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/search/tracker?SearchText={searchText}";
+    public static string GetBulkRedactionSearchTrackerPath(string caseUrn, int caseId, string materialId, long documentId, string searchText) => $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/search/tracker?SearchText={searchText}";
 
     public static string GetCaseSearchQueryPath(string caseUrn, int caseId, string searchTerm) =>
         $"urns/{caseUrn}/cases/{caseId}/search?query={searchTerm}";
 
-    public static string GetRedactDocumentPath(string caseUrn, int caseId, string documentId, long versionId) =>
-        $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/redact";
+    public static string GetRedactDocumentPath(string caseUrn, int caseId, string materialId, long documentId) =>
+        $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/redact";
 
-    public static string GetConvertToPdfPath(string caseUrn, int caseId, string documentId, long versionId) =>
-        $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/convert-to-pdf";
+    public static string GetConvertToPdfPath(string caseUrn, int caseId, string materialId, long documentId) =>
+        $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/convert-to-pdf";
 
-    public static string GetExtractPath(string caseUrn, int caseId, string documentId, long versionId) =>
-        $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/extract";
+    public static string GetExtractPath(string caseUrn, int caseId, string materialId, long documentId) =>
+        $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/extract";
 
     public static string GetRemoveCaseIndexesPath(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}/remove-case-indexes";
 
     public static string GetSearchPath(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}/search";
 
-    public static string GetRedactPdfPath(string caseUrn, int caseId, string documentId, long versionId) =>
-        $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/redact";
+    public static string GetRedactPdfPath(string caseUrn, int caseId, string materialId, long documentId) =>
+        $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/redact";
 
     public static string GetCaseIndexCountResultsPath(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}/case-index-count";
 
-    public static string GetDocumentIndexCountResultsPath(string caseUrn, int caseId, string documentId, long versionId) =>
-        $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/document-index-count";
+    public static string GetDocumentIndexCountResultsPath(string caseUrn, int caseId, string materialId, long documentId) =>
+        $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/document-index-count";
 
-    public static string GetModifyDocumentPath(string caseUrn, int caseId, string documentId, long versionId) =>
-        $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/modify";
+    public static string GetModifyDocumentPath(string caseUrn, int caseId, string materialId, long documentId) =>
+        $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/modify";
 
     public static string CaseSearchCountPath(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}/search/count";
 
-    public static string GetThumbnailPath(string caseUrn, int caseId, string documentId, int versionId, int maxDimensionPixel, int? pageIndex) =>
-        $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
+    public static string GetThumbnailPath(string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int? pageIndex) =>
+        $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
 
-    public static string GetBulkRedactionSearchPathAsync(string caseUrn, int caseId, string documentId, long versionId, string searchText) =>
-        $"urns/{caseUrn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/search?SearchText={searchText}";
+    public static string GetBulkRedactionSearchPathAsync(string caseUrn, int caseId, string materialId, long documentId, string searchText) =>
+        $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/search?SearchText={searchText}";
 }

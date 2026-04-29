@@ -28,15 +28,15 @@ namespace pdf_thumbnail_generator.Functions
 
         [Function(nameof(GetThumbnail))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Thumbnail)] HttpRequest req, 
-            string caseUrn, int caseId, string documentId, int versionId, int maxDimensionPixel, int pageIndex)
+            string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int pageIndex)
         { 
             Guid currentCorrelationId = default;
-            
+
             try
             { 
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var thumbnailBlobId = new BlobIdType(caseId, documentId, versionId, BlobType.Thumbnail);
+                var thumbnailBlobId = new BlobIdType(caseId, materialId, documentId, BlobType.Thumbnail);
                 
                 var imageStream = await _blobStorageServiceContainerThumbnails.GetBlobAsync(thumbnailBlobId);
 

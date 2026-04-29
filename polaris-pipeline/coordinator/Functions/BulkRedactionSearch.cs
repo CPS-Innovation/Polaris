@@ -30,7 +30,7 @@ public class BulkRedactionSearch
     [Function(nameof(BulkRedactionSearch))]
     public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.OcrSearch)] HttpRequest req, string caseUrn,
-        int caseId, string documentId, long versionId, CancellationToken cancellationToken,
+        int caseId, string materialId, long documentId, CancellationToken cancellationToken,
         [DurableClient] DurableTaskClient orchestrationClient)
     {
         var currentCorrelationId = req.Headers.GetCorrelationId();
@@ -41,8 +41,8 @@ public class BulkRedactionSearch
         {
             Urn = caseUrn,
             CaseId = caseId,
-            DocumentId = documentId,
-            VersionId = versionId,
+            DocumentId = materialId,
+            VersionId = documentId,
             SearchText = searchText,
             CmsAuthValues = cmsAuthValues,
             CorrelationId = currentCorrelationId

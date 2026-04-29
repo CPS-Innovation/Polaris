@@ -26,13 +26,13 @@ public interface IMdsClient
 
     Task<IEnumerable<CmsDocumentDto>> ListDocumentsAsync(MdsCaseIdentifiersArgDto arg);
 
-    Task<FileResult> GetDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg);
+    Task<FileResult> GetDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg);
 
-    Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg);
+    Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg);
 
-    Task CancelCheckoutDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg);
+    Task CancelCheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg);
 
-    Task<HttpResponseMessage> UploadPdfAsync(MdsDocumentIdAndVersionIdArgDto arg, Stream stream);
+    Task<HttpResponseMessage> UploadPdfAsync(MdsMaterialIdAndDocumentIdArgDto arg, Stream stream);
 
     Task<IEnumerable<DocumentNoteDto>> GetDocumentNotesAsync(MdsDocumentArgDto arg);
 

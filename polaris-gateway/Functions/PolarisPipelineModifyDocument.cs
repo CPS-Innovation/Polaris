@@ -48,9 +48,9 @@ public class PolarisPipelineModifyDocument : BaseFunction
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to add a new action plan.", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(object), Summary = "Case found", Description = "Returns case details")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId)
     {
-        var telemetryEvent = new DocumentModifiedEvent(caseId, documentId)
+        var telemetryEvent = new DocumentModifiedEvent(caseId, materialId)
         {
             OperationName = nameof(PolarisPipelineModifyDocument),
         };
@@ -81,8 +81,8 @@ public class PolarisPipelineModifyDocument : BaseFunction
             var response = await _coordinatorClient.ModifyDocument(
                 caseUrn,
                 caseId,
+                materialId,
                 documentId,
-                versionId,
                 modifyDocumentDto,
                 cmsAuthValues,
                 correlationId);

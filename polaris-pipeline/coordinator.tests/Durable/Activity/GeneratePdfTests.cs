@@ -94,7 +94,7 @@ public class GeneratePdfFromDocumentTests
             DocumentNatureType = DocumentNature.Types.Document,
             Path = "path.txt"
         };
-        var arg = new MdsDocumentIdAndVersionIdArgDto();
+        var arg = new MdsMaterialIdAndDocumentIdArgDto();
         var fileResult = new FileResult();
         var convertToPdfResponse = new ConvertToPdfResponse()
         {
@@ -122,7 +122,7 @@ public class GeneratePdfFromDocumentTests
             DocumentNatureType = DocumentNature.Types.Document,
             Path = "path.txt"
         };
-        var arg = new MdsDocumentIdAndVersionIdArgDto();
+        var arg = new MdsMaterialIdAndDocumentIdArgDto();
         var fileResult = new FileResult();
         var convertToPdfResponse = new ConvertToPdfResponse()
         {
