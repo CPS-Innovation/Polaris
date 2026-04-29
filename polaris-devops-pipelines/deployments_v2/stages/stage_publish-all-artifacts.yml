@@ -286,17 +286,17 @@ stages:
               secureFile: 'Aspose.Total.NET.lic'
               displayName: 'Download Aspose Licence'
 
-          - task: UseDotNet@2
-            displayName: Install .NET SDK 10.x
-            inputs:
+           - task: UseDotNet@2
+             displayName: Install .NET SDK 10.x
+             inputs:
               packageType: sdk
               version: '10.x'
               includePreviewVersions: true
 
-          - script: |
-              which dotnet
-              dotnet --version
-              dotnet --list-sdks
+           - script: |
+                which dotnet
+                dotnet --version
+                dotnet --list-sdks
 
            - task: CopyFiles@2
              inputs:
