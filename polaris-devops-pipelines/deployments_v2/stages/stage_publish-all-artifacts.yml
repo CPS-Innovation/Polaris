@@ -236,6 +236,19 @@ stages:
 
       - job: Build_Text_Extractor_Artifact
         steps:
+
+          - task: UseDotNet@2
+            displayName: Install .NET SDK 10.x
+            inputs:
+              packageType: sdk
+              version: '10.x'
+              includePreviewVersions: true
+
+          - script: |
+              which dotnet
+              dotnet --version
+              dotnet --list-sdks
+
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
 
@@ -272,6 +285,18 @@ stages:
              inputs:
               secureFile: 'Aspose.Total.NET.lic'
               displayName: 'Download Aspose Licence'
+
+          - task: UseDotNet@2
+            displayName: Install .NET SDK 10.x
+            inputs:
+              packageType: sdk
+              version: '10.x'
+              includePreviewVersions: true
+
+          - script: |
+              which dotnet
+              dotnet --version
+              dotnet --list-sdks
 
            - task: CopyFiles@2
              inputs:
@@ -311,6 +336,19 @@ stages:
 
       - job: Build_Maintenance_Function_Artifact
         steps:
+
+          - task: UseDotNet@2
+            displayName: Install .NET SDK 10.x
+            inputs:
+              packageType: sdk
+              version: '10.x'
+              includePreviewVersions: true
+
+          - script: |
+              which dotnet
+              dotnet --version
+              dotnet --list-sdks
+
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
 
