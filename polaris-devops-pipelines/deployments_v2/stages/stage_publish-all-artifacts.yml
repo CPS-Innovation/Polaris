@@ -51,6 +51,19 @@ stages:
 
       - job: Build_Coordinator_Artifact
         steps:
+
+          - task: UseDotNet@2
+            displayName: Install .NET SDK 10.x
+            inputs:
+              packageType: sdk
+              version: '10.x'
+              includePreviewVersions: true
+
+          - script: |
+              which dotnet
+              dotnet --version
+              dotnet --list-sdks
+
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
 
