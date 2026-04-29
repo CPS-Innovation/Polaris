@@ -93,7 +93,7 @@ namespace Ddei.Factories
         public MdsDocumentArgDto CreateDocumentArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId)
             => CreateDocumentArgDto(cmsAuthValues, correlationId, urn, caseId, ConvertToDdeiDocumentId(materialId));
 
-        public MdsMaterialIdAndDocumentIdArgDto CreateDocumentVersionArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long materialId, long versionId)
+        public MdsMaterialIdAndDocumentIdArgDto CreateDocumentVersionArgDto(string cmsAuthValues, Guid correlationId, string urn, int caseId, long materialId, long documentId)
         {
             return new MdsMaterialIdAndDocumentIdArgDto
             {
@@ -102,7 +102,7 @@ namespace Ddei.Factories
                 Urn = urn,
                 CaseId = caseId,
                 MaterialId = materialId,
-                DocumentId = versionId,
+                DocumentId = documentId,
             };
         }
 
