@@ -9,11 +9,28 @@ stages:
     jobs:
       - job: dotnet
         steps:
+          - task: UseDotNet@2
+            displayName: Install .NET SDK 10.x
+            inputs:
+              packageType: sdk
+              version: '10.x'
+              includePreviewVersions: true
+
           - script: |
-              sudo apt-get update
-              sudo apt-get install -y dotnet-sdk-10.0
-            displayName: Install .NET 10 via apt
-            
+              which dotnet
+              dotnet --version
+              dotnet --list-sdks
+            displayName: Verify .NET SDK
+
+      - job: Build_Pipeline_Scripts
+        steps:
+          - task: PublishPipelineArtifact@1
+            displayName: "Publish pipeline scripts"
+            inputs:
+              targetPath: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts"
+              artifact: "polaris-script-files"
+              publishLocation: "pipeline"
+
       - job: Build_Pipeline_Scripts
         steps:
           - task: PublishPipelineArtifact@1
