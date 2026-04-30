@@ -47,7 +47,7 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
                 CmsAuthValuesMissingException _ => HttpStatusCode.Unauthorized,
                 OcrDocumentNotFoundException _ => HttpStatusCode.NotFound,
                 DocumentNotFoundException _ => HttpStatusCode.NotFound,
-                HttpRequestException _ => HttpStatusCode.BadGateway,
+                HttpRequestException e => (HttpStatusCode)e.StatusCode, 
                 _ => HttpStatusCode.InternalServerError,
             };
 
@@ -71,7 +71,9 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
 
                 var newHttpResponse = httpRequestData.CreateResponse(statusCode);
 
-                await newHttpResponse.WriteAsJsonAsync(new { ErrorMessage = exception.ToStringFullResponse(), CorrelationId = correlationId });
+                var errorMessage = ExtractErrorMessage(exception);
+
+                await newHttpResponse.WriteAsJsonAsync(new { Error = errorMessage, AdditionalDetails = exception.ToStringFullResponse(), CorrelationId = correlationId });
 
                 var invocationResult = context.GetInvocationResult();
 
@@ -100,6 +102,37 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
                 _telemetryClient.TrackRequest(requestTelemetry);
             }
         }
+    }
+
+    private static string ExtractErrorMessage(Exception exception)
+    {
+        var fullExceptionText = exception.InnerException.Message;
+      
+        if (string.IsNullOrWhiteSpace(fullExceptionText))
+        {
+            fullExceptionText = exception.Message;
+        }
+
+        const string startToken = "Exception Message:";
+        const string endToken = "\",\"traceId\"";
+
+        // Find the start
+        var startIndex = fullExceptionText.IndexOf(startToken, StringComparison.OrdinalIgnoreCase);
+        if (startIndex < 0)
+        {
+            return fullExceptionText;
+        }
+
+        startIndex += startToken.Length;
+
+        // Find the end
+        var endIndex = fullExceptionText.IndexOf(endToken, startIndex, StringComparison.OrdinalIgnoreCase);
+        if (endIndex < 0 || endIndex <= startIndex)
+        {
+            return fullExceptionText[startIndex..].Trim();
+        }
+
+        return fullExceptionText[startIndex..endIndex].Trim();
     }
 
     private static OutputBindingData<HttpResponseData> GetHttpOutputBindingFromMultipleOutputBinding(FunctionContext context)
