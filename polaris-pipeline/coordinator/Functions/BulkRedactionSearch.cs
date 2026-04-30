@@ -41,8 +41,8 @@ public class BulkRedactionSearch
         {
             Urn = caseUrn,
             CaseId = caseId,
-            DocumentId = materialId,
-            VersionId = documentId,
+            MaterialId = materialId,
+            DocumentId = documentId,
             SearchText = searchText,
             CmsAuthValues = cmsAuthValues,
             CorrelationId = currentCorrelationId

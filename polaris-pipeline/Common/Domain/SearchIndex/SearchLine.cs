@@ -6,13 +6,13 @@ namespace Common.Domain.SearchIndex;
 
 public class SearchLine : Line, ISearchable
 {
-    public SearchLine(string id, int caseId, string documentId, long versionId, string blobName, int pageIndex, int lineIndex, string language, IList<double?> boundingBox, Appearance appearance,
+    public SearchLine(string id, int caseId, string materialId, long documentId, string blobName, int pageIndex, int lineIndex, string language, IList<double?> boundingBox, Appearance appearance,
         string text, IList<Word> words, double pageHeight, double pageWidth)
     {
         Id = id;
         CaseId = caseId;
-        DocumentId = documentId;
-        VersionId = versionId;
+        DocumentId = materialId;
+        VersionId = documentId;
         FileName = blobName;
         PageIndex = pageIndex;
         LineIndex = lineIndex;
@@ -32,10 +32,10 @@ public class SearchLine : Line, ISearchable
     [JsonPropertyName("caseId")]
     public int CaseId { get; set; }
 
-    [JsonPropertyName("documentId")]
+    [JsonPropertyName("materialId")]
     public string DocumentId { get; set; }
 
-    [JsonPropertyName("versionId")]
+    [JsonPropertyName("documentId")]
     public long VersionId { get; set; }
 
     [JsonPropertyName("fileName")]

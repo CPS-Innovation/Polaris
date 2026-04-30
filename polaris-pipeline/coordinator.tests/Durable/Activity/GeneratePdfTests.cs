@@ -101,9 +101,9 @@ public class GeneratePdfFromDocumentTests
             Status = pdfConversionStatus
         };
         _polarisBlobStorageServiceMock.Setup(s => s.BlobExistsAsync(It.IsAny<BlobIdType>(), payload.IsOcredProcessedPreference)).ReturnsAsync(false);
-        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(payload.CmsAuthValues, payload.CorrelationId, payload.Urn, payload.CaseId, payload.DocumentId, payload.VersionId)).Returns(arg);
+        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(payload.CmsAuthValues, payload.CorrelationId, payload.Urn, payload.CaseId, payload.MaterialId, payload.DocumentId)).Returns(arg);
         _mdsClientMock.Setup(s => s.GetDocumentAsync(arg)).ReturnsAsync(fileResult);
-        _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(payload.CorrelationId, payload.Urn, payload.CaseId, payload.DocumentId, payload.VersionId, fileResult.Stream, payload.FileType.Value)).ReturnsAsync(convertToPdfResponse);
+        _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(payload.CorrelationId, payload.Urn, payload.CaseId, payload.MaterialId, payload.DocumentId, fileResult.Stream, payload.FileType.Value)).ReturnsAsync(convertToPdfResponse);
 
         //act
         var result = await _generatePdfFromDocument.Run(payload);
@@ -130,9 +130,9 @@ public class GeneratePdfFromDocumentTests
             PdfStream = new MemoryStream()
         };
         _polarisBlobStorageServiceMock.Setup(s => s.BlobExistsAsync(It.IsAny<BlobIdType>(), payload.IsOcredProcessedPreference)).ReturnsAsync(false);
-        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(payload.CmsAuthValues, payload.CorrelationId, payload.Urn, payload.CaseId, payload.DocumentId, payload.VersionId)).Returns(arg);
+        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(payload.CmsAuthValues, payload.CorrelationId, payload.Urn, payload.CaseId, payload.MaterialId, payload.DocumentId)).Returns(arg);
         _mdsClientMock.Setup(s => s.GetDocumentAsync(arg)).ReturnsAsync(fileResult);
-        _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(payload.CorrelationId, payload.Urn, payload.CaseId, payload.DocumentId, payload.VersionId, fileResult.Stream, payload.FileType.Value)).ReturnsAsync(convertToPdfResponse);
+        _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(payload.CorrelationId, payload.Urn, payload.CaseId, payload.MaterialId, payload.DocumentId, fileResult.Stream, payload.FileType.Value)).ReturnsAsync(convertToPdfResponse);
 
         //act
         var result = await _generatePdfFromDocument.Run(payload);

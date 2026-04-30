@@ -17,8 +17,8 @@ public class GetThumbnailTests : BaseFunctionIntegrationTest
         // arrange
         var urn = "16XL8836126";
         var caseId = 2179140;
-        var documentId = "CMS-8977782";
-        var versionId = 8185976;
+        var materialId = "CMS-8977782";
+        var documentId = 8185976;
         var maxDimensionPixel = 200;
         var pageIndex = 0;
 
@@ -26,8 +26,8 @@ public class GetThumbnailTests : BaseFunctionIntegrationTest
         var result = await PolarisGatewayApiClient.GetThumbnailAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             maxDimensionPixel,
             pageIndex,
             TestContext.CurrentContext.CancellationToken);
@@ -42,8 +42,8 @@ public class GetThumbnailTests : BaseFunctionIntegrationTest
         // arrange
         var urn = "16XL8836126";
         var caseId = 2179140;
-        var documentId = "CMS-8977782";
-        var versionId = 8185976;
+        var materialId = "CMS-8977782";
+        var documentId = 8185976;
         var maxDimensionPixel = 200;
         var pageIndex = 0;
 
@@ -51,8 +51,8 @@ public class GetThumbnailTests : BaseFunctionIntegrationTest
         var result = await PolarisGatewayApiClient.GetThumbnailAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             maxDimensionPixel,
             pageIndex,
             TestContext.CurrentContext.CancellationToken);
@@ -67,8 +67,8 @@ public class GetThumbnailTests : BaseFunctionIntegrationTest
         // arrange
         var urn = "16XL8836126";
         var caseId = 2179140;
-        var documentId = "CMS-8977782";
-        var versionId = 8185976;
+        var materialId = "CMS-8977782";
+        var documentId = 8185976;
         var maxDimensionPixel = 256;
         var pageIndex = 0;
 
@@ -76,8 +76,8 @@ public class GetThumbnailTests : BaseFunctionIntegrationTest
         var result = await PolarisGatewayApiClient.GetThumbnailAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             maxDimensionPixel,
             pageIndex,
             TestContext.CurrentContext.CancellationToken);
@@ -96,8 +96,8 @@ public class GetThumbnailTests : BaseFunctionIntegrationTest
         // arrange
         var urn = "16XL8836126";
         var caseId = 2179140;
-        var documentId = "CMS-8977782";
-        var versionId = 8185976;
+        var materialId = "CMS-8977782";
+        var documentId = 8185976;
         var maxDimensionPixel = 256;
         var pageIndex = 0;
 
@@ -105,8 +105,8 @@ public class GetThumbnailTests : BaseFunctionIntegrationTest
         var result = await PolarisGatewayApiClient.GetThumbnailAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             maxDimensionPixel,
             pageIndex,
             TestContext.CurrentContext.CancellationToken);

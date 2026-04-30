@@ -10,7 +10,7 @@ namespace coordinator.Mappers
         {
             return new SearchFilterDocument
             {
-                DocumentId = baseDocumentEntity.DocumentId,
+                DocumentId = baseDocumentEntity.MaterialId,
                 VersionId = baseDocumentEntity.VersionId,
             };
         }

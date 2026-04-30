@@ -27,7 +27,7 @@ namespace coordinator.Durable.Payloads.Domain
         public DocumentStatus Status { get; set; }
 
         [JsonPropertyName("documentId")]
-        public abstract string DocumentId { get; }
+        public abstract string MaterialId { get; }
 
         [JsonPropertyName("cmsDocumentId")]
         //[AdaptIgnore]

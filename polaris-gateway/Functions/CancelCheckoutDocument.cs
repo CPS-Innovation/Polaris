@@ -38,12 +38,12 @@ public class CancelCheckoutDocument : BaseFunction
     [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(string), Description = "The Id of the document which has to be removed", Required = true)]
-    [OpenApiParameter("documentId", In = ParameterLocation.Path, Type = typeof(long), Description = "The version Id of the document which has to be removed", Required = true)]
+    [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(long), Description = "The version Id of the document which has to be removed", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(AddDocumentNoteRequestDto), Summary = "Case found", Description = "Returns case details")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string documentId, long versionId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId)
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
@@ -53,8 +53,8 @@ public class CancelCheckoutDocument : BaseFunction
                 correlationId: correlationId,
                 urn: caseUrn,
                 caseId: caseId,
-                materialId: documentId,
-                documentId: versionId);
+                materialId: materialId,
+                documentId: documentId);
 
         await _mdsClient.CancelCheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto);
 

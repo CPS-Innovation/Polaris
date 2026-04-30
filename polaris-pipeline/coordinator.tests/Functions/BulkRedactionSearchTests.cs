@@ -46,8 +46,8 @@ public class BulkRedactionSearchTests
         req.QueryString = new QueryString($"?SearchText={searchText}");
         var caseUrn = "caseUrn";
         var caseId = 1;
-        var documentId = "CMS-12345";
-        var versionId = 2;
+        var materialId = "CMS-12345";
+        var documentId = 2;
         var cancellationToken = CancellationToken.None;
         var orchestrationClientMock = new Mock<DurableTaskClient>("name");
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse()
@@ -58,7 +58,7 @@ public class BulkRedactionSearchTests
         _bulkRedactionSearchServiceMock.Setup(s => s.BulkRedactionSearchAsync(It.IsAny<BulkRedactionSearchDto>(), orchestrationClientMock.Object, cancellationToken)).ReturnsAsync(bulkRedactionSearchResponse);
 
         //act
-        var result = await _bulkRedactionSearch.Run(req, caseUrn, caseId, documentId, versionId, cancellationToken, orchestrationClientMock.Object);
+        var result = await _bulkRedactionSearch.Run(req, caseUrn, caseId, materialId, documentId, cancellationToken, orchestrationClientMock.Object);
 
         //assert
         Assert.IsType<ObjectResult>(result);

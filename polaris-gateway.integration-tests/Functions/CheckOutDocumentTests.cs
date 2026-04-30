@@ -87,11 +87,11 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
         //arrange
         var urn = "45AA4200123";
         var caseId = 2150969;
-        var documentId = "CMS-8709092";
-        var versionId = 7965216;
+        var materialId = "CMS-8709092";
+        var documentId = 7965216;
 
         //act
-        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
+        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, materialId, documentId, TestContext.CurrentContext.CancellationToken);
 
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.Conflict));
