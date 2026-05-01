@@ -32,10 +32,10 @@ public class SearchLine : Line, ISearchable
     [JsonPropertyName("caseId")]
     public int CaseId { get; set; }
 
-    [JsonPropertyName("materialId")]
+    [JsonPropertyName("documentId")]
     public string DocumentId { get; set; }
 
-    [JsonPropertyName("documentId")]
+    [JsonPropertyName("versionId")]
     public long VersionId { get; set; }
 
     [JsonPropertyName("fileName")]
