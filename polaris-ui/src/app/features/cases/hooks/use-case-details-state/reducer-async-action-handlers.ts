@@ -152,16 +152,19 @@ const getMappedDocument = (
   return documentList.find((item) => item.documentId === documentId)!;
 };
 
-function getErrorMessage(username?: unknown): string {
-  if (typeof username !== "string") {
-    return "Unknown error";
-  }
+function getReadableMessageFromCheckoutResponseError(
+  error?: unknown
+): string | undefined {
+  if (!(error instanceof ApiError)) return undefined;
+
+  const username = error.customProperties?.username;
+  if (typeof username !== "string") return undefined;
 
   try {
     const parsed = JSON.parse(username);
-    return typeof parsed?.Error === "string" ? parsed.Error : "Unknown error";
+    return typeof parsed?.Error === "string" ? parsed.Error : undefined;
   } catch {
-    return "Unknown error";
+    return undefined;
   }
 }
 
@@ -269,8 +272,8 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
           },
         });
       } catch (error: unknown) {
-        const { code, customProperties } = error as ApiError;
-        const errorMessage = getErrorMessage(customProperties?.username);
+        const { code } = error as ApiError;
+        const errorMessage = getReadableMessageFromCheckoutResponseError(error);
 
         if (code === CHECKOUT_BLOCKED_STATUS_CODE) {
           const action = pageRotations ? "rotate" : "redact";
@@ -286,7 +289,9 @@ export const reducerAsyncActionHandlers: AsyncActionHandlers<
             payload: {
               type: "documentalreadycheckedout",
               title: `Failed to ${action} document`,
-              message: `${errorMessage}. Please try again later.`,
+              message: `${
+                errorMessage ?? "Unknown error"
+              }. Please try again later.`,
             },
           });
           return;
