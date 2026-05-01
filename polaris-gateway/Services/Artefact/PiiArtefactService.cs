@@ -31,14 +31,14 @@ public class PiiArtefactService : IPiiArtefactService
         _ocrArtefactService = ocrArtefactService.ExceptionIfNull();
     }
 
-    public async Task<ArtefactResult<IEnumerable<PiiLine>>> GetPiiAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, Guid? operationId = null, bool forceRefresh = false)
+    public async Task<ArtefactResult<IEnumerable<PiiLine>>> GetPiiAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isOcrProcessed, Guid? operationId = null, bool forceRefresh = false)
     {
-        if (!forceRefresh && await _cacheService.TryGetJsonObjectAsync<IEnumerable<PiiLine>>(caseId, documentId, versionId, BlobType.Pii) is (true, var results))
+        if (!forceRefresh && await _cacheService.TryGetJsonObjectAsync<IEnumerable<PiiLine>>(caseId, materialId, documentId, BlobType.Pii) is (true, var results))
         {
             return _artefactServiceResponseFactory.CreateOkfResult(results, true);
         }
 
-        var ocrResult = await _ocrArtefactService.GetOcrAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId, isOcrProcessed, operationId, forceRefresh);
+        var ocrResult = await _ocrArtefactService.GetOcrAsync(cmsAuthValues, correlationId, urn, caseId, materialId, documentId, isOcrProcessed, operationId, forceRefresh);
 
         if (ocrResult.Status != ResultStatus.ArtefactAvailable)
         {
@@ -46,7 +46,7 @@ public class PiiArtefactService : IPiiArtefactService
         }
 
         var piiResult = await _piiService.GetPiiResultsAsync(ocrResult.Artefact, correlationId);
-        await _cacheService.UploadJsonObjectAsync(caseId, documentId, versionId, BlobType.Pii, piiResult);
+        await _cacheService.UploadJsonObjectAsync(caseId, materialId, documentId, BlobType.Pii, piiResult);
         return _artefactServiceResponseFactory.CreateOkfResult(piiResult, false);
     }
 }

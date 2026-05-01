@@ -15,8 +15,8 @@ public class DocumentPayload : CasePayload
     (
         string urn,
         int caseId,
-        string documentId,
-        long versionId,
+        string materialId,
+        long documentId,
         string path,
         DocumentTypeDto documentType,
         DocumentNature.Types documentNatureType,
@@ -27,8 +27,8 @@ public class DocumentPayload : CasePayload
     )
     : base(urn, caseId, cmsAuthValues, correlationId)
     {
+        MaterialId = materialId;
         DocumentId = documentId;
-        VersionId = versionId;
         DocumentType = documentType;
         Path = path;
         DocumentNatureType = documentNatureType;
@@ -36,9 +36,9 @@ public class DocumentPayload : CasePayload
         IsOcredProcessedPreference = isOcredProcessedPreference;
     }
 
-    public string DocumentId { get; set; }
+    public string MaterialId { get; set; }
 
-    public long VersionId { get; set; }
+    public long DocumentId { get; set; }
 
     public string Path { get; set; }
 

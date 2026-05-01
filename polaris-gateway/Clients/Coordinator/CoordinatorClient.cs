@@ -54,11 +54,11 @@ public class CoordinatorClient : ICoordinatorClient
         return response;
     }
         
-    public async Task<HttpResponseMessage> GetTrackerBulkRedactionSearchAsync(string caseUrn, int caseId, string documentId, long versionId, string searchText, Guid correlationId, CancellationToken cancellationToken = default)
+    public async Task<HttpResponseMessage> GetTrackerBulkRedactionSearchAsync(string caseUrn, int caseId, string materialId, long documentId, string searchText, Guid correlationId, CancellationToken cancellationToken = default)
     {
         var response = await SendRequestAsync(
             HttpMethod.Get,
-            RestApi.GetBulkRedactionSearchTrackerPath(caseUrn, caseId, documentId, versionId, searchText),
+            RestApi.GetBulkRedactionSearchTrackerPath(caseUrn, caseId, materialId, documentId, searchText),
             correlationId, skipRetry: true, cancellationToken: cancellationToken);
 
         // #27357 we return 404 if 503 or 502 status code is returned. The client handles 404s and continues to poll
@@ -70,11 +70,11 @@ public class CoordinatorClient : ICoordinatorClient
         return response;
     }
 
-    public async Task<HttpResponseMessage> SaveRedactionsAsync(string caseUrn, int caseId, string documentId, long versionId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
+    public async Task<HttpResponseMessage> SaveRedactionsAsync(string caseUrn, int caseId, string materialId, long documentId, RedactPdfRequestDto redactPdfRequest, string cmsAuthValues, Guid correlationId)
     {
         return await SendRequestAsync(
             HttpMethod.Put,
-            RestApi.GetRedactDocumentPath(caseUrn, caseId, documentId, versionId),
+            RestApi.GetRedactDocumentPath(caseUrn, caseId, materialId, documentId),
             correlationId,
             cmsAuthValues,
             new StringContent(JsonSerializer.Serialize(redactPdfRequest), Encoding.UTF8, ContentType.Json));
@@ -94,19 +94,19 @@ public class CoordinatorClient : ICoordinatorClient
             RestApi.CaseSearchCountPath(caseUrn, caseId),
             correlationId);
 
-    public async Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, string documentId, long versionId, ModifyDocumentDto modifyDocumentRequest, string cmsAuthValues, Guid correlationId) =>
+    public async Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, string materialId, long documentId, ModifyDocumentDto modifyDocumentRequest, string cmsAuthValues, Guid correlationId) =>
         await SendRequestAsync(
             HttpMethod.Post,
-            RestApi.GetModifyDocumentPath(caseUrn, caseId, documentId, versionId),
+            RestApi.GetModifyDocumentPath(caseUrn, caseId, materialId, documentId),
             correlationId,
             cmsAuthValues,
             new StringContent(JsonSerializer.Serialize(modifyDocumentRequest, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }), Encoding.UTF8, ContentType.Json));
 
-    public async Task<HttpResponseMessage> BulkRedactionSearchAsync(string caseUrn, int caseId, string documentId, long versionId, string searchText,
+    public async Task<HttpResponseMessage> BulkRedactionSearchAsync(string caseUrn, int caseId, string materialId, long documentId, string searchText,
         Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default) =>
         await SendRequestAsync(
             HttpMethod.Get,
-            RestApi.GetBulkRedactionSearchPathAsync(caseUrn, caseId, documentId, versionId, searchText),
+            RestApi.GetBulkRedactionSearchPathAsync(caseUrn, caseId, materialId, documentId, searchText),
             correlationId,
             cmsAuthValues,
             cancellationToken: cancellationToken);

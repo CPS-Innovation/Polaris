@@ -46,8 +46,8 @@ public class BulkRedactionSearchResponseBuilder : IBulkRedactionSearchResponseBu
     {
         _bulkRedactionSearchResponse.Urn = bulkRedactionSearchDto.Urn;
         _bulkRedactionSearchResponse.CaseId = bulkRedactionSearchDto.CaseId;
+        _bulkRedactionSearchResponse.MaterialId = bulkRedactionSearchDto.MaterialId;
         _bulkRedactionSearchResponse.DocumentId = bulkRedactionSearchDto.DocumentId;
-        _bulkRedactionSearchResponse.VersionId = bulkRedactionSearchDto.VersionId;
         _bulkRedactionSearchResponse.SearchText = bulkRedactionSearchDto.SearchText;
         return _bulkRedactionSearchResponse;
     }

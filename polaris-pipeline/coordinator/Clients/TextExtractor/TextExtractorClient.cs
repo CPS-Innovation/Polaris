@@ -32,10 +32,10 @@ namespace coordinator.Clients.TextExtractor
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        public async Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(string documentId, string urn, int caseId, long versionId, Guid correlationId, Stream ocrResults)
+        public async Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(string materialId, string urn, int caseId, long documentId, Guid correlationId, Stream ocrResults)
         {
-            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetExtractPath(urn, caseId, documentId, versionId), correlationId);
-            request.Headers.Add(DocumentId, documentId);
+            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetExtractPath(urn, caseId, materialId, documentId), correlationId);
+            request.Headers.Add(DocumentId, materialId);
 
             using var requestContent = new StreamContent(ocrResults);
             request.Content = requestContent;
@@ -100,9 +100,9 @@ namespace coordinator.Clients.TextExtractor
             }
         }
 
-        public async Task<SearchIndexCountResult> GetDocumentIndexCount(string urn, int caseId, string documentId, long versionId, Guid correlationId)
+        public async Task<SearchIndexCountResult> GetDocumentIndexCount(string urn, int caseId, string materialId, long documentId, Guid correlationId)
         {
-            var request = _requestFactory.Create(HttpMethod.Get, RestApi.GetDocumentIndexCountResultsPath(urn, caseId, documentId, versionId), correlationId);
+            var request = _requestFactory.Create(HttpMethod.Get, RestApi.GetDocumentIndexCountResultsPath(urn, caseId, materialId, documentId), correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {

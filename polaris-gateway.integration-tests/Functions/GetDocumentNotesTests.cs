@@ -18,10 +18,10 @@ public class GetDocumentNotesTests : BaseFunctionIntegrationTest
         //arrange
         var urn = "urn";
         var caseId = 0;
-        var documentId = "CMS-12345";
+        var materialId = "CMS-12345";
 
         //act
-        var result = await PolarisGatewayApiClient.GetDocumentNotesAsync(urn, caseId, documentId,
+        var result = await PolarisGatewayApiClient.GetDocumentNotesAsync(urn, caseId, materialId,
             TestContext.CurrentContext.CancellationToken);
 
         //assert
@@ -29,15 +29,15 @@ public class GetDocumentNotesTests : BaseFunctionIntegrationTest
     }
 
     [Test]
-    public async Task GetDocumentNotes_DocumentIdIs0_ShouldReturnBadRequest()
+    public async Task GetDocumentNotes_MaterialIdIs0_ShouldReturnBadRequest()
     {
         //arrange
         var urn = "urn";
         var caseId = 1;
-        var documentId = "CMS-0";
+        var materialId = "CMS-0";
 
         //act
-        var result = await PolarisGatewayApiClient.GetDocumentNotesAsync(urn, caseId, documentId,
+        var result = await PolarisGatewayApiClient.GetDocumentNotesAsync(urn, caseId, materialId,
             TestContext.CurrentContext.CancellationToken);
 
         //assert
@@ -50,15 +50,15 @@ public class GetDocumentNotesTests : BaseFunctionIntegrationTest
         //arrange
         var urn = "54KR7689125";
         var caseId = 2160797;
-        var documentId = "CMS-8880088";
+        var materialId = "CMS-8880088";
 
         //act
-        var result = await PolarisGatewayApiClient.GetDocumentNotesAsync(urn, caseId, documentId,
+        var result = await PolarisGatewayApiClient.GetDocumentNotesAsync(urn, caseId, materialId,
             TestContext.CurrentContext.CancellationToken);
 
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
         Assert.That(result.ResponseObject.Count(), Is.AtLeast(3));
-        Assert.That(result.ResponseObject.ToList()[0].Id, Is.EqualTo(int.Parse(documentId.Split('-')[1])));
+        Assert.That(result.ResponseObject.ToList()[0].Id, Is.EqualTo(int.Parse(materialId.Split('-')[1])));
     }
 }

@@ -18,13 +18,13 @@ namespace coordinator.Durable.Payloads.Domain
             HasMultipleDefendants = defendantsAndCharges?.DefendantsAndCharges.Count() > 1;
         }
 
-        public override string DocumentId => DocumentNature.ToQualifiedStringDocumentId(CmsDocumentId, DocumentNature.Types.DefendantsAndCharges);
+        public override string MaterialId => DocumentNature.ToQualifiedStringDocumentId(CmsDocumentId, DocumentNature.Types.DefendantsAndCharges);
 
         public bool HasMultipleDefendants { get; set; }
 
-        public string PresentationTitle => DocumentId;
+        public string PresentationTitle => MaterialId;
 
-        public string CmsOriginalFileName => $"{DocumentId}.pdf";
+        public string CmsOriginalFileName => $"{MaterialId}.pdf";
 
         // this date is never displayed, and is not used for any logic
         public static string CmsFileCreatedDate => new DateTime(1970, 1, 1).ToString("yyyy-MM-dd");

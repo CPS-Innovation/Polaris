@@ -116,7 +116,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return mdsResults.Select(mdsResult => _caseDocumentMapper.Map(mdsResult));
     }
 
-    public async Task<FileResult> GetDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg)
+    public async Task<FileResult> GetDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg)
     {
         var response = await CallHttpClientAsync(_mdsClientRequestFactory.CreateGetDocumentRequest(arg), arg.CmsAuthValues);
         var fileName = response.Content.Headers.GetValues("Content-Disposition").ToList()[0];
@@ -128,7 +128,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
         };
     }
 
-    public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg)
+    public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg)
     {
         var response = await CallHttpClientAsync(
             _mdsClientRequestFactory.CreateCheckoutDocumentRequest(arg), arg.CmsAuthValues, HttpStatusCode.Conflict);
@@ -145,12 +145,12 @@ public class MdsClient : BaseCmsClient, IMdsClient
             };
     }
 
-    public async Task CancelCheckoutDocumentAsync(MdsDocumentIdAndVersionIdArgDto arg)
+    public async Task CancelCheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg)
     {
         await CallHttpClientAsync(_mdsClientRequestFactory.CreateCancelCheckoutDocumentRequest(arg), arg.CmsAuthValues);
     }
 
-    public async Task<HttpResponseMessage> UploadPdfAsync(MdsDocumentIdAndVersionIdArgDto arg, Stream stream)
+    public async Task<HttpResponseMessage> UploadPdfAsync(MdsMaterialIdAndDocumentIdArgDto arg, Stream stream)
     {
         return await CallHttpClientAsync(_mdsClientRequestFactory.CreateUploadPdfRequest(arg, stream), arg.CmsAuthValues,
         [

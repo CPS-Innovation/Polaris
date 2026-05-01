@@ -31,14 +31,14 @@ public class PdfArtefactService : IPdfArtefactService
         _ocrService = ocrService.ExceptionIfNull();
     }
 
-    public async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId, bool isOcrProcessed, bool forceRefresh = false)
+    public async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isOcrProcessed, bool forceRefresh = false)
     {
-        if (!forceRefresh && await _cacheService.TryGetPdfAsync(caseId, documentId, versionId, isOcrProcessed) is (true, var stream))
+        if (!forceRefresh && await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed) is (true, var stream))
         {
             return _artefactServiceResponseFactory.CreateOkfResult(stream, true);
         }
 
-        var result = await _pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId);
+        var result = await _pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, urn, caseId, materialId, documentId);
 
         if (result.Status != PdfConversionStatus.DocumentConverted)
         {
@@ -54,19 +54,19 @@ public class PdfArtefactService : IPdfArtefactService
         }
 
         // Process OCR and upload to cache
-        await ProcessAndUploadOcrAsync(pdfBytes, caseId, documentId, versionId, correlationId);
+        await ProcessAndUploadOcrAsync(pdfBytes, caseId, materialId, documentId, correlationId);
 
         // For PDF upload: use another fresh MemoryStream
         using (var uploadStream = new MemoryStream(pdfBytes))
         {
-            await _cacheService.UploadPdfAsync(caseId, documentId, versionId, isOcrProcessed, uploadStream);
+            await _cacheService.UploadPdfAsync(caseId, materialId, documentId, isOcrProcessed, uploadStream);
         }
 
-        var (_, pdfStream) = await _cacheService.TryGetPdfAsync(caseId, documentId, versionId, isOcrProcessed);
+        var (_, pdfStream) = await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed);
         return _artefactServiceResponseFactory.CreateOkfResult(pdfStream, false);
     }
 
-    private async Task ProcessAndUploadOcrAsync(byte[] pdfBytes, int caseId, string documentId, long versionId, Guid correlationId)
+    private async Task ProcessAndUploadOcrAsync(byte[] pdfBytes, int caseId, string materialId, long documentId, Guid correlationId)
     {
         // For OCR: use a fresh MemoryStream
         using (var ocrStream = new MemoryStream(pdfBytes))
@@ -85,7 +85,7 @@ public class PdfArtefactService : IPdfArtefactService
 
                 if (ocrResult.IsSuccess && ocrResult.AnalyzeResults != null)
                 {
-                    await _cacheService.UploadJsonObjectAsync(caseId, documentId, versionId, BlobType.Ocr, ocrResult.AnalyzeResults);
+                    await _cacheService.UploadJsonObjectAsync(caseId, materialId, documentId, BlobType.Ocr, ocrResult.AnalyzeResults);
                     ocrSuccess = true;
                     break;
                 }

@@ -6,12 +6,12 @@ namespace PolarisGateway.Services.Artefact
 {
     public interface ICacheService
     {
-        Task<(bool, Stream)> TryGetPdfAsync(int caseId, string documentId, long versionId, bool isOcrProcessed);
+        Task<(bool, Stream)> TryGetPdfAsync(int caseId, string materialId, long documentId, bool isOcrProcessed);
 
-        Task UploadPdfAsync(int caseId, string documentId, long versionId, bool isOcrProcessed, Stream stream);
+        Task UploadPdfAsync(int caseId, string materialId, long documentId, bool isOcrProcessed, Stream stream);
 
-        Task<(bool, T)> TryGetJsonObjectAsync<T>(int caseId, string documentId, long versionId, BlobType blobType);
+        Task<(bool, T)> TryGetJsonObjectAsync<T>(int caseId, string materialId, long documentId, BlobType blobType);
 
-        Task UploadJsonObjectAsync<T>(int caseId, string documentId, long versionId, BlobType blobType, T obj);
+        Task UploadJsonObjectAsync<T>(int caseId, string materialId, long documentId, BlobType blobType, T obj);
     }
 }

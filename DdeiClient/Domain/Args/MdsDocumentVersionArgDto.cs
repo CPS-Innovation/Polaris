@@ -2,8 +2,8 @@ using Ddei.Domain.CaseData.Args.Core;
 
 namespace Ddei.Domain.CaseData.Args
 {
-    public class MdsDocumentIdAndVersionIdArgDto : MdsDocumentArgDto
+    public class MdsMaterialIdAndDocumentIdArgDto : MdsDocumentArgDto
     {
-        public long VersionId { get; set; }
+        public long DocumentId { get; set; }
     }
 }

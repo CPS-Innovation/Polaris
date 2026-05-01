@@ -36,7 +36,7 @@ namespace text_extractor.Functions
 
         [Function(nameof(StoreCaseIndexes))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Extract)] HttpRequest request,
-            string caseUrn, int caseId, string documentId, long versionId)
+            string caseUrn, int caseId, string materialId, long documentId)
         {
             Guid currentCorrelationId = default;
             try
@@ -56,8 +56,8 @@ namespace text_extractor.Functions
                     (
                         ocrResults,
                         caseId,
+                        materialId,
                         documentId,
-                        versionId,
                         currentCorrelationId
                     );
 

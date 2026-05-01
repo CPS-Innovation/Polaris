@@ -19,11 +19,11 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
         //arrange
         var urn = "54KR7689125";
         var caseId = 2160797;
-        var documentId = "CMS-8930494";
-        var versionId = 8155871;
+        var materialId = "CMS-8930494";
+        var documentId = 8155871;
 
         //act
-        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
+        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, materialId, documentId, TestContext.CurrentContext.CancellationToken);
 
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.OK));
@@ -36,11 +36,11 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
         //arrange
         var urn = "urn";
         var caseId = 0;
-        var documentId = "CMS-12345";
-        var versionId = 1;
+        var materialId = "CMS-12345";
+        var documentId = 1;
 
         //act
-        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
+        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, materialId, documentId, TestContext.CurrentContext.CancellationToken);
 
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.NotFound));
@@ -48,16 +48,16 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
 
     [Category("IntegrationTests")]
     [Test]
-    public async Task CheckoutDocument_DocumentIdIs0_ShouldReturn400()
+    public async Task CheckoutDocument_MaterialIdIs0_ShouldReturn400()
     {
         //arrange
         var urn = "urn";
         var caseId = 1;
-        var documentId = "CMS-0";
-        var versionId = 1;
+        var materialId = "CMS-0";
+        var documentId = 1;
 
         //act
-        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
+        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, materialId, documentId, TestContext.CurrentContext.CancellationToken);
 
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
@@ -65,16 +65,16 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
 
     [Category("IntegrationTests")]
     [Test]
-    public async Task CheckoutDocument_VersionIdIs0_ShouldReturn404()
+    public async Task CheckoutDocument_DocumentIdIs0_ShouldReturn404()
     {
         //arrange
         var urn = "urn";
         var caseId = 1;
-        var documentId = "CMS-12345";
-        var versionId = 0;
+        var materialId = "CMS-12345";
+        var documentId = 0;
 
         //act
-        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
+        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, materialId, documentId, TestContext.CurrentContext.CancellationToken);
 
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.NotFound));
@@ -87,11 +87,11 @@ public class CheckOutDocumentTests() : BaseFunctionIntegrationTest
         //arrange
         var urn = "45AA4200123";
         var caseId = 2150969;
-        var documentId = "CMS-8709092";
-        var versionId = 7965216;
+        var materialId = "CMS-8709092";
+        var documentId = 7965216;
 
         //act
-        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
+        var result = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, materialId, documentId, TestContext.CurrentContext.CancellationToken);
 
         //assert
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.Conflict));

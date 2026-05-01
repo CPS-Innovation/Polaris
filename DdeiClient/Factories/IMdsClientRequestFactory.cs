@@ -20,15 +20,15 @@ public interface IMdsClientRequestFactory
 
     HttpRequestMessage CreateListCaseDocumentsRequest(MdsCaseIdentifiersArgDto arg);
 
-    HttpRequestMessage CreateCheckoutDocumentRequest(MdsDocumentIdAndVersionIdArgDto arg);
+    HttpRequestMessage CreateCheckoutDocumentRequest(MdsMaterialIdAndDocumentIdArgDto arg);
 
-    HttpRequestMessage CreateCancelCheckoutDocumentRequest(MdsDocumentIdAndVersionIdArgDto arg);
+    HttpRequestMessage CreateCancelCheckoutDocumentRequest(MdsMaterialIdAndDocumentIdArgDto arg);
 
-    HttpRequestMessage CreateGetDocumentRequest(MdsDocumentIdAndVersionIdArgDto arg);
+    HttpRequestMessage CreateGetDocumentRequest(MdsMaterialIdAndDocumentIdArgDto arg);
 
     HttpRequestMessage CreateDocumentFromFileStoreRequest(MdsFileStoreArgDto arg);
 
-    HttpRequestMessage CreateUploadPdfRequest(MdsDocumentIdAndVersionIdArgDto arg, Stream stream);
+    HttpRequestMessage CreateUploadPdfRequest(MdsMaterialIdAndDocumentIdArgDto arg, Stream stream);
 
     HttpRequestMessage CreateStatusRequest();
 

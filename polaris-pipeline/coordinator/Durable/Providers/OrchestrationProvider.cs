@@ -151,7 +151,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         return OrchestrationProviderStatus.Initiated;
     }
 
-    private static string GetKey(DocumentPayload documentPayload) => $"[{documentPayload.CaseId}.{documentPayload.DocumentId}.{documentPayload.VersionId}]";
+    private static string GetKey(DocumentPayload documentPayload) => $"[{documentPayload.CaseId}.{documentPayload.MaterialId}.{documentPayload.DocumentId}]";
 
     private static async Task<List<string>> GetInstanceIdsAsync(DurableTaskClient client, OrchestrationQuery condition)
     {

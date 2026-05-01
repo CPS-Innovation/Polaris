@@ -166,7 +166,7 @@ namespace coordinator.tests.Durable.Orchestration
             {
                 _mockTaskOrchestrationContext.Verify(context => context.CallSubOrchestratorAsync<RefreshDocumentOrchestratorResponse>(
                     nameof(RefreshDocumentOrchestrator),
-                    It.Is<DocumentPayload>(payload => payload.CaseId == _payload.CaseId && payload.DocumentId == document.Document.DocumentId),
+                    It.Is<DocumentPayload>(payload => payload.CaseId == _payload.CaseId && payload.MaterialId == document.Document.MaterialId),
                     It.IsAny<TaskOptions>()));
             }
         }

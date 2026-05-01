@@ -35,18 +35,18 @@ public class CheckoutDocumentTests
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
-        var documentId = "documentId";
-        long versionId = 2;
-        var mdsDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
+        var materialId = "materialId";
+        long documentId = 2;
+        var mdsDocumentIdAndVersionIdArgDto = new MdsMaterialIdAndDocumentIdArgDto();
         var checkoutDocumentDto = new CheckoutDocumentDto()
         {
             IsSuccess = true
         };
-        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, versionId)).Returns(mdsDocumentIdAndVersionIdArgDto);
+        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, materialId, documentId)).Returns(mdsDocumentIdAndVersionIdArgDto);
         _mdsClientMock.Setup(s => s.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto)).ReturnsAsync(checkoutDocumentDto);
 
         //act
-        var result = await _checkoutDocument.Run(req, caseUrn, caseId, documentId, versionId);
+        var result = await _checkoutDocument.Run(req, caseUrn, caseId, materialId, documentId);
 
         //assert
         Assert.IsType<OkResult>(result);
@@ -59,19 +59,19 @@ public class CheckoutDocumentTests
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
-        var documentId = "documentId";
-        long versionId = 2;
-        var mdsDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
+        var materialId = "materialId";
+        long documentId = 2;
+        var mdsDocumentIdAndVersionIdArgDto = new MdsMaterialIdAndDocumentIdArgDto();
         var checkoutDocumentDto = new CheckoutDocumentDto()
         {
             IsSuccess = false,
             LockingUserName = "lockingUserName"
         };
-        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, versionId)).Returns(mdsDocumentIdAndVersionIdArgDto);
+        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, materialId, documentId)).Returns(mdsDocumentIdAndVersionIdArgDto);
         _mdsClientMock.Setup(s => s.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto)).ReturnsAsync(checkoutDocumentDto);
 
         //act
-        var result = await _checkoutDocument.Run(req, caseUrn, caseId, documentId, versionId);
+        var result = await _checkoutDocument.Run(req, caseUrn, caseId, materialId, documentId);
 
         //assert
         Assert.IsType<ConflictObjectResult>(result);

@@ -35,7 +35,7 @@ public abstract class BaseGeneratePdf
 
     protected async Task<PdfConversionResponse> Run(DocumentPayload payload)
     {
-        var blobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Pdf);
+        var blobId = new BlobIdType(payload.CaseId, payload.MaterialId, payload.DocumentId, BlobType.Pdf);
 
         if (await _polarisBlobStorageService.BlobExistsAsync(blobId, payload.IsOcredProcessedPreference))
         {
@@ -53,8 +53,8 @@ public abstract class BaseGeneratePdf
             payload.CorrelationId,
             payload.Urn,
             payload.CaseId,
+            payload.MaterialId,
             payload.DocumentId,
-            payload.VersionId,
             documentStream,
             payload.FileType.Value);
 

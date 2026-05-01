@@ -35,7 +35,7 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
     {
         var (caseDocuments, materialTypeList) = await FetchDocumentAndMaterialTypes(_mdsClient, arg);
 
-        var document = caseDocuments.SingleOrDefault(x => x.DocumentId == arg.DocumentId);
+        var document = caseDocuments.SingleOrDefault(x => x.DocumentId == arg.MaterialId);
         if (document == null) return new DocumentReclassifiedResult { IsSuccess = false, Result = null };
 
         var materialType = materialTypeList.SingleOrDefault(x => x.TypeId == arg.DocumentTypeId);
@@ -78,9 +78,8 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
             CorrelationId = arg.CorrelationId,
             Urn = arg.Urn,
             CaseId = arg.CaseId,
-            DocumentId = arg.DocumentId,
+            MaterialId = arg.MaterialId,
             Classification = arg.DocumentTypeId == DefenceStatementTypeId ? DefenceStatementClassification : materialType.Classification,
-            MaterialId = arg.DocumentId,
             DocumentTypeId = arg.DocumentTypeId,
             Subject = document.PresentationTitle,
             Statement = SetReclassifyDocumentStatement(materialType, document, arg),
@@ -93,7 +92,7 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
 
     private async Task<DocumentRenamedResultDto> RenameDocument(MdsReclassifyDocumentArgDto arg, IMdsClient mdsClient, MaterialTypeDto materialType, string documentName)
     {
-        var renameDocumentArg = _mdsArgFactory.CreateRenameDocumentArgDto(arg.CmsAuthValues, arg.CorrelationId, arg.Urn, arg.CaseId, arg.DocumentId, documentName);
+        var renameDocumentArg = _mdsArgFactory.CreateRenameDocumentArgDto(arg.CmsAuthValues, arg.CorrelationId, arg.Urn, arg.CaseId, arg.MaterialId, documentName);
         DocumentRenamedResultDto response = new();
 
         if (materialType.Classification == ExhibitClassification)

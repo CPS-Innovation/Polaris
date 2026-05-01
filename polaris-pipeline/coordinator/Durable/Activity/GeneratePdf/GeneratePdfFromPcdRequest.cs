@@ -43,7 +43,7 @@ public class GeneratePdfFromPcdRequest : BaseGeneratePdf
             payload.CorrelationId,
             payload.Urn,
             payload.CaseId,
-            payload.DocumentId);
+            payload.MaterialId);
             
         var pcdRequest = await MdsClient.GetPcdRequestAsync(arg);
         return await _convertPcdRequestToHtmlService.ConvertAsync(pcdRequest);

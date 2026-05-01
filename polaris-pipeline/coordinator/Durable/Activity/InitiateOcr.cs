@@ -25,13 +25,13 @@ public class InitiateOcr
 
     public async Task<InitiateOcrResponse> Run([ActivityTrigger] DocumentPayload payload)
     {
-        var ocrBlobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Ocr);
+        var ocrBlobId = new BlobIdType(payload.CaseId, payload.MaterialId, payload.DocumentId, BlobType.Ocr);
         if (await _polarisBlobStorageService.BlobExistsAsync(ocrBlobId))
         {
             return new InitiateOcrResponse { BlobAlreadyExists = true, OcrOperationId = Guid.Empty };
         }
 
-        var pdfBlobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Pdf);
+        var pdfBlobId = new BlobIdType(payload.CaseId, payload.MaterialId, payload.DocumentId, BlobType.Pdf);
         await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(pdfBlobId);
         return new InitiateOcrResponse { BlobAlreadyExists = false, OcrOperationId = await _ocrService.InitiateOperationAsync(documentStream, payload.CorrelationId) };
     }
