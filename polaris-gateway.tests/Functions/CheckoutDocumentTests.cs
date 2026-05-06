@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using PolarisGateway.Functions;
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -53,29 +54,33 @@ public class CheckoutDocumentTests
     }
 
     [Fact]
-    public async Task Run_ClientResultIsNotSuccess_ShouldReturn409()
+    public async Task Run_ClientThrowsConflict_ShouldBubbleException()
     {
-        //arrange
+        // arrange
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
         var documentId = "documentId";
         long versionId = 2;
+
         var mdsDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
-        var checkoutDocumentDto = new CheckoutDocumentDto()
-        {
-            IsSuccess = false,
-            LockingUserName = "lockingUserName"
-        };
-        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, versionId)).Returns(mdsDocumentIdAndVersionIdArgDto);
-        _mdsClientMock.Setup(s => s.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto)).ReturnsAsync(checkoutDocumentDto);
 
-        //act
-        var result = await _checkoutDocument.Run(req, caseUrn, caseId, documentId, versionId);
+        _mdsArgFactoryMock
+            .Setup(s => s.CreateDocumentVersionArgDto(
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                caseUrn,
+                caseId,
+                documentId,
+                versionId))
+            .Returns(mdsDocumentIdAndVersionIdArgDto);
 
-        //assert
-        Assert.IsType<ConflictObjectResult>(result);
-        var response = result as ConflictObjectResult;
-        Assert.Equal(checkoutDocumentDto.LockingUserName, response.Value);
+        _mdsClientMock
+            .Setup(s => s.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto))
+            .ThrowsAsync(new HttpRequestException("409 Conflict"));
+
+        // act + assert
+        await Assert.ThrowsAsync<HttpRequestException>(() =>
+            _checkoutDocument.Run(req, caseUrn, caseId, documentId, versionId));
     }
 }
