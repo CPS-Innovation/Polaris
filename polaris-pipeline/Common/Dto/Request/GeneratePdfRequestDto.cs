@@ -5,12 +5,12 @@ namespace Common.Dto.Request
 {
     public class GeneratePdfRequestDto
     {
-        public GeneratePdfRequestDto(string caseUrn, int caseId, string documentCategory, string documentId, string fileName, long versionId)
+        public GeneratePdfRequestDto(string caseUrn, int caseId, string documentCategory, string materialId, string fileName, long versionId)
         {
             CaseUrn = caseUrn;
             CaseId = caseId;
             DocumentCategory = documentCategory;
-            DocumentId = documentId;
+            DocumentId = materialId;
             FileName = fileName;
             VersionId = versionId;
         }

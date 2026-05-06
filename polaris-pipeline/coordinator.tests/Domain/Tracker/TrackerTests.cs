@@ -76,8 +76,8 @@ namespace coordinator.tests.Domain.Response.Documents
             var serialisedTracker = JsonSerializer.Serialize(_caseDurableEntityDocumentsState);
             var deserialisedTracker = JsonSerializer.Deserialize<CaseDurableEntityDocumentsState>(serialisedTracker);
 
-            _caseDurableEntityDocumentsState.CmsDocuments[0].DocumentId.Should().Be(deserialisedTracker.CmsDocuments[0].DocumentId);
-            _caseDurableEntityDocumentsState.PcdRequests[0].DocumentId.Should().Be(deserialisedTracker.PcdRequests[0].DocumentId);
+            _caseDurableEntityDocumentsState.CmsDocuments[0].MaterialId.Should().Be(deserialisedTracker.CmsDocuments[0].MaterialId);
+            _caseDurableEntityDocumentsState.PcdRequests[0].MaterialId.Should().Be(deserialisedTracker.PcdRequests[0].MaterialId);
         }
 
         [Fact]

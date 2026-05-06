@@ -27,21 +27,21 @@ public class PolarisGatewayApiClient : BaseApiClient
         _cmsAuthApiClient = new CmsAuthApiClient(configuration);
     }
 
-    public async Task<ApiClientResponse> CheckOutDocumentAsync(string urn, int caseId, string documentId, long versionId, CancellationToken cancellationToken = default)
+    public async Task<ApiClientResponse> CheckOutDocumentAsync(string urn, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
     {
-        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/checkout";
+        var route = $"urns/{urn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/checkout";
         return await SendAsync(route, HttpMethod.Post, cancellationToken);
     }
 
-    public async Task<ApiClientResponse> CancelCheckoutDocumentAsync(string urn, int caseId, string documentId, int versionId, CancellationToken cancellationToken)
+    public async Task<ApiClientResponse> CancelCheckoutDocumentAsync(string urn, int caseId, string materialId, int documentId, CancellationToken cancellationToken)
     {
-        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/checkout";
+        var route = $"urns/{urn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/checkout";
         return await SendAsync(route, HttpMethod.Delete, cancellationToken);
     }
 
-    public async Task<ApiClientResponse> AddDocumentNote(string urn, int caseId, string documentId, AddDocumentNoteRequestDto addDocumentNoteRequestDto, CancellationToken cancellationToken = default)
+    public async Task<ApiClientResponse> AddDocumentNote(string urn, int caseId, string materialId, AddDocumentNoteRequestDto addDocumentNoteRequestDto, CancellationToken cancellationToken = default)
     {
-        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/notes";
+        var route = $"urns/{urn}/cases/{caseId}/documents/{materialId}/notes";
         return await SendAsync(route, HttpMethod.Post, addDocumentNoteRequestDto, cancellationToken);
     }
 
@@ -109,14 +109,14 @@ public class PolarisGatewayApiClient : BaseApiClient
     public async Task<ApiClientResponse<object>> GetPiiAsync(
         string urn,
         int caseId,
-        string documentId,
-        long versionId,
+        string materialId,
+        long documentId,
         CancellationToken cancellationToken,
         bool? isOcrProcessed = null,
         bool? forceRefresh = null,
         Guid? token = null)
     {
-        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/pii";
+        var route = $"urns/{urn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/pii";
 
         var qs = new List<string>();
         if (isOcrProcessed.HasValue) qs.Add($"isOcrProcessed={isOcrProcessed.Value.ToString().ToLowerInvariant()}");
@@ -136,23 +136,23 @@ public class PolarisGatewayApiClient : BaseApiClient
     public async Task<ApiClientResponse<PiiPollResponse>> GetPiiPollAsync(
         string urn,
         int caseId,
-        string documentId,
-        long versionId,
+        string materialId,
+        long documentId,
         CancellationToken cancellationToken)
     {
-        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/pii";
+        var route = $"urns/{urn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/pii";
         return await SendAsync<PiiPollResponse>(route, HttpMethod.Get, cancellationToken);
     }
 
     public async Task<ApiClientFileResponse> BulkRedactionSearchAsync(
         string urn,
         int caseId,
-        string documentId,
-        long versionId,
+        string materialId,
+        long documentId,
         string searchText,
         CancellationToken cancellationToken)
     {
-        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/search";
+        var route = $"urns/{urn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/search";
 
         // Function reads req.Query["SearchText"]
         if (!string.IsNullOrWhiteSpace(searchText))
@@ -182,13 +182,13 @@ public class PolarisGatewayApiClient : BaseApiClient
     public async Task<ApiClientFileResponse> GetThumbnailAsync(
         string urn,
         int caseId,
-        string documentId,
-        int versionId,
+        string materialId,
+        int documentId,
         int maxDimensionPixel,
         int pageIndex,
         CancellationToken cancellationToken)
     {
-        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
+        var route = $"urns/{urn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
         return await SendFileAsync(route, HttpMethod.Get, cancellationToken);
     }
 
@@ -227,25 +227,25 @@ public class PolarisGatewayApiClient : BaseApiClient
     public async Task<ApiClientResponse<OcrPollResponse>> GetOcrPollAsync(
         string urn,
         int caseId,
-        string documentId,
-        long versionId,
+        string materialId,
+        long documentId,
         CancellationToken cancellationToken)
     {
-        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/ocr";
+        var route = $"urns/{urn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/ocr";
         return await SendAsync<OcrPollResponse>(route, HttpMethod.Get, cancellationToken);
     }
 
     public async Task<ApiClientResponse<AnalyzeResults>> GetOcrAsync(
         string urn,
         int caseId,
-        string documentId,
-        long versionId,
+        string materialId,
+        long documentId,
         CancellationToken cancellationToken,
         bool? isOcrProcessed = null,
         bool? forceRefresh = null,
         Guid? token = null)
     {
-        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/ocr";
+        var route = $"urns/{urn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/ocr";
 
         // optional query string support (matches function query params)
         var qs = new List<string>();
@@ -274,13 +274,13 @@ public class PolarisGatewayApiClient : BaseApiClient
     public async Task<ApiClientFileResponse> GetPdfAsync(
         string urn,
         int caseId,
-        string documentId,
-        int versionId,
+        string materialId,
+        int documentId,
         CancellationToken cancellationToken,
         bool? isOcrProcessed = null,
         bool? forceRefresh = null)
     {
-        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/versions/{versionId}/pdf";
+        var route = $"urns/{urn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/pdf";
         return await SendFileAsync(route, HttpMethod.Get, cancellationToken);
     }
 
@@ -290,9 +290,9 @@ public class PolarisGatewayApiClient : BaseApiClient
         return await SendAsync<IEnumerable<DocumentDto>>(route, HttpMethod.Get, cancellationToken);
     }
 
-    public async Task<ApiClientResponse<IEnumerable<DocumentNoteDto>>> GetDocumentNotesAsync(string urn, int caseId, string documentId, CancellationToken cancellationToken)
+    public async Task<ApiClientResponse<IEnumerable<DocumentNoteDto>>> GetDocumentNotesAsync(string urn, int caseId, string materialId, CancellationToken cancellationToken)
     {
-        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/notes";
+        var route = $"urns/{urn}/cases/{caseId}/documents/{materialId}/notes";
         return await SendAsync<IEnumerable<DocumentNoteDto>>(route, HttpMethod.Get, cancellationToken);
     }
 
@@ -326,9 +326,9 @@ public class PolarisGatewayApiClient : BaseApiClient
         return await SendAsync<CaseIdentifiersDto>(route, HttpMethod.Get, cancellationToken);
     }
 
-    public async Task<ApiClientResponse<DocumentReclassifiedResultDto>> ReclassifyDocumentAsync(int urn, int caseId, string documentId, ReclassifyDocumentDto request, CancellationToken cancellationToken)
+    public async Task<ApiClientResponse<DocumentReclassifiedResultDto>> ReclassifyDocumentAsync(int urn, int caseId, string materialId, ReclassifyDocumentDto request, CancellationToken cancellationToken)
     {
-        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/reclassify";
+        var route = $"urns/{urn}/cases/{caseId}/documents/{materialId}/reclassify";
         return await SendAsync<ReclassifyDocumentDto, DocumentReclassifiedResultDto>(route, HttpMethod.Post, request, cancellationToken);
     }
 
@@ -351,9 +351,9 @@ public class PolarisGatewayApiClient : BaseApiClient
         return await SendAsync<IEnumerable<PcdReviewCoreResponseDto>>(route, HttpMethod.Get, cancellationToken);
     }
 
-    public async Task<ApiClientResponse> RenameDocumentAsync(string urn, int caseId, string documentId, RenameDocumentRequestDto request, CancellationToken cancellationToken)
+    public async Task<ApiClientResponse> RenameDocumentAsync(string urn, int caseId, string materialId, RenameDocumentRequestDto request, CancellationToken cancellationToken)
     {
-        var route = $"urns/{urn}/cases/{caseId}/documents/{documentId}/rename";
+        var route = $"urns/{urn}/cases/{caseId}/documents/{materialId}/rename";
         return await SendAsync<RenameDocumentRequestDto>(route, HttpMethod.Put, request, cancellationToken);
     }
 

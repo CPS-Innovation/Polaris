@@ -67,7 +67,7 @@ namespace coordinator.Durable.Payloads.Domain
         }
 
         [JsonPropertyName("documentId")]
-        public override string DocumentId => DocumentNature.ToQualifiedStringDocumentId(CmsDocumentId, DocumentNature.Types.Document);
+        public override string MaterialId => DocumentNature.ToQualifiedStringDocumentId(CmsDocumentId, DocumentNature.Types.Document);
 
         [JsonPropertyName("path")]
         public string Path { get; set; }

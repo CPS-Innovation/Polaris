@@ -65,8 +65,8 @@ public class BulkRedactionSearchServiceTests
         {
             Urn = "urn",
             CaseId = 1,
-            DocumentId = $"{documentPrefix}-12345",
-            VersionId = 2,
+            MaterialId = $"{documentPrefix}-12345",
+            DocumentId = 2L,
             SearchText = "searchText",
             CmsAuthValues = "cmsAuthValues",
             CorrelationId = Guid.NewGuid()
@@ -96,8 +96,8 @@ public class BulkRedactionSearchServiceTests
         {
             Urn = "urn",
             CaseId = 1,
-            DocumentId = "CMS-12345",
-            VersionId = 2,
+            MaterialId = "CMS-12345",
+            DocumentId = 2L,
             SearchText = "searchText",
             CmsAuthValues = "cmsAuthValues",
             CorrelationId = Guid.NewGuid()
@@ -123,8 +123,8 @@ public class BulkRedactionSearchServiceTests
         {
             Urn = "urn",
             CaseId = 1,
-            DocumentId = "CMS-12345",
-            VersionId = 2,
+            MaterialId = "CMS-12345",
+            DocumentId = 2,
             SearchText = "searchText",
             CmsAuthValues = "cmsAuthValues",
             CorrelationId = Guid.NewGuid()
@@ -138,7 +138,7 @@ public class BulkRedactionSearchServiceTests
             new()
             {
                 DocumentId = 12345,
-                VersionId = bulkRedactionSearchDto.VersionId
+                VersionId = bulkRedactionSearchDto.DocumentId
             }
         };
         _mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(mdsCaseIdentifiersArgDto);
@@ -166,8 +166,8 @@ public class BulkRedactionSearchServiceTests
         {
             Urn = "urn",
             CaseId = 1,
-            DocumentId = "CMS-12345",
-            VersionId = 2,
+            MaterialId = "CMS-12345",
+            DocumentId = 2,
             SearchText = "searchText",
             CmsAuthValues = "cmsAuthValues",
             CorrelationId = Guid.NewGuid()
@@ -181,7 +181,7 @@ public class BulkRedactionSearchServiceTests
             new()
             {
                 DocumentId = 12345,
-                VersionId = bulkRedactionSearchDto.VersionId
+                VersionId = bulkRedactionSearchDto.DocumentId
             }
         };
         _mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(mdsCaseIdentifiersArgDto);
@@ -209,8 +209,8 @@ public class BulkRedactionSearchServiceTests
         {
             Urn = "urn",
             CaseId = 1,
-            DocumentId = "CMS-12345",
-            VersionId = 2,
+            MaterialId = "CMS-12345",
+            DocumentId = 2L,
             SearchText = "searchText",
             CmsAuthValues = "cmsAuthValues",
             CorrelationId = Guid.NewGuid()
@@ -225,7 +225,7 @@ public class BulkRedactionSearchServiceTests
             new()
             {
                 DocumentId = 12345,
-                VersionId = bulkRedactionSearchDto.VersionId
+                VersionId = bulkRedactionSearchDto.DocumentId
             }
         };
         _mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(mdsCaseIdentifiersArgDto);
@@ -253,8 +253,8 @@ public class BulkRedactionSearchServiceTests
         {
             Urn = "urn",
             CaseId = 1,
-            DocumentId = "CMS-12345",
-            VersionId = 2,
+            MaterialId = "CMS-12345",
+            DocumentId = 2L,
             SearchText = "searchText",
             CmsAuthValues = "cmsAuthValues",
             CorrelationId = Guid.NewGuid()
@@ -269,7 +269,7 @@ public class BulkRedactionSearchServiceTests
             new()
             {
                 DocumentId = 12345,
-                VersionId = bulkRedactionSearchDto.VersionId
+                VersionId = bulkRedactionSearchDto.DocumentId
             }
         };
         _mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(mdsCaseIdentifiersArgDto);
@@ -299,8 +299,8 @@ public class BulkRedactionSearchServiceTests
         {
             Urn = "urn",
             CaseId = 1,
-            DocumentId = "CMS-12345",
-            VersionId = 2,
+            MaterialId = "CMS-12345",
+            DocumentId = 2L,
             SearchText = "searchText",
             CmsAuthValues = "cmsAuthValues",
             CorrelationId = Guid.NewGuid()
@@ -315,7 +315,7 @@ public class BulkRedactionSearchServiceTests
             new()
             {
                 DocumentId = 12345,
-                VersionId = bulkRedactionSearchDto.VersionId
+                VersionId = bulkRedactionSearchDto.DocumentId
             }
         };
         var results = new AnalyzeResults();
@@ -350,8 +350,8 @@ public class BulkRedactionSearchServiceTests
         {
             Urn = "urn",
             CaseId = 1,
-            DocumentId = "CMS-12345",
-            VersionId = 2,
+            MaterialId = "CMS-12345",
+            DocumentId = 2L,
             SearchText = "searchText",
             CmsAuthValues = "cmsAuthValues",
             CorrelationId = Guid.NewGuid()
@@ -366,7 +366,7 @@ public class BulkRedactionSearchServiceTests
             new()
             {
                 DocumentId = 12345,
-                VersionId = bulkRedactionSearchDto.VersionId
+                VersionId = bulkRedactionSearchDto.DocumentId
             }
         };
         var results = new AnalyzeResults();

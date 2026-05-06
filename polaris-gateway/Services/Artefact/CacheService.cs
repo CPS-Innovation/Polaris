@@ -22,29 +22,29 @@ namespace PolarisGateway.Services.Artefact
             _blobTypeIdFactory = blobTypeIdFactory ?? throw new ArgumentNullException(nameof(blobTypeIdFactory));
         }
 
-        public async Task<(bool, Stream)> TryGetPdfAsync(int caseId, string documentId, long versionId, bool isOcrProcessed)
+        public async Task<(bool, Stream)> TryGetPdfAsync(int caseId, string materialId, long documentId, bool isOcrProcessed)
         {
-            var blobId = _blobTypeIdFactory.CreateBlobId(caseId, documentId, versionId, BlobType.Pdf);
+            var blobId = _blobTypeIdFactory.CreateBlobId(caseId, materialId, documentId, BlobType.Pdf);
             var result = await _polarisBlobStorageService.TryGetBlobAsync(blobId, isOcrProcessed);
             return (result != null, result);
         }
 
-        public async Task UploadPdfAsync(int caseId, string documentId, long versionId, bool isOcrProcessed, Stream stream)
+        public async Task UploadPdfAsync(int caseId, string materialId, long documentId, bool isOcrProcessed, Stream stream)
         {
-            var blobId = _blobTypeIdFactory.CreateBlobId(caseId, documentId, versionId, BlobType.Pdf);
+            var blobId = _blobTypeIdFactory.CreateBlobId(caseId, materialId, documentId, BlobType.Pdf);
             await _polarisBlobStorageService.UploadBlobAsync(stream, blobId, isOcrProcessed);
         }
 
-        public async Task<(bool, T)> TryGetJsonObjectAsync<T>(int caseId, string documentId, long versionId, BlobType blobType)
+        public async Task<(bool, T)> TryGetJsonObjectAsync<T>(int caseId, string materialId, long documentId, BlobType blobType)
         {
-            var blobId = _blobTypeIdFactory.CreateBlobId(caseId, documentId, versionId, blobType);
+            var blobId = _blobTypeIdFactory.CreateBlobId(caseId, materialId, documentId, blobType);
             var result = await _polarisBlobStorageService.TryGetObjectAsync<T>(blobId);
             return (result != null, result);
         }
 
-        public async Task UploadJsonObjectAsync<T>(int caseId, string documentId, long versionId, BlobType blobType, T obj)
+        public async Task UploadJsonObjectAsync<T>(int caseId, string materialId, long documentId, BlobType blobType, T obj)
         {
-            var blobId = _blobTypeIdFactory.CreateBlobId(caseId, documentId, versionId, blobType);
+            var blobId = _blobTypeIdFactory.CreateBlobId(caseId, materialId, documentId, blobType);
             await _polarisBlobStorageService.UploadObjectAsync(obj, blobId);
         }
     }

@@ -24,14 +24,14 @@ namespace coordinator.Durable.Activity
         [Function(nameof(InitiateIndex))]
         public async Task<StoreCaseIndexesResult> Run([ActivityTrigger] DocumentPayload payload)
         {
-            var blobId = new BlobIdType(payload.CaseId, payload.DocumentId, payload.VersionId, BlobType.Ocr);
+            var blobId = new BlobIdType(payload.CaseId, payload.MaterialId, payload.DocumentId, BlobType.Ocr);
 
             await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(blobId);
             return await _textExtractorClient.StoreCaseIndexesAsync(
-                payload.DocumentId,
+                payload.MaterialId,
                 payload.Urn,
                 payload.CaseId,
-                payload.VersionId,
+                payload.DocumentId,
                 payload.CorrelationId,
                 documentStream);
         }

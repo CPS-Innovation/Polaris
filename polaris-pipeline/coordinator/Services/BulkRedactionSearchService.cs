@@ -45,7 +45,7 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
 
     public async Task<BulkRedactionSearchResponse> BulkRedactionSearchAsync(BulkRedactionSearchDto bulkRedactionSearchDto, DurableTaskClient orchestrationClient, CancellationToken cancellationToken)
     {
-        var documentType = DocumentNature.GetDocumentNatureType(bulkRedactionSearchDto.DocumentId);
+        var documentType = DocumentNature.GetDocumentNatureType(bulkRedactionSearchDto.MaterialId);
 
         if (documentType != DocumentNature.Types.Document)
         {
@@ -57,7 +57,7 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
         var caseIdentifiersArg = _mdsArgFactory.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId);
         var listDocumentResponse = await _mdsClient.ListDocumentsAsync(caseIdentifiersArg);
 
-        var cmsDocumentDto = listDocumentResponse.FirstOrDefault(x => bulkRedactionSearchDto.DocumentId.Contains(x.DocumentId.ToString()) && x.VersionId == bulkRedactionSearchDto.VersionId);
+        var cmsDocumentDto = listDocumentResponse.FirstOrDefault(x => bulkRedactionSearchDto.MaterialId.Contains(x.DocumentId.ToString()) && x.VersionId == bulkRedactionSearchDto.DocumentId);
 
         if (cmsDocumentDto is null)
             return _bulkRedactionSearchResponseBuilder
@@ -86,7 +86,7 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
                     .Build(bulkRedactionSearchDto);
         }
 
-        var blobId = new BlobIdType(bulkRedactionSearchDto.CaseId, bulkRedactionSearchDto.DocumentId, bulkRedactionSearchDto.VersionId, BlobType.Ocr);
+        var blobId = new BlobIdType(bulkRedactionSearchDto.CaseId, bulkRedactionSearchDto.MaterialId, bulkRedactionSearchDto.DocumentId, BlobType.Ocr);
         var results = await _polarisBlobStorageService.TryGetObjectAsync<AnalyzeResults>(blobId);
         if (results is null)
         {
@@ -118,8 +118,8 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
             CaseId = bulkRedactionSearchDto.CaseId,
             CmsAuthValues = bulkRedactionSearchDto.CmsAuthValues,
             CorrelationId = bulkRedactionSearchDto.CorrelationId,
+            MaterialId = bulkRedactionSearchDto.MaterialId,
             DocumentId = bulkRedactionSearchDto.DocumentId,
-            VersionId = bulkRedactionSearchDto.VersionId,
             Path = cmsDocumentDto.Path,
             DocumentType = cmsDocumentDto.CmsDocType,
             DocumentNatureType = DocumentNature.Types.Document,

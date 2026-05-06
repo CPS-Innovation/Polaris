@@ -31,13 +31,13 @@ public class PdfRetrievalService : IPdfRetrievalService
         _mdsClient = mdsClient.ExceptionIfNull();
     }
 
-    public async Task<DocumentRetrievalResult> GetPdfStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
+    public async Task<DocumentRetrievalResult> GetPdfStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId)
     {
-        var (stream, fileType, isKnownFileType) = DocumentNature.GetDocumentNatureType(documentId) switch
+        var (stream, fileType, isKnownFileType) = DocumentNature.GetDocumentNatureType(materialId) switch
         {
-            DocumentNature.Types.PreChargeDecisionRequest => await GetPcdRequestStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId),
+            DocumentNature.Types.PreChargeDecisionRequest => await GetPcdRequestStreamAsync(cmsAuthValues, correlationId, urn, caseId, materialId),
             DocumentNature.Types.DefendantsAndCharges => await GetDefendantsAndChargesStreamAsync(cmsAuthValues, correlationId, urn, caseId),
-            _ => await GetDocumentStreamAsync(cmsAuthValues, correlationId, urn, caseId, documentId, versionId)
+            _ => await GetDocumentStreamAsync(cmsAuthValues, correlationId, urn, caseId, materialId, documentId)
         };
 
         if (!isKnownFileType)
@@ -48,7 +48,7 @@ public class PdfRetrievalService : IPdfRetrievalService
             };
         }
 
-        var pdfResult = await _pdfGeneratorClient.ConvertToPdfAsync(correlationId, urn, caseId, documentId, versionId, stream, fileType);
+        var pdfResult = await _pdfGeneratorClient.ConvertToPdfAsync(correlationId, urn, caseId, materialId, documentId, stream, fileType);
 
         return new DocumentRetrievalResult
         {
@@ -58,9 +58,9 @@ public class PdfRetrievalService : IPdfRetrievalService
         };
     }
 
-    private async Task<(Stream Stream, FileType FileType, bool IsKnownFileType)> GetDocumentStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId, long versionId)
+    private async Task<(Stream Stream, FileType FileType, bool IsKnownFileType)> GetDocumentStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId)
     {
-        var mdsDocumentIdAndVersionIdArgDto = _mdsArgFactory.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId, documentId, versionId);
+        var mdsDocumentIdAndVersionIdArgDto = _mdsArgFactory.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId, materialId, documentId);
         var fileResult = await _mdsClient.GetDocumentAsync(mdsDocumentIdAndVersionIdArgDto);
 
         var isKnownFileType = FileTypeHelper.TryGetSupportedFileType(fileResult.FileName, out var fileType);

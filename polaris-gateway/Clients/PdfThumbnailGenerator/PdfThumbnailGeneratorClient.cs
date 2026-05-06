@@ -17,14 +17,14 @@ namespace PolarisGateway.Clients.PdfThumbnailGenerator
             _httpClient = httpClient;
         }
         
-        public async Task<HttpResponseMessage> GetThumbnailAsync(string caseUrn, int caseId, string documentId, int versionId, int maxDimensionPixel, int pageIndex, string cmsAuthValues, Guid correlationId)
+        public async Task<HttpResponseMessage> GetThumbnailAsync(string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int pageIndex, string cmsAuthValues, Guid correlationId)
         {
-            return await SendRequestAsync(HttpMethod.Get, RestApi.GetThumbnailPath(caseUrn, caseId, documentId, versionId, maxDimensionPixel, pageIndex), correlationId, cmsAuthValues);
+            return await SendRequestAsync(HttpMethod.Get, RestApi.GetThumbnailPath(caseUrn, caseId, materialId, documentId, maxDimensionPixel, pageIndex), correlationId, cmsAuthValues);
         }
 
-        public async Task<HttpResponseMessage> GenerateThumbnailAsync(string caseUrn, int caseId, string documentId, int versionId, int maxDimensionPixel, int? pageIndex, string cmsAuthValues, Guid correlationId)
+        public async Task<HttpResponseMessage> GenerateThumbnailAsync(string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int? pageIndex, string cmsAuthValues, Guid correlationId)
         {
-            return await SendRequestAsync(HttpMethod.Post, RestApi.GetThumbnailPath(caseUrn, caseId, documentId, versionId, maxDimensionPixel, pageIndex), correlationId, cmsAuthValues);
+            return await SendRequestAsync(HttpMethod.Post, RestApi.GetThumbnailPath(caseUrn, caseId, materialId, documentId, maxDimensionPixel, pageIndex), correlationId, cmsAuthValues);
         }
 
         private async Task<HttpResponseMessage> SendRequestAsync(HttpMethod httpMethod, string requestUri, Guid correlationId, string cmsAuthValues = null, HttpContent content = null)

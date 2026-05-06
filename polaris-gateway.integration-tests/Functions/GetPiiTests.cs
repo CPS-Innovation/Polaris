@@ -15,19 +15,19 @@ public class GetPiiTests : BaseFunctionIntegrationTest
     public async Task GetPii_CaseIdIs0_ShouldReturnNotFound()
     {
         // arrange
-        // Route: urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/pii
+        // Route: urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{materialId:min(1)}/pii
         // caseId=0 fails route constraint => NotFound
         var urn = "54KR7689125";
         var caseId = 0;
-        var documentId = "1";
-        var versionId = 1;
+        var materialId = "1";
+        var documentId = 1;
 
         // act
         var result = await PolarisGatewayApiClient.GetPiiAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             cancellationToken: TestContext.CurrentContext.CancellationToken);
 
         // assert
@@ -40,15 +40,15 @@ public class GetPiiTests : BaseFunctionIntegrationTest
         // arrange
         var urn = "";
         var caseId = 2179140;
-        var documentId = "1";
-        var versionId = 1;
+        var materialId = "1";
+        var documentId = 1;
 
         // act
         var result = await PolarisGatewayApiClient.GetPiiAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             cancellationToken: TestContext.CurrentContext.CancellationToken);
 
         // assert
@@ -56,21 +56,21 @@ public class GetPiiTests : BaseFunctionIntegrationTest
     }
 
     [Test]
-    public async Task GetPii_VersionIdIs0_ShouldReturnNotFound()
+    public async Task GetPii_DocumentIdIs0_ShouldReturnNotFound()
     {
         // arrange
-        // versionId has min(1) route constraint => NotFound
+        // materialId has min(1) route constraint => NotFound
         var urn = "54KR7689125";
         var caseId = 2179140;
-        var documentId = "1";
-        var versionId = 0;
+        var materialId = "1";
+        var documentId = 0;
 
         // act
         var result = await PolarisGatewayApiClient.GetPiiAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             cancellationToken: TestContext.CurrentContext.CancellationToken);
 
         // assert
@@ -83,15 +83,15 @@ public class GetPiiTests : BaseFunctionIntegrationTest
         // arrange
         var urn = "16XL8836126";
         var caseId = 2179140;
-        var documentId = "CMS-8977782";
-        var versionId = 8185976;
+        var materialId = "CMS-8977782";
+        var documentId = 8185976;
 
         // act
         var result = await PolarisGatewayApiClient.GetPiiAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             cancellationToken: TestContext.CurrentContext.CancellationToken);
 
         // assert
@@ -109,15 +109,15 @@ public class GetPiiTests : BaseFunctionIntegrationTest
         // arrange
         var urn = "16XL8836126";
         var caseId = 2179140;
-        var documentId = "1";
-        var versionId = 1;
+        var materialId = "1";
+        var documentId = 1;
 
         // act
         var result = await PolarisGatewayApiClient.GetPiiPollAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             cancellationToken: TestContext.CurrentContext.CancellationToken);
 
         // assert

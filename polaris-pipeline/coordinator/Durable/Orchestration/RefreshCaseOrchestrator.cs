@@ -135,7 +135,7 @@ namespace coordinator.Durable.Orchestration
                     .Select(documentDelta => new DocumentPayload(
                             casePayload.Urn,
                             casePayload.CaseId,
-                            documentDelta.Document.DocumentId,
+                            documentDelta.Document.MaterialId,
                             documentDelta.Document.VersionId,
                             documentDelta.Document.Path,
                             documentDelta.Document.CmsDocType,
@@ -151,7 +151,7 @@ namespace coordinator.Durable.Orchestration
                     .Select(pcd => new DocumentPayload(
                             casePayload.Urn,
                             casePayload.CaseId,
-                            pcd.DocumentId,
+                            pcd.MaterialId,
                             pcd.VersionId,
                             null,
                             pcd.CmsDocType,
@@ -168,7 +168,7 @@ namespace coordinator.Durable.Orchestration
                     new DocumentPayload(
                     casePayload.Urn,
                     casePayload.CaseId,
-                    createdOrUpdatedDefendantsAndCharges.DocumentId,
+                    createdOrUpdatedDefendantsAndCharges.MaterialId,
                     createdOrUpdatedDefendantsAndCharges.VersionId,
                     null,
                     createdOrUpdatedDefendantsAndCharges.CmsDocType,

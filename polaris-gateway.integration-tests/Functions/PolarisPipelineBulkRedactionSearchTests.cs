@@ -15,20 +15,20 @@ public class PolarisPipelineBulkRedactionSearchTests : BaseFunctionIntegrationTe
     public async Task PolarisPipelineBulkRedactionSearch_CaseIdIs0_ShouldReturnNotFound()
     {
         // arrange
-        // Route: urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/search
+        // Route: urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/search
         // caseId=0 fails route constraint => NotFound
         var urn = "54KR7689125";
         var caseId = 0;
-        var documentId = "1";
-        var versionId = 1;
+        var materialId = "1";
+        var documentId = 1;
         var searchText = "test";
 
         // act
         var result = await PolarisGatewayApiClient.BulkRedactionSearchAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             searchText,
             TestContext.CurrentContext.CancellationToken);
 
@@ -42,16 +42,16 @@ public class PolarisPipelineBulkRedactionSearchTests : BaseFunctionIntegrationTe
         // arrange
         var urn = "";
         var caseId = 2179140;
-        var documentId = "1";
-        var versionId = 1;
+        var materialId = "1";
+        var documentId = 1;
         var searchText = "test";
 
         // act
         var result = await PolarisGatewayApiClient.BulkRedactionSearchAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             searchText,
             TestContext.CurrentContext.CancellationToken);
 
@@ -60,22 +60,22 @@ public class PolarisPipelineBulkRedactionSearchTests : BaseFunctionIntegrationTe
     }
 
     [Test]
-    public async Task PolarisPipelineBulkRedactionSearch_VersionIdIs0_ShouldReturnNotFound()
+    public async Task PolarisPipelineBulkRedactionSearch_DocumentIdIs0_ShouldReturnNotFound()
     {
         // arrange
-        // versionId has min(1) route constraint => NotFound
+        // documentId has min(1) route constraint => NotFound
         var urn = "16XL8836126";
         var caseId = 2179140;
-        var documentId = "CMS-8977782";
-        var versionId = 8185976;
+        var materialId = "CMS-8977782";
+        var documentId = 0;
         var searchText = "test";
 
         // act
         var result = await PolarisGatewayApiClient.BulkRedactionSearchAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             searchText,
             TestContext.CurrentContext.CancellationToken);
 
@@ -89,16 +89,16 @@ public class PolarisPipelineBulkRedactionSearchTests : BaseFunctionIntegrationTe
         // arrange
         var urn = "16XL8836126";
         var caseId = 2179140;
-        var documentId = "CMS-8977782";
-        var versionId = 8185976;
+        var materialId = "CMS-8977782";
+        var documentId = 8185976;
         var searchText = ""; // missing
 
         // act
         var result = await PolarisGatewayApiClient.BulkRedactionSearchAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             searchText,
             TestContext.CurrentContext.CancellationToken);
 
@@ -117,16 +117,16 @@ public class PolarisPipelineBulkRedactionSearchTests : BaseFunctionIntegrationTe
         // arrange
         var urn = "16XL8836126";
         var caseId = 2179140;
-        var documentId = "CMS-8977782";
-        var versionId = 8185976;
+        var materialId = "CMS-8977782";
+        var documentId = 8185976;
         var searchText = "CPS"; 
 
         // act
         var result = await PolarisGatewayApiClient.BulkRedactionSearchAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             searchText,
             TestContext.CurrentContext.CancellationToken);
 

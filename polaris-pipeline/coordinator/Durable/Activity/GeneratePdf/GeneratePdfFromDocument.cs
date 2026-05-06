@@ -36,8 +36,8 @@ public class GeneratePdfFromDocument : BaseGeneratePdf
             payload.CorrelationId,
             payload.Urn,
             payload.CaseId,
-            payload.DocumentId,
-            payload.VersionId);
+            payload.MaterialId,
+            payload.DocumentId);
 
         var result = await MdsClient.GetDocumentAsync(arg);
 

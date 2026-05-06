@@ -16,11 +16,11 @@ namespace coordinator.Durable.Payloads.Domain
             CmsFileCreatedDate = pcdRequest.DecisionRequested;
         }
 
-        public override string DocumentId => DocumentNature.ToQualifiedStringDocumentId(CmsDocumentId, DocumentNature.Types.PreChargeDecisionRequest);
+        public override string MaterialId => DocumentNature.ToQualifiedStringDocumentId(CmsDocumentId, DocumentNature.Types.PreChargeDecisionRequest);
 
-        public string PresentationTitle => DocumentId;
+        public string PresentationTitle => MaterialId;
 
-        public string CmsOriginalFileName => $"{DocumentId}.pdf";
+        public string CmsOriginalFileName => $"{MaterialId}.pdf";
 
         public string CmsFileCreatedDate { get; set; }
 
