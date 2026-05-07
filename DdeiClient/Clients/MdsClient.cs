@@ -130,19 +130,10 @@ public class MdsClient : BaseCmsClient, IMdsClient
 
     public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg)
     {
-        var response = await CallHttpClientAsync(
-            _mdsClientRequestFactory.CreateCheckoutDocumentRequest(arg), arg.CmsAuthValues, HttpStatusCode.Conflict);
+        await CallHttpClientAsync(
+            _mdsClientRequestFactory.CreateCheckoutDocumentRequest(arg), arg.CmsAuthValues);
 
-        return response.StatusCode == HttpStatusCode.Conflict ?
-            new CheckoutDocumentDto
-            {
-                IsSuccess = false,
-                LockingUserName = await response.Content.ReadAsStringAsync(),
-            } :
-            new CheckoutDocumentDto
-            {
-                IsSuccess = true,
-            };
+        return new CheckoutDocumentDto { IsSuccess = true };
     }
 
     public async Task CancelCheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg)

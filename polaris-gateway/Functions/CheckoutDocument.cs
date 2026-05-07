@@ -53,8 +53,7 @@ public class CheckoutDocument : BaseFunction
                      materialId: materialId,
                      documentId: documentId);
 
-        var checkoutDocumentDto = await _mdsClient.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto);
-
-        return checkoutDocumentDto.IsSuccess ? new OkResult() : new ConflictObjectResult(checkoutDocumentDto.LockingUserName);
+        await _mdsClient.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto);
+        return new OkResult();
     }
 }
