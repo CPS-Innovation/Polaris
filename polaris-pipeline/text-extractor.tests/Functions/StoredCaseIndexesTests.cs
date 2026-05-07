@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
-using Microsoft.Extensions.Logging;
 using AutoFixture;
 using AutoFixture.AutoMoq;
+using Common.Domain.SearchIndex;
 using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Exceptions;
@@ -16,6 +16,8 @@ using Common.Wrappers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
+using Microsoft.Extensions.Logging;
 using Moq;
 using text_extractor.Functions;
 using text_extractor.Mappers.Contracts;
@@ -153,6 +155,27 @@ namespace text_extractor.tests.Functions
 
             // Assert
             response.Should().Be(_errorResult);
+        }
+
+        [Fact]
+        public void DocumentId_ExtractsCorrectValueFromBase64Id()
+        {
+            // Arrange
+            var documentId = "CMS-9009152";
+            var encodedId = Convert.ToBase64String(
+                Encoding.UTF8.GetBytes($"prefix:{documentId}:suffix")
+            );
+
+            var searchLine = new StreamlinedSearchLine
+            {
+                Id = encodedId
+            };
+
+            // Act
+            var result = searchLine.DocumentId;
+
+            // Assert
+            Assert.Equal(documentId, result);
         }
     }
 }
