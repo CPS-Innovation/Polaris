@@ -69,6 +69,12 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
                 _logger.LogMethodError(correlationId, httpRequestData.Url.ToString(), message, exception);
                 requestTelemetry.Properties[TelemetryConstants.CorrelationIdCustomDimensionName] = correlationId.ToString();
 
+                // Add ClientName to telemetry if exists in header
+                if (httpRequestData.Headers.TryGetValues("ClientName", out var clientNames))
+                {
+                    requestTelemetry.Properties[TelemetryConstants.ClientNameCustomDimensionName] = clientNames.FirstOrDefault(string.Empty);
+                }
+
                 var newHttpResponse = httpRequestData.CreateResponse(statusCode);
 
                 var errorMessage = ExtractErrorMessage(exception);

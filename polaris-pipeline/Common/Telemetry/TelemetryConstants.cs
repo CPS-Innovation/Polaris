@@ -12,5 +12,6 @@ namespace Common.Telemetry
         public const string LoadBalancingCookie = "LoadBalancingCookie";
         public const string IsMockUser = "IsMockUser";
         public const string ErrorMessageCustomDimensionName = "ErrorMessage";
+        public const string ClientNameCustomDimensionName = "Client Name";
     }
 }
