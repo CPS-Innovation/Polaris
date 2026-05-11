@@ -20,5 +20,36 @@ public static class ServiceCollectionExtensions
             {
                 options.Rules.Remove(toRemove);
             }
+
+            // Add explicit rules to allow logs through to Application Insights in .NET 8 Isolated mode
+            // Without these rules, ILogger messages won't reach App Insights even after removing the restrictive filter
+
+            // Capture all application logs at Information level and above (includes Warning, Error, Critical)
+            options.Rules.Add(new LoggerFilterRule(
+                typeof(ApplicationInsightsLoggerProvider).FullName,
+                null, // All categories
+                LogLevel.Information,
+                null));
+
+            // Reduce noise from Microsoft internal libraries - only capture warnings and above
+            options.Rules.Add(new LoggerFilterRule(
+                typeof(ApplicationInsightsLoggerProvider).FullName,
+                "Microsoft",
+                LogLevel.Warning,
+                null));
+
+            // Ensure host logs are captured at Information level
+            options.Rules.Add(new LoggerFilterRule(
+                typeof(ApplicationInsightsLoggerProvider).FullName,
+                "Host",
+                LogLevel.Information,
+                null));
+
+            // Ensure function execution logs are captured at Information level
+            options.Rules.Add(new LoggerFilterRule(
+                typeof(ApplicationInsightsLoggerProvider).FullName,
+                "Function",
+                LogLevel.Information,
+                null));
         });
 }
