@@ -4,7 +4,6 @@
 
 namespace PolarisGateway.Middleware
 {
-    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http;
@@ -34,7 +33,7 @@ namespace PolarisGateway.Middleware
 
             await next(context).ConfigureAwait(false);
 
-            if (request is null || request.Url.Scheme != Uri.UriSchemeHttps)
+            if (request is null)
             {
                 return;
             }
