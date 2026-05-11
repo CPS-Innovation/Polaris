@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Common.Extensions;
 using Common.Telemetry;
+using System.Linq;
 
 namespace Common.Middleware;
 
@@ -21,6 +22,11 @@ public class RequestTelemetryMiddleware(Microsoft.ApplicationInsights.TelemetryC
         {
             await next(context);
             return;
+        }
+
+        if (requestData.Headers.TryGetValues("ClientName", out var clientNames))
+        {
+            requestTelemetry.Properties[TelemetryConstants.ClientNameCustomDimensionName] = clientNames.FirstOrDefault(string.Empty);
         }
 
         var correlationId = Guid.NewGuid();
