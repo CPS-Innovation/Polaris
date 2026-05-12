@@ -11,8 +11,9 @@ public static class ServiceCollectionExtensions
         services.Configure<LoggerFilterOptions>(options =>
         {
             // See: https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide?tabs=windows#managing-log-levels
-            // The Application Insights SDK adds a default logging filter that instructs ILogger to capture only Warning and more severe logs. Application Insights requires an explicit override.
-            // Log levels can also be configured using appsettings.json. For more information, see https://learn.microsoft.com/en-us/azure/azure-monitor/app/worker-service#ilogger-logs
+            // The Application Insights SDK adds a default logging filter that instructs ILogger to capture only Warning and more severe logs.
+            // This filter must be removed to allow host.json log level configuration to take effect in .NET 8 Isolated mode.
+            // Log levels are configured in host.json under logging.applicationInsights.logLevel
             var toRemove = options.Rules
                 .FirstOrDefault(rule => string.Equals(rule.ProviderName, typeof(ApplicationInsightsLoggerProvider).FullName));
 
@@ -20,36 +21,5 @@ public static class ServiceCollectionExtensions
             {
                 options.Rules.Remove(toRemove);
             }
-
-            // Add explicit rules to allow logs through to Application Insights in .NET 8 Isolated mode
-            // Without these rules, ILogger messages won't reach App Insights even after removing the restrictive filter
-
-            // Capture all application logs at Information level and above (includes Warning, Error, Critical)
-            options.Rules.Add(new LoggerFilterRule(
-                typeof(ApplicationInsightsLoggerProvider).FullName,
-                null, // All categories
-                LogLevel.Information,
-                null));
-
-            // Reduce noise from Microsoft internal libraries - only capture warnings and above
-            options.Rules.Add(new LoggerFilterRule(
-                typeof(ApplicationInsightsLoggerProvider).FullName,
-                "Microsoft",
-                LogLevel.Warning,
-                null));
-
-            // Ensure host logs are captured at Information level
-            options.Rules.Add(new LoggerFilterRule(
-                typeof(ApplicationInsightsLoggerProvider).FullName,
-                "Host",
-                LogLevel.Information,
-                null));
-
-            // Ensure function execution logs are captured at Information level
-            options.Rules.Add(new LoggerFilterRule(
-                typeof(ApplicationInsightsLoggerProvider).FullName,
-                "Function",
-                LogLevel.Information,
-                null));
         });
 }
