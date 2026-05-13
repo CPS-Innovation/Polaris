@@ -18,6 +18,13 @@ using System;
 using System.Linq;
 
 var host = new HostBuilder()
+    .ConfigureLogging((context, logging) =>
+        {
+            logging.ClearProviders();  // Remove default providers to avoid duplication
+            logging.AddFilter("Microsoft", LogLevel.Warning);
+            logging.AddFilter("System", LogLevel.Warning);
+            logging.SetMinimumLevel(LogLevel.Information);
+        })
     .ConfigureFunctionsWebApplication(options =>
     {
         options.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -60,15 +67,11 @@ var host = new HostBuilder()
                 .UseAdaptiveSampling(maxTelemetryItemsPerSecond: 20, excludedTypes: "Request;Exception;Event;Trace");
             telemetryConfiguration.DisableTelemetry = false;
         }); */
-        services.ConfigureLoggerFilterOptions();
+       // services.ConfigureLoggerFilterOptions();
 
         // Remove server header to satisfy ITHC requirement.
         services.Configure<KestrelServerOptions>(k => k.AddServerHeader = false);
-    })
-    .ConfigureLogging(loggingBuilder =>
-    {
-        // Add Application Insights logging after services are configured
-        loggingBuilder.AddApplicationInsights();
+        services.AddLogging();
     })
     .Build();
 
