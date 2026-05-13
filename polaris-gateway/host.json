@@ -1,18 +1,18 @@
 {
     "version": "2.0",
     "logging": {
-        "fileLoggingMode": "debugOnly",
         "logLevel": {
-            "default": "Trace",
-            "Function": "Information",
+            "default": "Information",
             "Host.Aggregator": "Error",
             "Host.Results": "Information",
             "PolarisGateway.Functions.CmsAuthentication.InitiateCookies": "Information"
         },
         "applicationInsights": {
-            "logLevel": {
-                "default": "Information"
-            },
+            "samplingSettings": {
+                "isEnabled": false,
+                "excludedTypes": "Request"
+            }
+        },
             "enableLiveMetrics": true,
             "enableDependencyTracking": true,
             "enablePerformanceCountersCollection": true,
@@ -30,4 +30,3 @@
             }
         }
     }
-}
