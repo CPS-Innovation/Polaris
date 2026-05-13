@@ -11,8 +11,9 @@ public static class ServiceCollectionExtensions
         services.Configure<LoggerFilterOptions>(options =>
         {
             // See: https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide?tabs=windows#managing-log-levels
-            // The Application Insights SDK adds a default logging filter that instructs ILogger to capture only Warning and more severe logs. Application Insights requires an explicit override.
-            // Log levels can also be configured using appsettings.json. For more information, see https://learn.microsoft.com/en-us/azure/azure-monitor/app/worker-service#ilogger-logs
+            // The Application Insights SDK adds a default logging filter that instructs ILogger to capture only Warning and more severe logs.
+            // This filter must be removed to allow host.json log level configuration to take effect in .NET 8 Isolated mode.
+            // Log levels are configured in host.json under logging.applicationInsights.logLevel
             var toRemove = options.Rules
                 .FirstOrDefault(rule => string.Equals(rule.ProviderName, typeof(ApplicationInsightsLoggerProvider).FullName));
 
