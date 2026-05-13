@@ -62,14 +62,13 @@ var host = new HostBuilder()
         }); */
         services.ConfigureLoggerFilterOptions();
 
-        // Configure logging with Application Insights after telemetry service is registered
-        services.AddLogging(builder =>
-        {
-            builder.AddApplicationInsights();
-        });
-
         // Remove server header to satisfy ITHC requirement.
         services.Configure<KestrelServerOptions>(k => k.AddServerHeader = false);
+    })
+    .ConfigureLogging(loggingBuilder =>
+    {
+        // Add Application Insights logging after services are configured
+        loggingBuilder.AddApplicationInsights();
     })
     .Build();
 
