@@ -1,37 +1,38 @@
 {
-    "version": "2.0",
-    "logging": {
-        "fileLoggingMode": "debugOnly",
-        "logLevel": {
-            "default": "Trace",
-            "Function": "Information",
-            "Host.Aggregator": "Error",
-            "Host.Results": "Information",
-            "PolarisGateway.Functions.CmsAuthentication.InitiateCookies": "Information"
-        },
-      "applicationInsights": {
-        "logLevel": {
-          "default": "Information"
-        },
-        "SamplingSettings": {
-          "IsEnabled": false
-        },
-        "enableAdaptiveSampling": false,
-        "enableLiveMetrics": true,
-        "enableDependencyTracking": true,
-        "enablePerformanceCountersCollection": true,
-        "httpAutoCollectionOptions": {
-          "enableHttpTriggerExtendedInfoCollection": true,
-          "enableW3CDistributedTracing": true,
-          "enableResponseHeaderInjection": true
-        }
+  "version": "2.0",
+  "logging": {
+    "logLevel": {
+      "default": "Trace",
+      "Function": "Information",
+      "Host.Aggregator": "Error",
+      "Host.Results": "Information",
+      "PolarisGateway.Functions.CmsAuthentication.InitiateCookies": "Information"
+    },
+    "applicationInsights": {
+      "logLevel": {
+        "default": "Information"
       },
-        "extensions": {
-            "http": {
-                "customHeaders": {
-                    "Server": ""
-                }
-            }
+      "samplingSettings": {
+        "isEnabled": false,
+        "excludedTypes": "Request"
+      },
+      "enableAdaptiveSampling": false,
+      "enableLiveMetrics": true,
+      "enableDependencyTracking": true,
+      "enablePerformanceCountersCollection": true,
+      "httpAutoCollectionOptions": {
+        "enableHttpTriggerExtendedInfoCollection": true,
+        "enableW3CDistributedTracing": true,
+        "enableResponseHeaderInjection": true
+      }
+    },
+    "extensions": {
+      "http": {
+        "customHeaders": {
+          "Server": ""
         }
+      }
     }
+  }
 }
+ 
