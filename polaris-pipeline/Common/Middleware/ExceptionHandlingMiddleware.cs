@@ -76,7 +76,7 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
                 // Add ClientName to telemetry if exists in header
                 if (httpRequestData.Headers.TryGetValues("ClientName", out var clientNames))
                 {
-                    requestTelemetry.Properties[TelemetryConstants.ClientNameCustomDimensionName] = clientNames.FirstOrDefault(string.Empty);
+                    operation.Telemetry.Properties[TelemetryConstants.ClientNameCustomDimensionName] = clientNames.FirstOrDefault(string.Empty);
                 }
 
                 var newHttpResponse = httpRequestData.CreateResponse(statusCode);
