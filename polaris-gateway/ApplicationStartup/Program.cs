@@ -39,7 +39,6 @@ var host = new HostBuilder()
         });
     })
     .ConfigureOpenApi()
-    .ConfigureLogging(options => options.AddApplicationInsights())
     .ConfigureAppConfiguration(builder => builder.AddConfigurationSettings())
     .ConfigureServices((services) =>
     {
