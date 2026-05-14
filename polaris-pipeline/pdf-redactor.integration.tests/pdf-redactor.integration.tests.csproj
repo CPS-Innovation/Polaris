@@ -26,8 +26,8 @@
     <EmbeddedResource Include="Resources\page_removal.pdf" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Codeuctivity.ImageSharpCompare" Version="4.1.379" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
+    <PackageReference Include="Codeuctivity.ImageSharpCompare" Version="4.1.390" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.8" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appSettings.json">
