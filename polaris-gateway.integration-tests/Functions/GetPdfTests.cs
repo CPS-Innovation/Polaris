@@ -18,15 +18,15 @@ public class GetPdfTests : BaseFunctionIntegrationTest
         // arrange (use a known-good artefact in your env)
         var urn = "54KR7689125";
         var caseId = 2160797;
-        var documentId = "CMS-8930497"; // adjust to your route format
-        var versionId = 8156114;
+        var materialId = "CMS-8930497"; // adjust to your route format
+        var documentId = 8156114;
 
         // act
         var result = await PolarisGatewayApiClient.GetPdfAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             TestContext.CurrentContext.CancellationToken,
             isOcrProcessed: false,
             forceRefresh: false);
@@ -49,15 +49,15 @@ public class GetPdfTests : BaseFunctionIntegrationTest
         // arrange
         var urn = "54KR7689125";
         var caseId = 2160797;
-        var documentId = "CMS-8930497";
-        var versionId = 8156111;
+        var materialId = "CMS-8930497";
+        var documentId = 8156111;
 
         // act
         var result = await PolarisGatewayApiClient.GetPdfAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             TestContext.CurrentContext.CancellationToken);
 
         // assert
@@ -71,15 +71,15 @@ public class GetPdfTests : BaseFunctionIntegrationTest
         // arrange
         var urn = "54KR7689125";
         var caseId = 2160797;
-        var documentId = "CMS-8930497"; // adjust to your route format
-        var versionId = 9999;
+        var materialId = "CMS-8930497"; // adjust to your route format
+        var documentId = 9999;
 
         // act
         var result = await PolarisGatewayApiClient.GetPdfAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             TestContext.CurrentContext.CancellationToken,
             forceRefresh: true);
 

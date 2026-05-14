@@ -62,23 +62,23 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
         return request;
     }
 
-    public HttpRequestMessage CreateCheckoutDocumentRequest(MdsDocumentIdAndVersionIdArgDto arg)
+    public HttpRequestMessage CreateCheckoutDocumentRequest(MdsMaterialIdAndDocumentIdArgDto arg)
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, $"api/cases/{arg.CaseId}/documents/{arg.DocumentId}/versions/{arg.VersionId}/checkout");
+        var request = new HttpRequestMessage(HttpMethod.Post, $"api/cases/{arg.CaseId}/documents/{arg.MaterialId}/versions/{arg.DocumentId}/checkout");
         CreateRequest(request, arg);
         return request;
     }
 
-    public HttpRequestMessage CreateCancelCheckoutDocumentRequest(MdsDocumentIdAndVersionIdArgDto arg)
+    public HttpRequestMessage CreateCancelCheckoutDocumentRequest(MdsMaterialIdAndDocumentIdArgDto arg)
     {
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"api/cases/{arg.CaseId}/documents/{arg.DocumentId}/versions/{arg.VersionId}/checkout");
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"api/cases/{arg.CaseId}/documents/{arg.MaterialId}/versions/{arg.DocumentId}/checkout");
         CreateRequest(request, arg);
         return request;
     }
 
-    public HttpRequestMessage CreateGetDocumentRequest(MdsDocumentIdAndVersionIdArgDto arg)
+    public HttpRequestMessage CreateGetDocumentRequest(MdsMaterialIdAndDocumentIdArgDto arg)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/documents/{arg.DocumentId}/versions/{arg.VersionId}");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/documents/{arg.MaterialId}/versions/{arg.DocumentId}");
         CreateRequest(request, arg);
         return request;
     }
@@ -88,9 +88,9 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
         throw new NotImplementedException();
     }
 
-    public HttpRequestMessage CreateUploadPdfRequest(MdsDocumentIdAndVersionIdArgDto arg, Stream stream)
+    public HttpRequestMessage CreateUploadPdfRequest(MdsMaterialIdAndDocumentIdArgDto arg, Stream stream)
     {
-        var request = new HttpRequestMessage(HttpMethod.Put, $"api/cases/{arg.CaseId}/documents/{arg.DocumentId}/versions/{arg.VersionId}");
+        var request = new HttpRequestMessage(HttpMethod.Put, $"api/cases/{arg.CaseId}/documents/{arg.MaterialId}/versions/{arg.DocumentId}");
         var content = new StreamContent(stream);
         content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
         CreateRequest(request, arg, content);
@@ -104,7 +104,7 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
 
     public HttpRequestMessage CreateGetDocumentNotesRequest(MdsDocumentArgDto arg)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"api/documents/{arg.DocumentId}/notes");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/documents/{arg.MaterialId}/notes");
         AddAuthHeaders(request, arg);
         return request;
     }
@@ -115,7 +115,7 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
         {
             Text = arg.Text,
         });
-        var request = new HttpRequestMessage(HttpMethod.Post, $"api/cases/{arg.CaseId}/documents/{arg.DocumentId}/notes");
+        var request = new HttpRequestMessage(HttpMethod.Post, $"api/cases/{arg.CaseId}/documents/{arg.MaterialId}/notes");
         var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
         CreateRequest(request, arg, httpContent);
         return request;
@@ -126,9 +126,9 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
         var content = JsonSerializer.Serialize(new RenameMaterialDto()
         {
             Subject = arg.DocumentName,
-            MaterialId = arg.DocumentId
+            MaterialId = arg.MaterialId
         });
-        var request = new HttpRequestMessage(HttpMethod.Patch, $"api/material/{arg.DocumentId}/rename");
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"api/material/{arg.MaterialId}/rename");
         var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
         CreateRequest(request, arg, httpContent);
         return request;
@@ -139,9 +139,9 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
         var content = JsonSerializer.Serialize(new RenameExhibitMaterialDto()
         {
             Description = arg.DocumentName,
-            MaterialId = arg.DocumentId
+            MaterialId = arg.MaterialId
         });
-        var request = new HttpRequestMessage(HttpMethod.Patch, $"api/material/{arg.DocumentId}/rename-exhibit");
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"api/material/{arg.MaterialId}/rename-exhibit");
         var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
         CreateRequest(request, arg, httpContent);
         return request;
@@ -215,7 +215,7 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
 
     public HttpRequestMessage CreateToggleIsUnusedDocumentRequest(MdsToggleIsUnusedDocumentDto dto)
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, $"api/cases/{dto.CaseId}/documents/{dto.DocumentId}/toggle/{dto.IsUnused}");
+        var request = new HttpRequestMessage(HttpMethod.Post, $"api/cases/{dto.CaseId}/documents/{dto.MaterialId}/toggle/{dto.IsUnused}");
         CreateRequest(request, dto);
         return request;
     }

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using PolarisGateway.Functions;
 using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -35,47 +36,51 @@ public class CheckoutDocumentTests
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
-        var documentId = "documentId";
-        long versionId = 2;
-        var mdsDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
+        var materialId = "materialId";
+        long documentId = 2;
+        var mdsDocumentIdAndVersionIdArgDto = new MdsMaterialIdAndDocumentIdArgDto();
         var checkoutDocumentDto = new CheckoutDocumentDto()
         {
             IsSuccess = true
         };
-        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, versionId)).Returns(mdsDocumentIdAndVersionIdArgDto);
+        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, materialId, documentId)).Returns(mdsDocumentIdAndVersionIdArgDto);
         _mdsClientMock.Setup(s => s.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto)).ReturnsAsync(checkoutDocumentDto);
 
         //act
-        var result = await _checkoutDocument.Run(req, caseUrn, caseId, documentId, versionId);
+        var result = await _checkoutDocument.Run(req, caseUrn, caseId, materialId, documentId);
 
         //assert
         Assert.IsType<OkResult>(result);
     }
 
     [Fact]
-    public async Task Run_ClientResultIsNotSuccess_ShouldReturn409()
+    public async Task Run_WhenClientThrowsConflict_ShouldBubbleException()
     {
-        //arrange
+        // arrange
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
-        var documentId = "documentId";
-        long versionId = 2;
-        var mdsDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
-        var checkoutDocumentDto = new CheckoutDocumentDto()
-        {
-            IsSuccess = false,
-            LockingUserName = "lockingUserName"
-        };
-        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, versionId)).Returns(mdsDocumentIdAndVersionIdArgDto);
-        _mdsClientMock.Setup(s => s.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto)).ReturnsAsync(checkoutDocumentDto);
+        var materialId = "materialId";
+        long documentId = 2;
 
-        //act
-        var result = await _checkoutDocument.Run(req, caseUrn, caseId, documentId, versionId);
+        var argDto = new MdsMaterialIdAndDocumentIdArgDto();
 
-        //assert
-        Assert.IsType<ConflictObjectResult>(result);
-        var response = result as ConflictObjectResult;
-        Assert.Equal(checkoutDocumentDto.LockingUserName, response.Value);
+        _mdsArgFactoryMock
+            .Setup(s => s.CreateDocumentVersionArgDto(
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                caseUrn,
+                caseId,
+                materialId,
+                documentId))
+            .Returns(argDto);
+
+        _mdsClientMock
+            .Setup(s => s.CheckoutDocumentAsync(argDto))
+            .ThrowsAsync(new HttpRequestException("409 Conflict"));
+
+        // act & assert
+        await Assert.ThrowsAsync<HttpRequestException>(() =>
+            _checkoutDocument.Run(req, caseUrn, caseId, materialId, documentId));
     }
 }

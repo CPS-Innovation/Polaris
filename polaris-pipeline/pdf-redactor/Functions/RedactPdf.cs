@@ -41,8 +41,8 @@ namespace pdf_redactor.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)] HttpRequest request,
             string caseUrn,
             int caseId,
-            string documentId,
-            long versionId)
+            string materialId,
+            long documentId)
         {
             Guid currentCorrelationId = default;
 
@@ -77,7 +77,7 @@ namespace pdf_redactor.Functions
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
                 }
 
-                var redactPdfStream = await _documentRedactionService.RedactAsync(caseId, documentId, redactions, currentCorrelationId);
+                var redactPdfStream = await _documentRedactionService.RedactAsync(caseId, materialId, redactions, currentCorrelationId);
 
                 return new FileStreamResult(redactPdfStream, ContentType.Pdf);
             }

@@ -34,14 +34,14 @@ public class CancelCheckoutDocumentTests
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
-        var documentId = "documentId";
-        long versionId = 2;
-        var mdsDocumentIdAndVersionIdArgDto = new MdsDocumentIdAndVersionIdArgDto();
-        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, versionId)).Returns(mdsDocumentIdAndVersionIdArgDto);
+        var materialId = "materialId";
+        long documentId = 2;
+        var mdsDocumentIdAndVersionIdArgDto = new MdsMaterialIdAndDocumentIdArgDto();
+        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, materialId, documentId)).Returns(mdsDocumentIdAndVersionIdArgDto);
 
 
         //act
-        var result = await _cancelCheckoutDocument.Run(req, caseUrn, caseId, documentId, versionId);
+        var result = await _cancelCheckoutDocument.Run(req, caseUrn, caseId, materialId, documentId);
 
         //assert
         _mdsClientMock.Verify(v => v.CancelCheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto), Times.Once);

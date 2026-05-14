@@ -1,17 +1,17 @@
-﻿using Common.Extensions;
-using Common.Telemetry;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Middleware;
-using PolarisGateway.Validators;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker.Http;
-using Common.Exceptions;
 using Common.Configuration;
 using Common.Constants;
-using Microsoft.ApplicationInsights.DataContracts;
+using Common.Exceptions;
+using Common.Extensions;
+using Common.Telemetry;
 using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Azure.Functions.Worker.Middleware;
+using PolarisGateway.Validators;
 
 namespace PolarisGateway.Middleware;
 
@@ -30,6 +30,10 @@ public sealed partial class RequestValidationMiddleware(
         var operation = telemetryClient.StartOperation<RequestTelemetry>(context.FunctionDefinition.Name);
         var requestTelemetry = operation.Telemetry;
         var requestData = await context.GetHttpRequestDataAsync();
+        if (requestData.Headers.TryGetValues("ClientName", out var clientNames))
+        {
+            requestTelemetry.Properties[TelemetryConstants.ClientNameCustomDimensionName] = clientNames.FirstOrDefault(string.Empty);
+        }
 
         var correlationId = Guid.NewGuid();
 

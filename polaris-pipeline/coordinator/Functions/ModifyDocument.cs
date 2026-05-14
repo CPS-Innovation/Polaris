@@ -57,14 +57,14 @@ namespace coordinator.Functions
             HttpRequest req,
             string caseUrn,
             int caseId,
-            string documentId,
-            long versionId)
+            string materialId,
+            long documentId)
         {
             var currentCorrelationId = req.Headers.GetCorrelationId();
 
             var modifyDocumentRequest = await req.ReadFromJsonAsync<ModifyDocumentRequestDto>();
 
-            await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, documentId, versionId, BlobType.Pdf));
+            await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, materialId, documentId, BlobType.Pdf));
 
             using var memoryStream = new MemoryStream();
             await documentStream.CopyToAsync(memoryStream);
@@ -85,10 +85,10 @@ namespace coordinator.Functions
                 throw new BadRequestException(validationResult.FlattenErrors(), nameof(modificationRequest));
             }
 
-            await using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, documentId, versionId, modificationRequest, currentCorrelationId);
+            await using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, materialId, documentId, modificationRequest, currentCorrelationId);
             if (modifiedDocumentStream == null)
             {
-                var error = $"Error modifying document for {caseId}, documentId {documentId}";
+                var error = $"Error modifying document for {caseId}, materialId {materialId}";
                 throw new Exception(error);
             }
 
@@ -98,8 +98,8 @@ namespace coordinator.Functions
                 currentCorrelationId,
                 caseUrn,
                 caseId,
-                DocumentNature.ToNumericDocumentId(documentId, DocumentNature.Types.Document),
-                versionId);
+                DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document),
+                documentId);
 
             var ddeiResult = await _mdsClient.UploadPdfAsync(arg, modifiedDocumentStream);
 

@@ -36,7 +36,7 @@ public class CompleteOcr
             };
         }
 
-        var blobId = new BlobIdType(completeOcrPayload.Payload.CaseId, completeOcrPayload.Payload.DocumentId, completeOcrPayload.Payload.VersionId, BlobType.Ocr);
+        var blobId = new BlobIdType(completeOcrPayload.Payload.CaseId, completeOcrPayload.Payload.MaterialId, completeOcrPayload.Payload.DocumentId, BlobType.Ocr);
         await _polarisBlobStorageService.UploadObjectAsync(ocrOperationResult.AnalyzeResults, blobId);
 
         return new PollingActivityResult<CompleteOcrResponse>

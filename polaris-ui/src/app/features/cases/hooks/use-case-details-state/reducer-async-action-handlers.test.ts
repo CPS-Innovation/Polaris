@@ -9,6 +9,8 @@ import * as api from "../../api/gateway-api";
 import * as headerFactory from "../../api/auth/header-factory";
 import * as mapRedactionSaveRequest from "./map-redaction-save-request";
 import { RedactionSaveRequest } from "../../domain/gateway/RedactionSaveRequest";
+import { ApiError } from "../../../../common/errors/ApiError"; // ← use the real path
+``;
 
 describe("reducerAsyncActionHandlers", () => {
   const dispatchMock = jest.fn();
@@ -251,12 +253,25 @@ describe("reducerAsyncActionHandlers", () => {
 
         const checkoutSpy = jest
           .spyOn(api, "checkoutDocument")
-          .mockImplementation(() =>
-            Promise.reject({
-              code: CHECKOUT_BLOCKED_STATUS_CODE,
-              customProperties: { username: "test_username" },
-            })
-          );
+          .mockImplementation(() => {
+            const error = new ApiError(
+              "Checkout blocked", // message
+              "/checkout", // path (any string is fine)
+              {
+                status: CHECKOUT_BLOCKED_STATUS_CODE,
+                statusText: "Conflict",
+              },
+              {
+                // IMPORTANT: username must be a JSON STRING
+                username: JSON.stringify({
+                  Error:
+                    "It is not possible to redact as the document is already checked out by test_username",
+                }),
+              }
+            );
+
+            return Promise.reject(error);
+          });
 
         const handler =
           reducerAsyncActionHandlers.ADD_REDACTION_OR_ROTATION_AND_POTENTIALLY_LOCK(

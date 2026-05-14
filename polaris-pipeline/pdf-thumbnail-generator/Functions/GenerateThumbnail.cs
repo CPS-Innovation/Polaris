@@ -27,19 +27,19 @@ namespace pdf_thumbnail_generator.Functions
 
         [Function(nameof(GenerateThumbnail))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.GenerateThumbnail)] HttpRequest req, [DurableClient] DurableTaskClient client,
-            string caseUrn, int caseId, string documentId, int versionId, int maxDimensionPixel, int? pageIndex = null) 
+            string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int? pageIndex = null) 
         { 
             Guid currentCorrelationId = default;
             try
             {
                 currentCorrelationId = req.Headers.GetCorrelationId();
 
-                var payload = new ThumbnailOrchestrationPayload(caseUrn, caseId, documentId, versionId, maxDimensionPixel, currentCorrelationId, pageIndex);
+                var payload = new ThumbnailOrchestrationPayload(caseUrn, caseId, materialId, documentId, maxDimensionPixel, currentCorrelationId, pageIndex);
                 var result = await _orchestrationProvider.GenerateThumbnailAsync(client, payload);
 
                 return result switch
                 {
-                    OrchestrationStatus.Accepted or OrchestrationStatus.Completed => new ObjectResult(new ThumbnailResponse(caseUrn, caseId, documentId, versionId))
+                    OrchestrationStatus.Accepted or OrchestrationStatus.Completed => new ObjectResult(new ThumbnailResponse(caseUrn, caseId, materialId, documentId))
                     {
                         StatusCode = StatusCodes.Status202Accepted
                     },

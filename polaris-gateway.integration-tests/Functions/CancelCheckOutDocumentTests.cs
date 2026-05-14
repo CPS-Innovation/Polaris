@@ -17,11 +17,11 @@ public class CancelCheckOutDocumentTests : BaseFunctionIntegrationTest
         //arrange
         var urn = "urn";
         var caseId = 0;
-        var documentId = "CMS-12345";
-        var versionId = 1;
+        var materialId = "CMS-12345";
+        var documentId = 1;
 
         //act
-        var result = await PolarisGatewayApiClient.CancelCheckoutDocumentAsync(urn, caseId, documentId, versionId,
+        var result = await PolarisGatewayApiClient.CancelCheckoutDocumentAsync(urn, caseId, materialId, documentId,
             TestContext.CurrentContext.CancellationToken);
 
         //assert
@@ -34,11 +34,11 @@ public class CancelCheckOutDocumentTests : BaseFunctionIntegrationTest
         //arrange
         var urn = "urn";
         var caseId = 1;
-        var documentId = "CMS-0";
-        var versionId = 1;
+        var materialId = "CMS-0";
+        var documentId = 1;
 
         //act
-        var result = await PolarisGatewayApiClient.CancelCheckoutDocumentAsync(urn, caseId, documentId, versionId,
+        var result = await PolarisGatewayApiClient.CancelCheckoutDocumentAsync(urn, caseId, materialId, documentId,
             TestContext.CurrentContext.CancellationToken);
 
         //assert
@@ -51,12 +51,12 @@ public class CancelCheckOutDocumentTests : BaseFunctionIntegrationTest
         //arrange
         var urn = "54KR7689125";
         var caseId = 2160797;
-        var documentId = "CMS-8930494";
-        var versionId = 8155871;
-        var preCheckOutDocument = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, documentId, versionId, TestContext.CurrentContext.CancellationToken);
+        var materialId = "CMS-8930494";
+        var documentId = 8155871;
+        var preCheckOutDocument = await PolarisGatewayApiClient.CheckOutDocumentAsync(urn, caseId, materialId, documentId, TestContext.CurrentContext.CancellationToken);
 
         //act
-        var result = await PolarisGatewayApiClient.CancelCheckoutDocumentAsync(urn, caseId, documentId, versionId,
+        var result = await PolarisGatewayApiClient.CancelCheckoutDocumentAsync(urn, caseId, materialId, documentId,
             TestContext.CurrentContext.CancellationToken);
 
         //assert

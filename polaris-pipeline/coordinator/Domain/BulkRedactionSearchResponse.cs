@@ -12,9 +12,9 @@ public class BulkRedactionSearchResponse
 
     public int CaseId { get; set; }
 
-    public string DocumentId { get; set; }
+    public string MaterialId { get; set; }
 
-    public long VersionId { get; set; }
+    public long DocumentId { get; set; }
 
     public string SearchText { get; set; }
 

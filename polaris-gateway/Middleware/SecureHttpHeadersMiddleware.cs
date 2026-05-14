@@ -34,7 +34,7 @@ namespace PolarisGateway.Middleware
 
             await next(context).ConfigureAwait(false);
 
-            if (request is null || request.Url.Scheme != Uri.UriSchemeHttps)
+            if (request is null)
             {
                 return;
             }

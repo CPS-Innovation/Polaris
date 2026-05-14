@@ -1,14 +1,15 @@
-﻿using Common.Extensions;
-using Common.Telemetry;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Middleware;
-using System;
+﻿using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
-using System.Text.RegularExpressions;
-using Microsoft.ApplicationInsights.DataContracts;
+using Common.Extensions;
+using Common.Telemetry;
 using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Middleware;
 
 namespace coordinator.Middleware;
 
@@ -27,6 +28,12 @@ public sealed partial class RequestValidationMiddleware(Microsoft.ApplicationIns
         {
             await next(context);
             return;
+        }
+
+        // Add ClientName to telemetry if exists in header
+        if (requestData.Headers.TryGetValues("ClientName", out var clientNames))
+        {
+            requestTelemetry.Properties[TelemetryConstants.ClientNameCustomDimensionName] = clientNames.FirstOrDefault(string.Empty);
         }
 
         try

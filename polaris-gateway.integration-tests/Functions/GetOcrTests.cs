@@ -15,19 +15,19 @@ public class GetOcrTests : BaseFunctionIntegrationTest
     public async Task GetOcr_CaseIdIs0_ShouldReturnNotFound()
     {
         // arrange
-        // Route: urns/{caseUrn}/cases/{caseId:min(1)}/documents/{documentId}/versions/{versionId:min(1)}/ocr
+        // Route: urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{materialId:min(1)}/ocr
         // caseId=0 fails route constraint => NotFound
         var urn = "54KR7689125";
         var caseId = 0;
-        var documentId = "1";
-        var versionId = 1;
+        var materialId = "1";
+        var documentId = 1;
 
         // act
         var result = await PolarisGatewayApiClient.GetOcrAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             cancellationToken: TestContext.CurrentContext.CancellationToken);
 
         // assert
@@ -40,15 +40,15 @@ public class GetOcrTests : BaseFunctionIntegrationTest
         // arrange
         var urn = "";
         var caseId = 2179140;
-        var documentId = "1";
-        var versionId = 1;
+        var materialId = "1";
+        var documentId = 1;
 
         // act
         var result = await PolarisGatewayApiClient.GetOcrAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             cancellationToken: TestContext.CurrentContext.CancellationToken);
 
         // assert
@@ -56,20 +56,20 @@ public class GetOcrTests : BaseFunctionIntegrationTest
     }
 
     [Test]
-    public async Task GetOcr_VersionIdIs0_ShouldReturnNotFound()
+    public async Task GetOcr_DocumentIdIs0_ShouldReturnNotFound()
     {
         // arrange
         var urn = "54KR7689125";
         var caseId = 2179140;
-        var documentId = "1";
-        var versionId = 0;
+        var materialId = "1";
+        var documentId = 0;
 
         // act
         var result = await PolarisGatewayApiClient.GetOcrAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             cancellationToken: TestContext.CurrentContext.CancellationToken);
 
         // assert
@@ -83,15 +83,15 @@ public class GetOcrTests : BaseFunctionIntegrationTest
         var urn = "16XL8836126";
         var caseId = 2179140;
 
-        var documentId = "CMS-8977782";
-        var versionId = 8185976;
+        var materialId = "CMS-8977782";
+        var documentId = 8185976;
 
         // act
         var result = await PolarisGatewayApiClient.GetOcrAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             cancellationToken: TestContext.CurrentContext.CancellationToken);
 
         // assert
@@ -109,15 +109,15 @@ public class GetOcrTests : BaseFunctionIntegrationTest
         // arrange
         var urn = "16XL8836126";
         var caseId = 2179140;
-        var documentId = "CMS-8977782";
-        var versionId = 8185976;
+        var materialId = "CMS-8977782";
+        var documentId = 8185976;
 
         // act
         var result = await PolarisGatewayApiClient.GetOcrAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             cancellationToken: TestContext.CurrentContext.CancellationToken);
 
         // assert
@@ -141,15 +141,15 @@ public class GetOcrTests : BaseFunctionIntegrationTest
         // arrange
         var urn = "16XL8836126";
         var caseId = 2179140;
-        var documentId = "CMS-8977782";
-        var versionId = 8185976;
+        var materialId = "CMS-8977782";
+        var documentId = 8185976;
 
         // act
         var result = await PolarisGatewayApiClient.GetOcrPollAsync(
             urn,
             caseId,
+            materialId,
             documentId,
-            versionId,
             cancellationToken: TestContext.CurrentContext.CancellationToken);
 
         // assert

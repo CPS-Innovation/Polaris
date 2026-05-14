@@ -18,10 +18,10 @@ public class BlobNameHelperTests
     [InlineData(12345, "CMS-6789", 54321, BlobNameHelper.BlobType.Pii, "12345/pii/CMS-6789-54321.json")]
     [InlineData(12345, "CMS-PCD-6789", 54321, BlobNameHelper.BlobType.Pii, "12345/pii/CMS-PCD-6789-54321.json")]
     [InlineData(12345, "DAC-foo", 54321, BlobNameHelper.BlobType.Pii, "12345/pii/DAC-foo-54321.json")]
-    public void PdfBlobNameHelper_ReturnsExpectedPdfBlobName(int caseId, string documentId, long versionId, BlobNameHelper.BlobType blobType, string expected)
+    public void PdfBlobNameHelper_ReturnsExpectedPdfBlobName(int caseId, string materialId, long documentId, BlobNameHelper.BlobType blobType, string expected)
     {
         // Act
-        var result = BlobNameHelper.GetBlobName(caseId, documentId, versionId, blobType);
+        var result = BlobNameHelper.GetBlobName(caseId, materialId, documentId, blobType);
 
         // Assert
         result.Should().Be(expected);
@@ -31,10 +31,10 @@ public class BlobNameHelperTests
     [InlineData(12345, "6789", 54321, BlobNameHelper.BlobType.Pdf)]
     [InlineData(12345, "6789", 54321, BlobNameHelper.BlobType.Ocr)]
     [InlineData(12345, "6789", 54321, BlobNameHelper.BlobType.Pii)]
-    public void PdfBlobNameHelper_NumericDocumentIdsShouldThrow_UntilWeChooseToRefactorBackToNumericIds(int caseId, string documentId, long versionId, BlobNameHelper.BlobType blobType)
+    public void PdfBlobNameHelper_NumericDocumentIdsShouldThrow_UntilWeChooseToRefactorBackToNumericIds(int caseId, string materialId, long documentId, BlobNameHelper.BlobType blobType)
     {
         // Act
-        var act = () => BlobNameHelper.GetBlobName(caseId, documentId, versionId, blobType);
+        var act = () => BlobNameHelper.GetBlobName(caseId, materialId, documentId, blobType);
 
         // Assert
         act.Should().Throw<ArgumentOutOfRangeException>();
