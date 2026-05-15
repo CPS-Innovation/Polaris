@@ -1096,6 +1096,11 @@ namespace DdeiClient.Clients
                                 Text = co.Text,
                                 TextWithCmsMarkup = co.TextWithCmsMarkup,
                             }).ToList(),
+                            Comments = new PcdComments()
+                            {
+                                Text = data.Comments?.Text,
+                                TextWithCmsMarkup = data.Comments?.TextWithCmsMarkup,
+                            },
                             Suspects = data.Suspects.Select(sus => new PcdRequestSuspect()
                             {
                                 Surname = sus.Surname,
