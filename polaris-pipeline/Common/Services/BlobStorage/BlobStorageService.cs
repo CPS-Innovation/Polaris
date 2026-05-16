@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using Azure;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using Common.Wrappers;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using Azure;
-using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-using Common.Wrappers;
 
 namespace Common.Services.BlobStorage;
 
@@ -87,7 +88,11 @@ public class BlobStorageService : IBlobStorageService
     {
         var blobContainerClient = await GetBlobContainerClientOrThrow();
 
-        await foreach (var blobItem in blobContainerClient.GetBlobsAsync(prefix: prefix))
+        await foreach (var blobItem in blobContainerClient.GetBlobsAsync(
+            traits: BlobTraits.None,
+            states: BlobStates.None,
+            prefix: prefix,
+            CancellationToken.None))
         {
             var blobClient = blobContainerClient.GetBlobClient(blobItem.Name);
             await blobClient.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots);

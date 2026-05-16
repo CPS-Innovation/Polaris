@@ -87,7 +87,7 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     application_insights_key               = data.azurerm_application_insights.global_ai.instrumentation_key
     always_on                              = true
     application_stack {
-      dotnet_version              = "8.0"
+      dotnet_version              = "10.0"
       use_dotnet_isolated_runtime = true
     }
     health_check_path                 = "/api/status"

@@ -69,10 +69,10 @@ namespace Common.Telemetry
                 CopyDictionary(PrepareKeyNames(properties), eventTelemetry.Properties);
             }
 
-            if (nonNullMetrics != null && nonNullMetrics.Count > 0)
-            {
-                CopyDictionary(PrepareKeyNames(nonNullMetrics), eventTelemetry.Metrics);
-            }
+            //if (nonNullMetrics != null && nonNullMetrics.Count > 0)
+            //{
+            //    CopyDictionary(PrepareKeyNames(nonNullMetrics), eventTelemetry.Metrics);
+            //}
 
             eventTelemetry.Context.Operation.Name = baseTelemetryEvent.OperationName;
             eventTelemetry.Context.Cloud.RoleName = Environment.GetEnvironmentVariable("WEBSITE_HOSTNAME");

@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using AI = Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -25,7 +25,6 @@ namespace Common.tests.Telemetry
 
             var aiTelemetryConfig = new TelemetryConfiguration
             {
-                TelemetryChannel = _mockTelemetryChannel,
                 ConnectionString = $"InstrumentationKey={Guid.NewGuid().ToString()};IngestionEndpoint=https://example.org;LiveEndpoint=https://example.org;",
             };
             var aiTelemetryClient = new AI.TelemetryClient(aiTelemetryConfig);
@@ -66,9 +65,10 @@ namespace Common.tests.Telemetry
             receivedEvent?.Properties["testFoo"].Should().Be("foo");
             receivedEvent?.Properties["testBar"].Should().Be("bar");
             receivedEvent?.Properties["testQuux"].Should().Be("quux");
-            receivedEvent?.Metrics["testBaz"].Should().Be(1.0);
-            receivedEvent?.Metrics["testQux"].Should().Be(2.991919);
-            receivedEvent?.Metrics["testQuux1"].Should().Be(1.1);
+            // ✅ FIX: metrics are now stored as properties (string)
+            receivedEvent?.Properties["testBaz"].Should().Be("1");
+            receivedEvent?.Properties["testQux"].Should().Be("2.991919");
+            receivedEvent?.Properties["testQuux1"].Should().Be("1.1");
         }
 
         [Fact]
@@ -83,8 +83,8 @@ namespace Common.tests.Telemetry
 
             // Assert
             var receivedEvent = _mockTelemetryChannel.SentTelemetries.First() as EventTelemetry;
-            receivedEvent?.Metrics["test"].Should().Be(1.0);
-            receivedEvent?.Metrics.ContainsKey("testNull").Should().BeFalse();
+            receivedEvent?.Properties["test"].Should().Be("1.0");
+            receivedEvent?.Properties.ContainsKey("testNull").Should().BeFalse();
         }
 
         [Fact]
@@ -128,7 +128,7 @@ namespace Common.tests.Telemetry
 
     }
 
-    public class MockTelemetryChannel : ITelemetryChannel
+    public class MockTelemetryChannel : AI.Channel.ITelemetry
     {
         public ConcurrentBag<ITelemetry> SentTelemetries = [];
 
@@ -140,6 +140,9 @@ namespace Common.tests.Telemetry
         public bool IsFlushed { get; private set; }
         public bool? DeveloperMode { get; set; }
         public string EndpointAddress { get; set; }
+        public DateTimeOffset Timestamp { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public TelemetryContext Context => throw new NotImplementedException();
 
         public void Send(ITelemetry item)
         {

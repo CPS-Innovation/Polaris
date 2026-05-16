@@ -20,6 +20,7 @@
         "default": "Information"
       },
       "enableLiveMetrics": true,
+      "enableAdaptiveSampling": false,
       "enableDependencyTracking": true,
       "enablePerformanceCountersCollection": true,
       "httpAutoCollectionOptions": {

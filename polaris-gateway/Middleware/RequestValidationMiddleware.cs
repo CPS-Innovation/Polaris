@@ -27,8 +27,8 @@ public sealed partial class RequestValidationMiddleware(
 
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {
-        var requestTelemetry = new RequestTelemetry();
-        requestTelemetry.Start();
+        var operation = telemetryClient.StartOperation<RequestTelemetry>(context.FunctionDefinition.Name);
+        var requestTelemetry = operation.Telemetry;
         var requestData = await context.GetHttpRequestDataAsync();
         if (requestData.Headers.TryGetValues("ClientName", out var clientNames))
         {
@@ -70,13 +70,11 @@ public sealed partial class RequestValidationMiddleware(
         requestTelemetry.Context.Operation.Name = context.FunctionDefinition.Name;
         requestTelemetry.Properties[TelemetryConstants.CorrelationIdCustomDimensionName] = correlationId.ToString();
         requestTelemetry.Name = context.FunctionDefinition.Name;
-#pragma warning disable CS0618 // Type or member is obsolete
-        requestTelemetry.HttpMethod = requestData.Method;
-#pragma warning restore CS0618 // Type or member is obsolete
+        requestTelemetry.Properties["HttpMethod"] = requestData.Method;
         requestTelemetry.ResponseCode = context.GetHttpResponseData()?.StatusCode.ToString() ?? string.Empty;
         requestTelemetry.Success = true;
         requestTelemetry.Url = requestData.Url;
-        requestTelemetry.Stop();
+        telemetryClient.StopOperation(operation);
 
         telemetryClient.TrackRequest(requestTelemetry);
 
