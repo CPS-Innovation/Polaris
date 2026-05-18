@@ -77,6 +77,9 @@ const navigateAndStopExecution = (window: Window, url: string) => {
   throw new CmsAuthRedirectingError();
 };
 
+/**
+ * fetchWithFullWindowReauth => fetchWithCookiesIf401NavigateToLoginPage
+ */
 export const fetchWithFullWindowReauth = async (...args: FetchArgs) => {
   const response = await fetchWithCookies(...args);
 
