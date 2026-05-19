@@ -115,6 +115,140 @@ public class GetExhibitProducersTests
     }
 
     /// <summary>
+    /// Tests that duplicate exhibit producers are deduplicated in the returned list.
+    /// </summary>
+    /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
+    [Fact]
+    public async Task Run_ReturnsOkResult_WhenExhibitProducersContainDuplicates_ReturnsUniqueList()
+    {
+        // Arrange
+        var mockRequest = SetUpMockRequest();
+
+        var expectedProducers = new ExhibitProducersResponse
+        {
+            ExhibitProducers = new List<ExhibitProducer>()
+            {
+                new (Id: 343, "Joe SMITH", false),
+                new (Id: 343, "Joe SMITH", false),
+                new (Id: 346, "Bob JACKSON", false),
+            },
+        };
+
+        var witnesses = new WitnessesResponse
+        {
+            Witnesses = new List<Witness>()
+            {
+                new Witness(CaseId: 221, WitnessId: 34, "Jane", "Jones"),
+            },
+        };
+
+        mockCommunicationService
+            .Setup(x => x.GetExhibitProducersAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync(expectedProducers);
+
+        mockWitnessService
+            .Setup(x => x.GetCaseWitnessesAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync(witnesses);
+
+        // Act
+        IActionResult result = await sutGetExhibitProducers.Run(mockRequest.Object, 321);
+
+        // Assert
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.NotNull(okResult.Value);
+        Assert.IsType<ExhibitProducersResponse>(okResult.Value);
+
+        var producers = (ExhibitProducersResponse)okResult.Value;
+
+        Assert.NotNull(producers);
+        Assert.Equal(3, producers.ExhibitProducers!.Count);
+        Assert.Equal(2, producers.ExhibitProducers.Where(x => !x.IsWitness).Count());
+        Assert.Equal(1, producers.ExhibitProducers.Where(x => x.IsWitness).Count());
+        Assert.Single(producers.ExhibitProducers.Where(x => x.Id == 343));
+
+        Assert.Contains(mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseExhibitProducers function processed a request."));
+
+        Assert.Contains(mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [321] GetCaseExhibitProducers function completed"));
+
+        mockCommunicationService.Verify(
+            svc => svc.GetExhibitProducersAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()), Times.Once);
+
+        mockWitnessService.Verify(
+            svc => svc.GetCaseWitnessesAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()), Times.Once);
+    }
+
+    /// <summary>
+    /// Tests that duplicate witnesses are deduplicated before being added to the returned list.
+    /// </summary>
+    /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
+    [Fact]
+    public async Task Run_ReturnsOkResult_WhenWitnessesContainDuplicates_ReturnsUniqueList()
+    {
+        // Arrange
+        var mockRequest = SetUpMockRequest();
+
+        var expectedProducers = new ExhibitProducersResponse
+        {
+            ExhibitProducers = new List<ExhibitProducer>()
+            {
+                new (Id: 343, "Joe SMITH", false),
+            },
+        };
+
+        var witnesses = new WitnessesResponse
+        {
+            Witnesses = new List<Witness>()
+            {
+                new Witness(CaseId: 221, WitnessId: 34, "Jane", "Jones"),
+                new Witness(CaseId: 221, WitnessId: 34, "Jane", "Jones"),
+                new Witness(CaseId: 221, WitnessId: 36, "Bill", "Ted"),
+            },
+        };
+
+        mockCommunicationService
+            .Setup(x => x.GetExhibitProducersAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync(expectedProducers);
+
+        mockWitnessService
+            .Setup(x => x.GetCaseWitnessesAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync(witnesses);
+
+        // Act
+        IActionResult result = await sutGetExhibitProducers.Run(mockRequest.Object, 321);
+
+        // Assert
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.NotNull(okResult.Value);
+        Assert.IsType<ExhibitProducersResponse>(okResult.Value);
+
+        var producers = (ExhibitProducersResponse)okResult.Value;
+
+        Assert.NotNull(producers);
+        Assert.Equal(3, producers.ExhibitProducers!.Count);
+        Assert.Equal(1, producers.ExhibitProducers.Where(x => !x.IsWitness).Count());
+        Assert.Equal(2, producers.ExhibitProducers.Where(x => x.IsWitness).Count());
+        Assert.Single(producers.ExhibitProducers.Where(x => x.Id == 34));
+
+        Assert.Contains(mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseExhibitProducers function processed a request."));
+
+        Assert.Contains(mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [321] GetCaseExhibitProducers function completed"));
+
+        mockCommunicationService.Verify(
+            svc => svc.GetExhibitProducersAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()), Times.Once);
+
+        mockWitnessService.Verify(
+            svc => svc.GetCaseWitnessesAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()), Times.Once);
+    }
+
+    /// <summary>
     /// Tests that witnesses who are already in the exhibit producers list are not added again.
     /// </summary>
     /// <returns>An <see cref="IActionResult"/> representing the result of the operation.</returns>
