@@ -1221,6 +1221,7 @@ namespace DdeiClient.Clients
                     Subject = request.Subject,
                     ExistingProducerOrWitnessId = request.ExistingProducerOrWitnessId,
                     NewProducer = request.NewProducer,
+                    Used = request.Used,
                 };
 
                 var data = await client.UpdateExhibitAsync(request.CaseId, request.MaterialId, mdsRequest);
