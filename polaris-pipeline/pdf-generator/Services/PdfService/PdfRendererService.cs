@@ -1,14 +1,15 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using Aspose.Pdf;
+﻿using Aspose.Pdf;
+using Common.Constants;
 using pdf_generator.Domain.Document;
 using pdf_generator.Extensions;
 using pdf_generator.Factories.Contracts;
-using Common.Constants;
-using System.Linq;
+using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace pdf_generator.Services.PdfService;
 
@@ -32,6 +33,7 @@ public class PdfRendererService : IPdfService
             if (doc.IsEncrypted)
                 throw new PdfEncryptionException();
 
+            MergeLinkAnnotations(doc);
 
             var linkAnnotations = doc.Pages.SelectMany(page => page.Annotations.OfType<Aspose.Pdf.Annotations.LinkAnnotation>());
             foreach (var annotation in linkAnnotations)
@@ -89,11 +91,52 @@ public class PdfRendererService : IPdfService
         return conversionResult;
     }
 
+    private void MergeLinkAnnotations(Aspose.Pdf.Document doc)
+    {
+        const double mergeThreshold = 50.0;
+
+        var grouped = doc.Pages
+            .SelectMany(page => page.Annotations.OfType<Aspose.Pdf.Annotations.LinkAnnotation>()
+                .Select(a => new { Annotation = a, Page = page }))
+            .Where(x => x.Annotation.Action is Aspose.Pdf.Annotations.GoToURIAction)
+            .GroupBy(x => new { Uri = ((Aspose.Pdf.Annotations.GoToURIAction)x.Annotation.Action).URI, Page = x.Page });
+
+        foreach (var group in grouped)
+        {
+            var uri = SetLinkUri(group.Key.Uri);
+
+            // Cluster annotations by proximity
+            var clusters = group.OrderBy(x => x.Annotation.Rect.LLY)
+                .Aggregate(new List<List<(Aspose.Pdf.Annotations.LinkAnnotation Annotation, Aspose.Pdf.Page Page)>>(),
+                    (acc, current) =>
+                    {
+                        if (!acc.Any() || Math.Abs(current.Annotation.Rect.LLY - acc.Last().Last().Annotation.Rect.LLY) > mergeThreshold)
+                            acc.Add(new List<(Aspose.Pdf.Annotations.LinkAnnotation, Aspose.Pdf.Page)>());
+
+                        acc.Last().Add((current.Annotation, current.Page));
+                        return acc;
+                    });
+
+            // Merge clusters
+            clusters.ForEach(cluster =>
+            {
+                var rects = cluster.Select(c => c.Annotation.Rect);
+                var combinedRect = new Aspose.Pdf.Rectangle(rects.Min(r => r.LLX), rects.Min(r => r.LLY), rects.Max(r => r.URX), rects.Max(r => r.URY));
+
+                cluster.ForEach(c => c.Page.Annotations.Delete(c.Annotation));
+                cluster.First().Page.Annotations.Add(new Aspose.Pdf.Annotations.LinkAnnotation(cluster.First().Page, combinedRect)
+                {
+                    Action = new Aspose.Pdf.Annotations.GoToURIAction(uri)
+                });
+            });
+        }
+    }
+
     private string SetLinkUri(string uri)
     {
         const string fileScheme = "file://";
         const string httpsScheme = "https:";
-        
+
         if (uri.StartsWith(fileScheme, StringComparison.OrdinalIgnoreCase))
             return uri.Replace(fileScheme, $"{httpsScheme}//");
 
