@@ -12,21 +12,32 @@ public class RedactionSearchDtoMapper : IRedactionSearchDtoMapper
         var redactionSearchDtos = new List<RedactionSearchDto>();
         foreach (var readResult in readResults)
         {
-            var words = readResult.Lines.SelectMany(x => x.Words);
-            redactionSearchDtos.AddRange(words.Select(word => new RedactionSearchDto
+            foreach (var word in readResult.Lines.SelectMany(l => l?.Words ?? Enumerable.Empty<Word>()))
             {
-                PageIndex = readResult.Page,
-                Width = readResult.Width,
-                Height = readResult.Height,
-                RedactionCoordinates = new RedactionCoordinatesDto
+                var bb = word?.BoundingBox;
+                if (bb == null || bb.Count < 8 || bb.Any(v => v == null))
                 {
-                    X1 = (double)word.BoundingBox[0]!, 
-                    Y1 = (double)word.BoundingBox[1]!, 
-                    X2 = (double)word.BoundingBox[2]!, 
-                    Y2 = (double)word.BoundingBox[3]!
-                },
-                Word = word.Text
-            }));
+                    continue;
+                }
+
+                var xCoords = new[] { bb[0]!.Value, bb[2]!.Value, bb[4]!.Value, bb[6]!.Value };
+                var yCoords = new[] { bb[1]!.Value, bb[3]!.Value, bb[5]!.Value, bb[7]!.Value };
+
+                redactionSearchDtos.Add(new RedactionSearchDto
+                {
+                    PageIndex = readResult.Page,
+                    Width = readResult.Width,
+                    Height = readResult.Height,
+                    Word = word.Text,
+                    RedactionCoordinates = new RedactionCoordinatesDto
+                    {
+                        X1 = xCoords.Min(),
+                        Y1 = yCoords.Min(),
+                        X2 = xCoords.Max(),
+                        Y2 = yCoords.Max()
+                    }
+                });
+            }
         }
 
         return redactionSearchDtos;
