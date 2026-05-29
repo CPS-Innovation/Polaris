@@ -4,8 +4,6 @@
 
 using Common.Extensions;
 using Common.Middleware;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.WorkerService;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
@@ -40,7 +38,6 @@ var host = new HostBuilder()
         });
     })
     .ConfigureOpenApi()
-    .ConfigureLogging(options => options.AddApplicationInsights())
     .ConfigureAppConfiguration(builder => builder.AddConfigurationSettings())
     .ConfigureServices((services) =>
     {

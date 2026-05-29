@@ -136,13 +136,18 @@ namespace Common.tests.Telemetry
         {
             EndpointAddress = "";
         }
-
+        public void Sanitize()
+        {
+        }
         public bool IsFlushed { get; private set; }
         public bool? DeveloperMode { get; set; }
         public string EndpointAddress { get; set; }
         public DateTimeOffset Timestamp { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public TelemetryContext Context => throw new NotImplementedException();
+
+        public IExtension Extension { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string Sequence { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public void Send(ITelemetry item)
         {
@@ -157,6 +162,16 @@ namespace Common.tests.Telemetry
         public void Dispose()
         {
 
+        }
+
+        public ITelemetry DeepClone()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SerializeData(ISerializationWriter serializationWriter)
+        {
+            throw new NotImplementedException();
         }
     }
 
