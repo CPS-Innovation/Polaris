@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Common.tests\Common.tests.csproj" />
     <ProjectReference Include="..\text-extractor\text-extractor.csproj" />
   </ItemGroup>
   <ItemGroup>
