@@ -70,7 +70,7 @@ public class TestBase
     protected internal string basePassword;
     protected internal AuthenticationContext baseAuthContext;
     protected internal HttpRequest baseRequest;
-    
+
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 #pragma warning restore SA1304 // Non-private readonly fields should begin with upper-case letter
 #pragma warning restore SA1307 // Accessible fields should begin with upper-case letter
@@ -124,7 +124,7 @@ public class TestBase
                 services.AddSingleton<ICommunicationMapper, CommunicationMapper>();
                 services.AddSingleton<ICommunicationService, CommunicationService>();
                 services.AddSingleton<ICaseMaterialService, CaseMaterialService>();
-               // services.AddDdeiApiClient<ClientEndpointOptions>("DDEIClient");
+                // services.AddDdeiApiClient<ClientEndpointOptions>("DDEIClient");
                 services.AddSingleton<IReclassificationService, ReclassificationService>();
                 services.AddSingleton<IWitnessService, WitnessService>();
                 services.AddSingleton<ICaseDefendantsService, CaseDefendantsService>();
@@ -132,8 +132,8 @@ public class TestBase
                 services.AddSingleton<ICaseLockService, CaseLockService>();
                 services.AddSingleton<ICaseActionPlanService, CaseActionPlanService>();
                 services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();
-                services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>(); 
-                
+                services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>();
+
                 //  services.AddDDEIProvider();
 
                 // Add validators
