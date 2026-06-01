@@ -62,7 +62,7 @@ public class DocumentTypeMapperTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal("DREP", result.DocumentType);
-        Assert.Equal("MG Form", result.Category);
+        Assert.Equal("Communication", result.Category);
     }
 
     /// <summary>
@@ -123,13 +123,13 @@ public class DocumentTypeMapperTests
         Assert.Equal(7, result.Count(x => x.Group == "Exhibits"));
 
         // MG Form
-        Assert.Equal(44, result.Count(x => x.Group == "MG Form"));
+        Assert.Equal(43, result.Count(x => x.Group == "MG Form"));
 
         // Other
         Assert.Equal(10, result.Count(x => x.Group == "Other"));
 
         // Communication
-        Assert.Equal(10, result.Count(x => x.Group == "Communication"));
+        Assert.Equal(11, result.Count(x => x.Group == "Communication"));
 
         // Defendant Pre Cons
         Assert.Equal(2, result.Count(x => x.Group == "Defendant Pre Cons"));
