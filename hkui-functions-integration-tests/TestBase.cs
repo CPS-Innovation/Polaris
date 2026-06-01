@@ -4,10 +4,6 @@
 
 namespace HkuiFunctionsIntegrationTests;
 
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Reflection;
-using System.Text;
 using Common.Constants;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
@@ -22,12 +18,18 @@ using DdeiClient.Clients;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Configuration;
 using Extensions;
+using HkuiFunctionsIntegrationTests.Dto;
 using Microsoft;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Reflection;
+using System.Text;
+using System.Text.Json;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -68,7 +70,7 @@ public class TestBase
     protected internal string basePassword;
     protected internal AuthenticationContext baseAuthContext;
     protected internal HttpRequest baseRequest;
-    
+
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 #pragma warning restore SA1304 // Non-private readonly fields should begin with upper-case letter
 #pragma warning restore SA1307 // Accessible fields should begin with upper-case letter
@@ -122,7 +124,7 @@ public class TestBase
                 services.AddSingleton<ICommunicationMapper, CommunicationMapper>();
                 services.AddSingleton<ICommunicationService, CommunicationService>();
                 services.AddSingleton<ICaseMaterialService, CaseMaterialService>();
-               // services.AddDdeiApiClient<ClientEndpointOptions>("DDEIClient");
+                // services.AddDdeiApiClient<ClientEndpointOptions>("DDEIClient");
                 services.AddSingleton<IReclassificationService, ReclassificationService>();
                 services.AddSingleton<IWitnessService, WitnessService>();
                 services.AddSingleton<ICaseDefendantsService, CaseDefendantsService>();
@@ -130,8 +132,8 @@ public class TestBase
                 services.AddSingleton<ICaseLockService, CaseLockService>();
                 services.AddSingleton<ICaseActionPlanService, CaseActionPlanService>();
                 services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();
-                services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>(); 
-                
+                services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>();
+
                 //  services.AddDDEIProvider();
 
                 // Add validators
@@ -373,11 +375,19 @@ public class TestBase
                 Password = password,
             };
 
-            var authResult = await apiClient.AuthenticateAsync(authRequest);
+            var authOutput = await apiClient.AuthenticateAsync(authRequest);
+            var authResult = JsonSerializer.Deserialize<AuthenticationResponse>(
+                authOutput.Content!,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }
+            );
+
 
             if (authResult.Cookies != null)
             {
-                result = new AuthenticationContext(cookies:authResult.Cookies, token: authResult.Token!, authResult.ExpiryTime.Value);
+                result = new AuthenticationContext(cookies: authResult.Cookies, token: authResult.Token!, authResult.ExpiryTime!);
             }
         }
         catch (Exception exception)
