@@ -36,7 +36,7 @@ public class DocumentTypeMapper : IDocumentTypeMapper
             { 1064, new DocumentTypeInfo { DocumentType = "DCF", Category = "Communication", Group = "MG Form" } },
             { 1032, new DocumentTypeInfo { DocumentType = "Forwarded Internal Email", Category = "Communication", Group = "Other" } },
             { -1, new DocumentTypeInfo { DocumentType = "Correspondence", Category = "Communication", Group = "Other" } },
-            { 1055, new DocumentTypeInfo { DocumentType = "DREP", Category = "Communication", Group = "Communication" } },
+            { 1055, new DocumentTypeInfo { DocumentType = "DREP", Category = "MG Form", Group = "MG Form" } },
             { -2, new DocumentTypeInfo { DocumentType = "Defence Statement", Category = "Other Material", Group = "Other" } },
             { 1066, new DocumentTypeInfo { DocumentType = "MG00", Category = "MG Form", Group = "MG Form" } },
             { 1001, new DocumentTypeInfo { DocumentType = "MG1 (no longer received)", Category = "MG Form", Group = "MG Form" } },
