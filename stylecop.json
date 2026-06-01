@@ -5,7 +5,10 @@
       "companyName": "TheCrownProsecutionService",
       "copyrightText": "Copyright (c) The Crown Prosecution Service. All rights reserved.",
       "xmlHeader": true,
-      "fileNamingConvention": "stylecop"
+      "fileNamingConvention": "stylecop",
+      "documentInterfaces": false,
+      "documentInternalElements": false,
+      "documentExposedElements": false
     },
     "layoutRules": {
       "newlineAtEndOfFile": "require"
