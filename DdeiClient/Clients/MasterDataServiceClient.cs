@@ -1096,6 +1096,11 @@ namespace DdeiClient.Clients
                                 Text = co.Text,
                                 TextWithCmsMarkup = co.TextWithCmsMarkup,
                             }).ToList(),
+                            Comments = new PcdComments()
+                            {
+                                Text = data.Comments?.Text,
+                                TextWithCmsMarkup = data.Comments?.TextWithCmsMarkup,
+                            },
                             Suspects = data.Suspects.Select(sus => new PcdRequestSuspect()
                             {
                                 Surname = sus.Surname,
@@ -1216,6 +1221,7 @@ namespace DdeiClient.Clients
                     Subject = request.Subject,
                     ExistingProducerOrWitnessId = request.ExistingProducerOrWitnessId,
                     NewProducer = request.NewProducer,
+                    Used = request.Used,
                 };
 
                 var data = await client.UpdateExhibitAsync(request.CaseId, request.MaterialId, mdsRequest);

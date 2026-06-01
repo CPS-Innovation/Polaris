@@ -79,9 +79,19 @@ public class GetCaseExhibitProducers(ILogger<GetCaseExhibitProducers> logger,
                 result ??= new ExhibitProducersResponse();
                 result.ExhibitProducers ??= [];
 
+                // Deduplicate existing exhibit producers by Id before adding witnesses.
+                result.ExhibitProducers = result.ExhibitProducers
+                    .GroupBy(ep => ep.Id)
+                    .Select(g => g.First())
+                    .ToList();
+
+                // Add witnesses that are not already in the exhibit producers list to produce a list consisting of exhibit producers and witnesses, as both can produce exhibits.
                 result.ExhibitProducers.AddRange(
-                    witnesses.Select(w =>
-                        new ExhibitProducer(w.WitnessId!.Value, GetFullName(w), true)));
+                    witnesses
+                        .Where(w => w.WitnessId.HasValue && result.ExhibitProducers.All(ep => ep.Id != w.WitnessId!.Value))
+                        .GroupBy(w => w.WitnessId!.Value)
+                        .Select(g => g.First())
+                        .Select(w => new ExhibitProducer(w.WitnessId!.Value, GetFullName(w), true)));
             }
 
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] {nameof(GetCaseExhibitProducers)} function completed in [{stopwatch.Elapsed}]");
