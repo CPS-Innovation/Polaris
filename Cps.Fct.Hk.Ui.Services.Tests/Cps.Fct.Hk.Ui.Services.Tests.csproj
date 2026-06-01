@@ -16,6 +16,9 @@
 	</ItemGroup>
 
   <ItemGroup>
+	  <PackageReference Include="Aspose.Cells" Version="24.4.0" />
+	  <PackageReference Include="Aspose.Imaging" Version="24.4.0" />
+	  <PackageReference Include="Aspose.Words" Version="24.4.0" />
 	  <PackageReference Include="FluentAssertions" Version="8.10.0" />
 	  <PackageReference Include="coverlet.collector" Version="10.0.0">
 		  <PrivateAssets>all</PrivateAssets>

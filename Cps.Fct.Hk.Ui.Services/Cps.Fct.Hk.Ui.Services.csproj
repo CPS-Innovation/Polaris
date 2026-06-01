@@ -9,12 +9,12 @@
 	</PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspose.Cells" Version="26.4.0" />
-    <PackageReference Include="Aspose.Email" Version="26.3.0" />
-    <PackageReference Include="Aspose.Imaging" Version="26.4.0" />
+    <PackageReference Include="Aspose.Cells" Version="24.4.0" />
+    <PackageReference Include="Aspose.Email" Version="24.4.0" />
+    <PackageReference Include="Aspose.Imaging" Version="24.4.0" />
     <PackageReference Include="Aspose.PDF.Drawing" Version="26.3.0" />
     <PackageReference Include="Aspose.Slides.NET" Version="26.4.0" />
-    <PackageReference Include="Aspose.Words" Version="26.4.0" />
+    <PackageReference Include="Aspose.Words" Version="24.4.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.28.0" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.4" />
