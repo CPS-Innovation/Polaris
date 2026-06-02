@@ -5,6 +5,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests;
 
 using Castle.Core.Configuration;
 using Common.Dto.Response.HouseKeeping;
+using Cps.Fct.Hk.Ui.Services.Constants;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -43,7 +44,7 @@ public class DocumentTypeMapperTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal("ABE", result.DocumentType);
-        Assert.Equal("Other Material", result.Category);
+        Assert.Equal(DocumentTypeCategories.OtherMaterial, result.Category);
     }
 
     /// <summary>
@@ -62,7 +63,7 @@ public class DocumentTypeMapperTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal("DREP", result.DocumentType);
-        Assert.Equal("MG Form", result.Category);
+        Assert.Equal(DocumentTypeCategories.Communication, result.Category);
     }
 
     /// <summary>
@@ -108,18 +109,18 @@ public class DocumentTypeMapperTests
         Assert.NotNull(result);
 
         // Total
-        Assert.Equal(68, result.Count);
+        Assert.Equal(73, result.Count);
 
         // Statement
-        Assert.Equal(1, result.Count(x => x.Group == "Statement"));
+        Assert.Equal(5, result.Count(x => x.Group == DocumentTypeGroups.Statement));
 
         // Exhibit
-        Assert.Equal(5, result.Count(x => x.Group == "Exhibit"));
+        Assert.Equal(12, result.Count(x => x.Group == DocumentTypeGroups.Exhibit));
 
         // MG Form
-        Assert.Equal(47, result.Count(x => x.Group == "MG Form"));
+        Assert.Equal(43, result.Count(x => x.Group == DocumentTypeGroups.MgForm));
 
         // Other
-        Assert.Equal(15, result.Count(x => x.Group == "Other"));
+        Assert.Equal(13, result.Count(x => x.Group == DocumentTypeGroups.Other));
     }
 }
