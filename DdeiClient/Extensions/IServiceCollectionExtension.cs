@@ -31,12 +31,12 @@ public static class IServiceCollectionExtension
 
     public static void AddDdeiClientGateway(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<IMdsClientFactory, MdsClientFactory>();
+        services.AddSingleton<IMdsClientFactory, MdsClientFactory>();
         services.AddHttpClientWithDefaults<IDdeiAuthClient, DdeiAuthClient>(configuration, DdeiBaseUrlConfigKey, DdeiAccessKeyConfigKey, "Ddei", DdeiClientTimeoutSecondsConfigKey);
         services.AddHttpClientWithDefaults(configuration, MdsBaseUrlConfigKey, MdsAccessKeyConfigKey, nameof(MdsClients.Mds), MdsClientTimeoutSecondsConfigKey);
         services.AddHttpClientWithDefaults(configuration, MdsMockBaseUrlConfigKey, MdsMockAccessKeyConfigKey, nameof(MdsClients.MdsMock), MdsClientTimeoutSecondsConfigKey);
 
-        services.AddScoped<IMdsClient, MdsClient>();
+        services.AddSingleton<IMdsClient, MdsClient>();
 
         services.AddDdeiAuthServices();
         services.AddMdsServices();

@@ -2,11 +2,21 @@
 parameters:
 - name: environment 
   type: string
-
+ 
 stages:
   - stage: Publish_Artifacts
     displayName: Publish Pipeline Scripts
     jobs:
+ 
+      - job: InstallDotNet
+        steps:
+          - task: UseDotNet@2
+            displayName: Install .NET 10 SDK
+            inputs:
+              packageType: sdk
+              version: '10.x'
+              includePreviewVersions: true
+ 
       - job: Build_Pipeline_Scripts
         steps:
           - task: PublishPipelineArtifact@1
@@ -15,7 +25,7 @@ stages:
               targetPath: "$(Pipeline.Workspace)/s/polaris-devops-pipelines/scripts"
               artifact: "polaris-script-files"
               publishLocation: "pipeline"
-
+ 
       - job: Build_Main_Terraform_Artifacts
         steps:
           - task: PublishPipelineArtifact@1
@@ -24,7 +34,6 @@ stages:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/main-terraform/"
               artifact: "main-terraform-files"
               publishLocation: "pipeline"
-              
       - job: Build_Index_Terraform_Artifacts
         steps:
           - task: PublishPipelineArtifact@1
@@ -33,12 +42,12 @@ stages:
               targetPath: "$(Pipeline.Workspace)/s/polaris-terraform/search-index-terraform/"
               artifact: "index-terraform-files"
               publishLocation: "pipeline"  
-
+ 
       - job: Build_Coordinator_Artifact
         steps:
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
-
+ 
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -47,7 +56,6 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Build Coordinator artifact"
-          
           # Add build version
           - task: PowerShell@2
             inputs:
@@ -58,13 +66,13 @@ stages:
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"Coordinator`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
             displayName: "Record version details"
-
+ 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/coordinator"
               artifact: "polaris-coordinator-drop"
             displayName: "Publish Coordinator artifact"
-
+ 
       - job: Build_Pdf_Generator_Artifact
         pool:
           vmImage: 'ubuntu-latest'
@@ -74,7 +82,7 @@ stages:
             inputs:
               secureFile: 'Aspose.Total.NET.lic'
             displayName: 'Download Aspose Licence'
-
+ 
           - task: CopyFiles@2
             inputs:
               sourceFolder: $(Agent.TempDirectory)
@@ -82,10 +90,9 @@ stages:
               targetFolder: 'polaris-pipeline/pdf-generator'
               OverWrite: true
             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
-           
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
-
+ 
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -94,7 +101,6 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Build PDF-Generator artifact"
-          
           # Add build version
           - task: PowerShell@2
             inputs:
@@ -105,13 +111,13 @@ stages:
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"PDF Generator`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
             displayName: "Record version details"
-
+ 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/pdf-generator"
               artifact: "polaris-pdf-generator-drop"
             displayName: "Publish PDF-Generator codebase artifact"
-
+ 
       - job: Build_Pdf_Thumbnail_Generator_Artifact
         pool:
           vmImage: 'ubuntu-latest'
@@ -121,7 +127,7 @@ stages:
             inputs:
               secureFile: 'Aspose.Total.NET.lic'
             displayName: 'Download Aspose Licence'
-
+ 
           - task: CopyFiles@2
             inputs:
               sourceFolder: $(Agent.TempDirectory)
@@ -129,10 +135,10 @@ stages:
               targetFolder: 'polaris-pipeline/pdf-thumbnail-generator'
               OverWrite: true
             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
-
+ 
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
-
+ 
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -141,7 +147,7 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Build PDF-Thumbnail-Generator artifact"
-
+ 
           # Add build version
           - task: PowerShell@2
             inputs:
@@ -152,13 +158,13 @@ stages:
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"PDF Thumbnail Generator`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
             displayName: "Record version details"
-
+ 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/pdf-thumbnail-generator"
               artifact: "polaris-pdf-thumb-gen-drop"
             displayName: "Publish PDF-Thumbnail-Generator codebase artifact"
-
+ 
       - job: Build_Pdf_Redactor_Artifact
         pool:
           vmImage: 'ubuntu-latest'
@@ -168,7 +174,7 @@ stages:
             inputs:
               secureFile: 'Aspose.Total.NET.lic'
             displayName: 'Download Aspose Licence'
-
+ 
           - task: CopyFiles@2
             inputs:
               sourceFolder: $(Agent.TempDirectory)
@@ -176,10 +182,10 @@ stages:
               targetFolder: 'polaris-pipeline/pdf-redactor'
               OverWrite: true
             displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur'
-
+ 
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
-
+ 
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -188,7 +194,6 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Build PDF-Redactor artifact"
-          
           # Add build version
           - task: PowerShell@2
             inputs:
@@ -199,18 +204,18 @@ stages:
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"PDF Redactor`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
             displayName: "Record version details"
-
+ 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/pdf-redactor"
               artifact: "polaris-pdf-redactor-drop"
             displayName: "Publish PDF-Redactor codebase artifact"
-
+ 
       - job: Build_Text_Extractor_Artifact
         steps:
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
-
+ 
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -219,7 +224,6 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Build Text-Extractor artifact"
-          
           # Add build version
           - task: PowerShell@2
             inputs:
@@ -230,13 +234,13 @@ stages:
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"Text Extractor`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
             displayName: "Record version details"
-
+ 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/text-extractor"
               artifact: "polaris-text-extractor-drop"
             displayName: "Publish Text-Extractor artifact"
-
+ 
       - job: Build_Gateway_Artifact
         steps:
            - task: DownloadSecureFile@1
@@ -244,7 +248,7 @@ stages:
              inputs:
               secureFile: 'Aspose.Total.NET.lic'
               displayName: 'Download Aspose Licence'
-
+ 
            - task: CopyFiles@2
              inputs:
               sourceFolder: $(Agent.TempDirectory)
@@ -254,7 +258,7 @@ stages:
              displayName: 'Copy Aspose.Total.NET.lic to project folder before any builds occur' 
            - task: NuGetAuthenticate@1
              displayName: 'Authenticate to NuGet Feed'
-
+ 
            - task: DotNetCoreCLI@2
              inputs:
               command: publish
@@ -263,7 +267,6 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
               displayName: "Build Gateway artifact"
-          
           # Add build version
            - task: PowerShell@2
              inputs:
@@ -274,18 +277,18 @@ stages:
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"Gateway`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
              displayName: "Record version details"
-
+ 
            - task: PublishPipelineArtifact@1
              inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/polaris-gateway"
               artifact: "polaris-gateway-drop"
               displayName: "Publish Gateway artifact"
-
+ 
       - job: Build_Maintenance_Function_Artifact
         steps:
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
-
+ 
           - task: DotNetCoreCLI@2
             inputs:
               command: publish
@@ -294,7 +297,7 @@ stages:
               arguments: "--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) /p:Version=$(Build.BuildNumber) /p:SourceRevisionId=$(Build.SourceVersion)"
               zipAfterPublish: false
             displayName: "Build Maintenance Function artifact"
-
+ 
           # Add build version
           - task: PowerShell@2
             inputs:
@@ -305,13 +308,13 @@ stages:
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"Maintenance Function`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
             displayName: "Record version details"
-
+ 
           - task: PublishPipelineArtifact@1
             inputs:
               targetPath: "$(Build.ArtifactStagingDirectory)/polaris-maintenance"
               artifact: "polaris-maintenance-drop"
             displayName: "Publish Maintenance Function artifact"
-
+ 
       - job: Build_SPA_Artifacts
         steps:
           # Add build version
@@ -324,27 +327,27 @@ stages:
                 New-Item build-version.txt -force
                 $currentDate = Get-Date
                 Set-Content build-version.txt "{`"name`":`"ui`",`"buildVersion`":`"$(Build.BuildNumber)`",`"sourceVersion`":`"$(Build.SourceVersion)`",`"lastBuilt`":`"$currentDate`"}"
-
+ 
           - task: Npm@1
             inputs:
               command: "ci"
               workingDir: "polaris-ui"
             displayName: "npm install"
-
+ 
           - task: Npm@1
             inputs:
               command: "custom"
               workingDir: "polaris-ui"
               customCommand: "run prettier"
             displayName: "npm prettier"
-
+ 
           - task: Npm@1
             inputs:
               command: "custom"
               workingDir: "polaris-ui"
               customCommand: "run build:${{ parameters.environment }}"
             displayName: "npm build"
-
+ 
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: "polaris-ui/build"
