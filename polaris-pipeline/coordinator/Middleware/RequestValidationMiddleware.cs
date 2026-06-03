@@ -80,7 +80,7 @@ public sealed partial class RequestValidationMiddleware(Microsoft.ApplicationIns
         requestTelemetry.Context.Operation.Name = context.FunctionDefinition.Name;
         requestTelemetry.Properties[TelemetryConstants.CorrelationIdCustomDimensionName] = correlationId.ToString();
         requestTelemetry.Name = context.FunctionDefinition.Name;
-        requestTelemetry.Properties["HttpMethod"] = requestData.Method;
+        requestTelemetry.Properties[TelemetryConstants.HttpMethod] = requestData.Method;
         requestTelemetry.ResponseCode = context.GetHttpResponseData()?.StatusCode.ToString() ?? string.Empty;
         requestTelemetry.Success = true;
         requestTelemetry.Url = requestData.Url;

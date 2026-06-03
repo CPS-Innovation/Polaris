@@ -13,5 +13,6 @@ namespace Common.Telemetry
         public const string IsMockUser = "IsMockUser";
         public const string ErrorMessageCustomDimensionName = "ErrorMessage";
         public const string ClientNameCustomDimensionName = "Client Name";
+        public const string HttpMethod = "HttpMethod";
     }
 }
