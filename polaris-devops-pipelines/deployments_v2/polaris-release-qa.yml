@@ -58,6 +58,12 @@ stages:
       azureSubscription: $(qa-azure-subscription)
       stageDependsOn: Deploy
 
+  - template: stages/stage_update-git-hub-tag.yml
+    parameters:
+      targetBuild: PolarisBuild
+      targetLabel: "QA"
+      appInsightsKey: $(innovation-qa-app-insights-instrumentation-key)
+
   - template: stages/stage_check-status.yml
     parameters:
       targetBuild: PolarisBuild
@@ -75,12 +81,6 @@ stages:
       targetBuild: PolarisBuild
       targetLabel: "QA"
       targetLabelLower: "qa"
-      appInsightsKey: $(innovation-qa-app-insights-instrumentation-key)
-
-  - template: stages/stage_update-git-hub-tag.yml
-    parameters:
-      targetBuild: PolarisBuild
-      targetLabel: "QA"
       appInsightsKey: $(innovation-qa-app-insights-instrumentation-key)
 
   - template: stages/stage_run-e2e-tests.yml

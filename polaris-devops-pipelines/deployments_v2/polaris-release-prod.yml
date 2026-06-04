@@ -239,6 +239,13 @@ stages:
       azureSubscription: $(prod-azure-subscription)
       stageDependsOn: Deploy
 
+  - template: stages/stage_update-git-hub-tag.yml
+    parameters:
+      targetBuild: PolarisBuild
+      targetLabel: "PROD"
+      appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
+
+
   - template: stages/stage_check-status.yml
     parameters:
       targetBuild: PolarisBuild
@@ -256,12 +263,6 @@ stages:
       targetBuild: PolarisBuild
       targetLabel: "PROD"
       targetLabelLower: "prod"
-      appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
-
-  - template: stages/stage_update-git-hub-tag.yml
-    parameters:
-      targetBuild: PolarisBuild
-      targetLabel: "PROD"
       appInsightsKey: $(innovation-prod-app-insights-instrumentation-key)
 
   - template: stages/stage_run-e2e-tests.yml

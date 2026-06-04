@@ -77,6 +77,12 @@ stages:
       azureSubscription: $(dev-azure-subscription)
       stageDependsOn: Deploy #Run_Integration_Tests
 
+  - template: stages/stage_update-git-hub-tag.yml
+    parameters:
+      targetBuild: PolarisBuild
+      targetLabel: "DEV"
+      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
+
   - template: stages/stage_check-status.yml
     parameters:
       targetBuild: PolarisBuild
@@ -94,12 +100,6 @@ stages:
       targetBuild: PolarisBuild
       targetLabel: "DEV"
       targetLabelLower: "dev"
-      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
-
-  - template: stages/stage_update-git-hub-tag.yml
-    parameters:
-      targetBuild: PolarisBuild
-      targetLabel: "DEV"
       appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
 
   - template: stages/stage_run-e2e-tests.yml
