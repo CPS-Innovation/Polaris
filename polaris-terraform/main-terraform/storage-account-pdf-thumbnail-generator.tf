@@ -13,7 +13,7 @@ resource "azurerm_storage_account" "sa_pdf_thumbnail_generator" {
   account_kind                    = "StorageV2"
   account_replication_type        = "LRS"
   account_tier                    = "Standard"
-  enable_https_traffic_only       = true
+  https_traffic_only_enabled      = true
   public_network_access_enabled   = false
   allow_nested_items_to_be_public = false
   shared_access_key_enabled       = true

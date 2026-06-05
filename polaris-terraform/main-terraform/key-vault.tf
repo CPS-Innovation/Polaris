@@ -8,7 +8,7 @@ resource "azurerm_key_vault" "kv_polaris" {
 
   enabled_for_deployment          = true
   enabled_for_template_deployment = true
-  enable_rbac_authorization       = true
+  rbac_authorization_enabled      = true
   purge_protection_enabled        = true
   soft_delete_retention_days      = 90
   public_network_access_enabled   = false

@@ -301,6 +301,14 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
+
+          - task: UseDotNet@2
+            displayName: Install .NET SDK 10.x
+            inputs:
+              packageType: sdk
+              version: '10.x'
+              includePreviewVersions: true
+
           - task: DownloadSecureFile@1
             name: licence
             inputs:
@@ -348,6 +356,14 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
+
+          - task: UseDotNet@2
+            displayName: Install .NET SDK 10.x
+            inputs:
+              packageType: sdk
+              version: '10.x'
+              includePreviewVersions: true
+
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
 
@@ -378,6 +394,14 @@ stages:
         pool:
           vmImage: windows-latest
         steps:
+
+          - task: UseDotNet@2
+            displayName: Install .NET SDK 10.x
+            inputs:
+              packageType: sdk
+              version: '10.x'
+              includePreviewVersions: true
+
           - task: DownloadSecureFile@1
             name: licence
             inputs:
@@ -420,6 +444,14 @@ stages:
         pool:
           vmImage: windows-latest
         steps:
+
+          - task: UseDotNet@2
+            displayName: Install .NET SDK 10.x
+            inputs:
+              packageType: sdk
+              version: '10.x'
+              includePreviewVersions: true
+
           - task: DownloadSecureFile@1
             name: licence
             inputs:
@@ -463,6 +495,14 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
+
+          - task: UseDotNet@2
+            displayName: Install .NET SDK 10.x
+            inputs:
+              packageType: sdk
+              version: '10.x'
+              includePreviewVersions: true
+
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
 
@@ -493,6 +533,14 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
+
+          - task: UseDotNet@2
+            displayName: Install .NET SDK 10.x
+            inputs:
+              packageType: sdk
+              version: '10.x'
+              includePreviewVersions: true
+
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
 
@@ -661,6 +709,14 @@ stages:
         pool:
           vmImage: ubuntu-latest
         steps:
+
+          - task: UseDotNet@2
+            displayName: Install .NET SDK 10.x
+            inputs:
+              packageType: sdk
+              version: '10.x'
+              includePreviewVersions: true
+              
           - task: NuGetAuthenticate@1
             displayName: 'Authenticate to NuGet Feed'
 
