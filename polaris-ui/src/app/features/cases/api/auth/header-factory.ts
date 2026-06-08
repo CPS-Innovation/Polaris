@@ -23,6 +23,7 @@ export const buildHeaders = async (
   knownCorrelationId?: string
 ): Promise<Record<string, string>> => {
   return {
+    ClientName: "Polaris",
     ...correlationId(knownCorrelationId || undefined),
     ...(await auth()),
   };
