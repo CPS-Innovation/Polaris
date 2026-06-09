@@ -37,6 +37,13 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "DEFAULT_UPSTREAM_CMS_DOMAIN_NAME"                = var.cms_details.default_upstream_cms_domain_name
     "DEFAULT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"       = var.cms_details.default_upstream_cms_services_domain_name
     "DEFAULT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"         = var.cms_details.default_upstream_cms_modern_domain_name
+    "CPT_UPSTREAM_CMS_IP_CORSHAM"                     = var.cms_details.cpt_upstream_cms_ip_corsham
+    "CPT_UPSTREAM_CMS_MODERN_IP_CORSHAM"              = var.cms_details.cpt_upstream_cms_modern_ip_corsham
+    "CPT_UPSTREAM_CMS_IP_FARNBOROUGH"                 = var.cms_details.cpt_upstream_cms_ip_farnborough
+    "CPT_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"          = var.cms_details.cpt_upstream_cms_modern_ip_farnborough
+    "CPT_UPSTREAM_CMS_DOMAIN_NAME"                    = var.cms_details.cpt_upstream_cms_domain_name
+    "CPT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"           = var.cms_details.cpt_upstream_cms_services_domain_name
+    "CPT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"             = var.cms_details.cpt_upstream_cms_modern_domain_name
     "CIN2_UPSTREAM_CMS_IP_CORSHAM"                    = var.cms_details.cin2_upstream_cms_ip_corsham
     "CIN2_UPSTREAM_CMS_MODERN_IP_CORSHAM"             = var.cms_details.cin2_upstream_cms_modern_ip_corsham
     "CIN2_UPSTREAM_CMS_IP_FARNBOROUGH"                = var.cms_details.cin2_upstream_cms_ip_farnborough
@@ -176,6 +183,13 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       app_settings["DEFAULT_UPSTREAM_CMS_DOMAIN_NAME"],
       app_settings["DEFAULT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
       app_settings["DEFAULT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
+      app_settings["CPT_UPSTREAM_CMS_IP_CORSHAM"],
+      app_settings["CPT_UPSTREAM_CMS_MODERN_IP_CORSHAM"],
+      app_settings["CPT_UPSTREAM_CMS_IP_FARNBOROUGH"],
+      app_settings["CPT_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
+      app_settings["CPT_UPSTREAM_CMS_DOMAIN_NAME"],
+      app_settings["CPT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
+      app_settings["CPT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
       app_settings["CIN2_UPSTREAM_CMS_IP_CORSHAM"],
       app_settings["CIN2_UPSTREAM_CMS_MODERN_IP_CORSHAM"],
       app_settings["CIN2_UPSTREAM_CMS_IP_FARNBOROUGH"],
