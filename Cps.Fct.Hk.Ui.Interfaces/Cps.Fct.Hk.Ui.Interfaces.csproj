@@ -24,7 +24,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
-	  <PackageReference Include="Cps.MasterDataService.Infrastructure.ApiClient" Version="1.1.155662" />
+	  <PackageReference Include="Cps.MasterDataService.Infrastructure.ApiClient" Version="1.1.164739" />
   </ItemGroup>
 
 </Project>
