@@ -45,13 +45,20 @@ pipeline_logging = {
 cms_details = {
   // for non-prod environments, current thinking is to try to go to Corsham's IP
   //  even if we detect a farnborough cookie
-  default_upstream_cms_ip_corsham            = "10.2.177.14"
-  default_upstream_cms_modern_ip_corsham     = "10.2.177.67"
-  default_upstream_cms_ip_farnborough        = "10.3.177.14"
-  default_upstream_cms_modern_ip_farnborough = "10.3.177.67"
-  default_upstream_cms_domain_name           = "cin3.cps.gov.uk"
-  default_upstream_cms_modern_domain_name    = "cmsmodcin3.cps.gov.uk"
-  default_upstream_cms_services_domain_name  = "cin3.cps.gov.uk"
+  default_upstream_cms_ip_corsham            = "10.2.177.14" // TBC
+  default_upstream_cms_modern_ip_corsham     = "10.2.177.67" // TBC
+  default_upstream_cms_ip_farnborough        = "10.3.177.14" // TBC
+  default_upstream_cms_modern_ip_farnborough = "10.3.177.67" // TBC
+  default_upstream_cms_domain_name           = "cmo.cps.gov.uk"
+  default_upstream_cms_modern_domain_name    = "cmsmodtrain.cps.gov.uk"
+  default_upstream_cms_services_domain_name  = "cmo.cps.gov.uk"
+  cpt_upstream_cms_ip_corsham                = "10.2.177.3"  // TBC
+  cpt_upstream_cms_modern_ip_corsham         = "10.2.177.67" // TBC
+  cpt_upstream_cms_ip_farnborough            = "10.3.177.3"  // TBC
+  cpt_upstream_cms_modern_ip_farnborough     = "10.3.177.67" // TBC
+  cpt_upstream_cms_domain_name               = "cmscpt.cps.gov.uk"
+  cpt_upstream_cms_modern_domain_name        = "cmsmodcpt.cps.gov.uk"
+  cpt_upstream_cms_services_domain_name      = "cmscpt.cps.gov.uk"
   cin2_upstream_cms_ip_corsham               = "10.2.177.3"
   cin2_upstream_cms_modern_ip_corsham        = "10.2.177.67"
   cin2_upstream_cms_ip_farnborough           = "10.3.177.3"
@@ -107,7 +114,7 @@ local_storage_expiry_days                          = "30"
 
 private_beta = {
   sign_up_url         = "https://forms.office.com/e/Af374akw0Q"
-  user_group          = "" // allow any user to see qa for e.g. demo purposes 
+  user_group          = "" // allow any user to see uat for e.g. demo purposes 
   feature_user_group  = "8fc75d71-3479-4a77-b33b-41fd26ec4960"
   feature_user_group2 = "1663cea9-062e-4f6e-a7ac-26f0942724f3"
   feature_user_group3 = "e9abbdb6-b6e9-4972-90fb-79d3140df840"
@@ -116,11 +123,11 @@ private_beta = {
   feature_user_group6 = "21c21011-b568-4ebb-b013-02d4cd15681a"
 }
 
-case_review_app_redirect_url = "https://polaris-qa-notprod.cps.gov.uk/case-review-redirect/cps-dev/dev"
+case_review_app_redirect_url = "https://polaris-uat-notprod.cps.gov.uk/case-review-redirect/cps-dev/dev"
 bulk_um_redirect_url         = "https://housekeeping-fn-staging.int.cps.gov.uk/api/init"
 
 polaris_ui_reauth = {
-  outbound_live_url       = "/polaris,https://cin3.cps.gov.uk/polaris"
+  outbound_live_url       = "/auth-refresh-outbound,https://cmo.cps.gov.uk/polaris,https://cmscpt.cps.gov.uk/polaris"
   outbound_e2e_url        = "/polaris"
   inbound_url             = "/auth-refresh-inbound"
   use_in_situ_refresh     = "true"
@@ -173,7 +180,7 @@ coordinator = {
 }
 
 cps_global_components = {
-  script_url = "https://polaris-qa-notprod.cps.gov.uk/global-components/test/global-components.js"
+  script_url          = "https://polaris-qa-notprod.cps.gov.uk/global-components/test/global-components.js"
   blob_storage_domain = "sacpsglobalcomponents.blob.core.windows.net"
 }
 

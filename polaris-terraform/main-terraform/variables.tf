@@ -108,6 +108,13 @@ variable "cms_details" {
     default_upstream_cms_domain_name           = string
     default_upstream_cms_modern_domain_name    = string
     default_upstream_cms_services_domain_name  = string
+    cpt_upstream_cms_ip_corsham                = string
+    cpt_upstream_cms_modern_ip_corsham         = string
+    cpt_upstream_cms_ip_farnborough            = string
+    cpt_upstream_cms_modern_ip_farnborough     = string
+    cpt_upstream_cms_domain_name               = string
+    cpt_upstream_cms_modern_domain_name        = string
+    cpt_upstream_cms_services_domain_name      = string
     cin2_upstream_cms_ip_corsham               = string
     cin2_upstream_cms_modern_ip_corsham        = string
     cin2_upstream_cms_ip_farnborough           = string
@@ -373,8 +380,8 @@ variable "coordinator" {
 
 variable "cps_global_components" {
   type = object({
-    script_url      = string
-    blob_storage_domain  = string
+    script_url          = string
+    blob_storage_domain = string
   })
 }
 
