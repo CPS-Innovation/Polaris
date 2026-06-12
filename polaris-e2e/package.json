@@ -20,14 +20,14 @@
   "devDependencies": {
     "@cypress/grep": "^5.0.0",
     "@types/node": "^24.10.1",
-    "cypress": "^12.17.4",
+    "cypress": "^15.15.0",
     "cypress-terminal-report": "^5.3.12",
     "cypress-timestamps": "^1.4.0",
     "fs-extra": "^11.3.2",
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@testing-library/cypress": "^9.0.0",
+    "@testing-library/cypress": "^10.1.3",
     "@types/fs-extra": "^11.0.2",
     "@types/jsonwebtoken": "^9.0.3",
     "cypress-parallel": "^0.14.0",
