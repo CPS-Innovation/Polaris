@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
@@ -60,7 +61,7 @@ public class UmaReclassify(
     [OpenApiRequestBody("application/json", typeof(IReadOnlyCollection<MatchedCommunication>), Description = "Body containing the Request info.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
     [Function("UmaReclassify")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.UmaReclassify)] HttpRequest req, int caseId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.UmaReclassify)] HttpRequest req, int caseId, CancellationToken cancellationToken = default)
     {
         try
         {

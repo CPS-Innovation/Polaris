@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Diagnostics;
@@ -59,7 +60,8 @@ public class GetOffenceChargeById(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.OffenseCharge)]
         HttpRequest request,
         int caseId,
-        int historyId)
+        int historyId,
+        CancellationToken cancellationToken = default)
     {
         try
         {

@@ -38,10 +38,10 @@ public class CommunicationService(
     private readonly ICommunicationMapper communicationMapper = communicationMapper;
 
     /// <inheritdoc />
-    public async Task<IReadOnlyCollection<Communication>> GetCommunicationsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<IReadOnlyCollection<Communication>> GetCommunicationsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
-
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching inbox communications for caseId [{caseIdString}] ...");
@@ -83,9 +83,10 @@ public class CommunicationService(
     }
 
     /// <inheritdoc />
-    public async Task<UsedStatementsResponse> GetUsedStatementsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<UsedStatementsResponse> GetUsedStatementsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
+        cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
@@ -105,9 +106,10 @@ public class CommunicationService(
     }
 
     /// <inheritdoc />
-    public async Task<UsedExhibitsResponse> GetUsedExhibitsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<UsedExhibitsResponse> GetUsedExhibitsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
+        cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
@@ -127,12 +129,15 @@ public class CommunicationService(
     }
 
     /// <inheritdoc />
-    public async Task<UsedMgFormsResponse> GetUsedMgFormsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<UsedMgFormsResponse> GetUsedMgFormsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
+        cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching used MG forms for caseId [{caseIdString}] ...");
 
             var request = new GetUsedMgFormsRequest(caseId, Guid.NewGuid());
@@ -149,12 +154,13 @@ public class CommunicationService(
     }
 
     /// <inheritdoc />
-    public async Task<UsedOtherMaterialsResponse> GetUsedOtherMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<UsedOtherMaterialsResponse> GetUsedOtherMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
-
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching used other materials for caseId [{caseIdString}] ...");
 
             var request = new GetUsedOtherMaterialsRequest(caseId, Guid.NewGuid());
@@ -171,10 +177,10 @@ public class CommunicationService(
     }
 
     /// <inheritdoc />
-    public async Task<UnusedMaterialsResponse> GetUnusedMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<UnusedMaterialsResponse> GetUnusedMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
-
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching unused materials for caseId [{caseIdString}] ...");
@@ -193,9 +199,10 @@ public class CommunicationService(
     }
 
     /// <inheritdoc />
-    public async Task<AttachmentsResponse> GetAttachmentsAsync(int communicationId, string communicationSubject, CmsAuthValues cmsAuthValues)
+    public async Task<AttachmentsResponse> GetAttachmentsAsync(int communicationId, string communicationSubject, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string communicationIdString = communicationId.ToString(CultureInfo.InvariantCulture);
+        cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
@@ -215,10 +222,9 @@ public class CommunicationService(
     }
 
     /// <inheritdoc />
-    public async Task<List<Attachment>> RetrieveAllAttachmentsAsync(
-        IReadOnlyCollection<Communication> communications,
-        CmsAuthValues cmsAuthValues)
+    public async Task<List<Attachment>> RetrieveAllAttachmentsAsync(IReadOnlyCollection<Communication> communications, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             var allAttachments = new List<Attachment>();
@@ -282,7 +288,7 @@ public class CommunicationService(
     }
 
     /// <inheritdoc />
-    public async Task<object> GetCaseMaterialLinkAsync(int caseId, int materialId, CmsAuthValues cmsAuthValues)
+    public async Task<object> GetCaseMaterialLinkAsync(int caseId, int materialId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -290,12 +296,12 @@ public class CommunicationService(
                 new NotFoundObjectResult($"{LoggingConstants.HskUiLogPrefix} No case material document found for materialId [{materialId}]");
 
             // Fire off all tasks concurrently
-            Task<IReadOnlyCollection<Communication>> communicationsTask = this.GetCommunicationsAsync(caseId, cmsAuthValues);
-            Task<UnusedMaterialsResponse> unusedMaterialsTask = this.GetUnusedMaterialsAsync(caseId, cmsAuthValues);
-            Task<UsedStatementsResponse> usedStatementsTask = this.GetUsedStatementsAsync(caseId, cmsAuthValues);
-            Task<UsedExhibitsResponse> usedExhibitsTask = this.GetUsedExhibitsAsync(caseId, cmsAuthValues);
-            Task<UsedMgFormsResponse> usedMgFormsTask = this.GetUsedMgFormsAsync(caseId, cmsAuthValues);
-            Task<UsedOtherMaterialsResponse> usedOtherMaterialsTask = this.GetUsedOtherMaterialsAsync(caseId, cmsAuthValues);
+            Task<IReadOnlyCollection<Communication>> communicationsTask = this.GetCommunicationsAsync(caseId, cmsAuthValues, cancellationToken);
+            Task<UnusedMaterialsResponse> unusedMaterialsTask = this.GetUnusedMaterialsAsync(caseId, cmsAuthValues, cancellationToken);
+            Task<UsedStatementsResponse> usedStatementsTask = this.GetUsedStatementsAsync(caseId, cmsAuthValues, cancellationToken);
+            Task<UsedExhibitsResponse> usedExhibitsTask = this.GetUsedExhibitsAsync(caseId, cmsAuthValues, cancellationToken);
+            Task<UsedMgFormsResponse> usedMgFormsTask = this.GetUsedMgFormsAsync(caseId, cmsAuthValues, cancellationToken);
+            Task<UsedOtherMaterialsResponse> usedOtherMaterialsTask = this.GetUsedOtherMaterialsAsync(caseId, cmsAuthValues, cancellationToken);
 
             await Task
                 .WhenAll(
@@ -363,7 +369,7 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<ExhibitProducersResponse> GetExhibitProducersAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<ExhibitProducersResponse> GetExhibitProducersAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
 
@@ -386,8 +392,10 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<RenameMaterialResponse> RenameMaterialAsync(int caseId, int materialId, string subject, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)
+    public async Task<RenameMaterialResponse> RenameMaterialAsync(int caseId, int materialId, string subject, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to rename material with materialId [{materialId}]");
@@ -407,9 +415,10 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyCollection<PcdRequestCore>> GetPcdRequestCore(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<IReadOnlyCollection<PcdRequestCore>> GetPcdRequestCore(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
+        cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
@@ -430,9 +439,10 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues)
+    public async Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
+        cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
@@ -454,6 +464,8 @@ public class CommunicationService(
     /// <inheritdoc/>
     public async Task<PcdReviewDetailResponse> GetPcdReviewDetailAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         try
         {
             this.logger.LogInformation("{HskUiLogPrefix} Fetching case history events with caseId {CaseId}.", LoggingConstants.HskUiLogPrefix, caseId);
@@ -502,6 +514,7 @@ public class CommunicationService(
     /// <inheritdoc/>
     public async Task<IReadOnlyCollection<PcdReviewCoreResponseDto>> GetPcdReviewCoreAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             this.logger.LogInformation("{HskUiLogPrefix} Fetching case history events with caseId {CaseId}.", LoggingConstants.HskUiLogPrefix, caseId);
@@ -535,8 +548,9 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<DiscardMaterialResponse> DiscardMaterialAsync(int caseId, int materialId, string discardReason, string discardReasonDescription, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)
+    public async Task<DiscardMaterialResponse> DiscardMaterialAsync(int caseId, int materialId, string discardReason, string discardReasonDescription, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to discard material with materialId [{materialId}]");
@@ -556,8 +570,9 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<SetMaterialReadStatusResponse> SetMaterialReadStatusAsync(int materialId, MaterialReadStatusType action, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)
+    public async Task<SetMaterialReadStatusResponse> SetMaterialReadStatusAsync(int materialId, MaterialReadStatusType action, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to mark read/unread state of material with material id [{materialId}]");
@@ -577,8 +592,9 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<UpdateExhibitResponse> UpdateExhibitAsync(int caseId, UpdateExhibitRequest exhibit, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)
+    public async Task<UpdateExhibitResponse> UpdateExhibitAsync(int caseId, UpdateExhibitRequest exhibit, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to update exhibit with materialId [{exhibit.MaterialId}]");
@@ -609,10 +625,11 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<UpdateStatementResponse> UpdateStatementAsync(int caseId, UpdateStatementRequest statement, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)
+    public async Task<UpdateStatementResponse> UpdateStatementAsync(int caseId, UpdateStatementRequest statement, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default)
     {
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to update statement with materialId [{statement.MaterialId}]");
 
             var request = new UpdateStatementRequest(
@@ -638,8 +655,9 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> FirstInitialReviewGetCaseHistoryAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> FirstInitialReviewGetCaseHistoryAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             return await this.apiClient.FirstInitialReviewGetCaseHistoryAsync(caseId, cmsAuthValues).ConfigureAwait(false);
@@ -654,6 +672,7 @@ public class CommunicationService(
     /// <inheritdoc/>
     public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             return await this.apiClient.GetInitialReviewByHistoryIdAsync(caseId, historyId, cmsAuthValues, cancellationToken);
@@ -666,8 +685,9 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             return await this.apiClient.GetHistoryEventsAsync(caseId, cmsAuthValues);
@@ -680,8 +700,9 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<ApiClient.OffenceChangeResponse> GetOffenceChargeByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+    public async Task<ApiClient.OffenceChangeResponse> GetOffenceChargeByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             return await this.apiClient.GetOffenceChargeByHistoryIdAsync(caseId, historyId, cmsAuthValues);
@@ -694,8 +715,9 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionCaseHistoryEventDetailsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionCaseHistoryEventDetailsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             return await this.apiClient.GetPreChargeDecisionCaseHistoryEventDetailsAsync(caseId, cmsAuthValues);
@@ -708,8 +730,9 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionByHistoryId(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+    public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionByHistoryId(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             return await this.apiClient.GetPreChargeDecisionByHistoryId(caseId, historyId, cmsAuthValues);
@@ -722,8 +745,9 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         try
         {
             return await this.apiClient.GetPcdReview(caseId, cmsAuthValues);

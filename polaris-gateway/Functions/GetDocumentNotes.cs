@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -41,7 +42,7 @@ public class GetDocumentNotes : BaseFunction
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(string), Description = "The Id of the material", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(IEnumerable<DocumentNoteDto>), Summary = "Document Note List", Description = "Returns list of document notes")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentNotes)] HttpRequest req, string caseUrn, int caseId, string materialId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentNotes)] HttpRequest req, string caseUrn, int caseId, string materialId, CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);

@@ -3,6 +3,7 @@ using Common.Wrappers;
 using System.Net;
 using Common.Extensions;
 using System.Text.Json;
+using System.Threading;
 
 namespace DdeiClient.Clients;
 
@@ -16,10 +17,10 @@ public abstract class BaseCmsClient
     }
 
     protected abstract HttpClient GetHttpClient(string cmsAuthValues);
-    protected virtual async Task<T> CallHttpClientAsync<T>(HttpRequestMessage request, string cmsAuthValues)
+    protected virtual async Task<T> CallHttpClientAsync<T>(HttpRequestMessage request, string cmsAuthValues, CancellationToken cancellationToken = default)
     {
-        using var response = await CallHttpClientAsync(request, cmsAuthValues);
-        var content = await response.Content.ReadAsStringAsync();
+        using var response = await CallHttpClientAsync(request, cmsAuthValues, cancellationToken);
+        var content = await response.Content.ReadAsStringAsync(cancellationToken);
 
         try
         {
@@ -35,10 +36,10 @@ public abstract class BaseCmsClient
         }
     }
 
-    protected virtual async Task<HttpResponseMessage> CallHttpClientAsync(HttpRequestMessage request, string cmsAuthValues, params HttpStatusCode[] expectedUnhappyStatusCodes)
+    protected virtual async Task<HttpResponseMessage> CallHttpClientAsync(HttpRequestMessage request, string cmsAuthValues, CancellationToken cancellationToken = default, params HttpStatusCode[] expectedUnhappyStatusCodes)
     {
         var httpClient = GetHttpClient(cmsAuthValues);
-        var response = await httpClient.SendAsync(request);
+        var response = await httpClient.SendAsync(request, cancellationToken);
         try
         {
             if (response.IsSuccessStatusCode || expectedUnhappyStatusCodes.Contains(response.StatusCode))
@@ -46,7 +47,7 @@ public abstract class BaseCmsClient
                 return response;
             }
 
-            var content = await response.Content.ReadAsStringAsync();
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
             throw new HttpRequestException(content);
         }
         catch (HttpRequestException exception)

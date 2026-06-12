@@ -10,6 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -40,7 +41,7 @@ public class CheckoutDocument : BaseFunction
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(long), Description = "The document Id (version) of the material which has to be checked out", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(object), Summary = "Case found", Description = "Returns case details")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);

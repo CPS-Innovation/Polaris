@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -40,7 +41,7 @@ public class GetMaterialTypeList : BaseFunction
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(IEnumerable<MaterialTypeDto>), Summary = "Material Type List", Description = "Returns the list of material types")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.MaterialTypeList)] HttpRequest req)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.MaterialTypeList)] HttpRequest req, CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);

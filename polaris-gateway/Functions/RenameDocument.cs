@@ -19,6 +19,7 @@ using PolarisGateway.Validators;
 using System;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -51,7 +52,7 @@ public class RenameDocument : BaseFunction
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(object), Summary = "Document rename", Description = "Returns list of document notes")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RenameDocument)] HttpRequest req, string caseUrn, int caseId, string materialId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RenameDocument)] HttpRequest req, string caseUrn, int caseId, string materialId, CancellationToken cancellationToken = default)
     {
         var telemetryEvent = new RenameDocumentRequestEvent(caseId, materialId)
         {

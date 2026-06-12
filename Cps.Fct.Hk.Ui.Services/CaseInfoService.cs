@@ -1,10 +1,12 @@
 // <copyright file="CaseInfoService.cs" company="TheCrownProsecutionService">
+// <copyright file="CaseInfoService.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
 namespace Cps.Fct.Hk.Ui.Services;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
@@ -27,13 +29,15 @@ public class CaseInfoService(
     private readonly IMasterDataServiceClient mdsClient = mdsClient;
 
     /// <inheritdoc />
-    public async Task<CaseSummaryResponse> GetCaseInfoAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<CaseSummaryResponse> GetCaseInfoAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
 
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching info for caseId [{caseIdString}] ...");
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             var request = new GetCaseSummaryRequest(caseId, Guid.NewGuid());
 

@@ -13,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -41,7 +42,7 @@ public class GetExhibitProducers : BaseFunction
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to add a new action plan.", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(IEnumerable<ExhibitProducerDto>), Summary = "Case exhibit producers", Description = "Returns the list of exhibit producers")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseExhibitProducers)] HttpRequest req, string caseUrn, int caseId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseExhibitProducers)] HttpRequest req, string caseUrn, int caseId, CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);

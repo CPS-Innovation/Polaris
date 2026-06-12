@@ -7,6 +7,7 @@ namespace PolarisGateway.Functions.HouseKeeping
     using System;
     using System.Diagnostics;
     using System.Net;
+    using System.Threading;
     using System.Threading.Tasks;
     using Common.Configuration;
     using Common.Constants;
@@ -41,6 +42,7 @@ namespace PolarisGateway.Functions.HouseKeeping
         /// </summary>
         /// <param name="req">The HTTP request.</param>
         /// <param name="caseId">The case Id.</param>
+        /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
         /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
         [OpenApiOperation(operationId: "GetCaseInfo", tags: ["Case"], Description = "Represents a function that retrieves the case information for display purposes.")]
         [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
@@ -48,7 +50,7 @@ namespace PolarisGateway.Functions.HouseKeeping
         [OpenApiRequestBody("application/json", typeof(CaseSummaryResponse), Description = "Return case summary response.")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
         [Function("GetCaseInfo")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseInfo)] HttpRequest req, int caseId)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseInfo)] HttpRequest req, int caseId, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -64,16 +66,9 @@ namespace PolarisGateway.Functions.HouseKeeping
                 var cmsAuthValues = this.BuildCmsAuthValues(req);
 
                 CaseSummaryResponse caseSummary;
-                try
-                {
-                    caseSummary = await this.caseInfoService.GetCaseInfoAsync(caseId, cmsAuthValues).ConfigureAwait(true);
-                    this.logger.LogInformation(LoggingConstants.UnitNameExtractionSuccess, LoggingConstants.HskUiLogPrefix, caseSummary.UnitName, caseId);
-                }
-                catch (Exception ex)
-                {
-                    this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function encountered an error fetching case information for caseId [{caseId}]: {ex.Message}");
-                    throw new UnprocessableEntityException($"GetCaseInfo function encountered an error fetching case information for caseId [{caseId}]");
-                }
+
+                caseSummary = await this.caseInfoService.GetCaseInfoAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+                this.logger.LogInformation(LoggingConstants.UnitNameExtractionSuccess, LoggingConstants.HskUiLogPrefix, caseSummary.UnitName, caseId);
 
                 var response = new OkObjectResult(caseSummary);
 
@@ -82,6 +77,13 @@ namespace PolarisGateway.Functions.HouseKeeping
                 ResponseHeaderHelper.SetSecurityHeaders(req.HttpContext.Response);
 
                 return response;
+            }
+            catch (OperationCanceledException)
+            {
+                // Let cancellation exceptions propagate - they should not be converted to HTTP errors
+                // The runtime will handle them appropriately
+                this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function was cancelled for caseId [{caseId}]");
+                throw;
             }
             catch (UnprocessableEntityException ex)
             {

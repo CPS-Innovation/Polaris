@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
 using Common.Configuration;
@@ -53,7 +54,7 @@ public class BulkSetUnused(ILogger<BulkSetUnused> logger, IBulkSetUnusedService 
     [OpenApiRequestBody("application/json", typeof(BulkSetUnusedResponse), Description = "Return success response.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
     [Function("BulkSetUnused")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.BulkSetUnused)] HttpRequest req, int caseId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.BulkSetUnused)] HttpRequest req, int caseId, CancellationToken cancellationToken = default)
     {
         try
         {
