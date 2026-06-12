@@ -5,7 +5,7 @@ trigger:
   batch: true
   branches:
     include:
-      - main
+      - development
   paths:
     include:
       - polaris-terraform/main-terraform/*
