@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Diagnostics;
@@ -56,7 +57,7 @@ public class SetMaterialReadStatus(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Description = $"{LoggingConstants.HskUiLogPrefix} SetMaterialReadStatus function encountered an error")]
     [Function("SetMaterialReadStatus")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.ReadStatus)] HttpRequest request, int caseId, int materialId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.ReadStatus)] HttpRequest request, int caseId, int materialId, CancellationToken cancellationToken = default)
     {
         try
         {

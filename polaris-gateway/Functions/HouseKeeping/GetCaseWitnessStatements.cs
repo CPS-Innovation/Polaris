@@ -7,6 +7,7 @@ namespace PolarisGateway.Functions.HouseKeeping;
 using System;
 using System.Diagnostics;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
@@ -50,7 +51,7 @@ public class GetCaseWitnessStatements(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
     [Function(nameof(GetCaseWitnessStatements))]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseWitnessStatements)] HttpRequest request, int caseId, int witnessId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseWitnessStatements)] HttpRequest request, int caseId, int witnessId, CancellationToken cancellationToken = default)
     {
         try
         {

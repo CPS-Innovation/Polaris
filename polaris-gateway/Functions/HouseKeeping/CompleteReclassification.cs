@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
@@ -63,7 +64,7 @@ public class CompleteReclassification(
     [Function("CompleteReclassification")]
     public async Task<IActionResult> Run(
     [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.CompleteReclassification)]
-    HttpRequest request, int caseId, int materialId)
+    HttpRequest request, int caseId, int materialId, CancellationToken cancellationToken = default)
     {
         try
         {

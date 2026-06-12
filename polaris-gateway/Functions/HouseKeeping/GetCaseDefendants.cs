@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Diagnostics;
@@ -51,7 +52,7 @@ public class GetCaseDefendants(
     [OpenApiRequestBody("application/json", typeof(Defendant), Description = "Return case defendants response.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
     [Function("GetCaseDefendants")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseDefendants)] HttpRequest request, int caseId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseDefendants)] HttpRequest request, int caseId, CancellationToken cancellationToken = default)
     {
         try
         {
