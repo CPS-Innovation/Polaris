@@ -500,7 +500,7 @@ public class CommunicationService(
     }
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyCollection<PcdReviewCoreResponseDto>> GetPcdReviewCoreAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<PcdReviewCoreResponseDto>> GetPcdReviewCoreAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         try
         {

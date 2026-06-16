@@ -55,8 +55,8 @@ public class BulkSetUnusedServiceTests
         // var cmsAuthValues = new CmsAuthValues();
         var cmsAuthValues = new CmsAuthValues("cookies", "token", Guid.NewGuid());
 
-        this.mockApiClient.Setup(client => client.ReclassifyCommunicationAsync(It.IsAny<ReclassifyCommunicationRequest>(), It.IsAny<CmsAuthValues>()))
-                         .ReturnsAsync((ReclassifyCommunicationRequest req, CmsAuthValues _) =>
+        this.mockApiClient.Setup(client => client.ReclassifyCommunicationAsync(It.IsAny<ReclassifyCommunicationRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
+                         .ReturnsAsync((ReclassifyCommunicationRequest req, CmsAuthValues _, CancellationToken _) =>
                              new ReclassificationResponse(
                                  new ReclassifyCommunication { Id = req.materialId }));
 
@@ -94,8 +94,8 @@ public class BulkSetUnusedServiceTests
         var cmsAuthValues = new CmsAuthValues("cookies", "token", Guid.NewGuid());
 
 #pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
-        this.mockApiClient.Setup(client => client.ReclassifyCommunicationAsync(It.IsAny<ReclassifyCommunicationRequest>(), cmsAuthValues))
-            .ReturnsAsync((ReclassifyCommunicationRequest request, CmsAuthValues authValues) =>
+        this.mockApiClient.Setup(client => client.ReclassifyCommunicationAsync(It.IsAny<ReclassifyCommunicationRequest>(), cmsAuthValues, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ReclassifyCommunicationRequest request, CmsAuthValues authValues, CancellationToken cancellationToken) =>
             {
                 if (request.materialId == 1)
                 {
@@ -186,7 +186,7 @@ public class BulkSetUnusedServiceTests
 
         var cmsAuthValues = new CmsAuthValues("cookies", "token", Guid.NewGuid());
 
-        this.mockApiClient.Setup(client => client.ReclassifyCommunicationAsync(It.IsAny<ReclassifyCommunicationRequest>(), cmsAuthValues))
+        this.mockApiClient.Setup(client => client.ReclassifyCommunicationAsync(It.IsAny<ReclassifyCommunicationRequest>(), cmsAuthValues, It.IsAny<CancellationToken>()))
             .ThrowsAsync(exception);
 
         // Act
