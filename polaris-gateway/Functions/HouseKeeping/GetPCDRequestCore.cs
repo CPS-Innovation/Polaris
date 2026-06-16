@@ -70,7 +70,7 @@ public class GetPcdRequestCore(
 
             string requestBody = await new StreamReader(request.Body).ReadToEndAsync().ConfigureAwait(false);
 
-            IReadOnlyCollection<PcdRequestCore> result = await this.communicationService.GetPcdRequestCore(caseId, cmsAuthValues).ConfigureAwait(true);
+            IReadOnlyCollection<PcdRequestCore> result = await this.communicationService.GetPcdRequestCore(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
 
             if (result == null)
             {

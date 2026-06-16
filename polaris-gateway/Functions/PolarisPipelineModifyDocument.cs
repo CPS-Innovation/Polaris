@@ -56,6 +56,7 @@ public class PolarisPipelineModifyDocument : BaseFunction
             OperationName = nameof(PolarisPipelineModifyDocument),
         };
 
+        cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 

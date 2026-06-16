@@ -21,6 +21,7 @@ public interface ICaseActionPlanService
     /// <param name="caseId">The unique identifier of the case for which an action plan is being created.</param>
     /// <param name="addCaseActionPlanRequest">The action plan to create.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve communications.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a read-only <see cref="NoContentResult"/> object.</returns>
-    Task<NoContentResult> AddCaseActionPlanAsync(string urn, int caseId, AddCaseActionPlanRequest addCaseActionPlanRequest, CmsAuthValues cmsAuthValues);
+    Task<NoContentResult> AddCaseActionPlanAsync(string urn, int caseId, AddCaseActionPlanRequest addCaseActionPlanRequest, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 }

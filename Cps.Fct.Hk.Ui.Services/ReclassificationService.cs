@@ -35,7 +35,8 @@ public class ReclassificationService(
         CmsAuthValues cmsAuthValues,
         ReclassifyStatementRequest? statement = null,
         ReclassifyExhibitRequest? exhibit = null,
-        Guid correspondenceId = default)
+        Guid correspondenceId = default,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -49,7 +50,7 @@ public class ReclassificationService(
 
             var request = new ReclassifyCommunicationRequest(correspondenceId != default ? correspondenceId : Guid.NewGuid(), classification, materialId, documentTypeId, used, subject, statement, exhibit);
 
-            ReclassificationResponse reclassificationResponse = await this.apiClient.ReclassifyCommunicationAsync(request, cmsAuthValues).ConfigureAwait(false);
+            ReclassificationResponse reclassificationResponse = await this.apiClient.ReclassifyCommunicationAsync(request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
             this.logger.LogInformation(LoggingConstants.ReclassifyCaseMaterialOperationSuccess, LoggingConstants.HskUiLogPrefix, caseId, materialId);
 
             return reclassificationResponse;

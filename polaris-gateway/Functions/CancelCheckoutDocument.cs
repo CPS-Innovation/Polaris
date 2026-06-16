@@ -57,7 +57,7 @@ public class CancelCheckoutDocument : BaseFunction
                 materialId: materialId,
                 documentId: documentId);
 
-        await _mdsClient.CancelCheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto);
+        await _mdsClient.CancelCheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto, cancellationToken: cancellationToken);
 
         return new OkResult();
     }

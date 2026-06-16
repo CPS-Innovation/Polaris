@@ -147,10 +147,11 @@ public class UmaReclassify(
     /// </summary>
     /// <param name="caseId">The ID of the case.</param>
     /// <param name="cmsAuthValues">The authorization values.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a collection of <see cref="Communication"/> objects.</returns>
-    private async Task<IReadOnlyCollection<Communication>> GetCommunicationsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    private async Task<IReadOnlyCollection<Communication>> GetCommunicationsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Retrieving communications for caseId [{caseId}]...");
-        return await this.communicationService.GetCommunicationsAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+        return await this.communicationService.GetCommunicationsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
     }
 }

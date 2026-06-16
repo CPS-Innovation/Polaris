@@ -70,7 +70,7 @@ public class GetCaseDefendants(
             DefendantsResponse? caseDefendants;
             try
             {
-                caseDefendants = await this.caseDefendantsService.GetCaseDefendantsAsync(caseId, cmsAuthValues).ConfigureAwait(true);
+                caseDefendants = await this.caseDefendantsService.GetCaseDefendantsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
                 this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetCaseDefendants function completed in [{stopwatch.Elapsed}]");
 
                 var response = new OkObjectResult(caseDefendants);

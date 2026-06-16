@@ -59,6 +59,7 @@ public class ToggleIsUnusedDocument : BaseFunction
             Urn = caseUrn,
         };
 
-        return await _mdsClient.ToggleIsUnusedDocumentAsync(toggleIsUnusedDocumentDto) ? new OkResult() : new BadRequestResult();
+        cancellationToken.ThrowIfCancellationRequested();
+        return await _mdsClient.ToggleIsUnusedDocumentAsync(toggleIsUnusedDocumentDto, cancellationToken) ? new OkResult() : new BadRequestResult();
     }
 }

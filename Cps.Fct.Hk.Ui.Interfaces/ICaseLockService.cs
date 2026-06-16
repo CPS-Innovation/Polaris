@@ -18,6 +18,7 @@ public interface ICaseLockService
     /// </summary>
     /// <param name="caseId">The ID of the case to be unlocked.</param>
     /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+    /// <param name="cancellationToken">Cancelltion token.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a read-only string object.</returns>
-    Task<CaseLockedStatusResult> CheckCaseLockAsync(int caseId, CmsAuthValues cmsAuthValues);
+    Task<CaseLockedStatusResult> CheckCaseLockAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 }

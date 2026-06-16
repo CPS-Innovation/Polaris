@@ -54,7 +54,7 @@ public class GetWitnesses : BaseFunction
 
         var arg = _mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
 
-        var caseWitnessResponses = await _mdsClient.GetWitnessesAsync(arg);
+        var caseWitnessResponses = await _mdsClient.GetWitnessesAsync(arg, cancellationToken: cancellationToken);
         var caseWitnesses = caseWitnessResponses.Select(_caseWitnessMapper.Map);
 
         return new OkObjectResult(caseWitnesses);

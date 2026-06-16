@@ -66,7 +66,7 @@ public class GetCaseWitnessStatements(
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            WitnessStatementsResponse? result = await this.witnessService.GetWitnessStatementsAsync(witnessId, cmsAuthValues).ConfigureAwait(false);
+            WitnessStatementsResponse? result = await this.witnessService.GetWitnessStatementsAsync(witnessId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] witnessId [{witnessId}] {nameof(GetCaseWitnessStatements)} function completed in [{stopwatch.Elapsed}]");
 

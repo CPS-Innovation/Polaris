@@ -92,7 +92,8 @@ public class DiscardMaterial(
                 discardMaterialRequest.materialId,
                 discardMaterialRequest.discardReason,
                 discardMaterialRequest.discardReasonDescription,
-                cmsAuthValues).ConfigureAwait(true);
+                cmsAuthValues,
+                cancellationToken: cancellationToken).ConfigureAwait(true);
 
             if (result?.DiscardMaterialData?.Id == null)
             {

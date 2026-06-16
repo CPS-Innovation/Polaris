@@ -91,7 +91,7 @@ public class SetMaterialReadStatus(
                 return new BadRequestObjectResult(nameof(SetMaterialReadStatusRequest.state));
             }
 
-            SetMaterialReadStatusResponse? result = await this.communicationService.SetMaterialReadStatusAsync(materialId, setMaterialReadStatusRequest.state, cmsAuthValues).ConfigureAwait(true);
+            SetMaterialReadStatusResponse? result = await this.communicationService.SetMaterialReadStatusAsync(materialId, setMaterialReadStatusRequest.state, cmsAuthValues, cancellationToken:cancellationToken).ConfigureAwait(true);
 
             if (result?.CompleteCommunicationData?.Id == null)
             {

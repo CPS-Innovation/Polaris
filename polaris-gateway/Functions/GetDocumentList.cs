@@ -55,6 +55,7 @@ public class GetDocumentList : BaseFunction
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
+        cancellationToken.ThrowIfCancellationRequested();
 
         var arg = _mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
         var result = await _mdsOrchestrationService.GetCaseDocuments(arg);

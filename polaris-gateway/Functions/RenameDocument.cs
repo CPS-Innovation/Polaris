@@ -54,6 +54,7 @@ public class RenameDocument : BaseFunction
 
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RenameDocument)] HttpRequest req, string caseUrn, int caseId, string materialId, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var telemetryEvent = new RenameDocumentRequestEvent(caseId, materialId)
         {
             OperationName = nameof(RenameDocument),

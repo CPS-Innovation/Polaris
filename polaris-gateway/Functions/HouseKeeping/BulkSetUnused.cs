@@ -84,7 +84,7 @@ public class BulkSetUnused(ILogger<BulkSetUnused> logger, IBulkSetUnusedService 
                 return new BadRequestObjectResult($"{LoggingConstants.HskUiLogPrefix} Invalid or empty request body.");
             }
 
-            BulkSetUnusedResponse result = await this.bulkSetUnusedService.BulkSetUnusedAsync(caseId, cmsAuthValues, bulkSetUnusedRequests).ConfigureAwait(true);
+            BulkSetUnusedResponse result = await this.bulkSetUnusedService.BulkSetUnusedAsync(caseId, cmsAuthValues, bulkSetUnusedRequests, cancellationToken).ConfigureAwait(true);
 
             if (result.Status?.Equals("failed") == true)
             {

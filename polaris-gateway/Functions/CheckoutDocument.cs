@@ -54,7 +54,7 @@ public class CheckoutDocument : BaseFunction
                      materialId: materialId,
                      documentId: documentId);
 
-        await _mdsClient.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto);
+        await _mdsClient.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto, cancellationToken);
         return new OkResult();
     }
 }

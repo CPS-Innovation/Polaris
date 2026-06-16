@@ -69,7 +69,7 @@ public class GetCaseLockInfo(ILogger<GetCaseLockInfo> logger, ICaseLockService c
             CaseLockedStatusResult caseLockSummary;
             try
             {
-                caseLockSummary = await this.caseLockService.CheckCaseLockAsync(caseId, cmsAuthValues).ConfigureAwait(true);
+                caseLockSummary = await this.caseLockService.CheckCaseLockAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
             }
             catch (Exception ex)
             {

@@ -20,6 +20,7 @@ public interface IDocumentService
     /// <param name="link">The file path of the case material document to be downloaded.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve the unused materials.</param>
     /// <param name="firstPageOnly">A flag to indicate if the request is first page only or full document.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="FileStreamResult"/> object, the downloaded material.</returns>
-    Task<FileStreamResult?> GetMaterialDocumentAsync(string caseId, string link, CmsAuthValues cmsAuthValues, bool firstPageOnly = true);
+    Task<FileStreamResult?> GetMaterialDocumentAsync(string caseId, string link, CmsAuthValues cmsAuthValues, bool firstPageOnly = true, CancellationToken cancellationToken = default);
 }

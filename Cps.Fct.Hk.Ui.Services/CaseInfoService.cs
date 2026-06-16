@@ -37,11 +37,9 @@ public class CaseInfoService(
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Fetching info for caseId [{caseIdString}] ...");
 
-            cancellationToken.ThrowIfCancellationRequested();
-
             var request = new GetCaseSummaryRequest(caseId, Guid.NewGuid());
 
-            CaseSummaryResponse? caseSummary = await this.mdsClient.GetCaseSummaryAsync(request, cmsAuthValues).ConfigureAwait(false);
+            CaseSummaryResponse? caseSummary = await this.mdsClient.GetCaseSummaryAsync(request, cmsAuthValues, cancellationToken);
 
             return caseSummary ?? throw new InvalidOperationException($"{LoggingConstants.HskUiLogPrefix} No case summary found for caseId [{caseIdString}]");
         }

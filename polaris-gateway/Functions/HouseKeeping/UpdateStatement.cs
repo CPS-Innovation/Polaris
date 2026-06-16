@@ -79,7 +79,7 @@ public class UpdateStatement(
 
             var updateStatementRequest = JsonConvert.DeserializeObject<UpdateStatementRequest>(requestBody);
             updateStatementRequest.MaterialId = materialId;
-            
+
             if (updateStatementRequest is null)
             {
                 return new BadRequestObjectResult("Statement request is null");
@@ -94,7 +94,8 @@ public class UpdateStatement(
             UpdateStatementResponse result = await this.communicationService.UpdateStatementAsync(
                 caseId,
                 updateStatementRequest,
-                cmsAuthValues).ConfigureAwait(true);
+                cmsAuthValues,
+                cancellationToken: cancellationToken).ConfigureAwait(true);
 
             if (result?.UpdateStatementData?.Id == null)
             {
