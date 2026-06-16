@@ -49,7 +49,7 @@ public class GetDocumentNotes : BaseFunction
 
         var arg = _mdsArgFactory.CreateDocumentArgDto(cmsAuthValues, correlationId, caseUrn, caseId, materialId);
 
-        var result = await _mdsClient.GetDocumentNotesAsync(arg);
+        var result = await _mdsClient.GetDocumentNotesAsync(arg, cancellationToken: cancellationToken);
 
         return new OkObjectResult(result);
     }

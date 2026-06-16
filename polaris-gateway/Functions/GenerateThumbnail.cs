@@ -50,6 +50,7 @@ public class GenerateThumbnail : BaseFunction
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.GenerateThumbnail)] HttpRequest req,
         string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int? pageIndex, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 

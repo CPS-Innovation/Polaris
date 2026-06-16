@@ -79,7 +79,7 @@ public class GetCaseMaterialsPreview(
             var cmsAuthValues = this.BuildCmsAuthValues(req);
 
             // Get the material link
-            string link = await this.GetLinkForMaterialAsync(caseId, materialId, cmsAuthValues).ConfigureAwait(true);
+            string link = await this.GetLinkForMaterialAsync(caseId, materialId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
             if (string.IsNullOrEmpty(link))
             {
                 return new NotFoundObjectResult($"{LoggingConstants.HskUiLogPrefix} No valid link found for the case material document with materialId [{materialId}].");
@@ -126,9 +126,9 @@ public class GetCaseMaterialsPreview(
     /// <returns>
     /// A <see cref="string"/> containing the communication link if found; otherwise, returns null.
     /// </returns>
-    private async Task<string> GetLinkForMaterialAsync(int caseId, int materialId, CmsAuthValues cmsAuthValues)
+    private async Task<string> GetLinkForMaterialAsync(int caseId, int materialId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
-        object linkResult = await this.communicationService.GetCaseMaterialLinkAsync(caseId, materialId, cmsAuthValues).ConfigureAwait(true);
+        object linkResult = await this.communicationService.GetCaseMaterialLinkAsync(caseId, materialId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
 
         return linkResult is IActionResult ? null : linkResult as string;
     }

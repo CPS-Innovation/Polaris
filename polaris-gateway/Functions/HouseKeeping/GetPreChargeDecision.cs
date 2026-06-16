@@ -69,7 +69,7 @@ public class GetPreChargeDecision(
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            var result = await this.communicationService.GetPreChargeDecisionCaseHistoryEventDetailsAsync(caseId, cmsAuthValues);
+            var result = await this.communicationService.GetPreChargeDecisionCaseHistoryEventDetailsAsync(caseId, cmsAuthValues, cancellationToken);
 
             if (result == null)
             {

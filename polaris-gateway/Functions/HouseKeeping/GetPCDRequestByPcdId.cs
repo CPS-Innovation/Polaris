@@ -71,7 +71,7 @@ public class GetPcdRequestByPcdId(
 
             string requestBody = await new StreamReader(request.Body).ReadToEndAsync().ConfigureAwait(false);
 
-            PcdRequestDto? result = await this.communicationService.GetPcdRequestByPcdIdAsync(caseId, pcdId, cmsAuthValues).ConfigureAwait(true);
+            PcdRequestDto? result = await this.communicationService.GetPcdRequestByPcdIdAsync(caseId, pcdId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
 
             if (result == null)
             {

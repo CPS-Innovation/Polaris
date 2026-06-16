@@ -20,10 +20,12 @@ public interface IMaterialReclassificationOrchestrationService
     /// <param name="materialId">The material id belonging to the case material to reclassify.</param>
     /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
     /// <param name="request">The complete reclassification request.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
     Task<CompleteReclassificationResponse> CompleteReclassificationAsync(
         int caseId,
         int materialId,
         CmsAuthValues cmsAuthValues,
-        CompleteReclassificationRequest request);
+        CompleteReclassificationRequest request, 
+        CancellationToken cancellationToken = default);
 }

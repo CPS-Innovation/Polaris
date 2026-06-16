@@ -53,6 +53,7 @@ public class ReclassifyDocument : BaseFunction
 
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ReclassifyDocument)] HttpRequest req, string caseUrn, int caseId, string materialId, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var telemetryEvent = new DocumentReclassifiedEvent(caseId, materialId)
         {
             OperationName = nameof(ReclassifyDocument),

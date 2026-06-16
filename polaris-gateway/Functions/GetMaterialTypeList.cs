@@ -47,7 +47,7 @@ public class GetMaterialTypeList : BaseFunction
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var mdsBaseArgDto = _mdsArgFactory.CreateCmsCaseDataArgDto(cmsAuthValues, correlationId);
-        var materialTypes = await _mdsClient.GetMaterialTypeListAsync(mdsBaseArgDto);
+        var materialTypes = await _mdsClient.GetMaterialTypeListAsync(mdsBaseArgDto, cancellationToken);
 
         return new OkObjectResult(materialTypes);
     }

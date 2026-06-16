@@ -97,7 +97,8 @@ public class UpdateExhibit(
             UpdateExhibitResponse result = await this.communicationService.UpdateExhibitAsync(
                 caseId,
                 updateExhibitRequest,
-                cmsAuthValues).ConfigureAwait(true);
+                cmsAuthValues, 
+                cancellationToken:cancellationToken).ConfigureAwait(true);
 
             if (result?.UpdateExhibitData?.Id == null)
             {

@@ -67,8 +67,8 @@ public class GetCaseExhibitProducers(ILogger<GetCaseExhibitProducers> logger,
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            var exhibitTask = this.communicationService.GetExhibitProducersAsync(caseId, cmsAuthValues);
-            var witnessTask = this.witnessService.GetCaseWitnessesAsync(caseId, cmsAuthValues);
+            var exhibitTask = this.communicationService.GetExhibitProducersAsync(caseId, cmsAuthValues, cancellationToken);
+            var witnessTask = this.witnessService.GetCaseWitnessesAsync(caseId, cmsAuthValues, cancellationToken);
 
             await Task.WhenAll(exhibitTask, witnessTask).ConfigureAwait(false);
 

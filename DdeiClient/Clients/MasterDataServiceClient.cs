@@ -36,7 +36,7 @@ namespace DdeiClient.Clients
         private readonly ILogger<MasterDataServiceClient> logger = loggerFactory.CreateLogger<MasterDataServiceClient>();
 
         /// <inheritdoc/>
-        public async Task<CaseSummaryResponse> GetCaseSummaryAsync(GetCaseSummaryRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<CaseSummaryResponse> GetCaseSummaryAsync(GetCaseSummaryRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -55,7 +55,7 @@ namespace DdeiClient.Clients
                 var cookieString = JsonSerializer.Serialize(cookie);
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
-                var data = await client.GetCaseSummaryAsync(request.CaseId);
+                var data = await client.GetCaseSummaryAsync(request.CaseId, cancellationToken);
 
                 if (data?.Urn is not null)
                 {
@@ -80,7 +80,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<UnusedMaterialsResponse> GetUnusedMaterialsAsync(GetUnusedMaterialsRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<UnusedMaterialsResponse> GetUnusedMaterialsAsync(GetUnusedMaterialsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -165,7 +165,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<UsedExhibitsResponse> GetUsedExhibitsAsync(GetUsedExhibitsRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<UsedExhibitsResponse> GetUsedExhibitsAsync(GetUsedExhibitsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -220,7 +220,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<UsedMgFormsResponse> GetUsedMgFormsAsync(GetUsedMgFormsRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<UsedMgFormsResponse> GetUsedMgFormsAsync(GetUsedMgFormsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -270,7 +270,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<UsedOtherMaterialsResponse> GetUsedOtherMaterialsAsync(GetUsedOtherMaterialsRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<UsedOtherMaterialsResponse> GetUsedOtherMaterialsAsync(GetUsedOtherMaterialsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -319,7 +319,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<UsedStatementsResponse> GetUsedStatementsAsync(GetUsedStatementsRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<UsedStatementsResponse> GetUsedStatementsAsync(GetUsedStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -374,7 +374,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<IReadOnlyCollection<Communication>> ListCommunicationsHkAsync(ListCommunicationsHkRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<IReadOnlyCollection<Communication>> ListCommunicationsHkAsync(ListCommunicationsHkRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -431,7 +431,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<AttachmentsResponse> GetAttachmentsAsync(GetAttachmentsRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<AttachmentsResponse> GetAttachmentsAsync(GetAttachmentsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -490,7 +490,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<FileStreamResult?> GetMaterialDocumentAsync(GetDocumentRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<FileStreamResult?> GetMaterialDocumentAsync(GetDocumentRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -533,7 +533,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<ExhibitProducersResponse> GetExhibitProducersAsync(GetExhibitProducersRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<ExhibitProducersResponse> GetExhibitProducersAsync(GetExhibitProducersRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -582,7 +582,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<DefendantsResponse> GetCaseDefendantsAsync(ListCaseDefendantsRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<DefendantsResponse> GetCaseDefendantsAsync(ListCaseDefendantsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -638,7 +638,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<WitnessesResponse> GetCaseWitnessesAsync(GetCaseWitnessesRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<WitnessesResponse> GetCaseWitnessesAsync(GetCaseWitnessesRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -684,7 +684,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<WitnessStatementsResponse> GetWitnessStatementsAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<WitnessStatementsResponse> GetWitnessStatementsAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -726,7 +726,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<NoContentResult> AddCaseActionPlanAsync(int caseId, AddActionPlanRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<NoContentResult> AddCaseActionPlanAsync(int caseId, AddActionPlanRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -744,7 +744,7 @@ namespace DdeiClient.Clients
 
                 var mdsRequest = MapApAction(request);
 
-                await client.AddActionPlanAsync(caseId, mdsRequest);
+                await client.AddActionPlanAsync(caseId, mdsRequest, cancellationToken);
 
                 this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, "");
                 return new NoContentResult();
@@ -757,7 +757,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<NoContentResult> AddWitnessAsync(AddWitnessRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<NoContentResult> AddWitnessAsync(AddWitnessRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(request.caseId);
@@ -782,7 +782,7 @@ namespace DdeiClient.Clients
                     FirstName = request.FirstName,
                 };
 
-                await client.AddWitnessAsync(request.caseId, mdsRequest);
+                await client.AddWitnessAsync(request.caseId, mdsRequest, cancellationToken);
                 this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
                 return new NoContentResult();
             }
@@ -794,7 +794,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<RenameMaterialResponse> RenameMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<RenameMaterialResponse> RenameMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(request.materialId);
@@ -817,7 +817,7 @@ namespace DdeiClient.Clients
                     Subject = request.subject,
                 };
 
-                var data = await client.RenameMaterialAsync(request.materialId, mdsRequest);
+                var data = await client.RenameMaterialAsync(request.materialId, mdsRequest, cancellationToken);
 
                 if (data?.UpdateCommunication?.Id == null)
                 {
@@ -838,7 +838,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<ReclassificationResponse> ReclassifyCommunicationAsync(ReclassifyCommunicationRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<ReclassificationResponse> ReclassifyCommunicationAsync(ReclassifyCommunicationRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -865,7 +865,7 @@ namespace DdeiClient.Clients
                     Exhibit = MapExhibit(request.Exhibit),
                 };
 
-                var data = await client.ReclassifyCommunicationAsync(mdsRequest);
+                var data = await client.ReclassifyCommunicationAsync(mdsRequest, cancellationToken);
 
                 if (data?.ReclassifyCommunication?.Id == null)
                 {
@@ -885,7 +885,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<CaseLockedStatusResult> CheckCaseLockAsync(int caseId, CmsAuthValues cmsAuthValues)
+        public async Task<CaseLockedStatusResult> CheckCaseLockAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             if (caseId <= 0)
             {
@@ -927,7 +927,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<DiscardMaterialResponse> DiscardMaterialAsync(DiscardMaterialRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<DiscardMaterialResponse> DiscardMaterialAsync(DiscardMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(request.materialId);
@@ -951,7 +951,7 @@ namespace DdeiClient.Clients
                     DiscardReasonDescription = request.discardReasonDescription,
                 };
 
-                var data = await client.DiscardMaterialAsync(request.materialId, mdsReqest);
+                var data = await client.DiscardMaterialAsync(request.materialId, mdsReqest, cancellationToken);
                 this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
 
                 if (data?.DiscardMaterial?.Id == null)
@@ -970,7 +970,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<SetMaterialReadStatusResponse> SetMaterialReadStatusAsync(SetMaterialReadStatusRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<SetMaterialReadStatusResponse> SetMaterialReadStatusAsync(SetMaterialReadStatusRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(request.materialId);
@@ -992,7 +992,7 @@ namespace DdeiClient.Clients
                     State = (ApiClient.MaterialReadStateRequestState)request.state,
                 };
 
-                var data = await client.SetMaterialReadStateAsync(request.materialId, mdsReqest);
+                var data = await client.SetMaterialReadStateAsync(request.materialId, mdsReqest, cancellationToken);
 
                 if (data?.CompleteCommunication?.Id == null)
                 {
@@ -1013,7 +1013,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<List<PcdRequestCore>> GetPcdRequestCoreAsync(GetPcdRequestsCoreRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<List<PcdRequestCore>> GetPcdRequestCoreAsync(GetPcdRequestsCoreRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -1035,7 +1035,7 @@ namespace DdeiClient.Clients
                 var cookieString = JsonSerializer.Serialize(cookie);
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
-                var data = await client.GetCasePcdRequestCoreAsync(request.caseId);
+                var data = await client.GetCasePcdRequestCoreAsync(request.caseId, cancellationToken);
 
                 if (data is not null)
                 {
@@ -1060,7 +1060,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(GetPcdRequestByPcdIdCoreRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(GetPcdRequestByPcdIdCoreRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(cmsAuthValues);
@@ -1083,7 +1083,7 @@ namespace DdeiClient.Clients
                 var cookieString = JsonSerializer.Serialize(cookie);
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
-                var data = await client.GetCasePcdRequestByPcdIdAsync(request.caseId, request.pcdId);
+                var data = await client.GetCasePcdRequestByPcdIdAsync(request.caseId, request.pcdId, cancellationToken);
 
                 if (data is not null)
                 {
@@ -1141,7 +1141,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<UpdateStatementResponse> UpdateStatementAsync(UpdateStatementRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<UpdateStatementResponse> UpdateStatementAsync(UpdateStatementRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(request.MaterialId);
@@ -1168,10 +1168,10 @@ namespace DdeiClient.Clients
                     WitnessId = request.WitnessId,
                     StatementNumber = request.StatementNumber,
                     StatementDate = statementDate,
-                    Used = request.Used,
+                    Used = request.Used
                 };
 
-                var data = await client.UpdateStatementAsync(request.CaseId, request.MaterialId, mdsRequest);
+                var data = await client.UpdateStatementAsync(request.CaseId, request.MaterialId, mdsRequest, cancellationToken);
 
                 if (data?.UpdateStatement?.Id == null)
                 {
@@ -1190,7 +1190,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<UpdateExhibitResponse> UpdateExhibitAsync(UpdateExhibitRequest request, CmsAuthValues cmsAuthValues)
+        public async Task<UpdateExhibitResponse> UpdateExhibitAsync(UpdateExhibitRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(request);
             Requires.NotNull(request.CaseId);
@@ -1224,7 +1224,7 @@ namespace DdeiClient.Clients
                     Used = request.Used,
                 };
 
-                var data = await client.UpdateExhibitAsync(request.CaseId, request.MaterialId, mdsRequest);
+                var data = await client.UpdateExhibitAsync(request.CaseId, request.MaterialId, mdsRequest, cancellationToken);
 
                 if (data?.UpdateExhibit?.Id == null)
                 {
@@ -1245,7 +1245,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> FirstInitialReviewGetCaseHistoryAsync(int caseId, CmsAuthValues cmsAuthValues)
+        public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> FirstInitialReviewGetCaseHistoryAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(caseId);
             Requires.NotNull(cmsAuthValues);
@@ -1261,7 +1261,7 @@ namespace DdeiClient.Clients
                 var cookieString = JsonSerializer.Serialize(cookie);
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
-                var data = await client.FirstInitialReviewGetCaseHistoryAsync(caseId);
+                var data = await client.FirstInitialReviewGetCaseHistoryAsync(caseId, cancellationToken);
                 return data;
             }
             catch (Exception exception)
@@ -1321,7 +1321,7 @@ namespace DdeiClient.Clients
                 var cookieString = JsonSerializer.Serialize(cookie);
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
-                var data = await client.GetPcdAnalysisByIdAsync(caseId, historyId);
+                var data = await client.GetPcdAnalysisByIdAsync(caseId, historyId, cancellationToken);
                 return data;
             }
             catch (Exception exception)
@@ -1332,7 +1332,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues)
+        public async Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(caseId);
             Requires.NotNull(cmsAuthValues);
@@ -1359,7 +1359,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<ApiClient.OffenceChangeResponse> GetOffenceChargeByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+        public async Task<ApiClient.OffenceChangeResponse> GetOffenceChargeByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(caseId);
             Requires.NotNull(historyId);
@@ -1376,7 +1376,7 @@ namespace DdeiClient.Clients
                 var cookieString = JsonSerializer.Serialize(cookie);
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
-                var data = await client.GetOffenceChangeByIdAsync(caseId, historyId);
+                var data = await client.GetOffenceChangeByIdAsync(caseId, historyId, cancellationToken);
                 return data;
             }
             catch (Exception exception)
@@ -1387,7 +1387,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionCaseHistoryEventDetailsAsync(int caseId, CmsAuthValues cmsAuthValues)
+        public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionCaseHistoryEventDetailsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(caseId);
             Requires.NotNull(cmsAuthValues);
@@ -1414,7 +1414,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionByHistoryId(int caseId, int historyId, CmsAuthValues cmsAuthValues)
+        public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionByHistoryId(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(caseId);
             Requires.NotNull(historyId);
@@ -1431,7 +1431,7 @@ namespace DdeiClient.Clients
                 var cookieString = JsonSerializer.Serialize(cookie);
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
-                var data = await client.GetPreChargeDecisionByIdAsync(caseId, historyId);
+                var data = await client.GetPreChargeDecisionByIdAsync(caseId, historyId, cancellationToken);
                 return data;
             }
             catch (Exception exception)
@@ -1442,7 +1442,7 @@ namespace DdeiClient.Clients
         }
 
         /// <inheritdoc/>
-        public async Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues)
+        public async Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
         {
             Requires.NotNull(caseId);
             Requires.NotNull(cmsAuthValues);
@@ -1458,7 +1458,7 @@ namespace DdeiClient.Clients
                 var cookieString = JsonSerializer.Serialize(cookie);
                 var client = this.mdsApiClientFactory.Create(cookieString);
 
-                var data = await client.GetPcdReviewAsync(caseId);
+                var data = await client.GetPcdReviewAsync(caseId, cancellationToken);
                 return data;
             }
             catch (Exception exception)

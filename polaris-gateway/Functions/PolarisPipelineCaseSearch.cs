@@ -48,6 +48,8 @@ public class PolarisPipelineCaseSearch : BaseFunction
 
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearch)] HttpRequest req, string caseUrn, int caseId, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var correlationId = EstablishCorrelation(req);
 
         return await (await _coordinatorClient.SearchCase(

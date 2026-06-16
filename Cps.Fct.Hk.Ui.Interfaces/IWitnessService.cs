@@ -18,16 +18,18 @@ public interface IWitnessService
     /// </summary>
     /// <param name="caseId">Unique identifier of the case to retrieve witnesses for.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve witnesses.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
     /// <returns>A task <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task<WitnessesResponse> GetCaseWitnessesAsync(int caseId, CmsAuthValues cmsAuthValues);
+    Task<WitnessesResponse> GetCaseWitnessesAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Service that retrieves statements for a witness.
     /// </summary>
     /// <param name="witnessId">Unique witness identifier to retrieve statements for.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve statements for a witness.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task<WitnessStatementsResponse> GetWitnessStatementsAsync(int witnessId, CmsAuthValues cmsAuthValues);
+    Task<WitnessStatementsResponse> GetWitnessStatementsAsync(int witnessId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Service that adds a case witness.
@@ -38,6 +40,7 @@ public interface IWitnessService
     /// <param name="lastName">Witness last name.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve statements for a witness.</param>
     /// <param name="correspondenceId">correspondenceId.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
     /// <returns>The Id of the witness added.</returns>
-    Task<int?> AddWitnessAsync(string urn, int caseId, string firstName, string lastName, CmsAuthValues cmsAuthValues, Guid correspondenceId = default);
+    Task<int?> AddWitnessAsync(string urn, int caseId, string firstName, string lastName, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default);
 }

@@ -103,7 +103,8 @@ public class CompleteReclassification(
                 caseId,
                 materialId,
                 cmsAuthValues,
-                completeReclassificationRequest).ConfigureAwait(false);
+                completeReclassificationRequest, 
+                cancellationToken).ConfigureAwait(false);
 
             // All operations succeeded.
             if (result?.overallSuccess == true)

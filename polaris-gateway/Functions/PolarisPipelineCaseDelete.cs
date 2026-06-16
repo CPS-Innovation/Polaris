@@ -49,6 +49,7 @@ public class PolarisPipelineCaseDelete : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
+        cancellationToken.ThrowIfCancellationRequested();
 
         return await (await _coordinatorClient.DeleteCaseAsync(
             caseUrn,

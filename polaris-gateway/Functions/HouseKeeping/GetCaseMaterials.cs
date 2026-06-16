@@ -75,7 +75,7 @@ public class GetCaseMaterials(
 
             // Retrieve case materials
             var (communications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials, exhibitProducers) =
-                await this.caseMaterialService.RetrieveCaseMaterialsAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+                await this.caseMaterialService.RetrieveCaseMaterialsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
             // Ensure all required data is retrieved before proceeding
             if (communications == null || unusedMaterials == null || usedStatements == null || usedExhibits == null || usedMgForms == null || usedOtherMaterials == null)

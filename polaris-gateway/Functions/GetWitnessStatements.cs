@@ -49,7 +49,7 @@ public class GetWitnessStatements : BaseFunction
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var witnessStatementsArgDto = _mdsArgFactory.CreateWitnessStatementsArgDto(cmsAuthValues, correlationId, caseUrn, caseId, witnessId);
-        var witnessStatementDtos = await _mdsClient.GetWitnessStatementsAsync(witnessStatementsArgDto);
+        var witnessStatementDtos = await _mdsClient.GetWitnessStatementsAsync(witnessStatementsArgDto, cancellationToken: cancellationToken);
 
         return new OkObjectResult(witnessStatementDtos);
     }

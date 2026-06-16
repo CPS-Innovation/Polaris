@@ -48,7 +48,7 @@ public class LookupUrn : BaseFunction
 
         var arg = _mdsArgFactory.CreateCaseIdArg(cmsAuthValues, correlationId, caseId);
 
-        var result = await _mdsClient.GetUrnFromCaseIdAsync(arg);
+        var result = await _mdsClient.GetUrnFromCaseIdAsync(arg, cancellationToken: cancellationToken);
 
         return new OkObjectResult(result);
     }

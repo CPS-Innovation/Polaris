@@ -49,7 +49,7 @@ public class GetExhibitProducers : BaseFunction
 
         var mdsCaseIdentifiersArgDto = _mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
         
-        var exhibitProducerDtos = await _mdsClient.GetExhibitProducersAsync(mdsCaseIdentifiersArgDto);
+        var exhibitProducerDtos = await _mdsClient.GetExhibitProducersAsync(mdsCaseIdentifiersArgDto, cancellationToken: cancellationToken);
 
         return new OkObjectResult(exhibitProducerDtos);
     }
