@@ -45,17 +45,17 @@ pipeline_logging = {
 cms_details = {
   // for non-prod environments, current thinking is to try to go to Corsham's IP
   //  even if we detect a farnborough cookie
-  default_upstream_cms_ip_corsham            = "10.2.177.14" // TBC
-  default_upstream_cms_modern_ip_corsham     = "10.2.177.67" // TBC
-  default_upstream_cms_ip_farnborough        = "10.3.177.14" // TBC
-  default_upstream_cms_modern_ip_farnborough = "10.3.177.67" // TBC
+  default_upstream_cms_ip_corsham            = "10.2.177.4"
+  default_upstream_cms_modern_ip_corsham     = "10.2.177.68"
+  default_upstream_cms_ip_farnborough        = "10.3.177.4"
+  default_upstream_cms_modern_ip_farnborough = "10.3.177.68"
   default_upstream_cms_domain_name           = "cmo.cps.gov.uk"
   default_upstream_cms_modern_domain_name    = "cmsmodtrain.cps.gov.uk"
   default_upstream_cms_services_domain_name  = "cmo.cps.gov.uk"
-  cpt_upstream_cms_ip_corsham                = "10.2.177.3"  // TBC
-  cpt_upstream_cms_modern_ip_corsham         = "10.2.177.67" // TBC
-  cpt_upstream_cms_ip_farnborough            = "10.3.177.3"  // TBC
-  cpt_upstream_cms_modern_ip_farnborough     = "10.3.177.67" // TBC
+  cpt_upstream_cms_ip_corsham                = "10.2.189.177"
+  cpt_upstream_cms_modern_ip_corsham         = "10.2.189.186"
+  cpt_upstream_cms_ip_farnborough            = "10.3.189.177"
+  cpt_upstream_cms_modern_ip_farnborough     = "10.3.189.186"
   cpt_upstream_cms_domain_name               = "cmscpt.cps.gov.uk"
   cpt_upstream_cms_modern_domain_name        = "cmsmodcpt.cps.gov.uk"
   cpt_upstream_cms_services_domain_name      = "cmscpt.cps.gov.uk"
@@ -180,7 +180,7 @@ coordinator = {
 }
 
 cps_global_components = {
-  script_url          = "https://polaris-qa-notprod.cps.gov.uk/global-components/test/global-components.js"
+  script_url          = "https://polaris-uat-notprod.cps.gov.uk/global-components/uat/global-components.js"
   blob_storage_domain = "sacpsglobalcomponents.blob.core.windows.net"
 }
 
