@@ -45,12 +45,22 @@ public class MdsCaseDocumentsOrchestrationService : IMdsCaseDocumentsOrchestrati
         var pcdRequests = getPcdRequestsTask.Result;
         var defendantAndCharges = getDefendantsAndChargesTask.Result;
 
+        //return Enumerable.Empty<DocumentDto>()
+        //    .Concat(cmsDocuments.Select(MapDocument))
+        //    .Concat(pcdRequests.Select(MapPcdRequest))
+        //    .Concat(defendantAndCharges.DefendantsAndCharges.Count() > 1 || defendantAndCharges.DefendantsAndCharges.Any(x => x.Charges.Count() > 1)
+        //        ? [MapDefendantAndCharges(defendantAndCharges)]
+        //        : []
+        //    );
+
         return Enumerable.Empty<DocumentDto>()
             .Concat(cmsDocuments.Select(MapDocument))
             .Concat(pcdRequests.Select(MapPcdRequest))
-            .Concat(defendantAndCharges.DefendantsAndCharges.Count() > 1 || defendantAndCharges.DefendantsAndCharges.Any(x => x.Charges.Count() > 1)
-                ? [MapDefendantAndCharges(defendantAndCharges)]
-                : []
+            .Concat(
+                defendantAndCharges.DefendantsAndCharges.Any() ||
+                defendantAndCharges.DefendantsAndCharges.Any(x => x.Charges.Any())
+                    ? [MapDefendantAndCharges(defendantAndCharges)]
+                    : []
             );
     }
 
