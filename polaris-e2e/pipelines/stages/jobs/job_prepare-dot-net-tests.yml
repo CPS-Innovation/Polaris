@@ -33,7 +33,7 @@ jobs:
       - task: FileTransform@2
         displayName: "Transform Integration Test Settings"
         inputs:
-          folderPath: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+          folderPath: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net10.0"
           jsonTargetFiles: "appSettings.json"
           xmlTransformationRules: "" # disabled, prevents non-windows-platform error
 
@@ -41,11 +41,11 @@ jobs:
         inputs:
           sourceFolder: $(Agent.TempDirectory)
           contents: Aspose.Total.NET.lic
-          targetFolder: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+          targetFolder: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net10.0"
         displayName: "Copy Aspose.Total.NET.lic"
 
       - task: PublishPipelineArtifact@1
         inputs:
-          targetPath: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net8.0"
+          targetPath: "$(System.DefaultWorkingDirectory)/polaris-pipeline/pdf-redactor.integration.tests/bin/Release/net10.0"
           artifact: "pdf-redactor-tests-drop"
         displayName: "Publish PDF Redactor tests artifact"
