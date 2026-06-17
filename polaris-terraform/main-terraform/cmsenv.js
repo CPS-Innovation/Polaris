@@ -169,7 +169,6 @@ function __getCmsEnvInternal(cookie) {
     return "default";
 }
 
-
 export default {
     proxyDestinationCorsham, proxyDestinationCorshamInternal, proxyDestinationModernCorsham, proxyDestinationModernCorshamInternal,
     proxyDestinationFarnborough, proxyDestinationFarnboroughInternal, proxyDestinationModernFarnborough, proxyDestinationModernFarnboroughInternal,
