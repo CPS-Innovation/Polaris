@@ -69,12 +69,19 @@ function setSessionHintCookie(r) {
   let cookieValue
   try {
     const isProxySession = r.args[IS_PROXY_SESSION_PARAM_NAME] === "true"
-    // Match lowercase subdomain(s) followed by .cps.gov.uk (terminated by _POOL)
-    // This avoids matching uppercase prefixes like CPSACP-LTM-CM-WAN-CIN3-
-    const cmsDomains =
-      r.args["cookie"].match(
-        /[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)*\.cps\.gov\.uk(?=_POOL)/g
-      ) || []
+    const cookie = r.args["cookie"]
+    // The environment domain (e.g. cin3.cps.gov.uk) can come from either LB cookie style.
+    // Prefer the load-balancing cookie, named [CF]-<TOKEN>-LBsessioncookie (e.g. C-CIN3-...,
+    // F-FOO-...), and derive <token>.cps.gov.uk from the TOKEN. Fall back to the legacy
+    // BIGipServer* cookie, whose name embeds the domain immediately before _POOL.
+    const loadBalancingCookies = cookie.match(/(?:^|;\s*)[CF]-[^=;]*-LBsessioncookie/g) || []
+    const cmsDomains = loadBalancingCookies.length
+      ? loadBalancingCookies.map(
+          (m) => `${m.match(/[CF]-([^=;]*)-LBsessioncookie/)[1].toLowerCase()}.cps.gov.uk`
+        )
+      : // Match lowercase subdomain(s) followed by .cps.gov.uk (terminated by _POOL).
+        // This avoids matching uppercase prefixes like CPSACP-LTM-CM-WAN-CIN3-.
+        cookie.match(/[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)*\.cps\.gov\.uk(?=_POOL)/g) || []
 
     const handoverEndpoint = isProxySession
       ? `https://${r.headersIn["Host"]}/polaris`
