@@ -8,6 +8,14 @@ jobs:
     pool:
       vmImage: 'windows-latest'
     steps:
+
+      - task: UseDotNet@2
+        displayName: Install .NET SDK 10.x
+        inputs:
+          packageType: sdk
+          version: '10.x'
+          includePreviewVersions: true
+          
       - checkout: ${{ parameters.checkoutRef }}
         clean: true
         persistCredentials: true
