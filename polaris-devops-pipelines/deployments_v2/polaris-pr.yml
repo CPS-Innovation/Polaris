@@ -71,7 +71,7 @@ stages:
                 $targetBranchName = $targetBranch -replace '^refs/heads/', ''
                 echo "Comparing changes against origin/$targetBranchName"
 
-                git fetch origin "+refs/heads/$targetBranchName:refs/remotes/origin/$targetBranchName" --depth=200
+                git fetch origin "+refs/heads/${targetBranchName}:refs/remotes/origin/${targetBranchName}" --depth=200
 
                 $temp = @(git diff --name-only "origin/$targetBranchName...HEAD" | ForEach-Object { $_.Trim() } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
                 $count=$temp.Length
