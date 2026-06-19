@@ -54,11 +54,12 @@ stages:
               targetType: 'inline'
               script: |
                 $targetBranch = $env:SYSTEM_PULLREQUEST_TARGETBRANCH
+                $targetBranchOverride = $env:TARGETBRANCHOVERRIDE
 
                 # Optional override to support manual runs.
-                if ([string]::IsNullOrWhiteSpace($targetBranch) -and -not [string]::IsNullOrWhiteSpace("$(targetBranchOverride)"))
+                if ([string]::IsNullOrWhiteSpace($targetBranch) -and -not [string]::IsNullOrWhiteSpace($targetBranchOverride))
                 {
-                  $targetBranch = "$(targetBranchOverride)"
+                  $targetBranch = $targetBranchOverride
                 }
 
                 if ([string]::IsNullOrWhiteSpace($targetBranch))
