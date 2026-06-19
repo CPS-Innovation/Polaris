@@ -9,6 +9,7 @@ using Ddei.Factories;
 using Ddei.Mappers;
 using DdeiClient.Clients.Interfaces;
 using Newtonsoft.Json;
+using PolarisGateway.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -47,11 +48,11 @@ public class MdsCaseOrchestrationService(IMdsClient mdsClient,
     {
         var request = new GetCaseSummaryRequest(arg.CaseId, arg.CorrelationId);
 
-        var cmsAuthValuesSer = JsonConvert.DeserializeObject<AuthenticationResponse>(arg.CmsAuthValues);
+        var cmsAuthValuesSer = JsonConvert.DeserializeObject<CmsAuthValuesDto>(arg.CmsAuthValues);
 
         var cmsAuthValues = new CmsAuthValues(
             cmsAuthValuesSer.Cookies,
-            cmsAuthValuesSer.Token,   
+            cmsAuthValuesSer.Token,
             arg.CorrelationId);
 
         var getCaseSummaryTaskNew = _masterDataServiceClient.GetCaseSummaryAsync(request, cmsAuthValues);
@@ -61,17 +62,17 @@ public class MdsCaseOrchestrationService(IMdsClient mdsClient,
         var witnessesTask = _mdsClient.GetWitnessesAsync(arg);
         var getPcdRequestTask = _mdsClient.GetPcdRequestsAsync(arg);
 
-        await Task.WhenAll(getCaseSummaryTask, getDefendantsAndChargesTask, witnessesTask, getPcdRequestTask, getCaseSummaryTaskNew);
+        await Task.WhenAll(getCaseSummaryTask, getDefendantsAndChargesTask, witnessesTask, getPcdRequestTask, getCaseSummaryTask);
 
-        var summarynew = getCaseSummaryTaskNew.Result;
+        var summarynew = getCaseSummaryTask.Result;
         var summary = new CaseSummaryDto()
         {
            Urn = summarynew.Urn,
            LeadDefendantFirstNames = summarynew.LeadDefendantFirstNames,
            LeadDefendantSurname = summarynew.LeadDefendantSurname,
            NumberOfDefendants = summarynew.NumberOfDefendants,
-           OwningUnit = summarynew.UnitName,
-           Id = summarynew.CaseId,
+           //OwningUnit = summarynew.UnitName,
+           //Id = summarynew.CaseId,
         }; 
         var defendantsAndCharges = getDefendantsAndChargesTask.Result.DefendantsAndCharges;
         var witnesses = MapWitnesses(witnessesTask.Result);
