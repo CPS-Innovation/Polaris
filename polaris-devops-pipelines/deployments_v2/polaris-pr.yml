@@ -49,7 +49,12 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                $targetBranch = "$(System.PullRequest.TargetBranch)"
+                $targetBranch = $env:SYSTEM_PULLREQUEST_TARGETBRANCH
+                if ([string]::IsNullOrWhiteSpace($targetBranch))
+                {
+                  # Some runs expose branch variables with build-source naming.
+                  $targetBranch = $env:SYSTEM_PULLREQUEST_TARGETBRANCHNAME
+                }
                 if ([string]::IsNullOrWhiteSpace($targetBranch))
                 {
                   # Fallback for non-PR invocations.
