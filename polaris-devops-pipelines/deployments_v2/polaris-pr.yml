@@ -5,6 +5,7 @@ pr:
   branches:
     include:
       - development
+      - main
   paths:
     include:
       - polaris-terraform/main-terraform/*
@@ -45,27 +46,33 @@ stages:
         pool:
           name: $(dev-build-agent)
         steps:
+          - checkout: self
+            fetchDepth: 0
+
           - task: PowerShell@2
             inputs:
               targetType: 'inline'
               script: |
                 $targetBranch = $env:SYSTEM_PULLREQUEST_TARGETBRANCH
-                if ([string]::IsNullOrWhiteSpace($targetBranch))
+
+                # Optional override to support manual runs.
+                if ([string]::IsNullOrWhiteSpace($targetBranch) -and -not [string]::IsNullOrWhiteSpace("$(targetBranchOverride)"))
                 {
-                  # Some runs expose branch variables with build-source naming.
-                  $targetBranch = $env:SYSTEM_PULLREQUEST_TARGETBRANCHNAME
+                  $targetBranch = "$(targetBranchOverride)"
                 }
+
                 if ([string]::IsNullOrWhiteSpace($targetBranch))
                 {
-                  # Fallback for non-PR invocations.
+                  # Default for non-PR runs when no override is provided.
                   $targetBranch = "refs/heads/development"
                 }
 
                 $targetBranchName = $targetBranch -replace '^refs/heads/', ''
-                git fetch origin $targetBranchName --depth=100
+                echo "Comparing changes against origin/$targetBranchName"
 
-                $mergeBase = git merge-base HEAD "origin/$targetBranchName"
-                $files = git diff --name-only $mergeBase HEAD
+                git fetch origin "+refs/heads/$targetBranchName:refs/remotes/origin/$targetBranchName" --depth=200
+
+                $files = git diff --name-only "origin/$targetBranchName...HEAD"
                 $temp = @($files) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
                 $count=$temp.Length
                 echo "Total changed $count files"
