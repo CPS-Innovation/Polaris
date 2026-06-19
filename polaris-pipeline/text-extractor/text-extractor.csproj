@@ -50,4 +50,5 @@
       <_Parameter1>$(MSBuildProjectName).tests</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
+  <!-- Pipeline trigger verification comment: text-extractor path. -->
 </Project>

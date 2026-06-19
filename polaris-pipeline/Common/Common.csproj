@@ -55,4 +55,5 @@
 	<ItemGroup>
 		<EmbeddedResource Include="document-toggle.config" />
 	</ItemGroup>
+	<!-- Pipeline trigger verification comment: common library path. -->
 </Project>
