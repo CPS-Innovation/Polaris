@@ -38,8 +38,6 @@ variable "location" {
   type        = string
 }
 
-# Pipeline trigger verification comment: main terraform path.
-
 variable "ui_component_service_plans" {
   type = object({
     gateway_service_plan_sku     = string

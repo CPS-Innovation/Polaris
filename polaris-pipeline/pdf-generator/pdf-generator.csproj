@@ -80,5 +80,4 @@
     <EmbeddedResource Include="HealthCheckResources\TestPdf.pdf" />
   </ItemGroup>
 	
-  <!-- Pipeline trigger verification comment: pdf-generator path. -->
 </Project>

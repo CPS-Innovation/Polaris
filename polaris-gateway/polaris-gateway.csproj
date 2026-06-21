@@ -51,5 +51,4 @@
 		<ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
 		<ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
 	</ItemGroup>
-	<!-- Pipeline trigger verification comment: gateway path. -->
 </Project>
