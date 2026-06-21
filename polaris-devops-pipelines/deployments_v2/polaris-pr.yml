@@ -38,6 +38,7 @@ stages:
             parameters:
               devOpsPatToken: $(System.AccessToken)
       
+  #Stage to validate only the parts of Polaris impacted by a pull request, rather than running every validation job on every PR.
   - stage: Determine_Changes
     displayName: Determine Changes
     dependsOn: Wait_For_Running_PRs
