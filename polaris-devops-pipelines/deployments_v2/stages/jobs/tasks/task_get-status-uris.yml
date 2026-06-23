@@ -14,7 +14,7 @@ parameters:
 steps:
   #retrieve app service status endpoints
   - bash: |
-      az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
+  az login --service-principal --username "$clientId" --password="$clientSecret" --tenant "$tenantId"
       az account set --subscription $subscriptionId
       coordinatorLocation=https://$(az webapp config hostname list --webapp-name $coordinatorAppName --resource-group $coordinatorResourceGroup --query '[0].name' -o tsv)
       pdfGeneratorLocation=https://$(az webapp config hostname list --webapp-name $pdfGeneratorAppName --resource-group $pipelineResourceGroup --query '[0].name' -o tsv)
