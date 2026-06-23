@@ -503,6 +503,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     if (redactionLogType === RedactionLogTypes.UNDER) {
       trackEvent("Save Redaction Log", {
         values: redactionLogRequestData,
+        redactionCount: redactionLogRequestData.redactions?.length,
       });
     }
 
