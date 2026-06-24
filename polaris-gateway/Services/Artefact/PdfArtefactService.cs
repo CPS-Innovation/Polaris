@@ -35,6 +35,13 @@ public class PdfArtefactService : IPdfArtefactService
     {
         if (!forceRefresh && await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed) is (true, var stream))
         {
+            var sizeInMb1 = await _cacheService.GetPdfSizeAsync(caseId, materialId, documentId, isOcrProcessed);
+
+            if (sizeInMb1 > 0.3)
+            {
+                return _artefactServiceResponseFactory.CreateOkResultWithLargeFileFlag(stream, true, true);
+            }
+
             return _artefactServiceResponseFactory.CreateOkfResult(stream, true);
         }
 
@@ -47,6 +54,7 @@ public class PdfArtefactService : IPdfArtefactService
 
         // Read the PDF into a byte array
         byte[] pdfBytes;
+        double sizeInMb;
         using (var buffer = new MemoryStream())
         {
             await result.PdfStream.CopyToAsync(buffer);
@@ -59,10 +67,21 @@ public class PdfArtefactService : IPdfArtefactService
         // For PDF upload: use another fresh MemoryStream
         using (var uploadStream = new MemoryStream(pdfBytes))
         {
+            sizeInMb = uploadStream.Length / (1024.0 * 1024.0);
             await _cacheService.UploadPdfAsync(caseId, materialId, documentId, isOcrProcessed, uploadStream);
+
+            // Save size separately
+            await _cacheService.SetPdfSizeAsync(caseId, materialId, documentId, isOcrProcessed, sizeInMb);
         }
 
         var (_, pdfStream) = await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed);
+
+
+        if (sizeInMb > 0.3) // Assuming 0.3 MB as the threshold for large files
+        {
+            return _artefactServiceResponseFactory.CreateOkResultWithLargeFileFlag(pdfStream, false, true);
+        }
+
         return _artefactServiceResponseFactory.CreateOkfResult(pdfStream, false);
     }
 

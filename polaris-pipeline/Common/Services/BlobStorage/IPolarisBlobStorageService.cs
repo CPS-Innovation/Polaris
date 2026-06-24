@@ -20,5 +20,9 @@ namespace Common.Services.BlobStorage
         Task DeleteBlobsByPrefixAsync(int prefix);
 
         Task<bool> BlobExistsAsync(BlobIdType blobId, bool? mustBeOcred = null);
+
+        Task UploadSizeAsync(string key, double sizeInMb);
+
+        Task<double?> GetSizeAsync(string key);
     }
 }

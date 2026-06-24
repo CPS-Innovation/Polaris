@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Common.Services.BlobStorage;
@@ -37,6 +39,30 @@ public class PolarisBlobStorageService : IPolarisBlobStorageService
         => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId, pageIndex, maxDimensionPixel));
 
     public Task UploadObjectAsync<T>(T obj, BlobIdType blobId) => _blobStorageService.UploadObjectAsync(obj, GetBlobName(blobId));
+
+    public Task UploadSizeAsync(string key, double sizeInMb)
+    {
+        var bytes = Encoding.UTF8.GetBytes(sizeInMb.ToString(CultureInfo.InvariantCulture));
+        var stream = new MemoryStream(bytes);
+
+        return _blobStorageService.UploadBlobAsync(stream, key);
+    }
+
+    public async Task<double?> GetSizeAsync(string key)
+    {
+        var stream = await _blobStorageService.TryGetBlobAsync(key);
+
+        if (stream == null)
+            return null;
+
+        using var reader = new StreamReader(stream);
+        var text = await reader.ReadToEndAsync();
+
+        if (double.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out var size))
+            return size;
+
+        return null;
+    }
 
     private static string GetBlobName(BlobIdType blobId, int? pageIndex = null, int? maxDimensionPixel = null)
     {

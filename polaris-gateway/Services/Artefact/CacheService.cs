@@ -47,5 +47,17 @@ namespace PolarisGateway.Services.Artefact
             var blobId = _blobTypeIdFactory.CreateBlobId(caseId, materialId, documentId, blobType);
             await _polarisBlobStorageService.UploadObjectAsync(obj, blobId);
         }
+
+        public Task SetPdfSizeAsync(int caseId, string materialId, long documentId, bool isOcrProcessed, double sizeInMb)
+        {
+            var key = $"pdf-size-{caseId}-{materialId}-{documentId}-{isOcrProcessed}";
+            return _polarisBlobStorageService.UploadSizeAsync(key, sizeInMb);
+        }
+
+        public Task<double?> GetPdfSizeAsync(int caseId, string materialId, long documentId, bool isOcrProcessed)
+        {
+            var key = $"pdf-size-{caseId}-{materialId}-{documentId}-{isOcrProcessed}";
+            return _polarisBlobStorageService.GetSizeAsync(key);
+        }
     }
 }

@@ -21,4 +21,6 @@ public class ArtefactResult<T>
 
     // Diagnostic property
     public bool? IsFromStorage { get; set; }
+
+    public bool? FileSizeExceedsLimit { get; set; }
 }
