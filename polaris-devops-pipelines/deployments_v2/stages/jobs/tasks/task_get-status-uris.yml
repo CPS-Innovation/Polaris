@@ -14,7 +14,7 @@ parameters:
 steps:
   #retrieve app service status endpoints
   - bash: |
-  az login --service-principal --username "$clientId" --password="$clientSecret" --tenant "$tenantId"
+      az login --service-principal --username "$clientId" --password="$clientSecret" --tenant "$tenantId"
       az account set --subscription $subscriptionId
       coordinatorLocation=https://$(az webapp config hostname list --webapp-name $coordinatorAppName --resource-group $coordinatorResourceGroup --query '[0].name' -o tsv)
       pdfGeneratorLocation=https://$(az webapp config hostname list --webapp-name $pdfGeneratorAppName --resource-group $pipelineResourceGroup --query '[0].name' -o tsv)
@@ -24,7 +24,7 @@ steps:
       gatewayLocation=https://$(az webapp config hostname list --webapp-name $gatewayAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
       spaLocation=https://$(az webapp config hostname list --webapp-name $spaAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
       proxyLocation=https://$(az webapp config hostname list --webapp-name $proxyAppName --resource-group $uiResourceGroup --query '[0].name' -o tsv)
-      
+
       echo "##vso[task.setvariable variable=coordinatorUri;isOutput=true]$coordinatorLocation"
       echo "##vso[task.setvariable variable=pdfGeneratorUri;isOutput=true]$pdfGeneratorLocation"
       echo "##vso[task.setvariable variable=pdfThumbnailGeneratorUri;isOutput=true]$pdfThumbnailGeneratorLocation"
