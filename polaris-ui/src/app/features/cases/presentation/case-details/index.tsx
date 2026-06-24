@@ -680,35 +680,31 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   )}
                   {
                     <div className={classes.externalRedirectBtnWrapper}>
-                      {featureFlags.externalRedirectCaseReviewApp && (
-                        <Button
-                          onClick={() => {
-                            openInNewTab(
-                              `${CASE_REVIEW_APP_REDIRECT_URL}?URN=${urn}&CMSCaseId=${caseId}`
-                            );
-                          }}
-                          data-testid="btn-case-review-app"
-                          id="btn-case-review-app"
-                          className={`${classes.newWindowBtn} govuk-button--secondary`}
-                          name="secondary"
-                        >
-                          Case Review <NewWindow />
-                        </Button>
-                      )}
+                      <Button
+                        onClick={() => {
+                          openInNewTab(
+                            `${CASE_REVIEW_APP_REDIRECT_URL}?URN=${urn}&CMSCaseId=${caseId}`
+                          );
+                        }}
+                        data-testid="btn-case-review-app"
+                        id="btn-case-review-app"
+                        className={`${classes.newWindowBtn} govuk-button--secondary`}
+                        name="secondary"
+                      >
+                        Case Review <NewWindow />
+                      </Button>
 
-                      {featureFlags.externalRedirectBulkUmApp && (
-                        <Button
-                          onClick={() => {
-                            openInSameTab(`${BULK_UM_REDIRECT_URL}/${caseId}`);
-                          }}
-                          data-testid="btn-bulk-um-classification"
-                          id="btn-bulk-um-classification"
-                          className={`${classes.newWindowBtn} govuk-button--secondary`}
-                          name="secondary"
-                        >
-                          Bulk UM Classification
-                        </Button>
-                      )}
+                      <Button
+                        onClick={() => {
+                          openInSameTab(`${BULK_UM_REDIRECT_URL}/${caseId}`);
+                        }}
+                        data-testid="btn-bulk-um-classification"
+                        id="btn-bulk-um-classification"
+                        className={`${classes.newWindowBtn} govuk-button--secondary`}
+                        name="secondary"
+                      >
+                        Bulk UM Classification
+                      </Button>
                     </div>
                   }
 
