@@ -35,14 +35,9 @@ public class PdfArtefactService : IPdfArtefactService
     {
         if (!forceRefresh && await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed) is (true, var stream))
         {
-            var sizeInMb1 = await _cacheService.GetPdfSizeAsync(caseId, materialId, documentId, isOcrProcessed);
+            var cachedSizeInMb = await _cacheService.GetPdfSizeAsync(caseId, materialId, documentId, isOcrProcessed);
 
-            if (sizeInMb1 > 0.3)
-            {
-                return _artefactServiceResponseFactory.CreateOkResultWithLargeFileFlag(stream, true, true);
-            }
-
-            return _artefactServiceResponseFactory.CreateOkfResult(stream, true);
+            return ValidateFileSizeAndCreatePdfResult(stream, true, cachedSizeInMb ?? 0);
         }
 
         var result = await _pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, urn, caseId, materialId, documentId);
@@ -55,6 +50,7 @@ public class PdfArtefactService : IPdfArtefactService
         // Read the PDF into a byte array
         byte[] pdfBytes;
         double sizeInMb;
+
         using (var buffer = new MemoryStream())
         {
             await result.PdfStream.CopyToAsync(buffer);
@@ -76,13 +72,17 @@ public class PdfArtefactService : IPdfArtefactService
 
         var (_, pdfStream) = await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed);
 
+        return ValidateFileSizeAndCreatePdfResult(pdfStream, false, sizeInMb);
+    }
 
-        if (sizeInMb > 0.3) // Assuming 0.3 MB as the threshold for large files
+    private ArtefactResult<Stream> ValidateFileSizeAndCreatePdfResult(Stream pdfStream, bool fromCache, double sizeInMb)
+    {
+        if (sizeInMb > 0.3)
         {
-            return _artefactServiceResponseFactory.CreateOkResultWithLargeFileFlag(pdfStream, false, true);
+            return _artefactServiceResponseFactory.CreateOkResultWithLargeFileFlag(pdfStream, fromCache, true);
         }
 
-        return _artefactServiceResponseFactory.CreateOkfResult(pdfStream, false);
+        return _artefactServiceResponseFactory.CreateOkfResult(pdfStream, fromCache);
     }
 
     private async Task ProcessAndUploadOcrAsync(byte[] pdfBytes, int caseId, string materialId, long documentId, Guid correlationId)

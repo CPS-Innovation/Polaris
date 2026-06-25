@@ -55,9 +55,9 @@ public class GetPdf : BaseFunction
         var forceRefresh = req.Query.ContainsKey(ForceRefreshParamName) && bool.Parse(req.Query[ForceRefreshParamName]);
         var getPdfResult = await _pdfArtefactService.GetPdfAsync(cmsAuthValues, correlationId, caseUrn, caseId, materialId, documentId, isOcrProcessed, forceRefresh);
 
-        if (getPdfResult.FileSizeExceedsLimit == true) // assuming this exists
+        if (getPdfResult.FileSizeExceedsLimit == true)
         {
-            req.HttpContext.Response.Headers["File-Size-Exceeds-Limit"] = "true";
+            req.HttpContext.Response.Headers["X-File-Too-Large"] = "true";
         }
 
         return getPdfResult.Status == ResultStatus.ArtefactAvailable ?
