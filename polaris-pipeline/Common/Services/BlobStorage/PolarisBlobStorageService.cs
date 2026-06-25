@@ -77,19 +77,19 @@ public class PolarisBlobStorageService : IPolarisBlobStorageService
     }
 
     private static Dictionary<string, string> CreateMetaData(bool? ocrFlag, double? fileSizeInMb = null)
-{
-    var metadata = new Dictionary<string, string>();
-
-    if (ocrFlag == true)
     {
-        metadata[IsOcrProcessedInCms] = true.ToString();
-    }
+        var metadata = new Dictionary<string, string>();
 
-    if (fileSizeInMb.HasValue)
-    {
-        metadata["FileSizeInMb"] = fileSizeInMb.Value.ToString("F3"); // optional formatting
-    }
+        if (ocrFlag == true)
+        {
+            metadata[IsOcrProcessedInCms] = true.ToString();
+        }
 
-    return metadata.Count > 0 ? metadata : null;
-}
+        if (fileSizeInMb.HasValue)
+        {
+            metadata["FileSizeInMb"] = fileSizeInMb.Value.ToString("F3"); // optional formatting
+        }
+
+        return metadata.Count > 0 ? metadata : null;
+    }
 }
