@@ -48,12 +48,6 @@ namespace PolarisGateway.Services.Artefact
             await _polarisBlobStorageService.UploadObjectAsync(obj, blobId);
         }
 
-        public Task SetPdfSizeAsync(int caseId, string materialId, long documentId, bool isOcrProcessed, double fileSizeInMb)
-        {
-            var key = $"pdf-size-{caseId}-{materialId}-{documentId}-{isOcrProcessed}";
-            return _polarisBlobStorageService.UploadSizeAsync(key, fileSizeInMb);
-        }
-
         public async Task<double?> GetPdfSizeFromMetadataAsync(int caseId, string materialId, long documentId, bool isOcrProcessed)
         {
             var blobId = _blobTypeIdFactory.CreateBlobId(

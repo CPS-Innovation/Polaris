@@ -74,7 +74,7 @@ public class PdfArtefactService : IPdfArtefactService
 
     private ArtefactResult<Stream> ValidateFileSizeAndCreatePdfResult(Stream pdfStream, bool fromCache, double fileSizeInMb)
     {
-        if (fileSizeInMb > 0.3)
+        if (fileSizeInMb > 15)
         {
             return _artefactServiceResponseFactory.CreateOkResultWithLargeFileFlag(pdfStream, fromCache, true);
         }

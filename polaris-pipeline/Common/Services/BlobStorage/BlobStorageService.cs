@@ -77,9 +77,7 @@ public class BlobStorageService : IBlobStorageService
     public async Task<IDictionary<string, string>> GetMetadataAsync(string blobName)
     {
         var blobContainerClient = await GetBlobContainerClientOrThrow();
-
         var blobClient = blobContainerClient.GetBlobClient(blobName);
-
         var properties = await blobClient.GetPropertiesAsync();
 
         return properties.Value.Metadata;

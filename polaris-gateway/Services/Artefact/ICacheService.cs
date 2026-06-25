@@ -14,8 +14,6 @@ namespace PolarisGateway.Services.Artefact
 
         Task UploadJsonObjectAsync<T>(int caseId, string materialId, long documentId, BlobType blobType, T obj);
 
-        Task SetPdfSizeAsync(int caseId, string materialId, long documentId, bool isOcrProcessed, double fileSizeInMb);
-
         Task<double?> GetPdfSizeFromMetadataAsync(int caseId, string materialId, long documentId, bool isOcrProcessed);
     }
 }

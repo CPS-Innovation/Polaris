@@ -24,8 +24,5 @@ namespace Common.Services.BlobStorage
 
         Task<bool> BlobExistsAsync(BlobIdType blobId, bool? mustBeOcred = null);
 
-        Task UploadSizeAsync(string key, double fileSizeInMb);
-
-        Task<double?> GetSizeAsync(string key);
     }
 }
