@@ -74,6 +74,17 @@ public class BlobStorageService : IBlobStorageService
         await blobClient.SetMetadataAsync(metadata);
     }
 
+    public async Task<IDictionary<string, string>> GetMetadataAsync(string blobName)
+    {
+        var blobContainerClient = await GetBlobContainerClientOrThrow();
+
+        var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+        var properties = await blobClient.GetPropertiesAsync();
+
+        return properties.Value.Metadata;
+    }
+
     public async Task<bool> UploadObjectAsync<T>(T obj, string blobName)
     {
         var objectString = _jsonConvertWrapper.SerializeObject(obj);
@@ -101,6 +112,8 @@ public class BlobStorageService : IBlobStorageService
 
         return await blobClient.ExistsAsync() && (mustMatchMetadata == null || await IsMetadataMatch(blobClient, mustMatchMetadata));
     }
+
+
 
     private async Task<BlobContainerClient> GetBlobContainerClientOrThrow()
     {

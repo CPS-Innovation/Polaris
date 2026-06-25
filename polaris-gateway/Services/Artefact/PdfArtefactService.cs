@@ -35,9 +35,9 @@ public class PdfArtefactService : IPdfArtefactService
     {
         if (!forceRefresh && await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed) is (true, var stream))
         {
-            var cachedSizeInMb = await _cacheService.GetPdfSizeAsync(caseId, materialId, documentId, isOcrProcessed);
+            var cachedFileSizeInMb = await _cacheService.GetPdfSizeFromMetadataAsync(caseId, materialId, documentId, isOcrProcessed);
 
-            return ValidateFileSizeAndCreatePdfResult(stream, true, cachedSizeInMb ?? 0);
+            return ValidateFileSizeAndCreatePdfResult(stream, true, cachedFileSizeInMb ?? 0);
         }
 
         var result = await _pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, urn, caseId, materialId, documentId);
@@ -49,7 +49,7 @@ public class PdfArtefactService : IPdfArtefactService
 
         // Read the PDF into a byte array
         byte[] pdfBytes;
-        double sizeInMb;
+        double fileSizeInMb;
 
         using (var buffer = new MemoryStream())
         {
@@ -63,21 +63,18 @@ public class PdfArtefactService : IPdfArtefactService
         // For PDF upload: use another fresh MemoryStream
         using (var uploadStream = new MemoryStream(pdfBytes))
         {
-            sizeInMb = uploadStream.Length / (1024.0 * 1024.0);
-            await _cacheService.UploadPdfAsync(caseId, materialId, documentId, isOcrProcessed, uploadStream);
-
-            // Save size separately
-            await _cacheService.SetPdfSizeAsync(caseId, materialId, documentId, isOcrProcessed, sizeInMb);
+            fileSizeInMb = uploadStream.Length / (1024.0 * 1024.0);
+            await _cacheService.UploadPdfAsync(caseId, materialId, documentId, isOcrProcessed, uploadStream, fileSizeInMb);
         }
 
         var (_, pdfStream) = await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed);
 
-        return ValidateFileSizeAndCreatePdfResult(pdfStream, false, sizeInMb);
+        return ValidateFileSizeAndCreatePdfResult(pdfStream, false, fileSizeInMb);
     }
 
-    private ArtefactResult<Stream> ValidateFileSizeAndCreatePdfResult(Stream pdfStream, bool fromCache, double sizeInMb)
+    private ArtefactResult<Stream> ValidateFileSizeAndCreatePdfResult(Stream pdfStream, bool fromCache, double fileSizeInMb)
     {
-        if (sizeInMb > 0.3)
+        if (fileSizeInMb > 0.3)
         {
             return _artefactServiceResponseFactory.CreateOkResultWithLargeFileFlag(pdfStream, fromCache, true);
         }

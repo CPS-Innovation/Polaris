@@ -32,17 +32,22 @@ public class PolarisBlobStorageService : IPolarisBlobStorageService
 
     public Task UploadBlobAsync(Stream stream, BlobIdType blobId) => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId));
 
-    public Task UploadBlobAsync(Stream stream, BlobIdType blobId, bool? isOcred = null)
-        => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId), CreateMetaData(isOcred));
+    public Task UploadBlobAsync(Stream stream, BlobIdType blobId, bool? isOcred = null, double? fileSizeInMb = null)
+        => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId), CreateMetaData(isOcred, fileSizeInMb));
+
+    public Task<IDictionary<string, string>> GetMetadataAsync(BlobIdType blobId)
+    {
+        return _blobStorageService.GetMetadataAsync(GetBlobName(blobId));
+    }
 
     public Task UploadBlobAsync(Stream stream, BlobIdType blobId, int? pageIndex = null, int? maxDimensionPixel = null)
         => _blobStorageService.UploadBlobAsync(stream, GetBlobName(blobId, pageIndex, maxDimensionPixel));
 
     public Task UploadObjectAsync<T>(T obj, BlobIdType blobId) => _blobStorageService.UploadObjectAsync(obj, GetBlobName(blobId));
 
-    public Task UploadSizeAsync(string key, double sizeInMb)
+    public Task UploadSizeAsync(string key, double fileSizeInMb)
     {
-        var bytes = Encoding.UTF8.GetBytes(sizeInMb.ToString(CultureInfo.InvariantCulture));
+        var bytes = Encoding.UTF8.GetBytes(fileSizeInMb.ToString(CultureInfo.InvariantCulture));
         var stream = new MemoryStream(bytes);
 
         return _blobStorageService.UploadBlobAsync(stream, key);
@@ -95,8 +100,20 @@ public class PolarisBlobStorageService : IPolarisBlobStorageService
         return $"{caseId}/";
     }
 
-    private static Dictionary<string, string> CreateMetaData(bool? ocrFlag)
-        => ocrFlag == true
-            ? new Dictionary<string, string> { { IsOcrProcessedInCms, true.ToString() } }
-            : null;
+    private static Dictionary<string, string> CreateMetaData(bool? ocrFlag, double? fileSizeInMb = null)
+{
+    var metadata = new Dictionary<string, string>();
+
+    if (ocrFlag == true)
+    {
+        metadata[IsOcrProcessedInCms] = true.ToString();
+    }
+
+    if (fileSizeInMb.HasValue)
+    {
+        metadata["FileSizeInMb"] = fileSizeInMb.Value.ToString("F3"); // optional formatting
+    }
+
+    return metadata.Count > 0 ? metadata : null;
+}
 }

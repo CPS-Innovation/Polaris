@@ -57,7 +57,7 @@ public class GetPdf : BaseFunction
 
         if (getPdfResult.FileSizeExceedsLimit == true)
         {
-            req.HttpContext.Response.Headers["X-File-Too-Large"] = "true";
+            req.HttpContext.Response.Headers["CPS-File-Too-Large"] = "true";
         }
 
         return getPdfResult.Status == ResultStatus.ArtefactAvailable ?
