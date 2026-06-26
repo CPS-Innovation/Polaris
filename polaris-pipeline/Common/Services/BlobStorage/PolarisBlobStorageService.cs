@@ -87,9 +87,9 @@ public class PolarisBlobStorageService : IPolarisBlobStorageService
 
         if (fileSizeInMb.HasValue)
         {
-            metadata["FileSizeInMb"] = fileSizeInMb.Value.ToString("F3"); // optional formatting
+            metadata["FileSizeInMb"] = fileSizeInMb.Value.ToString("F3"); // formatting
         }
 
-        return metadata.Count > 0 ? metadata : null;
+        return metadata;
     }
 }

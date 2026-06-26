@@ -4,6 +4,7 @@ using Common.Extensions;
 using Common.Services.BlobStorage;
 using Common.Services.OcrService;
 using Microsoft.CodeAnalysis.Operations;
+using Microsoft.AspNetCore.Http;
 using PolarisGateway.Services.Artefact.Domain;
 using PolarisGateway.Services.Artefact.Factories;
 using System;
@@ -14,6 +15,7 @@ namespace PolarisGateway.Services.Artefact;
 
 public class PdfArtefactService : IPdfArtefactService
 {
+    private const double FileSizeLimitMb = 15.0;
     private readonly IArtefactServiceResponseFactory _artefactServiceResponseFactory;
     private readonly ICacheService _cacheService;
     private readonly IPdfRetrievalService _pdfRetrievalService;
@@ -31,13 +33,13 @@ public class PdfArtefactService : IPdfArtefactService
         _ocrService = ocrService.ExceptionIfNull();
     }
 
-    public async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isOcrProcessed, bool forceRefresh = false)
+    public async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isOcrProcessed, bool forceRefresh = false, HttpRequest req = null)
     {
         if (!forceRefresh && await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed) is (true, var stream))
         {
             var cachedFileSizeInMb = await _cacheService.GetPdfSizeFromMetadataAsync(caseId, materialId, documentId, isOcrProcessed);
 
-            return ValidateFileSizeAndCreatePdfResult(stream, true, cachedFileSizeInMb ?? 0);
+            return ValidateFileSizeAndCreatePdfResult(stream, true, cachedFileSizeInMb ?? 0, req);
         }
 
         var result = await _pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, urn, caseId, materialId, documentId);
@@ -69,14 +71,14 @@ public class PdfArtefactService : IPdfArtefactService
 
         var (_, pdfStream) = await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed);
 
-        return ValidateFileSizeAndCreatePdfResult(pdfStream, false, fileSizeInMb);
+        return ValidateFileSizeAndCreatePdfResult(pdfStream, false, fileSizeInMb, req);
     }
 
-    private ArtefactResult<Stream> ValidateFileSizeAndCreatePdfResult(Stream pdfStream, bool fromCache, double fileSizeInMb)
+    private ArtefactResult<Stream> ValidateFileSizeAndCreatePdfResult(Stream pdfStream, bool fromCache, double fileSizeInMb, HttpRequest req = null)
     {
-        if (fileSizeInMb > 15)
+        if (req != null && fileSizeInMb > FileSizeLimitMb)
         {
-            return _artefactServiceResponseFactory.CreateOkResultWithLargeFileFlag(pdfStream, fromCache, true);
+            req.HttpContext.Response.Headers["CPS-File-Too-Large"] = "true";
         }
 
         return _artefactServiceResponseFactory.CreateOkfResult(pdfStream, fromCache);

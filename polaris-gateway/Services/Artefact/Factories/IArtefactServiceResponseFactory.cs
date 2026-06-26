@@ -8,8 +8,6 @@ namespace PolarisGateway.Services.Artefact.Factories
     {
         ArtefactResult<T> CreateOkfResult<T>(T result, bool? isFromStorage);
 
-        ArtefactResult<T> CreateOkResultWithLargeFileFlag<T>(T result, bool? isFromStorage, bool? fileSizeExceedsLimit);
-
         ArtefactResult<T> CreateInterimResult<T>(Guid continuationToken);
 
         ArtefactResult<T> CreateFailedResult<T>(PdfConversionStatus? pdfConversionStatus, int? httpStatusCode);
