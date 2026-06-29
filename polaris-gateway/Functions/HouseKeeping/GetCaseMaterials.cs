@@ -70,7 +70,7 @@ public class GetCaseMaterials(
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterials function processed a request.");
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = BuildCmsAuthValues(req);
+            var cmsAuthValues = this.BuildCmsAuthValues(req);
 
             // Retrieve case materials
             var (communications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials, exhibitProducers) =

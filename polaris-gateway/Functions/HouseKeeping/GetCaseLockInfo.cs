@@ -63,7 +63,7 @@ public class GetCaseLockInfo(ILogger<GetCaseLockInfo> logger, ICaseLockService c
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = BuildCmsAuthValues(req);
+            var cmsAuthValues = this.BuildCmsAuthValues(req);
 
             CaseLockedStatusResult caseLockSummary;
             try

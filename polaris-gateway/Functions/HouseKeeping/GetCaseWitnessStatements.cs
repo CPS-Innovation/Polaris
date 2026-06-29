@@ -63,7 +63,7 @@ public class GetCaseWitnessStatements(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = BuildCmsAuthValues(request);
+            var cmsAuthValues = this.BuildCmsAuthValues(request);
 
             WitnessStatementsResponse? result = await this.witnessService.GetWitnessStatementsAsync(witnessId, cmsAuthValues).ConfigureAwait(false);
 

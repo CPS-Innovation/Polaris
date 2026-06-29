@@ -70,7 +70,7 @@ public class GetPcdReviewCore(ILogger<GetPcdReviewCore> logger, ICommunicationSe
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = BuildCmsAuthValues(request);
+            var cmsAuthValues = this.BuildCmsAuthValues(request);
 
             var result = await this.communicationService.GetPcdReviewCoreAsync(caseId, cmsAuthValues, cancellationToken);
 

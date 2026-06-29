@@ -75,7 +75,7 @@ public class GetCaseMaterialsPreview(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = BuildCmsAuthValues(req);
+            var cmsAuthValues = this.BuildCmsAuthValues(req);
 
             // Get the material link
             string link = await this.GetLinkForMaterialAsync(caseId, materialId, cmsAuthValues).ConfigureAwait(true);

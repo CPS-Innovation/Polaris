@@ -73,7 +73,7 @@ public class GetPreChargeDecisionByHistoryId(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = BuildCmsAuthValues(request);
+            var cmsAuthValues = this.BuildCmsAuthValues(request);
 
             var result = await this.communicationService.GetPreChargeDecisionByHistoryId(caseId,historyId, cmsAuthValues).ConfigureAwait(true);
 

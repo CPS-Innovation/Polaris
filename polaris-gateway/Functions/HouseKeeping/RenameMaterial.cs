@@ -72,7 +72,7 @@ public class RenameMaterial(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = BuildCmsAuthValues(request);
+            var cmsAuthValues = this.BuildCmsAuthValues(request);
 
             CaseSummaryResponse caseSummary;
 

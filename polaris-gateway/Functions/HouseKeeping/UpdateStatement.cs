@@ -72,7 +72,7 @@ public class UpdateStatement(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = BuildCmsAuthValues(request);
+            var cmsAuthValues = this.BuildCmsAuthValues(request);
 
             string requestBody = await new StreamReader(request.Body).ReadToEndAsync().ConfigureAwait(false);
 

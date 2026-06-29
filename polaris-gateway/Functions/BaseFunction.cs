@@ -26,7 +26,7 @@ public class BaseFunction(ILogger logger = null)
         return cmsAuthValues;
     }
 
-    protected static CmsAuthValues BuildCmsAuthValues(HttpRequest req)
+    protected CmsAuthValues BuildCmsAuthValues(HttpRequest req)
     {
         if (req?.Cookies is null)
         {

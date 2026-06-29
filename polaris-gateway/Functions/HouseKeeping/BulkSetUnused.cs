@@ -66,7 +66,7 @@ public class BulkSetUnused(ILogger<BulkSetUnused> logger, IBulkSetUnusedService 
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = BuildCmsAuthValues(req);
+            var cmsAuthValues = this.BuildCmsAuthValues(req);
 
             // Deserialize the request body into IReadOnlyCollection<BulkSetUnusedRequest>
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync().ConfigureAwait(true);

@@ -73,7 +73,7 @@ public class UmaReclassify(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = BuildCmsAuthValues(req);
+            var cmsAuthValues = this.BuildCmsAuthValues(req);
 
             // Get the communications
             IReadOnlyCollection<Communication> communications = null;

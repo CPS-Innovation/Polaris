@@ -77,7 +77,7 @@ public class GetOffenceChargeById(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = BuildCmsAuthValues(request);
+            var cmsAuthValues = this.BuildCmsAuthValues(request);
 
             var result = await this.communicationService.GetOffenceChargeByHistoryIdAsync(caseId, historyId, cmsAuthValues).ConfigureAwait(true);
 
