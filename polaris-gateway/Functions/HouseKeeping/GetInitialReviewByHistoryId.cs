@@ -74,7 +74,7 @@ public class GetInitialReviewByHistoryId(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = this.BuildCmsAuthValues(request);
+            var cmsAuthValues = BuildCmsAuthValues(request);
 
             var result = await this.communicationService.GetInitialReviewByHistoryIdAsync(caseId, historyId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
 

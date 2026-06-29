@@ -66,7 +66,7 @@ public class GetPcdRequestByPcdId(
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetPCDRequestByPcdId function processed a request.");
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = this.BuildCmsAuthValues(request);
+            var cmsAuthValues = BuildCmsAuthValues(request);
 
             string requestBody = await new StreamReader(request.Body).ReadToEndAsync().ConfigureAwait(false);
 

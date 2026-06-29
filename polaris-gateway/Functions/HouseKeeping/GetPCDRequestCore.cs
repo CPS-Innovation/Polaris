@@ -64,7 +64,7 @@ public class GetPcdRequestCore(
             var stopwatch = Stopwatch.StartNew();
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetPCDRequestCore function processed a request.");
 
-            var cmsAuthValues = this.BuildCmsAuthValues(request);
+            var cmsAuthValues = BuildCmsAuthValues(request);
 
 
             string requestBody = await new StreamReader(request.Body).ReadToEndAsync().ConfigureAwait(false);

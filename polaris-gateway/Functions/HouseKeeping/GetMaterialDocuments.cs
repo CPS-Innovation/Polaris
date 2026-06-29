@@ -74,7 +74,7 @@ public class GetMaterialDocument(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = this.BuildCmsAuthValues(req);
+            var cmsAuthValues = BuildCmsAuthValues(req);
 
             // Get the material link
             string link = await this.GetLinkForMaterialAsync(caseId, materialId, cmsAuthValues).ConfigureAwait(true);

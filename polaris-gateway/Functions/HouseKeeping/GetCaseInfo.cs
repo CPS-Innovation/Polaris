@@ -61,7 +61,7 @@ namespace PolarisGateway.Functions.HouseKeeping
                 }
 
                 // Build CMS auth values from cookie extracted from the request
-                var cmsAuthValues = this.BuildCmsAuthValues(req);
+                var cmsAuthValues = BuildCmsAuthValues(req);
 
                 CaseSummaryResponse caseSummary;
                 try

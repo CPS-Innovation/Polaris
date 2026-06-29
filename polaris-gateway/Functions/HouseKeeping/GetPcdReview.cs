@@ -66,7 +66,7 @@ public class GetPcdReview(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = this.BuildCmsAuthValues(request);
+            var cmsAuthValues = BuildCmsAuthValues(request);
 
             var result = await this.communicationService.GetPcdReview(caseId, cmsAuthValues);
 

@@ -64,7 +64,7 @@ public class GetCaseExhibitProducers(ILogger<GetCaseExhibitProducers> logger,
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = this.BuildCmsAuthValues(request);
+            var cmsAuthValues = BuildCmsAuthValues(request);
 
             var exhibitTask = this.communicationService.GetExhibitProducersAsync(caseId, cmsAuthValues);
             var witnessTask = this.witnessService.GetCaseWitnessesAsync(caseId, cmsAuthValues);
