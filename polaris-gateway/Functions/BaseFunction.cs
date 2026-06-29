@@ -28,6 +28,11 @@ public class BaseFunction(ILogger logger = null)
 
     protected CmsAuthValues BuildCmsAuthValues(HttpRequest req)
     {
+        if (req?.Cookies is null)
+        {
+            return null;
+        }
+
         var cmsAuthValues = EstablishCmsAuthValues(req);
         var correlation = EstablishCorrelation(req);
 
