@@ -61,7 +61,7 @@ public class CompleteReclassificationTests
         int caseId = 232;
         int materialId = 123;
         int newWitnessId = 765;
-        var cmsAuthValues = new CmsAuthValues("valid cookies", "valid token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
         var transactionId = Guid.NewGuid();
 
         var reclassifyCaseMaterialRequest = CreateMockReclassifyToOtherRequest();
@@ -132,7 +132,7 @@ public class CompleteReclassificationTests
         int caseId = 232;
         int materialId = 123;
         int newWitnessId = 765;
-        var cmsAuthValues = new CmsAuthValues("valid cookies", "valid token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
         var transactionId = Guid.NewGuid();
 
         var reclassifyCaseMaterialRequest = CreateMockReclassifyToOtherRequest();
@@ -205,7 +205,7 @@ public class CompleteReclassificationTests
         int caseId = 232;
         int materialId = 123;
         int newWitnessId = 765;
-        var cmsAuthValues = new CmsAuthValues("valid cookies", "valid token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
         var transactionId = Guid.NewGuid();
 
         var reclassifyCaseMaterialRequest = CreateMockReclassifyToOtherRequest();
@@ -278,7 +278,7 @@ public class CompleteReclassificationTests
         int caseId = 232;
         int materialId = 123;
         int newWitnessId = 765;
-        var cmsAuthValues = new CmsAuthValues("valid cookies", "valid token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
         var transactionId = Guid.NewGuid();
 
         var reclassifyCaseMaterialRequest = CreateMockReclassifyToOtherRequest();
@@ -345,7 +345,7 @@ public class CompleteReclassificationTests
         int caseId = 232;
         int materialId = 123;
         int newWitnessId = 765;
-        var cmsAuthValues = new CmsAuthValues("valid cookies", "valid token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
         var transactionId = Guid.NewGuid();
 
         var reclassifyCaseMaterialRequest = CreateMockReclassifyToOtherRequest();
