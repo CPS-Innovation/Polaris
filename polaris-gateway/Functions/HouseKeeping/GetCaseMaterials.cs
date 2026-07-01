@@ -27,6 +27,7 @@ using Common.Dto.Request;
 using Common.Configuration;
 using Common.Constants;
 using Common.Enums;
+using Cps.Fct.Hk.Ui.Services.Constants;
 
 /// <summary>
 /// Represents a function that retrieves the case materials for a case,
@@ -42,7 +43,7 @@ using Common.Enums;
 public class GetCaseMaterials(
     ILogger<GetCaseMaterials> logger,
     ICommunicationService communicationService,
-    ICaseMaterialService caseMaterialService): BaseFunction(logger)
+    ICaseMaterialService caseMaterialService) : BaseFunction(logger)
 {
     private readonly ILogger<GetCaseMaterials> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
@@ -118,6 +119,10 @@ public class GetCaseMaterials(
             }
 
             // Add Used MG forms
+            // Exclude MG forms with material types that are in the ExcludedFromUsedMgForms list as they are already included in communications and will be mapped to CaseMaterials from communications
+            usedMgForms.MgForms.RemoveAll(mgForm =>
+                CommsDocumentTypeIds.ExcludedFromUsedMgForms.Contains(mgForm.MaterialType));
+
             this.caseMaterialService.AddCaseMaterials(allCaseMaterials!, usedMgForms.MgForms ?? Enumerable.Empty<MgForm>(), "MG Form", "MG Form", "Used");
             if (usedMgForms.MgForms != null && usedMgForms.MgForms.Count != 0)
             {

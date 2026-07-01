@@ -87,7 +87,7 @@ public class DocumentTypeMapper : IDocumentTypeMapper
             { 1028, new DocumentTypeInfo { DocumentType = "MG/FSSB", Category = DocumentTypeCategories.Exhibit, Group = DocumentTypeGroups.Exhibit } },
             { 1029, new DocumentTypeInfo { DocumentType = "Other Communication", Category = DocumentTypeCategories.Communication, Group = DocumentTypeGroups.Other } },
             { 1030, new DocumentTypeInfo { DocumentType = "Other Exhibit", Category = DocumentTypeCategories.Exhibit, Group = DocumentTypeGroups.Exhibit } },
-            { 1200, new DocumentTypeInfo { DocumentType = "Other Material", Category = DocumentTypeCategories.Communication, Group = DocumentTypeGroups.Other } },
+            { 1200, new DocumentTypeInfo { DocumentType = "Other Material", Category = DocumentTypeCategories.OtherMaterial, Group = DocumentTypeGroups.Other } },
             { 1056, new DocumentTypeInfo { DocumentType = "PCN1", Category = DocumentTypeCategories.DefendantPreCons, Group = DocumentTypeGroups.Other } },
             { 1057, new DocumentTypeInfo { DocumentType = "PCN2", Category = DocumentTypeCategories.DefendantPreCons, Group = DocumentTypeGroups.Other } },
             { 1058, new DocumentTypeInfo { DocumentType = "PCN3", Category = DocumentTypeCategories.UnusedMaterial, Group = DocumentTypeGroups.MgForm } },
