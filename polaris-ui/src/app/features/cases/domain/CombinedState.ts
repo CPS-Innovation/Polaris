@@ -178,8 +178,6 @@ export const initialState = {
     searchPII: false,
     renameDocument: false,
     reclassify: false,
-    externalRedirectCaseReviewApp: false,
-    externalRedirectBulkUmApp: false,
     pageDelete: false,
     pageRotate: false,
     notifications: false,

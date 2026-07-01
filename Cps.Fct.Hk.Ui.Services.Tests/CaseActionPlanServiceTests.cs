@@ -55,7 +55,7 @@ public class CaseActionPlanServiceTests
         // Arrange
         string urn = "1234567890";
         int caseId = 123;
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         AddCaseActionPlanRequest mockAddCaseActionPlanRequest = CreateMockAddCaseActionPlanRequest();
 
@@ -101,7 +101,7 @@ public class CaseActionPlanServiceTests
         // Arrange
         string urn = "1234567890";
         int caseId = 123;
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         AddCaseActionPlanRequest mockAddCaseActionPlanRequest = CreateMockAddCaseActionPlanRequest();
 
@@ -146,7 +146,7 @@ public class CaseActionPlanServiceTests
         // Arrange
         string urn = "1234567890";
         int caseId = 123;
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         AddCaseActionPlanRequest mockAddCaseActionPlanRequest = CreateMockAddCaseActionPlanRequest();
 
