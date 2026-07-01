@@ -11,8 +11,6 @@ export type FeatureFlagData = {
   searchPII: boolean;
   renameDocument: boolean;
   reclassify: boolean;
-  externalRedirectCaseReviewApp: boolean;
-  externalRedirectBulkUmApp: boolean;
   pageDelete: boolean;
   pageRotate: boolean;
   notifications: boolean;
@@ -30,8 +28,6 @@ export type FeatureFlagQueryParams = {
   searchPII: string;
   renameDocument: string;
   reclassify: string;
-  externalRedirectCaseReviewApp: string;
-  externalRedirectBulkUmApp: string;
   pageDelete: string;
   pageRotate: string;
   notifications: string;

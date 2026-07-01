@@ -57,7 +57,7 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
         int caseId = 232;
         int materialId = 123;
         int newWitnessId = 765;
-        var cmsAuthValues = new CmsAuthValues("valid cookies", "valid token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
         var transactionId = Guid.NewGuid();
 
         var reclassifyCaseMaterialRequest = CreateMockReclassifyToStatmentRequest();
@@ -153,7 +153,7 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
         int caseId = 232;
         int materialId = 123;
         int newWitnessId = 765;
-        var cmsAuthValues = new CmsAuthValues("valid cookies", "valid token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
         var transactionId = Guid.NewGuid();
 
         var reclassifyCaseMaterialRequest = CreateMockReclassifyToStatmentRequest();
@@ -247,7 +247,7 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
         // Arrange
         int caseId = 232;
         int materialId = 123;
-        var cmsAuthValues = new CmsAuthValues("valid cookies", "valid token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
         var transactionId = Guid.NewGuid();
 
         var reclassifyCaseMaterialRequest = CreateMockReclassifyToStatmentRequest();
@@ -342,7 +342,7 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
         int caseId = 232;
         int materialId = 123;
         int newWitnessId = 765;
-        var cmsAuthValues = new CmsAuthValues("valid cookies", "valid token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
         var transactionId = Guid.NewGuid();
 
         var reclassifyCaseMaterialRequest = CreateMockReclassifyToOtherRequest();

@@ -12,23 +12,17 @@ namespace Common.Dto.Request;
 /// <remarks>
 /// Initializes a new instance of the <see cref="CmsAuthValues"/> class.
 /// </remarks>
-/// <param name="cmsCookies">The CMS cookies, which may be null.</param>
-/// <param name="cmsModernToken">The CMS modern API token, which may be null.</param>
+/// <param name="cmsAuthFullValue">The CMS authentication string value</param>
 /// <param name="correlationId">The correlation ID to track requests.</param>
-public class CmsAuthValues(string cmsCookies, string cmsModernToken, Guid correlationId = default)
+public class CmsAuthValues(string cmsAuthFullValue, Guid correlationId = default)
 {
-    /// <summary>
-    /// Gets or sets the CMS cookies.
-    /// </summary>
-    public string CmsCookies { get; set; } = cmsCookies;
-
-    /// <summary>
-    /// Gets or sets the CMS modern API token.
-    /// </summary>
-    public string CmsModernToken { get; set; } = cmsModernToken;
-
     /// <summary>
     /// Gets or sets the correlation ID used to track requests.
     /// </summary>
     public Guid CorrelationId { get; set; } = correlationId;
+
+    /// <summary>
+    /// Gets or sets the full CMS authentication value.
+    /// </summary>
+    public string CmsAuthFullValue { get; set; } = cmsAuthFullValue;
 }
