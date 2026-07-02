@@ -7,6 +7,7 @@ namespace Common.Services.BlobStorage
     public interface IBlobStorageService
     {
         Task UploadBlobAsync(Stream stream, string blobName, IDictionary<string, string> metaData = null);
+        Task<IDictionary<string, string>> GetMetadataAsync(string blobName);
         Task<Stream> GetBlob(string blobName);
         Task<Stream> TryGetBlobAsync(string blobName, IDictionary<string, string> mustMatchMetadata = null);
         Task<T> TryGetObjectAsync<T>(string blobName);

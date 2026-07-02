@@ -104,11 +104,11 @@ public class CacheServiceTests
         var pdfStream = new MemoryStream(_fixture.Create<byte[]>());
 
         // Act
-        await _cacheService.UploadPdfAsync(_caseId, _documentId, _versionId, _isOcrProcessed, pdfStream);
+        await _cacheService.UploadPdfAsync(_caseId, _documentId, _versionId, _isOcrProcessed, pdfStream, It.IsAny<double>());
 
         // Assert
         _polarisBlobStorageServiceMock
-            .Verify(x => x.UploadBlobAsync(pdfStream, _blobIdType, _isOcrProcessed), Times.Once);
+            .Verify(x => x.UploadBlobAsync(pdfStream, _blobIdType, _isOcrProcessed, It.IsAny<double?>()), Times.Once);
     }
 
     [Fact]

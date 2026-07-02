@@ -18,6 +18,17 @@ public class ArtefactServiceResponseFactory : IArtefactServiceResponseFactory
         };
     }
 
+    public ArtefactResult<T> CreateOkResultWithLargeFileFlag<T>(T result, bool? isFromStorage, bool? fileSizeExceedsLimit)
+    {
+        return new ArtefactResult<T>
+        {
+            Status = ResultStatus.ArtefactAvailable,
+            Artefact = result,
+            IsFromStorage = isFromStorage,
+            FileSizeExceedsLimit = fileSizeExceedsLimit,
+        };
+    }
+
     public ArtefactResult<T> CreateInterimResult<T>(Guid continuationToken)
     {
         return new ArtefactResult<T>

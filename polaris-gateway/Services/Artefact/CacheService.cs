@@ -29,10 +29,10 @@ namespace PolarisGateway.Services.Artefact
             return (result != null, result);
         }
 
-        public async Task UploadPdfAsync(int caseId, string materialId, long documentId, bool isOcrProcessed, Stream stream)
+        public async Task UploadPdfAsync(int caseId, string materialId, long documentId, bool isOcrProcessed, Stream stream, double fileSizeInMb)
         {
             var blobId = _blobTypeIdFactory.CreateBlobId(caseId, materialId, documentId, BlobType.Pdf);
-            await _polarisBlobStorageService.UploadBlobAsync(stream, blobId, isOcrProcessed);
+            await _polarisBlobStorageService.UploadBlobAsync(stream, blobId, isOcrProcessed, fileSizeInMb);
         }
 
         public async Task<(bool, T)> TryGetJsonObjectAsync<T>(int caseId, string materialId, long documentId, BlobType blobType)
@@ -46,6 +46,26 @@ namespace PolarisGateway.Services.Artefact
         {
             var blobId = _blobTypeIdFactory.CreateBlobId(caseId, materialId, documentId, blobType);
             await _polarisBlobStorageService.UploadObjectAsync(obj, blobId);
+        }
+
+        public async Task<double?> GetPdfSizeFromMetadataAsync(int caseId, string materialId, long documentId, bool isOcrProcessed)
+        {
+            var blobId = _blobTypeIdFactory.CreateBlobId(
+                caseId,
+                materialId,
+                documentId,
+                BlobType.Pdf);
+
+            var metadata = await _polarisBlobStorageService.GetMetadataAsync(blobId);
+
+            if (metadata != null &&
+                metadata.TryGetValue("FileSizeInMb", out var value) &&
+                double.TryParse(value, out var size))
+            {
+                return size;
+            }
+
+            return null;
         }
     }
 }

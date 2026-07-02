@@ -340,6 +340,10 @@ variable "hte_feature_flag" {
   type = bool
 }
 
+variable "redaction_file_size_limit_mb" {
+  type = number
+}
+
 variable "image_conversion_redaction" {
   type = object({
     resolution      = number

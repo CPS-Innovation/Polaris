@@ -2,6 +2,7 @@ using PolarisGateway.Services.Artefact.Domain;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace PolarisGateway.Services.Artefact;
 
