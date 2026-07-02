@@ -51,13 +51,6 @@ public class PdfArtefactServiceTests
         _pdfRetrievalServiceMock = new Mock<IPdfRetrievalService>();
         _ocrServiceMock = new Mock<IOcrService>();
 
-        //var configuration = new ConfigurationBuilder()
-        //    .AddInMemoryCollection(new Dictionary<string, string>
-        //    {
-        //        { "RedactionFileSize__FileSizeLimitMb", "10" },
-        //    })
-        //    .Build();
-
         _pdfArtefactService = new PdfArtefactService(
             Options.Create(new RedactionFileSizeOptions { FileSizeLimitMb = 10 }),
             new Mock<ILogger<PdfArtefactService>>().Object,
