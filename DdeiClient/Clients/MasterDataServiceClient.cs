@@ -47,7 +47,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-                var data = await client.GetCaseSummaryAsync(request.CaseId, cancellationToken);
+            var data = await client.GetCaseSummaryAsync(request.CaseId, cancellationToken);
 
             if (data?.Urn is not null)
             {
@@ -83,7 +83,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         try
         {
-            UnusedMaterialsResponse results = new ();
+            UnusedMaterialsResponse results = new();
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
             string additionalInfo = $"received #0 unused materials";
@@ -163,7 +163,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         try
         {
-            UsedExhibitsResponse results = new () { Exhibits = new List<Exhibit>() };
+            UsedExhibitsResponse results = new() { Exhibits = new List<Exhibit>() };
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
             string additionalInfo = $"received #0 used exhibits";
@@ -214,7 +214,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         try
         {
-            UsedMgFormsResponse results = new () { MgForms = new List<MgForm>() };
+            UsedMgFormsResponse results = new() { MgForms = new List<MgForm>() };
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
             var data = await client.GetUsedMgFormsAsync(request.CaseId, cancellationToken);
@@ -249,7 +249,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
-        /// <inheritdoc/>
+    /// <inheritdoc/>
     public async Task<UsedOtherMaterialsResponse> GetUsedOtherMaterialsAsync(GetUsedOtherMaterialsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         Requires.NotNull(request);
@@ -260,7 +260,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         try
         {
-            UsedOtherMaterialsResponse results = new () { MgForms = new List<MgForm>() };
+            UsedOtherMaterialsResponse results = new() { MgForms = new List<MgForm>() };
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
             var data = await client.GetUsedOtherMaterialsAsync(request.CaseId, cancellationToken);
@@ -305,7 +305,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         try
         {
-            UsedStatementsResponse results = new () { Statements = new List<Statement>() };
+            UsedStatementsResponse results = new() { Statements = new List<Statement>() };
 
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
@@ -356,7 +356,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         try
         {
-            List<Communication> results = new ();
+            List<Communication> results = new();
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
             string additionalInfo = $"received #0 communications";
 
@@ -406,7 +406,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "GetAttachments";
-        AttachmentsResponse results = new ();
+        AttachmentsResponse results = new();
 
         try
         {
@@ -500,7 +500,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "GetExhibitProducers";
-        ExhibitProducersResponse results = new ();
+        ExhibitProducersResponse results = new();
 
         try
         {
@@ -545,7 +545,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "ListCaseDefendants";
-        List<Defendant> results = new ();
+        List<Defendant> results = new();
 
         try
         {
@@ -598,13 +598,13 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "ListCaseWitnesses";
         string additionalInfo = $"received #0 witnesses";
-        WitnessesResponse results = new ();
+        WitnessesResponse results = new();
 
         try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-            var data = await client.ListCaseWitnessesAsync(request.CaseId, cancellationToken);
+            var data = await client.ListCaseWitnessesAsync(request.CaseId, null, null, cancellationToken);
 
             if (data is not null)
             {
@@ -641,7 +641,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         const string OperationName = "GetStatementsForWitness";
         string additionalInfo = "received #0 statements";
 
-        WitnessStatementsResponse results = new ();
+        WitnessStatementsResponse results = new();
 
         try
         {
@@ -670,7 +670,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
     }
 
     /// <inheritdoc/>
-    public async Task<NoContentResult> AddCaseActionPlanAsync(int caseId, AddActionPlanRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default) 
+    public async Task<NoContentResult> AddCaseActionPlanAsync(int caseId, AddActionPlanRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         Requires.NotNull(request);
         Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
@@ -684,7 +684,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
             var mdsRequest = MapApAction(request);
 
-                await client.AddActionPlanAsync(caseId, mdsRequest, cancellationToken);
+            await client.AddActionPlanAsync(caseId, mdsRequest, cancellationToken);
 
             this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
             return new NoContentResult();
@@ -718,26 +718,26 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                 FirstName = request.FirstName,
             };
 
-                await client.AddWitnessAsync(request.caseId, mdsRequest, cancellationToken);
-                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
-                return new NoContentResult();
-            }
-            catch (Exception exception)
-            {
-                this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
-                throw;
-            }
+            await client.AddWitnessAsync(request.caseId, mdsRequest, cancellationToken);
+            this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+            return new NoContentResult();
         }
-
-        /// <inheritdoc/>
-        public async Task<RenameMaterialResponse> RenameMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+        catch (Exception exception)
         {
-            Requires.NotNull(request);
-            Requires.NotNull(request.materialId);
-            Requires.NotNull(cmsAuthValues);
-            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
-            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+            this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+            throw;
+        }
+    }
 
+    /// <inheritdoc/>
+    public async Task<RenameMaterialResponse> RenameMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(request);
+        Requires.NotNull(request.materialId);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
+
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "RenameMaterial";
 
         try
         {
@@ -749,14 +749,14 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                 Subject = request.subject,
             };
 
-                var data = await client.RenameMaterialAsync(request.materialId, mdsRequest, cancellationToken);
+            var data = await client.RenameMaterialAsync(request.materialId, mdsRequest, cancellationToken);
 
             if (data?.UpdateCommunication?.Id == null)
             {
                 return default;
             }
 
-            RenameMaterialResponse result = new (new RenameMaterialData { Id = data.UpdateCommunication.Id });
+            RenameMaterialResponse result = new(new RenameMaterialData { Id = data.UpdateCommunication.Id });
 
             this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
 
@@ -769,15 +769,15 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
-        /// <inheritdoc/>
-        public async Task<ReclassificationResponse> ReclassifyCommunicationAsync(ReclassifyCommunicationRequest request, CmsAuthValues cmsAuthValues, )
-        {
-            Requires.NotNull(request);
-            Requires.NotNull(cmsAuthValues);
-            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
-            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+    /// <inheritdoc/>
+    public async Task<ReclassificationResponse> ReclassifyCommunicationAsync(ReclassifyCommunicationRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(request);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
 
         var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "ReclassifyCommunication";
+
         try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
@@ -793,7 +793,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                 Exhibit = MapExhibit(request.Exhibit),
             };
 
-                var data = await client.ReclassifyCommunicationAsync(mdsRequest);
+            var data = await client.ReclassifyCommunicationAsync(mdsRequest, cancellationToken);
 
             if (data?.ReclassifyCommunication?.Id == null)
             {
@@ -812,13 +812,13 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
-        /// <inheritdoc/>
-        public async Task<CaseLockedStatusResult> CheckCaseLockAsync(int caseId, CmsAuthValues cmsAuthValues)
+    /// <inheritdoc/>
+    public async Task<CaseLockedStatusResult> CheckCaseLockAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        if (caseId <= 0)
         {
-            if (caseId <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(caseId), "Case ID must be a positive integer.");
-            }
+            throw new ArgumentOutOfRangeException(nameof(caseId), "Case ID must be a positive integer.");
+        }
 
         Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
 
@@ -831,7 +831,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-            var data = await client.GetCaseLockStatusAsync(caseId);
+            var data = await client.GetCaseLockStatusAsync(caseId, cancellationToken);
 
             var result = new CaseLockedStatusResult
             {
@@ -850,15 +850,15 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
-        /// <inheritdoc/>
-        public async Task<DiscardMaterialResponse> DiscardMaterialAsync(DiscardMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
-        {
-            Requires.NotNull(request);
-            Requires.NotNull(request.materialId);
-            Requires.NotNull(cmsAuthValues);
-            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
-            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+    /// <inheritdoc/>
+    public async Task<DiscardMaterialResponse> DiscardMaterialAsync(DiscardMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(request);
+        Requires.NotNull(request.materialId);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
 
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "DiscardMaterial";
 
         try
         {
@@ -871,8 +871,8 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                 DiscardReasonDescription = request.discardReasonDescription,
             };
 
-                var data = await client.DiscardMaterialAsync(request.materialId, mdsReqest, cancellationToken);
-                this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+            var data = await client.DiscardMaterialAsync(request.materialId, mdsReqest, cancellationToken);
+            this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
 
             if (data?.DiscardMaterial?.Id == null)
             {
@@ -889,15 +889,15 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
-        /// <inheritdoc/>
-        public async Task<SetMaterialReadStatusResponse> SetMaterialReadStatusAsync(SetMaterialReadStatusRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
-        {
-            Requires.NotNull(request);
-            Requires.NotNull(request.materialId);
-            Requires.NotNull(cmsAuthValues);
-            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
-            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+    /// <inheritdoc/>
+    public async Task<SetMaterialReadStatusResponse> SetMaterialReadStatusAsync(SetMaterialReadStatusRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(request);
+        Requires.NotNull(request.materialId);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
 
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "SetMaterialReadStatus";
         try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
@@ -908,7 +908,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                 State = (ApiClient.MaterialReadStateRequestState)request.state,
             };
 
-                var data = await client.SetMaterialReadStateAsync(request.materialId, mdsReqest, cancellationToken);
+            var data = await client.SetMaterialReadStateAsync(request.materialId, mdsReqest, cancellationToken);
 
             if (data?.CompleteCommunication?.Id == null)
             {
@@ -928,21 +928,21 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
-        /// <inheritdoc/>
-        public async Task<List<PcdRequestCore>> GetPcdRequestCoreAsync(GetPcdRequestsCoreRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
-        {
-            Requires.NotNull(request);
-            Requires.NotNull(cmsAuthValues);
-            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
-            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+    /// <inheritdoc/>
+    public async Task<List<PcdRequestCore>> GetPcdRequestCoreAsync(GetPcdRequestsCoreRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(request);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
 
-            if (string.IsNullOrEmpty(cmsAuthValues.CmsCookies))
-        List<PcdRequestCore> results = new ();
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "PcdRequestCore";
+
+        List<PcdRequestCore> results = new();
         try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-                var data = await client.GetCasePcdRequestCoreAsync(request.caseId, cancellationToken);
+            var data = await client.GetCasePcdRequestCoreAsync(request.caseId, cancellationToken);
 
             if (data is not null)
             {
@@ -966,22 +966,22 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
-        /// <inheritdoc/>
-        public async Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(GetPcdRequestByPcdIdCoreRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
-        {
-            Requires.NotNull(request);
-            Requires.NotNull(cmsAuthValues);
-            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
-            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+    /// <inheritdoc/>
+    public async Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(GetPcdRequestByPcdIdCoreRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(request);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
 
-            if (string.IsNullOrEmpty(cmsAuthValues.CmsCookies))
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "GetCasePcdRequestByPcdId";
+
         var results = new PcdRequestDto();
 
         try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-                var data = await client.GetCasePcdRequestByPcdIdAsync(request.caseId, request.pcdId);
+            var data = await client.GetCasePcdRequestByPcdIdAsync(request.caseId, request.pcdId, cancellationToken);
 
             if (data is not null)
             {
@@ -1038,15 +1038,15 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
-        /// <inheritdoc/>
-        public async Task<UpdateStatementResponse> UpdateStatementAsync(UpdateStatementRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
-        {
-            Requires.NotNull(request);
-            Requires.NotNull(request.MaterialId);
-            Requires.NotNull(request.WitnessId);
-            Requires.NotNull(request.StatementNumber);
-            Requires.NotNull(cmsAuthValues);
-            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+    /// <inheritdoc/>
+    public async Task<UpdateStatementResponse> UpdateStatementAsync(UpdateStatementRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(request);
+        Requires.NotNull(request.MaterialId);
+        Requires.NotNull(request.WitnessId);
+        Requires.NotNull(request.StatementNumber);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
+
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "UpdateStatement";
 
@@ -1056,16 +1056,16 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
             var statementDate = ConvertToDateTimeOffset(request.StatementDate);
 
-                var mdsRequest = new ApiClient.UpdateStatementRequest
-                {
-                    MaterialId = request.MaterialId,
-                    WitnessId = request.WitnessId,
-                    StatementNumber = request.StatementNumber,
-                    StatementDate = statementDate,
-                    Used = request.Used,
-                };
+            var mdsRequest = new ApiClient.UpdateStatementRequest
+            {
+                MaterialId = request.MaterialId,
+                WitnessId = request.WitnessId,
+                StatementNumber = request.StatementNumber,
+                StatementDate = statementDate,
+                Used = request.Used,
+            };
 
-            var data = await client.UpdateStatementAsync(request.CaseId, request.MaterialId, mdsRequest);
+            var data = await client.UpdateStatementAsync(request.CaseId, request.MaterialId, mdsRequest, cancellationToken);
 
             if (data?.UpdateStatement?.Id == null)
             {
@@ -1083,22 +1083,22 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
-        /// <inheritdoc/>
-        public async Task<UpdateExhibitResponse> UpdateExhibitAsync(UpdateExhibitRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
-        {
-            Requires.NotNull(request);
-            Requires.NotNull(request.CaseId);
-            Requires.NotNull(request.MaterialId);
-            Requires.NotNull(request.DocumentType);
-            Requires.NotNull(request.Item);
-            Requires.NotNull(request.Reference);
-            Requires.NotNull(cmsAuthValues);
-            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
-            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+    /// <inheritdoc/>
+    public async Task<UpdateExhibitResponse> UpdateExhibitAsync(UpdateExhibitRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(request);
+        Requires.NotNull(request.CaseId);
+        Requires.NotNull(request.MaterialId);
+        Requires.NotNull(request.DocumentType);
+        Requires.NotNull(request.Item);
+        Requires.NotNull(request.Reference);
+        Requires.NotNull(cmsAuthValues);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
 
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "UpdateExhibit";
 
+        try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
@@ -1115,7 +1115,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                 Used = request.Used,
             };
 
-                var data = await client.UpdateExhibitAsync(request.CaseId, request.MaterialId, mdsRequest, cancellationToken);
+            var data = await client.UpdateExhibitAsync(request.CaseId, request.MaterialId, mdsRequest, cancellationToken);
 
             if (data?.UpdateExhibit?.Id == null)
             {
@@ -1134,13 +1134,11 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
-        /// <inheritdoc/>
-        public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> FirstInitialReviewGetCaseHistoryAsync(int caseId, CmsAuthValues cmsAuthValues)
-        {
-            Requires.NotNull(caseId);
-            Requires.NotNull(cmsAuthValues);
-            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
-            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+    /// <inheritdoc/>
+    public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> FirstInitialReviewGetCaseHistoryAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(caseId);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
 
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "FirstInitialReviewGetCaseHistory";
@@ -1148,14 +1146,16 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
-            var data = await client.FirstInitialReviewGetCaseHistoryAsync(caseId);
+
+            var data = await client.FirstInitialReviewGetCaseHistoryAsync(caseId, cancellationToken);
+            return data;
         }
         catch (Exception exception)
         {
             this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
             throw;
         }
-        }
+    }
 
     /// <inheritdoc/>
     public async Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken)
@@ -1199,22 +1199,22 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-                var data = await client.GetPcdAnalysisByIdAsync(caseId, historyId);
-                return data;
-            }
-            catch (Exception exception)
-            {
-                this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
-                throw;
-            }
+            var data = await client.GetPcdAnalysisByIdAsync(caseId, historyId, cancellationToken);
+            return data;
         }
-
-        /// <inheritdoc/>
-        public async Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues)
+        catch (Exception exception)
         {
-            Requires.NotNull(caseId);
-            Requires.NotNull(cmsAuthValues);
-            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
+            this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(caseId);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
+
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "GetHistoryEvents";
 
@@ -1222,9 +1222,9 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-            var data = await client.GetCaseHistoryEventsAsync(caseId);
+            var data = await client.GetCaseHistoryEventsAsync(caseId, null, cancellationToken);
             return data;
-            var data = await client.GetCaseHistoryEventsAsync(caseId);
+        }
         catch (Exception exception)
         {
             this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
@@ -1232,42 +1232,21 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
-        /// <inheritdoc/>
-        public async Task<ApiClient.OffenceChangeResponse> GetOffenceChargeByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
-        {
-            Requires.NotNull(caseId);
-            Requires.NotNull(historyId);
-            Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
-
-    var stopwatch = Stopwatch.StartNew();
-        const string OperationName = "GetOffenceCharge";
-
-        try
-        {
-            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
-
-        }
-        catch (Exception exception)
-        {
-            this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
-            throw;
-        }
-        }
-
-        /// <inheritdoc/>
-        public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionCaseHistoryEventDetailsAsync(int caseId, CmsAuthValues cmsAuthValues)
-        {
-            Requires.NotNull(caseId);
-            Requires.NotNull(cmsAuthValues);
-            Requires.NotNull(cmsAuthValues.CmsCookies, nameof(cmsAuthValues.CmsCookies));
-            Requires.NotNull(cmsAuthValues.CmsModernToken, nameof(cmsAuthValues.CmsModernToken));
+    /// <inheritdoc/>
+    public async Task<ApiClient.OffenceChangeResponse> GetOffenceChargeByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(caseId);
+        Requires.NotNull(historyId);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
 
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "GetOffenceCharge";
 
         try
         {
-            var data = await client.GetPreChargeDecisionOutcomesAsync(caseId);
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+
+            var data = await client.GetOffenceChangeByIdAsync(caseId, historyId, cancellationToken);
             return data;
         }
         catch (Exception exception)
@@ -1276,34 +1255,60 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
             throw;
         }
     }
+
+    /// <inheritdoc/>
+    public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionCaseHistoryEventDetailsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(caseId);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
+
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "GetOffenceCharge";
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+
+            var data = await client.GetPreChargeDecisionOutcomesAsync(caseId, cancellationToken);
+            return data;
         }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
+            throw;
+        }
+    }
+
     /// <inheritdoc/>
     public async Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionByHistoryId(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         Requires.NotNull(caseId);
         Requires.NotNull(historyId);
-    Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
 
-    var stopwatch = Stopwatch.StartNew();
+        var stopwatch = Stopwatch.StartNew();
         const string OperationName = "GetPreChargeDecisionByHistoryId";
 
         try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-                var data = await client.GetPreChargeDecisionByIdAsync(caseId, historyId, cancellationToken);
-                return data;
-            }
-            catch (Exception exception)
-            {
-                this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
-                throw;
+            var data = await client.GetPreChargeDecisionByIdAsync(caseId, historyId, cancellationToken);
+            return data;
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
+            throw;
+        }
+    }
 
     /// <inheritdoc/>
     public async Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         Requires.NotNull(caseId);
         Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
+
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "GetPcdReview";
 
@@ -1311,11 +1316,13 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-                var data = await client.GetPcdReviewAsync(caseId, cancellationToken);
-                return data;
-            }
-            catch (Exception exception)
-            {
+            var data = await client.GetPcdReviewAsync(caseId, cancellationToken);
+            return data;
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, null, stopwatch.Elapsed);
+            throw;
         }
     }
 
@@ -1325,7 +1332,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         {
             return null;
         }
-            return null;
+
         return new ExhibitAttachmentSubType(exhibit.Reference, exhibit.Item, exhibit.Producer);
     }
 
