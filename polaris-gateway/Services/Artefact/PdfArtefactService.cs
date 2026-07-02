@@ -3,8 +3,12 @@ using Common.Domain.Ocr;
 using Common.Extensions;
 using Common.Services.BlobStorage;
 using Common.Services.OcrService;
-using Microsoft.CodeAnalysis.Operations;
 using Microsoft.AspNetCore.Http;
+using Microsoft.CodeAnalysis.Operations;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using PolarisGateway.Models;
 using PolarisGateway.Services.Artefact.Domain;
 using PolarisGateway.Services.Artefact.Factories;
 using System;
@@ -13,33 +17,29 @@ using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.Artefact;
 
-public class PdfArtefactService : IPdfArtefactService
+public class PdfArtefactService(
+    IOptions<RedactionFileSizeOptions> options,
+    ILogger<PdfArtefactService> logger,
+    ICacheService cacheService,
+    IArtefactServiceResponseFactory artefactServiceResponseFactory,
+    IPdfRetrievalService pdfRetrievalService,
+    IOcrService ocrService)
+    : IPdfArtefactService
 {
-    private const double FileSizeLimitMb = 15.0;
-    private readonly IArtefactServiceResponseFactory _artefactServiceResponseFactory;
-    private readonly ICacheService _cacheService;
-    private readonly IPdfRetrievalService _pdfRetrievalService;
-    private readonly IOcrService _ocrService;
+    private readonly ILogger<PdfArtefactService> _logger = logger.ExceptionIfNull();
+    private readonly RedactionFileSizeOptions _redactionFileSizeOptions = options.Value;
+    private readonly IArtefactServiceResponseFactory _artefactServiceResponseFactory = artefactServiceResponseFactory.ExceptionIfNull();
+    private readonly ICacheService _cacheService = cacheService.ExceptionIfNull();
+    private readonly IPdfRetrievalService _pdfRetrievalService = pdfRetrievalService.ExceptionIfNull();
+    private readonly IOcrService _ocrService = ocrService.ExceptionIfNull();
 
-    public PdfArtefactService(
-        ICacheService cacheService,
-        IArtefactServiceResponseFactory artefactServiceResponseFactory,
-        IPdfRetrievalService pdfRetrievalService,
-        IOcrService ocrService)
-    {
-        _cacheService = cacheService.ExceptionIfNull();
-        _artefactServiceResponseFactory = artefactServiceResponseFactory.ExceptionIfNull();
-        _pdfRetrievalService = pdfRetrievalService.ExceptionIfNull();
-        _ocrService = ocrService.ExceptionIfNull();
-    }
-
-    public async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isOcrProcessed, bool forceRefresh = false, HttpRequest req = null)
+    public async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isOcrProcessed, bool forceRefresh = false)
     {
         if (!forceRefresh && await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed) is (true, var stream))
         {
             var cachedFileSizeInMb = await _cacheService.GetPdfSizeFromMetadataAsync(caseId, materialId, documentId, isOcrProcessed);
 
-            return ValidateFileSizeAndCreatePdfResult(stream, true, cachedFileSizeInMb ?? 0, req);
+            return ValidateFileSizeAndCreatePdfResult(stream, documentId, true, cachedFileSizeInMb ?? 0);
         }
 
         var result = await _pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, urn, caseId, materialId, documentId);
@@ -71,14 +71,21 @@ public class PdfArtefactService : IPdfArtefactService
 
         var (_, pdfStream) = await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed);
 
-        return ValidateFileSizeAndCreatePdfResult(pdfStream, false, fileSizeInMb, req);
+        return ValidateFileSizeAndCreatePdfResult(pdfStream, documentId, false, fileSizeInMb);
     }
 
-    private ArtefactResult<Stream> ValidateFileSizeAndCreatePdfResult(Stream pdfStream, bool fromCache, double fileSizeInMb, HttpRequest req = null)
+    private ArtefactResult<Stream> ValidateFileSizeAndCreatePdfResult(Stream pdfStream, long documentId, bool fromCache, double fileSizeInMb)
     {
-        if (req != null && fileSizeInMb > FileSizeLimitMb)
+        if (fileSizeInMb > _redactionFileSizeOptions.FileSizeLimitMb)
         {
-            req.HttpContext.Response.Headers["CPS-File-Too-Large"] = "true";
+            _logger.LogInformation(
+                "Warning: document {DocumentId} has file size {FileSizeMb}MB which exceeds limit {FileSizeLimitMb}MB.",
+                documentId,
+                fileSizeInMb,
+                _redactionFileSizeOptions.FileSizeLimitMb
+            );
+
+            return _artefactServiceResponseFactory.CreateOkResultWithLargeFileFlag(pdfStream, fromCache, true);
         }
 
         return _artefactServiceResponseFactory.CreateOkfResult(pdfStream, fromCache);
