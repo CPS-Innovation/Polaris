@@ -8,6 +8,8 @@ using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Microsoft.Extensions.Options;
+using PolarisGateway.Models;
 using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.Artefact.Domain;
 using PolarisGateway.Services.Artefact.Factories;
@@ -49,21 +51,20 @@ public class PdfArtefactServiceTests
         _pdfRetrievalServiceMock = new Mock<IPdfRetrievalService>();
         _ocrServiceMock = new Mock<IOcrService>();
 
-        var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string>
-            {
-                { "FileSizeLimitMb", "10" },
-            })
-            .Build();
+        //var configuration = new ConfigurationBuilder()
+        //    .AddInMemoryCollection(new Dictionary<string, string>
+        //    {
+        //        { "RedactionFileSize__FileSizeLimitMb", "10" },
+        //    })
+        //    .Build();
 
         _pdfArtefactService = new PdfArtefactService(
+            Options.Create(new RedactionFileSizeOptions { FileSizeLimitMb = 10 }),
             new Mock<ILogger<PdfArtefactService>>().Object,
             _cacheServiceMock.Object,
             _artefactServiceResponseFactoryMock.Object,
             _pdfRetrievalServiceMock.Object,
-            _ocrServiceMock.Object,
-            configuration
-
+            _ocrServiceMock.Object
         );
     }
 
