@@ -4,23 +4,23 @@
 
 namespace PolarisGateway.Tests.Functions.HouseKeeping;
 
-using System.Threading.Tasks;
+using Common.Constants;
+using Common.Dto.Request;
+using Common.Dto.Request.HouseKeeping;
+using Common.Dto.Response.HouseKeeping;
 using Cps.Fct.Hk.Ui.Interfaces;
+using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
-using Xunit;
-using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
-using System.Text;
+using Moq;
 using PolarisGateway.Functions.HouseKeeping;
-using Common.Dto.Request.HouseKeeping;
 using System;
 using System.IO;
-using Common.Dto.Response.HouseKeeping;
-using Common.Dto.Request;
-using Common.Constants;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Xunit;
 
 /// <summary>
 /// Unit tests for the <see cref="DiscardMaterial"/> function.
@@ -39,7 +39,7 @@ public class DiscardMaterialTests
     {
         this.mockLogger = new TestLogger<DiscardMaterial>();
         this.mockCommunicationService = new Mock<ICommunicationService>();
-        
+
         this.discardMaterial = new DiscardMaterial(
             this.mockLogger,
             this.mockCommunicationService.Object);
@@ -164,7 +164,7 @@ public class DiscardMaterialTests
         ObjectResult objectResult = Assert.IsType<UnprocessableEntityObjectResult>(result);
         Assert.Equal(StatusCodes.Status422UnprocessableEntity, objectResult.StatusCode);
         Assert.Equal("Material with Id [456] has not been found to discard.", objectResult.Value.ToString());
-        
+
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
             log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} DiscardMaterial function processed a request."));

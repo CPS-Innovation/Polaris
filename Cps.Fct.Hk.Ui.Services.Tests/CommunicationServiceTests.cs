@@ -4,29 +4,28 @@
 
 namespace Cps.Fct.Hk.Ui.Services.Tests;
 
+using Common.Constants;
+using Common.Dto.Request;
+using Common.Dto.Request.HouseKeeping;
+using Common.Dto.Response.HouseKeeping;
+using Common.Enums;
+using Common.Exceptions;
 using Cps.Fct.Hk.Ui.Interfaces;
+using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
+using DdeiClient.Clients.Interfaces;
+using FluentAssertions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
-using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
-using Microsoft.AspNetCore.Mvc;
-using FluentAssertions;
-using Microsoft.AspNetCore.Http;
-using DdeiClient.Clients.Interfaces;
-using Common.Dto.Response.HouseKeeping;
-using Common.Dto.Request;
-using Common.Dto.Request.HouseKeeping;
-using Common.Constants;
-using Common.Exceptions;
 using System.Threading;
-
+using System.Threading.Tasks;
+using Xunit;
 using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
-using Common.Enums;
 
 /// <summary>
 /// Unit tests for the <see cref="CommunicationService"/> class.
@@ -78,7 +77,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -131,7 +129,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -175,7 +172,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -253,7 +249,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -292,7 +287,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -367,7 +361,7 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
+
             Guid.NewGuid());
 
         this.apiClientMock
@@ -404,7 +398,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -569,7 +562,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -630,7 +622,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -670,7 +661,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var expectedResponse = new AttachmentsResponse
@@ -728,7 +718,7 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
+
             Guid.NewGuid());
 
         var expectedResponse = new AttachmentsResponse
@@ -795,7 +785,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var testException = new Exception("Simulated API error");
@@ -860,7 +849,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var attachmentsResponse = new AttachmentsResponse
@@ -968,7 +956,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var attachmentsResponse = new AttachmentsResponse
@@ -1069,7 +1056,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         // Act
@@ -1115,7 +1101,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         // Act
@@ -1161,7 +1146,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var testException = new Exception("Simulated error");
@@ -1419,7 +1403,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var apiCommunications = new List<Communication>
@@ -1479,7 +1462,7 @@ public class CommunicationServiceTests
         // Arrange
         int caseId = 1;
         int materialId = 456;
-        var cmsAuthValues = new CmsAuthValues("cookies", "token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("cookies", Guid.NewGuid());
 
         List<Communication> communications = source == "communications"
             ? new List<Communication> { new(1, "File1", "Subject1", 123, materialId, expectedLink, "Active", "Category1", "Type1", false) }
@@ -1590,7 +1573,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -1619,7 +1601,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var apiCommunications = new List<Communication>
@@ -1698,7 +1679,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var apiCommunications = new List<Communication>
@@ -1758,7 +1738,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -1785,7 +1764,6 @@ public class CommunicationServiceTests
         // Arrange
         var cmsAuthValues = new CmsAuthValues(
            "cookies",
-           "token",
            Guid.NewGuid());
 
         var expectedResponse = new RenameMaterialResponse(new RenameMaterialData
@@ -1827,7 +1805,6 @@ public class CommunicationServiceTests
         // Arrange
         var cmsAuthValues = new CmsAuthValues(
            "cookies",
-           "token",
            Guid.NewGuid());
 
         int caseId = 134;
@@ -1866,7 +1843,6 @@ public class CommunicationServiceTests
         var correlationId = Guid.NewGuid();
         var cmsAuthValues = new CmsAuthValues(
           "cookies",
-          "token",
           correlationId);
         var request = new GetPcdRequestsCoreRequest(caseId, correlationId);
         this.apiClientMock.Setup(x => x.GetPcdRequestCoreAsync(request, cmsAuthValues))
@@ -1896,7 +1872,6 @@ public class CommunicationServiceTests
         var correlationId = Guid.NewGuid();
         var cmsAuthValues = new CmsAuthValues(
         "cookies",
-        "token",
         correlationId);
         var request = new GetPcdRequestByPcdIdCoreRequest(caseId, pcdId, correlationId);
         this.apiClientMock.Setup(x => x.GetPcdRequestByPcdIdAsync(request, cmsAuthValues))
@@ -1922,7 +1897,6 @@ public class CommunicationServiceTests
         // Arrange
         var cmsAuthValues = new CmsAuthValues(
            "cookies",
-           "token",
            Guid.NewGuid());
 
         var expectedResposne = new SetMaterialReadStatusResponse(new SetMaterialReadStatusResponseData
@@ -1963,7 +1937,6 @@ public class CommunicationServiceTests
         // Arrange
         var cmsAuthValues = new CmsAuthValues(
            "cookies",
-           "token",
            Guid.NewGuid());
 
         var exceptionMocked = new BadHttpRequestException("Material does not exists in DDEI");
@@ -1998,7 +1971,6 @@ public class CommunicationServiceTests
         // Arrange
         var cmsAuthValues = new CmsAuthValues(
            "cookies",
-           "token",
            Guid.NewGuid());
 
         var expectedResponse = new DiscardMaterialResponse(new DiscardMaterialData
@@ -2046,7 +2018,6 @@ public class CommunicationServiceTests
         // Arrange
         var cmsAuthValues = new CmsAuthValues(
            "cookies",
-           "token",
            Guid.NewGuid());
 
         int caseId = 134;
@@ -2124,7 +2095,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -2167,7 +2137,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -2238,7 +2207,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -2281,7 +2249,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -2326,7 +2293,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -2367,7 +2333,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -2398,7 +2363,7 @@ public class CommunicationServiceTests
     {
         // Arrange
         int caseId = 4321;
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         var expectedProducers = new ExhibitProducersResponse
         {
@@ -2437,7 +2402,7 @@ public class CommunicationServiceTests
     {
         // Arrange
         int caseId = 4321;
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         var expectedProducers = new ExhibitProducersResponse
         {
@@ -2477,7 +2442,6 @@ public class CommunicationServiceTests
         // Arrange
         var cmsAuthValues = new CmsAuthValues(
            "cookies",
-           "token",
            Guid.NewGuid());
 
         var expectedResponse = new UpdateStatementResponse(new UpdateStatementData
@@ -2523,7 +2487,7 @@ public class CommunicationServiceTests
         // Arrange
         var cmsAuthValues = new CmsAuthValues(
            "cookies",
-           "token",
+
            Guid.NewGuid());
 
         int caseId = 134;
@@ -2565,7 +2529,6 @@ public class CommunicationServiceTests
         // Arrange
         var cmsAuthValues = new CmsAuthValues(
            "cookies",
-           "token",
            Guid.NewGuid());
 
         var expectedResponse = new UpdateExhibitResponse(new UpdateExhibitData
@@ -2611,7 +2574,6 @@ public class CommunicationServiceTests
         // Arrange
         var cmsAuthValues = new CmsAuthValues(
            "cookies",
-           "token",
            Guid.NewGuid());
 
         int caseId = 134;
@@ -2658,7 +2620,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var historyEvents = new List<ApiClient.HistoryEvent>
@@ -2723,7 +2684,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var historyEvents = new List<ApiClient.HistoryEvent>
@@ -2784,7 +2744,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var historyEvents = new List<ApiClient.HistoryEvent>
@@ -2835,7 +2794,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var historyEvents = new List<ApiClient.HistoryEvent>
@@ -2873,7 +2831,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -2910,7 +2867,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var historyEvents = new List<ApiClient.HistoryEvent>
@@ -2960,7 +2916,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var historyEvents = new List<ApiClient.HistoryEvent>
@@ -3009,7 +2964,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var historyEvents = new List<ApiClient.HistoryEvent>
@@ -3056,7 +3010,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         // Using the provided test data - only valid types
@@ -3083,8 +3036,8 @@ public class CommunicationServiceTests
 
         var resultList = result.ToList();
         // Verify only PCD-related events are returned
-        Assert.True(resultList.All(x => x.Type == PcdReviewCoreType.EarlyAdvice || 
-                                         x.Type == PcdReviewCoreType.InitialReview || 
+        Assert.True(resultList.All(x => x.Type == PcdReviewCoreType.EarlyAdvice ||
+                                         x.Type == PcdReviewCoreType.InitialReview ||
                                          x.Type == PcdReviewCoreType.PreChargeDecisionAnalysis));
 
         // Verify the order is maintained
@@ -3110,7 +3063,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var historyEvents = new List<ApiClient.HistoryEvent>
@@ -3149,7 +3101,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var testDate = "27/01/2026";
@@ -3194,7 +3145,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         // Events are provided out of order
@@ -3243,7 +3193,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var historyEvents = new List<ApiClient.HistoryEvent>
@@ -3282,7 +3231,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         this.apiClientMock
@@ -3318,7 +3266,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var historyEvents = new List<ApiClient.HistoryEvent>
@@ -3353,7 +3300,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var historyEvents = new List<ApiClient.HistoryEvent>
@@ -3395,7 +3341,6 @@ public class CommunicationServiceTests
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
-            "token",
             Guid.NewGuid());
 
         var historyEvents = new List<ApiClient.HistoryEvent>

@@ -53,7 +53,7 @@ public class BulkSetUnusedServiceTests
         };
 
         // var cmsAuthValues = new CmsAuthValues();
-        var cmsAuthValues = new CmsAuthValues("cookies", "token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("cookies", Guid.NewGuid());
 
         this.mockApiClient.Setup(client => client.ReclassifyCommunicationAsync(It.IsAny<ReclassifyCommunicationRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
                          .ReturnsAsync((ReclassifyCommunicationRequest req, CmsAuthValues _, CancellationToken _) =>
@@ -91,7 +91,7 @@ public class BulkSetUnusedServiceTests
             new BulkSetUnusedRequest { materialId = 2, subject = "Material 2" },
         };
 
-        var cmsAuthValues = new CmsAuthValues("cookies", "token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("cookies", Guid.NewGuid());
 
 #pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
         this.mockApiClient.Setup(client => client.ReclassifyCommunicationAsync(It.IsAny<ReclassifyCommunicationRequest>(), cmsAuthValues, It.IsAny<CancellationToken>()))
@@ -147,7 +147,7 @@ public class BulkSetUnusedServiceTests
             new BulkSetUnusedRequest { materialId = 2, subject = "Material 2" },
         };
 
-        var cmsAuthValues = new CmsAuthValues("cookies", "token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("cookies", Guid.NewGuid());
 
         this.mockApiClient.Setup(client => client.ReclassifyCommunicationAsync(It.IsAny<ReclassifyCommunicationRequest>(), It.IsAny<CmsAuthValues>()))
                      .ThrowsAsync(new Exception("Reclassification failed"));
@@ -184,7 +184,7 @@ public class BulkSetUnusedServiceTests
             new BulkSetUnusedRequest { materialId = 1, subject = "Material 1" },
         };
 
-        var cmsAuthValues = new CmsAuthValues("cookies", "token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("cookies", Guid.NewGuid());
 
         this.mockApiClient.Setup(client => client.ReclassifyCommunicationAsync(It.IsAny<ReclassifyCommunicationRequest>(), cmsAuthValues, It.IsAny<CancellationToken>()))
             .ThrowsAsync(exception);
@@ -223,7 +223,7 @@ public class BulkSetUnusedServiceTests
             new BulkSetUnusedRequest { materialId = 1, subject = "Material 1" },
         };
 
-        var cmsAuthValues = new CmsAuthValues("cookies", "token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("cookies", Guid.NewGuid());
 
         this.mockApiClient.Setup(client => client.ReclassifyCommunicationAsync(It.IsAny<ReclassifyCommunicationRequest>(), It.IsAny<CmsAuthValues>()))
                      .ThrowsAsync(new Exception("Reclassification failed"));

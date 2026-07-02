@@ -9,7 +9,7 @@ resources:
       trigger:
         branches:
           include:
-            - refs/heads/main
+            - refs/heads/development
         stages:
           - Publish_Artifacts
 
@@ -110,12 +110,13 @@ stages:
       buildDefinitionId: 588
       stageDependsOn: Update_GitHub_Tag
 
-  - template: stages/stage_schedule-releases.yml
-    parameters:
-      targetBuild: PolarisBuild
-      targetLabel: "DEV"
-      appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
-      environments:
-        - name: QA
-          targetLabel: 'QA'
-          buildDefinitionId: '352'
+# Task is no longer required as QA/PROD environments are now deployed via separate branch triggers. The following template is commented out to avoid confusion, but is left in place for reference.
+  # - template: stages/stage_schedule-releases.yml
+  #   parameters:
+  #     targetBuild: PolarisBuild
+  #     targetLabel: "DEV"
+  #     appInsightsKey: $(innovation-development-app-insights-instrumentation-key)
+  #     environments:
+  #       - name: QA
+  #         targetLabel: 'QA'
+  #         buildDefinitionId: '352'

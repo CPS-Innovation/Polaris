@@ -12,11 +12,7 @@ import {
   FEATURE_FLAG_STATE_RETENTION,
   FEATURE_FLAG_GLOBAL_NAV,
   PRIVATE_BETA_FEATURE_USER_GROUP,
-  FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP,
-  FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP,
   PRIVATE_BETA_FEATURE_USER_GROUP2,
-  PRIVATE_BETA_FEATURE_USER_GROUP3,
-  PRIVATE_BETA_FEATURE_USER_GROUP4,
   PRIVATE_BETA_FEATURE_USER_GROUP5,
   PRIVATE_BETA_FEATURE_USER_GROUP6,
   FEATURE_FLAG_BACKGROUND_PIPELINE_REFRESH,
@@ -82,8 +78,6 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
     searchPII,
     renameDocument,
     reclassify,
-    externalRedirectCaseReviewApp,
-    externalRedirectBulkUmApp,
     pageDelete,
     pageRotate,
     notifications,
@@ -124,18 +118,6 @@ export const useUserGroupsFeatureFlag = (): FeatureFlagData => {
         FEATURE_FLAG_RENAME_DOCUMENT,
         userDetails?.username,
         renameDocument
-      ),
-      externalRedirectCaseReviewApp: shouldShowFeature(
-        FEATURE_FLAG_EXTERNAL_REDIRECT_CASE_REVIEW_APP,
-        userDetails?.username,
-        externalRedirectCaseReviewApp,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP3 }
-      ),
-      externalRedirectBulkUmApp: shouldShowFeature(
-        FEATURE_FLAG_EXTERNAL_REDIRECT_BULK_UM_APP,
-        userDetails?.username,
-        externalRedirectBulkUmApp,
-        { groups: groupClaims, groupKey: PRIVATE_BETA_FEATURE_USER_GROUP4 }
       ),
       reclassify: shouldShowFeature(
         FEATURE_FLAG_RECLASSIFY,

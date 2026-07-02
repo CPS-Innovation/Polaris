@@ -52,7 +52,7 @@ public class WitnessServiceTests
     {
         // Arrange
         int caseId = 4321;
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         var expectedWitnesses = new WitnessesResponse
         {
@@ -93,7 +93,7 @@ public class WitnessServiceTests
     {
         // Arrange
         int caseId = 4321;
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         var expectedWitnesses = new WitnessesResponse
         {
@@ -131,7 +131,7 @@ public class WitnessServiceTests
     {
         // Arrange
         int witnessId = 789;
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         // Statements
         var statement1 = new WitnessStatement(
@@ -180,7 +180,7 @@ public class WitnessServiceTests
     {
         // Arrange
         int witnessId = 789;
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         this.apiClientMock
             .Setup(x => x.GetWitnessStatementsAsync(It.IsAny<GetWitnessStatementsRequest>(), cmsAuthValues))
@@ -211,7 +211,7 @@ public class WitnessServiceTests
         // Arrange
         int caseId = 4321;
         string urn = "12345671";
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         this.apiClientMock
             .Setup(x => x.AddWitnessAsync(It.IsAny<AddWitnessRequest>(), It.IsAny<CmsAuthValues>()))
@@ -254,7 +254,7 @@ public class WitnessServiceTests
                 new (caseId, 432, "Bob", "Jackson"),
             },
         };
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         this.apiClientMock
             .Setup(x => x.AddWitnessAsync(It.IsAny<AddWitnessRequest>(), It.IsAny<CmsAuthValues>()))
@@ -312,7 +312,7 @@ public class WitnessServiceTests
                 new (caseId, 432, "Bob", "Jackson"),
             },
         };
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         this.apiClientMock
             .Setup(x => x.AddWitnessAsync(It.IsAny<AddWitnessRequest>(), It.IsAny<CmsAuthValues>()))
