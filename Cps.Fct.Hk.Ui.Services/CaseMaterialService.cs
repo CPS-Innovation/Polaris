@@ -358,13 +358,13 @@ public class CaseMaterialService(
         UsedOtherMaterialsResponse,
         ExhibitProducersResponse)> RetrieveCaseMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
-        var communicationsTask = Task.Run(() => this.GetCommunicationsAsync(caseId, cmsAuthValues, cancellationToken));
-        var unusedMaterialsTask = Task.Run(() => this.GetUnusedMaterialsAsync(caseId, cmsAuthValues, cancellationToken));
-        var usedStatementsTask = Task.Run(() => this.GetUsedStatementsAsync(caseId, cmsAuthValues, cancellationToken));
-        var usedExhibitsTask = Task.Run(() => this.GetUsedExhibitsAsync(caseId, cmsAuthValues, cancellationToken));
-        var usedMgFormsTask = Task.Run(() => this.GetUsedMgFormsAsync(caseId, cmsAuthValues, cancellationToken));
-        var usedOtherMaterialsTask = Task.Run(() => this.GetUsedOtherMaterialsAsync(caseId, cmsAuthValues, cancellationToken));
-        var exhibitProducerTask = Task.Run(() => this.GetExhibitProducersAsync(caseId, cmsAuthValues, cancellationToken));
+        var communicationsTask = this.GetCommunicationsAsync(caseId, cmsAuthValues, cancellationToken);
+        var unusedMaterialsTask = this.GetUnusedMaterialsAsync(caseId, cmsAuthValues, cancellationToken);
+        var usedStatementsTask = this.GetUsedStatementsAsync(caseId, cmsAuthValues, cancellationToken);
+        var usedExhibitsTask = this.GetUsedExhibitsAsync(caseId, cmsAuthValues, cancellationToken);
+        var usedMgFormsTask = this.GetUsedMgFormsAsync(caseId, cmsAuthValues, cancellationToken);
+        var usedOtherMaterialsTask = this.GetUsedOtherMaterialsAsync(caseId, cmsAuthValues, cancellationToken);
+        var exhibitProducerTask = this.GetExhibitProducersAsync(caseId, cmsAuthValues, cancellationToken);
 
         await Task
             .WhenAll(

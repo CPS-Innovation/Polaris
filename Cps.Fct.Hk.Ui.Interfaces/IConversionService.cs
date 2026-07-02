@@ -17,7 +17,7 @@ public interface IConversionService
     /// or in a cloud blob container, depending on the implementation.
     /// </summary>
     /// <param name="downloadedDocument">The file stream result representing the downloaded document.</param>
-    /// <param name="cancellationToken">The cancelltion token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>
     /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result is true if the document is successfully saved; otherwise, false.
     /// </returns>
@@ -54,7 +54,7 @@ public interface IConversionService
     /// </summary>
     /// <param name="tmpFileDownloadName">The temporary file name of the PDF document to be processed.</param>
     /// <param name="firstPageOnly">A flag to indicate if only first page needs to be converted or all pages when set to false.</param>
-    /// <param name="cancellationToken">The cancelltion token used to cancel the service.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the service.</param>
     /// <returns>
     /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result is a string containing
     /// the URL of the saved PDF document, or null if the conversion or save operation fails.
@@ -66,7 +66,7 @@ public interface IConversionService
     /// either to local storage or a cloud blob container.
     /// </summary>
     /// <param name="tmpFileDownloadName">The temporary file name of the text file to be converted.</param>
-    /// <param name="cancellationToken">The cancelltion token used to cancel the service.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the service.</param>
     /// <returns>
     /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result is a string containing
     /// the URL of the saved PDF document, or null if the conversion or save operation fails.
@@ -78,7 +78,7 @@ public interface IConversionService
     /// either to local storage or a cloud blob container.
     /// </summary>
     /// <param name="tmpFileDownloadName">The temporary file name of the text file to be converted.</param>
-    /// <param name="cancellationToken">The cancelltion token used to cancel the service.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the service.</param>
     /// <returns>
     /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result is a string containing
     /// the URL of the saved PDF document, or null if the conversion or save operation fails.
@@ -91,7 +91,7 @@ public interface IConversionService
     /// </summary>
     /// <param name="tmpFileDownloadName">The temporary file name of the text file to be converted.</param>
     /// <param name="firstPageOnly">A flag to indicate if only first page needs to be converted or all pages when set to false.</param>
-    /// <param name="cancellationToken">The cancelltion token used to cancel the service.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the service.</param>
     /// <returns>
     /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result is a string containing
     /// the URL of the saved PDF document, or null if the conversion or save operation fails.
@@ -103,7 +103,7 @@ public interface IConversionService
     /// either to local storage or a cloud blob container.
     /// </summary>
     /// <param name="tmpFileDownloadName">The temporary file name of the text file to be converted.</param>
-    /// <param name="cancellationToken">The cancelltion token used to cancel the service.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the service.</param>
     /// <returns>
     /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result is a string containing
     /// the URL of the saved PDF document, or null if the conversion or save operation fails.
@@ -116,7 +116,7 @@ public interface IConversionService
     /// </summary>
     /// <param name="tmpFileDownloadName">The temporary file name of the text file to be converted.</param>
     /// <param name="firstSheetOnly">A flag to indicate if only first sheet needs to be converted or all sheets when set to false.</param>
-    /// <param name="cancellationToken">The cancelltion token used to cancel the service.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the service.</param>
     /// <returns>
     /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result is a string containing
     /// the URL of the saved PDF document, or null if the conversion or save operation fails.
@@ -128,7 +128,7 @@ public interface IConversionService
     /// either to local storage or a cloud blob container.
     /// </summary>
     /// <param name="tmpFileDownloadName">The temporary file name of the text file to be converted.</param>
-    /// <param name="cancellationToken">The cancelltion token used to cancel the service.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the service.</param>
     /// <returns>
     /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result is a string containing
     /// the URL of the saved PDF document, or null if the conversion or save operation fails.
@@ -141,7 +141,7 @@ public interface IConversionService
     /// </summary>
     /// <param name="tmpFileDownloadName">The temporary file name of the text file to be converted.</param>
     /// <param name="firstSlideOnly">A flag to indicate if only first slide needs to be converted or all slides when set to false..</param>
-    /// <param name="cancellationToken">The cancelltion token used to cancel the service.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the service.</param>
     /// <returns>
     /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result is a string containing
     /// the URL of the saved PDF document, or null if the conversion or save operation fails.

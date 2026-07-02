@@ -24,7 +24,7 @@ public interface ICommunicationService
     /// </summary>
     /// <param name="caseId">The unique identifier of the case for which communications are being retrieved.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve communications.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a read-only collection of <see cref="Communication"/> objects.</returns>
     Task<IReadOnlyCollection<Communication>> GetCommunicationsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
@@ -33,7 +33,7 @@ public interface ICommunicationService
     /// </summary>
     /// <param name="caseId">The unique identifier of the case for which used statements are being retrieved.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve the used statements.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="UsedStatementsResponse"/> object, which includes details of the used statements.</returns>
     Task<UsedStatementsResponse> GetUsedStatementsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
@@ -42,7 +42,7 @@ public interface ICommunicationService
     /// </summary>
     /// <param name="caseId">The unique identifier of the case for which used exhibits are being retrieved.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve the used exhibits.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="UsedExhibitsResponse"/> object, which includes details of the used exhibits.</returns>
     Task<UsedExhibitsResponse> GetUsedExhibitsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
@@ -51,7 +51,7 @@ public interface ICommunicationService
     /// </summary>
     /// <param name="caseId">The unique identifier of the case for which used MG forms are being retrieved.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve the used MG forms.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="UsedMgFormsResponse"/> object, which includes details of the used MG forms.</returns>
     Task<UsedMgFormsResponse> GetUsedMgFormsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
@@ -60,7 +60,7 @@ public interface ICommunicationService
     /// </summary>
     /// <param name="caseId">The unique identifier of the case for which used other materials are being retrieved.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve the used other materials.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="UsedOtherMaterialsResponse"/> object, which includes details of the used other materials.</returns>
     Task<UsedOtherMaterialsResponse> GetUsedOtherMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
@@ -69,7 +69,7 @@ public interface ICommunicationService
     /// </summary>
     /// <param name="caseId">The unique identifier of the case for which unused materials are being retrieved.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve the unused materials.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="UnusedMaterialsResponse"/> object, which includes details of the unused materials.</returns>
     Task<UnusedMaterialsResponse> GetUnusedMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
@@ -79,7 +79,7 @@ public interface ICommunicationService
     /// <param name="communicationId">The unique identifier of the communication for which attachments are being retrieved.</param>
     /// <param name="communicationSubject">The subject of the communication for which attachments are being retrieved.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve the unused materials.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a <see cref="AttachmentsResponse"/> object, which includes attachments of the communication.</returns>
     Task<AttachmentsResponse> GetAttachmentsAsync(int communicationId, string communicationSubject, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
@@ -88,7 +88,7 @@ public interface ICommunicationService
     /// </summary>
     /// <param name="communications">The collection of communications to obtain attachments from.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve the unused materials.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a list of <see cref="Attachment"/> objects.</returns>
     Task<List<Attachment>> RetrieveAllAttachmentsAsync(IReadOnlyCollection<Communication> communications, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
@@ -105,7 +105,7 @@ public interface ICommunicationService
     /// <param name="caseId">The ID of the case from which communications are retrieved.</param>
     /// <param name="materialId">The ID of the material to find the corresponding case material document link.</param>
     /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>An object that contains the communication link if found, or a result indicating that no communication was found.</returns>
     Task<object> GetCaseMaterialLinkAsync(int caseId, int materialId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
@@ -114,7 +114,7 @@ public interface ICommunicationService
     /// </summary>
     /// <param name="caseId">The unique ID of the case.</param>
     /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
     public Task<ExhibitProducersResponse> GetExhibitProducersAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
@@ -126,7 +126,7 @@ public interface ICommunicationService
     /// <param name="subject">New material name to be changed with.</param>
     /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
     /// <param name="correspondenceId">correspondenceId.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>An object that contains the renamed material id.</returns>
     Task<RenameMaterialResponse> RenameMaterialAsync(int caseId, int materialId, string subject, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default);
 
@@ -135,7 +135,7 @@ public interface ICommunicationService
     /// </summary>
     /// <param name="caseId">Get PCD requests by case id.</param>
     /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>Return collection of PCD requests.</returns>
     Task<IReadOnlyCollection<PcdRequestCore>> GetPcdRequestCore(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
@@ -145,7 +145,7 @@ public interface ICommunicationService
     /// <param name="caseId">Get PCD requests by case id.</param>
     /// <param name="pcdId">Parameter to get PCD requests by PCD id.</param>
     /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>Return single PCD request information by PCD id.</returns>
     Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
@@ -164,7 +164,7 @@ public interface ICommunicationService
     /// </summary>
     /// <param name="caseId">Get PCD requests by case id.</param>
     /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>Return single PCD request information by PCD id.</returns>
     Task<IReadOnlyCollection<PcdReviewCoreResponseDto>> GetPcdReviewCoreAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken);
 
@@ -177,7 +177,7 @@ public interface ICommunicationService
     /// <param name="discardReasonDescription">Discard reason description for the material.</param>
     /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
     /// <param name="correspondenceId">correspondenceId.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>An object that contains the discarded material id.</returns>
     Task<DiscardMaterialResponse> DiscardMaterialAsync(int caseId, int materialId, string discardReason, string discardReasonDescription, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default);
 
@@ -210,7 +210,7 @@ public interface ICommunicationService
     /// <param name="statement">The update statement request.</param>
     /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
     /// <param name="correspondenceId">correspondenceId.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
     public Task<UpdateStatementResponse> UpdateStatementAsync(int caseId, UpdateStatementRequest statement, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default);
 
@@ -219,7 +219,7 @@ public interface ICommunicationService
     /// </summary>
     /// <param name="caseId">The caseId.</param>
     /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
-    /// <param name="cancellationToken">cancellaltion token used to cancel the operation.</param>
+    /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
     Task<ApiClient.PreChargeDecisionAnalysisOutcome> FirstInitialReviewGetCaseHistoryAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
@@ -281,3 +281,4 @@ public interface ICommunicationService
     /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
     Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 }
+
