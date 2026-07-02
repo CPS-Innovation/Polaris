@@ -15,6 +15,7 @@ using PolarisGateway.Helpers;
 using PolarisGateway.TelemetryEvents;
 using PolarisGateway.Validators;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -51,7 +52,8 @@ public class AddDocumentNote : BaseFunction
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentNotes)] HttpRequest req,
         string caseUrn,
         int caseId,
-        string materialId)
+        string materialId,
+        CancellationToken cancellationToken = default)
     {
         var telemetryEvent = new DocumentNoteRequestEvent(caseId, materialId)
         {

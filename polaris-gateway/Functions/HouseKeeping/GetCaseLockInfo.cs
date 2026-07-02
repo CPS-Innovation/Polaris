@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Diagnostics;
@@ -50,7 +51,7 @@ public class GetCaseLockInfo(ILogger<GetCaseLockInfo> logger, ICaseLockService c
     [OpenApiRequestBody("application/json", typeof(CaseLockedStatusResult), Description = "Return case lock response.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
     [Function(nameof(GetCaseLockInfo))]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseLockInfo)] HttpRequest req, int caseId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseLockInfo)] HttpRequest req, int caseId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -68,7 +69,7 @@ public class GetCaseLockInfo(ILogger<GetCaseLockInfo> logger, ICaseLockService c
             CaseLockedStatusResult caseLockSummary;
             try
             {
-                caseLockSummary = await this.caseLockService.CheckCaseLockAsync(caseId, cmsAuthValues).ConfigureAwait(true);
+                caseLockSummary = await this.caseLockService.CheckCaseLockAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
             }
             catch (Exception ex)
             {

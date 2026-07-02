@@ -29,7 +29,7 @@ public class WitnessService(
     private readonly ICaseLockService caseLockService = caseLockService;
 
     /// <inheritdoc/>
-    public async Task<WitnessStatementsResponse> GetWitnessStatementsAsync(int witnessId, CmsAuthValues cmsAuthValues)
+    public async Task<WitnessStatementsResponse> GetWitnessStatementsAsync(int witnessId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string witnessIdString = witnessId.ToString(CultureInfo.InvariantCulture);
 
@@ -39,7 +39,7 @@ public class WitnessService(
 
             var request = new GetWitnessStatementsRequest(witnessId, Guid.NewGuid());
 
-            WitnessStatementsResponse? statements = await this.apiClient.GetWitnessStatementsAsync(request, cmsAuthValues).ConfigureAwait(false);
+            WitnessStatementsResponse? statements = await this.apiClient.GetWitnessStatementsAsync(request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
             return statements;
         }
@@ -52,7 +52,7 @@ public class WitnessService(
     }
 
     /// <inheritdoc/>
-    public async Task<WitnessesResponse> GetCaseWitnessesAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<WitnessesResponse> GetCaseWitnessesAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
 
@@ -61,7 +61,7 @@ public class WitnessService(
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Getting witnesses for caseId [{caseIdString}]");
 
             var request = new GetCaseWitnessesRequest(caseId, Guid.NewGuid());
-            WitnessesResponse? witnesses = await this.apiClient.GetCaseWitnessesAsync(request, cmsAuthValues).ConfigureAwait(false);
+            WitnessesResponse? witnesses = await this.apiClient.GetCaseWitnessesAsync(request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
             return witnesses;
         }
@@ -74,13 +74,13 @@ public class WitnessService(
     }
 
     /// <inheritdoc/>
-    public async Task<int?> AddWitnessAsync(string urn, int caseId, string firstName, string lastName, CmsAuthValues cmsAuthValues, Guid correspondenceId = default)
+    public async Task<int?> AddWitnessAsync(string urn, int caseId, string firstName, string lastName, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default)
     {
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to add witness to case with a caseId [{caseId}]");
 
-            var checkCaeLockStatus = await this.caseLockService.CheckCaseLockAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+            var checkCaeLockStatus = await this.caseLockService.CheckCaseLockAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
             if (checkCaeLockStatus.IsLocked && !checkCaeLockStatus.IsLockedByCurrentUser)
             {
                 throw new CaseLockedException($"{LoggingConstants.HskUiLogPrefix} Attempting to add case witness for caseId [{caseId}] is failed as case is locked by [{checkCaeLockStatus.LockedByUser}].");

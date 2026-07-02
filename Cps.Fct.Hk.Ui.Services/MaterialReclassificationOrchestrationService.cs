@@ -38,7 +38,8 @@ public class MaterialReclassificationOrchestrationService(
         int caseId,
         int materialId,
         CmsAuthValues cmsAuthValues,
-        CompleteReclassificationRequest request)
+        CompleteReclassificationRequest request, 
+        CancellationToken cancellationToken = default)
     {
         var transactionId = Guid.NewGuid();
         var renameMaterialRequest = new RenameMaterialRequest(transactionId, materialId, request.reclassification.subject);
@@ -62,7 +63,7 @@ public class MaterialReclassificationOrchestrationService(
         // Add witness task must be executed first when user has selected add witness flow, due to reclassification to Statement having a dependency on a new witness id.
         if (request!.AddWitness())
         {
-            addWitnessResult = await this.ExecuteAddWitness(request.reclassification.urn, caseId, request.witness!, cmsAuthValues, transactionId).ConfigureAwait(false);
+            addWitnessResult = await this.ExecuteAddWitness(request.reclassification.urn, caseId, request.witness!, cmsAuthValues, transactionId, cancellationToken).ConfigureAwait(false);
 
             if (addWitnessResult.Success)
             {
@@ -74,19 +75,19 @@ public class MaterialReclassificationOrchestrationService(
         // Add Action plan task to collection of tasks to be run in parallel
         if (request.HasActionPlan())
         {
-            actionPlanTask = this.ExecuteAddActionPlan(request.reclassification.urn, caseId, request.actionPlan!, cmsAuthValues, transactionId);
+            actionPlanTask = this.ExecuteAddActionPlan(request.reclassification.urn, caseId, request.actionPlan!, cmsAuthValues, transactionId, cancellationToken);
             tasksToRun.Add(actionPlanTask);
         }
 
         // Rename material for all other non statement reclassification.
         if (!request.HasStatement())
         {
-            renameMaterialTask = this.ExecuteMaterialRename(caseId, renameMaterialRequest, cmsAuthValues, transactionId);
+            renameMaterialTask = this.ExecuteMaterialRename(caseId, renameMaterialRequest, cmsAuthValues, transactionId, cancellationToken);
             tasksToRun.Add(renameMaterialTask);
         }
 
         // Add reclassification task to collection of tasks to be run in parallel
-        reclassificationTask = this.ExecuteReclassificationAsync(caseId, materialId, request.reclassification, cmsAuthValues, transactionId);
+        reclassificationTask = this.ExecuteReclassificationAsync(caseId, materialId, request.reclassification, cmsAuthValues, transactionId, cancellationToken);
         tasksToRun.Add(reclassificationTask);
 
         // Wait for all operations to complete running in parallel.
@@ -127,7 +128,8 @@ public class MaterialReclassificationOrchestrationService(
         int materialId,
         ReclassifyCaseMaterialRequest request,
         CmsAuthValues cmsAuthValues,
-        Guid transactionId)
+        Guid transactionId,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -144,7 +146,8 @@ public class MaterialReclassificationOrchestrationService(
                 request.subject,
                 cmsAuthValues,
                 request.Statement,
-                request.Exhibit).ConfigureAwait(false);
+                request.Exhibit,
+                cancellationToken:cancellationToken).ConfigureAwait(false);
 
             return new OperationResult(
                 Success: true,
@@ -168,7 +171,8 @@ public class MaterialReclassificationOrchestrationService(
         int caseId,
         RenameMaterialRequest request,
         CmsAuthValues cmsAuthValues,
-        Guid transactionId)
+        Guid transactionId,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -176,7 +180,7 @@ public class MaterialReclassificationOrchestrationService(
                 $"{LoggingConstants.HskUiLogPrefix} executing rename for MaterialId: [{request.materialId}], TransactionId: [{transactionId}", request.materialId, request.CorrespondenceId);
 
             // Call the underlying service method directly
-            RenameMaterialResponse result = await this.communicationService.RenameMaterialAsync(caseId, request.materialId, request.subject, cmsAuthValues).ConfigureAwait(false);
+            RenameMaterialResponse result = await this.communicationService.RenameMaterialAsync(caseId, request.materialId, request.subject, cmsAuthValues, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             return new OperationResult(
                 Success: true,
@@ -201,7 +205,7 @@ public class MaterialReclassificationOrchestrationService(
          int caseId,
          AddCaseActionPlanRequest request,
          CmsAuthValues cmsAuthValues,
-         Guid transactionId)
+         Guid transactionId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -233,7 +237,8 @@ public class MaterialReclassificationOrchestrationService(
         int caseId,
         Common.Dto.Request.HouseKeeping.WitnessRequest request,
         CmsAuthValues cmsAuthValues,
-        Guid transactionId)
+        Guid transactionId,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -245,7 +250,8 @@ public class MaterialReclassificationOrchestrationService(
                 request.FirstName,
                 request.Surname,
                 cmsAuthValues,
-                transactionId).ConfigureAwait(false);
+                transactionId,
+                cancellationToken);
 
             return new OperationResult(
                 Success: true,

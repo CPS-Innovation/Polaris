@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -42,7 +43,8 @@ public class ToggleIsUnusedDocument : BaseFunction
         string caseUrn,
         int caseId,
         string materialId,
-        string isUnused)
+        string isUnused,
+        CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
@@ -57,6 +59,7 @@ public class ToggleIsUnusedDocument : BaseFunction
             Urn = caseUrn,
         };
 
-        return await _mdsClient.ToggleIsUnusedDocumentAsync(toggleIsUnusedDocumentDto) ? new OkResult() : new BadRequestResult();
+        cancellationToken.ThrowIfCancellationRequested();
+        return await _mdsClient.ToggleIsUnusedDocumentAsync(toggleIsUnusedDocumentDto, cancellationToken) ? new OkResult() : new BadRequestResult();
     }
 }

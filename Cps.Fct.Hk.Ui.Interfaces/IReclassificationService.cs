@@ -28,6 +28,7 @@ public interface IReclassificationService
     /// <param name="statement">The statement request.</param>
     /// <param name="exhibit">Exhibit request.</param>
     /// <param name="correspondenceId">The correspndence identifier.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    public Task<ReclassificationResponse> ReclassifyCaseMaterialAsync(int caseId, int materialId, string classification, int documentTypeId, bool used, string subject, CmsAuthValues cmsAuthValues, ReclassifyStatementRequest? statement = null, ReclassifyExhibitRequest? exhibit = null, Guid correspondenceId = default);
+    public Task<ReclassificationResponse> ReclassifyCaseMaterialAsync(int caseId, int materialId, string classification, int documentTypeId, bool used, string subject, CmsAuthValues cmsAuthValues, ReclassifyStatementRequest? statement = null, ReclassifyExhibitRequest? exhibit = null, Guid correspondenceId = default, CancellationToken cancellationToken = default);
 }

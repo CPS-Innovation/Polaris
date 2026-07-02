@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Diagnostics;
@@ -54,7 +55,7 @@ public class UpdateStatement(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
     [Function("UpdateStatement")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.UpdateStatement)] HttpRequest request, int caseId, int materialId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.UpdateStatement)] HttpRequest request, int caseId, int materialId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -78,7 +79,7 @@ public class UpdateStatement(
 
             var updateStatementRequest = JsonConvert.DeserializeObject<UpdateStatementRequest>(requestBody);
             updateStatementRequest.MaterialId = materialId;
-            
+
             if (updateStatementRequest is null)
             {
                 return new BadRequestObjectResult("Statement request is null");
@@ -93,7 +94,8 @@ public class UpdateStatement(
             UpdateStatementResponse result = await this.communicationService.UpdateStatementAsync(
                 caseId,
                 updateStatementRequest,
-                cmsAuthValues).ConfigureAwait(true);
+                cmsAuthValues,
+                cancellationToken: cancellationToken).ConfigureAwait(true);
 
             if (result?.UpdateStatementData?.Id == null)
             {

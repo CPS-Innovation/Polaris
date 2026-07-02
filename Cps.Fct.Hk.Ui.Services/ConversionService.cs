@@ -35,7 +35,7 @@ public class ConversionService(ILogger<ConversionService> logger,
     private const string PasswordProtectedMessage = "The document is password protected.";
 
     /// <inheritdoc />
-    public async Task<bool> SaveDownloadedDocumentToTemporaryStorageAsync(FileStreamResult downloadedDocument)
+    public async Task<bool> SaveDownloadedDocumentToTemporaryStorageAsync(FileStreamResult downloadedDocument, CancellationToken cancellationToken = default)
     {
         string? blobContainerName = this.configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty;
 
@@ -55,7 +55,7 @@ public class ConversionService(ILogger<ConversionService> logger,
             BlobContainerClient containerClient = this.blobServiceClient.GetBlobContainerClient(blobContainerName);
 
             // Ensure the container exists (create if it does not)
-            await containerClient.CreateIfNotExistsAsync().ConfigureAwait(true);
+            await containerClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(true);
 
             // Get a reference to the blob (file) with the temporary name
             BlobClient blobClient = containerClient.GetBlobClient(temporaryFileName);
@@ -70,10 +70,10 @@ public class ConversionService(ILogger<ConversionService> logger,
                         return false;
                     }
 
-                    await downloadedDocument.FileStream.CopyToAsync(memoryStream).ConfigureAwait(false);
+                    await downloadedDocument.FileStream.CopyToAsync(memoryStream, cancellationToken).ConfigureAwait(false);
                     memoryStream.Position = 0;  // Reset stream position
 
-                    await blobClient.UploadAsync(memoryStream, overwrite: true).ConfigureAwait(false);
+                    await blobClient.UploadAsync(memoryStream, overwrite: true, cancellationToken).ConfigureAwait(false);
                 }
 
                 this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Downloaded document saved temporarily to Azure Blob Storage as [{temporaryFileName}]");
@@ -89,9 +89,11 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
     /// <inheritdoc />
-    public async Task<string?> ConvertToPdfDocumentAsync(string tmpFileDownloadName, bool firstPageOnly = true)
+    public async Task<string?> ConvertToPdfDocumentAsync(string tmpFileDownloadName, bool firstPageOnly = true, CancellationToken cancellationToken = default)
     {
         string? pdfFilePath = null;
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
@@ -102,22 +104,22 @@ public class ConversionService(ILogger<ConversionService> logger,
             {
                 pdfFilePath = contentType switch
                 {
-                    var type when this.IsRasterImage(type) => await ConvertToPdfFilePathAsync(() => this.ConvertRasterImageToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
-                    "application/msword" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true), // DOC and DOT files
-                    "application/octet-stream" => await ConvertToPdfFilePathAsync(() => this.ConvertHtmlToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true), // HTE, HTM and HTML files
-                    "application/pdf" => await ConvertToPdfFilePathAsync(() => this.ConvertPdfToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
-                    "application/rtf" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
-                    "application/vnd.ms-excel" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    var type when this.IsRasterImage(type) => await ConvertToPdfFilePathAsync(() => this.ConvertRasterImageToPdfDocumentAsync(tmpFileDownloadName, cancellationToken)).ConfigureAwait(true),
+                    "application/msword" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)).ConfigureAwait(true), // DOC and DOT files
+                    "application/octet-stream" => await ConvertToPdfFilePathAsync(() => this.ConvertHtmlToPdfDocumentAsync(tmpFileDownloadName, cancellationToken)).ConfigureAwait(true), // HTE, HTM and HTML files
+                    "application/pdf" => await ConvertToPdfFilePathAsync(() => this.ConvertPdfToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)).ConfigureAwait(true),
+                    "application/rtf" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, cancellationToken:cancellationToken)).ConfigureAwait(true),
+                    "application/vnd.ms-excel" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)).ConfigureAwait(true),
                     "application/vnd.ms-excel.sheet.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
-                    "application/vnd.ms-word.document.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
-                    "application/vnd.ms-word.template.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
-                    "application/vnd.ms-outlook" => await ConvertToPdfFilePathAsync(() => this.ConvertMsgToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
-                    "application/vnd.ms-powerpoint" => await ConvertToPdfFilePathAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.ms-word.document.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken:cancellationToken)).ConfigureAwait(true),
+                    "application/vnd.ms-word.template.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken:cancellationToken)).ConfigureAwait(true),
+                    "application/vnd.ms-outlook" => await ConvertToPdfFilePathAsync(() => this.ConvertMsgToPdfDocumentAsync(tmpFileDownloadName, cancellationToken: cancellationToken)).ConfigureAwait(true),
+                    "application/vnd.ms-powerpoint" => await ConvertToPdfFilePathAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly,cancellationToken)).ConfigureAwait(true),
                     "application/vnd.openxmlformats-officedocument.presentationml.presentation" => await ConvertToPdfFilePathAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.template" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)).ConfigureAwait(true),
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.template" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)).ConfigureAwait(true),
                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
-                    "application/xml" => await ConvertToPdfFilePathAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
+                    "application/xml" => await ConvertToPdfFilePathAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName, cancellationToken: cancellationToken)).ConfigureAwait(true),
                     "text/csv" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
                     "text/plain" => await ConvertToPdfFilePathAsync(() => this.ConvertTxtToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
                     "text/xml" => await ConvertToPdfFilePathAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
@@ -142,8 +144,10 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
     /// <inheritdoc />
-    public async Task<string?> ConvertRasterImageToPdfDocumentAsync(string tmpFileDownloadName)
+    public async Task<string?> ConvertRasterImageToPdfDocumentAsync(string tmpFileDownloadName, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         string pdfFileName = $"preview_{tmpFileDownloadName}.pdf"; // PDF blob name
         string? pdfFileUrl = null; // URL to return after upload
 
@@ -199,8 +203,10 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
     /// <inheritdoc />
-    public async Task<string?> ConvertPdfToPdfDocumentAsync(string tmpFileDownloadName, bool firstPageOnly = true)
+    public async Task<string?> ConvertPdfToPdfDocumentAsync(string tmpFileDownloadName, bool firstPageOnly = true, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         string pdfFileName = $"preview_{tmpFileDownloadName}.pdf"; // PDF output blob name
         string? pdfFileUrl = null; // URL to return after upload
 
@@ -286,8 +292,10 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
     /// <inheritdoc />
-    public async Task<string?> ConvertTxtToPdfDocumentAsync(string tmpFileDownloadName)
+    public async Task<string?> ConvertTxtToPdfDocumentAsync(string tmpFileDownloadName, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         string pdfFileName = $"preview_{tmpFileDownloadName}.pdf"; // Output PDF blob name
         string? pdfFileUrl = null; // URL to return after upload
 
@@ -355,8 +363,10 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
     /// <inheritdoc />
-    public async Task<string?> ConvertHtmlToPdfDocumentAsync(string tmpFileDownloadName)
+    public async Task<string?> ConvertHtmlToPdfDocumentAsync(string tmpFileDownloadName, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         string pdfFileName = $"preview_{tmpFileDownloadName}.pdf"; // PDF output blob name
         string? pdfFileUrl = null; // URL to return after upload
 
@@ -416,8 +426,10 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
     /// <inheritdoc />
-    public async Task<string?> ConvertDocToPdfDocumentAsync(string tmpFileDownloadName, bool firstPageOnly = true)
+    public async Task<string?> ConvertDocToPdfDocumentAsync(string tmpFileDownloadName, bool firstPageOnly = true, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         string pdfFileName = $"preview_{tmpFileDownloadName}.pdf"; // PDF output blob name
         string? pdfFileUrl = null; // URL to return after upload
 
@@ -446,7 +458,7 @@ public class ConversionService(ILogger<ConversionService> logger,
                     if (document.PageCount > 0)
                     {
                         // Extract pages, convert to PDF, upload to Blob Storage, and get the PDF URL
-                        pdfFileUrl = await ExtractPagesAndUploadPdfAsync(document, containerClient, pdfFileName, convertAllPages);
+                        pdfFileUrl = await ExtractPagesAndUploadPdfAsync(document, containerClient, pdfFileName, convertAllPages, cancellationToken);
                         string firstPageText = !convertAllPages ? "(first page)" : string.Empty;
 
                         this.logger.LogInformation(
@@ -482,8 +494,9 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
 
-    private static async Task<string> ExtractPagesAndUploadPdfAsync(Aspose.Words.Document document, BlobContainerClient containerClient, string pdfFileName, bool convertAllPages)
+    private static async Task<string> ExtractPagesAndUploadPdfAsync(Aspose.Words.Document document, BlobContainerClient containerClient, string pdfFileName, bool convertAllPages, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         Aspose.Words.Document wordDocument;
         if (convertAllPages)
         {
@@ -527,8 +540,9 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
     /// <inheritdoc />
-    public async Task<string?> ConvertXmlToPdfDocumentAsync(string tmpFileDownloadName)
+    public async Task<string?> ConvertXmlToPdfDocumentAsync(string tmpFileDownloadName, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         string pdfFileName = $"preview_{tmpFileDownloadName}.pdf"; // PDF output blob name
         string? pdfFileUrl = null; // URL to return after upload
 
@@ -595,8 +609,9 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
     /// <inheritdoc />
-    public async Task<string?> ConvertXlsToPdfDocumentAsync(string tmpFileDownloadName, bool firstPageOnly = true)
+    public async Task<string?> ConvertXlsToPdfDocumentAsync(string tmpFileDownloadName, bool firstPageOnly = true, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         string pdfFileName = $"preview_{tmpFileDownloadName}.pdf"; // Output PDF blob name
         string? pdfFileUrl = null; // URL to return after upload
 
@@ -672,8 +687,9 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
     /// <inheritdoc />
-    public async Task<string?> ConvertMsgToPdfDocumentAsync(string tmpFileDownloadName)
+    public async Task<string?> ConvertMsgToPdfDocumentAsync(string tmpFileDownloadName, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         string pdfFileName = $"preview_{tmpFileDownloadName}.pdf"; // Output PDF blob name
         string? pdfFileUrl = null; // URL to return after upload
 
@@ -735,8 +751,9 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
     /// <inheritdoc />
-    public async Task<string?> ConvertPptToPdfDocumentAsync(string tmpFileDownloadName, bool firstPageOnly = true)
+    public async Task<string?> ConvertPptToPdfDocumentAsync(string tmpFileDownloadName, bool firstPageOnly = true, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         string pdfFileName = $"preview_{tmpFileDownloadName}.pdf"; // Output PDF blob name
         string? pdfFileUrl = null; // URL to return after upload
 

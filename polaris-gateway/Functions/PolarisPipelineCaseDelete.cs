@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using PolarisGateway.Clients.Coordinator;
 using Microsoft.Azure.Functions.Worker;
+using System.Threading;
 using System.Threading.Tasks;
 using PolarisGateway.Extensions;
 using Common.Telemetry;
@@ -43,11 +44,12 @@ public class PolarisPipelineCaseDelete : BaseFunction
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
 
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId, CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
+        cancellationToken.ThrowIfCancellationRequested();
 
         return await (await _coordinatorClient.DeleteCaseAsync(
             caseUrn,

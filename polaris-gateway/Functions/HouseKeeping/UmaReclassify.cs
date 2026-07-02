@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
@@ -60,7 +61,7 @@ public class UmaReclassify(
     [OpenApiRequestBody("application/json", typeof(IReadOnlyCollection<MatchedCommunication>), Description = "Body containing the Request info.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
     [Function("UmaReclassify")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.UmaReclassify)] HttpRequest req, int caseId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.UmaReclassify)] HttpRequest req, int caseId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -146,10 +147,11 @@ public class UmaReclassify(
     /// </summary>
     /// <param name="caseId">The ID of the case.</param>
     /// <param name="cmsAuthValues">The authorization values.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a collection of <see cref="Communication"/> objects.</returns>
-    private async Task<IReadOnlyCollection<Communication>> GetCommunicationsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    private async Task<IReadOnlyCollection<Communication>> GetCommunicationsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Retrieving communications for caseId [{caseId}]...");
-        return await this.communicationService.GetCommunicationsAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+        return await this.communicationService.GetCommunicationsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
     }
 }

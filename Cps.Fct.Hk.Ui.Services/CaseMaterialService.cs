@@ -356,15 +356,15 @@ public class CaseMaterialService(
         UsedExhibitsResponse,
         UsedMgFormsResponse,
         UsedOtherMaterialsResponse,
-        ExhibitProducersResponse)> RetrieveCaseMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues)
+        ExhibitProducersResponse)> RetrieveCaseMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
-        var communicationsTask = Task.Run(() => this.GetCommunicationsAsync(caseId, cmsAuthValues));
-        var unusedMaterialsTask = Task.Run(() => this.GetUnusedMaterialsAsync(caseId, cmsAuthValues));
-        var usedStatementsTask = Task.Run(() => this.GetUsedStatementsAsync(caseId, cmsAuthValues));
-        var usedExhibitsTask = Task.Run(() => this.GetUsedExhibitsAsync(caseId, cmsAuthValues));
-        var usedMgFormsTask = Task.Run(() => this.GetUsedMgFormsAsync(caseId, cmsAuthValues));
-        var usedOtherMaterialsTask = Task.Run(() => this.GetUsedOtherMaterialsAsync(caseId, cmsAuthValues));
-        var exhibitProducerTask = Task.Run(() => this.GetExhibitProducersAsync(caseId, cmsAuthValues));
+        var communicationsTask = this.GetCommunicationsAsync(caseId, cmsAuthValues, cancellationToken);
+        var unusedMaterialsTask = this.GetUnusedMaterialsAsync(caseId, cmsAuthValues, cancellationToken);
+        var usedStatementsTask = this.GetUsedStatementsAsync(caseId, cmsAuthValues, cancellationToken);
+        var usedExhibitsTask = this.GetUsedExhibitsAsync(caseId, cmsAuthValues, cancellationToken);
+        var usedMgFormsTask = this.GetUsedMgFormsAsync(caseId, cmsAuthValues, cancellationToken);
+        var usedOtherMaterialsTask = this.GetUsedOtherMaterialsAsync(caseId, cmsAuthValues, cancellationToken);
+        var exhibitProducerTask = this.GetExhibitProducersAsync(caseId, cmsAuthValues, cancellationToken);
 
         await Task
             .WhenAll(
@@ -392,13 +392,14 @@ public class CaseMaterialService(
     /// </summary>
     /// <param name="caseId">The ID of the case.</param>
     /// <param name="cmsAuthValues">The authorization values.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel this operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a collection of <see cref="Communication"/> objects.</returns>
-    public async Task<IReadOnlyCollection<Communication>> GetCommunicationsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<IReadOnlyCollection<Communication>> GetCommunicationsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Retrieving communications for caseId [{caseId}]...");
-            return await this.communicationService.GetCommunicationsAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+            return await this.communicationService.GetCommunicationsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -413,7 +414,7 @@ public class CaseMaterialService(
     /// <param name="caseId">The ID of the case.</param>
     /// <param name="cmsAuthValues">The authorization values.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="UnusedMaterialsResponse"/>.</returns>
-    public async Task<UnusedMaterialsResponse> GetUnusedMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<UnusedMaterialsResponse> GetUnusedMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -432,13 +433,14 @@ public class CaseMaterialService(
     /// </summary>
     /// <param name="caseId">The ID of the case.</param>
     /// <param name="cmsAuthValues">The authorization values.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="UsedStatementsResponse"/>.</returns>
-    public async Task<UsedStatementsResponse> GetUsedStatementsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<UsedStatementsResponse> GetUsedStatementsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Retrieving used statements for caseId [{caseId}]...");
-            return await this.communicationService.GetUsedStatementsAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+            return await this.communicationService.GetUsedStatementsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -452,13 +454,14 @@ public class CaseMaterialService(
     /// </summary>
     /// <param name="caseId">The ID of the case.</param>
     /// <param name="cmsAuthValues">The authorization values.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="UsedExhibitsResponse"/>.</returns>
-    public async Task<UsedExhibitsResponse> GetUsedExhibitsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<UsedExhibitsResponse> GetUsedExhibitsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Retrieving used exhibits for caseId [{caseId}]...");
-            return await this.communicationService.GetUsedExhibitsAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+            return await this.communicationService.GetUsedExhibitsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -472,8 +475,9 @@ public class CaseMaterialService(
     /// </summary>
     /// <param name="caseId">The ID of the case.</param>
     /// <param name="cmsAuthValues">The authorization values.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="UsedMgFormsResponse"/>.</returns>
-    public async Task<UsedMgFormsResponse> GetUsedMgFormsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<UsedMgFormsResponse> GetUsedMgFormsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -492,13 +496,14 @@ public class CaseMaterialService(
     /// </summary>
     /// <param name="caseId">The ID of the case.</param>
     /// <param name="cmsAuthValues">The authorization values.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="UsedOtherMaterialsResponse"/>.</returns>
-    public async Task<UsedOtherMaterialsResponse> GetUsedOtherMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<UsedOtherMaterialsResponse> GetUsedOtherMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Retrieving used other materials for caseId [{caseId}]...");
-            return await this.communicationService.GetUsedOtherMaterialsAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+            return await this.communicationService.GetUsedOtherMaterialsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -571,14 +576,15 @@ public class CaseMaterialService(
     /// Asynchronously retrieves exhibit producers based on the case ID and authorization values.
     /// </summary>
     /// <param name="caseId">The ID of the case.</param>
-    /// <param name="cmsAuthValues">The authorization values.</param>t
+    /// <param name="cmsAuthValues">The authorization values.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the <see cref="ExhibitProducersResponse"/>.</returns>
-    public async Task<ExhibitProducersResponse> GetExhibitProducersAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<ExhibitProducersResponse> GetExhibitProducersAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Retrieving exhibit producers for caseId [{caseId}]...");
-            return await this.communicationService.GetExhibitProducersAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+            return await this.communicationService.GetExhibitProducersAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

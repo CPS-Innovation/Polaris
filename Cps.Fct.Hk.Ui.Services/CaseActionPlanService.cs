@@ -30,11 +30,11 @@ public class CaseActionPlanService(
     private readonly IMasterDataServiceClient apiClient = apiClient;
 
     /// <inheritdoc />
-    public async Task<NoContentResult> AddCaseActionPlanAsync(string urn, int caseId, AddCaseActionPlanRequest addCaseActionPlanRequest, CmsAuthValues cmsAuthValues)
+    public async Task<NoContentResult> AddCaseActionPlanAsync(string urn, int caseId, AddCaseActionPlanRequest addCaseActionPlanRequest, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
 
-        var checkCaeLockStatus = await this.caseLockService.CheckCaseLockAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+        var checkCaeLockStatus = await this.caseLockService.CheckCaseLockAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
         if (checkCaeLockStatus.IsLocked && !checkCaeLockStatus.IsLockedByCurrentUser)
         {
             throw new CaseLockedException($"{LoggingConstants.HskUiLogPrefix} Attempting to add case action plan for caseId [{caseIdString}] failed as case is locked by [{checkCaeLockStatus.LockedByUser}].");
@@ -78,7 +78,7 @@ public class CaseActionPlanService(
                 defendantId: addCaseActionPlanRequest.defendantId,
                 steps: mappedSteps!);
 
-            NoContentResult addCaseActionPlanResponse = await this.apiClient.AddCaseActionPlanAsync(caseId, request, cmsAuthValues).ConfigureAwait(false);
+            NoContentResult addCaseActionPlanResponse = await this.apiClient.AddCaseActionPlanAsync(caseId, request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
             this.logger.LogInformation(LoggingConstants.AddCaseActionPlanOperationSuccess, LoggingConstants.HskUiLogPrefix, caseIdString);
 

@@ -4,6 +4,7 @@
 
 namespace Cps.Fct.Hk.Ui.Interfaces;
 
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Dto.Request;
 using Common.Dto.Response.HouseKeeping;
@@ -18,6 +19,7 @@ public interface ICaseInfoService
     /// </summary>
     /// <param name="caseId">The unique identifier of the case for which communications are being retrieved.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve communications.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a read-only <see cref="CaseSummary"/> object.</returns>
-    Task<CaseSummaryResponse> GetCaseInfoAsync(int caseId, CmsAuthValues cmsAuthValues);
+    Task<CaseSummaryResponse> GetCaseInfoAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 }

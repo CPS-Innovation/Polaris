@@ -2862,6 +2862,7 @@ public class CommunicationServiceTests
         // Arrange
         int caseId = 1234;
         int pcdId = 5678;
+
         var customCancellationToken = new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token;
 
         var cmsAuthValues = new CmsAuthValues(
@@ -2878,15 +2879,15 @@ public class CommunicationServiceTests
         var preChargeDecisionOutcome = new ApiClient.PreChargeDecisionOutcome();
 
         this.apiClientMock
-            .Setup(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues))
+            .Setup(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues, It.IsAny<CancellationToken>()))
             .ReturnsAsync(historyEvents);
 
         this.apiClientMock
-            .Setup(client => client.GetInitialReviewByHistoryIdAsync(caseId, pcdId, cmsAuthValues, customCancellationToken))
+            .Setup(client => client.GetInitialReviewByHistoryIdAsync(caseId, pcdId, cmsAuthValues, It.IsAny<CancellationToken>()))
             .ReturnsAsync(pcdAnalysisOutcome);
 
         this.apiClientMock
-            .Setup(client => client.GetPreChargeDecisionByHistoryId(caseId, pcdId + 1, cmsAuthValues))
+            .Setup(client => client.GetPreChargeDecisionByHistoryId(caseId, pcdId + 1, cmsAuthValues, It.IsAny<CancellationToken>()))
             .ReturnsAsync(preChargeDecisionOutcome);
 
         // Act
@@ -3261,7 +3262,7 @@ public class CommunicationServiceTests
         // Arrange
         int caseId = 1234;
         int pcdId = 5678;
-        var customCancellationToken = new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token;
+        var customCancellationToken = new CancellationTokenSource(TimeSpan.FromSeconds(20)).Token;
 
         var cmsAuthValues = new CmsAuthValues(
             "cookies",
