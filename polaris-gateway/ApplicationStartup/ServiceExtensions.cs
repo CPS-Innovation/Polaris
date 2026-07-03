@@ -1,37 +1,38 @@
-using System.Net;
-using System.Net.Http.Headers;
+using Common.Clients.PdfGenerator;
+using Common.Factories.ComputerVisionClientFactory;
+using Common.Mappers;
+using Common.Services.BlobStorage;
+using Common.Services.DocumentToggle;
+using Common.Services.OcrService;
+using Common.Services.PiiService;
+using Common.Telemetry;
+using Common.Wrappers;
+using Cps.Fct.Hk.Ui.Interfaces;
+using Cps.Fct.Hk.Ui.ServiceClient.Uma;
+using Cps.Fct.Hk.Ui.ServiceClient.Uma.Configuration;
+using Cps.Fct.Hk.Ui.Services;
+using Cps.Fct.Hk.Ui.Services.Validators;
+using Ddei.Extensions;
+using DdeiClient.Clients;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Common.Telemetry;
-using Common.Wrappers;
 using PolarisGateway.Clients.Coordinator;
+using PolarisGateway.Clients.PdfThumbnailGenerator;
 using PolarisGateway.Mappers;
+using PolarisGateway.Models;
+using PolarisGateway.Services.Artefact;
+using PolarisGateway.Services.MdsOrchestration;
 using PolarisGateway.Validators;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
-using Ddei.Extensions;
-using Common.Services.DocumentToggle;
-using Common.Services.OcrService;
-using Common.Factories.ComputerVisionClientFactory;
-using Common.Clients.PdfGenerator;
-using Common.Services.BlobStorage;
-using Common.Services.PiiService;
-using PolarisGateway.Clients.PdfThumbnailGenerator;
-using PolarisGateway.Services.Artefact;
-using PolarisGateway.Services.MdsOrchestration;
-using System.Net.Http;
 using System;
-using Cps.Fct.Hk.Ui.Interfaces;
-using Cps.Fct.Hk.Ui.Services;
-using DdeiClient.Clients.Interfaces;
-using DdeiClient.Clients;
-using DdeiClient.Configuration;
-using Common.Mappers;
-using Cps.Fct.Hk.Ui.Services.Validators;
-using Cps.Fct.Hk.Ui.ServiceClient.Uma;
-using Cps.Fct.Hk.Ui.ServiceClient.Uma.Configuration;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace PolarisGateway.ApplicationStartup;
 
@@ -77,6 +78,8 @@ public static class ServiceExtensions
         services.AddPiiService();
         services.AddArtefactService();
         services.AddMdsOrchestrationService();
+        services.Configure<RedactionFileSizeOptions>(configuration.GetSection(RedactionFileSizeOptions.ConfigKey));
+
 
         // House keeping.
         services.AddSingleton<ICaseInfoService, CaseInfoService>();

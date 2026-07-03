@@ -1,5 +1,6 @@
 using Common.Configuration;
 using Common.Extensions;
+using Common.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -54,7 +55,13 @@ public class GetPdf : BaseFunction
 
         var isOcrProcessed = req.Query.ContainsKey(isOcrProcessedParamName) && bool.Parse(req.Query[isOcrProcessedParamName]);
         var forceRefresh = req.Query.ContainsKey(ForceRefreshParamName) && bool.Parse(req.Query[ForceRefreshParamName]);
-        var getPdfResult = await _pdfArtefactService.GetPdfAsync(cmsAuthValues, correlationId, caseUrn, caseId, materialId, documentId, isOcrProcessed, forceRefresh, cancellationToken);
+        var getPdfResult = await _pdfArtefactService.GetPdfAsync(cmsAuthValues, correlationId, caseUrn, caseId, materialId, documentId, isOcrProcessed, forceRefresh);
+
+        if (getPdfResult.FileSizeExceedsLimit == true)
+        {
+            req.HttpContext.Response.Headers[HttpHeaderKeys.CpsFileTooLarge] = "true";
+        }
+
         return getPdfResult.Status == ResultStatus.ArtefactAvailable ?
          new FileStreamResult(getPdfResult.Artefact, PdfContentType) :
          new JsonResult(getPdfResult)
