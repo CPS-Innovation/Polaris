@@ -55,7 +55,7 @@ public class GetPdf : BaseFunction
 
         var isOcrProcessed = req.Query.ContainsKey(isOcrProcessedParamName) && bool.Parse(req.Query[isOcrProcessedParamName]);
         var forceRefresh = req.Query.ContainsKey(ForceRefreshParamName) && bool.Parse(req.Query[ForceRefreshParamName]);
-        var getPdfResult = await _pdfArtefactService.GetPdfAsync(cmsAuthValues, correlationId, caseUrn, caseId, materialId, documentId, isOcrProcessed, forceRefresh);
+        var getPdfResult = await _pdfArtefactService.GetPdfAsync(cmsAuthValues, correlationId, caseUrn, caseId, materialId, documentId, isOcrProcessed, forceRefresh, cancellationToken);
 
         if (getPdfResult.FileSizeExceedsLimit == true)
         {
