@@ -6,5 +6,6 @@
         public const string CmsAuthValues = "Cms-Auth-Values";
         public const string CmsToken = "Token";
         public const string CmsCookie = "Cookies";
+        public const string CpsFileTooLarge = "CPS-File-Too-Large";
     }
 }

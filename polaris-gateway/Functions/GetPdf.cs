@@ -1,5 +1,6 @@
 using Common.Configuration;
 using Common.Extensions;
+using Common.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -57,7 +58,7 @@ public class GetPdf : BaseFunction
 
         if (getPdfResult.FileSizeExceedsLimit == true)
         {
-            req.HttpContext.Response.Headers["CPS-File-Too-Large"] = "true";
+            req.HttpContext.Response.Headers[HttpHeaderKeys.CpsFileTooLarge] = "true";
         }
 
         return getPdfResult.Status == ResultStatus.ArtefactAvailable ?
