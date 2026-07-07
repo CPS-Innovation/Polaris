@@ -266,7 +266,7 @@ public class GetCaseMaterials(
     /// <summary>
     /// Normalizes the read status of all case materials.
     /// </summary>
-    private void NormalizeReadStatus(List<CaseMaterial> allCaseMaterials)
+    private static void NormalizeReadStatus(List<CaseMaterial> allCaseMaterials)
     {
         if (allCaseMaterials != null)
         {

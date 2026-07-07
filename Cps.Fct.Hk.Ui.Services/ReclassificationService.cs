@@ -55,7 +55,6 @@ public class ReclassificationService(
         catch (Exception ex)
         {
             this.logger.LogError(ex, LoggingConstants.ReclassifyCaseMaterialOperationFailed, LoggingConstants.HskUiLogPrefix, request.CaseId, request.MaterialId);
-            this.logger.LogError(ex, ex.Message);
             throw;
         }
     }
