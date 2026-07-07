@@ -110,7 +110,7 @@ public class GetCaseMaterials(
             var combinedCommunications = await this.GetMappedCommunicationsWithAttachmentsAsync(caseId, communications, cmsAuthValues).ConfigureAwait(false);
             var allCaseMaterials = this.caseMaterialService.MapCommunicationsToCaseMaterials(combinedCommunications) ?? new List<CaseMaterial>();
 
-            this.ProcessUsedMaterials(allCaseMaterials, caseId, communications, usedExhibits, usedStatements, usedMgForms, usedOtherMaterials, exhibitProducers);
+            this.ProcessUsedMaterials(allCaseMaterials, caseId, retrievedMaterials);
             this.ProcessUnusedMaterials(allCaseMaterials, communications, unusedMaterials);
 
             this.logger!.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetCaseMaterials function completed in [{stopwatch.Elapsed}]");
@@ -178,17 +178,12 @@ public class GetCaseMaterials(
     private void ProcessUsedMaterials(
         List<CaseMaterial> allCaseMaterials,
         int caseId,
-        IReadOnlyCollection<Communication> communications,
-        UsedExhibitsResponse usedExhibits,
-        UsedStatementsResponse usedStatements,
-        UsedMgFormsResponse usedMgForms,
-        UsedOtherMaterialsResponse usedOtherMaterials,
-        ExhibitProducersResponse exhibitProducers)
+        RetrievedCaseMaterials materials)
     {
-        this.AddUsedExhibits(allCaseMaterials, caseId, communications, usedExhibits, exhibitProducers);
-        this.AddUsedStatements(allCaseMaterials, communications, usedStatements);
-        this.AddUsedMgForms(allCaseMaterials, usedMgForms);
-        this.AddUsedOtherMaterials(allCaseMaterials, usedOtherMaterials);
+        this.AddUsedExhibits(allCaseMaterials, caseId, materials.Communications, materials.UsedExhibits, materials.ExhibitProducers);
+        this.AddUsedStatements(allCaseMaterials, materials.Communications, materials.UsedStatements);
+        this.AddUsedMgForms(allCaseMaterials, materials.UsedMgForms);
+        this.AddUsedOtherMaterials(allCaseMaterials, materials.UsedOtherMaterials);
     }
 
     /// <summary>

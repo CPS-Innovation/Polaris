@@ -781,7 +781,7 @@ public class ConversionService(ILogger<ConversionService> logger,
                         // Create a new presentation to hold the first slide
                         using (var slidePresentation = new Aspose.Slides.Presentation())    
                         {
-                            convertAllslides = firstSlideOnly == false && presentation.Slides.Count > 1;
+                            convertAllslides = firstSlideOnly && presentation.Slides.Count > 1;
 
                             // Check if there are any slides in the original presentation
                             if (presentation.Slides.Count > 0)
