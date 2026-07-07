@@ -7,6 +7,7 @@ namespace PolarisGateway.Functions.HouseKeeping;
 using System;
 using System.Diagnostics;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
@@ -55,7 +56,7 @@ public class GetPreChargeDecisionByHistoryId(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError)]
     [Function(nameof(GetPreChargeDecisionByHistoryId))]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PreChargeDecisionByHistoryId)] HttpRequest request, int caseId, int historyId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PreChargeDecisionByHistoryId)] HttpRequest request, int caseId, int historyId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -75,7 +76,7 @@ public class GetPreChargeDecisionByHistoryId(
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            var result = await this.communicationService.GetPreChargeDecisionByHistoryId(caseId,historyId, cmsAuthValues).ConfigureAwait(true);
+            var result = await this.communicationService.GetPreChargeDecisionByHistoryId(caseId,historyId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
 
             if (result == null)
             {

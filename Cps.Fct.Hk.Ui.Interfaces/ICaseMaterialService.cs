@@ -78,7 +78,6 @@ public interface ICaseMaterialService
     /// <param name="unusedMaterials">
     /// The <see cref="UnusedMaterialsResponse"/> containing collections of unused materials to be mapped.
     /// </param>
-    /// <param name="communications">Inbox communucations.</param>
     /// <returns>
     /// A list of <see cref="CaseMaterial"/> objects representing the mapped unused materials.
     /// Returns an empty list if no materials are available.
@@ -90,6 +89,7 @@ public interface ICaseMaterialService
     /// </summary>
     /// <param name="caseId">The ID of the case.</param>
     /// <param name="cmsAuthValues">Authentication details for accessing the CMS.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>
     /// A tuple containing case communications, unused materials, used statements, used exhibits, used MG forms, used other materials and exhibit producers.
     /// </returns>
@@ -101,7 +101,7 @@ public interface ICaseMaterialService
         UsedMgFormsResponse,
         UsedOtherMaterialsResponse,
         ExhibitProducersResponse)>
-        RetrieveCaseMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues);
+        RetrieveCaseMaterialsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Adds materials to the list of case materials, handling duplicates by removing the existing material and adding the new one.
@@ -120,6 +120,7 @@ public interface ICaseMaterialService
     /// </summary>
     /// <param name="caseId">The unique ID of the case.</param>
     /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation. Defaults to <see cref="CancellationToken.None"/>.</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    public Task<ExhibitProducersResponse> GetExhibitProducersAsync(int caseId, CmsAuthValues cmsAuthValues);
+    public Task<ExhibitProducersResponse> GetExhibitProducersAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 }

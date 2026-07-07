@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Diagnostics;
@@ -28,6 +29,25 @@ using Common.Configuration;
 using Common.Constants;
 using Common.Enums;
 using Cps.Fct.Hk.Ui.Services.Constants;
+
+/// <summary>
+/// Container for retrieved case materials data.
+/// </summary>
+/// <param name="Communications">The communications collection.</param>
+/// <param name="UnusedMaterials">The unused materials.</param>
+/// <param name="UsedStatements">The used statements.</param>
+/// <param name="UsedExhibits">The used exhibits.</param>
+/// <param name="UsedMgForms">The used MG forms.</param>
+/// <param name="UsedOtherMaterials">The used other materials.</param>
+/// <param name="ExhibitProducers">The exhibit producers.</param>
+internal record RetrievedCaseMaterials(
+    IReadOnlyCollection<Communication> Communications,
+    UnusedMaterialsResponse UnusedMaterials,
+    UsedStatementsResponse UsedStatements,
+    UsedExhibitsResponse UsedExhibits,
+    UsedMgFormsResponse UsedMgForms,
+    UsedOtherMaterialsResponse UsedOtherMaterials,
+    ExhibitProducersResponse ExhibitProducers);
 
 /// <summary>
 /// Represents a function that retrieves the case materials for a case,
@@ -54,6 +74,7 @@ public class GetCaseMaterials(
     /// </summary>
     /// <param name="req">The HTTP request.</param>
     /// <param name="caseId">The case Id.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
     [OpenApiOperation(operationId: nameof(GetCaseMaterials), tags: ["Material"], Description = "Represents a function that retrieves the case materials for a case.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
@@ -63,113 +84,38 @@ public class GetCaseMaterials(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [Function("GetCaseMaterials")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseMaterials)] HttpRequest req, int caseId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseMaterials)] HttpRequest req, int caseId, CancellationToken cancellationToken = default)
     {
         try
         {
             var stopwatch = Stopwatch.StartNew();
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterials function processed a request.");
 
-            // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(req);
-
-            // Retrieve case materials
             var (communications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials, exhibitProducers) =
-                await this.caseMaterialService.RetrieveCaseMaterialsAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+                await this.caseMaterialService.RetrieveCaseMaterialsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
-            // Ensure all required data is retrieved before proceeding
-            if (communications == null || unusedMaterials == null || usedStatements == null || usedExhibits == null || usedMgForms == null || usedOtherMaterials == null)
-            {
-                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} Failed to retrieve case materials for caseId [{caseId}]");
-                throw new UnprocessableEntityException($"Failed to retrieve case materials for caseId [{caseId}]");
-            }
+            var retrievedMaterials = new RetrievedCaseMaterials(
+                communications, 
+                unusedMaterials, 
+                usedStatements, 
+                usedExhibits, 
+                usedMgForms, 
+                usedOtherMaterials, 
+                exhibitProducers);
 
-            this.logger?.LogInformation(
-                $"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] material count: " +
-                $"communications [{communications.Count}], " +
-                $"unusedMaterials (exhibits) [{unusedMaterials.Exhibits?.Count ?? 0}], " +
-                $"unusedMaterials (mgForms) [{unusedMaterials.MgForms?.Count ?? 0}], " +
-                $"unusedMaterials (otherMaterials) [{unusedMaterials.OtherMaterials?.Count ?? 0}], " +
-                $"unusedMaterials (statements) [{unusedMaterials.Statements?.Count ?? 0}], " +
-                $"usedStatements [{usedStatements.Statements?.Count ?? 0}], " +
-                $"usedExhibits [{usedExhibits.Exhibits?.Count ?? 0}], " +
-                $"usedMgForms [{usedMgForms.MgForms?.Count ?? 0}], " +
-                $"usedOtherMaterials [{usedOtherMaterials.MgForms?.Count ?? 0}] " +
-                $"exhibitProducers [{exhibitProducers.ExhibitProducers?.Count ?? 0}]");
+            this.ValidateRetrievedMaterials(caseId, retrievedMaterials);
+            this.LogMaterialCounts(caseId, retrievedMaterials);
 
-            // Map and combine communications with attachments
-            List<Communication> combinedCommunications =
-                await this.GetMappedCommunicationsWithAttachmentsAsync(caseId, communications, cmsAuthValues).ConfigureAwait(false);
+            var combinedCommunications = await this.GetMappedCommunicationsWithAttachmentsAsync(caseId, communications, cmsAuthValues).ConfigureAwait(false);
+            var allCaseMaterials = this.caseMaterialService.MapCommunicationsToCaseMaterials(combinedCommunications) ?? new List<CaseMaterial>();
 
-            // Map communications to CaseMaterials
-            List<CaseMaterial> allCaseMaterials = this.caseMaterialService.MapCommunicationsToCaseMaterials(combinedCommunications) ?? new List<CaseMaterial>();
-
-            // Add Used exhibits
-            this.caseMaterialService.AddCaseMaterials(allCaseMaterials!, usedExhibits.Exhibits ?? Enumerable.Empty<Exhibit>(), "Exhibit", "Other Exhibit", "Used");
-            if (usedExhibits.Exhibits != null && usedExhibits.Exhibits.Count != 0)
-            {
-                allCaseMaterials?.AddRange(this.caseMaterialService.MapUsedExhibitsToCaseMaterials(usedExhibits, exhibitProducers, communications, caseId));
-            }
-
-            // Add Used statements
-            this.caseMaterialService.AddCaseMaterials(allCaseMaterials!, usedStatements.Statements ?? Enumerable.Empty<Statement>(), "Statement", "Other Statement", "Used");
-            if (usedStatements.Statements != null && usedStatements.Statements.Count != 0)
-            {
-                allCaseMaterials?.AddRange(this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatements, communications));
-            }
-
-            // Add Used MG forms
-            // Exclude MG forms with material types that are in the ExcludedFromUsedMgForms list as they are already included in communications and will be mapped to CaseMaterials from communications
-            if (usedMgForms.MgForms != null)
-            {
-                usedMgForms.MgForms.RemoveAll(mgForm =>
-                    CommsDocumentTypeIds.ExcludedFromUsedMgForms.Contains(mgForm.MaterialType));
-            }
-
-            this.caseMaterialService.AddCaseMaterials(allCaseMaterials!, usedMgForms.MgForms ?? Enumerable.Empty<MgForm>(), "MG Form", "MG Form", "Used");
-            if (usedMgForms.MgForms != null && usedMgForms.MgForms.Count != 0)
-            {
-                allCaseMaterials?.AddRange(this.caseMaterialService.MapUsedMgFormsToCaseMaterials(usedMgForms));
-            }
-
-            // Add Used other materials
-            this.caseMaterialService.AddCaseMaterials(allCaseMaterials!, usedOtherMaterials.MgForms ?? Enumerable.Empty<MgForm>(), "Other Material", "Other Material", "Used");
-            if (usedOtherMaterials.MgForms != null && usedOtherMaterials.MgForms.Count != 0)
-            {
-                allCaseMaterials?.AddRange(this.caseMaterialService.MapUsedOtherMaterialsToCaseMaterials(usedOtherMaterials));
-            }
-
-            // Add Unused Materials
-            foreach (var collection in new List<(string Name, IEnumerable<IMaterial> UnusedMaterials)>
-            {
-                ("Exhibits", unusedMaterials.Exhibits ?? Enumerable.Empty<Exhibit>()),
-                ("MgForms", unusedMaterials.MgForms ?? Enumerable.Empty<MgForm>()),
-                ("OtherMaterials", unusedMaterials.OtherMaterials ?? Enumerable.Empty<MgForm>()),
-                ("Statements", unusedMaterials.Statements ?? Enumerable.Empty<Statement>()),
-            })
-            {
-                if (collection.UnusedMaterials.Any())
-                {
-                    this.caseMaterialService.AddCaseMaterials(allCaseMaterials!, collection.UnusedMaterials, collection.Name, "Unused Material", "Unused");
-                }
-            }
-
-            // Map and add unused materials only if the result is not empty
-            List<CaseMaterial> mappedUnusedMaterials = this.caseMaterialService.MapUnusedMaterialsToCaseMaterials(unusedMaterials, communications);
-            if (mappedUnusedMaterials != null && mappedUnusedMaterials.Any())
-            {
-                allCaseMaterials?.AddRange(mappedUnusedMaterials);
-            }
+            this.ProcessUsedMaterials(allCaseMaterials, caseId, retrievedMaterials);
+            this.ProcessUnusedMaterials(allCaseMaterials, communications, unusedMaterials);
 
             this.logger!.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetCaseMaterials function completed in [{stopwatch.Elapsed}]");
 
-            if (allCaseMaterials != null)
-            {
-                foreach (CaseMaterial allCaseMaterial in allCaseMaterials)
-                {
-                    allCaseMaterial.ReadStatus = allCaseMaterial.ReadStatus.Equals("Complete", StringComparison.OrdinalIgnoreCase) ? MaterialReadStatusType.Read.ToString() : MaterialReadStatusType.Unread.ToString();
-                }
-            }
+            NormalizeReadStatus(allCaseMaterials);
 
             var response = new OkObjectResult(allCaseMaterials);
             ConfigureResponseHeaders(req.HttpContext.Response);
@@ -187,6 +133,162 @@ public class GetCaseMaterials(
         {
             this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterials function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    /// <summary>
+    /// Validates that all required case materials were retrieved successfully.
+    /// </summary>
+    private void ValidateRetrievedMaterials(int caseId, RetrievedCaseMaterials materials)
+    {
+        if (materials.Communications == null || 
+            materials.UnusedMaterials == null || 
+            materials.UsedStatements == null || 
+            materials.UsedExhibits == null || 
+            materials.UsedMgForms == null || 
+            materials.UsedOtherMaterials == null)
+        {
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} Failed to retrieve case materials for caseId [{caseId}]");
+            throw new UnprocessableEntityException($"Failed to retrieve case materials for caseId [{caseId}]");
+        }
+    }
+
+    /// <summary>
+    /// Logs the counts of all retrieved materials.
+    /// </summary>
+    private void LogMaterialCounts(int caseId, RetrievedCaseMaterials materials)
+    {
+        this.logger?.LogInformation(
+            $"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] material count: " +
+            $"communications [{materials.Communications.Count}], " +
+            $"unusedMaterials (exhibits) [{materials.UnusedMaterials.Exhibits?.Count ?? 0}], " +
+            $"unusedMaterials (mgForms) [{materials.UnusedMaterials.MgForms?.Count ?? 0}], " +
+            $"unusedMaterials (otherMaterials) [{materials.UnusedMaterials.OtherMaterials?.Count ?? 0}], " +
+            $"unusedMaterials (statements) [{materials.UnusedMaterials.Statements?.Count ?? 0}], " +
+            $"usedStatements [{materials.UsedStatements.Statements?.Count ?? 0}], " +
+            $"usedExhibits [{materials.UsedExhibits.Exhibits?.Count ?? 0}], " +
+            $"usedMgForms [{materials.UsedMgForms.MgForms?.Count ?? 0}], " +
+            $"usedOtherMaterials [{materials.UsedOtherMaterials.MgForms?.Count ?? 0}] " +
+            $"exhibitProducers [{materials.ExhibitProducers.ExhibitProducers?.Count ?? 0}]");
+    }
+
+    /// <summary>
+    /// Processes and adds all used materials to the case materials list.
+    /// </summary>
+    private void ProcessUsedMaterials(
+        List<CaseMaterial> allCaseMaterials,
+        int caseId,
+        RetrievedCaseMaterials materials)
+    {
+        this.AddUsedExhibits(allCaseMaterials, caseId, materials.Communications, materials.UsedExhibits, materials.ExhibitProducers);
+        this.AddUsedStatements(allCaseMaterials, materials.Communications, materials.UsedStatements);
+        this.AddUsedMgForms(allCaseMaterials, materials.UsedMgForms);
+        this.AddUsedOtherMaterials(allCaseMaterials, materials.UsedOtherMaterials);
+    }
+
+    /// <summary>
+    /// Adds used exhibits to the case materials list.
+    /// </summary>
+    private void AddUsedExhibits(
+        List<CaseMaterial> allCaseMaterials,
+        int caseId,
+        IReadOnlyCollection<Communication> communications,
+        UsedExhibitsResponse usedExhibits,
+        ExhibitProducersResponse exhibitProducers)
+    {
+        this.caseMaterialService.AddCaseMaterials(allCaseMaterials, usedExhibits.Exhibits ?? Enumerable.Empty<Exhibit>(), "Exhibit", "Other Exhibit", "Used");
+        if (usedExhibits.Exhibits != null && usedExhibits.Exhibits.Count != 0)
+        {
+            allCaseMaterials.AddRange(this.caseMaterialService.MapUsedExhibitsToCaseMaterials(usedExhibits, exhibitProducers, communications, caseId));
+        }
+    }
+
+    /// <summary>
+    /// Adds used statements to the case materials list.
+    /// </summary>
+    private void AddUsedStatements(
+        List<CaseMaterial> allCaseMaterials,
+        IReadOnlyCollection<Communication> communications,
+        UsedStatementsResponse usedStatements)
+    {
+        this.caseMaterialService.AddCaseMaterials(allCaseMaterials, usedStatements.Statements ?? Enumerable.Empty<Statement>(), "Statement", "Other Statement", "Used");
+        if (usedStatements.Statements != null && usedStatements.Statements.Count != 0)
+        {
+            allCaseMaterials.AddRange(this.caseMaterialService.MapUsedStatementsToCaseMaterials(usedStatements, communications));
+        }
+    }
+
+    /// <summary>
+    /// Adds used MG forms to the case materials list.
+    /// </summary>
+    private void AddUsedMgForms(List<CaseMaterial> allCaseMaterials, UsedMgFormsResponse usedMgForms)
+    {
+        if (usedMgForms.MgForms != null)
+        {
+            usedMgForms.MgForms.RemoveAll(mgForm => CommsDocumentTypeIds.ExcludedFromUsedMgForms.Contains(mgForm.MaterialType));
+        }
+
+        this.caseMaterialService.AddCaseMaterials(allCaseMaterials, usedMgForms.MgForms ?? Enumerable.Empty<MgForm>(), "MG Form", "MG Form", "Used");
+        if (usedMgForms.MgForms != null && usedMgForms.MgForms.Count != 0)
+        {
+            allCaseMaterials.AddRange(this.caseMaterialService.MapUsedMgFormsToCaseMaterials(usedMgForms));
+        }
+    }
+
+    /// <summary>
+    /// Adds used other materials to the case materials list.
+    /// </summary>
+    private void AddUsedOtherMaterials(List<CaseMaterial> allCaseMaterials, UsedOtherMaterialsResponse usedOtherMaterials)
+    {
+        this.caseMaterialService.AddCaseMaterials(allCaseMaterials, usedOtherMaterials.MgForms ?? Enumerable.Empty<MgForm>(), "Other Material", "Other Material", "Used");
+        if (usedOtherMaterials.MgForms != null && usedOtherMaterials.MgForms.Count != 0)
+        {
+            allCaseMaterials.AddRange(this.caseMaterialService.MapUsedOtherMaterialsToCaseMaterials(usedOtherMaterials));
+        }
+    }
+
+    /// <summary>
+    /// Processes and adds all unused materials to the case materials list.
+    /// </summary>
+    private void ProcessUnusedMaterials(
+        List<CaseMaterial> allCaseMaterials,
+        IReadOnlyCollection<Communication> communications,
+        UnusedMaterialsResponse unusedMaterials)
+    {
+        foreach (var collection in new List<(string Name, IEnumerable<IMaterial> UnusedMaterials)>
+        {
+            ("Exhibits", unusedMaterials.Exhibits ?? Enumerable.Empty<Exhibit>()),
+            ("MgForms", unusedMaterials.MgForms ?? Enumerable.Empty<MgForm>()),
+            ("OtherMaterials", unusedMaterials.OtherMaterials ?? Enumerable.Empty<MgForm>()),
+            ("Statements", unusedMaterials.Statements ?? Enumerable.Empty<Statement>()),
+        })
+        {
+            if (collection.UnusedMaterials.Any())
+            {
+                this.caseMaterialService.AddCaseMaterials(allCaseMaterials, collection.UnusedMaterials, collection.Name, "Unused Material", "Unused");
+            }
+        }
+
+        var mappedUnusedMaterials = this.caseMaterialService.MapUnusedMaterialsToCaseMaterials(unusedMaterials, communications);
+        if (mappedUnusedMaterials != null && mappedUnusedMaterials.Any())
+        {
+            allCaseMaterials.AddRange(mappedUnusedMaterials);
+        }
+    }
+
+    /// <summary>
+    /// Normalizes the read status of all case materials.
+    /// </summary>
+    private static void NormalizeReadStatus(List<CaseMaterial> allCaseMaterials)
+    {
+        if (allCaseMaterials != null)
+        {
+            foreach (var caseMaterial in allCaseMaterials)
+            {
+                caseMaterial.ReadStatus = caseMaterial.ReadStatus.Equals("Complete", StringComparison.OrdinalIgnoreCase)
+                    ? MaterialReadStatusType.Read.ToString()
+                    : MaterialReadStatusType.Unread.ToString();
+            }
         }
     }
 

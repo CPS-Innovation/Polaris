@@ -13,6 +13,7 @@ using PolarisGateway.Services.Artefact.Domain;
 using PolarisGateway.Services.Artefact.Factories;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.Artefact;
@@ -33,16 +34,22 @@ public class PdfArtefactService(
     private readonly IPdfRetrievalService _pdfRetrievalService = pdfRetrievalService.ExceptionIfNull();
     private readonly IOcrService _ocrService = ocrService.ExceptionIfNull();
 
-    public async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isOcrProcessed, bool forceRefresh = false)
+    public async Task<ArtefactResult<Stream>> GetPdfAsync(
+        GetPdfRequest request,
+        string cmsAuthValues,
+        Guid correlationId,
+        CancellationToken cancellationToken = default)
     {
-        if (!forceRefresh && await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed) is (true, var stream))
-        {
-            var cachedFileSizeInMb = await _cacheService.GetPdfSizeFromMetadataAsync(caseId, materialId, documentId, isOcrProcessed);
+        cancellationToken.ThrowIfCancellationRequested();
 
-            return ValidateFileSizeAndCreatePdfResult(stream, documentId, true, cachedFileSizeInMb ?? 0);
+        if (!request.ForceRefresh && await _cacheService.TryGetPdfAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed) is (true, var stream))
+        {
+            var cachedFileSizeInMb = await _cacheService.GetPdfSizeFromMetadataAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed);
+
+            return ValidateFileSizeAndCreatePdfResult(stream, request.DocumentId, true, cachedFileSizeInMb ?? 0);
         }
 
-        var result = await _pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, urn, caseId, materialId, documentId);
+        var result = await _pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, request.Urn, request.CaseId, request.MaterialId, request.DocumentId);
 
         if (result.Status != PdfConversionStatus.DocumentConverted)
         {
@@ -60,18 +67,18 @@ public class PdfArtefactService(
         }
 
         // Process OCR and upload to cache
-        await ProcessAndUploadOcrAsync(pdfBytes, caseId, materialId, documentId, correlationId);
+        await ProcessAndUploadOcrAsync(pdfBytes, request.CaseId, request.MaterialId, request.DocumentId, correlationId);
 
         // For PDF upload: use another fresh MemoryStream
         using (var uploadStream = new MemoryStream(pdfBytes))
         {
             fileSizeInMb = uploadStream.Length / (1024.0 * 1024.0);
-            await _cacheService.UploadPdfAsync(caseId, materialId, documentId, isOcrProcessed, uploadStream, fileSizeInMb);
+            await _cacheService.UploadPdfAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed, uploadStream, fileSizeInMb);
         }
 
-        var (_, pdfStream) = await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed);
+        var (_, pdfStream) = await _cacheService.TryGetPdfAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed);
 
-        return ValidateFileSizeAndCreatePdfResult(pdfStream, documentId, false, fileSizeInMb);
+        return ValidateFileSizeAndCreatePdfResult(pdfStream, request.DocumentId, false, fileSizeInMb);
     }
 
     private ArtefactResult<Stream> ValidateFileSizeAndCreatePdfResult(Stream pdfStream, long documentId, bool fromCache, double fileSizeInMb)

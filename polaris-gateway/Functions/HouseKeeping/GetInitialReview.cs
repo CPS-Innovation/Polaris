@@ -7,6 +7,7 @@ namespace PolarisGateway.Functions.HouseKeeping;
 using System;
 using System.Diagnostics;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
@@ -53,7 +54,7 @@ public class GetInitialReview(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError)]
     [Function(nameof(GetInitialReview))]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.InitialReviewByCase)] HttpRequest request, int caseId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.InitialReviewByCase)] HttpRequest request, int caseId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -68,7 +69,7 @@ public class GetInitialReview(
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            var result = await this.caseHistoryEventProvider.FirstInitialReviewGetCaseHistoryAsync(caseId, cmsAuthValues).ConfigureAwait(true);
+            var result = await this.caseHistoryEventProvider.FirstInitialReviewGetCaseHistoryAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
 
             if (result == null)
             {

@@ -27,7 +27,7 @@ public class CaseDefendantsService(
     private readonly IMasterDataServiceClient apiClient = apiClient;
 
     /// <inheritdoc />
-    public async Task<DefendantsResponse> GetCaseDefendantsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<DefendantsResponse> GetCaseDefendantsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
 
@@ -37,7 +37,7 @@ public class CaseDefendantsService(
 
             var request = new ListCaseDefendantsRequest(caseId, Guid.NewGuid());
 
-            DefendantsResponse? defendants = await this.apiClient.GetCaseDefendantsAsync(request, cmsAuthValues).ConfigureAwait(false);
+            DefendantsResponse? defendants = await this.apiClient.GetCaseDefendantsAsync(request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
             return defendants ?? throw new InvalidOperationException($"{LoggingConstants.HskUiLogPrefix} No case defendants found for caseId [{caseIdString}]");
         }

@@ -78,7 +78,13 @@ public class PdfArtefactServiceTests
             .Returns(expectedResult);
 
         // Act
-        var result = await _pdfArtefactService.GetPdfAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false);
+        var request = new GetPdfRequest(
+            Urn: _urn,
+            CaseId: _caseId,
+            MaterialId: _documentId,
+            DocumentId: _versionId,
+            IsOcrProcessed: false);
+        var result = await _pdfArtefactService.GetPdfAsync(request, _cmsAuthValues, _correlationId);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -103,7 +109,13 @@ public class PdfArtefactServiceTests
             .Returns(expectedResult);
 
         // Act
-        var result = await _pdfArtefactService.GetPdfAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false);
+        var request = new GetPdfRequest(
+            Urn: _urn,
+            CaseId: _caseId,
+            MaterialId: _documentId,
+            DocumentId: _versionId,
+            IsOcrProcessed: false);
+        var result = await _pdfArtefactService.GetPdfAsync(request, _cmsAuthValues, _correlationId);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -155,7 +167,13 @@ public class PdfArtefactServiceTests
             .Returns(expectedResult);
 
         // Act
-        var result = await _pdfArtefactService.GetPdfAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false);
+        var request = new GetPdfRequest(
+            Urn: _urn,
+            CaseId: _caseId,
+            MaterialId: _documentId,
+            DocumentId: _versionId,
+            IsOcrProcessed: false);
+        var result = await _pdfArtefactService.GetPdfAsync(request, _cmsAuthValues, _correlationId);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -183,14 +201,13 @@ public class PdfArtefactServiceTests
             .Returns(expectedResult);
 
         // Act
-        var result = await _pdfArtefactService.GetPdfAsync(
-            _cmsAuthValues,
-            _correlationId,
-            _urn,
-            _caseId,
-            _documentId,
-            _versionId,
-            false);
+        var request = new GetPdfRequest(
+            Urn: _urn,
+            CaseId: _caseId,
+            MaterialId: _documentId,
+            DocumentId: _versionId,
+            IsOcrProcessed: false);
+        var result = await _pdfArtefactService.GetPdfAsync(request, _cmsAuthValues, _correlationId);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -221,14 +238,13 @@ public class PdfArtefactServiceTests
             .Returns(expectedResult);
 
         // Act
-        var result = await _pdfArtefactService.GetPdfAsync(
-            _cmsAuthValues,
-            _correlationId,
-            _urn,
-            _caseId,
-            _documentId,
-            _versionId,
-            false);
+        var request = new GetPdfRequest(
+            Urn: _urn,
+            CaseId: _caseId,
+            MaterialId: _documentId,
+            DocumentId: _versionId,
+            IsOcrProcessed: false);
+        var result = await _pdfArtefactService.GetPdfAsync(request, _cmsAuthValues, _correlationId);
 
         // Assert
         result.Should().Be(expectedResult);
@@ -289,9 +305,13 @@ public class PdfArtefactServiceTests
             .Returns(expectedResult);
 
         // Act
-        var result = await _pdfArtefactService.GetPdfAsync(
-            _cmsAuthValues, _correlationId, _urn,
-            _caseId, _documentId, _versionId, false);
+        var request = new GetPdfRequest(
+            Urn: _urn,
+            CaseId: _caseId,
+            MaterialId: _documentId,
+            DocumentId: _versionId,
+            IsOcrProcessed: false);
+        var result = await _pdfArtefactService.GetPdfAsync(request, _cmsAuthValues, _correlationId);
 
         // Assert
         result.Should().Be(expectedResult);
