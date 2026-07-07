@@ -157,7 +157,7 @@ public interface ICommunicationService
     /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
     /// <param name="cancellationToken">cancellationToken values for downstream systems.</param>
     /// <returns>Return single PCD request information by PCD id.</returns>
-    Task<PcdReviewDetailResponse> GetPcdReviewDetailAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken);
+    Task<PcdReviewDetailResponse> GetPcdReviewDetailAsync(int caseId, int pcdId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get PCD review items by case Id Pcd id.
@@ -166,7 +166,7 @@ public interface ICommunicationService
     /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
     /// <param name="cancellationToken">cancellation token used to cancel the operation.</param>
     /// <returns>Return single PCD request information by PCD id.</returns>
-    Task<IReadOnlyCollection<PcdReviewCoreResponseDto>> GetPcdReviewCoreAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken);
+    Task<IReadOnlyCollection<PcdReviewCoreResponseDto>> GetPcdReviewCoreAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Asynchronously discard a material name with given material ID.
@@ -232,7 +232,7 @@ public interface ICommunicationService
     /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
     /// <param name="cancellationToken">The cancellation token for the operation.</param>ram>
     /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-    Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken);
+    Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// GetHistoryEvents.

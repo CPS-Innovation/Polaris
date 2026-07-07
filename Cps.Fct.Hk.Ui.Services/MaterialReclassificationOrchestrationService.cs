@@ -136,18 +136,20 @@ public class MaterialReclassificationOrchestrationService(
             this.logger.LogInformation(
                 $"{LoggingConstants.HskUiLogPrefix} executing reclassification for MaterialId: [{materialId}], TransactionId: {transactionId}");
 
-            // Call the underlying service method directly
+            var serviceRequest = new ReclassifyCaseMaterialServiceRequest(
+                CaseId: caseId,
+                MaterialId: materialId,
+                Classification: request.classification,
+                DocumentTypeId: request.documentTypeId,
+                Used: request.used,
+                Subject: request.subject,
+                Statement: request.Statement,
+                Exhibit: request.Exhibit);
+
             ReclassificationResponse result = await this.reclassificationService.ReclassifyCaseMaterialAsync(
-                caseId,
-                materialId,
-                request.classification,
-                request.documentTypeId,
-                request.used,
-                request.subject,
+                serviceRequest,
                 cmsAuthValues,
-                request.Statement,
-                request.Exhibit,
-                cancellationToken:cancellationToken).ConfigureAwait(false);
+                cancellationToken).ConfigureAwait(false);
 
             return new OperationResult(
                 Success: true,
@@ -205,14 +207,15 @@ public class MaterialReclassificationOrchestrationService(
          int caseId,
          AddCaseActionPlanRequest request,
          CmsAuthValues cmsAuthValues,
-         Guid transactionId, CancellationToken cancellationToken = default)
+         Guid transactionId, 
+         CancellationToken cancellationToken = default)
     {
         try
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} executing action plan for URN: [{urn}], TransactionId: [{transactionId}]");
 
             // Call the underlying service method directly
-            NoContentResult result = await this.caseActionPlanService.AddCaseActionPlanAsync(urn, caseId, request, cmsAuthValues).ConfigureAwait(false);
+            NoContentResult result = await this.caseActionPlanService.AddCaseActionPlanAsync(urn, caseId, request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
             return new OperationResult(
                 Success: true,

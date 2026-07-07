@@ -18,17 +18,12 @@ public interface IReclassificationService
     /// <summary>
     /// Reclassify material to classification type provided.
     /// </summary>
-    /// <param name="caseId">The unique identifier of the case.</param>
-    /// <param name="materialId">The unique identifier of the material to reclassify.</param>
-    /// <param name="classification">The type of classification to apply.</param>
-    /// <param name="documentTypeId">The document type id.</param>
-    /// <param name="used">Flag to indicate if material is used or unsed.</param>
-    /// <param name="subject">The material subject.</param>
+    /// <param name="request">The reclassification request containing all material and classification details.</param>
     /// <param name="cmsAuthValues">Authorization values for CMS access.</param>
-    /// <param name="statement">The statement request.</param>
-    /// <param name="exhibit">Exhibit request.</param>
-    /// <param name="correspondenceId">The correspndence identifier.</param>
     /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
     /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
-    public Task<ReclassificationResponse> ReclassifyCaseMaterialAsync(int caseId, int materialId, string classification, int documentTypeId, bool used, string subject, CmsAuthValues cmsAuthValues, ReclassifyStatementRequest? statement = null, ReclassifyExhibitRequest? exhibit = null, Guid correspondenceId = default, CancellationToken cancellationToken = default);
+    public Task<ReclassificationResponse> ReclassifyCaseMaterialAsync(
+        ReclassifyCaseMaterialServiceRequest request,
+        CmsAuthValues cmsAuthValues,
+        CancellationToken cancellationToken = default);
 }

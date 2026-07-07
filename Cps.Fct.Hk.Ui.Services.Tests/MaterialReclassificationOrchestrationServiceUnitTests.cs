@@ -79,7 +79,7 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
             .ReturnsAsync(new NoContentResult());
 
         this.mockReclassificationService
-            .Setup(x => x.ReclassifyCaseMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<ReclassifyStatementRequest>(), It.IsAny<ReclassifyExhibitRequest>(), It.IsAny<Guid>()))
+            .Setup(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(It.IsAny<ReclassificationResponse>());
 
         this.mockCommunicationService
@@ -136,7 +136,7 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
         log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} executing reclassification for MaterialId: [{materialId}]"));
 
         this.mockWitnessService.Verify(x => x.AddWitnessAsync(It.IsAny<string>(), caseId, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Once());
-        this.mockReclassificationService.Verify(x => x.ReclassifyCaseMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<ReclassifyStatementRequest>(), It.IsAny<ReclassifyExhibitRequest>(), It.IsAny<Guid>()), Times.Once());
+        this.mockReclassificationService.Verify(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()), Times.Once());
         this.mockActionPlanService.Verify(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()), Times.Once());
 
         this.mockCommunicationService.Verify(x => x.RenameMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Never());
@@ -178,7 +178,7 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
             .ThrowsAsync(exception);
 
         this.mockReclassificationService
-            .Setup(x => x.ReclassifyCaseMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<ReclassifyStatementRequest>(), It.IsAny<ReclassifyExhibitRequest>(), It.IsAny<Guid>()))
+            .Setup(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(It.IsAny<ReclassificationResponse>());
 
         this.mockCommunicationService
@@ -231,7 +231,7 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
         log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} executing reclassification for MaterialId: [{materialId}]"));
 
         this.mockWitnessService.Verify(x => x.AddWitnessAsync(It.IsAny<string>(), caseId, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Once());
-        this.mockReclassificationService.Verify(x => x.ReclassifyCaseMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<ReclassifyStatementRequest>(), It.IsAny<ReclassifyExhibitRequest>(), It.IsAny<Guid>()), Times.Once());
+        this.mockReclassificationService.Verify(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()), Times.Once());
         this.mockActionPlanService.Verify(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()), Times.Once());
 
         this.mockCommunicationService.Verify(x => x.RenameMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Never());
@@ -272,7 +272,7 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
             .ThrowsAsync(exception);
 
         this.mockReclassificationService
-            .Setup(x => x.ReclassifyCaseMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<ReclassifyStatementRequest>(), It.IsAny<ReclassifyExhibitRequest>(), It.IsAny<Guid>()))
+            .Setup(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
            .ThrowsAsync(exception);
 
         this.mockCommunicationService
@@ -325,7 +325,7 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
         log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} reclassification failed for MaterialId: [{materialId}]"));
 
         this.mockWitnessService.Verify(x => x.AddWitnessAsync(It.IsAny<string>(), caseId, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Once());
-        this.mockReclassificationService.Verify(x => x.ReclassifyCaseMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<ReclassifyStatementRequest>(), It.IsAny<ReclassifyExhibitRequest>(), It.IsAny<Guid>()), Times.Once());
+        this.mockReclassificationService.Verify(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()), Times.Once());
         this.mockActionPlanService.Verify(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()), Times.Once());
 
         this.mockCommunicationService.Verify(x => x.RenameMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Never());
@@ -364,7 +364,7 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
             .ReturnsAsync(new NoContentResult());
 
         this.mockReclassificationService
-            .Setup(x => x.ReclassifyCaseMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<ReclassifyStatementRequest>(), It.IsAny<ReclassifyExhibitRequest>(), It.IsAny<Guid>()))
+            .Setup(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(It.IsAny<ReclassificationResponse>());
 
         this.mockCommunicationService
@@ -408,7 +408,7 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
         log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} executing reclassification for MaterialId: [{materialId}]"));
 
         this.mockWitnessService.Verify(x => x.AddWitnessAsync(It.IsAny<string>(), caseId, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Never());
-        this.mockReclassificationService.Verify(x => x.ReclassifyCaseMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<ReclassifyStatementRequest>(), It.IsAny<ReclassifyExhibitRequest>(), It.IsAny<Guid>()), Times.Once());
+        this.mockReclassificationService.Verify(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()), Times.Once());
         this.mockActionPlanService.Verify(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()), Times.Never());
 
         this.mockCommunicationService.Verify(x => x.RenameMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Once());

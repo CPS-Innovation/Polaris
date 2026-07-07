@@ -26,38 +26,35 @@ public class ReclassificationService(
 
     /// <inheritdoc/>
     public async Task<ReclassificationResponse> ReclassifyCaseMaterialAsync(
-        int caseId,
-        int materialId,
-        string classification,
-        int documentTypeId,
-        bool used,
-        string subject,
+        ReclassifyCaseMaterialServiceRequest request,
         CmsAuthValues cmsAuthValues,
-        ReclassifyStatementRequest? statement = null,
-        ReclassifyExhibitRequest? exhibit = null,
-        Guid correspondenceId = default,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to reclassify a case material with materidId [{materialId}] associated with case with caseId [{caseId}]");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to reclassify a case material with materidId [{request.MaterialId}] associated with case with caseId [{request.CaseId}]");
 
             // Handle an exception to the rule for 'Defence statement' category that requires a different classification.
-            if (documentTypeId == -2)
-            {
-                classification = "DEFENCESTATEMENT";
-            }
+            var classification = request.DocumentTypeId == -2 ? "DEFENCESTATEMENT" : request.Classification;
 
-            var request = new ReclassifyCommunicationRequest(correspondenceId != default ? correspondenceId : Guid.NewGuid(), classification, materialId, documentTypeId, used, subject, statement, exhibit);
+            var communicationRequest = new ReclassifyCommunicationRequest(
+                request.CorrespondenceId != default ? request.CorrespondenceId : Guid.NewGuid(),
+                classification,
+                request.MaterialId,
+                request.DocumentTypeId,
+                request.Used,
+                request.Subject,
+                request.Statement,
+                request.Exhibit);
 
-            ReclassificationResponse reclassificationResponse = await this.apiClient.ReclassifyCommunicationAsync(request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
-            this.logger.LogInformation(LoggingConstants.ReclassifyCaseMaterialOperationSuccess, LoggingConstants.HskUiLogPrefix, caseId, materialId);
+            ReclassificationResponse reclassificationResponse = await this.apiClient.ReclassifyCommunicationAsync(communicationRequest, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+            this.logger.LogInformation(LoggingConstants.ReclassifyCaseMaterialOperationSuccess, LoggingConstants.HskUiLogPrefix, request.CaseId, request.MaterialId);
 
             return reclassificationResponse;
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, LoggingConstants.ReclassifyCaseMaterialOperationFailed, LoggingConstants.HskUiLogPrefix, caseId, materialId);
+            this.logger.LogError(ex, LoggingConstants.ReclassifyCaseMaterialOperationFailed, LoggingConstants.HskUiLogPrefix, request.CaseId, request.MaterialId);
             this.logger.LogError(ex, ex.Message);
             throw;
         }

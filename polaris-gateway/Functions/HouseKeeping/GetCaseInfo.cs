@@ -55,7 +55,7 @@ namespace PolarisGateway.Functions.HouseKeeping
             try
             {
                 var stopwatch = Stopwatch.StartNew();
-                this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function processed a request.");
+                this.logger.LogInformation("{Prefix} GetCaseInfo function processed a request.", LoggingConstants.HskUiLogPrefix);
 
                 if (caseId < 1)
                 {
@@ -78,16 +78,16 @@ namespace PolarisGateway.Functions.HouseKeeping
 
                 return response;
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
                 // Let cancellation exceptions propagate - they should not be converted to HTTP errors
                 // The runtime will handle them appropriately
-                this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function was cancelled for caseId [{caseId}]");
+                this.logger.LogInformation("{Prefix} GetCaseInfo function was cancelled for caseId [{CaseId}]: {Message}", LoggingConstants.HskUiLogPrefix, caseId, ex.Message);
                 throw;
             }
             catch (UnprocessableEntityException ex)
             {
-                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function encountered an unprocessable entity error: {ex.Message}");
+                this.logger.LogError("{Prefix} GetCaseInfo function encountered an unprocessable entity error: {Message}", LoggingConstants.HskUiLogPrefix, ex.Message);
                 return new ObjectResult(ex.Message)
                 {
                     StatusCode = StatusCodes.Status422UnprocessableEntity,
@@ -95,12 +95,12 @@ namespace PolarisGateway.Functions.HouseKeeping
             }
             catch (InvalidOperationException ex)
             {
-                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} {ex.Message}");
+                this.logger.LogError("{Prefix} {Message}", LoggingConstants.HskUiLogPrefix, ex.Message);
                 return new UnprocessableEntityObjectResult($"{ex.Message}");
             }
             catch (Exception ex)
             {
-                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function encountered an error: {ex.Message}");
+                this.logger.LogError("{Prefix} GetCaseInfo function encountered an error: {Message}", LoggingConstants.HskUiLogPrefix, ex.Message);
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
