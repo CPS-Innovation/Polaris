@@ -609,7 +609,7 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
     /// <inheritdoc />
-    public async Task<string?> ConvertXlsToPdfDocumentAsync(string tmpFileDownloadName, bool firstPageOnly = true, CancellationToken cancellationToken = default)
+    public async Task<string?> ConvertXlsToPdfDocumentAsync(string tmpFileDownloadName, bool firstSheetOnly = true, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         string pdfFileName = $"preview_{tmpFileDownloadName}.pdf"; // Output PDF blob name
@@ -635,7 +635,7 @@ public class ConversionService(ILogger<ConversionService> logger,
                     // Load the XLS file from the downloaded stream using Aspose.Cells
                     var workbook = new Aspose.Cells.Workbook(xlsStream);
 
-                    var convertAllSheets = firstPageOnly && workbook.Worksheets.Count > 1;
+                    var convertAllSheets = firstSheetOnly && workbook.Worksheets.Count > 1;
 
                     // Create a PdfSaveOptions object to customize the PDF save behavior
                     var pdfSaveOptions = new Aspose.Cells.PdfSaveOptions();
@@ -751,7 +751,7 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
     /// <inheritdoc />
-    public async Task<string?> ConvertPptToPdfDocumentAsync(string tmpFileDownloadName, bool firstPageOnly = true, CancellationToken cancellationToken = default)
+    public async Task<string?> ConvertPptToPdfDocumentAsync(string tmpFileDownloadName, bool firstSlideOnly = true, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         string pdfFileName = $"preview_{tmpFileDownloadName}.pdf"; // Output PDF blob name
@@ -779,9 +779,9 @@ public class ConversionService(ILogger<ConversionService> logger,
                     using (var presentation = new Aspose.Slides.Presentation(pptxStream))
                     {
                         // Create a new presentation to hold the first slide
-                        using (var slidePresentation = new Aspose.Slides.Presentation())
+                        using (var slidePresentation = new Aspose.Slides.Presentation())    
                         {
-                            convertAllslides = firstPageOnly == false && presentation.Slides.Count > 1;
+                            convertAllslides = firstSlideOnly == false && presentation.Slides.Count > 1;
 
                             // Check if there are any slides in the original presentation
                             if (presentation.Slides.Count > 0)

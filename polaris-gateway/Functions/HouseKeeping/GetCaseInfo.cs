@@ -78,11 +78,10 @@ namespace PolarisGateway.Functions.HouseKeeping
 
                 return response;
             }
-            catch (OperationCanceledException ex)
+            catch (OperationCanceledException)
             {
-                // Let cancellation exceptions propagate - they should not be converted to HTTP errors
-                // The runtime will handle them appropriately
-                this.logger.LogInformation(ex, "{Prefix} GetCaseInfo function was cancelled for caseId [{CaseId}]: {Message}", LoggingConstants.HskUiLogPrefix, caseId, ex.Message);
+                // Let cancellation exceptions propagate naturally - they should not be converted to HTTP errors
+                // The runtime will handle them appropriately, no logging needed as this is a control-flow exception
                 throw;
             }
             catch (UnprocessableEntityException ex)

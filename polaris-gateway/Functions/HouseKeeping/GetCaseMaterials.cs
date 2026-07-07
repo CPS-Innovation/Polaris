@@ -31,6 +31,25 @@ using Common.Enums;
 using Cps.Fct.Hk.Ui.Services.Constants;
 
 /// <summary>
+/// Container for retrieved case materials data.
+/// </summary>
+/// <param name="Communications">The communications collection.</param>
+/// <param name="UnusedMaterials">The unused materials.</param>
+/// <param name="UsedStatements">The used statements.</param>
+/// <param name="UsedExhibits">The used exhibits.</param>
+/// <param name="UsedMgForms">The used MG forms.</param>
+/// <param name="UsedOtherMaterials">The used other materials.</param>
+/// <param name="ExhibitProducers">The exhibit producers.</param>
+internal record RetrievedCaseMaterials(
+    IReadOnlyCollection<Communication> Communications,
+    UnusedMaterialsResponse UnusedMaterials,
+    UsedStatementsResponse UsedStatements,
+    UsedExhibitsResponse UsedExhibits,
+    UsedMgFormsResponse UsedMgForms,
+    UsedOtherMaterialsResponse UsedOtherMaterials,
+    ExhibitProducersResponse ExhibitProducers);
+
+/// <summary>
 /// Represents a function that retrieves the case materials for a case,
 /// intended to be accessed via the Housekeeping UI front-end.
 /// </summary>
@@ -76,8 +95,17 @@ public class GetCaseMaterials(
             var (communications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials, exhibitProducers) =
                 await this.caseMaterialService.RetrieveCaseMaterialsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
-            this.ValidateRetrievedMaterials(caseId, communications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials);
-            this.LogMaterialCounts(caseId, communications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials, exhibitProducers);
+            var retrievedMaterials = new RetrievedCaseMaterials(
+                communications, 
+                unusedMaterials, 
+                usedStatements, 
+                usedExhibits, 
+                usedMgForms, 
+                usedOtherMaterials, 
+                exhibitProducers);
+
+            this.ValidateRetrievedMaterials(caseId, retrievedMaterials);
+            this.LogMaterialCounts(caseId, retrievedMaterials);
 
             var combinedCommunications = await this.GetMappedCommunicationsWithAttachmentsAsync(caseId, communications, cmsAuthValues).ConfigureAwait(false);
             var allCaseMaterials = this.caseMaterialService.MapCommunicationsToCaseMaterials(combinedCommunications) ?? new List<CaseMaterial>();
@@ -111,16 +139,14 @@ public class GetCaseMaterials(
     /// <summary>
     /// Validates that all required case materials were retrieved successfully.
     /// </summary>
-    private void ValidateRetrievedMaterials(
-        int caseId,
-        IReadOnlyCollection<Communication> communications,
-        UnusedMaterialsResponse unusedMaterials,
-        UsedStatementsResponse usedStatements,
-        UsedExhibitsResponse usedExhibits,
-        UsedMgFormsResponse usedMgForms,
-        UsedOtherMaterialsResponse usedOtherMaterials)
+    private void ValidateRetrievedMaterials(int caseId, RetrievedCaseMaterials materials)
     {
-        if (communications == null || unusedMaterials == null || usedStatements == null || usedExhibits == null || usedMgForms == null || usedOtherMaterials == null)
+        if (materials.Communications == null || 
+            materials.UnusedMaterials == null || 
+            materials.UsedStatements == null || 
+            materials.UsedExhibits == null || 
+            materials.UsedMgForms == null || 
+            materials.UsedOtherMaterials == null)
         {
             this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} Failed to retrieve case materials for caseId [{caseId}]");
             throw new UnprocessableEntityException($"Failed to retrieve case materials for caseId [{caseId}]");
@@ -130,28 +156,20 @@ public class GetCaseMaterials(
     /// <summary>
     /// Logs the counts of all retrieved materials.
     /// </summary>
-    private void LogMaterialCounts(
-        int caseId,
-        IReadOnlyCollection<Communication> communications,
-        UnusedMaterialsResponse unusedMaterials,
-        UsedStatementsResponse usedStatements,
-        UsedExhibitsResponse usedExhibits,
-        UsedMgFormsResponse usedMgForms,
-        UsedOtherMaterialsResponse usedOtherMaterials,
-        ExhibitProducersResponse exhibitProducers)
+    private void LogMaterialCounts(int caseId, RetrievedCaseMaterials materials)
     {
         this.logger?.LogInformation(
             $"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] material count: " +
-            $"communications [{communications.Count}], " +
-            $"unusedMaterials (exhibits) [{unusedMaterials.Exhibits?.Count ?? 0}], " +
-            $"unusedMaterials (mgForms) [{unusedMaterials.MgForms?.Count ?? 0}], " +
-            $"unusedMaterials (otherMaterials) [{unusedMaterials.OtherMaterials?.Count ?? 0}], " +
-            $"unusedMaterials (statements) [{unusedMaterials.Statements?.Count ?? 0}], " +
-            $"usedStatements [{usedStatements.Statements?.Count ?? 0}], " +
-            $"usedExhibits [{usedExhibits.Exhibits?.Count ?? 0}], " +
-            $"usedMgForms [{usedMgForms.MgForms?.Count ?? 0}], " +
-            $"usedOtherMaterials [{usedOtherMaterials.MgForms?.Count ?? 0}] " +
-            $"exhibitProducers [{exhibitProducers.ExhibitProducers?.Count ?? 0}]");
+            $"communications [{materials.Communications.Count}], " +
+            $"unusedMaterials (exhibits) [{materials.UnusedMaterials.Exhibits?.Count ?? 0}], " +
+            $"unusedMaterials (mgForms) [{materials.UnusedMaterials.MgForms?.Count ?? 0}], " +
+            $"unusedMaterials (otherMaterials) [{materials.UnusedMaterials.OtherMaterials?.Count ?? 0}], " +
+            $"unusedMaterials (statements) [{materials.UnusedMaterials.Statements?.Count ?? 0}], " +
+            $"usedStatements [{materials.UsedStatements.Statements?.Count ?? 0}], " +
+            $"usedExhibits [{materials.UsedExhibits.Exhibits?.Count ?? 0}], " +
+            $"usedMgForms [{materials.UsedMgForms.MgForms?.Count ?? 0}], " +
+            $"usedOtherMaterials [{materials.UsedOtherMaterials.MgForms?.Count ?? 0}] " +
+            $"exhibitProducers [{materials.ExhibitProducers.ExhibitProducers?.Count ?? 0}]");
     }
 
     /// <summary>

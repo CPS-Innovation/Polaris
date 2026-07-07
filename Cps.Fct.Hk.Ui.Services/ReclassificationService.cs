@@ -38,7 +38,7 @@ public class ReclassificationService(
             var classification = request.DocumentTypeId == -2 ? "DEFENCESTATEMENT" : request.Classification;
 
             var communicationRequest = new ReclassifyCommunicationRequest(
-                request.CorrespondenceId != default ? request.CorrespondenceId : Guid.NewGuid(),
+                request.CorrespondenceId != Guid.Empty ? request.CorrespondenceId : Guid.NewGuid(),
                 classification,
                 request.MaterialId,
                 request.DocumentTypeId,
