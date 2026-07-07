@@ -82,12 +82,12 @@ namespace PolarisGateway.Functions.HouseKeeping
             {
                 // Let cancellation exceptions propagate - they should not be converted to HTTP errors
                 // The runtime will handle them appropriately
-                this.logger.LogInformation("{Prefix} GetCaseInfo function was cancelled for caseId [{CaseId}]: {Message}", LoggingConstants.HskUiLogPrefix, caseId, ex.Message);
+                this.logger.LogInformation(ex, "{Prefix} GetCaseInfo function was cancelled for caseId [{CaseId}]: {Message}", LoggingConstants.HskUiLogPrefix, caseId, ex.Message);
                 throw;
             }
             catch (UnprocessableEntityException ex)
             {
-                this.logger.LogError("{Prefix} GetCaseInfo function encountered an unprocessable entity error: {Message}", LoggingConstants.HskUiLogPrefix, ex.Message);
+                this.logger.LogError(ex, "{Prefix} GetCaseInfo function encountered an unprocessable entity error: {Message}", LoggingConstants.HskUiLogPrefix, ex.Message);
                 return new ObjectResult(ex.Message)
                 {
                     StatusCode = StatusCodes.Status422UnprocessableEntity,
@@ -95,12 +95,12 @@ namespace PolarisGateway.Functions.HouseKeeping
             }
             catch (InvalidOperationException ex)
             {
-                this.logger.LogError("{Prefix} {Message}", LoggingConstants.HskUiLogPrefix, ex.Message);
+                this.logger.LogError(ex, "{Prefix} {Message}", LoggingConstants.HskUiLogPrefix, ex.Message);
                 return new UnprocessableEntityObjectResult($"{ex.Message}");
             }
             catch (Exception ex)
             {
-                this.logger.LogError("{Prefix} GetCaseInfo function encountered an error: {Message}", LoggingConstants.HskUiLogPrefix, ex.Message);
+                this.logger.LogError(ex, "{Prefix} GetCaseInfo function encountered an error: {Message}", LoggingConstants.HskUiLogPrefix, ex.Message);
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }

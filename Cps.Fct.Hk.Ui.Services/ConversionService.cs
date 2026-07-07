@@ -96,7 +96,7 @@ public class ConversionService(ILogger<ConversionService> logger,
         cancellationToken.ThrowIfCancellationRequested();
 
         try
-        {eclass
+        {
             // Determine the content type of the file
             string? contentType = FileUtils.GetMimeType(tmpFileDownloadName);
 
@@ -609,7 +609,7 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
     /// <inheritdoc />
-    public async Task<string?> ConvertXlsToPdfDocumentAsync(string tmpFileDownloadName, bool firstSheetOnly = true, CancellationToken cancellationToken = default)
+    public async Task<string?> ConvertXlsToPdfDocumentAsync(string tmpFileDownloadName, bool firstPageOnly = true, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         string pdfFileName = $"preview_{tmpFileDownloadName}.pdf"; // Output PDF blob name
@@ -635,7 +635,7 @@ public class ConversionService(ILogger<ConversionService> logger,
                     // Load the XLS file from the downloaded stream using Aspose.Cells
                     var workbook = new Aspose.Cells.Workbook(xlsStream);
 
-                    var convertAllSheets = firstSheetOnly && workbook.Worksheets.Count > 1;
+                    var convertAllSheets = firstPageOnly && workbook.Worksheets.Count > 1;
 
                     // Create a PdfSaveOptions object to customize the PDF save behavior
                     var pdfSaveOptions = new Aspose.Cells.PdfSaveOptions();

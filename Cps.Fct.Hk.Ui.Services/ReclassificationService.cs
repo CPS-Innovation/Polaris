@@ -32,7 +32,7 @@ public class ReclassificationService(
     {
         try
         {
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to reclassify a case material with materidId [{request.MaterialId}] associated with case with caseId [{request.CaseId}]");
+            this.logger.LogInformation("{Prefix} Attempting to reclassify a case material with materidId [{MaterialId}] associated with case with caseId [{CaseId}]", LoggingConstants.HskUiLogPrefix, request.MaterialId, request.CaseId);
 
             // Handle an exception to the rule for 'Defence statement' category that requires a different classification.
             var classification = request.DocumentTypeId == -2 ? "DEFENCESTATEMENT" : request.Classification;

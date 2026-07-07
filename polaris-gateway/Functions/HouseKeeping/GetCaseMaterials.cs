@@ -87,7 +87,7 @@ public class GetCaseMaterials(
 
             this.logger!.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetCaseMaterials function completed in [{stopwatch.Elapsed}]");
 
-            this.NormalizeReadStatus(allCaseMaterials);
+            NormalizeReadStatus(allCaseMaterials);
 
             var response = new OkObjectResult(allCaseMaterials);
             ConfigureResponseHeaders(req.HttpContext.Response);
