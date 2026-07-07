@@ -210,10 +210,10 @@ public class GetCaseInfoTests
             x => x.GetCaseInfoAsync(123, It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()),
             Times.Once);
 
-        // Verify that cancellation was logged
-        Assert.Contains(mockLogger.Logs, log =>
+        // Verify that cancellation was NOT logged (control-flow exceptions should not be logged)
+        Assert.DoesNotContain(mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function was cancelled for caseId [123]"));
+            log.Message != null && log.Message.Contains("was cancelled"));
     }
 
     /// <summary>
