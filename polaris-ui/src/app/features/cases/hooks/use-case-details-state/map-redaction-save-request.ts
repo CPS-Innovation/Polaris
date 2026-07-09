@@ -115,7 +115,7 @@ export const mapSearchPIISaveRedactionObject = (
   const piiData = Object.entries(piiCategoryGroupedHighlights).map(
     ([key, value]) => {
       return {
-        polarisCategory: value[0].redactionType.name,
+        polarisCategory: value[0].redactionType?.name,
         providerCategory: key,
         countSuggestions: value.length,
         countAccepted: value.filter(
