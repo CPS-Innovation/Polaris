@@ -257,10 +257,10 @@ export const ReclassifyStage2: React.FC<ReclassifyStage2Props> = ({
   const handleStatementDateChange = (event: any) => {
     let type: "day" | "month" | "year" = "day";
 
-    if (event.target.name === "reclassify-statement-date-month") {
+    if (event.target?.name === "reclassify-statement-date-month") {
       type = "month";
     }
-    if (event.target.name === "reclassify-statement-date-year") {
+    if (event.target?.name === "reclassify-statement-date-year") {
       type = "year";
     }
     if (type)
