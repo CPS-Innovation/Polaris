@@ -634,8 +634,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
               if (errorSummaryRef.current) {
                 (errorSummaryRef?.current as HTMLButtonElement).focus();
               }
-
-              console.log({ errors });
             }
           )(event);
         }}
