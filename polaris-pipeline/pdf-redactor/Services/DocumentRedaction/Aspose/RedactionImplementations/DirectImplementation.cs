@@ -16,9 +16,9 @@ public class DirectImplementation : IRedactionImplementation
         page.Annotations.Add(redaction, true);
     }
 
-    public void FinaliseAnnotations(ref Document document, Guid correlationId)
+    public void FinaliseAnnotations(ref Document doc, Guid correlationId)
     {
-        foreach (Page page in document.Pages)
+        foreach (Page page in doc.Pages)
         {
             var redactions = page.Annotations
                 .Where(a => a.AnnotationType == AnnotationType.Redaction)
