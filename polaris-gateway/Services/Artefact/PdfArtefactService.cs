@@ -38,7 +38,8 @@ public class PdfArtefactService(
         GetPdfRequest request,
         string cmsAuthValues,
         Guid correlationId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        HttpRequest req = null)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -46,7 +47,7 @@ public class PdfArtefactService(
         {
             var cachedFileSizeInMb = await _cacheService.GetPdfSizeFromMetadataAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed);
 
-            return ValidateFileSizeAndCreatePdfResult(stream, request.DocumentId, true, cachedFileSizeInMb ?? 0);
+            return ValidateFileSizeAndCreatePdfResult(stream, request.DocumentId, true, cachedFileSizeInMb ?? 0, req);
         }
 
         var result = await _pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, request.Urn, request.CaseId, request.MaterialId, request.DocumentId);
@@ -78,10 +79,10 @@ public class PdfArtefactService(
 
         var (_, pdfStream) = await _cacheService.TryGetPdfAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed);
 
-        return ValidateFileSizeAndCreatePdfResult(pdfStream, request.DocumentId, false, fileSizeInMb);
+        return ValidateFileSizeAndCreatePdfResult(pdfStream, request.DocumentId, false, fileSizeInMb, req);
     }
 
-    private ArtefactResult<Stream> ValidateFileSizeAndCreatePdfResult(Stream pdfStream, long documentId, bool fromCache, double fileSizeInMb)
+    private ArtefactResult<Stream> ValidateFileSizeAndCreatePdfResult(Stream pdfStream, long documentId, bool fromCache, double fileSizeInMb, HttpRequest req)
     {
         if (fileSizeInMb > _redactionFileSizeOptions.FileSizeLimitMb)
         {
@@ -91,6 +92,12 @@ public class PdfArtefactService(
                 fileSizeInMb,
                 _redactionFileSizeOptions.FileSizeLimitMb
             );
+
+            req.HttpContext.Response.Headers.Append("Access-Control-Expose-Headers", "cps-file-size");
+            req.HttpContext.Response.Headers["cps-file-size"] = fileSizeInMb.ToString();
+
+            req.HttpContext.Response.Headers.Append("Access-Control-Expose-Headers", "cps-file-size-limit");
+            req.HttpContext.Response.Headers["cps-file-size-limit"] = _redactionFileSizeOptions.FileSizeLimitMb.ToString();
 
             return _artefactServiceResponseFactory.CreateOkResultWithLargeFileFlag(pdfStream, fromCache, true);
         }
