@@ -78,7 +78,7 @@ export const DeletePage: React.FC<DeletePageProps> = ({
     trackEvent("Delete Page", {
       documentId: documentId,
       pageNumber: pageNumber,
-      reason: redactionType.name,
+      reason: redactionType?.name,
     });
     setShowModal(false);
   };
