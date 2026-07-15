@@ -36,7 +36,7 @@ export const HeaderAttachmentMode: React.FC<Props> = ({
                 handleAttachmentClick(item.documentId);
               }}
             >
-              {item.name}
+              {item?.name}
               {index < attachments.length - 1 && (
                 <span className={classes.separator}>,</span>
               )}

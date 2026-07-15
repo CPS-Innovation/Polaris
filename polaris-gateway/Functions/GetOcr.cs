@@ -8,6 +8,7 @@ using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.Artefact.Domain;
 using System;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Extensions;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
@@ -46,8 +47,9 @@ public class GetOcr : BaseFunction
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(ArtefactResult<AnalyzeResults>), Summary = "Artefact Result", Description = "Gives the artefact results")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Ocr)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Ocr)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 

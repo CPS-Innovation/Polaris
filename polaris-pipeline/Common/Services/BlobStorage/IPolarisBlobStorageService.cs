@@ -1,13 +1,16 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Common.Services.BlobStorage
 {
     public interface IPolarisBlobStorageService
     {
-        Task UploadBlobAsync(Stream stream, BlobIdType blobId, bool? isOcred = null);
+        Task UploadBlobAsync(Stream stream, BlobIdType blobId, bool? isOcred = null, double? fileSizeInMb = null);
 
         Task UploadBlobAsync(Stream stream, BlobIdType blobId, int? pageIndex = null, int? maxDimensionPixel = null);
+
+        Task<IDictionary<string, string>> GetMetadataAsync(BlobIdType blobId);
 
         Task<Stream> GetBlobAsync(BlobIdType blobId);
 
@@ -20,5 +23,6 @@ namespace Common.Services.BlobStorage
         Task DeleteBlobsByPrefixAsync(int prefix);
 
         Task<bool> BlobExistsAsync(BlobIdType blobId, bool? mustBeOcred = null);
+
     }
 }

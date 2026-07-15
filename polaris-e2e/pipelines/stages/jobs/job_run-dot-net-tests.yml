@@ -6,6 +6,13 @@ jobs:
     dependsOn: Prepare_DotNet_Tests
     steps:
 
+      - task: UseDotNet@2
+        displayName: Install .NET SDK 10.x
+        inputs:
+          packageType: sdk
+          version: '10.x'
+          includePreviewVersions: true
+
       - task: NuGetAuthenticate@1
         displayName: 'Authenticate to NuGet Feed'
         

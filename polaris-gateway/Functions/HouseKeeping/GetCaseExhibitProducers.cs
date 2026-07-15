@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
@@ -51,7 +52,7 @@ public class GetCaseExhibitProducers(ILogger<GetCaseExhibitProducers> logger,
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
     [Function(nameof(GetCaseExhibitProducers))]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.ExhibitProducers)] HttpRequest request, int caseId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.ExhibitProducers)] HttpRequest request, int caseId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -66,8 +67,8 @@ public class GetCaseExhibitProducers(ILogger<GetCaseExhibitProducers> logger,
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            var exhibitTask = this.communicationService.GetExhibitProducersAsync(caseId, cmsAuthValues);
-            var witnessTask = this.witnessService.GetCaseWitnessesAsync(caseId, cmsAuthValues);
+            var exhibitTask = this.communicationService.GetExhibitProducersAsync(caseId, cmsAuthValues, cancellationToken);
+            var witnessTask = this.witnessService.GetCaseWitnessesAsync(caseId, cmsAuthValues, cancellationToken);
 
             await Task.WhenAll(exhibitTask, witnessTask).ConfigureAwait(false);
 
