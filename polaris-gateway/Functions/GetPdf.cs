@@ -68,7 +68,7 @@ public class GetPdf : BaseFunction
 
         if (getPdfResult.FileSizeExceedsLimit == true)
         {
-            req.HttpContext.Response.Headers.Append("Access-Control-Expose-Headers", HttpHeaderKeys.CpsFileTooLarge);
+            req.HttpContext.Response.Headers.Append(HttpHeaderKeys.AccessControlExposeHeaders, HttpHeaderKeys.CpsFileTooLarge);
             req.HttpContext.Response.Headers[HttpHeaderKeys.CpsFileTooLarge] = "true";
         }
 
