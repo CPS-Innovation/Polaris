@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace PolarisGateway.Services.Artefact;
 
@@ -21,6 +20,5 @@ public interface IPdfArtefactService
         GetPdfRequest request,
         string cmsAuthValues,
         Guid correlationId,
-        CancellationToken cancellationToken = default,
-        HttpRequest req = null);
+        CancellationToken cancellationToken = default);
 }
