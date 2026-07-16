@@ -84,6 +84,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
         "https://as-web-${local.global_resource_name}.azurewebsites.net",
         "https://${local.global_resource_name}-cmsproxy.azurewebsites.net",
         "https://${local.global_resource_name}-notprod.cps.gov.uk",
+        var.env == "dev" ? "https://cps-tst.outsystemsenterprise.com" : "",
         var.env == "dev" ? "http://localhost:3000" : ""
       ]
       support_credentials = true
