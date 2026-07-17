@@ -7,7 +7,7 @@ schedules:
     displayName: Weekly Sunday night build-agent refresh
     branches:
       include:
-        - main
+        - development
     always: true
 
 variables:

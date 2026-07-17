@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Diagnostics;
@@ -57,7 +58,7 @@ public class GetPcdRequestCore(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError)]
     [Function(nameof(GetPcdRequestCore))]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PcdRequestCore)] HttpRequest request, int caseId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PcdRequestCore)] HttpRequest request, int caseId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -69,7 +70,7 @@ public class GetPcdRequestCore(
 
             string requestBody = await new StreamReader(request.Body).ReadToEndAsync().ConfigureAwait(false);
 
-            IReadOnlyCollection<PcdRequestCore> result = await this.communicationService.GetPcdRequestCore(caseId, cmsAuthValues).ConfigureAwait(true);
+            IReadOnlyCollection<PcdRequestCore> result = await this.communicationService.GetPcdRequestCore(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
 
             if (result == null)
             {

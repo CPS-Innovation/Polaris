@@ -27,7 +27,7 @@ public class CaseLockService(
     private readonly IMasterDataServiceClient apiClient = apiClient;
 
     /// <inheritdoc />
-    public async Task<CaseLockedStatusResult> CheckCaseLockAsync(int caseId, CmsAuthValues cmsAuthValues)
+    public async Task<CaseLockedStatusResult> CheckCaseLockAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
 
@@ -35,7 +35,7 @@ public class CaseLockService(
         {
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Attempting to check case lock status for caseId [{caseIdString}]");
 
-            var checkCaseLockStatusResponse = await this.apiClient.CheckCaseLockAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+            var checkCaseLockStatusResponse = await this.apiClient.CheckCaseLockAsync(caseId, cmsAuthValues, cancellationToken);
 
             this.logger.LogInformation(LoggingConstants.CheckCaseLockOperationSuccess, LoggingConstants.HskUiLogPrefix, caseIdString);
 

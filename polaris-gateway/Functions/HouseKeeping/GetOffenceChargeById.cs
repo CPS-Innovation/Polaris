@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Diagnostics;
@@ -59,7 +60,8 @@ public class GetOffenceChargeById(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.OffenseCharge)]
         HttpRequest request,
         int caseId,
-        int historyId)
+        int historyId,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -79,7 +81,7 @@ public class GetOffenceChargeById(
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            var result = await this.communicationService.GetOffenceChargeByHistoryIdAsync(caseId, historyId, cmsAuthValues).ConfigureAwait(true);
+            var result = await this.communicationService.GetOffenceChargeByHistoryIdAsync(caseId, historyId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
 
             if (result == null)
             {

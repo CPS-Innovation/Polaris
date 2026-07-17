@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -60,13 +61,14 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
     [OpenApiParameter("documentId", In = ParameterLocation.Path, Type = typeof(long), Description = "The document Id (version) of the material", Required = true)]
     [OpenApiResponseWithBody(HttpStatusCode.OK, "application/json", typeof(IEnumerable<PiiLine>), Description = "OCR processing completed successfully")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
     {
         var telemetryEvent = new RedactionRequestEvent(caseId, materialId)
         {
             OperationName = nameof(PolarisPipelineSaveDocumentRedactions),
         };
 
+        cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 

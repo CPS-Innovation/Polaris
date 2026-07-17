@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Diagnostics;
@@ -55,7 +56,7 @@ public class UpdateExhibit(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
     [Function("UpdateExhibit")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.UpdateExhibit)] HttpRequest request, int caseId, int materialId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.UpdateExhibit)] HttpRequest request, int caseId, int materialId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -96,7 +97,8 @@ public class UpdateExhibit(
             UpdateExhibitResponse result = await this.communicationService.UpdateExhibitAsync(
                 caseId,
                 updateExhibitRequest,
-                cmsAuthValues).ConfigureAwait(true);
+                cmsAuthValues, 
+                cancellationToken:cancellationToken).ConfigureAwait(true);
 
             if (result?.UpdateExhibitData?.Id == null)
             {

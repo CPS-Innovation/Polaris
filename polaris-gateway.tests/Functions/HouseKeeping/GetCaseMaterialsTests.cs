@@ -1661,6 +1661,132 @@ public class GetCaseMaterialsTests
             log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [123] GetCaseMaterials function completed"));
     }
 
+    /// <summary>
+    /// Tests that PE3 (1053), PE4 (1054), and DREP (1055) material types are excluded from Used MG Forms.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Fact]
+    public async Task Run_ExcludesPE3PE4AndDREPMaterialTypes_FromUsedMgForms()
+    {
+        // Arrange
+        var mockRequest = SetUpMockRequest();
+
+        var mockCommunications = new List<Communication>
+        {
+            new Communication(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "None", "Administrative", "Type A", false),
+        };
+
+        var mockCaseMaterials = new List<CaseMaterial>
+        {
+            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "None"),
+        };
+
+        // Create Used MG Forms with both excluded and included material types
+        var mgFormPE3 = new MgForm(
+            Id: 1,
+            Title: "PE3 Form",
+            OriginalFileName: "pe3.pdf",
+            MaterialType: "1053", // PE3 - should be excluded
+            DocumentType: 1053,
+            Link: "http://example1.com",
+            Status: "Used",
+            Date: receivedDate);
+
+        var mgFormPE4 = new MgForm(
+            Id: 2,
+            Title: "PE4 Form",
+            OriginalFileName: "pe4.pdf",
+            MaterialType: "1054", // PE4 - should be excluded
+            DocumentType: 1054,
+            Link: "http://example2.com",
+            Status: "Used",
+            Date: receivedDate);
+
+        var mgFormDREP = new MgForm(
+            Id: 3,
+            Title: "DREP Form",
+            OriginalFileName: "drep.pdf",
+            MaterialType: "1055", // DREP - should be excluded
+            DocumentType: 1055,
+            Link: "http://example3.com",
+            Status: "Used",
+            Date: receivedDate);
+
+        var mgFormValid = new MgForm(
+            Id: 4,
+            Title: "Valid MG Form",
+            OriginalFileName: "valid.pdf",
+            MaterialType: "1202", // Valid - should NOT be excluded
+            DocumentType: 1202,
+            Link: "http://example4.com",
+            Status: "Used",
+            Date: receivedDate);
+
+        var usedMgForms = new UsedMgFormsResponse
+        {
+            MgForms = new List<MgForm> { mgFormPE3, mgFormPE4, mgFormDREP, mgFormValid },
+        };
+
+        // Only the valid MG form should be mapped (PE3, PE4, DREP excluded)
+        var mappedUsedMgFormsCaseMaterials = new List<CaseMaterial>
+        {
+            new CaseMaterial(4, "valid.pdf", "Valid MG Form", 1202, 4, "http://example4.com", "MG Form", "MG Form", false, "Used"),
+        };
+
+        // Mock empty responses for other materials
+        var unusedMaterials = new UnusedMaterialsResponse();
+        var usedStatements = new Common.Dto.Response.HouseKeeping.UsedStatementsResponse();
+        var usedExhibits = new UsedExhibitsResponse();
+        var usedOtherMaterials = new UsedOtherMaterialsResponse();
+        var exhibitProducers = new ExhibitProducersResponse();
+
+        // Mock RetrieveCaseMaterialsAsync
+        mockCaseMaterialService
+            .Setup(x => x.RetrieveCaseMaterialsAsync(123, It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync((mockCommunications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials, exhibitProducers));
+
+        // Mock MapCommunicationsToCaseMaterials
+        mockCaseMaterialService
+            .Setup(x => x.MapCommunicationsToCaseMaterials(mockCommunications))
+            .Returns(mockCaseMaterials);
+
+        // Mock MapUsedMgFormsToCaseMaterials - should only receive the valid MG form after filtering
+        mockCaseMaterialService
+            .Setup(x => x.MapUsedMgFormsToCaseMaterials(It.IsAny<UsedMgFormsResponse>()))
+            .Returns<UsedMgFormsResponse>(response =>
+            {
+                // Verify that PE3, PE4, and DREP were filtered out
+                Assert.Single(response.MgForms);
+                Assert.Equal("1202", response.MgForms[0].MaterialType);
+                Assert.Equal("Valid MG Form", response.MgForms[0].Title);
+                return mappedUsedMgFormsCaseMaterials;
+            });
+
+        // Act
+        IActionResult result = await getCaseMaterialsFunction.Run(mockRequest.Object, 123);
+
+        // Assert
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.NotNull(okResult.Value);
+
+        List<CaseMaterial> caseMaterials = Assert.IsType<List<CaseMaterial>>(okResult.Value);
+
+        // Verify the result contains communications + the valid MG form (PE3, PE4, DREP excluded)
+        Assert.Equal(2, caseMaterials.Count);
+        Assert.Contains(caseMaterials, cm => cm.Id == 1 && cm.Subject == "Subject A");
+        Assert.Contains(caseMaterials, cm => cm.Id == 4 && cm.Subject == "Valid MG Form");
+
+        // Verify PE3, PE4, and DREP are NOT in the result
+        Assert.DoesNotContain(caseMaterials, cm => cm.Subject == "PE3 Form");
+        Assert.DoesNotContain(caseMaterials, cm => cm.Subject == "PE4 Form");
+        Assert.DoesNotContain(caseMaterials, cm => cm.Subject == "DREP Form");
+
+        // Verify the MapUsedMgFormsToCaseMaterials was called once
+        mockCaseMaterialService.Verify(
+            x => x.MapUsedMgFormsToCaseMaterials(It.IsAny<UsedMgFormsResponse>()),
+            Times.Once);
+    }
+
     private static Mock<HttpRequest> SetUpMockRequest()
     {
         var mockRequest = new Mock<HttpRequest>();
