@@ -910,7 +910,11 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                       children: (
                         <span className={classes.textAreaLabel}>
                           Supporting notes{" "}
-                          <span className={classes.greyColor}>(optional)</span>
+                          {!isSelectedRedactionOfOtherType && (
+                            <span className={classes.greyColor}>
+                              (optional)
+                            </span>
+                          )}
                         </span>
                       ),
                     }}
