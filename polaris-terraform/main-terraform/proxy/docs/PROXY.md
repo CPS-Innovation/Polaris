@@ -3,6 +3,10 @@
 > Working notes for a refactor of the nginx CMS proxy. Start here (with
 > [`SYSTEM.md`](./SYSTEM.md)) when reorienting. Focused on **which Terraformed
 > AppSettings drive the proxy** and how the proxy is put together.
+>
+> Companion docs: [`QUIRKS.md`](./QUIRKS.md) — every bug/oddity found while
+> building the test harness; [`PLAN.md`](./PLAN.md) — the phased roadmap.
+> The harness itself lives in [`../tests`](../tests) (see [`../README.md`](../README.md)).
 
 ## 1. What the proxy is
 
@@ -392,7 +396,7 @@ and terraform happy.)_
 
 **Why.** The whole §6 refactor (condense `cmsenv.js` → `common.js`, slice config into
 feature includes) is only safe if we can prove behaviour is unchanged after each move.
-The parallel repo `../../global-components/infra/proxy/` already runs exactly the kind of
+The parallel repo `CPS/global-components/infra/proxy/` already runs exactly the kind of
 harness we need — njs unit tests **and** Docker-based integration tests against the
 rendered nginx config — so we mirror it here. The goal, in the user's words: **feed in
 every relevant app setting ourselves, boot the existing config, then manipulate the env /
