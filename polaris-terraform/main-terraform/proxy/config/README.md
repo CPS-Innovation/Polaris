@@ -9,9 +9,24 @@ staging ground for the refactor.
 
 The target shape from [`../docs/PROXY.md` §6](../docs/PROXY.md): `nginx.conf` sliced
 into one `include` per feature, `cmsenv.js`'s shared core pulled into `common.js`,
-one njs module per feature. It starts as a **verbatim copy** of the live config and
-is refactored **in place here**, one feature at a time, while the live config keeps
-running untouched.
+one njs module per feature. It started as a **verbatim copy** of the live config and
+is refactored **in place here**, while the live config keeps running untouched.
+
+## Progress
+
+- ✅ **Location slicing — DONE.** All 46 `location` blocks moved out of `nginx.conf`
+  into `features/00-health.conf` … `xx-redundant.conf`. The parent `nginx.conf` is now
+  just the server preamble (`js_import` / `js_var` / `limit_req_zone` / `resolver` /
+  security headers / `$ieaction`) plus `include global-components*.conf;` and
+  `include features/*.conf;`. `./run-tests.sh --next` is green — identical behaviour
+  to the live monolith.
+- ⬜ **njs split — TODO.** `nginx.js` and `cmsenv.js` are still copied here whole and
+  still `js_import`ed by the parent (feature files call `nginx.*` / `cmsenv.*` across
+  the include boundary, which works fine). Next: `nginx.js` → `auth-handover.js`,
+  `cmsenv.js` `getDomainFromCookie` → `navigate-cms.js`, the rest → `common.js`
+  ([`../docs/QUIRKS.md` B1](../docs/QUIRKS.md) decides `replaceCmsDomains`'s fate first).
+- ⬜ **Cutover — TODO.** Point terraform at this folder ([§6.5](../docs/PROXY.md)),
+  delete the live copies.
 
 ## How we prove it stays correct
 
