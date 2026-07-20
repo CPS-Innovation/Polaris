@@ -10,14 +10,28 @@ Bugs and oddities the harness found: **[`docs/QUIRKS.md`](./docs/QUIRKS.md)**.
 ```
 proxy/
   docs/                  PROXY.md · SYSTEM.md · QUIRKS.md · PLAN.md
+  config/                the "next" (to-be, refactored) config — NOT operational yet
   tests/
-    integration/         Docker-based: boots the REAL config against a mock upstream
-      docker/            Dockerfiles, compose, the env manifest, the mock + fixtures
+    integration/         Docker-based: boots a config against a mock upstream
+      docker/            Dockerfiles, compose (+ compose.next override), env, mock, fixtures
       tests/             *.integration.test.js — one file per feature
-      run-tests.sh
+      run-tests.sh       ./run-tests.sh [--next] [filter]
       test-utils.js
     unit/                njs unit tests (cmsenv.js, nginx.js) — no docker, no npm
 ```
+
+## Live vs. next config
+
+The integration suite runs against **either** config, selected by a flag — the test
+files are identical, so green on both proves the refactor changed no behaviour:
+
+```bash
+cd tests/integration
+./run-tests.sh          # LIVE config (main-terraform/*) — what deploys today
+./run-tests.sh --next   # NEXT config (config/*)         — the refactor target
+```
+
+See [`config/README.md`](./config/README.md) for the migration loop.
 
 ## Why this exists
 

@@ -1,0 +1,32 @@
+# Override: run the SAME integration tests against the "next" (to-be, refactored)
+# config in ../../../config/ instead of the live config in main-terraform/.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.next.yml up
+#   ../run-tests.sh --next
+#
+# Docker Compose merges `volumes` BY TARGET: a mount here with the same container
+# path as one in docker-compose.yml REPLACES it (verified). So this file only has
+# to repoint the config sources — everything else in the base stack (ports, the
+# env manifest, the mock upstream and its network aliases) is inherited unchanged.
+#
+# The two configs are exercised by the identical test suite; green on both proves
+# the refactor changed no behaviour. See proxy/config/README.md and docs/PROXY.md §6/§7.
+#
+# WHILE MIGRATING: as nginx.conf in proxy/config/ is sliced into features/*.conf,
+# add a mount line per feature file here, e.g.
+#   - ../../../config/features/05-cms-proxy.conf:/etc/nginx/templates/features/05-cms-proxy.conf.template:ro
+# (each .conf needs its own line with the .template suffix — envsubst only renders
+#  *.template, and a directory cannot be bulk-mounted through that rename.) Add
+#  common.js the same way. Repoint or drop the nginx.js/cmsenv.js lines below as
+#  their logic moves into the new modules.
+
+services:
+  nginx:
+    volumes:
+      # ../../../config == polaris-terraform/main-terraform/proxy/config/
+      - ../../../config/nginx.conf:/etc/nginx/templates/nginx.conf.template:ro
+      - ../../../config/global-components.conf:/etc/nginx/templates/global-components.conf.template:ro
+      - ../../../config/nginx.js:/etc/nginx/templates/nginx.js:ro
+      - ../../../config/cmsenv.js:/etc/nginx/templates/cmsenv.js:ro
+      - ../../../config/global-components.js:/etc/nginx/templates/global-components.js:ro
+      - ../../../config/polaris-script.js:/etc/nginx/templates/polaris-script.js:ro

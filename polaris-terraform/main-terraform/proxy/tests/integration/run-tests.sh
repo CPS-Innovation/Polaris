@@ -1,22 +1,37 @@
 #!/bin/bash
 # Integration test runner for the cmsproxy.
 #
-#   ./run-tests.sh              run every test file in tests/
+#   ./run-tests.sh              run every test file against the LIVE config (main-terraform/*)
+#   ./run-tests.sh --next       run the same tests against the NEXT config (proxy/config/*)
 #   ./run-tests.sh smoke        run only tests/smoke.integration.test.js
+#   ./run-tests.sh --next cms   --next + a filter
 #   KEEP_UP=1 ./run-tests.sh    leave the stack running afterwards (for poking)
 #
-# Brings up the real nginx.conf against a mock upstream, waits for health,
-# runs the node test files, tears down.
+# Brings up the nginx config against a mock upstream, waits for health, runs the
+# node test files, tears down. The test files are identical for both configs —
+# green on both proves the refactor changed no behaviour (see docs/PROXY.md §6/§7).
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOCKER_DIR="$SCRIPT_DIR/docker"
 PROXY_BASE="${PROXY_BASE:-http://localhost:8080}"
-FILTER="${1:-}"
+
+# Args: --next (use the to-be config) anywhere; any other arg is a filename filter.
+COMPOSE_FILES="-f docker-compose.yml"
+CONFIG_LABEL="live (main-terraform)"
+FILTER=""
+for arg in "$@"; do
+  case "$arg" in
+    --next) COMPOSE_FILES="-f docker-compose.yml -f docker-compose.next.yml"
+            CONFIG_LABEL="next (proxy/config)" ;;
+    *)      FILTER="$arg" ;;
+  esac
+done
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
 
 echo "cmsproxy integration tests"
+echo "config under test: $CONFIG_LABEL"
 echo "=========================="
 
 cleanup() {
@@ -25,7 +40,7 @@ cleanup() {
     return
   fi
   echo -e "\n${YELLOW}Stopping stack...${NC}"
-  (cd "$DOCKER_DIR" && docker compose down -t 2 >/dev/null 2>&1 || true)
+  (cd "$DOCKER_DIR" && docker compose $COMPOSE_FILES down -t 2 >/dev/null 2>&1 || true)
 }
 trap cleanup EXIT
 
@@ -47,15 +62,15 @@ wait_for_proxy() {
 
 echo -e "${YELLOW}Starting docker compose...${NC}"
 cd "$DOCKER_DIR"
-docker compose down -t 2 >/dev/null 2>&1 || true
-if ! docker compose up -d --build; then
+docker compose $COMPOSE_FILES down -t 2 >/dev/null 2>&1 || true
+if ! docker compose $COMPOSE_FILES up -d --build; then
   echo -e "${RED}Failed to start the stack${NC}"
   exit 1
 fi
 
 if ! wait_for_proxy; then
   echo -e "${RED}Proxy did not become ready. nginx logs:${NC}"
-  docker compose logs --tail=60 nginx
+  docker compose $COMPOSE_FILES logs --tail=60 nginx
   exit 1
 fi
 
