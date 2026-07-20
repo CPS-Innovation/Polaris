@@ -300,6 +300,16 @@ function handleCaseReviewRedirect(r) {
   // CMS polaris endpoint from the Cms-Session-Hint cookie (or default domain)
   r.return(302, `${proto}://${host}/auth-refresh-outbound?r=${encodeURIComponent(authHandoverPage)}`);
 }
+// Moved from cmsenv.js. Used only by the legacy /api/navigate-cms block in
+// global-components.conf. Self-contained: its own regex, no CMS-env detection.
+// NOTE: throws if the cookie has no *.cps.gov.uk domain (docs/QUIRKS.md C4) —
+// preserved verbatim.
+function getDomainFromCookie(r) {
+  let cookie = r.headersIn.Cookie || "";
+  let domainMatch = cookie.match(/([a-z0-9]+)\.cps\.gov\.uk/);
+  return domainMatch[0];
+}
+
 export default {
   readCmsAuthValues,
   readCorsOrigin,
@@ -307,6 +317,7 @@ export default {
   handleState,
   handleNavigateCms,
   handleCaseReviewRedirect,
+  getDomainFromCookie,
   // Export helper functions for vnext
   _getCookieValue,
   _maybeDecodeURIComponent,

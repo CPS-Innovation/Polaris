@@ -64,7 +64,7 @@ async function securityHeaders() {
   //
   // Affected today (non-exhaustive): = / and = /robots933456.txt (Content-Type),
   // = /api/navigate-cms and = /navigate-cms-close and /cin2../cin5
-  // (X-InternetExplorerMode / Set-Cookie), /sas-url/ (Content-Disposition).
+  // (X-InternetExplorerMode / Set-Cookie).
   //
   // Whether that matters depends on the endpoint, but it is certainly not
   // obvious from reading the config. Recorded here so that (a) it is visible and

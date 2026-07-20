@@ -20,3 +20,8 @@
 
 - Add v2 auth into flow in test
 - Get MDS endpoint built
+
+# To do
+
+- Feed global-components logic back to repo
+- Remove `SAS_URL_DOMAIN_NAME` from terraform variables
