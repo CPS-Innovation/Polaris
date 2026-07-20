@@ -1,6 +1,12 @@
+// <copyright file="GetPdf.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
 using Common.Configuration;
-using Common.Extensions;
 using Common.Constants;
+using Common.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -15,24 +21,21 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-
-namespace PolarisGateway.Functions;
-
 public class GetPdf : BaseFunction
 {
     private const string PdfContentType = "application/pdf";
-    private const string isOcrProcessedParamName = "isOcrProcessed";
+    private const string IsOcrProcessedParamName = "isOcrProcessed";
     private const string ForceRefreshParamName = "ForceRefresh";
-    private readonly ILogger<GetPdf> _logger;
-    private readonly IPdfArtefactService _pdfArtefactService;
+    private readonly ILogger<GetPdf> logger;
+    private readonly IPdfArtefactService pdfArtefactService;
 
     public GetPdf(
         ILogger<GetPdf> logger,
         IPdfArtefactService pdfArtefactService)
         : base()
     {
-        _logger = logger.ExceptionIfNull();
-        _pdfArtefactService = pdfArtefactService.ExceptionIfNull();
+        this.logger = logger.ExceptionIfNull();
+        this.pdfArtefactService = pdfArtefactService.ExceptionIfNull();
     }
 
     [Function(nameof(GetPdf))]
@@ -43,8 +46,8 @@ public class GetPdf : BaseFunction
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(string), Description = "The Id of the material", Required = true)]
     [OpenApiParameter("documentId", In = ParameterLocation.Path, Type = typeof(long), Description = "The document Id (version) of the material", Required = true)]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK,contentType: "application/pdf",bodyType: typeof(byte[]),Description = "Returns the generated PDF file")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.UnsupportedMediaType,contentType: "application/json",bodyType: typeof(ArtefactResult<Stream>),Description = "Returned when the PDF artefact is not available")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/pdf", bodyType: typeof(byte[]), Description = "Returns the generated PDF file")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.UnsupportedMediaType, contentType: "application/json", bodyType: typeof(ArtefactResult<Stream>), Description = "Returned when the PDF artefact is not available")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
     public async Task<IActionResult> Run(
@@ -53,7 +56,7 @@ public class GetPdf : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var isOcrProcessed = req.Query.ContainsKey(isOcrProcessedParamName) && bool.Parse(req.Query[isOcrProcessedParamName]);
+        var isOcrProcessed = req.Query.ContainsKey(IsOcrProcessedParamName) && bool.Parse(req.Query[IsOcrProcessedParamName]);
         var forceRefresh = req.Query.ContainsKey(ForceRefreshParamName) && bool.Parse(req.Query[ForceRefreshParamName]);
 
         var request = new GetPdfRequest(
@@ -64,7 +67,7 @@ public class GetPdf : BaseFunction
             IsOcrProcessed: isOcrProcessed,
             ForceRefresh: forceRefresh);
 
-        var getPdfResult = await _pdfArtefactService.GetPdfAsync(request, cmsAuthValues, correlationId, cancellationToken);
+        var getPdfResult = await this.pdfArtefactService.GetPdfAsync(request, cmsAuthValues, correlationId, cancellationToken);
 
         if (getPdfResult.FileSizeExceedsLimit == true)
         {
