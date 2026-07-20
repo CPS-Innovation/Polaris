@@ -1,4 +1,5 @@
 import qs from "querystring"
+import common from "./common/cms-detection.js"
 
 const IS_PROXY_SESSION_PARAM_NAME = "is-proxy-session"
 const SESSION_HINT_COOKIE_NAME = "Cms-Session-Hint"
@@ -193,4 +194,16 @@ function handleAuthRefreshOutbound(r) {
   r.return(302, redirectUrl);
 }
 
-export default { polarisAuthRedirect, appAuthRedirect, handleAuthRefreshOutbound }
+// Dev-login flow: stamp the detected CMS environment into a readable __CMSENV
+// cookie so the /cin* switch pages can be tested without a full CMS round-trip.
+// The environment comes from the OUTGOING Set-Cookie (what this response is
+// establishing) — a policy specific to this flow — run through common's shared
+// detection rule.
+function devLoginEnvCookie(r) {
+  let cmsEnv = common.detect((r.headersOut["Set-Cookie"] || [""])[0]);
+  let cookies = r.headersOut['Set-Cookie'];
+  cookies.push('__CMSENV=' + cmsEnv + '; path=/');
+  r.headersOut['Set-Cookie'] = cookies;
+}
+
+export default { polarisAuthRedirect, appAuthRedirect, handleAuthRefreshOutbound, devLoginEnvCookie }

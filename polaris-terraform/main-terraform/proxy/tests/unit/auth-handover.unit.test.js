@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Unit tests for nginx.js (feature 2 — auth handover).  CHARACTERISATION.
+ * Unit tests for auth-handover.js (was nginx.js) (feature 2 — auth handover).  CHARACTERISATION.
  *
  * Complements 02-auth-handover.integration.test.js. Unit earns its keep here on
  * the paths integration cannot reach:
@@ -9,7 +9,7 @@
  *   - the Cms-Session-Hint error payload;
  *   - exact _argsShim query-string construction.
  *
- * nginx.js reads two settings via process.env (not r.variables) — the tests set
+ * authHandover.js reads two settings via process.env (not r.variables) — the tests set
  * and restore them around each case.
  */
 const {
@@ -57,13 +57,13 @@ async function withEnv(env, fn) {
   }
 }
 
-async function appAuthRedirect(nginx) {
+async function appAuthRedirect(authHandover) {
   console.log("\nappAuthRedirect (/init) — whitelist enforcement:")
 
   await test("whitelisted r -> 302 with the cookie appended as cc", async () => {
     await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST }, () => {
       const r = req({ r: "/auth-refresh-inbound", cookie: "session=abc123" })
-      nginx.appAuthRedirect(r)
+      authHandover.appAuthRedirect(r)
       assertEqual(r.returnCode, 302, "302")
       assertIncludes(r.returnBody, "https://proxy.example.org/auth-refresh-inbound", "absolute URL")
       assertIncludes(r.returnBody, "cc=session%3Dabc123", "cookie appended, URL-encoded")
@@ -73,7 +73,7 @@ async function appAuthRedirect(nginx) {
   await test("uses ? or & correctly when the target already has a query", async () => {
     await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST }, () => {
       const r = req({ r: "/auth-refresh-inbound?a=1", cookie: "c=1" })
-      nginx.appAuthRedirect(r)
+      authHandover.appAuthRedirect(r)
       assertIncludes(r.returnBody, "?a=1&cc=", "Should join with & when a query exists")
     })
   })
@@ -81,7 +81,7 @@ async function appAuthRedirect(nginx) {
   await test("non-whitelisted r -> 403 naming the whitelist", async () => {
     await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST }, () => {
       const r = req({ r: "https://evil.example.com/x", cookie: "c=1" })
-      nginx.appAuthRedirect(r)
+      authHandover.appAuthRedirect(r)
       assertEqual(r.returnCode, 403, "403")
       assertIncludes(r.returnBody, "evil.example.com", "Should echo the rejected target")
     })
@@ -90,7 +90,7 @@ async function appAuthRedirect(nginx) {
   await test("an absolute whitelisted prefix is allowed", async () => {
     await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST }, () => {
       const r = req({ r: "https://allowed.example.org/callback", cookie: "c=1" })
-      nginx.appAuthRedirect(r)
+      authHandover.appAuthRedirect(r)
       assertEqual(r.returnCode, 302, "302")
       assertIncludes(r.returnBody, "https://allowed.example.org/callback", "absolute target kept as-is")
     })
@@ -104,7 +104,7 @@ async function appAuthRedirect(nginx) {
   await test("QUIRK: whitelist is a prefix match, not an origin match", async () => {
     await withEnv({ AUTH_HANDOVER_WHITELIST: "https://allowed.example.org" }, () => {
       const r = req({ r: "https://allowed.example.org.evil.com/x", cookie: "c=1" })
-      nginx.appAuthRedirect(r)
+      authHandover.appAuthRedirect(r)
       assertEqual(r.returnCode, 302, "A look-alike host starting with the entry is accepted today")
     })
   })
@@ -133,7 +133,7 @@ async function appAuthRedirect(nginx) {
   await test("QUIRK: an unset whitelist allows EVERYTHING (open redirect + cc leak)", async () => {
     await withEnv({ AUTH_HANDOVER_WHITELIST: undefined }, () => {
       const r = req({ r: "https://evil.example.com/steal", cookie: "SESSION=secret" })
-      nginx.appAuthRedirect(r)
+      authHandover.appAuthRedirect(r)
       assertEqual(r.returnCode, 302, "Today: allowed, because ''.split(',') === [''] and startsWith('') is true")
       assertIncludes(r.returnBody, "https://evil.example.com/steal", "redirects to the attacker target")
       assertIncludes(r.returnBody, "cc=SESSION%3Dsecret", "...with the CMS cookie attached")
@@ -145,7 +145,7 @@ async function appAuthRedirect(nginx) {
     // disables the allow-list entirely, with no error anywhere.
     await withEnv({ AUTH_HANDOVER_WHITELIST: "/auth-refresh-inbound," }, () => {
       const r = req({ r: "https://evil.example.com/x", cookie: "c=1" })
-      nginx.appAuthRedirect(r)
+      authHandover.appAuthRedirect(r)
       assertEqual(r.returnCode, 302, "The empty entry from the trailing comma matches every target")
     })
   })
@@ -155,7 +155,7 @@ async function appAuthRedirect(nginx) {
   await test("with no r param, synthesises r=/auth-refresh-inbound from the legacy args", async () => {
     await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST }, () => {
       const r = req({ q: "SOMEQ", referer: "http://x", cookie: "c=1" })
-      nginx.appAuthRedirect(r)
+      authHandover.appAuthRedirect(r)
       assertEqual(r.returnCode, 302, "302")
       assertIncludes(r.returnBody, "/auth-refresh-inbound?", "Synthesised target")
       assertIncludes(r.returnBody, "q=SOMEQ", "Legacy args carried into the r param")
@@ -165,7 +165,7 @@ async function appAuthRedirect(nginx) {
   await test("the synthesised r param excludes cookie and is-proxy-session", async () => {
     await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST }, () => {
       const r = req({ q: "Q", cookie: "SECRET=1", "is-proxy-session": "true" })
-      nginx.appAuthRedirect(r)
+      authHandover.appAuthRedirect(r)
       const beforeCc = r.returnBody.split("cc=")[0]
       assertNotIncludes(beforeCc, "SECRET", "cookie must not be serialised into r (it comes back as cc)")
       assertNotIncludes(beforeCc, "is-proxy-session", "the synthetic flag must not leak into r")
@@ -173,13 +173,13 @@ async function appAuthRedirect(nginx) {
   })
 }
 
-async function sessionHint(nginx) {
+async function sessionHint(authHandover) {
   console.log("\nsetSessionHintCookie (via /init) — the Cms-Session-Hint payload:")
 
   const call = (args) =>
     withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST }, () => {
       const r = req({ r: "/auth-refresh-inbound", ...args })
-      nginx.appAuthRedirect(r)
+      authHandover.appAuthRedirect(r)
       return r
     })
 
@@ -241,12 +241,12 @@ async function sessionHint(nginx) {
   })
 }
 
-async function polarisAuthRedirect(nginx) {
+async function polarisAuthRedirect(authHandover) {
   console.log("\npolarisAuthRedirect (/polaris) — simulated CMS handover:")
 
   await test("redirects to /init carrying cookie, referer and is-proxy-session", async () => {
     const r = req({ r: "/target" }, { Cookie: "UID=abc", Referer: "https://cms.example/x" })
-    nginx.polarisAuthRedirect(r)
+    authHandover.polarisAuthRedirect(r)
     assertEqual(r.returnCode, 302, "302")
     assertIncludes(r.returnBody, "https://proxy.example.org/init?", "absolute /init URL")
     assertIncludes(r.returnBody, "cookie=UID%3Dabc", "request cookies forwarded")
@@ -256,12 +256,12 @@ async function polarisAuthRedirect(nginx) {
 
   await test("preserves the original query args", async () => {
     const r = req({ r: "/target", extra: "1" }, { Cookie: "a=1" })
-    nginx.polarisAuthRedirect(r)
+    authHandover.polarisAuthRedirect(r)
     assertIncludes(r.returnBody, "extra=1", "original args kept")
   })
 }
 
-async function authRefreshOutbound(nginx) {
+async function authRefreshOutbound(authHandover) {
   console.log("\nhandleAuthRefreshOutbound (/auth-refresh-outbound):")
 
   const call = (cookie, args = "", env = { DEFAULT_UPSTREAM_CMS_DOMAIN_NAME: DEFAULT_CMS }) =>
@@ -270,7 +270,7 @@ async function authRefreshOutbound(nginx) {
         headersIn: cookie ? { Cookie: cookie } : {},
         variables: { args },
       })
-      nginx.handleAuthRefreshOutbound(r)
+      authHandover.handleAuthRefreshOutbound(r)
       return r
     })
 
@@ -321,13 +321,51 @@ async function authRefreshOutbound(nginx) {
   })
 }
 
+async function devLogin(authHandover) {
+  console.log("\ndevLoginEnvCookie (dev login) — env from the OUTGOING Set-Cookie:")
+
+  await test("appends __CMSENV derived from the OUTGOING Set-Cookie", () => {
+    // Note it reads headersOut, not headersIn — it echoes the environment that
+    // the dev-login response is establishing. Detection comes from common/cms-detection.js.
+    const r = createMockRequest({
+      variables: { host: "proxy.example.org" },
+      headersOut: { "Set-Cookie": ["BIGipServer~x~cin4.cps.gov.uk_POOL=1"] },
+    })
+    authHandover.devLoginEnvCookie(r)
+    const cookies = r.headersOut["Set-Cookie"]
+    assert(cookies.some((c) => c === "__CMSENV=cin4; path=/"), `Expected __CMSENV=cin4, got ${JSON.stringify(cookies)}`)
+  })
+
+  await test("defaults to 'default' when the outgoing cookie names no environment", () => {
+    const r = createMockRequest({
+      variables: { host: "proxy.example.org" },
+      headersOut: { "Set-Cookie": ["session=abc"] },
+    })
+    authHandover.devLoginEnvCookie(r)
+    assert(
+      r.headersOut["Set-Cookie"].some((c) => c === "__CMSENV=default; path=/"),
+      "Should fall back to default"
+    )
+  })
+
+  await test("preserves the existing Set-Cookie entries", () => {
+    const r = createMockRequest({
+      variables: { host: "proxy.example.org" },
+      headersOut: { "Set-Cookie": ["a=1", "b=2"] },
+    })
+    authHandover.devLoginEnvCookie(r)
+    assertEqual(r.headersOut["Set-Cookie"].length, 3, "Should append, not replace")
+  })
+}
+
 async function main() {
-  const nginx = await loadNjs("nginx.js")
-  await appAuthRedirect(nginx)
-  await sessionHint(nginx)
-  await polarisAuthRedirect(nginx)
-  await authRefreshOutbound(nginx)
-  process.exit(summarise("nginx.js (unit)"))
+  const authHandover = await loadNjs("features/auth-handover.js")
+  await appAuthRedirect(authHandover)
+  await sessionHint(authHandover)
+  await polarisAuthRedirect(authHandover)
+  await authRefreshOutbound(authHandover)
+  await devLogin(authHandover)
+  process.exit(summarise("authHandover.js (unit)"))
 }
 
 main()

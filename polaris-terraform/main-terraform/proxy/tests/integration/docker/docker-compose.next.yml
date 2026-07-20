@@ -25,10 +25,18 @@ services:
     volumes:
       # ../../../config == polaris-terraform/main-terraform/proxy/config/
       - ../../../config/nginx.conf:/etc/nginx/templates/nginx.conf.template:ro
-      - ../../../config/cmsenv.js:/etc/nginx/templates/cmsenv.js:ro
       - ../../../config/polaris-script.js:/etc/nginx/templates/polaris-script.js:ro
       # auth-handover.js: owned by auth-handover.conf, sits beside it in features/
       - ../../../config/features/auth-handover.js:/etc/nginx/features/auth-handover.js:ro
+      # cms-proxy.js: response-body filters + its own getters; imports common.cms-detection.
+      - ../../../config/features/cms-proxy.js:/etc/nginx/features/cms-proxy.js:ro
+      # polaris-ddei.js: owns all its getters (its own *Internal vars); imports common.cms-detection.
+      - ../../../config/features/polaris-ddei.js:/etc/nginx/features/polaris-ddei.js:ro
+      # common/cms-detection.js: shared CMS-env primitive (detect + setting), grouped
+      # under features/common/. The feature modules in features/ import it as
+      # ./common/cms-detection.js. Not js_import'd by nginx (include features/*.conf
+      # only matches .conf directly in features/, so the subdir is untouched).
+      - ../../../config/features/common/cms-detection.js:/etc/nginx/features/common/cms-detection.js:ro
       # global-components now lives under features/: the .conf renders into
       # /etc/nginx/features/ (picked up by `include features/*.conf;`) and the .js
       # sits beside it (js_import gloco from features/global-components.js).
