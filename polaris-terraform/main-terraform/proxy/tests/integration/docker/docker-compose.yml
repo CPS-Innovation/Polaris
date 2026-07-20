@@ -1,0 +1,67 @@
+# Integration stack for the cmsproxy.
+#
+#   nginx          the REAL config from main-terraform/, bind-mounted (8080 -> 80)
+#   mock-upstream  stands in for every backend (3000 http / 3443 https)
+#
+# The config files are mounted, not copied, so editing nginx.conf needs no
+# rebuild — just `docker compose restart nginx`.
+#
+# How the config gets rendered: the stock nginx entrypoint runs envsubst over
+# /etc/nginx/templates/*.template and writes to $NGINX_ENVSUBST_OUTPUT_DIR
+# (=/etc/nginx). So:
+#   nginx.conf.template            -> /etc/nginx/nginx.conf
+#   global-components.conf.template-> /etc/nginx/global-components.conf   (picked
+#                                     up by `include global-components*.conf;`)
+# The .js files are NOT templated — they are mounted straight into
+# /etc/nginx/templates/ because nginx.conf does `js_import templates/nginx.js`
+# and `location /polaris-script.js` serves from `root /etc/nginx/templates`.
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "8080:80"
+    env_file:
+      - cmsproxy.mock.env
+    environment:
+      # Turns on the entrypoint's template rendering and targets /etc/nginx.
+      - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx
+    volumes:
+      # ../../../../ == polaris-terraform/main-terraform/
+      - ../../../../nginx.conf:/etc/nginx/templates/nginx.conf.template:ro
+      - ../../../../global-components.conf:/etc/nginx/templates/global-components.conf.template:ro
+      - ../../../../nginx.js:/etc/nginx/templates/nginx.js:ro
+      - ../../../../cmsenv.js:/etc/nginx/templates/cmsenv.js:ro
+      - ../../../../global-components.js:/etc/nginx/templates/global-components.js:ro
+      - ../../../../polaris-script.js:/etc/nginx/templates/polaris-script.js:ro
+    depends_on:
+      mock-upstream:
+        condition: service_healthy
+
+  mock-upstream:
+    build:
+      context: .
+      dockerfile: Dockerfile.mock
+    ports:
+      - "3000:3000"
+      - "3443:3443"
+    networks:
+      default:
+        aliases:
+          # nginx.conf's `/v2/` block proxy_passes to a HARDCODED
+          # https://uksouth-1.in.applicationinsights.azure.com/v2/ — there is no
+          # env var to point at the mock. Giving the mock a network alias for that
+          # hostname makes Docker's DNS resolve it here instead of the internet,
+          # so the block is testable and the suite needs no outbound network.
+          - uksouth-1.in.applicationinsights.azure.com
+          # nginx.conf:309 (/CMSModern/Files) is the ONE CMS block that dials a
+          # DOMAIN rather than a Corsham/Farnborough IP:
+          #     proxy_pass https://$upstreamCmsServicesDomainName;
+          # so the *_UPSTREAM_CMS_SERVICES_DOMAIN_NAME values must resolve here.
+          # (https => port 443, which the mock also listens on.)
+          - cms-services.cps.gov.uk
+          - not-used-in-cin2.cps.gov.uk
+          - not-used-in-cin4.cps.gov.uk
+          - not-used-in-cin5.cps.gov.uk
