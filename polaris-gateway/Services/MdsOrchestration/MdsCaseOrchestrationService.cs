@@ -72,11 +72,6 @@ public class MdsCaseOrchestrationService(IMdsClient mdsClient,
         var witnesses = MapWitnesses(witnessesTask.Result);
         var preChargeDecisionRequests = getPcdRequestTask.Result;
 
-        var preChargeDecisionRequestsDto = new List<Common.Dto.Response.Case.PreCharge.PcdRequestDto>();
-
-
-
-
         return new CaseDetailsDto
         {
             Summary = summary,
