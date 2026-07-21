@@ -6,11 +6,8 @@ using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using Ddei.Mappers;
 using DdeiClient.Clients.Interfaces;
-using Newtonsoft.Json;
-using PolarisGateway.Models;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
