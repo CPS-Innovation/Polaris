@@ -47,12 +47,18 @@ public class MdsCaseOrchestrationService(IMdsClient mdsClient,
 
     private async Task<CaseDetailsDto> GetCaseDetails(MdsCaseIdentifiersArgDto arg, CancellationToken cancellationToken = default)
     {
-        var getCaseSummaryTask = _mdsClient.GetCaseSummaryAsync(_mdsArgFactory.CreateCaseIdArg(arg.CmsAuthValues, arg.CorrelationId, arg.CaseId, arg.Urn), cancellationToken);
+        var request = new GetCaseSummaryRequest(arg.CaseId, arg.CorrelationId);
+
+        var cmsAuthValuesSer = JsonConvert.DeserializeObject<CmsAuthValuesDto>(arg.CmsAuthValues);
+
+        var cmsAuthValues = new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId);
+
+        var getCaseSummaryTask = _masterDataServiceClient.GetCaseSummaryAsync(request, cmsAuthValues, cancellationToken);
         var getDefendantsAndChargesTask = _mdsClient.GetDefendantAndChargesAsync(arg, cancellationToken);
         var witnessesTask = _mdsClient.GetWitnessesAsync(arg, cancellationToken);
         var getPcdRequestTask = _mdsClient.GetPcdRequestsAsync(arg, cancellationToken);
 
-        await Task.WhenAll(getCaseSummaryTask, getDefendantsAndChargesTask, witnessesTask, getPcdRequestTask, getCaseSummaryTask);
+        await Task.WhenAll(getCaseSummaryTask, getDefendantsAndChargesTask, witnessesTask, getPcdRequestTask);
 
         var summarynew = getCaseSummaryTask.Result;
         var summary = new CaseSummaryDto()
@@ -61,8 +67,6 @@ public class MdsCaseOrchestrationService(IMdsClient mdsClient,
            LeadDefendantFirstNames = summarynew.LeadDefendantFirstNames,
            LeadDefendantSurname = summarynew.LeadDefendantSurname,
            NumberOfDefendants = summarynew.NumberOfDefendants,
-           //OwningUnit = summarynew.UnitName,
-           //Id = summarynew.CaseId,
         }; 
         var defendantsAndCharges = getDefendantsAndChargesTask.Result.DefendantsAndCharges;
         var witnesses = MapWitnesses(witnessesTask.Result);
