@@ -2,8 +2,6 @@ using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response;
 using Common.Dto.Response.Case;
-using Common.Extensions;
-using Cps.MasterDataService.Infrastructure.ApiClient;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using Ddei.Mappers;
@@ -47,15 +45,18 @@ public class MdsCaseOrchestrationService(IMdsClient mdsClient,
 
     private async Task<CaseDetailsDto> GetCaseDetails(MdsCaseIdentifiersArgDto arg, CancellationToken cancellationToken = default)
     {
-        var request = new GetCaseSummaryRequest(arg.CaseId, arg.CorrelationId);
+        var caseSummaryRequest = new GetCaseSummaryRequest(arg.CaseId, arg.CorrelationId);
+        var caseWithnessesRequest = new GetCaseWitnessesRequest(arg.CaseId, arg.CorrelationId);
+        var pcdCoreRequest = new GetPcdRequestsCoreRequest(arg.CaseId, arg.CorrelationId);
+        var listCaseDefendantsRequest = new ListCaseDefendantsRequest(arg.CaseId,arg.CorrelationId);
 
         var cmsAuthValuesSer = JsonConvert.DeserializeObject<CmsAuthValuesDto>(arg.CmsAuthValues);
 
         var cmsAuthValues = new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId);
 
-        var getCaseSummaryTask = _masterDataServiceClient.GetCaseSummaryAsync(request, cmsAuthValues, cancellationToken);
-        var getDefendantsAndChargesTask = _mdsClient.GetDefendantAndChargesAsync(arg, cancellationToken);
+        var getCaseSummaryTask = _masterDataServiceClient.GetCaseSummaryAsync(caseSummaryRequest, cmsAuthValues, cancellationToken);
         var witnessesTask = _mdsClient.GetWitnessesAsync(arg, cancellationToken);
+        var getDefendantsAndChargesTask = _mdsClient.GetDefendantAndChargesAsync(arg, cancellationToken);
         var getPcdRequestTask = _mdsClient.GetPcdRequestsAsync(arg, cancellationToken);
 
         await Task.WhenAll(getCaseSummaryTask, getDefendantsAndChargesTask, witnessesTask, getPcdRequestTask);
@@ -71,6 +72,11 @@ public class MdsCaseOrchestrationService(IMdsClient mdsClient,
         var defendantsAndCharges = getDefendantsAndChargesTask.Result.DefendantsAndCharges;
         var witnesses = MapWitnesses(witnessesTask.Result);
         var preChargeDecisionRequests = getPcdRequestTask.Result;
+
+        var preChargeDecisionRequestsDto = new List<Common.Dto.Response.Case.PreCharge.PcdRequestDto>();
+
+
+
 
         return new CaseDetailsDto
         {
