@@ -7,6 +7,7 @@ namespace PolarisGateway.Functions.HouseKeeping;
 using System;
 using System.Diagnostics;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
@@ -48,7 +49,7 @@ public class GetCaseWitnesses(ILogger<GetCaseWitnesses> logger,
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
     [Function(nameof(GetCaseWitnesses))]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseWitnessesHk)] HttpRequest request, int caseId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseWitnessesHk)] HttpRequest request, int caseId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -63,7 +64,7 @@ public class GetCaseWitnesses(ILogger<GetCaseWitnesses> logger,
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = BuildCmsAuthValues(request);
 
-            WitnessesResponse result = await witnessService.GetCaseWitnessesAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+            WitnessesResponse result = await witnessService.GetCaseWitnessesAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
             logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] {nameof(GetCaseWitnesses)} function completed in [{stopwatch.Elapsed}]");
 

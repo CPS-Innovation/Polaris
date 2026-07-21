@@ -45,6 +45,7 @@ export type ErrorState = {
   underRedaction: boolean;
   overRedaction: boolean;
   notes: boolean;
+  isSelectedRedactionOfOtherTypeAndNotesBlank: boolean;
 };
 
 type RedactionLogContentProps = {
@@ -89,6 +90,9 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
   redactionLogMappingsData,
   handleCloseRedactionLog,
 }) => {
+  const isSelectedRedactionOfOtherType = savedRedactionTypes.some(
+    (x) => x.name === "Other"
+  );
   const errorSummaryRef = useRef(null);
   const trackEvent = useAppInsightsTrackEvent();
   const [savingRedactionLog, setSavingRedactionLog] = useState(false);
@@ -102,6 +106,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     underRedaction: false,
     overRedaction: false,
     notes: false,
+    isSelectedRedactionOfOtherTypeAndNotesBlank: false,
   });
   const [defaultValues, setDefaultValues] = useState<UnderRedactionFormData>({
     cpsArea: "",
@@ -241,7 +246,7 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
     );
   };
 
-  const supportingNotesGuidanceContent = () => {
+  const SupportingNotesGuidanceContent = () => {
     return (
       <div className={classes.supportingNotesGuidanceWrapper}>
         <p className={classes.supportingNotesGuidanceTitle}>
@@ -254,10 +259,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           </li>
           <li>Avoid recording full names</li>
           <li>Do not record sensitive personal data</li>
-          <li>
-            {`Supporting notes optional - ${NOTES_MAX_CHARACTERS} characters
-            maximum`}
-          </li>
         </ul>
       </div>
     );
@@ -453,6 +454,12 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
           href: "#redaction-log-notes",
           "data-testid": "redaction-log-notes-link",
         };
+      case "isSelectedRedactionOfOtherTypeAndNotesBlank":
+        return {
+          children: `Please enter required Supporting notes`,
+          href: "#redaction-log-notes",
+          "data-testid": "redaction-log-notes-link",
+        };
     }
   };
 
@@ -607,6 +614,9 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
             documentType: !getValues("documentType"),
             chargeStatus: !getValues("chargeStatus"),
             notes: getValues("notes").length > NOTES_MAX_CHARACTERS,
+            isSelectedRedactionOfOtherTypeAndNotesBlank:
+              isSelectedRedactionOfOtherType &&
+              getValues("notes").trim().length === 0,
           }));
           handleSubmit(
             (data) => {
@@ -624,7 +634,6 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
               if (errorSummaryRef.current) {
                 (errorSummaryRef?.current as HTMLButtonElement).focus();
               }
-              console.log("error", errors);
             }
           )(event);
         }}
@@ -870,13 +879,18 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
               ariaDescription="Guidance on adding optional supporting notes for redaction log"
               dataTestId="guidance-supporting-notes"
             >
-              {supportingNotesGuidanceContent()}
+              <SupportingNotesGuidanceContent />
             </Guidance>
             <Controller
               name="notes"
               control={control}
               rules={{
-                validate: { required: () => errorState.notes !== true },
+                validate: {
+                  required: () => errorState.notes !== true,
+                  isSelectedRedactionOfOtherTypeAndNotBlank: (val) =>
+                    errorState.isSelectedRedactionOfOtherTypeAndNotesBlank !==
+                    true,
+                },
               }}
               render={({ field }) => {
                 return (
@@ -896,7 +910,11 @@ export const RedactionLogContent: React.FC<RedactionLogContentProps> = ({
                       children: (
                         <span className={classes.textAreaLabel}>
                           Supporting notes{" "}
-                          <span className={classes.greyColor}>(optional)</span>
+                          {!isSelectedRedactionOfOtherType && (
+                            <span className={classes.greyColor}>
+                              (optional)
+                            </span>
+                          )}
                         </span>
                       ),
                     }}

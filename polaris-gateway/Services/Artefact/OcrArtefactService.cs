@@ -52,7 +52,15 @@ public class OcrArtefactService : IOcrArtefactService
         }
 
         // If we are being called without an operationId and there is nothing in cache then we need to start a new OCR operation...
-        var pdfResult = await _pdfArtefactService.GetPdfAsync(cmsAuthValues, correlationId, urn, caseId, materialId, documentId, isOcrProcessed, forceRefresh);
+        var request = new GetPdfRequest(
+            Urn: urn,
+            CaseId: caseId,
+            MaterialId: materialId,
+            DocumentId: documentId,
+            IsOcrProcessed: isOcrProcessed,
+            ForceRefresh: forceRefresh);
+
+        var pdfResult = await _pdfArtefactService.GetPdfAsync(request, cmsAuthValues, correlationId);
 
         if (pdfResult.Status != ResultStatus.ArtefactAvailable)
         {

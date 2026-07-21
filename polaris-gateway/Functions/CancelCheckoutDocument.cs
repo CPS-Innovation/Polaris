@@ -11,6 +11,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -43,7 +44,7 @@ public class CancelCheckoutDocument : BaseFunction
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
@@ -56,7 +57,7 @@ public class CancelCheckoutDocument : BaseFunction
                 materialId: materialId,
                 documentId: documentId);
 
-        await _mdsClient.CancelCheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto);
+        await _mdsClient.CancelCheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto, cancellationToken: cancellationToken);
 
         return new OkResult();
     }

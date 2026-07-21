@@ -17,9 +17,10 @@ public interface IUmaReclassifyService
     /// </summary>
     /// <param name="caseId">the case Id associated with the communications.</param>
     /// <param name="communications">The collection of communications to be matched.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
     /// <returns>
     /// A task representing the asynchronous operation,
     /// containing a read-only collection of matched communications.
     /// </returns>
-    Task<IReadOnlyCollection<MatchedCommunication>> ProcessMatchingRequest(int caseId, IReadOnlyCollection<Communication> communications);
+    Task<IReadOnlyCollection<MatchedCommunication>> ProcessMatchingRequest(int caseId, IReadOnlyCollection<Communication> communications, CancellationToken cancellationToken = default);
 }

@@ -127,7 +127,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             DateTime receivedDate = new DateTime(2025, 04, 01);
 
             int caseId = 123;
-            var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+            var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
             var usedExhibitsResponse = new UsedExhibitsResponse
             {
@@ -189,7 +189,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             // Arrange
             DateTime receivedDate = new DateTime(2025, 04, 01);
             int caseId = 123;
-            var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+            var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
             var usedExhibitsResponse = new UsedExhibitsResponse
             {
@@ -855,7 +855,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
 
             var cmsAuthValues = new CmsAuthValues(
                 "cookies",
-                "token",
                 Guid.NewGuid());
 
             this.mockCommunicationService
@@ -889,7 +888,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
 
             var cmsAuthValues = new CmsAuthValues(
                 "cookies",
-                "token",
                 Guid.NewGuid());
 
             this.mockCommunicationService
@@ -923,7 +921,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
 
             var cmsAuthValues = new CmsAuthValues(
                 "cookies",
-                "token",
                 Guid.NewGuid());
 
             this.mockCommunicationService
@@ -957,7 +954,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
 
             var cmsAuthValues = new CmsAuthValues(
                 "cookies",
-                "token",
                 Guid.NewGuid());
 
             this.mockCommunicationService
@@ -1329,7 +1325,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             // Arrange
             var cmsAuthValues = new CmsAuthValues(
                 "cookies",
-                "token",
                 Guid.NewGuid());
 
             this.mockCommunicationService
@@ -1361,7 +1356,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             // Arrange
             var cmsAuthValues = new CmsAuthValues(
                 "cookies",
-                "token",
                 Guid.NewGuid());
 
             this.mockCommunicationService
@@ -1395,7 +1389,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
 
             var cmsAuthValues = new CmsAuthValues(
                 "cookies",
-                "token",
                 Guid.NewGuid());
 
             ExhibitProducersResponse exhibitProducersResponse = BuildTestExhibitProducers();
@@ -1430,7 +1423,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
 
             var cmsAuthValues = new CmsAuthValues(
                 "cookies",
-                "token",
                 Guid.NewGuid());
 
             ExhibitProducersResponse exhibitProducersResponse = BuildTestExhibitProducers();
@@ -1464,7 +1456,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
 
             var cmsAuthValues = new CmsAuthValues(
                 "cookies",
-                "token",
                 Guid.NewGuid());
 
             var exhibitProducers = new ExhibitProducersResponse()

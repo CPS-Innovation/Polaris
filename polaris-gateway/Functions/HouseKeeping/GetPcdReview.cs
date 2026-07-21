@@ -7,6 +7,7 @@ namespace PolarisGateway.Functions.HouseKeeping;
 using System;
 using System.Diagnostics;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
@@ -53,7 +54,7 @@ public class GetPcdReview(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError)]
     [Function(nameof(GetPcdReview))]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PcdReview)] HttpRequest request, int caseId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PcdReview)] HttpRequest request, int caseId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -68,7 +69,7 @@ public class GetPcdReview(
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            var result = await this.communicationService.GetPcdReview(caseId, cmsAuthValues);
+            var result = await this.communicationService.GetPcdReview(caseId, cmsAuthValues, cancellationToken);
 
             if (result == null)
             {

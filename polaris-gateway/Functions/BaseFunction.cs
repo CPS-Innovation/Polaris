@@ -2,16 +2,15 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-using System;
-using System.Web;
+namespace PolarisGateway.Functions;
+
 using Common.Constants;
 using Common.Dto.Request;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System;
 
-namespace PolarisGateway.Functions;
-
-public class BaseFunction(ILogger? logger = null)
+public class BaseFunction(ILogger logger = null)
 {
     private readonly ILogger logger = logger;
 
@@ -27,57 +26,16 @@ public class BaseFunction(ILogger? logger = null)
         return cmsAuthValues;
     }
 
-    protected string GetCmsToken(HttpRequest req)
-    {
-        return this.GetCookiePartByIndex(req, 0);
-    }
-
-    protected string GetCmsCookie(HttpRequest req, bool urlEncode = false)
-    {
-        string cookie = this.GetCookiePartByIndex(req, 4);
-
-        if (urlEncode)
-        {
-            return HttpUtility.UrlEncode(cookie);
-        }
-
-        return cookie;
-    }
-
     protected CmsAuthValues BuildCmsAuthValues(HttpRequest req)
     {
-        var token = this.GetCmsToken(req) ?? string.Empty;
-        var cookie = this.GetCmsCookie(req) ?? string.Empty;
-        var correlation = EstablishCorrelation(req);
-
-        return new CmsAuthValues(cookie, token, correlation);
-    }
-
-    private string? GetCookiePartByIndex(HttpRequest req, int index)
-    {
-        if (req.Cookies == null)
+        if (req?.Cookies is null)
         {
-            return string.Empty;
-        }
-
-        if (req.Cookies.TryGetValue(HttpHeaderKeys.CmsAuthValues, out string? cmsCookie))
-        {
-            string[] cmsParts = cmsCookie.Split(',');
-
-            if (cmsParts.Length > index)
-            {
-                return cmsParts[index].Split(':')[1].Replace("\"", string.Empty);
-            }
-            else
-            {
-                this.logger.LogWarning($"CMS cookie does not contain enough parts. Requested index: {index}.");
-                return null;
-            }
-        }
-        else
-        {
-            this.logger.LogWarning($"CMS cookie not found in the request.");
             return null;
         }
+
+        var cmsAuthValues = EstablishCmsAuthValues(req);
+        var correlation = EstablishCorrelation(req);
+
+        return new CmsAuthValues(cmsAuthValues, correlation);
     }
 }

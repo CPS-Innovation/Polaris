@@ -46,6 +46,7 @@ resource "azurerm_linux_function_app" "fa_polaris" {
     "PolarisPipelineCoordinatorBaseUrl"               = "https://fa-${local.global_resource_name}-coordinator.azurewebsites.net/api/"
     "PolarisPipelineRedactPdfBaseUrl"                 = "https://fa-${local.global_resource_name}-pdf-generator.azurewebsites.net/api/"
     "PolarisPdfThumbnailGeneratorBaseUrl"             = "https://fa-${local.global_resource_name}-pdf-thumb-gen.azurewebsites.net/api/"
+    "RedactionFileSize__FileSizeLimitMb"              = var.redaction_file_size_limit_mb
     "TenantId"                                        = data.azurerm_client_config.current.tenant_id
     "WEBSITE_ADD_SITENAME_BINDINGS_IN_APPHOST_CONFIG" = "1"
     "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING"        = azurerm_storage_account.sa_gateway.primary_connection_string
@@ -83,6 +84,8 @@ resource "azurerm_linux_function_app" "fa_polaris" {
         "https://as-web-${local.global_resource_name}.azurewebsites.net",
         "https://${local.global_resource_name}-cmsproxy.azurewebsites.net",
         "https://${local.global_resource_name}-notprod.cps.gov.uk",
+        var.env == "qa" ? "https://cps-tst.outsystemsenterprise.com" : "",
+        var.env == "qa" ? "https://cps-tst1.outsystemsenterprise.com" : "",
         var.env == "dev" ? "http://localhost:3000" : ""
       ]
       support_credentials = true

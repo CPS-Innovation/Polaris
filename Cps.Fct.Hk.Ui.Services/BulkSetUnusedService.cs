@@ -55,7 +55,7 @@ public class BulkSetUnusedService(
     }
 
     /// <inheritdoc />
-    public async Task<BulkSetUnusedResponse> BulkSetUnusedAsync(int caseId, CmsAuthValues cmsAuthValues, IReadOnlyCollection<BulkSetUnusedRequest> bulkSetUnusedRequests)
+    public async Task<BulkSetUnusedResponse> BulkSetUnusedAsync(int caseId, CmsAuthValues cmsAuthValues, IReadOnlyCollection<BulkSetUnusedRequest> bulkSetUnusedRequests, CancellationToken cancellationToken = default)
     {
         string caseIdString = caseId.ToString(CultureInfo.InvariantCulture);
         var reclassifiedMaterials = new ConcurrentDictionary<int, ReclassifiedMaterial>();
@@ -84,7 +84,7 @@ public class BulkSetUnusedService(
 
                 try
                 {
-                    ReclassificationResponse response = await this.apiClient.ReclassifyCommunicationAsync(reclassifyCommunicationRequest, cmsAuthValues).ConfigureAwait(false);
+                    ReclassificationResponse response = await this.apiClient.ReclassifyCommunicationAsync(reclassifyCommunicationRequest, cmsAuthValues, cancellationToken);
 
                     if (response.ReclassifyCommunication.Id.Equals(bulkSetUnusedRequest.materialId))
                     {

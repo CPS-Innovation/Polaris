@@ -49,7 +49,7 @@ public class CaseDefendantsServiceTests
     {
         // Arrange
         int caseId = 123;
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         // Setup the expected DefendantsResponse result
         var expectedCaseDefendants = new DefendantsResponse
@@ -182,7 +182,7 @@ public class CaseDefendantsServiceTests
     {
         // Arrange
         int caseId = 123;
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         // Setup the API client to return null for the case defendants
         this.apiClientMock
@@ -213,7 +213,7 @@ public class CaseDefendantsServiceTests
     {
         // Arrange
         int caseId = 123;
-        var cmsAuthValues = new CmsAuthValues("validCmsToken", "validCmsCookies");
+        var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         // Setup the API client to throw an exception
         this.apiClientMock

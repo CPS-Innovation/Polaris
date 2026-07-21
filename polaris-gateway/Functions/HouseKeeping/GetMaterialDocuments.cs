@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Diagnostics;
@@ -56,7 +57,7 @@ public class GetMaterialDocument(
     [OpenApiRequestBody("application/json", typeof(FileStreamResult), Description = "Return case summary response.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
     [Function("GetMaterialDocument")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.MaterialDocument)] HttpRequest req, int caseId, int materialId)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.MaterialDocument)] HttpRequest req, int caseId, int materialId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -125,9 +126,9 @@ public class GetMaterialDocument(
     /// <returns>
     /// A <see cref="string"/> containing the communication link if found; otherwise, returns null.
     /// </returns>
-    private async Task<string> GetLinkForMaterialAsync(int caseId, int materialId, CmsAuthValues cmsAuthValues)
+    private async Task<string> GetLinkForMaterialAsync(int caseId, int materialId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
-        object linkResult = await this.communicationService.GetCaseMaterialLinkAsync(caseId, materialId, cmsAuthValues).ConfigureAwait(true);
+        object linkResult = await this.communicationService.GetCaseMaterialLinkAsync(caseId, materialId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
 
         return linkResult is IActionResult ? null : linkResult as string;
     }
@@ -142,9 +143,9 @@ public class GetMaterialDocument(
     /// <returns>
     /// An <see cref="IActionResult"/> that either contains the material document if found, or a file with 'not found' content if the document is missing.
     /// </returns>
-    private async Task<IActionResult> GetMaterialDocumentAsync(string caseId, string link, CmsAuthValues cmsAuthValues, Stopwatch stopwatch)
+    private async Task<IActionResult> GetMaterialDocumentAsync(string caseId, string link, CmsAuthValues cmsAuthValues, Stopwatch stopwatch, CancellationToken cancellationToken = default)
     {
-        FileStreamResult downloadedDocument = await this.documentService.GetMaterialDocumentAsync(caseId, link, cmsAuthValues, firstPageOnly: false).ConfigureAwait(true);
+        FileStreamResult downloadedDocument = await this.documentService.GetMaterialDocumentAsync(caseId, link, cmsAuthValues, firstPageOnly: false, cancellationToken).ConfigureAwait(true);
 
         if (downloadedDocument == null)
         {
