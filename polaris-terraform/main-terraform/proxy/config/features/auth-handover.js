@@ -194,16 +194,45 @@ function handleAuthRefreshOutbound(r) {
   r.return(302, redirectUrl);
 }
 
-// Dev-login flow: stamp the detected CMS environment into a readable __CMSENV
-// cookie so the /cin* switch pages can be tested without a full CMS round-trip.
-// The environment comes from the OUTGOING Set-Cookie (what this response is
-// establishing) — a policy specific to this flow — run through common's shared
-// detection rule.
-function devLoginEnvCookie(r) {
-  let cmsEnv = common.detect((r.headersOut["Set-Cookie"] || [""])[0]);
-  let cookies = r.headersOut['Set-Cookie'];
-  cookies.push('__CMSENV=' + cmsEnv + '; path=/');
-  r.headersOut['Set-Cookie'] = cookies;
+// The cookies the dev-login GET clears: the CMS-env marker plus, per CMS env,
+// both BIG-IP pool cookies (ACP/AFP) and both load-balancer session cookies
+// (C/F). Generated to a flat "<name>=deleted; ...expired" list — the old config
+// hand-wrote all seventeen add_header lines twice.
+const EXPIRE = "=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+const DEV_LOGIN_CLEARED = (function () {
+  const names = ["__CMSENV"];
+  const envs = ["CIN2", "CIN3", "CIN4", "CIN5"];
+  for (let i = 0; i < envs.length; i++) {
+    const E = envs[i], e = E.toLowerCase();
+    names.push(`BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-${E}-${e}.cps.gov.uk_POOL`);
+    names.push(`BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-${E}-${e}.cps.gov.uk_POOL`);
+  }
+  for (let i = 0; i < envs.length; i++) {
+    names.push(`C-${envs[i]}-LBsessioncookie`);
+    names.push(`F-${envs[i]}-LBsessioncookie`);
+  }
+  return names.map((n) => n + EXPIRE);
+})();
+
+// Dev-login cookie handling for BOTH /dev-login/ and /api/dev-login-full-cookie/
+// (they differ only in their proxy_pass target). A single js_header_filter,
+// branching on the request method — replaces the two identical if-blocks of
+// add_header directives the two locations used to each carry:
+//   GET  — clear the CMS-env marker + BIG-IP/LB cookies (a reset), appended to
+//          whatever the upstream set (matching add_header's append semantics).
+//   POST — stamp the detected CMS env into a readable __CMSENV cookie so the Open
+//          Modern link works; the env is read from the OUTGOING Set-Cookie (what
+//          this response is establishing) via common's shared detection rule.
+function devLogin(r) {
+  if (r.method === "GET") {
+    const cookies = r.headersOut["Set-Cookie"] || [];
+    r.headersOut["Set-Cookie"] = cookies.concat(DEV_LOGIN_CLEARED);
+  } else if (r.method === "POST") {
+    const cmsEnv = common.detect((r.headersOut["Set-Cookie"] || [""])[0]);
+    const cookies = r.headersOut["Set-Cookie"] || [];
+    cookies.push("__CMSENV=" + cmsEnv + "; path=/");
+    r.headersOut["Set-Cookie"] = cookies;
+  }
 }
 
-export default { polarisAuthRedirect, appAuthRedirect, handleAuthRefreshOutbound, devLoginEnvCookie }
+export default { polarisAuthRedirect, appAuthRedirect, handleAuthRefreshOutbound, devLogin }

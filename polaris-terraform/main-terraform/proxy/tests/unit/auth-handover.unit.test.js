@@ -322,39 +322,51 @@ async function authRefreshOutbound(authHandover) {
 }
 
 async function devLogin(authHandover) {
-  console.log("\ndevLoginEnvCookie (dev login) — env from the OUTGOING Set-Cookie:")
+  console.log("\ndevLogin (dev login) — method-branching header filter:")
 
-  await test("appends __CMSENV derived from the OUTGOING Set-Cookie", () => {
-    // Note it reads headersOut, not headersIn — it echoes the environment that
-    // the dev-login response is establishing. Detection comes from common/cms-detection.js.
-    const r = createMockRequest({
-      variables: { host: "proxy.example.org" },
-      headersOut: { "Set-Cookie": ["BIGipServer~x~cin4.cps.gov.uk_POOL=1"] },
-    })
-    authHandover.devLoginEnvCookie(r)
+  // --- GET: clear the env + BIG-IP/LB cookies ---
+  await test("GET clears __CMSENV + every BIG-IP/LB cookie (17 in total)", () => {
+    const r = createMockRequest({ method: "GET", headersOut: { "Set-Cookie": [] } })
+    authHandover.devLogin(r)
     const cookies = r.headersOut["Set-Cookie"]
-    assert(cookies.some((c) => c === "__CMSENV=cin4; path=/"), `Expected __CMSENV=cin4, got ${JSON.stringify(cookies)}`)
+    assertEqual(cookies.length, 17, "1 env + 4 envs x (2 BIG-IP + 2 LB)")
+    const joined = cookies.join("\n")
+    assertIncludes(joined, "__CMSENV=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "env marker")
+    assertIncludes(joined, "BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "a BIG-IP pool cookie")
+    assertIncludes(joined, "F-CIN5-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "an LB session cookie")
   })
 
-  await test("defaults to 'default' when the outgoing cookie names no environment", () => {
-    const r = createMockRequest({
-      variables: { host: "proxy.example.org" },
-      headersOut: { "Set-Cookie": ["session=abc"] },
-    })
-    authHandover.devLoginEnvCookie(r)
-    assert(
-      r.headersOut["Set-Cookie"].some((c) => c === "__CMSENV=default; path=/"),
-      "Should fall back to default"
-    )
+  await test("GET appends to (does not replace) what the upstream set", () => {
+    const r = createMockRequest({ method: "GET", headersOut: { "Set-Cookie": ["upstream=1"] } })
+    authHandover.devLogin(r)
+    assertEqual(r.headersOut["Set-Cookie"].length, 18, "upstream cookie kept + 17 clears")
+    assertEqual(r.headersOut["Set-Cookie"][0], "upstream=1", "upstream entry preserved first")
   })
 
-  await test("preserves the existing Set-Cookie entries", () => {
-    const r = createMockRequest({
-      variables: { host: "proxy.example.org" },
-      headersOut: { "Set-Cookie": ["a=1", "b=2"] },
-    })
-    authHandover.devLoginEnvCookie(r)
+  // --- POST: stamp __CMSENV from the OUTGOING Set-Cookie ---
+  await test("POST appends __CMSENV derived from the OUTGOING Set-Cookie", () => {
+    // Reads headersOut, not headersIn — echoes the env this response establishes.
+    const r = createMockRequest({ method: "POST", headersOut: { "Set-Cookie": ["BIGipServer~x~cin4.cps.gov.uk_POOL=1"] } })
+    authHandover.devLogin(r)
+    assert(r.headersOut["Set-Cookie"].some((c) => c === "__CMSENV=cin4; path=/"), `Expected __CMSENV=cin4, got ${JSON.stringify(r.headersOut["Set-Cookie"])}`)
+  })
+
+  await test("POST defaults to 'default' when the outgoing cookie names no environment", () => {
+    const r = createMockRequest({ method: "POST", headersOut: { "Set-Cookie": ["session=abc"] } })
+    authHandover.devLogin(r)
+    assert(r.headersOut["Set-Cookie"].some((c) => c === "__CMSENV=default; path=/"), "Should fall back to default")
+  })
+
+  await test("POST preserves the existing Set-Cookie entries", () => {
+    const r = createMockRequest({ method: "POST", headersOut: { "Set-Cookie": ["a=1", "b=2"] } })
+    authHandover.devLogin(r)
     assertEqual(r.headersOut["Set-Cookie"].length, 3, "Should append, not replace")
+  })
+
+  await test("other methods leave Set-Cookie untouched", () => {
+    const r = createMockRequest({ method: "PUT", headersOut: { "Set-Cookie": ["x=1"] } })
+    authHandover.devLogin(r)
+    assertEqual(r.headersOut["Set-Cookie"].length, 1, "no cookie handling for non-GET/POST")
   })
 }
 

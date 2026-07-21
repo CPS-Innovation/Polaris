@@ -206,6 +206,14 @@ async function ddeiTests() {
     assertIncludes(echo.url, "code=test-ddei-key-12345", "Should append the function key")
   })
 
+  await test("/dev-login/ GET clears the env + BIG-IP/LB cookies (authHandover.devLogin)", async () => {
+    // Pins the effect of the shared method-branching js_header_filter.
+    const cookies = (await get("/dev-login/", { headers: H })).headers.getSetCookie().join("\n")
+    assertIncludes(cookies, "__CMSENV=deleted", "clears the env cookie")
+    assertIncludes(cookies, "BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted", "clears a BIG-IP pool cookie")
+    assertIncludes(cookies, "F-CIN5-LBsessioncookie=deleted", "clears an LB session cookie")
+  })
+
   await test("/api/dev-login-full-cookie/ -> DDEI /api/login-full-cookie", async () => {
     const res = await get("/api/dev-login-full-cookie/", { headers: H })
     assertEqual(res.status, 200, "Should proxy")

@@ -26,6 +26,8 @@ services:
       # ../../../config == polaris-terraform/main-terraform/proxy/config/
       - ../../../config/nginx.conf:/etc/nginx/templates/nginx.conf.template:ro
       - ../../../config/polaris-script.js:/etc/nginx/templates/polaris-script.js:ro
+      # app-launch.js: owned by app-launch.conf (the /launch/* handover redirects).
+      - ../../../config/features/app-launch.js:/etc/nginx/features/app-launch.js:ro
       # auth-handover.js: owned by auth-handover.conf, sits beside it in features/
       - ../../../config/features/auth-handover.js:/etc/nginx/features/auth-handover.js:ro
       # cms-proxy.js: response-body filters + its own getters; imports common.cms-detection.
