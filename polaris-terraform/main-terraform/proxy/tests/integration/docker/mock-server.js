@@ -7,10 +7,19 @@
  *
  * Two behaviours:
  *
- *  1. FIXTURE routes — paths that the proxy body-rewrites or injects into get a
- *     representative body from ./fixtures. This is the FIXTURE SEAM: drop a real
- *     captured CMS response in over the synthesised one and the tests still hold,
- *     because they assert on the *transformation*, not the whole body.
+ *  1. FIXTURE routes — DISCOVERED from the feature folders at startup. A feature
+ *     that needs canned upstream bodies ships them itself:
+ *
+ *       config/features/<name>/fixtures/routes.json   [{ re, file, type }, ...]
+ *       config/features/<name>/fixtures/<file>
+ *
+ *     so this mock holds NO per-feature knowledge and a feature stays complete in
+ *     one folder. This is also the FIXTURE SEAM: drop a real captured CMS response
+ *     in over the synthesised one and the tests still hold, because they assert on
+ *     the *transformation*, not the whole body.
+ *
+ *     Nothing under a fixtures/ directory is ever deployed or staged into nginx —
+ *     see the exclusions in app-service-proxy.tf and stage-config.sh.
  *
  *  2. ECHO (default) — everything else returns the request it received as JSON
  *     (method/url/headers). That is how tests assert what nginx forwarded — most
@@ -29,28 +38,44 @@ const HTTPS_PORT = 3443
 // this container a docker network alias for that hostname, so the request lands
 // here — but only if we're listening on the default https port.
 const HTTPS_DEFAULT_PORT = 443
-const FIXTURES = path.join(__dirname, "fixtures")
+// The features tree, bind-mounted read-only (same source both configs use).
+const FEATURES_DIR = process.env.FEATURES_DIR || "/config-features"
 
-// Ordered: first match wins (mirrors nginx's own regex-location ordering).
-const fixtureRoutes = [
-  {
-    re: /^\/CMS\..*\/Includes\/uainGeneratedScript\.aspx/i,
-    file: "uainGeneratedScript.aspx.js",
-    type: "application/javascript",
-  },
-  {
-    re: /^\/CMS\..*\/Noexpiry\/Toolbar\/uainMenuBar\.js/i,
-    file: "uainMenuBar.js",
-    type: "application/javascript",
-  },
-  {
-    re: /^\/CMS\..*\/Case\/uacdCDTabs\.aspx/i,
-    file: "uacdCDTabs.aspx.html",
-    type: "text/html",
-  },
-  { re: /^\/CMSModern\/Files/i, file: "cms-page.html", type: "text/html" },
-  { re: /^\/CMS/i, file: "cms-page.html", type: "text/html" },
-]
+/**
+ * Build the ordered fixture table by scanning every feature for a
+ * fixtures/routes.json. Features are visited in sorted order for determinism;
+ * within a feature the manifest's own order is preserved (first match wins,
+ * mirroring nginx's regex-location ordering). A feature with no fixtures/ dir
+ * simply contributes nothing.
+ */
+function discoverFixtureRoutes() {
+  const routes = []
+  if (!fs.existsSync(FEATURES_DIR)) return routes
+  for (const feature of fs.readdirSync(FEATURES_DIR).sort()) {
+    const manifest = path.join(FEATURES_DIR, feature, "fixtures", "routes.json")
+    if (!fs.existsSync(manifest)) continue
+    let entries
+    try {
+      entries = JSON.parse(fs.readFileSync(manifest, "utf8"))
+    } catch (e) {
+      console.error(`[mock] BAD fixture manifest ${manifest}: ${e.message}`)
+      continue
+    }
+    for (const r of entries) {
+      routes.push({
+        re: new RegExp(r.re, "i"),
+        type: r.type,
+        file: r.file,
+        path: path.join(FEATURES_DIR, feature, "fixtures", r.file),
+        feature,
+      })
+    }
+    console.log(`[mock] fixtures: ${feature} -> ${entries.length} route(s)`)
+  }
+  return routes
+}
+
+const fixtureRoutes = discoverFixtureRoutes()
 
 function handler(req, res) {
   const url = req.url || "/"
@@ -64,7 +89,7 @@ function handler(req, res) {
 
   for (const route of fixtureRoutes) {
     if (route.re.test(url)) {
-      const file = path.join(FIXTURES, route.file)
+      const file = route.path
       if (fs.existsSync(file)) {
         res.writeHead(200, {
           "Content-Type": route.type,

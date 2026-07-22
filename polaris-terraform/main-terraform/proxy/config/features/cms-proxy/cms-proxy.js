@@ -4,7 +4,7 @@
 // upstream domains/IPs back to the proxy host and injecting the Polaris/Materials
 // launch buttons into the CMS menu bar. Per-environment app-setting reads come
 // from the shared common.cms-detection module.
-import common from "./common/cms-detection.js";
+import common from "../common/cms-detection.js";
 
 // Getter factories, built on common.setting: a getter for a raw upstream value, and
 // one that prefixes the protocol to build a proxy_pass target. `name` is the

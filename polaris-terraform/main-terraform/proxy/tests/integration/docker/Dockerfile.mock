@@ -11,7 +11,11 @@ RUN apk add --no-cache openssl
 WORKDIR /app
 
 COPY mock-server.js .
-COPY fixtures ./fixtures
+
+# No fixtures are baked in: each feature owns its own canned upstream bodies at
+# config/features/<name>/fixtures/ (+ a routes.json manifest), bind-mounted at
+# /config-features by docker-compose.yml and discovered at startup. That keeps a
+# feature complete in one folder and this image free of per-feature knowledge.
 
 RUN openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
   -keyout /app/key.pem -out /app/cert.pem \

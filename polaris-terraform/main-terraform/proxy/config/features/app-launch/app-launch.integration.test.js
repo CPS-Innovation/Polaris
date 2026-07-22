@@ -16,7 +16,7 @@
  * Only /launch/cms is env-driven (${DEFAULT_UPSTREAM_CMS_DOMAIN_NAME}); the other
  * nine hardcode their domains.
  */
-const { test, assertEqual, assertIncludes, get, summarise } = require("../test-utils")
+const { test, assertEqual, assertIncludes, get, summarise } = require("../../../tests/integration/test-utils")
 
 // The OutSystems auth-handover hop every launch redirect routes through.
 const OS_PROD = "cps.outsystemsenterprise.com%2FCasework_Patterns%2Fauth-handover.html"

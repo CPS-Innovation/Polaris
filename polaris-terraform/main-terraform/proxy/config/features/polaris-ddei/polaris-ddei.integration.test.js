@@ -19,7 +19,7 @@
  * Each block does `rewrite ^/internal-implementation/<dc>/(.*) /$1 break;` then
  * proxy_passes to the DC-specific upstream, so the prefix is stripped upstream.
  */
-const { test, assertEqual, assertIncludes, get, summarise } = require("../test-utils")
+const { test, assertEqual, assertIncludes, get, summarise } = require("../../../tests/integration/test-utils")
 
 const envCookie = (v) => ({ Cookie: `__CMSENV=${v}` })
 

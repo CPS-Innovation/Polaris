@@ -12,45 +12,27 @@
 # The two configs are exercised by the identical test suite; green on both proves
 # the refactor changed no behaviour. See proxy/config/README.md and docs/PROXY.md §6/§7.
 #
-# WHILE MIGRATING: as nginx.conf in proxy/config/ is sliced into features/*.conf,
-# add a mount line per feature file here, e.g.
-#   - ../../../config/features/<name>.conf:/etc/nginx/templates/features/<name>.conf.template:ro
-# (each .conf needs its own line with the .template suffix — envsubst only renders
-#  *.template, and a directory cannot be bulk-mounted through that rename.) Add
-#  common.js the same way. Repoint or drop the nginx.js/cmsenv.js lines below as
-#  their logic moves into the new modules.
+# FEATURES ARE DROP-IN: the features tree is mounted as one directory and staged
+# by stage-config.sh, which does the .conf -> .conf.template rename envsubst needs.
+# So adding a feature is just creating features/<name>/<name>.{conf,js,unit.test.js}
+# — no mount lines here, and both test runners discover it at run time.
+#
+# (The base stack still mounts the LIVE nginx.js/cmsenv.js/global-components.* at
+# the templates root. The next config references none of them — it includes only
+# features/*/*.conf — so they sit there unused until cutover.)
 
 services:
   nginx:
     volumes:
       # ../../../config == polaris-terraform/main-terraform/proxy/config/
+      #
+      # The root config is a single stable file; everything else is DISCOVERED.
       - ../../../config/nginx.conf:/etc/nginx/templates/nginx.conf.template:ro
-      - ../../../config/polaris-script.js:/etc/nginx/templates/polaris-script.js:ro
-      # app-launch.js: owned by app-launch.conf (the /launch/* handover redirects).
-      - ../../../config/features/app-launch.js:/etc/nginx/features/app-launch.js:ro
-      # auth-handover.js: owned by auth-handover.conf, sits beside it in features/
-      - ../../../config/features/auth-handover.js:/etc/nginx/features/auth-handover.js:ro
-      # cms-proxy.js: response-body filters + its own getters; imports common.cms-detection.
-      - ../../../config/features/cms-proxy.js:/etc/nginx/features/cms-proxy.js:ro
-      # polaris-ddei.js: owns all its getters (its own *Internal vars); imports common.cms-detection.
-      - ../../../config/features/polaris-ddei.js:/etc/nginx/features/polaris-ddei.js:ro
-      # common/cms-detection.js: shared CMS-env primitive (detect + setting), grouped
-      # under features/common/. The feature modules in features/ import it as
-      # ./common/cms-detection.js. Not js_import'd by nginx (include features/*.conf
-      # only matches .conf directly in features/, so the subdir is untouched).
-      - ../../../config/features/common/cms-detection.js:/etc/nginx/features/common/cms-detection.js:ro
-      # global-components now lives under features/: the .conf renders into
-      # /etc/nginx/features/ (picked up by `include features/*.conf;`) and the .js
-      # sits beside it (js_import gloco from features/global-components.js).
-      - ../../../config/features/global-components.conf:/etc/nginx/templates/features/global-components.conf.template:ro
-      - ../../../config/features/global-components.js:/etc/nginx/features/global-components.js:ro
-      # --- sliced feature includes (each .conf -> .conf.template) ---
-      # Plain descriptive names, no numeric prefixes: include order is
-      # behaviourally irrelevant (no cross-file regex collisions — all CMS regexes
-      # are co-located in cms-proxy.conf). Feature 0 / health stays inline.
-      - ../../../config/features/app-launch.conf:/etc/nginx/templates/features/app-launch.conf.template:ro
-      - ../../../config/features/auth-handover.conf:/etc/nginx/templates/features/auth-handover.conf.template:ro
-      # rcms (navigate-cms) folded into global-components.conf
-      - ../../../config/features/cwa-materials.conf:/etc/nginx/templates/features/cwa-materials.conf.template:ro
-      - ../../../config/features/cms-proxy.conf:/etc/nginx/templates/features/cms-proxy.conf.template:ro
-      - ../../../config/features/polaris-ddei.conf:/etc/nginx/templates/features/polaris-ddei.conf.template:ro
+      #
+      # The whole features tree is mounted as ONE directory and staged into
+      # /etc/nginx/templates/features by stage-config.sh (which maps .conf ->
+      # .conf.template, copies .js as-is and skips *.test.js) — mirroring what the
+      # Azure blob mount does. Consequence: dropping in a new feature folder
+      # (features/<name>/<name>.{conf,js,unit.test.js}) needs NO change here.
+      - ../../../config/features:/config-features:ro
+      - ./stage-config.sh:/docker-entrypoint.d/10-stage-config.sh:ro

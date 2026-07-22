@@ -47,6 +47,15 @@ services:
     ports:
       - "3000:3000"
       - "3443:3443"
+    volumes:
+      # Fixture bodies are owned by the feature that needs them, at
+      # config/features/<name>/fixtures/ (+ a routes.json manifest). The mock
+      # discovers them at startup, so it carries no per-feature knowledge.
+      #
+      # Mounted on the BASE service so BOTH the live and the --next run get them:
+      # fixtures are test data about CMS's responses, not proxy config, so they are
+      # the same whichever config is under test.
+      - ../../../config/features:/config-features:ro
     networks:
       default:
         aliases:

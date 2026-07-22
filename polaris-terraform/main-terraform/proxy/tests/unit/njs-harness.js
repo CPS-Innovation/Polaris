@@ -51,10 +51,16 @@ async function loadNjs(filename) {
   const stage = (rel) => {
     for (const entry of fs.readdirSync(path.join(CONFIG_DIR, rel), { withFileTypes: true })) {
       const childRel = path.join(rel, entry.name)
-      if (entry.isDirectory()) {
+      // fixtures/ holds canned upstream bodies for the integration mock — test
+      // data, never modules. Skipped here for the same reason it is excluded from
+      // the deploy fileset (it contains .js files).
+      if (entry.isDirectory() && entry.name !== "fixtures") {
         fs.mkdirSync(path.join(TMP_DIR, childRel), { recursive: true })
         stage(childRel)
-      } else if (entry.name.endsWith(".js")) {
+      } else if (entry.name.endsWith(".js") && !entry.name.endsWith(".test.js")) {
+        // .test.js files now sit beside the modules they test (one folder per
+        // feature); they are never staged — and never deployed (see the
+        // .test.js exclusion in app-service-proxy.tf, guarded by deploy-safety).
         fs.copyFileSync(path.join(CONFIG_DIR, childRel), path.join(TMP_DIR, childRel))
       }
     }

@@ -30,7 +30,7 @@ const {
   assertNotIncludes,
   get,
   summarise,
-} = require("../test-utils")
+} = require("../../../tests/integration/test-utils")
 
 const IE_UA = "Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko"
 const EDGE_UA = "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 Chrome/120 Safari/537.36"
@@ -49,7 +49,7 @@ const cget = (path, headers = {}) => get(path, { headers: { "User-Agent": IE_UA,
 async function servedAsset() {
   console.log("\nlocation /polaris-script.js — the injected client script:")
 
-  await test("serves polaris-script.js from /etc/nginx/templates", async () => {
+  await test("serves polaris-script.js as a local static asset", async () => {
     const res = await get("/polaris-script.js")
     assertEqual(res.status, 200, "Should serve the file")
     assertIncludes(res.headers.get("content-type"), "javascript", "Should be javascript")

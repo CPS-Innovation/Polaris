@@ -14,7 +14,7 @@
  *
  * §4 notes both are "candidate to move to global components".
  */
-const { test, assert, assertEqual, assertIncludes, get, summarise } = require("../test-utils")
+const { test, assert, assertEqual, assertIncludes, get, summarise } = require("../../../tests/integration/test-utils")
 
 const IE_UA = "Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko"
 const EDGE_UA = "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 Chrome/120 Safari/537.36"

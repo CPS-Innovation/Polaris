@@ -7,8 +7,8 @@
  * was moved in from cmsenv.js and drives the legacy /api/navigate-cms block. The
  * other handlers are exercised via the integration smoke test.
  */
-const { test, assertEqual, assertIncludes, assertThrows, summarise } = require("./test-utils")
-const { loadNjs, createMockRequest } = require("./njs-harness")
+const { test, assertEqual, assertIncludes, assertThrows, summarise } = require("../../../tests/unit/test-utils")
+const { loadNjs, createMockRequest } = require("../../../tests/unit/njs-harness")
 
 const req = (cookie) => createMockRequest({ headersIn: cookie ? { Cookie: cookie } : {} })
 
@@ -46,7 +46,7 @@ async function domainFromCookie(gloco) {
 }
 
 async function main() {
-  const gloco = await loadNjs("features/global-components.js")
+  const gloco = await loadNjs("features/global-components/global-components.js")
   await domainFromCookie(gloco)
   process.exit(summarise("global-components.js (unit)"))
 }

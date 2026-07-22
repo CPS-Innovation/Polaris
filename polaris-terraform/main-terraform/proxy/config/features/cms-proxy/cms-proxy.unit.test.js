@@ -5,7 +5,7 @@
  * cms-proxy.js holds the feature-exclusive response-body filters (the only njs
  * that rewrites the CMS body): domain replacement and the P + Materials menu-bar
  * button injection. Environment detection and app-setting reads are delegated to
- * the shared common.cms-detection module (imported via `import common from "./common/cms-detection.js"`), so these
+ * the shared common.cms-detection module (imported via `import common from "../common/cms-detection.js"`), so these
  * tests also exercise that inter-module wiring.
  *
  * Loaded from the REAL config/features/cms-proxy.js — see njs-harness.js.
@@ -17,8 +17,8 @@ const {
   assertIncludes,
   assertNotIncludes,
   summarise,
-} = require("./test-utils")
-const { loadNjs, createMockRequest, cmsEnvObject, applyEnv } = require("./njs-harness")
+} = require("../../../tests/unit/test-utils")
+const { loadNjs, createMockRequest, cmsEnvObject, applyEnv } = require("../../../tests/unit/njs-harness")
 
 async function getters(cmsProxy) {
   console.log("\nCMS-upstream getters this feature owns (Corsham dests + domain getters):")
@@ -179,7 +179,7 @@ async function menuBar(cmsProxy) {
 }
 
 async function main() {
-  const cmsProxy = await loadNjs("features/cms-proxy.js")
+  const cmsProxy = await loadNjs("features/cms-proxy/cms-proxy.js")
   const restoreEnv = applyEnv(cmsEnvObject())
   await getters(cmsProxy)
   await bodyFilters(cmsProxy)

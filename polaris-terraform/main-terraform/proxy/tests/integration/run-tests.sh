@@ -74,10 +74,14 @@ if ! wait_for_proxy; then
   exit 1
 fi
 
-# Run test files
+# Run test files. DISCOVERED at run time from config/: nginx.conf's own suite sits
+# beside it (config/nginx.integration.test.js) and each feature ships its own
+# (config/features/<name>/<name>.integration.test.js) — so dropping in a feature
+# complete with its tests needs no change here.
 cd "$SCRIPT_DIR"
+CONFIG_DIR="$(cd "$SCRIPT_DIR/../../config" && pwd)"
 FAILED=0
-for f in tests/*.integration.test.js; do
+for f in $(find "$CONFIG_DIR" -name '*.integration.test.js' | sort); do
   [ -e "$f" ] || continue
   if [ -n "$FILTER" ] && [[ "$f" != *"$FILTER"* ]]; then continue; fi
   echo ""

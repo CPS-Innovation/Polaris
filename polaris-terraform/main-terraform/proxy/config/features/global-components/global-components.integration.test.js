@@ -27,7 +27,7 @@ const {
   assertIncludes,
   get,
   summarise,
-} = require("../test-utils")
+} = require("../../../tests/integration/test-utils")
 
 const notServerError = (res, label) =>
   assert(res.status < 500, `${label} should not 5xx, got ${res.status}`)

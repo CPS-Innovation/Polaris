@@ -15,8 +15,8 @@ const {
   test,
   assertEqual,
   summarise,
-} = require("./test-utils")
-const { loadNjs, createMockRequest, cmsEnvObject, applyEnv } = require("./njs-harness")
+} = require("../../../tests/unit/test-utils")
+const { loadNjs, createMockRequest, cmsEnvObject, applyEnv } = require("../../../tests/unit/njs-harness")
 
 const req = (cookie) =>
   createMockRequest({ headersIn: cookie ? { Cookie: cookie } : {} })

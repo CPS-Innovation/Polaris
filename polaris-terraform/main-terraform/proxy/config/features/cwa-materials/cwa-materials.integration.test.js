@@ -18,7 +18,7 @@ const {
   assertIncludes,
   get,
   summarise,
-} = require("../test-utils")
+} = require("../../../tests/integration/test-utils")
 
 async function spa() {
   console.log("\nlocation /polaris-ui (APP_SUBFOLDER_PATH) — Polaris SPA:")

@@ -8,7 +8,7 @@
 // and lets its conf js_set its own *Internal-suffixed nginx variables with no
 // server-global collision against cms-proxy's. Deleting the feature = delete this
 // file + its conf, touching nothing else.
-import common from "./common/cms-detection.js";
+import common from "../common/cms-detection.js";
 
 // Getter factories, built on common.setting (kept feature-local — see common/cms-detection.js).
 const upstream = (name) => (r) => common.setting(r, name);

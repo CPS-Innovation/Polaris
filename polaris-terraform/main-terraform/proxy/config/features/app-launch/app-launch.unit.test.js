@@ -10,8 +10,8 @@
  *
  * Loaded from the REAL config/features/app-launch.js — see njs-harness.js.
  */
-const { test, assertEqual, summarise } = require("./test-utils")
-const { loadNjs, createMockRequest, cmsEnvObject, applyEnv } = require("./njs-harness")
+const { test, assertEqual, summarise } = require("../../../tests/unit/test-utils")
+const { loadNjs, createMockRequest, cmsEnvObject, applyEnv } = require("../../../tests/unit/njs-harness")
 
 // The two OutSystems hop `?r=` values, verbatim from the old static blocks.
 const PROD_R = "https%3A%2F%2Fcps.outsystemsenterprise.com%2FCasework_Patterns%2Fauth-handover.html%3Fsrc%3Dhttps%3A%2F%2Fpolaris.cps.gov.uk%2Fglobal-components%2Fprod%2Fauth-handover.js%26stage%3Dos-cookie-return%26r%3Dhttps%253A%252F%252Fcps.outsystemsenterprise.com%252Fcasework_blocks%252Fhome%253FIsFromCMS%253DTrue"
@@ -56,7 +56,7 @@ async function main() {
   // app-launch.js reads DEFAULT_UPSTREAM_CMS_DOMAIN_NAME at module load, so apply
   // the env BEFORE loadNjs (unlike the per-request readers, which don't care).
   const restoreEnv = applyEnv(cmsEnvObject())
-  const appLaunch = await loadNjs("features/app-launch.js")
+  const appLaunch = await loadNjs("features/app-launch/app-launch.js")
   await launches(appLaunch)
   restoreEnv()
   process.exit(summarise("app-launch.js (unit)"))

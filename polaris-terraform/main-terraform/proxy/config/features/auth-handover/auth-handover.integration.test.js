@@ -24,7 +24,7 @@ const {
   assertIncludes,
   get,
   summarise,
-} = require("../test-utils")
+} = require("../../../tests/integration/test-utils")
 
 // nginx.js builds absolute redirects from X-Forwarded-Proto + Host.
 const H = { "X-Forwarded-Proto": "https" }

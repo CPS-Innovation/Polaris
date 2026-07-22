@@ -20,8 +20,8 @@ const {
   assertIncludes,
   assertNotIncludes,
   summarise,
-} = require("./test-utils")
-const { loadNjs, createMockRequest } = require("./njs-harness")
+} = require("../../../tests/unit/test-utils")
+const { loadNjs, createMockRequest } = require("../../../tests/unit/njs-harness")
 
 const WHITELIST = "/auth-refresh-inbound,https://allowed.example.org/"
 const DEFAULT_CMS = "cms.cps.gov.uk"
@@ -371,7 +371,7 @@ async function devLogin(authHandover) {
 }
 
 async function main() {
-  const authHandover = await loadNjs("features/auth-handover.js")
+  const authHandover = await loadNjs("features/auth-handover/auth-handover.js")
   await appAuthRedirect(authHandover)
   await sessionHint(authHandover)
   await polarisAuthRedirect(authHandover)

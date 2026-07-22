@@ -1,5 +1,5 @@
 import qs from "querystring"
-import common from "./common/cms-detection.js"
+import common from "../common/cms-detection.js"
 
 const IS_PROXY_SESSION_PARAM_NAME = "is-proxy-session"
 const SESSION_HINT_COOKIE_NAME = "Cms-Session-Hint"
