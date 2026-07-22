@@ -63,6 +63,7 @@ namespace PolarisGateway.Services.MdsOrchestration
             var caseSummaryResponse = await getCaseSummaryTask;
             var summary = new CaseSummaryDto()
             {
+                Id = caseSummaryResponse.CaseId,
                 Urn = caseSummaryResponse.Urn,
                 LeadDefendantFirstNames = caseSummaryResponse.LeadDefendantFirstNames,
                 LeadDefendantSurname = caseSummaryResponse.LeadDefendantSurname,
