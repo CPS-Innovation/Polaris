@@ -1,4 +1,5 @@
 using Common.Configuration;
+using Common.Constants;
 using Common.Dto.Request;
 using Common.Extensions;
 using coordinator.Durable.Providers;
@@ -36,7 +37,6 @@ public class BulkRedactionSearch
     {
         var currentCorrelationId = req.Headers.GetCorrelationId();
         var cmsAuthValues = req.Headers.GetCmsAuthValues();
-        //var searchText = req.Query[SearchTextHeader];
 
         var bulkRedactionSearchDto = new BulkRedactionSearchDto
         {
@@ -44,12 +44,16 @@ public class BulkRedactionSearch
             CaseId = caseId,
             MaterialId = materialId,
             DocumentId = documentId,
-            //SearchText = searchText,
             CmsAuthValues = cmsAuthValues,
             CorrelationId = currentCorrelationId,
         };
 
         var response = await _bulkRedactionSearchService.InitiateOrOrchestrateOcr(bulkRedactionSearchDto, orchestrationClient, cancellationToken);
+
+        if (response.DocumentRefreshStatus == OrchestrationProviderStatus.Failed && response.FailedReason != null)
+        {
+            _logger.LogError("Bulk Redaction Search POST failed. Failed Reason: {Reason}", response.FailedReason);
+        }
 
         var statusCode = response.DocumentRefreshStatus switch
         {
@@ -58,7 +62,7 @@ public class BulkRedactionSearch
             OrchestrationProviderStatus.Completed => HttpStatusCode.OK,
             OrchestrationProviderStatus.NotStarted => HttpStatusCode.BadRequest,
             OrchestrationProviderStatus.Failed => HttpStatusCode.NotFound,
-            _ => HttpStatusCode.OK
+            _ => HttpStatusCode.InternalServerError
         };
 
         return new ObjectResult(response)
@@ -78,7 +82,6 @@ public class BulkRedactionSearch
         var currentCorrelationId = req.Headers.GetCorrelationId();
         var cmsAuthValues = req.Headers.GetCmsAuthValues();
         var searchText = req.Query[SearchTextHeader];
-        //var orchestrationInstanceId = req.Query[OrchestrationInstanceIdHeader];
 
         var bulkRedactionSearchDto = new BulkRedactionSearchDto
         {
@@ -92,6 +95,11 @@ public class BulkRedactionSearch
         };
 
         var response = await _bulkRedactionSearchService.GetOcrSearchResults(bulkRedactionSearchDto, orchestrationClient, cancellationToken);
+
+        if (response.DocumentRefreshStatus == OrchestrationProviderStatus.Failed && response.FailedReason != null)
+        {
+            _logger.LogError("Bulk Redaction Search POST failed. Failed Reason: {Reason}", response.FailedReason);
+        }
 
         var statusCode = response.DocumentRefreshStatus switch
         {

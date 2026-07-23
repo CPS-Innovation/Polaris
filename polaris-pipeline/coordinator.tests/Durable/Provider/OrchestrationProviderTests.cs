@@ -54,7 +54,6 @@ public class OrchestrationProviderTests
         var result = await _orchestrationProvider.BulkSearchDocumentAsync(clientMock.Object, documentPayload, cancellationToken);
 
         //assert
-        //Assert.Equal(result, orchestrationProviderStatus);
         Assert.Equal(orchestrationProviderStatus, result.Status);
     }
 
@@ -72,7 +71,6 @@ public class OrchestrationProviderTests
 
         //assert
         clientMock.Verify(v => v.ScheduleNewOrchestrationInstanceAsync(nameof(RefreshDocumentOrchestrator), documentPayload, It.IsAny<StartOrchestrationOptions>(), cancellationToken));
-        //Assert.Equal(result, OrchestrationProviderStatus.Initiated);
         Assert.Equal(OrchestrationProviderStatus.Initiated, result.Status);
     }
 }

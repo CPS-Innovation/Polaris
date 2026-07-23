@@ -74,8 +74,7 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
 
         var (orchestrationProviderStatus, instanceId) = await _orchestrationProvider.BulkSearchDocumentAsync(orchestrationClient, documentPayload, cancellationToken);
 
-        _logger.LogInformation(
-                "Warning: document {InstanceId} .", instanceId);
+        _logger.LogInformation("Bulk Redaction Search, orchestration instance ID {InstanceId}: ", instanceId);
 
         switch (orchestrationProviderStatus)
         {
