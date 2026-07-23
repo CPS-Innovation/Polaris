@@ -14,19 +14,19 @@ using pdf_redactor.Services.DocumentManipulation;
 
 namespace pdf_redactor.Functions
 {
-    public class ModifyDocument
+    public class ModifyDocumentLegacy
     {
         private readonly IExceptionHandler _exceptionHandler;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly IDocumentManipulationService _documentManipulationService;
-        private readonly ILogger<ModifyDocument> _logger;
+        private readonly ILogger<ModifyDocumentLegacy> _logger;
         private readonly IValidator<ModifyDocumentWithDocumentDto> _requestValidator;
 
-        public ModifyDocument(
+        public ModifyDocumentLegacy(
             IExceptionHandler exceptionHandler,
             IJsonConvertWrapper jsonConvertWrapper,
             IDocumentManipulationService documentManipulationService,
-            ILogger<ModifyDocument> logger,
+            ILogger<ModifyDocumentLegacy> logger,
             IValidator<ModifyDocumentWithDocumentDto> requestValidator)
         {
             _exceptionHandler = exceptionHandler ?? throw new ArgumentNullException(nameof(exceptionHandler));
@@ -36,8 +36,8 @@ namespace pdf_redactor.Functions
             _requestValidator = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
         }
 
-        [Function(nameof(ModifyDocument))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest request, string caseUrn, int caseId, string materialId)
+        [Function(nameof(ModifyDocumentLegacy))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocumentLegacy)] HttpRequest request, string caseUrn, int caseId, string materialId)
         {
             Guid currentCorrelationId = default;
 
@@ -78,7 +78,7 @@ namespace pdf_redactor.Functions
             }
             catch (Exception ex)
             {
-                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(ModifyDocument), _logger);
+                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(ModifyDocumentLegacy), _logger);
             }
         }
     }

@@ -13,21 +13,21 @@ using Azure;
 
 namespace pdf_thumbnail_generator.Functions
 { 
-    public class GetThumbnail
+    public class GetThumbnailLegacy
     { 
-        private readonly ILogger<GetThumbnail> _logger; 
+        private readonly ILogger<GetThumbnailLegacy> _logger; 
         private readonly IExceptionHandler _exceptionHandler; 
         private readonly IPolarisBlobStorageService _blobStorageServiceContainerThumbnails;
 
-        public GetThumbnail(ILogger<GetThumbnail> logger, IExceptionHandler exceptionHandler, Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IConfiguration configuration) 
+        public GetThumbnailLegacy(ILogger<GetThumbnailLegacy> logger, IExceptionHandler exceptionHandler, Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IConfiguration configuration) 
         { 
             _logger = logger; 
             _exceptionHandler = exceptionHandler; 
             _blobStorageServiceContainerThumbnails = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameThumbnails] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
         }
 
-        [Function(nameof(GetThumbnail))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Thumbnail)] HttpRequest req, 
+        [Function(nameof(GetThumbnailLegacy))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.ThumbnailLegacy)] HttpRequest req, 
             string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int pageIndex)
         { 
             Guid currentCorrelationId = default;
@@ -51,7 +51,7 @@ namespace pdf_thumbnail_generator.Functions
             }
             catch (Exception ex)
             {
-                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(GetThumbnail), _logger);
+                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(GetThumbnailLegacy), _logger);
             }
         }
     }

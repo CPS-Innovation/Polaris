@@ -9,15 +9,15 @@ using text_extractor.Services.CaseSearchService;
 
 namespace text_extractor.Functions
 {
-    public class DocumentIndexCount : BaseFunction
+    public class CaseIndexCountLegacy : BaseFunction
     {
-        private readonly ILogger<DocumentIndexCount> _log;
+        private readonly ILogger<CaseIndexCountLegacy> _log;
         private readonly ISearchIndexService _searchIndexService;
         private readonly IExceptionHandler _exceptionHandler;
-        private const string LoggingName = nameof(DocumentIndexCount);
+        private const string LoggingName = nameof(CaseIndexCountLegacy);
 
-        public DocumentIndexCount(
-            ILogger<DocumentIndexCount> log,
+        public CaseIndexCountLegacy
+            (ILogger<CaseIndexCountLegacy> log,
             ISearchIndexService searchIndexService,
             IExceptionHandler exceptionHandler)
         {
@@ -26,8 +26,8 @@ namespace text_extractor.Functions
             _exceptionHandler = exceptionHandler ?? throw new ArgumentNullException(nameof(exceptionHandler));
         }
 
-        [Function(nameof(DocumentIndexCount))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentIndexCount)] HttpRequest request, int caseId, string materialId, long documentId)
+        [Function(nameof(CaseIndexCountLegacy))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseIndexCountLegacy)] HttpRequest request, int caseId)
         {
             var correlationId = Guid.Empty;
 
@@ -35,7 +35,7 @@ namespace text_extractor.Functions
             {
                 correlationId = request.Headers.GetCorrelationId();
 
-                var result = await _searchIndexService.GetDocumentIndexCount(caseId, materialId, documentId, correlationId);
+                var result = await _searchIndexService.GetCaseIndexCount(caseId, correlationId);
 
                 return CreateJsonResult(result);
             }

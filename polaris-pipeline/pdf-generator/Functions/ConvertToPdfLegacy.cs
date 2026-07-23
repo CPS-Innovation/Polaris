@@ -18,16 +18,16 @@ using Common.Constants;
 
 namespace pdf_generator.Functions
 {
-    public class ConvertToPdf
+    public class ConvertToPdfLegacy
     {
         private readonly IPdfOrchestratorService _pdfOrchestratorService;
-        private readonly ILogger<ConvertToPdf> _logger;
+        private readonly ILogger<ConvertToPdfLegacy> _logger;
         private readonly ITelemetryClient _telemetryClient;
-        private const string LoggingName = nameof(ConvertToPdf);
+        private const string LoggingName = nameof(ConvertToPdfLegacy);
 
-        public ConvertToPdf(
+        public ConvertToPdfLegacy(
              IPdfOrchestratorService pdfOrchestratorService,
-             ILogger<ConvertToPdf> logger,
+             ILogger<ConvertToPdfLegacy> logger,
              ITelemetryClient telemetryClient)
         {
             _pdfOrchestratorService = pdfOrchestratorService;
@@ -38,8 +38,8 @@ namespace pdf_generator.Functions
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.UnsupportedMediaType)]
         [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        [Function(nameof(ConvertToPdf))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
+        [Function(nameof(ConvertToPdfLegacy))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ConvertToPdfLegacy)] HttpRequest request,
             string caseUrn, int caseId, string materialId, string documentId)
         {
             Guid currentCorrelationId = default;
@@ -47,7 +47,7 @@ namespace pdf_generator.Functions
 
             var telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId)
             {
-                OperationName = nameof(ConvertToPdf),
+                OperationName = nameof(ConvertToPdfLegacy),
             };
             try
             {
@@ -94,7 +94,7 @@ namespace pdf_generator.Functions
 
                     return new FileStreamResult(conversionResult.ConvertedDocument, "application/pdf")
                     {
-                        FileDownloadName = $"{nameof(ConvertToPdf)}.pdf",
+                        FileDownloadName = $"{nameof(ConvertToPdfLegacy)}.pdf",
                     };
                 }
 
