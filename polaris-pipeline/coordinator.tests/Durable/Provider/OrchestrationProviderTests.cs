@@ -46,7 +46,7 @@ public class OrchestrationProviderTests
         var cancellationToken = CancellationToken.None;
         var existingInstance = new OrchestrationMetadata("name", "instanceId")
         {
-            RuntimeStatus = orchestrationRuntimeStatus
+            RuntimeStatus = orchestrationRuntimeStatus,
         };
         clientMock.Setup(s => s.GetInstanceAsync(It.IsAny<string>(), cancellationToken)).ReturnsAsync(existingInstance);
 
@@ -54,7 +54,8 @@ public class OrchestrationProviderTests
         var result = await _orchestrationProvider.BulkSearchDocumentAsync(clientMock.Object, documentPayload, cancellationToken);
 
         //assert
-        Assert.Equal(result, orchestrationProviderStatus);
+        //Assert.Equal(result, orchestrationProviderStatus);
+        Assert.Equal(orchestrationProviderStatus, result.Status);
     }
 
     [Fact]
@@ -71,6 +72,7 @@ public class OrchestrationProviderTests
 
         //assert
         clientMock.Verify(v => v.ScheduleNewOrchestrationInstanceAsync(nameof(RefreshDocumentOrchestrator), documentPayload, It.IsAny<StartOrchestrationOptions>(), cancellationToken));
-        Assert.Equal(result, OrchestrationProviderStatus.Initiated);
+        //Assert.Equal(result, OrchestrationProviderStatus.Initiated);
+        Assert.Equal(OrchestrationProviderStatus.Initiated, result.Status);
     }
 }

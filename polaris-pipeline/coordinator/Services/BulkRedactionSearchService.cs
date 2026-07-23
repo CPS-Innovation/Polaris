@@ -1,4 +1,5 @@
-﻿using Common.Configuration;
+﻿using Castle.Core.Logging;
+using Common.Configuration;
 using Common.Domain.Document;
 using Common.Domain.Ocr;
 using Common.Dto.Request;
@@ -11,16 +12,17 @@ using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
 using coordinator.Durable.Providers;
 using coordinator.Enums;
+using coordinator.Search;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using coordinator.Search;
 
 namespace coordinator.Services;
 
@@ -32,8 +34,9 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
     private readonly IOcrDocumentSearch _ocrDocumentSearch;
     private readonly IMdsClient _mdsClient;
     private readonly IMdsArgFactory _mdsArgFactory;
+    private readonly ILogger<BulkRedactionSearchService> _logger;
 
-    public BulkRedactionSearchService(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOrchestrationProvider orchestrationProvider, IBulkRedactionSearchResponseBuilder bulkRedactionSearchResponseBuilder, IOcrDocumentSearch ocrDocumentSearch, IConfiguration configuration, IMdsClient mdsClient, IMdsArgFactory mdsArgFactory)
+    public BulkRedactionSearchService(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOrchestrationProvider orchestrationProvider, IBulkRedactionSearchResponseBuilder bulkRedactionSearchResponseBuilder, IOcrDocumentSearch ocrDocumentSearch, IConfiguration configuration, IMdsClient mdsClient, IMdsArgFactory mdsArgFactory, ILogger<BulkRedactionSearchService> logger)
     {
         _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
         _orchestrationProvider = orchestrationProvider.ExceptionIfNull();
@@ -41,9 +44,10 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
         _ocrDocumentSearch = ocrDocumentSearch.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
         _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        _logger = logger.ExceptionIfNull();
     }
 
-    public async Task<BulkRedactionSearchResponse> BulkRedactionSearchAsync(BulkRedactionSearchDto bulkRedactionSearchDto, DurableTaskClient orchestrationClient, CancellationToken cancellationToken)
+    public async Task<BulkRedactionSearchResponse> InitiateOrOrchestrateOcr(BulkRedactionSearchDto bulkRedactionSearchDto, DurableTaskClient orchestrationClient, CancellationToken cancellationToken)
     {
         var documentType = DocumentNature.GetDocumentNatureType(bulkRedactionSearchDto.MaterialId);
 
@@ -68,7 +72,10 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
 
         await SetDocumentStateAsync(cmsDocumentDto, bulkRedactionSearchDto.CaseId);
 
-        var orchestrationProviderStatus = await _orchestrationProvider.BulkSearchDocumentAsync(orchestrationClient, documentPayload, cancellationToken);
+        var (orchestrationProviderStatus, instanceId) = await _orchestrationProvider.BulkSearchDocumentAsync(orchestrationClient, documentPayload, cancellationToken);
+
+        _logger.LogInformation(
+                "Warning: document {InstanceId} .", instanceId);
 
         switch (orchestrationProviderStatus)
         {
@@ -83,6 +90,48 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
             case OrchestrationProviderStatus.Failed:
                 return _bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshFailed("Orchestration failure")
+                    .Build(bulkRedactionSearchDto);
+            case OrchestrationProviderStatus.Completed:
+                return _bulkRedactionSearchResponseBuilder
+                    .BuildDocumentRefreshCompleted()
+                    .Build(bulkRedactionSearchDto);
+            default:
+                return _bulkRedactionSearchResponseBuilder
+                    .BuildDocumentRefreshFailed("Unknown orchestration status")
+                    .Build(bulkRedactionSearchDto);
+        }
+    }
+
+    public async Task<BulkRedactionSearchResponse> GetOcrSearchResults(BulkRedactionSearchDto bulkRedactionSearchDto, DurableTaskClient orchestrationClient, CancellationToken cancellationToken)
+    {
+        var documentType = DocumentNature.GetDocumentNatureType(bulkRedactionSearchDto.MaterialId);
+
+        if (documentType != DocumentNature.Types.Document)
+        {
+            return _bulkRedactionSearchResponseBuilder
+                .BuildDocumentRefreshFailed("Document is not redactable")
+                .Build(bulkRedactionSearchDto);
+        }
+
+        var caseIdentifiersArg = _mdsArgFactory.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId);
+        var listDocumentResponse = await _mdsClient.ListDocumentsAsync(caseIdentifiersArg);
+        var cmsDocumentDto = listDocumentResponse.FirstOrDefault(x => bulkRedactionSearchDto.MaterialId.Contains(x.DocumentId.ToString()) && x.VersionId == bulkRedactionSearchDto.DocumentId);
+        var documentPayload = CreateDocumentPayload(bulkRedactionSearchDto, cmsDocumentDto);
+        var orchestrationStatus = await _orchestrationProvider.GetOrchestrationProviderStatus(orchestrationClient, documentPayload, cancellationToken);
+        
+        switch (orchestrationStatus)
+        {
+            case OrchestrationProviderStatus.Processing:
+                return _bulkRedactionSearchResponseBuilder
+                    .BuildDocumentRefreshProcessing()
+                    .Build(bulkRedactionSearchDto);
+            case OrchestrationProviderStatus.Failed:
+                return _bulkRedactionSearchResponseBuilder
+                    .BuildDocumentRefreshFailed("Orchestration failure")
+                    .Build(bulkRedactionSearchDto);
+            case OrchestrationProviderStatus.NotStarted:
+                return _bulkRedactionSearchResponseBuilder
+                    .BuildDocumentRefreshFailed("Orchestration instance Id invalid", true)
                     .Build(bulkRedactionSearchDto);
         }
 
@@ -109,6 +158,8 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
             .BuildRedactionDefinitions(ocrDocumentSearchResponse.RedactionDefinitionDtos)
             .Build(bulkRedactionSearchDto);
     }
+
+
 
     private DocumentPayload CreateDocumentPayload(BulkRedactionSearchDto bulkRedactionSearchDto, CmsDocumentDto cmsDocumentDto)
     {

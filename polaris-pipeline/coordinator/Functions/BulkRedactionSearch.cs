@@ -20,6 +20,7 @@ public class BulkRedactionSearch
     private readonly ILogger<BulkRedactionSearch> _logger;
     private readonly IBulkRedactionSearchService _bulkRedactionSearchService;
     private const string SearchTextHeader = "SearchText";
+    //private const string OrchestrationInstanceIdHeader = "orchestrationInstanceId";
 
     public BulkRedactionSearch(ILogger<BulkRedactionSearch> logger, IBulkRedactionSearchService bulkRedactionSearchService)
     {
@@ -29,6 +30,47 @@ public class BulkRedactionSearch
 
     [Function(nameof(BulkRedactionSearch))]
     public async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.OcrSearch)] HttpRequest req, string caseUrn,
+        int caseId, string materialId, long documentId, CancellationToken cancellationToken,
+        [DurableClient] DurableTaskClient orchestrationClient)
+    {
+        var currentCorrelationId = req.Headers.GetCorrelationId();
+        var cmsAuthValues = req.Headers.GetCmsAuthValues();
+        //var searchText = req.Query[SearchTextHeader];
+
+        var bulkRedactionSearchDto = new BulkRedactionSearchDto
+        {
+            Urn = caseUrn,
+            CaseId = caseId,
+            MaterialId = materialId,
+            DocumentId = documentId,
+            //SearchText = searchText,
+            CmsAuthValues = cmsAuthValues,
+            CorrelationId = currentCorrelationId,
+        };
+
+        var response = await _bulkRedactionSearchService.InitiateOrOrchestrateOcr(bulkRedactionSearchDto, orchestrationClient, cancellationToken);
+
+        var statusCode = response.DocumentRefreshStatus switch
+        {
+            OrchestrationProviderStatus.Initiated => HttpStatusCode.Accepted,
+            OrchestrationProviderStatus.Processing => HttpStatusCode.Accepted,
+            OrchestrationProviderStatus.Completed => HttpStatusCode.OK,
+            OrchestrationProviderStatus.NotStarted => HttpStatusCode.BadRequest,
+            OrchestrationProviderStatus.Failed => HttpStatusCode.NotFound,
+            _ => HttpStatusCode.OK
+        };
+
+        return new ObjectResult(response)
+        {
+            StatusCode = (int?)statusCode,
+        };
+    }
+
+
+
+    [Function(nameof(GetBulkRedactionSearchStatus))]
+    public async Task<IActionResult> GetBulkRedactionSearchStatus(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.OcrSearch)] HttpRequest req, string caseUrn,
         int caseId, string materialId, long documentId, CancellationToken cancellationToken,
         [DurableClient] DurableTaskClient orchestrationClient)
@@ -36,6 +78,7 @@ public class BulkRedactionSearch
         var currentCorrelationId = req.Headers.GetCorrelationId();
         var cmsAuthValues = req.Headers.GetCmsAuthValues();
         var searchText = req.Query[SearchTextHeader];
+        //var orchestrationInstanceId = req.Query[OrchestrationInstanceIdHeader];
 
         var bulkRedactionSearchDto = new BulkRedactionSearchDto
         {
@@ -45,24 +88,24 @@ public class BulkRedactionSearch
             DocumentId = documentId,
             SearchText = searchText,
             CmsAuthValues = cmsAuthValues,
-            CorrelationId = currentCorrelationId
+            CorrelationId = currentCorrelationId,
         };
 
-        var bulkRedactionSearchResponse = await _bulkRedactionSearchService.BulkRedactionSearchAsync(bulkRedactionSearchDto, orchestrationClient, cancellationToken);
+        var response = await _bulkRedactionSearchService.GetOcrSearchResults(bulkRedactionSearchDto, orchestrationClient, cancellationToken);
 
-        var statusCode = bulkRedactionSearchResponse.DocumentRefreshStatus switch
+        var statusCode = response.DocumentRefreshStatus switch
         {
             OrchestrationProviderStatus.Initiated => HttpStatusCode.Accepted,
-            OrchestrationProviderStatus.Processing => HttpStatusCode.Locked,
+            OrchestrationProviderStatus.Processing => HttpStatusCode.Accepted,
             OrchestrationProviderStatus.Completed => HttpStatusCode.OK,
-            OrchestrationProviderStatus.Failed when bulkRedactionSearchResponse.IsNotFound => HttpStatusCode.NotFound,
-            OrchestrationProviderStatus.Failed => HttpStatusCode.InternalServerError,
-            _ => HttpStatusCode.OK
+            OrchestrationProviderStatus.NotStarted => HttpStatusCode.BadRequest,
+            OrchestrationProviderStatus.Failed => HttpStatusCode.NotFound,
+            _ => HttpStatusCode.InternalServerError
         };
 
-        return new ObjectResult(bulkRedactionSearchResponse)
+        return new ObjectResult(response)
         {
-            StatusCode = (int?)statusCode
+            StatusCode = (int?)statusCode,
         };
     }
 }

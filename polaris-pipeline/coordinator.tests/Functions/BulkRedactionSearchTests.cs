@@ -31,9 +31,10 @@ public class BulkRedactionSearchTests
 
     [Theory]
     [InlineData(OrchestrationProviderStatus.Initiated, HttpStatusCode.Accepted)]
-    [InlineData(OrchestrationProviderStatus.Processing, HttpStatusCode.Locked)]
+    [InlineData(OrchestrationProviderStatus.Processing, HttpStatusCode.Accepted)]
     [InlineData(OrchestrationProviderStatus.Completed, HttpStatusCode.OK)]
-    [InlineData(OrchestrationProviderStatus.Failed, HttpStatusCode.InternalServerError)]
+    [InlineData(OrchestrationProviderStatus.Failed, HttpStatusCode.NotFound)]
+    [InlineData(OrchestrationProviderStatus.NotStarted, HttpStatusCode.BadRequest)]
     public async Task Run_BulkRedactionSearchReturnsInitiated_ShouldReturnAccepted(OrchestrationProviderStatus status, HttpStatusCode expectedStatusCode)
     {
         //arrange
@@ -55,7 +56,7 @@ public class BulkRedactionSearchTests
             DocumentRefreshStatus = status
         };
 
-        _bulkRedactionSearchServiceMock.Setup(s => s.BulkRedactionSearchAsync(It.IsAny<BulkRedactionSearchDto>(), orchestrationClientMock.Object, cancellationToken)).ReturnsAsync(bulkRedactionSearchResponse);
+        _bulkRedactionSearchServiceMock.Setup(s => s.InitiateOrOrchestrateOcr(It.IsAny<BulkRedactionSearchDto>(), orchestrationClientMock.Object, cancellationToken)).ReturnsAsync(bulkRedactionSearchResponse);
 
         //act
         var result = await _bulkRedactionSearch.Run(req, caseUrn, caseId, materialId, documentId, cancellationToken, orchestrationClientMock.Object);

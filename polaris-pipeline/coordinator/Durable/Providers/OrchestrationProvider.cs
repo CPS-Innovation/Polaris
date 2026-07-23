@@ -121,7 +121,24 @@ public class OrchestrationProvider : IOrchestrationProvider
         }
     }
 
-    public async Task<OrchestrationProviderStatus> BulkSearchDocumentAsync(DurableTaskClient orchestrationClient, DocumentPayload documentPayload, CancellationToken cancellationToken = default)
+    public async Task<(OrchestrationProviderStatus Status, string InstanceId)> BulkSearchDocumentAsync(DurableTaskClient orchestrationClient, DocumentPayload documentPayload, CancellationToken cancellationToken = default)
+    {
+        var instanceId = GetKey(documentPayload);
+        var orchestrationStatus = await GetOrchestrationProviderStatus(orchestrationClient, documentPayload, cancellationToken);
+
+        if (orchestrationStatus != OrchestrationProviderStatus.NotStarted)
+        {
+            return (orchestrationStatus, instanceId);
+        }
+
+        await orchestrationClient.ScheduleNewOrchestrationInstanceAsync(nameof(RefreshDocumentOrchestrator), documentPayload, new StartOrchestrationOptions
+        {
+            InstanceId = instanceId
+        }, cancellationToken);
+        return (OrchestrationProviderStatus.Initiated, instanceId);
+    }
+
+    public async Task<OrchestrationProviderStatus> GetOrchestrationProviderStatus(DurableTaskClient orchestrationClient, DocumentPayload documentPayload, CancellationToken cancellationToken = default)
     {
         var instanceId = GetKey(documentPayload);
         var existingInstance = await orchestrationClient.GetInstanceAsync(instanceId, cancellationToken);
@@ -144,11 +161,7 @@ public class OrchestrationProvider : IOrchestrationProvider
             }
         }
 
-        await orchestrationClient.ScheduleNewOrchestrationInstanceAsync(nameof(RefreshDocumentOrchestrator), documentPayload, new StartOrchestrationOptions
-        {
-            InstanceId = instanceId
-        }, cancellationToken);
-        return OrchestrationProviderStatus.Initiated;
+        return OrchestrationProviderStatus.NotStarted;
     }
 
     private static string GetKey(DocumentPayload documentPayload) => $"[{documentPayload.CaseId}.{documentPayload.MaterialId}.{documentPayload.DocumentId}]";

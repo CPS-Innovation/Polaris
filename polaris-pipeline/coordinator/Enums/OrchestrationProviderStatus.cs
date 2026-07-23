@@ -5,5 +5,6 @@ public enum OrchestrationProviderStatus
     Initiated,
     Processing,
     Completed,
-    Failed
+    Failed,
+    NotStarted,
 }

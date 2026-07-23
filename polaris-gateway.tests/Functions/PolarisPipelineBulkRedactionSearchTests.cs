@@ -38,7 +38,7 @@ public class PolarisPipelineBulkRedactionSearchTests
         var materialId = "CMS-12345";
         var documentId = 2;
         var cancellationToken = CancellationToken.None;
-        _coordinatorClientMock.Setup(s => s.BulkRedactionSearchAsync(caseUrn, caseId, materialId, documentId, searchText, It.IsAny<Guid>(), It.IsAny<string>(),cancellationToken)).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+        _coordinatorClientMock.Setup(s => s.BulkRedactionSearchAsyncPost(caseUrn, caseId, materialId, documentId, It.IsAny<Guid>(), It.IsAny<string>(),cancellationToken)).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
         //act
         var result = await _polarisPipelineBulkRedactionSearch.Run(req, caseUrn, caseId, materialId, documentId, cancellationToken);

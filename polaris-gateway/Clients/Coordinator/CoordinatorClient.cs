@@ -102,11 +102,20 @@ public class CoordinatorClient : ICoordinatorClient
             cmsAuthValues,
             new StringContent(JsonSerializer.Serialize(modifyDocumentRequest, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }), Encoding.UTF8, ContentType.Json));
 
-    public async Task<HttpResponseMessage> BulkRedactionSearchAsync(string caseUrn, int caseId, string materialId, long documentId, string searchText,
+    public async Task<HttpResponseMessage> BulkRedactionSearchAsyncPost(string caseUrn, int caseId, string materialId, long documentId,
+        Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default) =>
+        await SendRequestAsync(
+            HttpMethod.Post,
+            RestApi.GetBulkRedactionSearchPostPathAsync(caseUrn, caseId, materialId, documentId),
+            correlationId,
+            cmsAuthValues,
+            cancellationToken: cancellationToken);
+
+    public async Task<HttpResponseMessage> BulkRedactionSearchAsyncGet(string caseUrn, int caseId, string materialId, long documentId, string searchText, 
         Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default) =>
         await SendRequestAsync(
             HttpMethod.Get,
-            RestApi.GetBulkRedactionSearchPathAsync(caseUrn, caseId, materialId, documentId, searchText),
+            RestApi.GetBulkRedactionSearchGetPathAsync(caseUrn, caseId, materialId, documentId, searchText),
             correlationId,
             cmsAuthValues,
             cancellationToken: cancellationToken);

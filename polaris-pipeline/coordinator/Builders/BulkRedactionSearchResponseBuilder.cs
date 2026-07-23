@@ -30,7 +30,7 @@ public class BulkRedactionSearchResponseBuilder : IBulkRedactionSearchResponseBu
 
     public IBulkRedactionSearchResponseBuilder BuildDocumentRefreshFailed(string failedReason, bool isNotFound = false)
     {
-        _bulkRedactionSearchResponse.DocumentRefreshStatus = OrchestrationProviderStatus.Failed;
+        _bulkRedactionSearchResponse.DocumentRefreshStatus = isNotFound ? OrchestrationProviderStatus.NotStarted : OrchestrationProviderStatus.Failed;
         _bulkRedactionSearchResponse.FailedReason = failedReason;
         _bulkRedactionSearchResponse.IsNotFound = isNotFound;
         return this;
