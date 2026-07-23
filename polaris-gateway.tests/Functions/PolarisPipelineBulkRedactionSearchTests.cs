@@ -15,14 +15,14 @@ namespace PolarisGateway.Tests.Functions;
 
 public class PolarisPipelineBulkRedactionSearchTests
 {
-    private readonly Mock<ILogger<PolarisPipelineBulkRedactionSearch>> _loggerMock;
+    private readonly Mock<ILogger<PolarisPipelineBulkRedactionSearchPost>> _loggerMock;
     private readonly Mock<ICoordinatorClient> _coordinatorClientMock;
-    private readonly PolarisPipelineBulkRedactionSearch _polarisPipelineBulkRedactionSearch;
+    private readonly PolarisPipelineBulkRedactionSearchPost _polarisPipelineBulkRedactionSearch;
     public PolarisPipelineBulkRedactionSearchTests()
     {
-        _loggerMock = new Mock<ILogger<PolarisPipelineBulkRedactionSearch>>();
+        _loggerMock = new Mock<ILogger<PolarisPipelineBulkRedactionSearchPost>>();
         _coordinatorClientMock = new Mock<ICoordinatorClient>();
-        _polarisPipelineBulkRedactionSearch = new PolarisPipelineBulkRedactionSearch(_loggerMock.Object, _coordinatorClientMock.Object);
+        _polarisPipelineBulkRedactionSearch = new PolarisPipelineBulkRedactionSearchPost(_loggerMock.Object, _coordinatorClientMock.Object);
     }
 
     [Fact]

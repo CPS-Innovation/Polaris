@@ -1,6 +1,9 @@
-﻿using Common.Dto.Response;
+﻿using Azure;
+using Common.Dto.Response;
+using Common.Telemetry;
 using coordinator.Durable.Orchestration;
 using coordinator.Durable.Payloads;
+using coordinator.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
@@ -12,8 +15,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Telemetry;
-using coordinator.Enums;
 
 namespace coordinator.Durable.Providers;
 
@@ -140,28 +141,43 @@ public class OrchestrationProvider : IOrchestrationProvider
 
     public async Task<OrchestrationProviderStatus> GetOrchestrationProviderStatus(DurableTaskClient orchestrationClient, DocumentPayload documentPayload, CancellationToken cancellationToken = default)
     {
-        var instanceId = GetKey(documentPayload);
-        var existingInstance = await orchestrationClient.GetInstanceAsync(instanceId, cancellationToken);
-
-        if (existingInstance != null)
+        try
         {
-            if (_inProgressStatuses.Contains(existingInstance.RuntimeStatus))
+            var instanceId = GetKey(documentPayload);
+
+            var existingInstance = await orchestrationClient.GetInstanceAsync(instanceId, cancellationToken);
+
+            if (existingInstance != null)
             {
-                return OrchestrationProviderStatus.Processing;
+                if (_inProgressStatuses.Contains(existingInstance.RuntimeStatus))
+                {
+                    return OrchestrationProviderStatus.Processing;
+                }
+
+                if (existingInstance.RuntimeStatus == OrchestrationRuntimeStatus.Failed)
+                {
+                    _logger.LogError("Bulk Redaction Search failed. Orchestration instance Id: {InstanceId}. Failed reason: {Reason}", instanceId, existingInstance.FailureDetails);
+
+                    return OrchestrationProviderStatus.Failed;
+                }
+
+                if (_completedStatuses.Contains(existingInstance.RuntimeStatus))
+                {
+                    return OrchestrationProviderStatus.Completed;
+                }
             }
 
-            if (existingInstance.RuntimeStatus == OrchestrationRuntimeStatus.Failed)
-            {
-                return OrchestrationProviderStatus.Failed;
-            }
-
-            if (_completedStatuses.Contains(existingInstance.RuntimeStatus))
-            {
-                return OrchestrationProviderStatus.Completed;
-            }
+            return OrchestrationProviderStatus.NotStarted;
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Error getting orchestration status for instance {InstanceId}. Error: {ErrorMessage}",
+                GetKey(documentPayload),
+                ex.Message);
 
-        return OrchestrationProviderStatus.NotStarted;
+            return OrchestrationProviderStatus.Failed;
+        }
     }
 
     private static string GetKey(DocumentPayload documentPayload) => $"[{documentPayload.CaseId}.{documentPayload.MaterialId}.{documentPayload.DocumentId}]";

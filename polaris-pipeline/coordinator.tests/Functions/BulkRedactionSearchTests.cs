@@ -18,15 +18,15 @@ namespace coordinator.tests.Functions;
 
 public class BulkRedactionSearchTests
 {
-    private readonly Mock<ILogger<BulkRedactionSearch>> _loggerMock;
+    private readonly Mock<ILogger<BulkRedactionSearchPost>> _loggerMock;
     private readonly Mock<IBulkRedactionSearchService> _bulkRedactionSearchServiceMock;
-    private readonly BulkRedactionSearch _bulkRedactionSearch;
+    private readonly BulkRedactionSearchPost _bulkRedactionSearch;
 
     public BulkRedactionSearchTests()
     {
-        _loggerMock = new Mock<ILogger<BulkRedactionSearch>>();
+        _loggerMock = new Mock<ILogger<BulkRedactionSearchPost>>();
         _bulkRedactionSearchServiceMock = new Mock<IBulkRedactionSearchService>();
-        _bulkRedactionSearch = new BulkRedactionSearch(_loggerMock.Object, _bulkRedactionSearchServiceMock.Object);
+        _bulkRedactionSearch = new BulkRedactionSearchPost(_loggerMock.Object, _bulkRedactionSearchServiceMock.Object);
     }
 
     [Theory]

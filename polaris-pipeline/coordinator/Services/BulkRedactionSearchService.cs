@@ -49,26 +49,14 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
 
     public async Task<BulkRedactionSearchResponse> InitiateOrOrchestrateOcr(BulkRedactionSearchDto bulkRedactionSearchDto, DurableTaskClient orchestrationClient, CancellationToken cancellationToken)
     {
-        var documentType = DocumentNature.GetDocumentNatureType(bulkRedactionSearchDto.MaterialId);
+        var (cmsDocumentDto, failureResponse) = await GetDocumentAsync(bulkRedactionSearchDto);
 
-        if (documentType != DocumentNature.Types.Document)
+        if (failureResponse is not null)
         {
-            return _bulkRedactionSearchResponseBuilder
-                .BuildDocumentRefreshFailed("Document is not redactable")
-                .Build(bulkRedactionSearchDto);
+            return failureResponse;
         }
 
-        var caseIdentifiersArg = _mdsArgFactory.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId);
-        var listDocumentResponse = await _mdsClient.ListDocumentsAsync(caseIdentifiersArg);
-
-        var cmsDocumentDto = listDocumentResponse.FirstOrDefault(x => bulkRedactionSearchDto.MaterialId.Contains(x.DocumentId.ToString()) && x.VersionId == bulkRedactionSearchDto.DocumentId);
-
-        if (cmsDocumentDto is null)
-            return _bulkRedactionSearchResponseBuilder
-                .BuildDocumentRefreshFailed("Document not found in list document", true)
-                .Build(bulkRedactionSearchDto);
-
-        var documentPayload = CreateDocumentPayload(bulkRedactionSearchDto, cmsDocumentDto);
+        var documentPayload = CreateDocumentPayload(bulkRedactionSearchDto,cmsDocumentDto);
 
         await SetDocumentStateAsync(cmsDocumentDto, bulkRedactionSearchDto.CaseId);
 
@@ -103,21 +91,19 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
 
     public async Task<BulkRedactionSearchResponse> GetOcrSearchResults(BulkRedactionSearchDto bulkRedactionSearchDto, DurableTaskClient orchestrationClient, CancellationToken cancellationToken)
     {
-        var documentType = DocumentNature.GetDocumentNatureType(bulkRedactionSearchDto.MaterialId);
+        var (cmsDocumentDto, failureResponse) = await GetDocumentAsync(bulkRedactionSearchDto);
 
-        if (documentType != DocumentNature.Types.Document)
+        if (failureResponse is not null)
         {
-            return _bulkRedactionSearchResponseBuilder
-                .BuildDocumentRefreshFailed("Document is not redactable")
-                .Build(bulkRedactionSearchDto);
+            return failureResponse;
         }
 
-        var caseIdentifiersArg = _mdsArgFactory.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId);
-        var listDocumentResponse = await _mdsClient.ListDocumentsAsync(caseIdentifiersArg);
-        var cmsDocumentDto = listDocumentResponse.FirstOrDefault(x => bulkRedactionSearchDto.MaterialId.Contains(x.DocumentId.ToString()) && x.VersionId == bulkRedactionSearchDto.DocumentId);
-        var documentPayload = CreateDocumentPayload(bulkRedactionSearchDto, cmsDocumentDto);
+        var documentPayload = CreateDocumentPayload(
+            bulkRedactionSearchDto,
+            cmsDocumentDto);
+
         var orchestrationStatus = await _orchestrationProvider.GetOrchestrationProviderStatus(orchestrationClient, documentPayload, cancellationToken);
-        
+
         switch (orchestrationStatus)
         {
             case OrchestrationProviderStatus.Processing:
@@ -158,6 +144,42 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
             .Build(bulkRedactionSearchDto);
     }
 
+    private async Task<(CmsDocumentDto CmsDocumentDto, BulkRedactionSearchResponse FailureResponse)> GetDocumentAsync(BulkRedactionSearchDto bulkRedactionSearchDto)
+    {
+        var documentType = DocumentNature.GetDocumentNatureType(bulkRedactionSearchDto.MaterialId);
+
+        if (documentType != DocumentNature.Types.Document)
+        {
+            return (
+                null,
+                _bulkRedactionSearchResponseBuilder
+                    .BuildDocumentRefreshFailed("Document is not redactable")
+                    .Build(bulkRedactionSearchDto));
+        }
+
+        var caseIdentifiersArg = _mdsArgFactory.CreateCaseIdentifiersArg(
+            bulkRedactionSearchDto.CmsAuthValues,
+            bulkRedactionSearchDto.CorrelationId,
+            bulkRedactionSearchDto.Urn,
+            bulkRedactionSearchDto.CaseId);
+
+        var listDocumentResponse = await _mdsClient.ListDocumentsAsync(caseIdentifiersArg);
+
+        var cmsDocumentDto = listDocumentResponse.FirstOrDefault(
+            x => bulkRedactionSearchDto.MaterialId.Contains(x.DocumentId.ToString()) &&
+                 x.VersionId == bulkRedactionSearchDto.DocumentId);
+
+        if (cmsDocumentDto is null)
+        {
+            return (
+                null,
+                _bulkRedactionSearchResponseBuilder
+                    .BuildDocumentRefreshFailed("Document not found in list document", true)
+                    .Build(bulkRedactionSearchDto));
+        }
+
+        return (cmsDocumentDto, null);
+    }
 
 
     private DocumentPayload CreateDocumentPayload(BulkRedactionSearchDto bulkRedactionSearchDto, CmsDocumentDto cmsDocumentDto)
