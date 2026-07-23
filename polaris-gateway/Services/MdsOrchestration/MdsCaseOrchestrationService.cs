@@ -64,6 +64,7 @@ namespace PolarisGateway.Services.MdsOrchestration
             var summary = new CaseSummaryDto()
             {
                 Id = caseSummaryResponse.CaseId,
+                OwningUnit = caseSummaryResponse.UnitName,
                 Urn = caseSummaryResponse.Urn,
                 LeadDefendantFirstNames = caseSummaryResponse.LeadDefendantFirstNames,
                 LeadDefendantSurname = caseSummaryResponse.LeadDefendantSurname,
