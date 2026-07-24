@@ -5,7 +5,6 @@ using coordinator.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.DurableTask.Client;
-using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Net;
@@ -18,16 +17,14 @@ namespace coordinator.tests.Functions;
 
 public class BulkRedactionSearchTests
 {
-    private readonly Mock<ILogger<BulkRedactionSearchPost>> _loggerMock;
     private readonly Mock<IBulkRedactionSearchService> _bulkRedactionSearchServiceMock;
     private readonly BulkRedactionSearchPost _bulkRedactionSearch;
 
     public BulkRedactionSearchTests()
     {
-        _loggerMock = new Mock<ILogger<BulkRedactionSearchPost>>();
         _bulkRedactionSearchServiceMock = new Mock<IBulkRedactionSearchService>();
-        _bulkRedactionSearch = new BulkRedactionSearchPost(_loggerMock.Object, _bulkRedactionSearchServiceMock.Object);
-    }
+        _bulkRedactionSearch = new BulkRedactionSearchPost(_bulkRedactionSearchServiceMock.Object);
+    } // TAHMEED
 
     [Theory]
     [InlineData(OrchestrationProviderStatus.Initiated, HttpStatusCode.Accepted)]

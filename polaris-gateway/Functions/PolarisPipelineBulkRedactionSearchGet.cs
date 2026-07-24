@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Extensions;
@@ -18,13 +17,11 @@ namespace PolarisGateway.Functions;
 
 public class PolarisPipelineBulkRedactionSearchGet : BaseFunction
 {
-    private readonly ILogger<PolarisPipelineBulkRedactionSearchGet> _logger;
     private readonly ICoordinatorClient _coordinatorClient;
     private const string SearchTextHeader = "SearchText";
 
-    public PolarisPipelineBulkRedactionSearchGet(ILogger<PolarisPipelineBulkRedactionSearchGet> logger, ICoordinatorClient coordinatorClient)
+    public PolarisPipelineBulkRedactionSearchGet(ICoordinatorClient coordinatorClient)
     {
-        _logger = logger;
         _coordinatorClient = coordinatorClient;
     }
 

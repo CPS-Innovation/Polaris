@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Extensions;
@@ -16,12 +15,10 @@ namespace PolarisGateway.Functions;
 
 public class PolarisPipelineBulkRedactionSearchPost : BaseFunction
 {
-    private readonly ILogger<PolarisPipelineBulkRedactionSearchPost> _logger;
     private readonly ICoordinatorClient _coordinatorClient;
 
-    public PolarisPipelineBulkRedactionSearchPost(ILogger<PolarisPipelineBulkRedactionSearchPost> logger, ICoordinatorClient coordinatorClient)
+    public PolarisPipelineBulkRedactionSearchPost(ICoordinatorClient coordinatorClient)
     {
-        _logger = logger;
         _coordinatorClient = coordinatorClient;
     }
 

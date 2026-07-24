@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
-using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,12 +17,10 @@ namespace coordinator.Functions;
 
 public class BulkRedactionSearchPost
 {
-    private readonly ILogger<BulkRedactionSearchPost> _logger;
     private readonly IBulkRedactionSearchService _bulkRedactionSearchService;
 
-    public BulkRedactionSearchPost(ILogger<BulkRedactionSearchPost> logger, IBulkRedactionSearchService bulkRedactionSearchService)
+    public BulkRedactionSearchPost(IBulkRedactionSearchService bulkRedactionSearchService)
     {
-        _logger = logger;
         _bulkRedactionSearchService = bulkRedactionSearchService;
     }
 
