@@ -33,7 +33,7 @@ public class CaseUrnResolver(IMemoryCache memoryCache, IMasterDataServiceClient 
         }
 
         this.Cache(caseId, resolvedUrn);
-        logger.LogInformation("Resolved case URN {caseUrn} for caseId {caseId}", resolvedUrn, caseId);
+        logger.LogInformation("Resolved case URN {CaseUrn} for caseId {CaseId}", resolvedUrn, caseId);
 
         return resolvedUrn;
     }
