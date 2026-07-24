@@ -13,19 +13,19 @@ using text_extractor.Services.CaseSearchService;
 
 namespace text_extractor.Functions
 {
-    public class StoreCaseIndexes : BaseFunction
+    public class StoreCaseIndexesLegacy : BaseFunction
     {
         private readonly ISearchIndexService _searchIndexService;
         private readonly IExceptionHandler _exceptionHandler;
 
-        private readonly ILogger<StoreCaseIndexes> _log;
+        private readonly ILogger<StoreCaseIndexesLegacy> _log;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private const string LoggingName = "StoreCaseIndexes - Run";
 
-        public StoreCaseIndexes(
+        public StoreCaseIndexesLegacy(
                ISearchIndexService searchIndexService,
                IExceptionHandler exceptionHandler,
-               ILogger<StoreCaseIndexes> logger,
+               ILogger<StoreCaseIndexesLegacy> logger,
                IJsonConvertWrapper jsonConvertWrapper)
         {
             _searchIndexService = searchIndexService;
@@ -34,8 +34,8 @@ namespace text_extractor.Functions
             _jsonConvertWrapper = jsonConvertWrapper;
         }
 
-        [Function(nameof(StoreCaseIndexes))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Extract)] HttpRequest request,
+        [Function(nameof(StoreCaseIndexesLegacy))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ExtractLegacy)] HttpRequest request,
             string caseUrn, int caseId, string materialId, long documentId)
         {
             Guid currentCorrelationId = default;
