@@ -1,6 +1,11 @@
+// <copyright file="ServiceExtensions.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.ApplicationStartup;
+
 using Common.Clients.PdfGenerator;
 using Common.Factories.ComputerVisionClientFactory;
-using Common.Mappers;
 using Common.Services.BlobStorage;
 using Common.Services.DocumentToggle;
 using Common.Services.OcrService;
@@ -25,6 +30,7 @@ using PolarisGateway.Clients.PdfThumbnailGenerator;
 using PolarisGateway.Mappers;
 using PolarisGateway.Models;
 using PolarisGateway.Services.Artefact;
+using PolarisGateway.Services.CaseUrnResolver;
 using PolarisGateway.Services.MdsOrchestration;
 using PolarisGateway.Validators;
 using Polly;
@@ -34,12 +40,17 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
-namespace PolarisGateway.ApplicationStartup;
-
 public static class ServiceExtensions
 {
     private const int RetryAttempts = 2;
     private const int FirstRetryDelaySeconds = 1;
+
+    private static IAsyncPolicy<HttpResponseMessage> RetryPolicy =>
+    Policy
+        .HandleResult<HttpResponseMessage>((result) => ShouldRetry(result.RequestMessage, result))
+        .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(
+            medianFirstRetryDelay: TimeSpan.FromSeconds(FirstRetryDelaySeconds),
+            retryCount: RetryAttempts));
 
     public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
@@ -80,6 +91,8 @@ public static class ServiceExtensions
         services.AddMdsOrchestrationService();
         services.Configure<RedactionFileSizeOptions>(configuration.GetSection(RedactionFileSizeOptions.ConfigKey));
 
+        services.AddMemoryCache();
+        services.AddScoped<ICaseUrnResolver, CaseUrnResolver>();
 
         // House keeping.
         services.AddSingleton<ICaseInfoService, CaseInfoService>();
@@ -100,7 +113,7 @@ public static class ServiceExtensions
         services.AddSingleton<ICaseDefendantsService, CaseDefendantsService>();
         services.AddSingleton<IUmaReclassifyService, UmaReclassifyService>();
         services.AddSingleton<IBulkSetUnusedService, BulkSetUnusedService>();
-        services.AddSingleton<IUmaServiceClient,  UmaServiceClient>();
+        services.AddSingleton<IUmaServiceClient, UmaServiceClient>();
 
         // Add validators
         services.AddSingleton<RenameMaterialRequestValidator>();
@@ -139,15 +152,6 @@ public static class ServiceExtensions
 
         return secret;
     }
-
-
-    private static IAsyncPolicy<HttpResponseMessage> RetryPolicy =>
-        // https://learn.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/implement-http-call-retries-exponential-backoff-polly#add-a-jitter-strategy-to-the-retry-policy
-        Policy
-            .HandleResult<HttpResponseMessage>((result) => ShouldRetry(result.RequestMessage, result))
-            .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(
-                medianFirstRetryDelay: TimeSpan.FromSeconds(FirstRetryDelaySeconds),
-                retryCount: RetryAttempts));
 
     private static bool ShouldRetry(HttpRequestMessage request, HttpResponseMessage response)
     {

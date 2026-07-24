@@ -12,21 +12,21 @@ using Common.Handlers;
 
 namespace pdf_thumbnail_generator.Functions
 { 
-    public class GenerateThumbnail
+    public class GenerateThumbnailLegacy
     {
-        private readonly ILogger<GenerateThumbnail> _logger;
+        private readonly ILogger<GenerateThumbnailLegacy> _logger;
         private readonly IOrchestrationProvider _orchestrationProvider;
         private readonly IExceptionHandler _exceptionHandler;
 
-        public GenerateThumbnail(ILogger<GenerateThumbnail> logger, IOrchestrationProvider orchestrationProvider, IExceptionHandler exceptionHandler)
+        public GenerateThumbnailLegacy(ILogger<GenerateThumbnailLegacy> logger, IOrchestrationProvider orchestrationProvider, IExceptionHandler exceptionHandler)
         { 
             _logger = logger;
             _orchestrationProvider = orchestrationProvider;
             _exceptionHandler = exceptionHandler;
         }
 
-        [Function(nameof(GenerateThumbnail))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.GenerateThumbnail)] HttpRequest req, [DurableClient] DurableTaskClient client,
+        [Function(nameof(GenerateThumbnailLegacy))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.GenerateThumbnailLegacy)] HttpRequest req, [DurableClient] DurableTaskClient client,
             string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int? pageIndex = null) 
         { 
             Guid currentCorrelationId = default;
@@ -49,7 +49,7 @@ namespace pdf_thumbnail_generator.Functions
             }
             catch (Exception ex)
             {
-                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(GenerateThumbnail), _logger);
+                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(GenerateThumbnailLegacy), _logger);
             }
         }
   }

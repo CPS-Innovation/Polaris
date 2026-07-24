@@ -9,15 +9,15 @@ using Microsoft.Extensions.Logging;
 
 namespace text_extractor.Functions
 {
-    public class RemoveCaseIndexes : BaseFunction
+    public class RemoveCaseIndexesLegacy : BaseFunction
     {
-        private readonly ILogger<RemoveCaseIndexes> _log;
+        private readonly ILogger<RemoveCaseIndexesLegacy> _log;
         private readonly ISearchIndexService _searchIndexService;
         private readonly IExceptionHandler _exceptionHandler;
-        private const string LoggingName = nameof(RemoveCaseIndexes);
+        private const string LoggingName = nameof(RemoveCaseIndexesLegacy);
 
-        public RemoveCaseIndexes(
-            ILogger<RemoveCaseIndexes> logger,
+        public RemoveCaseIndexesLegacy(
+            ILogger<RemoveCaseIndexesLegacy> logger,
             ISearchIndexService searchIndexService,
             IExceptionHandler exceptionHandler)
         {
@@ -26,8 +26,8 @@ namespace text_extractor.Functions
             _exceptionHandler = exceptionHandler ?? throw new ArgumentNullException(nameof(exceptionHandler));
         }
 
-        [Function(nameof(RemoveCaseIndexes))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.RemoveCaseIndexes)] HttpRequest request, int caseId)
+        [Function(nameof(RemoveCaseIndexesLegacy))]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.RemoveCaseIndexesLegacy)] HttpRequest request, int caseId)
         {
             Guid correlationId = default;
 
