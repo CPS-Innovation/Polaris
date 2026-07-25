@@ -1,4 +1,10 @@
-﻿using Castle.Core.Logging;
+﻿// <copyright file="BulkRedactionSearchService.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.Services;
+
+using Castle.Core.Logging;
 using Common.Configuration;
 using Common.Domain.Document;
 using Common.Domain.Ocr;
@@ -24,66 +30,64 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace coordinator.Services;
-
 public class BulkRedactionSearchService : IBulkRedactionSearchService
 {
-    private readonly IOrchestrationProvider _orchestrationProvider;
-    private readonly IPolarisBlobStorageService _polarisBlobStorageService;
-    private readonly IBulkRedactionSearchResponseBuilder _bulkRedactionSearchResponseBuilder;
-    private readonly IOcrDocumentSearch _ocrDocumentSearch;
-    private readonly IMdsClient _mdsClient;
-    private readonly IMdsArgFactory _mdsArgFactory;
-    private readonly ILogger<BulkRedactionSearchService> _logger;
+    private readonly IOrchestrationProvider orchestrationProvider;
+    private readonly IPolarisBlobStorageService polarisBlobStorageService;
+    private readonly IBulkRedactionSearchResponseBuilder bulkRedactionSearchResponseBuilder;
+    private readonly IOcrDocumentSearch ocrDocumentSearch;
+    private readonly IMdsClient mdsClient;
+    private readonly IMdsArgFactory mdsArgFactory;
+    private readonly ILogger<BulkRedactionSearchService> logger;
 
     public BulkRedactionSearchService(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOrchestrationProvider orchestrationProvider, IBulkRedactionSearchResponseBuilder bulkRedactionSearchResponseBuilder, IOcrDocumentSearch ocrDocumentSearch, IConfiguration configuration, IMdsClient mdsClient, IMdsArgFactory mdsArgFactory, ILogger<BulkRedactionSearchService> logger)
     {
-        _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
-        _orchestrationProvider = orchestrationProvider.ExceptionIfNull();
-        _bulkRedactionSearchResponseBuilder = bulkRedactionSearchResponseBuilder.ExceptionIfNull();
-        _ocrDocumentSearch = ocrDocumentSearch.ExceptionIfNull();
-        _mdsClient = mdsClient.ExceptionIfNull();
-        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        _logger = logger.ExceptionIfNull();
+        this.polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
+        this.orchestrationProvider = orchestrationProvider.ExceptionIfNull();
+        this.bulkRedactionSearchResponseBuilder = bulkRedactionSearchResponseBuilder.ExceptionIfNull();
+        this.ocrDocumentSearch = ocrDocumentSearch.ExceptionIfNull();
+        this.mdsClient = mdsClient.ExceptionIfNull();
+        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        this.logger = logger.ExceptionIfNull();
     }
 
     public async Task<BulkRedactionSearchResponse> InitiateOrOrchestrateOcr(BulkRedactionSearchDto bulkRedactionSearchDto, DurableTaskClient orchestrationClient, CancellationToken cancellationToken)
     {
-        var (cmsDocumentDto, failureResponse) = await GetDocumentAsync(bulkRedactionSearchDto);
+        var (cmsDocumentDto, failureResponse) = await this.GetDocumentAsync(bulkRedactionSearchDto);
 
         if (failureResponse is not null)
         {
             return failureResponse;
         }
 
-        var documentPayload = CreateDocumentPayload(bulkRedactionSearchDto,cmsDocumentDto);
+        var documentPayload = this.CreateDocumentPayload(bulkRedactionSearchDto,cmsDocumentDto);
 
-        await SetDocumentStateAsync(cmsDocumentDto, bulkRedactionSearchDto.CaseId);
+        await this.SetDocumentStateAsync(cmsDocumentDto, bulkRedactionSearchDto.CaseId);
 
-        var (orchestrationProviderStatus, instanceId) = await _orchestrationProvider.BulkSearchDocumentAsync(orchestrationClient, documentPayload, cancellationToken);
+        var (orchestrationProviderStatus, instanceId) = await this.orchestrationProvider.BulkSearchDocumentAsync(orchestrationClient, documentPayload, cancellationToken);
 
-        _logger.LogInformation("Bulk Redaction Search, orchestration instance ID {InstanceId}: ", instanceId);
+        this.logger.LogInformation("Bulk Redaction Search, orchestration instance ID {InstanceId}: ", instanceId);
 
         switch (orchestrationProviderStatus)
         {
             case OrchestrationProviderStatus.Initiated:
-                return _bulkRedactionSearchResponseBuilder
+                return this.bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshInitiated()
                     .Build(bulkRedactionSearchDto);
             case OrchestrationProviderStatus.Processing:
-                return _bulkRedactionSearchResponseBuilder
+                return this.bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshProcessing()
                     .Build(bulkRedactionSearchDto);
             case OrchestrationProviderStatus.Failed:
-                return _bulkRedactionSearchResponseBuilder
+                return this.bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshFailed("Orchestration failure")
                     .Build(bulkRedactionSearchDto);
             case OrchestrationProviderStatus.Completed:
-                return _bulkRedactionSearchResponseBuilder
+                return this.bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshCompleted()
                     .Build(bulkRedactionSearchDto);
             default:
-                return _bulkRedactionSearchResponseBuilder
+                return this.bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshFailed("Unknown orchestration status")
                     .Build(bulkRedactionSearchDto);
         }
@@ -91,54 +95,54 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
 
     public async Task<BulkRedactionSearchResponse> GetOcrSearchResults(BulkRedactionSearchDto bulkRedactionSearchDto, DurableTaskClient orchestrationClient, CancellationToken cancellationToken)
     {
-        var (cmsDocumentDto, failureResponse) = await GetDocumentAsync(bulkRedactionSearchDto);
+        var (cmsDocumentDto, failureResponse) = await this.GetDocumentAsync(bulkRedactionSearchDto);
 
         if (failureResponse is not null)
         {
             return failureResponse;
         }
 
-        var documentPayload = CreateDocumentPayload(
+        var documentPayload = this.CreateDocumentPayload(
             bulkRedactionSearchDto,
             cmsDocumentDto);
 
-        var orchestrationStatus = await _orchestrationProvider.GetOrchestrationProviderStatus(orchestrationClient, documentPayload, cancellationToken);
+        var orchestrationStatus = await this.orchestrationProvider.GetOrchestrationProviderStatus(orchestrationClient, documentPayload, cancellationToken);
 
         switch (orchestrationStatus)
         {
             case OrchestrationProviderStatus.Processing:
-                return _bulkRedactionSearchResponseBuilder
+                return this.bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshProcessing()
                     .Build(bulkRedactionSearchDto);
             case OrchestrationProviderStatus.Failed:
-                return _bulkRedactionSearchResponseBuilder
+                return this.bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshFailed("Orchestration failure")
                     .Build(bulkRedactionSearchDto);
             case OrchestrationProviderStatus.NotStarted:
-                return _bulkRedactionSearchResponseBuilder
+                return this.bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshFailed("Orchestration instance Id invalid", true)
                     .Build(bulkRedactionSearchDto);
         }
 
         var blobId = new BlobIdType(bulkRedactionSearchDto.CaseId, bulkRedactionSearchDto.MaterialId, bulkRedactionSearchDto.DocumentId, BlobType.Ocr);
-        var results = await _polarisBlobStorageService.TryGetObjectAsync<AnalyzeResults>(blobId);
+        var results = await this.polarisBlobStorageService.TryGetObjectAsync<AnalyzeResults>(blobId);
         if (results is null)
         {
-            return _bulkRedactionSearchResponseBuilder
+            return this.bulkRedactionSearchResponseBuilder
                 .BuildDocumentRefreshFailed("OCR Document Not Found", true)
                 .Build(bulkRedactionSearchDto);
         }
 
-        var ocrDocumentSearchResponse = _ocrDocumentSearch.Search(bulkRedactionSearchDto.SearchText, results);
+        var ocrDocumentSearchResponse = this.ocrDocumentSearch.Search(bulkRedactionSearchDto.SearchText, results);
 
         if (!string.IsNullOrEmpty(ocrDocumentSearchResponse.FailureReason))
         {
-            return _bulkRedactionSearchResponseBuilder
+            return this.bulkRedactionSearchResponseBuilder
                 .BuildDocumentRefreshFailed(ocrDocumentSearchResponse.FailureReason)
                 .Build(bulkRedactionSearchDto);
         }
 
-        return _bulkRedactionSearchResponseBuilder
+        return this.bulkRedactionSearchResponseBuilder
             .BuildDocumentRefreshCompleted()
             .BuildRedactionDefinitions(ocrDocumentSearchResponse.RedactionDefinitionDtos)
             .Build(bulkRedactionSearchDto);
@@ -152,18 +156,18 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
         {
             return (
                 null,
-                _bulkRedactionSearchResponseBuilder
+                this.bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshFailed("Document is not redactable")
                     .Build(bulkRedactionSearchDto));
         }
 
-        var caseIdentifiersArg = _mdsArgFactory.CreateCaseIdentifiersArg(
+        var caseIdentifiersArg = this.mdsArgFactory.CreateCaseIdentifiersArg(
             bulkRedactionSearchDto.CmsAuthValues,
             bulkRedactionSearchDto.CorrelationId,
             bulkRedactionSearchDto.Urn,
             bulkRedactionSearchDto.CaseId);
 
-        var listDocumentResponse = await _mdsClient.ListDocumentsAsync(caseIdentifiersArg);
+        var listDocumentResponse = await this.mdsClient.ListDocumentsAsync(caseIdentifiersArg);
 
         var cmsDocumentDto = listDocumentResponse.FirstOrDefault(
             x => bulkRedactionSearchDto.MaterialId.Contains(x.DocumentId.ToString()) &&
@@ -173,14 +177,13 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
         {
             return (
                 null,
-                _bulkRedactionSearchResponseBuilder
+                this.bulkRedactionSearchResponseBuilder
                     .BuildDocumentRefreshFailed("Document not found in list document", true)
                     .Build(bulkRedactionSearchDto));
         }
 
         return (cmsDocumentDto, null);
     }
-
 
     private DocumentPayload CreateDocumentPayload(BulkRedactionSearchDto bulkRedactionSearchDto, CmsDocumentDto cmsDocumentDto)
     {
@@ -196,14 +199,14 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
             DocumentType = cmsDocumentDto.CmsDocType,
             DocumentNatureType = DocumentNature.Types.Document,
             DocumentDeltaType = DocumentDeltaType.RequiresIndexing,
-            IsOcredProcessedPreference = cmsDocumentDto.IsOcrProcessed
+            IsOcredProcessedPreference = cmsDocumentDto.IsOcrProcessed,
         };
     }
 
     private async Task SetDocumentStateAsync(CmsDocumentDto cmsDocumentDto, int caseId)
     {
         var documentsStateBlobId = new BlobIdType(caseId, default, default, BlobType.DocumentState);
-        var documentState = await _polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityDocumentsState>(documentsStateBlobId);
+        var documentState = await this.polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityDocumentsState>(documentsStateBlobId);
 
         if (documentState != null) return;
 
@@ -234,10 +237,10 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
                     canReclassify: cmsDocumentDto.CanReclassify,
                     canRename: cmsDocumentDto.CanRename,
                     renameStatus: cmsDocumentDto.RenameStatus,
-                    reference: cmsDocumentDto.Reference)
-            }
+                    reference: cmsDocumentDto.Reference),
+            },
         };
 
-        await _polarisBlobStorageService.UploadObjectAsync(documentState, documentsStateBlobId);
+        await this.polarisBlobStorageService.UploadObjectAsync(documentState, documentsStateBlobId);
     }
 }

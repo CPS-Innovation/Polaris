@@ -1,10 +1,14 @@
-﻿using Common.Dto.Request.Redaction;
+﻿// <copyright file="BulkRedactionSearchResponse.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.Domain;
+
+using Common.Dto.Request.Redaction;
 using coordinator.Enums;
 using Newtonsoft.Json.Converters;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-
-namespace coordinator.Domain;
 
 public class BulkRedactionSearchResponse
 {
@@ -20,7 +24,7 @@ public class BulkRedactionSearchResponse
 
     [JsonConverter(typeof(StringEnumConverter))]
     public OrchestrationProviderStatus DocumentRefreshStatus { get; set; }
-    
+
     public IEnumerable<RedactionDefinitionDto> RedactionDefinitions { get; set; }
 
     public string FailedReason { get; set; }

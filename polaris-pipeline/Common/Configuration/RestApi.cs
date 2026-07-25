@@ -106,9 +106,9 @@ public static class RestApi
     public static string GetThumbnailPath(string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int? pageIndex) =>
         $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
 
-    public static string GetBulkRedactionSearchPostPathAsync(string caseUrn, int caseId, string materialId, long documentId) =>
+    public static string GetBulkRedactionSearchStartPath(string caseUrn, int caseId, string materialId, long documentId) =>
         $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/search";
 
-    public static string GetBulkRedactionSearchGetPathAsync(string caseUrn, int caseId, string materialId, long documentId, string searchText) =>
+    public static string GetBulkRedactionSearchResultsPath(string caseUrn, int caseId, string materialId, long documentId, string searchText) =>
         $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/search?SearchText={searchText}";
 }

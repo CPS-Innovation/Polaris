@@ -1,3 +1,9 @@
+// <copyright file="PolarisPipelineBulkRedactionSearchStart.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
 using Common.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,19 +17,10 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Functions;
-
-public class PolarisPipelineBulkRedactionSearchPost : BaseFunction
+public class PolarisPipelineBulkRedactionSearchStart(ICoordinatorClient coordinatorClient) : BaseFunction
 {
-    private readonly ICoordinatorClient _coordinatorClient;
-
-    public PolarisPipelineBulkRedactionSearchPost(ICoordinatorClient coordinatorClient)
-    {
-        _coordinatorClient = coordinatorClient;
-    }
-
-    [Function(nameof(PolarisPipelineBulkRedactionSearchPost))]
-    [OpenApiOperation(operationId: nameof(PolarisPipelineBulkRedactionSearchPost), tags: ["Documents"], Summary = "Orchestration Status", Description = "Schedule new orchestration instance or returns status")]
+    [Function(nameof(PolarisPipelineBulkRedactionSearchStart))]
+    [OpenApiOperation(operationId: nameof(PolarisPipelineBulkRedactionSearchStart), tags: ["Documents"], Summary = "Orchestration Status", Description = "Schedule new orchestration instance or returns status")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
     [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
@@ -37,6 +34,6 @@ public class PolarisPipelineBulkRedactionSearchPost : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        return await (await _coordinatorClient.BulkRedactionSearchAsyncPost(caseUrn, caseId, materialId, documentId, correlationId, cmsAuthValues, cancellationToken)).ToActionResult();
+        return await (await coordinatorClient.BulkRedactionInitiateSearchAsync(caseUrn, caseId, materialId, documentId, correlationId, cmsAuthValues, cancellationToken)).ToActionResult();
     }
 }

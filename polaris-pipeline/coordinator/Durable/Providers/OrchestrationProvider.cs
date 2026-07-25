@@ -1,4 +1,10 @@
-﻿using Azure;
+﻿// <copyright file="OrchestrationProvider.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.Durable.Providers;
+
+using Azure;
 using Common.Dto.Response;
 using Common.Telemetry;
 using coordinator.Durable.Orchestration;
@@ -16,33 +22,37 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace coordinator.Durable.Providers;
-
 public class OrchestrationProvider : IOrchestrationProvider
 {
-    private readonly IConfiguration _configuration;
-    private readonly IQueryConditionFactory _queryConditionFactory;
-    private readonly ILogger<OrchestrationProvider> _logger;
-    private readonly ITelemetryClient _telemetryClient;
-    private static readonly OrchestrationRuntimeStatus[] _inProgressStatuses =
+    private static readonly OrchestrationRuntimeStatus[] InProgressStatuses =
     [
         OrchestrationRuntimeStatus.Running,
         OrchestrationRuntimeStatus.Pending,
         OrchestrationRuntimeStatus.Suspended,
     ];
 
-    private static readonly OrchestrationRuntimeStatus[] _completedStatuses =
+    private static readonly OrchestrationRuntimeStatus[] CompletedStatuses =
     [
         OrchestrationRuntimeStatus.Completed,
         OrchestrationRuntimeStatus.Failed,
         OrchestrationRuntimeStatus.Terminated
     ];
 
-    private static readonly OrchestrationRuntimeStatus[] _entityStatuses =
+    private static readonly OrchestrationRuntimeStatus[] EntityStatuses =
     [
         // entities are eternally running orchestrations
         OrchestrationRuntimeStatus.Running,
     ];
+
+    static int GetCaseIdFromInstanceId(string instanceId) => int.Parse(
+        Regex.Match(instanceId, @"\d+", RegexOptions.None, TimeSpan.FromSeconds(1))
+        .Value
+    );
+
+    private readonly IConfiguration configuration;
+    private readonly IQueryConditionFactory queryConditionFactory;
+    private readonly ILogger<OrchestrationProvider> logger;
+    private readonly ITelemetryClient telemetryClient;
 
     public OrchestrationProvider(
             IConfiguration configuration,
@@ -50,17 +60,17 @@ public class OrchestrationProvider : IOrchestrationProvider
             ILogger<OrchestrationProvider> logger,
             ITelemetryClient telemetryClient)
     {
-        _configuration = configuration;
-        _queryConditionFactory = queryConditionFactory;
-        _logger = logger;
-        _telemetryClient = telemetryClient;
+        this.configuration = configuration;
+        this.queryConditionFactory = queryConditionFactory;
+        this.logger = logger;
+        this.telemetryClient = telemetryClient;
     }
 
     public static string GetKey(int caseId) => $"[{caseId}]";
 
     public async Task<List<int>> FindCaseInstancesByDateAsync(DurableTaskClient orchestrationClient, DateTime createdTimeTo, int batchSize)
     {
-        var instanceIds = await GetInstanceIdsAsync(orchestrationClient, _queryConditionFactory.Create(createdTimeTo, batchSize));
+        var instanceIds = await GetInstanceIdsAsync(orchestrationClient, this.queryConditionFactory.Create(createdTimeTo, batchSize));
 
         return instanceIds
             .Select(GetCaseIdFromInstanceId)
@@ -72,7 +82,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         var instanceId = GetKey(caseId);
         var existingInstance = await client.GetInstanceAsync(instanceId);
 
-        if (existingInstance != null && _inProgressStatuses.Contains(existingInstance.RuntimeStatus))
+        if (existingInstance != null && InProgressStatuses.Contains(existingInstance.RuntimeStatus))
         {
             return false;
         }
@@ -87,8 +97,8 @@ public class OrchestrationProvider : IOrchestrationProvider
         try
         {
             var key = GetKey(caseId);
-            var inProgressCondition = _queryConditionFactory.Create(_inProgressStatuses, key);
-            var completedCondition = _queryConditionFactory.Create(_completedStatuses, key);
+            var inProgressCondition = this.queryConditionFactory.Create(InProgressStatuses, key);
+            var completedCondition = this.queryConditionFactory.Create(CompletedStatuses, key);
             var terminateInstanceIds = await GetInstanceIdsAsync(client, inProgressCondition);
             result.TerminatedInstancesCount = terminateInstanceIds.Count;
             result.GotTerminateInstancesDateTime = DateTime.UtcNow;
@@ -117,7 +127,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         }
         catch (Exception ex)
         {
-            _telemetryClient.TrackException(ex);
+            this.telemetryClient.TrackException(ex);
             return result;
         }
     }
@@ -125,17 +135,20 @@ public class OrchestrationProvider : IOrchestrationProvider
     public async Task<(OrchestrationProviderStatus Status, string InstanceId)> BulkSearchDocumentAsync(DurableTaskClient orchestrationClient, DocumentPayload documentPayload, CancellationToken cancellationToken = default)
     {
         var instanceId = GetKey(documentPayload);
-        var orchestrationStatus = await GetOrchestrationProviderStatus(orchestrationClient, documentPayload, cancellationToken);
+        var orchestrationStatus = await this.GetOrchestrationProviderStatus(orchestrationClient, documentPayload, cancellationToken);
 
         if (orchestrationStatus != OrchestrationProviderStatus.NotStarted)
         {
             return (orchestrationStatus, instanceId);
         }
 
-        await orchestrationClient.ScheduleNewOrchestrationInstanceAsync(nameof(RefreshDocumentOrchestrator), documentPayload, new StartOrchestrationOptions
-        {
-            InstanceId = instanceId
-        }, cancellationToken);
+        await orchestrationClient.ScheduleNewOrchestrationInstanceAsync(
+            nameof(RefreshDocumentOrchestrator),
+            documentPayload,
+            new StartOrchestrationOptions
+            {
+                InstanceId = instanceId,
+            }, cancellationToken);
         return (OrchestrationProviderStatus.Initiated, instanceId);
     }
 
@@ -149,19 +162,19 @@ public class OrchestrationProvider : IOrchestrationProvider
 
             if (existingInstance != null)
             {
-                if (_inProgressStatuses.Contains(existingInstance.RuntimeStatus))
+                if (InProgressStatuses.Contains(existingInstance.RuntimeStatus))
                 {
                     return OrchestrationProviderStatus.Processing;
                 }
 
                 if (existingInstance.RuntimeStatus == OrchestrationRuntimeStatus.Failed)
                 {
-                    _logger.LogError("Bulk Redaction Search failed. Orchestration instance Id: {InstanceId}. Failed reason: {Reason}", instanceId, existingInstance.FailureDetails);
+                    this.logger.LogError("Bulk Redaction Search failed. Orchestration instance Id: {InstanceId}. Failed reason: {Reason}", instanceId, existingInstance.FailureDetails);
 
                     return OrchestrationProviderStatus.Failed;
                 }
 
-                if (_completedStatuses.Contains(existingInstance.RuntimeStatus))
+                if (CompletedStatuses.Contains(existingInstance.RuntimeStatus))
                 {
                     return OrchestrationProviderStatus.Completed;
                 }
@@ -171,7 +184,8 @@ public class OrchestrationProvider : IOrchestrationProvider
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,
+            this.logger.LogError(
+                ex,
                 "Error getting orchestration status for instance {InstanceId}. Error: {ErrorMessage}",
                 GetKey(documentPayload),
                 ex.Message);
@@ -218,9 +232,4 @@ public class OrchestrationProvider : IOrchestrationProvider
 
         return false;
     }
-
-    static int GetCaseIdFromInstanceId(string instanceId) => int.Parse(
-        Regex.Match(instanceId, @"\d+", RegexOptions.None, TimeSpan.FromSeconds(1))
-        .Value
-    );
 }

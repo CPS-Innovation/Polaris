@@ -1,4 +1,10 @@
-﻿using Common.Dto.Response;
+﻿// <copyright file="IOrchestrationProvider.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.Durable.Providers;
+
+using Common.Dto.Response;
 using coordinator.Durable.Payloads;
 using coordinator.Enums;
 using Microsoft.AspNetCore.Http;
@@ -7,8 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-
-namespace coordinator.Durable.Providers;
 
 public interface IOrchestrationProvider
 {

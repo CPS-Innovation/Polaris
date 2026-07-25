@@ -1,3 +1,9 @@
+// <copyright file="BulkRedactionSearchStart.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.Functions;
+
 using Common.Configuration;
 using Common.Constants;
 using Common.Dto.Request;
@@ -13,18 +19,9 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace coordinator.Functions;
-
-public class BulkRedactionSearchPost
+public class BulkRedactionSearchStart(IBulkRedactionSearchService bulkRedactionSearchService)
 {
-    private readonly IBulkRedactionSearchService _bulkRedactionSearchService;
-
-    public BulkRedactionSearchPost(IBulkRedactionSearchService bulkRedactionSearchService)
-    {
-        _bulkRedactionSearchService = bulkRedactionSearchService;
-    }
-
-    [Function(nameof(BulkRedactionSearchPost))]
+    [Function(nameof(BulkRedactionSearchStart))]
     public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.OcrSearch)] HttpRequest req, string caseUrn,
         int caseId, string materialId, long documentId, CancellationToken cancellationToken,
@@ -43,7 +40,7 @@ public class BulkRedactionSearchPost
             CorrelationId = currentCorrelationId,
         };
 
-        var response = await _bulkRedactionSearchService.InitiateOrOrchestrateOcr(bulkRedactionSearchDto, orchestrationClient, cancellationToken);
+        var response = await bulkRedactionSearchService.InitiateOrOrchestrateOcr(bulkRedactionSearchDto, orchestrationClient, cancellationToken);
 
         var statusCode = response.DocumentRefreshStatus switch
         {

@@ -1,3 +1,13 @@
+// <copyright file="PolarisPipelineBulkRedactionSearchResults.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 using Common.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,25 +18,13 @@ using Microsoft.OpenApi.Models;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Extensions;
 using PolarisGateway.Services.Artefact.Domain;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace PolarisGateway.Functions;
-
-public class PolarisPipelineBulkRedactionSearchGet : BaseFunction
+public class PolarisPipelineBulkRedactionSearchResults(ICoordinatorClient coordinatorClient) : BaseFunction
 {
-    private readonly ICoordinatorClient _coordinatorClient;
     private const string SearchTextHeader = "SearchText";
 
-    public PolarisPipelineBulkRedactionSearchGet(ICoordinatorClient coordinatorClient)
-    {
-        _coordinatorClient = coordinatorClient;
-    }
-
-    [Function("PolarisPipelineBulkRedactionSearchGet")]
-    [OpenApiOperation(operationId: "PolarisPipelineBulkRedactionSearchGet", tags: ["Documents"], Summary = "OCR Search Result", Description = "Gives the OCR search results")]
+    [Function(nameof(PolarisPipelineBulkRedactionSearchResults))]
+    [OpenApiOperation(operationId: nameof(PolarisPipelineBulkRedactionSearchResults), tags: ["Documents"], Summary = "OCR Search Result", Description = "Gives the OCR search results")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
     [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
@@ -41,7 +39,7 @@ public class PolarisPipelineBulkRedactionSearchGet : BaseFunction
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
         return await (
-            await _coordinatorClient.BulkRedactionSearchAsyncGet(
+            await coordinatorClient.BulkRedactionRetrieveSearchResultsAsync(
                 caseUrn,
                 caseId,
                 materialId,
