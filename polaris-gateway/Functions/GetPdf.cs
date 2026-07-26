@@ -26,15 +26,11 @@ public class GetPdf : BaseFunction
     private const string PdfContentType = "application/pdf";
     private const string IsOcrProcessedParamName = "isOcrProcessed";
     private const string ForceRefreshParamName = "ForceRefresh";
-    private readonly ILogger<GetPdf> logger;
     private readonly IPdfArtefactService pdfArtefactService;
 
-    public GetPdf(
-        ILogger<GetPdf> logger,
-        IPdfArtefactService pdfArtefactService)
+    public GetPdf(IPdfArtefactService pdfArtefactService)
         : base()
     {
-        this.logger = logger.ExceptionIfNull();
         this.pdfArtefactService = pdfArtefactService.ExceptionIfNull();
     }
 
