@@ -91,18 +91,28 @@ public class CoordinatorClient(IRequestFactory requestFactory, HttpClient httpCl
             RestApi.CaseSearchCountPath(caseUrn, caseId),
             correlationId);
 
-    public async Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, string materialId, long documentId, ModifyDocumentDto modifyDocumentRequest, string cmsAuthValues, Guid correlationId) =>
+    public async Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, string materialId, long documentId, ModifyDocumentDto modifyDocumentDto, string cmsAuthValues, Guid correlationId) =>
         await this.SendRequestAsync(
             HttpMethod.Post,
             RestApi.GetModifyDocumentPath(caseUrn, caseId, materialId, documentId),
             correlationId,
             cmsAuthValues,
-            new StringContent(JsonSerializer.Serialize(modifyDocumentRequest, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }), Encoding.UTF8, ContentType.Json));
+            new StringContent(JsonSerializer.Serialize(modifyDocumentDto, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }), Encoding.UTF8, ContentType.Json));
 
-    public async Task<HttpResponseMessage> BulkRedactionSearchAsync(string caseUrn, int caseId, string materialId, long documentId, string searchText, Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default) =>
+    public async Task<HttpResponseMessage> BulkRedactionInitiateSearchAsync(string caseUrn, int caseId, string materialId, long documentId,
+        Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default) =>
+        await this.SendRequestAsync(
+            HttpMethod.Post,
+            RestApi.GetBulkRedactionSearchStartPath(caseUrn, caseId, materialId, documentId),
+            correlationId,
+            cmsAuthValues,
+            cancellationToken: cancellationToken);
+
+    public async Task<HttpResponseMessage> BulkRedactionRetrieveSearchResultsAsync(string caseUrn, int caseId, string materialId, long documentId, string searchText, 
+        Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default) =>
         await this.SendRequestAsync(
             HttpMethod.Get,
-            RestApi.GetBulkRedactionSearchPathAsync(caseUrn, caseId, materialId, documentId, searchText),
+            RestApi.GetBulkRedactionSearchResultsPath(caseUrn, caseId, materialId, documentId, searchText),
             correlationId,
             cmsAuthValues,
             cancellationToken: cancellationToken);

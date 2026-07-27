@@ -1,4 +1,11 @@
+// <copyright file="BulkRedactionSearchResults.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.Functions;
+
 using Common.Configuration;
+using Common.Constants;
 using Common.Dto.Request;
 using Common.Extensions;
 using coordinator.Durable.Providers;
@@ -8,26 +15,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
-using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace coordinator.Functions;
-
-public class BulkRedactionSearch
+public class BulkRedactionSearchResults(IBulkRedactionSearchService bulkRedactionSearchService)
 {
-    private readonly ILogger<BulkRedactionSearch> _logger;
-    private readonly IBulkRedactionSearchService _bulkRedactionSearchService;
     private const string SearchTextHeader = "SearchText";
 
-    public BulkRedactionSearch(ILogger<BulkRedactionSearch> logger, IBulkRedactionSearchService bulkRedactionSearchService)
-    {
-        _logger = logger;
-        _bulkRedactionSearchService = bulkRedactionSearchService;
-    }
-
-    [Function(nameof(BulkRedactionSearch))]
+    [Function(nameof(BulkRedactionSearchResults))]
     public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.OcrSearch)] HttpRequest req, string caseUrn,
         int caseId, string materialId, long documentId, CancellationToken cancellationToken,
@@ -45,24 +41,24 @@ public class BulkRedactionSearch
             DocumentId = documentId,
             SearchText = searchText,
             CmsAuthValues = cmsAuthValues,
-            CorrelationId = currentCorrelationId
+            CorrelationId = currentCorrelationId,
         };
 
-        var bulkRedactionSearchResponse = await _bulkRedactionSearchService.BulkRedactionSearchAsync(bulkRedactionSearchDto, orchestrationClient, cancellationToken);
+        var response = await bulkRedactionSearchService.GetOcrSearchResults(bulkRedactionSearchDto, orchestrationClient, cancellationToken);
 
-        var statusCode = bulkRedactionSearchResponse.DocumentRefreshStatus switch
+        var statusCode = response.DocumentRefreshStatus switch
         {
             OrchestrationProviderStatus.Initiated => HttpStatusCode.Accepted,
-            OrchestrationProviderStatus.Processing => HttpStatusCode.Locked,
+            OrchestrationProviderStatus.Processing => HttpStatusCode.Accepted,
             OrchestrationProviderStatus.Completed => HttpStatusCode.OK,
-            OrchestrationProviderStatus.Failed when bulkRedactionSearchResponse.IsNotFound => HttpStatusCode.NotFound,
-            OrchestrationProviderStatus.Failed => HttpStatusCode.InternalServerError,
-            _ => HttpStatusCode.OK
+            OrchestrationProviderStatus.NotStarted => HttpStatusCode.BadRequest,
+            OrchestrationProviderStatus.Failed => HttpStatusCode.NotFound,
+            _ => HttpStatusCode.InternalServerError
         };
 
-        return new ObjectResult(bulkRedactionSearchResponse)
+        return new ObjectResult(response)
         {
-            StatusCode = (int?)statusCode
+            StatusCode = (int?)statusCode,
         };
     }
 }
