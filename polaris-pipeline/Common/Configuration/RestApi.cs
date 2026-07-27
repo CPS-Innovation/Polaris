@@ -8,7 +8,7 @@ public static class RestApi
     public const string Cases = "urns/{caseUrn}/cases";
     public const string Case = "urns/{caseUrn}/cases/{caseId:min(1)}";
     public const string CaseTracker = "urns/{caseUrn}/cases/{caseId:min(1)}/tracker";
-    public const string CaseSearch = "urns/{caseUrn}/cases/{caseId:min(1)}/search";
+    public const string CaseSearchLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/search";
     public const string CaseSearchCount = "urns/{caseUrn}/cases/{caseId:min(1)}/search/count";
     public const string CaseExhibitProducers = "urns/{caseUrn}/cases/{caseId:min(1)}/exhibit-producers";
     public const string CaseWitnesses = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses";
@@ -16,7 +16,7 @@ public static class RestApi
     public const string Documents = "urns/{caseUrn}/cases/{caseId:min(1)}/documents";
     public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/notes";
     public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/redact";
-    public const string ModifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/modify";
+    public const string ModifyDocumentLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/modify";
     public const string RenameDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/rename";
     public const string ReclassifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/reclassify";
     public const string Pdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/pdf";
@@ -58,13 +58,13 @@ public static class RestApi
     public const string UmaReclassify = "urns/{caseUrn}/cases/{caseId:min(1)}/uma-reclassify";
     public const string BulkSetUnused = "urns/{caseUrn}/cases/{caseId:min(1)}/bulk-set-unused";
     // Internal Pipeline
-    public const string Extract = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/extract";
-    public const string ConvertToPdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/convert-to-pdf";
-    public const string RemoveCaseIndexes = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
-    public const string CaseIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
-    public const string DocumentIndexCount = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/document-index-count";
-    public const string GenerateThumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId}/thumbnails/{maxDimensionPixel}/{pageIndex?}";
-    public const string Thumbnail = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
+    public const string ExtractLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/extract";
+    public const string ConvertToPdfLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/convert-to-pdf";
+    public const string RemoveCaseIndexesLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
+    public const string CaseIndexCountLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
+    public const string DocumentIndexCountLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/document-index-count";
+    public const string GenerateThumbnailLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId}/thumbnails/{maxDimensionPixel}/{pageIndex?}";
+    public const string ThumbnailLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
     public const string Status = "status";
     public const string Health = "health";
     public const string GetHostName = "gethostname";
@@ -106,6 +106,9 @@ public static class RestApi
     public static string GetThumbnailPath(string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int? pageIndex) =>
         $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
 
-    public static string GetBulkRedactionSearchPathAsync(string caseUrn, int caseId, string materialId, long documentId, string searchText) =>
+    public static string GetBulkRedactionSearchStartPath(string caseUrn, int caseId, string materialId, long documentId) =>
+        $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/search";
+
+    public static string GetBulkRedactionSearchResultsPath(string caseUrn, int caseId, string materialId, long documentId, string searchText) =>
         $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/search?SearchText={searchText}";
 }

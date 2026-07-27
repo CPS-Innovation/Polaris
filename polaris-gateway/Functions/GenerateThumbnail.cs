@@ -12,6 +12,7 @@ using PolarisGateway.Clients.PdfThumbnailGenerator;
 using PolarisGateway.Extensions;
 using System;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Functions;
@@ -46,9 +47,10 @@ public class GenerateThumbnail : BaseFunction
     [OpenApiParameter("pageIndex", In = ParameterLocation.Path, Type = typeof(int), Description = "The page Index of the document to generate thumbnail", Required = false)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(AddDocumentNoteRequestDto), Summary = "Case found", Description = "Returns case details")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.GenerateThumbnail)] HttpRequest req,
-        string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int? pageIndex)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.GenerateThumbnailLegacy)] HttpRequest req,
+        string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int? pageIndex, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 

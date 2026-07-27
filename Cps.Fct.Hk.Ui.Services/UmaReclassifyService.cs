@@ -21,8 +21,9 @@ public class UmaReclassifyService(ILogger<UmaReclassifyService> logger, IUmaServ
     private readonly IUmaServiceClient umaClient = umaClient;
 
     /// <inheritdoc />
-    public async Task<IReadOnlyCollection<MatchedCommunication>> ProcessMatchingRequest(int caseId, IReadOnlyCollection<Communication> communications)
+    public async Task<IReadOnlyCollection<MatchedCommunication>> ProcessMatchingRequest(int caseId, IReadOnlyCollection<Communication> communications, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(communications);
 
         try

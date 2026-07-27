@@ -1,52 +1,67 @@
+// <copyright file="PdfArtefactService.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Services.Artefact;
+
 using Common.Constants;
 using Common.Domain.Ocr;
 using Common.Extensions;
 using Common.Services.BlobStorage;
 using Common.Services.OcrService;
-using Microsoft.CodeAnalysis.Operations;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using PolarisGateway.Models;
 using PolarisGateway.Services.Artefact.Domain;
 using PolarisGateway.Services.Artefact.Factories;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Services.Artefact;
-
-public class PdfArtefactService : IPdfArtefactService
+public class PdfArtefactService(
+    IOptions<RedactionFileSizeOptions> options,
+    ILogger<PdfArtefactService> logger,
+    ICacheService cacheService,
+    IArtefactServiceResponseFactory artefactServiceResponseFactory,
+    IPdfRetrievalService pdfRetrievalService,
+    IOcrService ocrService)
+    : IPdfArtefactService
 {
-    private readonly IArtefactServiceResponseFactory _artefactServiceResponseFactory;
-    private readonly ICacheService _cacheService;
-    private readonly IPdfRetrievalService _pdfRetrievalService;
-    private readonly IOcrService _ocrService;
+    private readonly ILogger<PdfArtefactService> logger = logger.ExceptionIfNull();
+    private readonly RedactionFileSizeOptions redactionFileSizeOptions = options.Value;
+    private readonly IArtefactServiceResponseFactory artefactServiceResponseFactory = artefactServiceResponseFactory.ExceptionIfNull();
+    private readonly ICacheService cacheService = cacheService.ExceptionIfNull();
+    private readonly IPdfRetrievalService pdfRetrievalService = pdfRetrievalService.ExceptionIfNull();
+    private readonly IOcrService ocrService = ocrService.ExceptionIfNull();
 
-    public PdfArtefactService(
-        ICacheService cacheService,
-        IArtefactServiceResponseFactory artefactServiceResponseFactory,
-        IPdfRetrievalService pdfRetrievalService,
-        IOcrService ocrService)
+    public async Task<ArtefactResult<Stream>> GetPdfAsync(
+        GetPdfRequest request,
+        string cmsAuthValues,
+        Guid correlationId,
+        CancellationToken cancellationToken = default)
     {
-        _cacheService = cacheService.ExceptionIfNull();
-        _artefactServiceResponseFactory = artefactServiceResponseFactory.ExceptionIfNull();
-        _pdfRetrievalService = pdfRetrievalService.ExceptionIfNull();
-        _ocrService = ocrService.ExceptionIfNull();
-    }
+        cancellationToken.ThrowIfCancellationRequested();
 
-    public async Task<ArtefactResult<Stream>> GetPdfAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isOcrProcessed, bool forceRefresh = false)
-    {
-        if (!forceRefresh && await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed) is (true, var stream))
+        if (!request.ForceRefresh && await this.cacheService.TryGetPdfAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed) is
+            (true, var stream))
         {
-            return _artefactServiceResponseFactory.CreateOkfResult(stream, true);
+            var cachedFileSizeInMb = await this.cacheService.GetPdfSizeFromMetadataAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed);
+
+            return this.ValidateFileSizeAndCreatePdfResult(stream, request.DocumentId, true, cachedFileSizeInMb ?? 0);
         }
 
-        var result = await _pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, urn, caseId, materialId, documentId);
+        var result = await this.pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, request.Urn, request.CaseId, request.MaterialId, request.DocumentId);
 
         if (result.Status != PdfConversionStatus.DocumentConverted)
         {
-            return _artefactServiceResponseFactory.CreateFailedResult<Stream>(result.Status, result.FailedStatusCode);
+            return this.artefactServiceResponseFactory.CreateFailedResult<Stream>(result.Status, result.FailedStatusCode);
         }
 
         // Read the PDF into a byte array
         byte[] pdfBytes;
+        double fileSizeInMb;
+
         using (var buffer = new MemoryStream())
         {
             await result.PdfStream.CopyToAsync(buffer);
@@ -54,16 +69,34 @@ public class PdfArtefactService : IPdfArtefactService
         }
 
         // Process OCR and upload to cache
-        await ProcessAndUploadOcrAsync(pdfBytes, caseId, materialId, documentId, correlationId);
+        await this.ProcessAndUploadOcrAsync(pdfBytes, request.CaseId, request.MaterialId, request.DocumentId, correlationId);
 
         // For PDF upload: use another fresh MemoryStream
         using (var uploadStream = new MemoryStream(pdfBytes))
         {
-            await _cacheService.UploadPdfAsync(caseId, materialId, documentId, isOcrProcessed, uploadStream);
+            fileSizeInMb = uploadStream.Length / (1024.0 * 1024.0);
+            await this.cacheService.UploadPdfAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed, uploadStream, fileSizeInMb);
         }
 
-        var (_, pdfStream) = await _cacheService.TryGetPdfAsync(caseId, materialId, documentId, isOcrProcessed);
-        return _artefactServiceResponseFactory.CreateOkfResult(pdfStream, false);
+        var (_, pdfStream) = await this.cacheService.TryGetPdfAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed);
+
+        return this.ValidateFileSizeAndCreatePdfResult(pdfStream, request.DocumentId, false, fileSizeInMb);
+    }
+
+    private ArtefactResult<Stream> ValidateFileSizeAndCreatePdfResult(Stream pdfStream, long documentId, bool fromCache, double fileSizeInMb)
+    {
+        if (fileSizeInMb > this.redactionFileSizeOptions.FileSizeLimitMb)
+        {
+            this.logger.LogWarning(
+                "Document {DocumentId} has file size {FileSizeMb}MB which exceeds limit {FileSizeLimitMb}MB.",
+                documentId,
+                fileSizeInMb,
+                this.redactionFileSizeOptions.FileSizeLimitMb);
+
+            return this.artefactServiceResponseFactory.CreateOkResultWithLargeFileFlag(pdfStream, fromCache, true);
+        }
+
+        return this.artefactServiceResponseFactory.CreateOkfResult(pdfStream, fromCache);
     }
 
     private async Task ProcessAndUploadOcrAsync(byte[] pdfBytes, int caseId, string materialId, long documentId, Guid correlationId)
@@ -71,7 +104,7 @@ public class PdfArtefactService : IPdfArtefactService
         // For OCR: use a fresh MemoryStream
         using (var ocrStream = new MemoryStream(pdfBytes))
         {
-            var newOcrOperationId = await _ocrService.InitiateOperationAsync(ocrStream, correlationId);
+            var newOcrOperationId = await this.ocrService.InitiateOperationAsync(ocrStream, correlationId);
 
             const int maxAttempts = 10;
             const int delayMs = 1000;
@@ -81,18 +114,17 @@ public class PdfArtefactService : IPdfArtefactService
 
             while (attempt < maxAttempts)
             {
-                ocrResult = await _ocrService.GetOperationResultsAsync(newOcrOperationId, correlationId);
+                ocrResult = await this.ocrService.GetOperationResultsAsync(newOcrOperationId, correlationId);
 
                 if (ocrResult.IsSuccess && ocrResult.AnalyzeResults != null)
                 {
-                    await _cacheService.UploadJsonObjectAsync(caseId, materialId, documentId, BlobType.Ocr, ocrResult.AnalyzeResults);
+                    await this.cacheService.UploadJsonObjectAsync(caseId, materialId, documentId, BlobType.Ocr, ocrResult.AnalyzeResults);
                     ocrSuccess = true;
                     break;
                 }
 
                 await Task.Delay(delayMs);
                 attempt++;
-
             }
 
             if (!ocrSuccess)

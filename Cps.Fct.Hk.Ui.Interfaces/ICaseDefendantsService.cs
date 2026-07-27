@@ -18,6 +18,7 @@ public interface ICaseDefendantsService
     /// </summary>
     /// <param name="caseId">Unique identifier of the case to retrieve defendants for.</param>
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve defendants.</param>
+    /// <param name="cancellationToken">Cancelltion token.</param>
     /// <returns>A task <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task<DefendantsResponse> GetCaseDefendantsAsync(int caseId, CmsAuthValues cmsAuthValues);
+    Task<DefendantsResponse> GetCaseDefendantsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 }

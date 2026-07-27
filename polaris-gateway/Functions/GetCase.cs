@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Net;
+using System.Threading;
 using PolarisGateway.Services.MdsOrchestration;
 using System.Threading.Tasks;
 
@@ -43,7 +44,7 @@ public class GetCase : BaseFunction
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK,contentType: "application/json",bodyType: typeof(object),Summary = "Case found",Description = "Returns case details")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request",Description = "Missing or invalid parameters")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId, CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
 
@@ -51,7 +52,7 @@ public class GetCase : BaseFunction
 
         var arg = _mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
 
-        var result = await _mdsOrchestrationService.GetCase(arg);
+        var result = await _mdsOrchestrationService.GetCase(arg, cancellationToken);
 
         return new OkObjectResult(result);
     }

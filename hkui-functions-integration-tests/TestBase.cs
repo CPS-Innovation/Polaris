@@ -415,7 +415,7 @@ public class TestBase
 
         AuthenticationContext authContext = await this.AuthenticateAsync(authenticationRequest).ConfigureAwait(true);
 
-        CmsAuthValues cmsAuthValues = new CmsAuthValues(authContext.Cookies, authContext.Token);
+        CmsAuthValues cmsAuthValues = new CmsAuthValues(authContext.ToString());
 
         var request = new ListCommunicationsHkRequest(caseId, Guid.NewGuid());
 

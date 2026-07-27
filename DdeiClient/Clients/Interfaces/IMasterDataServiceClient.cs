@@ -25,103 +25,115 @@ namespace DdeiClient.Clients.Interfaces
         /// <remarks>
         /// If the case summary is not found, the method returns <c>null</c>. The caller should handle the <c>null</c> return value accordingly.
         /// </remarks>
-        Task<CaseSummaryResponse> GetCaseSummaryAsync(GetCaseSummaryRequest request, CmsAuthValues cmsAuthValues);
+        Task<CaseSummaryResponse> GetCaseSummaryAsync(GetCaseSummaryRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Lists the communications for a case identifier.
         /// </summary>
         /// <param name="request">The request to list communications.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A list of communications for a case identifier.</returns>
-        Task<IReadOnlyCollection<Communication>> ListCommunicationsHkAsync(ListCommunicationsHkRequest request, CmsAuthValues cmsAuthValues);
+        Task<IReadOnlyCollection<Communication>> ListCommunicationsHkAsync(ListCommunicationsHkRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Lists the used statements for a case identifier.
         /// </summary>
         /// <param name="request">The request to list used statements.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A list of used statements for a case identifier.</returns>
-        Task<UsedStatementsResponse> GetUsedStatementsAsync(GetUsedStatementsRequest request, CmsAuthValues cmsAuthValues);
+        Task<UsedStatementsResponse> GetUsedStatementsAsync(GetUsedStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Lists the used exhibits for a case identifier.
         /// </summary>
         /// <param name="request">The request to list used exhibits.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A list of used exhibits for a case identifier.</returns>
-        Task<UsedExhibitsResponse> GetUsedExhibitsAsync(GetUsedExhibitsRequest request, CmsAuthValues cmsAuthValues);
+        Task<UsedExhibitsResponse> GetUsedExhibitsAsync(GetUsedExhibitsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Lists the used MG forms for a case identifier.
         /// </summary>
         /// <param name="request">The request to list used MG forms.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A list of used MG forms for a case identifier.</returns>
-        Task<UsedMgFormsResponse> GetUsedMgFormsAsync(GetUsedMgFormsRequest request, CmsAuthValues cmsAuthValues);
+        Task<UsedMgFormsResponse> GetUsedMgFormsAsync(GetUsedMgFormsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Lists the used other materials for a case identifier.
         /// </summary>
         /// <param name="request">The request to list used other materials.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A list of used other materials for a case identifier.</returns>
-        Task<UsedOtherMaterialsResponse> GetUsedOtherMaterialsAsync(GetUsedOtherMaterialsRequest request, CmsAuthValues cmsAuthValues);
+        Task<UsedOtherMaterialsResponse> GetUsedOtherMaterialsAsync(GetUsedOtherMaterialsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Lists the unused materials for a case identifier.
         /// </summary>
         /// <param name="request">The request to list unused materials.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A list of unused materials for a case identifier.</returns>
-        Task<UnusedMaterialsResponse> GetUnusedMaterialsAsync(GetUnusedMaterialsRequest request, CmsAuthValues cmsAuthValues);
+        Task<UnusedMaterialsResponse> GetUnusedMaterialsAsync(GetUnusedMaterialsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets exhibit producers for a given case Id.
         /// </summary>
         /// <param name="request">The request for exhibit producers.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A list of exhibit producers</returns>
-        Task<ExhibitProducersResponse> GetExhibitProducersAsync(GetExhibitProducersRequest request, CmsAuthValues cmsAuthValues);
+        Task<ExhibitProducersResponse> GetExhibitProducersAsync(GetExhibitProducersRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Asynchronously retrieves the attachments for a given communication identifier.
         /// </summary>
         /// <param name="request">The request containing the parameters required to fetch the attachments.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A task representing the asynchronous operation, which returns the attachments response.</returns>
-        Task<AttachmentsResponse> GetAttachmentsAsync(GetAttachmentsRequest request, CmsAuthValues cmsAuthValues);
+        Task<AttachmentsResponse> GetAttachmentsAsync(GetAttachmentsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Asynchronously retrieves the material document for the specified request.
         /// </summary>
         /// <param name="request">The request containing the document parameters.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A task representing the asynchronous operation, which returns a <see cref="FileStreamResult"/> if the document is found; otherwise, <c>null</c>.</returns>
-        Task<FileStreamResult?> GetMaterialDocumentAsync(GetDocumentRequest request, CmsAuthValues cmsAuthValues);
+        Task<FileStreamResult?> GetMaterialDocumentAsync(GetDocumentRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets case defendants.
         /// </summary>
         /// <param name="request">The request to list defendants.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A list of defendants for a case identifier.</returns>
-        Task<DefendantsResponse?> GetCaseDefendantsAsync(ListCaseDefendantsRequest request, CmsAuthValues cmsAuthValues);
+        Task<DefendantsResponse?> GetCaseDefendantsAsync(ListCaseDefendantsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets witnesses belonging to the case.
         /// </summary>
         /// <param name="request">GetWitnessRequest.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>List of witnesses.</returns>
-        Task<WitnessesResponse> GetCaseWitnessesAsync(GetCaseWitnessesRequest request, CmsAuthValues cmsAuthValues);
+        Task<WitnessesResponse> GetCaseWitnessesAsync(GetCaseWitnessesRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets statements for a witness.
         /// </summary>
         /// <param name="request">The request object.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns><see cref="Task"/> representing the asynchronous operation.</returns>
-        Task<WitnessStatementsResponse> GetWitnessStatementsAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues);
+        Task<WitnessStatementsResponse> GetWitnessStatementsAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Adds a case action plan for a given case Id.
@@ -129,96 +141,108 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="caseId">The case Id.</param>
         /// <param name="request">The request object.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a <see cref="NoContentResult"/> indicating success without a specific content body.</returns>
-        Task<NoContentResult> AddCaseActionPlanAsync(int caseId, AddActionPlanRequest request, CmsAuthValues cmsAuthValues);
+        Task<NoContentResult> AddCaseActionPlanAsync(int caseId, AddActionPlanRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Asynchronously adds a new case witness.
         /// </summary>
         /// <param name="request">The request to add a witness.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a <see cref="NoContentResult"/> indicating success without a specific content body.</returns>
-        Task<NoContentResult> AddWitnessAsync(AddWitnessRequest request, CmsAuthValues cmsAuthValues);
+        Task<NoContentResult> AddWitnessAsync(AddWitnessRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Asynchronously renames a material name using material id.
         /// </summary>
         /// <param name="request">The request to add a witness.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>RenameMaterialResponse object.</returns>
-        Task<RenameMaterialResponse> RenameMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues);
+        Task<RenameMaterialResponse> RenameMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Reclassifies a communication for a material identifier.
         /// </summary>
         /// <param name="request">The request to add a witness.</param>
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>ReclassificationResponse object.</returns>
-        Task<ReclassificationResponse> ReclassifyCommunicationAsync(ReclassifyCommunicationRequest request, CmsAuthValues cmsAuthValues);
+        Task<ReclassificationResponse> ReclassifyCommunicationAsync(ReclassifyCommunicationRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Asynchronously check case lock status.
         /// </summary>
         /// <param name="caseId">The ID of the case to be unlocked.</param>
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<CaseLockedStatusResult> CheckCaseLockAsync(int caseId, CmsAuthValues cmsAuthValues);
+        Task<CaseLockedStatusResult> CheckCaseLockAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Asynchronously discards a material using material id.
         /// </summary>
         /// <param name="request">The discard material request.</param>
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<DiscardMaterialResponse> DiscardMaterialAsync(DiscardMaterialRequest request, CmsAuthValues cmsAuthValues);
+        Task<DiscardMaterialResponse> DiscardMaterialAsync(DiscardMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Asynchronously discards a material using material id.
         /// </summary>
         /// <param name="request">The discard material request.</param>
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<SetMaterialReadStatusResponse> SetMaterialReadStatusAsync(SetMaterialReadStatusRequest request, CmsAuthValues cmsAuthValues);
+        Task<SetMaterialReadStatusResponse> SetMaterialReadStatusAsync(SetMaterialReadStatusRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get PCD Requests core/basic info by case id.
         /// </summary>
         /// <param name="request">The GetPcdRequestsCore request.</param>
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<List<PcdRequestCore>> GetPcdRequestCoreAsync(GetPcdRequestsCoreRequest request, CmsAuthValues cmsAuthValues);
+        Task<List<PcdRequestCore>> GetPcdRequestCoreAsync(GetPcdRequestsCoreRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get PCD request overview by case id and PCD id.
         /// </summary>
         /// <param name="request">The GetPcdRequestByPcdIdCore request.</param>
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(GetPcdRequestByPcdIdCoreRequest request, CmsAuthValues cmsAuthValues);
+        Task<PcdRequestDto> GetPcdRequestByPcdIdAsync(GetPcdRequestByPcdIdCoreRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Asynchronously updates statemenet.
         /// </summary>
         /// <param name="request">The statement request.</param>
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<UpdateStatementResponse> UpdateStatementAsync(UpdateStatementRequest request, CmsAuthValues cmsAuthValues);
+        Task<UpdateStatementResponse> UpdateStatementAsync(UpdateStatementRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Asynchronously updates exhibit.
         /// </summary>
         /// <param name="request">The exhibit request.</param>
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<UpdateExhibitResponse> UpdateExhibitAsync(UpdateExhibitRequest request, CmsAuthValues cmsAuthValues);
+        Task<UpdateExhibitResponse> UpdateExhibitAsync(UpdateExhibitRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get First Initial Review Get Case History.
         /// </summary>
         /// <param name="caseId">The caseId.</param>
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<ApiClient.PreChargeDecisionAnalysisOutcome> FirstInitialReviewGetCaseHistoryAsync(int caseId, CmsAuthValues cmsAuthValues);
+        Task<ApiClient.PreChargeDecisionAnalysisOutcome> FirstInitialReviewGetCaseHistoryAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get Initial Review ByHistoryId.
@@ -228,7 +252,7 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
         /// <param name="cancellationToken">The cancellationToken required for the API call.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken);
+        Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetInitialReviewByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get PCD Analysis ByHistoryId.
@@ -238,15 +262,16 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
         /// <param name="cancellationToken">The cancellationToken required for the API call.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetPcdAnalysisByIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken);
+        Task<ApiClient.PreChargeDecisionAnalysisOutcome> GetPcdAnalysisByIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// GetHistoryEvents.
         /// </summary>
         /// <param name="caseId">The caseId.</param>
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues);
+        Task<ICollection<ApiClient.HistoryEvent>> GetHistoryEventsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get Offence Charge.
@@ -254,16 +279,18 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="caseId">The caseId.</param>
         /// <param name="historyId">History Id.</param>
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<ApiClient.OffenceChangeResponse> GetOffenceChargeByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues);
+        Task<ApiClient.OffenceChangeResponse> GetOffenceChargeByHistoryIdAsync(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get Pre Charge Decision Case History Event Details.
         /// </summary>
         /// <param name="caseId">Case Id.</param>
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionCaseHistoryEventDetailsAsync(int caseId, CmsAuthValues cmsAuthValues);
+        Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionCaseHistoryEventDetailsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get Pre Charge Decision By History Id.
@@ -271,15 +298,17 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="caseId">Case Id.</param>
         /// <param name="historyId">History Id.</param>
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionByHistoryId(int caseId, int historyId, CmsAuthValues cmsAuthValues);
+        Task<ApiClient.PreChargeDecisionOutcome> GetPreChargeDecisionByHistoryId(int caseId, int historyId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Get Pcd review.
         /// </summary>
         /// <param name="caseId">The case id.</param>
         /// <param name="cmsAuthValues">The CMS authentication values required for the API call.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
-        Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues);
+        Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
     }
 }

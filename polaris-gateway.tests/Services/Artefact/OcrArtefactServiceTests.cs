@@ -161,7 +161,13 @@ public class OcrArtefactServiceTests
         };
 
         _pdfArtefactServiceMock
-            .Setup(x => x.GetPdfAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, false))
+            .Setup(x => x.GetPdfAsync(It.Is<GetPdfRequest>(r =>
+                r.Urn == _urn &&
+                r.CaseId == _caseId &&
+                r.MaterialId == _documentId &&
+                r.DocumentId == _versionId &&
+                r.IsOcrProcessed == false &&
+                r.ForceRefresh == false), _cmsAuthValues, _correlationId, default))
             .ReturnsAsync(pdfResult);
 
         var expectedResult = new ArtefactResult<AnalyzeResults>();
@@ -192,7 +198,13 @@ public class OcrArtefactServiceTests
         };
 
         _pdfArtefactServiceMock
-            .Setup(x => x.GetPdfAsync(_cmsAuthValues, _correlationId, _urn, _caseId, _documentId, _versionId, false, false))
+            .Setup(x => x.GetPdfAsync(It.Is<GetPdfRequest>(r =>
+                r.Urn == _urn &&
+                r.CaseId == _caseId &&
+                r.MaterialId == _documentId &&
+                r.DocumentId == _versionId &&
+                r.IsOcrProcessed == false &&
+                r.ForceRefresh == false), _cmsAuthValues, _correlationId, default))
             .ReturnsAsync(pdfResult);
 
         var newOperationId = _fixture.Create<Guid>();

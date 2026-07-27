@@ -39,7 +39,7 @@ public class DocumentService(
     private readonly BlobServiceClient? blobServiceClient = blobServiceClient;
 
     /// <inheritdoc/>
-    public async Task<FileStreamResult?> GetMaterialDocumentAsync(string caseId, string link, CmsAuthValues cmsAuthValues, bool firstPageOnly = true)
+    public async Task<FileStreamResult?> GetMaterialDocumentAsync(string caseId, string link, CmsAuthValues cmsAuthValues, bool firstPageOnly = true, CancellationToken cancellationToken = default)
     {
         string? tmpFileDownloadName = null;
         string? blobContainerName = this.configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty;
@@ -67,7 +67,7 @@ public class DocumentService(
                 bool tmpSaved;
 
                 // Save the document to temporary storage (Blob storage in this case)
-                tmpSaved = await this.conversionService.SaveDownloadedDocumentToTemporaryStorageAsync(downloadedDocument).ConfigureAwait(true);
+                tmpSaved = await this.conversionService.SaveDownloadedDocumentToTemporaryStorageAsync(downloadedDocument, cancellationToken).ConfigureAwait(true);
 
                 if (tmpSaved)
                 {
@@ -75,7 +75,7 @@ public class DocumentService(
                     string fileDownloadName = $"{tmpFileDownloadName}.pdf";
 
                     // Convert the saved document to a PDF and store it in Blob Storage
-                    string? pdfBlobUrl = await this.conversionService.ConvertToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly).ConfigureAwait(true);
+                    string? pdfBlobUrl = await this.conversionService.ConvertToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken).ConfigureAwait(true);
 
                     if (pdfBlobUrl == null)
                     {
@@ -89,7 +89,7 @@ public class DocumentService(
                             .GetBlobClient($"preview_{tmpFileDownloadName}.pdf");
 
                         var pdfStream = new MemoryStream();
-                        await blobClient.DownloadToAsync(pdfStream).ConfigureAwait(false);
+                        await blobClient.DownloadToAsync(pdfStream, cancellationToken).ConfigureAwait(false);
                         pdfStream.Position = 0; // Reset stream position for reading
 
                         return new FileStreamResult(pdfStream, "application/pdf")
@@ -131,7 +131,7 @@ public class DocumentService(
             {
                 if (!string.IsNullOrEmpty(blobContainerName))
                 {
-                    await this.DeleteBlobAsync(blobContainerName, $"tmp_{tmpFileDownloadName}", "Temporary file").ConfigureAwait(false);
+                    await this.DeleteBlobAsync(blobContainerName, $"tmp_{tmpFileDownloadName}", "Temporary file", cancellationToken).ConfigureAwait(false);
                     await this.DeleteBlobAsync(blobContainerName, $"preview_{tmpFileDownloadName}.pdf", "Temporary preview or full document").ConfigureAwait(false);
                 }
             }
@@ -144,10 +144,11 @@ public class DocumentService(
     /// <param name="blobContainerName">The name of the blob container where the blob is stored.</param>
     /// <param name="blobName">The name of the blob to be deleted.</param>
     /// <param name="description">A description of the blob (used in log messages).</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the blobServiceClient is not initialized.</exception>
     /// <exception cref="ArgumentNullException">Thrown if the blob container name is null or empty.</exception>
-    internal async Task DeleteBlobAsync(string blobContainerName, string blobName, string description)
+    internal async Task DeleteBlobAsync(string blobContainerName, string blobName, string description, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -168,7 +169,7 @@ public class DocumentService(
                 .GetBlobClient(blobName);
 
             // Delete the blob
-            await blobClient.DeleteIfExistsAsync().ConfigureAwait(false);
+            await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} {description} [{blobName}] deleted from Blob Storage.");
         }

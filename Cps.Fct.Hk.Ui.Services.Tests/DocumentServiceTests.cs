@@ -64,7 +64,7 @@ public class DocumentServiceTests
         // Arrange
         string caseId = "123";
         string link = "/case/material/document.txt";
-        var cmsAuthValues = new CmsAuthValues("valid cookies", "valid token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
         var mockFileStreamResult = new FileStreamResult(new MemoryStream(), "text/plain") { FileDownloadName = "preview_document" };
         string blobContainerName = "test-container";
         string pdfBlobUrl = "https://blobstorage/test/preview_document.pdf";
@@ -140,7 +140,7 @@ public class DocumentServiceTests
         // Arrange
         string caseId = "123";
         string link = "/case/material/missing_document.txt";
-        var cmsAuthValues = new CmsAuthValues("valid cookies", "valid token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
 
         this.mockApiClient
             .Setup(client => client.GetMaterialDocumentAsync(It.IsAny<GetDocumentRequest>(), cmsAuthValues))
@@ -173,7 +173,7 @@ public class DocumentServiceTests
         // Arrange
         string caseId = "123";
         string link = "/case/material/document.txt";
-        var cmsAuthValues = new CmsAuthValues("valid cookies", "valid token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
         var exception = new Exception("DDEI API error");
 
         this.mockApiClient
@@ -208,7 +208,7 @@ public class DocumentServiceTests
         // Arrange
         string caseId = "123";
         string link = "/case/material/document.txt";
-        var cmsAuthValues = new CmsAuthValues("valid cookies", "valid token", Guid.NewGuid());
+        var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
         var exception = new NotSupportedException("DDEI API error");
 
         this.mockApiClient

@@ -20,6 +20,7 @@ public interface IBulkSetUnusedService
     /// <param name="caseId">The case ID.</param>
     /// <param name="cmsAuthValues">The authentication values for CMS access.</param>
     /// <param name="bulkSetUnusedRequests">The materials to reclassify as unused.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that returns the bulk set response.</returns>
-    Task<BulkSetUnusedResponse> BulkSetUnusedAsync(int caseId, CmsAuthValues cmsAuthValues, IReadOnlyCollection<BulkSetUnusedRequest> bulkSetUnusedRequests);
+    Task<BulkSetUnusedResponse> BulkSetUnusedAsync(int caseId, CmsAuthValues cmsAuthValues, IReadOnlyCollection<BulkSetUnusedRequest> bulkSetUnusedRequests, CancellationToken cancellationToken = default);
 }

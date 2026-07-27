@@ -17,7 +17,7 @@ namespace pdf_redactor.Services.Extensions
             // Aspose-specific services
             services.AddSingleton<IRedactionProvider, AsposeRedactionProvider>();
             services.AddSingleton<ICoordinateCalculator, CoordinateCalculator>();
-            services.AddSingleton<IRedactionImplementation, ImageConversionImplementation>();
+            services.AddSingleton<IRedactionImplementation, DirectImplementation>();
             services.AddSingleton<IDocumentManipulationProvider, AsposeDocumentManipulationProvider>();
             services.Configure<ImageConversionOptions>(configuration.GetSection(ImageConversionOptions.ConfigKey));
         }

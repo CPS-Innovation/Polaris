@@ -1,44 +1,56 @@
-using System.Net;
-using System.Net.Http.Headers;
+// <copyright file="ServiceExtensions.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.ApplicationStartup;
+
+using Common.Clients.PdfGenerator;
+using Common.Factories.ComputerVisionClientFactory;
+using Common.Services.BlobStorage;
+using Common.Services.DocumentToggle;
+using Common.Services.OcrService;
+using Common.Services.PiiService;
+using Common.Telemetry;
+using Common.Wrappers;
+using Cps.Fct.Hk.Ui.Interfaces;
+using Cps.Fct.Hk.Ui.ServiceClient.Uma;
+using Cps.Fct.Hk.Ui.ServiceClient.Uma.Configuration;
+using Cps.Fct.Hk.Ui.Services;
+using Cps.Fct.Hk.Ui.Services.Validators;
+using Ddei.Extensions;
+using DdeiClient.Clients;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Configuration;
+using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Common.Telemetry;
-using Common.Wrappers;
 using PolarisGateway.Clients.Coordinator;
+using PolarisGateway.Clients.PdfThumbnailGenerator;
 using PolarisGateway.Mappers;
+using PolarisGateway.Models;
+using PolarisGateway.Services.Artefact;
+using PolarisGateway.Services.MdsOrchestration;
 using PolarisGateway.Validators;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
-using Ddei.Extensions;
-using Common.Services.DocumentToggle;
-using Common.Services.OcrService;
-using Common.Factories.ComputerVisionClientFactory;
-using Common.Clients.PdfGenerator;
-using Common.Services.BlobStorage;
-using Common.Services.PiiService;
-using PolarisGateway.Clients.PdfThumbnailGenerator;
-using PolarisGateway.Services.Artefact;
-using PolarisGateway.Services.MdsOrchestration;
-using System.Net.Http;
 using System;
-using Cps.Fct.Hk.Ui.Interfaces;
-using Cps.Fct.Hk.Ui.Services;
-using DdeiClient.Clients.Interfaces;
-using DdeiClient.Clients;
-using DdeiClient.Configuration;
-using Common.Mappers;
-using Cps.Fct.Hk.Ui.Services.Validators;
-using Cps.Fct.Hk.Ui.ServiceClient.Uma;
-using Cps.Fct.Hk.Ui.ServiceClient.Uma.Configuration;
-
-namespace PolarisGateway.ApplicationStartup;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 public static class ServiceExtensions
 {
     private const int RetryAttempts = 2;
     private const int FirstRetryDelaySeconds = 1;
+
+    private static IAsyncPolicy<HttpResponseMessage> RetryPolicy =>
+    Policy
+        .HandleResult<HttpResponseMessage>((result) => ShouldRetry(result.RequestMessage, result))
+        .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(
+            medianFirstRetryDelay: TimeSpan.FromSeconds(FirstRetryDelaySeconds),
+            retryCount: RetryAttempts));
 
     public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
@@ -77,6 +89,10 @@ public static class ServiceExtensions
         services.AddPiiService();
         services.AddArtefactService();
         services.AddMdsOrchestrationService();
+        services.Configure<RedactionFileSizeOptions>(configuration.GetSection(RedactionFileSizeOptions.ConfigKey));
+
+        services.AddMemoryCache();
+        services.AddScoped<ICaseUrnResolver, CaseUrnResolver>();
 
         // House keeping.
         services.AddSingleton<ICaseInfoService, CaseInfoService>();
@@ -97,7 +113,7 @@ public static class ServiceExtensions
         services.AddSingleton<ICaseDefendantsService, CaseDefendantsService>();
         services.AddSingleton<IUmaReclassifyService, UmaReclassifyService>();
         services.AddSingleton<IBulkSetUnusedService, BulkSetUnusedService>();
-        services.AddSingleton<IUmaServiceClient,  UmaServiceClient>();
+        services.AddSingleton<IUmaServiceClient, UmaServiceClient>();
 
         // Add validators
         services.AddSingleton<RenameMaterialRequestValidator>();
@@ -136,15 +152,6 @@ public static class ServiceExtensions
 
         return secret;
     }
-
-
-    private static IAsyncPolicy<HttpResponseMessage> RetryPolicy =>
-        // https://learn.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/implement-http-call-retries-exponential-backoff-polly#add-a-jitter-strategy-to-the-retry-policy
-        Policy
-            .HandleResult<HttpResponseMessage>((result) => ShouldRetry(result.RequestMessage, result))
-            .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(
-                medianFirstRetryDelay: TimeSpan.FromSeconds(FirstRetryDelaySeconds),
-                retryCount: RetryAttempts));
 
     private static bool ShouldRetry(HttpRequestMessage request, HttpResponseMessage response)
     {
