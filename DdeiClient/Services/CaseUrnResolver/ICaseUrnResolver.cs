@@ -2,7 +2,7 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace PolarisGateway.Services.CaseUrnResolver;
+namespace DdeiClient.Services.CaseUrnResolver;
 
 using Common.Dto.Request;
 using System;
