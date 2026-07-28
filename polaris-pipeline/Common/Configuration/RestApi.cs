@@ -59,6 +59,7 @@ public static class RestApi
     public const string BulkSetUnused = "urns/{caseUrn}/cases/{caseId:min(1)}/bulk-set-unused";
     // Internal Pipeline
     public const string ExtractLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/extract";
+    public const string ConvertToPdf = "cases/{caseId:min(1)}/materials/{materialId}/documents/{documentId:min(1)}/convert-to-pdf";
     public const string ConvertToPdfLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/convert-to-pdf";
     public const string RemoveCaseIndexesLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
     public const string CaseIndexCountLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
