@@ -11,14 +11,14 @@ using Microsoft.DurableTask.Client;
 
 namespace coordinator.Functions.Maintenance
 {
-    public class DeleteCase
+    public class DeleteCaseLegacy
     {
-        private readonly ILogger<DeleteCase> _logger;
+        private readonly ILogger<DeleteCaseLegacy> _logger;
         private readonly IOrchestrationProvider _orchestrationProvider;
         private readonly IClearDownService _clearDownService;
 
-        public DeleteCase(
-            ILogger<DeleteCase> logger,
+        public DeleteCaseLegacy(
+            ILogger<DeleteCaseLegacy> logger,
             IOrchestrationProvider orchestrationProvider,
             IClearDownService clearDownService)
         {
@@ -27,7 +27,7 @@ namespace coordinator.Functions.Maintenance
             _clearDownService = clearDownService;
         }
 
-        [Function(nameof(DeleteCase))]
+        [Function(nameof(DeleteCaseLegacy))]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Run(

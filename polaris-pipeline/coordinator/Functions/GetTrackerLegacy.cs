@@ -16,20 +16,20 @@ using coordinator.Services;
 
 namespace coordinator.Functions;
 
-public class GetTracker
+public class GetTrackerLegacy
 {
-    const string loggingName = $"{nameof(GetTracker)} - {nameof(HttpStart)}";
+    const string loggingName = $"{nameof(GetTrackerLegacy)} - {nameof(HttpStart)}";
 
     private readonly IJsonConvertWrapper _jsonConvertWrapper;
     private readonly ICaseDurableEntityMapper _caseDurableEntityMapper;
     private readonly IStateStorageService _stateStorageService;
-    private readonly ILogger<GetTracker> _logger;
+    private readonly ILogger<GetTrackerLegacy> _logger;
 
-    public GetTracker(
+    public GetTrackerLegacy(
         IJsonConvertWrapper jsonConvertWrapper,
         ICaseDurableEntityMapper caseDurableEntityMapper,
         IStateStorageService stateStorageService,
-        ILogger<GetTracker> logger)
+        ILogger<GetTrackerLegacy> logger)
     {
         _jsonConvertWrapper = jsonConvertWrapper;
         _caseDurableEntityMapper = caseDurableEntityMapper;
@@ -37,7 +37,7 @@ public class GetTracker
         _logger = logger;
     }
 
-    [Function(nameof(GetTracker))]
+    [Function(nameof(GetTrackerLegacy))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

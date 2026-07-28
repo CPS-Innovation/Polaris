@@ -31,10 +31,10 @@ namespace coordinator.tests.Domain.Response.Documents
         private readonly Guid _correlationId;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
         private readonly Mock<IStateStorageService> _mockStateStorageService;
-        private readonly Mock<ILogger<GetTracker>> _mockLogger;
+        private readonly Mock<ILogger<GetTrackerLegacy>> _mockLogger;
         private readonly CaseDurableEntityState _caseDurableEntityState;
         private readonly CaseDurableEntityDocumentsState _caseDurableEntityDocumentsState;
-        private readonly GetTracker _trackerStatus;
+        private readonly GetTrackerLegacy _trackerStatus;
 
         public TrackerTests()
         {
@@ -60,14 +60,14 @@ namespace coordinator.tests.Domain.Response.Documents
 
             _jsonConvertWrapper = _fixture.Create<JsonConvertWrapper>();
 
-            _mockLogger = new Mock<ILogger<GetTracker>>();
+            _mockLogger = new Mock<ILogger<GetTrackerLegacy>>();
             _mockStateStorageService = new Mock<IStateStorageService>();
             _mockStateStorageService.Setup(s => s.GetStateAsync(_caseId))
                 .ReturnsAsync(_caseDurableEntityState);
             _mockStateStorageService.Setup(s => s.GetDurableEntityDocumentsStateAsync(_caseId))
                 .ReturnsAsync(_caseDurableEntityDocumentsState);
 
-            _trackerStatus = new GetTracker(_jsonConvertWrapper, new CaseDurableEntityMapper(), _mockStateStorageService.Object, _mockLogger.Object);
+            _trackerStatus = new GetTrackerLegacy(_jsonConvertWrapper, new CaseDurableEntityMapper(), _mockStateStorageService.Object, _mockLogger.Object);
         }
 
         [Fact]
