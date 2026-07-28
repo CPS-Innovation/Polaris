@@ -32,23 +32,16 @@ using pdf_generator.TelemetryEvents;
 /// <param name="pdfOrchestratorService">The service used to orchestrate PDF conversion by selecting appropriate format-specific PDF service for the input document.</param>
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="telemetryClient">The telemetry client used to track application events and metrics.</param>
-public class ConvertToPdf
+public class ConvertToPdf(
+     IPdfOrchestratorService pdfOrchestratorService,
+     ILogger<ConvertToPdf> logger,
+     ITelemetryClient telemetryClient)
 {
     private const string LoggingName = nameof(ConvertToPdf);
 
-    private readonly IPdfOrchestratorService _pdfOrchestratorService;
-    private readonly ILogger<ConvertToPdf> _logger;
-    private readonly ITelemetryClient _telemetryClient;
-
-    public ConvertToPdf(
-         IPdfOrchestratorService pdfOrchestratorService,
-         ILogger<ConvertToPdf> logger,
-         ITelemetryClient telemetryClient)
-    {
-        this._pdfOrchestratorService = pdfOrchestratorService;
-        this._logger = logger;
-        this._telemetryClient = telemetryClient;
-    }
+    private readonly IPdfOrchestratorService pdfOrchestratorService = pdfOrchestratorService;
+    private readonly ILogger<ConvertToPdf> logger = logger;
+    private readonly ITelemetryClient telemetryClient = telemetryClient;
 
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.UnsupportedMediaType)]
@@ -60,9 +53,7 @@ public class ConvertToPdf
         string materialId,
         string documentId)
     {
-        Guid currentCorrelationId = default;
-        currentCorrelationId = request.Headers.GetCorrelationId();
-
+        var currentCorrelationId = request.Headers.GetCorrelationId();
         var telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId)
         {
             OperationName = nameof(ConvertToPdf),
@@ -90,7 +81,7 @@ public class ConvertToPdf
             var originalBytes = inputStream.Length;
             telemetryEvent.OriginalBytes = originalBytes;
 
-            var conversionResult = await this._pdfOrchestratorService.ReadToPdfStreamAsync(inputStream, fileType, materialId, currentCorrelationId);
+            var conversionResult = await this.pdfOrchestratorService.ReadToPdfStreamAsync(inputStream, fileType, materialId, currentCorrelationId);
 
             // #25834 - Successfully converted documents may still have a failure reason we need to record
             if (conversionResult.HasFailureReason())
@@ -106,7 +97,7 @@ public class ConvertToPdf
                 telemetryEvent.EndTime = DateTime.UtcNow;
                 telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
 
-                this._telemetryClient.TrackEvent(telemetryEvent);
+                this.telemetryClient.TrackEvent(telemetryEvent);
 
                 return new FileStreamResult(conversionResult.ConvertedDocument, "application/pdf")
                 {
@@ -115,7 +106,7 @@ public class ConvertToPdf
             }
 
             telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
-            this._telemetryClient.TrackEventFailure(telemetryEvent);
+            this.telemetryClient.TrackEventFailure(telemetryEvent);
 
             return new ObjectResult(conversionResult.ConversionStatus)
             {
@@ -124,10 +115,10 @@ public class ConvertToPdf
         }
         catch (Exception exception)
         {
-            this._logger.LogMethodError(currentCorrelationId, LoggingName, exception.Message, exception);
+            this.logger.LogMethodError(currentCorrelationId, LoggingName, exception.Message, exception);
 
             telemetryEvent.FailureReason = exception.Message;
-            this._telemetryClient.TrackEventFailure(telemetryEvent);
+            this.telemetryClient.TrackEventFailure(telemetryEvent);
 
             return new ObjectResult(exception.ToFormattedString())
             {
