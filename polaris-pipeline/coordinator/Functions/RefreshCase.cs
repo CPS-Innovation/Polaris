@@ -40,7 +40,7 @@ public class RefreshCase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Run
     (
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Case)] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.CaseLegacy)] HttpRequest req,
         string caseUrn,
         int caseId,
         [DurableClient] DurableTaskClient orchestrationClient

@@ -38,7 +38,7 @@ namespace pdf_redactor.Functions
 
         [Function(nameof(RedactPdf))]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)] HttpRequest request,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocumentLegacy)] HttpRequest request,
             string caseUrn,
             int caseId,
             string materialId,

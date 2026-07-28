@@ -26,7 +26,7 @@ namespace coordinator.Functions.Maintenance
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearchCount)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearchCountLegacy)] HttpRequest req,
             string caseUrn,
             int caseId)
         {

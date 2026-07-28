@@ -51,7 +51,7 @@ public class RedactDocument
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> HttpStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocumentLegacy)]
         HttpRequest req,
         string caseUrn,
         int caseId,
