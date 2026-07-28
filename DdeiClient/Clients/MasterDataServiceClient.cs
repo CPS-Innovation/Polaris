@@ -230,7 +230,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                          mgForm.MaterialType,
                          null,
                          mgForm.Link,
-                         mgForm.Date.ToString(),
+                         mgForm.Status.ToString(),
                          mgForm.Date?.DateTime)).ToList(),
                 };
             }
