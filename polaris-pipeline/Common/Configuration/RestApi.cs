@@ -1,5 +1,4 @@
-﻿using System.Security.AccessControl;
-namespace Common.Configuration;
+﻿namespace Common.Configuration;
 
 public static class RestApi
 {
@@ -15,8 +14,10 @@ public static class RestApi
     public const string WitnessStatements = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
     public const string Documents = "urns/{caseUrn}/cases/{caseId:min(1)}/documents";
     public const string DocumentNotes = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/notes";
-    public const string RedactDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/redact";
+    public const string RedactDocumentLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/redact";
+    public const string RedactDocument = "cases/{caseId:min(1)}/materials/{materialId}/documents/{documentId:min(1)}/redact";
     public const string ModifyDocumentLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/modify";
+    public const string ModifyDocument = "cases/{caseId:min(1)}/materials/{materialId}/documents/{documentId:min(1)}/modify";
     public const string RenameDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/rename";
     public const string ReclassifyDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/reclassify";
     public const string Pdf = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/pdf";
