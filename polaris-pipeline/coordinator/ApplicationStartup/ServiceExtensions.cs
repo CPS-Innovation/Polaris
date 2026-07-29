@@ -30,6 +30,9 @@ using coordinator.Services;
 using coordinator.Services.ClearDownService;
 using coordinator.Validators;
 using Ddei.Extensions;
+using DdeiClient.Clients;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Configuration;
 using DdeiClient.Services.CaseUrnResolver;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
@@ -109,6 +112,9 @@ public static class ServiceExtensions
 
         services.AddMemoryCache();
         services.AddScoped<ICaseUrnResolver, CaseUrnResolver>();
+        services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>();
+        services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();
+        services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);
         return services;
     }
 
