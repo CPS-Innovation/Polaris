@@ -44,15 +44,12 @@ public class RedactPdf(
     public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)] HttpRequest request,
         int caseId,
-        string materialId,
-        long documentId)
+        string materialId)
     {
-        Guid currentCorrelationId = default;
+        var currentCorrelationId = request.Headers.GetCorrelationId();
 
         try
         {
-            currentCorrelationId = request.Headers.GetCorrelationId();
-
             request.EnableBuffering();
 
             if (request.ContentLength == null || !request.Body.CanSeek)

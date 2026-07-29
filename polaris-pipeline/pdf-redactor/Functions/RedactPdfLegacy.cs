@@ -44,10 +44,11 @@ namespace pdf_redactor.Functions
             string materialId,
             long documentId)
         {
-            var currentCorrelationId = request.Headers.GetCorrelationId();
+            Guid currentCorrelationId = default;
 
             try
             {
+                currentCorrelationId = request.Headers.GetCorrelationId();
                 request.EnableBuffering();
 
                 if (request.ContentLength == null || !request.Body.CanSeek)
