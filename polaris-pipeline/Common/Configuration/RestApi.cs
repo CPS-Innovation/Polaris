@@ -24,7 +24,7 @@ public static class RestApi
     public const string Pii = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/pii";
     public const string DocumentCheckout = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/checkout";
     public const string ToggleIsUnusedDocument = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/toggle/{isUnused}";
-    public const string OcrSearch = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/search";
+    public const string OcrSearch = "cases/{caseId:min(1)}/materials/{materialId}/documents/{documentId:min(1)}/search";
     public const string OcrSearchTracker = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/search/tracker";
 
     // House keeping endpoints
@@ -107,9 +107,9 @@ public static class RestApi
     public static string GetThumbnailPath(string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int? pageIndex) =>
         $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
 
-    public static string GetBulkRedactionSearchStartPath(string caseUrn, int caseId, string materialId, long documentId) =>
-        $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/search";
+    public static string GetBulkRedactionSearchStartPath(int caseId, string materialId, long documentId) =>
+        $"cases/{caseId}/materials/{materialId}/documents/{documentId}/search";
 
-    public static string GetBulkRedactionSearchResultsPath(string caseUrn, int caseId, string materialId, long documentId, string searchText) =>
-        $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/search?SearchText={searchText}";
+    public static string GetBulkRedactionSearchResultsPath(int caseId, string materialId, long documentId, string searchText) =>
+        $"cases/{caseId}/materials/{materialId}/documents/{documentId}/search?SearchText={searchText}";
 }

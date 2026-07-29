@@ -99,20 +99,20 @@ public class CoordinatorClient(IRequestFactory requestFactory, HttpClient httpCl
             cmsAuthValues,
             new StringContent(JsonSerializer.Serialize(modifyDocumentDto, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }), Encoding.UTF8, ContentType.Json));
 
-    public async Task<HttpResponseMessage> BulkRedactionInitiateSearchAsync(string caseUrn, int caseId, string materialId, long documentId,
+    public async Task<HttpResponseMessage> BulkRedactionInitiateSearchAsync(int caseId, string materialId, long documentId,
         Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default) =>
         await this.SendRequestAsync(
             HttpMethod.Post,
-            RestApi.GetBulkRedactionSearchStartPath(caseUrn, caseId, materialId, documentId),
+            RestApi.GetBulkRedactionSearchStartPath(caseId, materialId, documentId),
             correlationId,
             cmsAuthValues,
             cancellationToken: cancellationToken);
 
-    public async Task<HttpResponseMessage> BulkRedactionRetrieveSearchResultsAsync(string caseUrn, int caseId, string materialId, long documentId, string searchText, 
+    public async Task<HttpResponseMessage> BulkRedactionRetrieveSearchResultsAsync(int caseId, string materialId, long documentId, string searchText,
         Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default) =>
         await this.SendRequestAsync(
             HttpMethod.Get,
-            RestApi.GetBulkRedactionSearchResultsPath(caseUrn, caseId, materialId, documentId, searchText),
+            RestApi.GetBulkRedactionSearchResultsPath(caseId, materialId, documentId, searchText),
             correlationId,
             cmsAuthValues,
             cancellationToken: cancellationToken);

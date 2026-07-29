@@ -8,6 +8,7 @@ using coordinator.Domain;
 using coordinator.Enums;
 using coordinator.Functions;
 using coordinator.Services;
+using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.DurableTask.Client;
@@ -27,7 +28,8 @@ public class BulkRedactionSearchTests
     public BulkRedactionSearchTests()
     {
         this.bulkRedactionSearchServiceMock = new Mock<IBulkRedactionSearchService>();
-        this.bulkRedactionSearch = new BulkRedactionSearchStart(this.bulkRedactionSearchServiceMock.Object);
+        var caseUrnResolverMock = new Mock<ICaseUrnResolver>();
+        this.bulkRedactionSearch = new BulkRedactionSearchStart(this.bulkRedactionSearchServiceMock.Object, caseUrnResolverMock.Object);
     }
 
     [Theory]
@@ -46,7 +48,6 @@ public class BulkRedactionSearchTests
         req.Headers["Correlation-Id"] = correlationId.ToString();
         req.Headers["Cms-Auth-Values"] = cmsAuthValues;
         req.QueryString = new QueryString($"?SearchText={searchText}");
-        var caseUrn = "caseUrn";
         var caseId = 1;
         var materialId = "CMS-12345";
         var documentId = 2;
@@ -60,7 +61,7 @@ public class BulkRedactionSearchTests
         this.bulkRedactionSearchServiceMock.Setup(s => s.InitiateOrOrchestrateOcr(It.IsAny<BulkRedactionSearchDto>(), orchestrationClientMock.Object, cancellationToken)).ReturnsAsync(bulkRedactionSearchResponse);
 
         // act
-        var result = await this.bulkRedactionSearch.Run(req, caseUrn, caseId, materialId, documentId, cancellationToken, orchestrationClientMock.Object);
+        var result = await this.bulkRedactionSearch.Run(req, caseId, materialId, documentId, cancellationToken, orchestrationClientMock.Object);
 
         // assert
         Assert.IsType<ObjectResult>(result);

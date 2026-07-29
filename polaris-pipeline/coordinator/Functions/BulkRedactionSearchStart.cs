@@ -11,24 +11,31 @@ using Common.Extensions;
 using coordinator.Durable.Providers;
 using coordinator.Enums;
 using coordinator.Services;
+using Ddei.Factories;
+using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
+using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class BulkRedactionSearchStart(IBulkRedactionSearchService bulkRedactionSearchService)
+public class BulkRedactionSearchStart(IBulkRedactionSearchService bulkRedactionSearchService, ICaseUrnResolver caseUrnResolver)
 {
     [Function(nameof(BulkRedactionSearchStart))]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.OcrSearch)] HttpRequest req, string caseUrn,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.OcrSearch)] HttpRequest req,
         int caseId, string materialId, long documentId, CancellationToken cancellationToken,
         [DurableClient] DurableTaskClient orchestrationClient)
     {
-        var currentCorrelationId = req.Headers.GetCorrelationId();
+        Guid currentCorrelationId = req.Headers.GetCorrelationId();
         var cmsAuthValues = req.Headers.GetCmsAuthValues();
+        CmsAuthValues cmsAuthValues1 = new CmsAuthValues(cmsAuthValues, currentCorrelationId);
+
+
+        var caseUrn = await caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues1, cancellationToken);
 
         var bulkRedactionSearchDto = new BulkRedactionSearchDto
         {
