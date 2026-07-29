@@ -44,12 +44,10 @@ namespace pdf_redactor.Functions
             string materialId,
             long documentId)
         {
-            Guid currentCorrelationId = default;
+            var currentCorrelationId = request.Headers.GetCorrelationId();
 
             try
             {
-                currentCorrelationId = request.Headers.GetCorrelationId();
-
                 request.EnableBuffering();
 
                 if (request.ContentLength == null || !request.Body.CanSeek)
@@ -69,21 +67,21 @@ namespace pdf_redactor.Functions
                     throw new BadRequestException("Request body cannot be null or an empty JSON message", nameof(request));
                 }
 
-                var redactions = _jsonConvertWrapper.DeserializeObject<RedactPdfRequestWithDocumentDto>(content);
+                var redactions = this._jsonConvertWrapper.DeserializeObject<RedactPdfRequestWithDocumentDto>(content);
 
-                var validationResult = await _requestValidator.ValidateAsync(redactions);
+                var validationResult = await this._requestValidator.ValidateAsync(redactions);
                 if (!validationResult.IsValid)
                 {
                     throw new BadRequestException(validationResult.FlattenErrors(), nameof(request));
                 }
 
-                var redactPdfStream = await _documentRedactionService.RedactAsync(caseId, materialId, redactions, currentCorrelationId);
+                var redactPdfStream = await this._documentRedactionService.RedactAsync(caseId, materialId, redactions, currentCorrelationId);
 
                 return new FileStreamResult(redactPdfStream, ContentType.Pdf);
             }
             catch (Exception ex)
             {
-                return _exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(RedactPdfLegacy), _logger);
+                return this._exceptionHandler.HandleExceptionNew(ex, currentCorrelationId, nameof(RedactPdfLegacy), this._logger);
             }
         }
     }
