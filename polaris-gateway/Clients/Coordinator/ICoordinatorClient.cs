@@ -27,7 +27,8 @@ public interface ICoordinatorClient
     Task<HttpResponseMessage> GetCaseSearchIndexCount(string caseUrn, int caseId, Guid correlationId);
 
     Task<HttpResponseMessage> ModifyDocument(string caseUrn, int caseId, string materialId, long documentId, ModifyDocumentDto modifyDocumentDto, string cmsAuthValues, Guid correlationId);
-    Task<HttpResponseMessage> BulkRedactionInitiateSearchAsync(string caseUrn, int caseId, string materialId, long documentId, Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default);
-    Task<HttpResponseMessage> BulkRedactionRetrieveSearchResultsAsync(string caseUrn, int caseId, string materialId, long documentId, string searchText, Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default);
 
+    Task<HttpResponseMessage> BulkRedactionInitiateSearchAsync(int caseId, string materialId, long documentId, Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default);
+
+    Task<HttpResponseMessage> BulkRedactionRetrieveSearchResultsAsync(int caseId, string materialId, long documentId, string searchText, Guid correlationId, string cmsAuthValues, CancellationToken cancellationToken = default);
 }

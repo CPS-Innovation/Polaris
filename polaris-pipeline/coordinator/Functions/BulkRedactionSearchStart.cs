@@ -11,24 +11,32 @@ using Common.Extensions;
 using coordinator.Durable.Providers;
 using coordinator.Enums;
 using coordinator.Services;
+using Ddei.Factories;
+using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
+using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class BulkRedactionSearchStart(IBulkRedactionSearchService bulkRedactionSearchService)
+public class BulkRedactionSearchStart(IBulkRedactionSearchService bulkRedactionSearchService, ICaseUrnResolver caseUrnResolver)
 {
     [Function(nameof(BulkRedactionSearchStart))]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.OcrSearch)] HttpRequest req, string caseUrn,
-        int caseId, string materialId, long documentId, CancellationToken cancellationToken,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.OcrSearch)] HttpRequest req,
+        int caseId,
+        string materialId,
+        long documentId,
+        CancellationToken cancellationToken,
         [DurableClient] DurableTaskClient orchestrationClient)
     {
-        var currentCorrelationId = req.Headers.GetCorrelationId();
-        var cmsAuthValues = req.Headers.GetCmsAuthValues();
+        Guid currentCorrelationId = req.Headers.GetCorrelationId();
+        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
+
+        var caseUrn = await caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         var bulkRedactionSearchDto = new BulkRedactionSearchDto
         {
@@ -36,7 +44,7 @@ public class BulkRedactionSearchStart(IBulkRedactionSearchService bulkRedactionS
             CaseId = caseId,
             MaterialId = materialId,
             DocumentId = documentId,
-            CmsAuthValues = cmsAuthValues,
+            CmsAuthValues = cmsAuthValues.CmsAuthFullValue,
             CorrelationId = currentCorrelationId,
         };
 

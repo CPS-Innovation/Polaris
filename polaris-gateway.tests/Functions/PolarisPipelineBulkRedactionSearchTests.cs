@@ -34,15 +34,14 @@ public class PolarisPipelineBulkRedactionSearchTests
         var searchText = "Hello";
         var req = new DefaultHttpContext().Request;
         req.QueryString = new QueryString($"?SearchText={searchText}");
-        var caseUrn = "caseUrn";
         var caseId = 1;
         var materialId = "CMS-12345";
         var documentId = 2;
         var cancellationToken = CancellationToken.None;
-        this.coordinatorClientMock.Setup(s => s.BulkRedactionInitiateSearchAsync(caseUrn, caseId, materialId, documentId, It.IsAny<Guid>(), It.IsAny<string>(),cancellationToken)).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+        this.coordinatorClientMock.Setup(s => s.BulkRedactionInitiateSearchAsync(caseId, materialId, documentId, It.IsAny<Guid>(), It.IsAny<string>(),cancellationToken)).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
         // act
-        var result = await this.polarisPipelineBulkRedactionSearch.Run(req, caseUrn, caseId, materialId, documentId, cancellationToken);
+        var result = await this.polarisPipelineBulkRedactionSearch.Run(req, caseId, materialId, documentId, cancellationToken);
 
         // assert
         Assert.IsType<StatusCodeResult>(result);
