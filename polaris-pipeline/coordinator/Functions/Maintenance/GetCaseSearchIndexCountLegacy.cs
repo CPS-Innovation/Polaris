@@ -9,24 +9,24 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace coordinator.Functions.Maintenance
 {
-    public class GetCaseSearchIndexCount
+    public class GetCaseSearchIndexCountLegacy
     {
         private readonly ITextExtractorClient _textExtractorClient;
-        private readonly ILogger<GetCaseSearchIndexCount> _logger;
+        private readonly ILogger<GetCaseSearchIndexCountLegacy> _logger;
 
-        public GetCaseSearchIndexCount(
+        public GetCaseSearchIndexCountLegacy(
             ITextExtractorClient textExtractorClient,
-            ILogger<GetCaseSearchIndexCount> logger)
+            ILogger<GetCaseSearchIndexCountLegacy> logger)
         {
             _textExtractorClient = textExtractorClient;
             _logger = logger;
         }
 
-        [Function(nameof(GetCaseSearchIndexCount))]
+        [Function(nameof(GetCaseSearchIndexCountLegacy))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearchCount)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearchCountLegacy)] HttpRequest req,
             string caseUrn,
             int caseId)
         {

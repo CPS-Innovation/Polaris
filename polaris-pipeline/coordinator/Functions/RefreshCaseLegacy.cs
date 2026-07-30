@@ -14,15 +14,15 @@ using System.Threading.Tasks;
 
 namespace coordinator.Functions;
 
-public class RefreshCase
+public class RefreshCaseLegacy
 {
-    private readonly ILogger<RefreshCase> _logger;
+    private readonly ILogger<RefreshCaseLegacy> _logger;
     private readonly IOrchestrationProvider _orchestrationProvider;
     private readonly IMdsArgFactory _mdsArgFactory;
     private readonly IDdeiAuthClient _ddeiAuthClient; 
 
-    public RefreshCase(
-        ILogger<RefreshCase> logger,
+    public RefreshCaseLegacy(
+        ILogger<RefreshCaseLegacy> logger,
         IOrchestrationProvider orchestrationProvider,
         IMdsArgFactory mdsArgFactory,
         IDdeiAuthClient ddeiAuthClient)
@@ -33,14 +33,14 @@ public class RefreshCase
         _ddeiAuthClient = ddeiAuthClient;
     }
 
-    [Function(nameof(RefreshCase))]
+    [Function(nameof(RefreshCaseLegacy))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status423Locked)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Run
     (
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Case)] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.CaseLegacy)] HttpRequest req,
         string caseUrn,
         int caseId,
         [DurableClient] DurableTaskClient orchestrationClient

@@ -22,21 +22,21 @@ using DdeiClient.Clients.Interfaces;
 
 namespace coordinator.Functions
 {
-    public class ModifyDocument
+    public class ModifyDocumentLegacy
     {
         private readonly IValidator<ModifyDocumentWithDocumentDto> _requestValidator;
         private readonly IPdfRedactorClient _pdfRedactorClient;
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly IMdsArgFactory _mdsArgFactory;
-        private readonly ILogger<ModifyDocument> _logger;
+        private readonly ILogger<ModifyDocumentLegacy> _logger;
         private readonly IMdsClient _mdsClient;
 
-        public ModifyDocument(
+        public ModifyDocumentLegacy(
             IValidator<ModifyDocumentWithDocumentDto> requestValidator,
             IPdfRedactorClient pdfRedactorClient,
             Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
             IMdsArgFactory mdsArgFactory,
-            ILogger<ModifyDocument> logger,
+            ILogger<ModifyDocumentLegacy> logger,
             IConfiguration configuration,
             IMdsClient mdsClient)
         {
@@ -48,7 +48,7 @@ namespace coordinator.Functions
             _mdsClient = mdsClient.ExceptionIfNull();
         }
 
-        [Function(nameof(ModifyDocument))]
+        [Function(nameof(ModifyDocumentLegacy))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
