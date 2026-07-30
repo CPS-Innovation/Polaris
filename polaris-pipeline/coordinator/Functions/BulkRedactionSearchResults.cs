@@ -27,14 +27,16 @@ public class BulkRedactionSearchResults(IBulkRedactionSearchService bulkRedactio
     [Function(nameof(BulkRedactionSearchResults))]
     public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.OcrSearch)] HttpRequest req,
-        int caseId, string materialId, long documentId, CancellationToken cancellationToken,
+        int caseId,
+        string materialId,
+        long documentId,
+        CancellationToken cancellationToken,
         [DurableClient] DurableTaskClient orchestrationClient)
     {
         var currentCorrelationId = req.Headers.GetCorrelationId();
-        var cmsAuthValues = req.Headers.GetCmsAuthValues();
         var searchText = req.Query[SearchTextHeader];
-        CmsAuthValues cmsAuthValues1 = new CmsAuthValues(cmsAuthValues, currentCorrelationId);
-        var caseUrn = await caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues1, cancellationToken);
+        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
+        var caseUrn = await caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         var bulkRedactionSearchDto = new BulkRedactionSearchDto
         {
@@ -43,7 +45,7 @@ public class BulkRedactionSearchResults(IBulkRedactionSearchService bulkRedactio
             MaterialId = materialId,
             DocumentId = documentId,
             SearchText = searchText,
-            CmsAuthValues = cmsAuthValues,
+            CmsAuthValues = cmsAuthValues.CmsAuthFullValue,
             CorrelationId = currentCorrelationId,
         };
 
