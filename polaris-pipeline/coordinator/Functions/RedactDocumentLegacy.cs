@@ -20,21 +20,21 @@ using System.Threading.Tasks;
 
 namespace coordinator.Functions;
 
-public class RedactDocument
+public class RedactDocumentLegacy
 {
     private readonly IValidator<RedactPdfRequestWithDocumentDto> _requestValidator;
     private readonly IPdfRedactorClient _redactionClient;
     private readonly IPolarisBlobStorageService _polarisBlobStorageService;
     private readonly IMdsArgFactory _mdsArgFactory;
     private readonly IMdsClient _mdsClient;
-    private readonly ILogger<RedactDocument> _logger;
+    private readonly ILogger<RedactDocumentLegacy> _logger;
 
-    public RedactDocument(
+    public RedactDocumentLegacy(
         IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
         IPdfRedactorClient redactionClient,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IMdsArgFactory mdsArgFactory,
-        ILogger<RedactDocument> logger,
+        ILogger<RedactDocumentLegacy> logger,
         IConfiguration configuration,
         IMdsClient mdsClient)
     {
@@ -46,12 +46,12 @@ public class RedactDocument
         _mdsClient = mdsClient.ExceptionIfNull();
     }
 
-    [Function(nameof(RedactDocument))]
+    [Function(nameof(RedactDocumentLegacy))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> HttpStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocumentLegacy)]
         HttpRequest req,
         string caseUrn,
         int caseId,

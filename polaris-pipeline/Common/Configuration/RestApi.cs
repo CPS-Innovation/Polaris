@@ -5,10 +5,10 @@ public static class RestApi
     public const string MaterialTypeList = "reference/reclassification";
     public const string LookupUrn = "urn-lookup/{caseId:min(1)}";
     public const string Cases = "urns/{caseUrn}/cases";
-    public const string Case = "urns/{caseUrn}/cases/{caseId:min(1)}";
-    public const string CaseTracker = "urns/{caseUrn}/cases/{caseId:min(1)}/tracker";
+    public const string CaseLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}";
+    public const string CaseTrackerLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/tracker";
     public const string CaseSearchLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/search";
-    public const string CaseSearchCount = "urns/{caseUrn}/cases/{caseId:min(1)}/search/count";
+    public const string CaseSearchCountLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/search/count";
     public const string CaseExhibitProducers = "urns/{caseUrn}/cases/{caseId:min(1)}/exhibit-producers";
     public const string CaseWitnesses = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses";
     public const string WitnessStatements = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
