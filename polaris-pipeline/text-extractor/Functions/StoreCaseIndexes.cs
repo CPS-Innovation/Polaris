@@ -41,11 +41,9 @@ namespace text_extractor.Functions
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.Extract)] HttpRequest request,
             int caseId, string materialId, long documentId)
         {
-            Guid currentCorrelationId = default;
+            var currentCorrelationId = request.Headers.GetCorrelationId();
             try
             {
-                currentCorrelationId = request.Headers.GetCorrelationId();
-
                 if (request.Body == null)
                 {
                     throw new BadRequestException("Request body has no content", nameof(request));
