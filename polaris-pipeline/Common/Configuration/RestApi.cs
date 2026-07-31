@@ -8,6 +8,7 @@ public static class RestApi
     public const string CaseLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}";
     public const string CaseTrackerLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/tracker";
     public const string CaseSearchLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/search";
+    public const string CaseSearch = "cases/{caseId:min(1)}/search";
     public const string CaseSearchCountLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/search/count";
     public const string CaseExhibitProducers = "urns/{caseUrn}/cases/{caseId:min(1)}/exhibit-producers";
     public const string CaseWitnesses = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses";
@@ -60,11 +61,15 @@ public static class RestApi
     public const string BulkSetUnused = "urns/{caseUrn}/cases/{caseId:min(1)}/bulk-set-unused";
     // Internal Pipeline
     public const string ExtractLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/extract";
+    public const string Extract = "cases/{caseId:min(1)}/materials/{materialId}/documents/{documentId:min(1)}/extract";
     public const string ConvertToPdf = "cases/{caseId:min(1)}/materials/{materialId}/documents/{documentId:min(1)}/convert-to-pdf";
     public const string ConvertToPdfLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/convert-to-pdf";
     public const string RemoveCaseIndexesLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/remove-case-indexes";
+    public const string RemoveCaseIndexes = "cases/{caseId:min(1)}/remove-case-indexes";
     public const string CaseIndexCountLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/case-index-count";
+    public const string CaseIndexCount = "cases/{caseId:min(1)}/case-index-count";
     public const string DocumentIndexCountLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/document-index-count";
+    public const string DocumentIndexCount = "cases/{caseId:min(1)}/materials/{materialId}/documents/{documentId:min(1)}/document-index-count";
     public const string GenerateThumbnailLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId}/thumbnails/{maxDimensionPixel}/{pageIndex?}";
     public const string ThumbnailLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId}/thumbnails/{maxDimensionPixel}/{pageIndex}";
     public const string Status = "status";
