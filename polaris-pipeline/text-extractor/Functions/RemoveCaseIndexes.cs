@@ -1,3 +1,7 @@
+// <copyright file="RemoveCaseIndexes.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
 using Common.Configuration;
 using Common.Extensions;
 using Common.Handlers;
@@ -24,9 +28,9 @@ namespace text_extractor.Functions
         ISearchIndexService searchIndexService,
         IExceptionHandler exceptionHandler) : BaseFunction
     {
-        private readonly ILogger<RemoveCaseIndexes> _log = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly ISearchIndexService _searchIndexService = searchIndexService ?? throw new ArgumentNullException(nameof(searchIndexService));
-        private readonly IExceptionHandler _exceptionHandler = exceptionHandler ?? throw new ArgumentNullException(nameof(exceptionHandler));
+        private readonly ILogger<RemoveCaseIndexes> logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly ISearchIndexService searchIndexService = searchIndexService ?? throw new ArgumentNullException(nameof(searchIndexService));
+        private readonly IExceptionHandler exceptionHandler = exceptionHandler ?? throw new ArgumentNullException(nameof(exceptionHandler));
         private const string LoggingName = nameof(RemoveCaseIndexes);
 
         [Function(nameof(RemoveCaseIndexes))]
@@ -36,13 +40,13 @@ namespace text_extractor.Functions
 
             try
             {
-                var result = await _searchIndexService.RemoveCaseIndexEntriesAsync(caseId, correlationId);
+                var result = await searchIndexService.RemoveCaseIndexEntriesAsync(caseId, correlationId);
 
                 return CreateJsonResult(result);
             }
             catch (Exception exception)
             {
-                return _exceptionHandler.HandleExceptionNew(exception, correlationId, LoggingName, _log);
+                return exceptionHandler.HandleExceptionNew(exception, correlationId, LoggingName, logger);
             }
         }
     }

@@ -1,4 +1,8 @@
-﻿using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
+﻿// <copyright file="StoreCaseIndexes.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
 using Common.Dto.Response;
@@ -30,11 +34,11 @@ namespace text_extractor.Functions
            ILogger<StoreCaseIndexes> logger,
            IJsonConvertWrapper jsonConvertWrapper) : BaseFunction
     {
-        private readonly ISearchIndexService _searchIndexService = searchIndexService;
-        private readonly IExceptionHandler _exceptionHandler = exceptionHandler;
+        private readonly ISearchIndexService searchIndexService = searchIndexService;
+        private readonly IExceptionHandler exceptionHandler = exceptionHandler;
 
-        private readonly ILogger<StoreCaseIndexes> _log = logger;
-        private readonly IJsonConvertWrapper _jsonConvertWrapper = jsonConvertWrapper;
+        private readonly ILogger<StoreCaseIndexes> logger = logger;
+        private readonly IJsonConvertWrapper jsonConvertWrapper = jsonConvertWrapper;
         private const string LoggingName = "StoreCaseIndexes - Run";
 
         [Function(nameof(StoreCaseIndexes))]
@@ -51,9 +55,9 @@ namespace text_extractor.Functions
 
                 var streamReader = new StreamReader(request.Body);
                 var content = await streamReader.ReadToEndAsync();
-                var ocrResults = _jsonConvertWrapper.DeserializeObject<AnalyzeResults>(content);
+                var ocrResults = jsonConvertWrapper.DeserializeObject<AnalyzeResults>(content);
 
-                var storedLinesCount = await _searchIndexService.SendStoreResultsAsync
+                var storedLinesCount = await searchIndexService.SendStoreResultsAsync
                     (
                         ocrResults,
                         caseId,
@@ -73,7 +77,7 @@ namespace text_extractor.Functions
             }
             catch (Exception exception)
             {
-                return _exceptionHandler.HandleExceptionNew(exception, currentCorrelationId, LoggingName, _log, new StoreCaseIndexesResult { IsSuccess = false });
+                return exceptionHandler.HandleExceptionNew(exception, currentCorrelationId, LoggingName, logger, new StoreCaseIndexesResult { IsSuccess = false });
             }
         }
     }

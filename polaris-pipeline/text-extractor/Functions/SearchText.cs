@@ -1,4 +1,4 @@
-// <copyright file="ConvertToPdf.cs" company="TheCrownProsecutionService">
+// <copyright file="SearchText.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
@@ -33,10 +33,10 @@ namespace text_extractor.Functions
         IJsonConvertWrapper jsonConvertWrapper,
         IExceptionHandler exceptionHandler) : BaseFunction
     {
-        private readonly ILogger<SearchText> _log = logger ?? throw new ArgumentNullException(nameof(logger));
-        private readonly ISearchIndexService _searchIndexService = searchIndexService;
-        private readonly IJsonConvertWrapper _jsonConvertWrapper = jsonConvertWrapper;
-        private readonly IExceptionHandler _exceptionHandler = exceptionHandler ?? throw new ArgumentNullException(nameof(exceptionHandler));
+        private readonly ILogger<SearchText> logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly ISearchIndexService searchIndexService = searchIndexService;
+        private readonly IJsonConvertWrapper jsonConvertWrapper = jsonConvertWrapper;
+        private readonly IExceptionHandler exceptionHandler = exceptionHandler ?? throw new ArgumentNullException(nameof(exceptionHandler));
         private const string LoggingName = nameof(SearchText);
 
         [Function(nameof(SearchText))]
@@ -50,9 +50,9 @@ namespace text_extractor.Functions
                     throw new BadRequestException("Request body has no content", nameof(request));
                 }
                 var content = await request.GetRawBodyStringAsync();
-                var searchDto = _jsonConvertWrapper.DeserializeObject<SearchRequestDto>(content);
+                var searchDto = jsonConvertWrapper.DeserializeObject<SearchRequestDto>(content);
 
-                var searchResults = await _searchIndexService.QueryAsync(
+                var searchResults = await searchIndexService.QueryAsync(
                     caseId,
                     searchDto.SearchTerm);
 
@@ -60,7 +60,7 @@ namespace text_extractor.Functions
             }
             catch (Exception exception)
             {
-                return _exceptionHandler.HandleExceptionNew(exception, correlationId, LoggingName, _log);
+                return exceptionHandler.HandleExceptionNew(exception, correlationId, LoggingName, logger);
             }
         }
     }
