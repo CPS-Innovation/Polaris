@@ -21,11 +21,13 @@ public static class IServiceCollectionExtension
     private const string DdeiBaseUrlConfigKey = "DdeiBaseUrl";
     private const string MdsBaseUrlConfigKey = "MdsBaseUrl";
     private const string MdsMockBaseUrlConfigKey = "MdsMockBaseUrl";
+    private const string RedactionLoggerConfigKey = "RedactionLoggerBaseUrl";
     private const string DdeiAccessKeyConfigKey = "DdeiAccessKey";
     private const string MdsAccessKeyConfigKey = "MdsAccessKey";
     private const string MdsMockAccessKeyConfigKey = "MdsMockAccessKey";
     private const string DdeiClientTimeoutSecondsConfigKey = "DdeiClientTimeoutSeconds";
     private const string MdsClientTimeoutSecondsConfigKey = "MdsClientTimeoutSeconds";
+    private const string RedactionLoggerTimeoutSecondsConfigKey = "RedactionLoggerTimeoutSeconds";
     private const int RetryAttempts = 1;
     private const int FirstRetryDelaySeconds = 1;
 
@@ -35,6 +37,7 @@ public static class IServiceCollectionExtension
         services.AddHttpClientWithDefaults<IDdeiAuthClient, DdeiAuthClient>(configuration, DdeiBaseUrlConfigKey, DdeiAccessKeyConfigKey, "Ddei", DdeiClientTimeoutSecondsConfigKey);
         services.AddHttpClientWithDefaults(configuration, MdsBaseUrlConfigKey, MdsAccessKeyConfigKey, nameof(MdsClients.Mds), MdsClientTimeoutSecondsConfigKey);
         services.AddHttpClientWithDefaults(configuration, MdsMockBaseUrlConfigKey, MdsMockAccessKeyConfigKey, nameof(MdsClients.MdsMock), MdsClientTimeoutSecondsConfigKey);
+        services.AddHttpClientWithDefaults(configuration, RedactionLoggerConfigKey, RedactionLoggerConfigKey, "RedactionLogger", RedactionLoggerTimeoutSecondsConfigKey);
 
         services.AddSingleton<IMdsClient, MdsClient>();
 
