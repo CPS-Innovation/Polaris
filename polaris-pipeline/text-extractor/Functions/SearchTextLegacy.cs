@@ -10,12 +10,12 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace text_extractor.Functions
 {
-    public class SearchText : BaseFunction
+    public class SearchTextLegacy : BaseFunction
     {
         private readonly ISearchIndexService _searchIndexService;
         private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
-        public SearchText(
+        public SearchTextLegacy(
             ISearchIndexService searchIndexService,
             IJsonConvertWrapper jsonConvertWrapper)
         {
@@ -23,7 +23,7 @@ namespace text_extractor.Functions
             _jsonConvertWrapper = jsonConvertWrapper;
         }
 
-        [Function(nameof(SearchText))]
+        [Function(nameof(SearchTextLegacy))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.CaseSearchLegacy)] HttpRequest request, string caseUrn, int caseId)
         {
             var correlationId = request.Headers.GetCorrelationId();
