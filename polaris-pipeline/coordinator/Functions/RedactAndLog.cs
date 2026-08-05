@@ -81,7 +81,7 @@ public class RedactAndLog(
                 throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
             }
 
-            redactedDocumentStream = await this.redactionClient.RedactPdfAsync(caseUrn, caseId, materialId, documentId, redactionRequest, currentCorrelationId);
+            redactedDocumentStream = await this.redactionClient.RedactPdfAsync("", caseId, materialId, documentId, redactionRequest, currentCorrelationId);
             if (redactedDocumentStream == null)
             {
                 string error = $"Error Saving redaction details to the document for {caseId}, materialId {materialId}";
@@ -115,7 +115,7 @@ public class RedactAndLog(
                 VersionId = redactPdfRequest.VersionId
             };
 
-            modifiedDocumentStream = await this.redactionClient.ModifyDocument(caseUrn, caseId, materialId, documentId, modificationRequest, currentCorrelationId);
+            modifiedDocumentStream = await this.redactionClient.ModifyDocument("", caseId, materialId, documentId, modificationRequest, currentCorrelationId);
             if (modifiedDocumentStream == null)
             {
                 string error = $"Error modifying document for {caseId}, materialId {materialId}";
@@ -124,16 +124,16 @@ public class RedactAndLog(
         }
 
         var cmsAuthValues = req.Headers.GetCmsAuthValues();
-        var arg = _mdsArgFactory.CreateDocumentVersionArgDto(
+        var arg = this.mdsArgFactory.CreateDocumentVersionArgDto(
             cmsAuthValues,
             correlationId: currentCorrelationId,
-            caseUrn,
+            "",
             caseId: caseId,
             DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document),
             documentId);
 
 
-        var ddeiResult = await _mdsClient.UploadPdfAsync(arg, modifiedDocumentStream ?? redactedDocumentStream);
+        var ddeiResult = await this.mdsClient.UploadPdfAsync(arg, modifiedDocumentStream ?? redactedDocumentStream);
 
         if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
         {
