@@ -329,48 +329,9 @@ resource "azurerm_storage_blob" "global_components_js" {
   depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
 }
 
-# ---------------------------------------------------------------------------
-# Refactored ("next") proxy config from proxy/config/ — DEPLOYED BUT INERT.
-#
-# The App Service mounts the polaris_proxy_content container at
-# /etc/nginx/templates (see the storage_account block above), so a blob's NAME is
-# its path under that directory. Naming each blob after its path relative to
-# proxy/config/ therefore reproduces the repo's structure in the destination.
-#
-# INERT: the live nginx.conf.template above is still the monolith and does not
-# `include features/*.conf;`, so nothing loads any of this. The refactored root
-# config is parked as nginx-next.conf.template so it cannot overwrite the live
-# nginx.conf.template — cutover is then a one-blob swap.
-#
-# Suffixing: .conf files get ".template" so the nginx entrypoint envsubst renders
-# them (they carry ${VARS}) into /etc/nginx/features/. .js files deliberately do
-# NOT, because envsubst would mangle njs template literals (${host}, ${args},
-# ${os} …); they stay under /etc/nginx/templates/features/ — the same convention
-# the live config already uses (`js_import templates/cmsenv.js`).
-#
-# polaris-script.js (the client script injected into CMS pages) now lives inside
-# the feature that owns it — features/cms-proxy/ — since cms-proxy.conf both serves
-# it and sub_filters it into uacdCDTabs. It is therefore picked up by the fileset
-# below like any other feature .js and lands at features/cms-proxy/polaris-script.js,
-# which is the `root` that conf serves from. The separate root-level
-# polaris-script.js blob above stays put: that one belongs to the LIVE config.
 locals {
   proxy_next_dir = "${path.module}/proxy/config"
 
-  # Every DEPLOYABLE feature file of the refactored config, relative to proxy/config/.
-  #
-  # Each feature is a self-contained folder — features/<name>/<name>.{conf,js} plus
-  # its <name>.{unit,integration}.test.js and any fixtures/ it needs, all sitting
-  # beside the module they test. NONE of that test material may ship. Two things
-  # must be excluded, and both are load-bearing:
-  #
-  #   *.test.js      the unit/integration suites
-  #   fixtures/**    canned upstream bodies — note these include .js files
-  #                  (uainMenuBar.js, uainGeneratedScript.aspx.js), so without this
-  #                  they WOULD be swept up by the features/**/*.js glob below.
-  #
-  # Guarded by tests/unit/deploy-safety.unit.test.js — do not remove either filter
-  # without the other.
   proxy_next_files = [
     for f in setunion(
       fileset("${path.module}/proxy/config", "features/**/*.conf"),
@@ -378,16 +339,11 @@ locals {
     ) : f if !endswith(f, ".test.js") && !strcontains(f, "/fixtures/")
   ]
 
-  # blob name => source path relative to proxy/config/
   proxy_next_blobs = {
     for f in local.proxy_next_files :
     (endswith(f, ".conf") ? "${f}.template" : f) => f
   }
 
-  # ONE content hash over the whole refactored tree (feature files + the root
-  # config), appended to FORCE_REFRESH_CONFIG here and in the staging slot so a
-  # change to any of them restarts the site — the same mechanism the live config
-  # files use, without hand-maintaining a dozen more md5s in that string.
   proxy_next_config_hash = md5(join(":", concat(
     [filemd5("${local.proxy_next_dir}/nginx.conf")],
     [for f in sort(tolist(local.proxy_next_files)) : filemd5("${local.proxy_next_dir}/${f}")]

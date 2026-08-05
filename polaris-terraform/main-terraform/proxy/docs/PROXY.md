@@ -1,12 +1,77 @@
 # PROXY.md — The Polaris CMS Proxy
 
-> Working notes for a refactor of the nginx CMS proxy. Start here (with
-> [`SYSTEM.md`](./SYSTEM.md)) when reorienting. Focused on **which Terraformed
-> AppSettings drive the proxy** and how the proxy is put together.
+> Working notes for a refactor of the nginx CMS proxy, and the **first thing to
+> re-read when returning to this work**. Opens with repo-wide navigation, then goes
+> deep on **which Terraformed AppSettings drive the proxy** and how the proxy is put
+> together. Navigation-first up top; exhaustive below.
 >
-> Companion docs: [`QUIRKS.md`](./QUIRKS.md) — every bug/oddity found while
-> building the test harness; [`PLAN.md`](./PLAN.md) — the phased roadmap.
+> Companion docs: [`../config/QUIRKS.md`](../config/QUIRKS.md) — every bug/oddity
+> found while building the test harness (cross-cutting quirks + the index; feature
+> quirks live in each `../config/features/<name>/QUIRKS.md`);
+> [`PLAN.md`](./PLAN.md) — the phased roadmap.
 > The harness itself lives in [`../tests`](../tests) (see [`../README.md`](../README.md)).
+
+## Codebase navigation
+
+> Repo-wide orientation (folded in from the former `SYSTEM.md`). Navigation-first,
+> not exhaustive — the proxy deep-dive starts at §1 below.
+
+### Repo layout (top level)
+
+| Path                                | What it is                                                                                                                                                                                                                        |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `polaris-terraform/main-terraform/` | **All infrastructure** — one `.tf` file per deployed component, the tfvars, and the proxy's nginx config files (`nginx.conf`, `nginx.js`, `cmsenv.js`, `global-components.*`, `polaris-script.js`). Where the proxy work happens. |
+| `polaris-ui/`                       | The **React SPA** (`polaris-ui`). Config via `.env.<env>` + `src/app/config.ts`.                                                                                                                                                  |
+| `polaris-devops-pipelines/`         | Azure DevOps **build + deploy** pipelines.                                                                                                                                                                                        |
+| Backend function-app source         | The C#/.NET function apps (gateway, coordinator, pdf-\*, text-extractor).                                                                                                                                                         |
+
+### Deployed components
+
+Each is defined in `polaris-terraform/main-terraform/` and (except maintenance) has an
+identical `…-staging.tf` twin for the deployment slot.
+
+| Component                   | Terraform file                        | Purpose                                             |
+| --------------------------- | ------------------------------------- | --------------------------------------------------- |
+| **CMS proxy**               | `app-service-proxy.tf`                | nginx reverse proxy — the subject of this doc (§1+). |
+| **SPA**                     | `app-service-spa.tf`                  | Serves `polaris-ui` (Node 20, `npx serve`).         |
+| **Gateway**                 | `function-gateway.tf`                 | Polaris API (`fa-polaris…`).                        |
+| **Coordinator**             | `function-coordinator.tf`             | Durable-functions pipeline orchestration.           |
+| **PDF generator**           | `function-pdf-generator.tf`           | Renders documents to PDF.                           |
+| **PDF redactor**            | `function-pdf-redactor.tf`            | Applies redactions.                                 |
+| **PDF thumbnail generator** | `function-pdf-thumbnail-generator.tf` | Page thumbnails.                                    |
+| **Text extractor**          | `function-text-extractor.tf`          | OCR + search indexing.                              |
+| **Maintenance**             | `function-maintenance.tf`             | Utility / housekeeping.                             |
+
+External apps the proxy integrates with but that are **not** defined here (referenced via
+`local.*`/data sources): **DDEI** (`fa-…-ddei`) and **WM-MDS** (managed data store).
+
+### Where config lives
+
+- **Backend / proxy:** `prod.tfvars` / `uat.tfvars` / `qa.tfvars` supply `var.*`, consumed
+  as `app_settings` in the `app-service-*.tf` / `function-*.tf` files. The proxy's config
+  files are uploaded as storage blobs by `app-service-proxy.tf` and rendered by `envsubst`
+  at container start.
+- **UI:** `polaris-ui/.env.<env>` (`.env.production`, `.env.uat`, `.env.qa`,
+  `.env.development`) → read in `polaris-ui/src/app/config.ts` as `process.env.REACT_APP_*`.
+  Build: `polaris-ui/scripts/build.sh` (`env-cmd -f .env.<env> react-scripts build`), driven
+  by `polaris-devops-pipelines/deployments_v2/stages/stage_publish-all-artifacts.yml`.
+  A runtime substitutor, `polaris-ui/public/subsititute-config.js`, also exists (see the
+  **Config source-of-truth** appendix).
+
+### Reorientation quick-start
+
+Re-read these first when returning to the proxy work:
+
+1. This doc — the navigation above, then the proxy deep-dive below.
+2. `polaris-terraform/main-terraform/app-service-proxy.tf` (settings + `lifecycle` block).
+3. `polaris-terraform/main-terraform/nginx.conf` and `nginx.js`.
+4. `polaris-terraform/main-terraform/prod.tfvars` (the values behind the settings).
+
+Handy checks:
+
+- Proxy setting keys: `grep -oE '"[A-Z_]+"' app-service-proxy.tf` (remember they appear
+  twice — in `app_settings` and in `lifecycle.ignore_changes`).
+- Who else uses a var: `grep -rn "var.<name>" polaris-terraform/main-terraform/`.
 
 ## 1. What the proxy is
 
@@ -182,10 +247,11 @@ rewriting of upstream domains / `https://` back to the proxy host.
 
 ## 4. Location blocks (`nginx.conf`) → feature
 
-Every `location` in `nginx.conf`, in file order. **Feature** = my best read of what
-it's _for_; blank / `(?)` where I'm unsure — edit freely, then we refine the names and
-decide which to drop. Scoped to `nginx.conf` only; the `include global-components*.conf`
-at line 947 adds more locations (`global-components.conf`) — a later pass.
+Every `location` in the **live** `nginx.conf`, in file order, with the feature id it was
+sliced into (§6.4). The line numbers are into the live monolith (the golden master);
+`(?)` marks a couple where the original intent was uncertain. Scoped to `nginx.conf` only;
+the `include global-components*.conf` at line 947 adds more locations
+(`global-components.conf`), covered on its own track.
 
 | Line | `location`                                      | Feature (draft — edit me)                        | Feature id                 | Notes                                                                             |
 | ---: | ----------------------------------------------- | ------------------------------------------------ | -------------------------- | --------------------------------------------------------------------------------- |
@@ -252,35 +318,61 @@ at line 947 adds more locations (`global-components.conf`) — a later pass.
   `AUTH_HANDOVER_WHITELIST` and _implements_ the `/auth-refresh-*`, `/polaris`, `/init`
   endpoints. Note `AUTH_HANDOVER_WHITELIST` itself is **Proxy-only** (nothing else reads
   it); the "split" is about the auth-handover _behaviour_ living in two components at
-  once, not a shared setting — see [`SYSTEM.md`](./SYSTEM.md) §4.
+  once, not a shared setting — see the **Config source-of-truth** appendix below.
 
 ## 6. Target architecture — feature-sliced config (refactor direction)
 
 **Goal.** One nginx sub-config `include` per feature id (§4), and one njs module per
 feature **where a feature needs request-time JS** — driven off `include`s the way
 `global-components.conf` already is. Avoid a catch-all script, with **one deliberate
-exception** (`common.js`, below) that the code genuinely forces.
+exception** (the shared CMS-env module, below) that the code genuinely forces.
 
-### 6.1 Where today's njs files land
+> **Status (mostly landed).** The slice and its terraform plumbing are done; what remains
+> is consolidating the shared njs logic and the cutover.
+>
+> | Step | State |
+> | --- | --- |
+> | §6.5 terraform genericisation (blob/`md5`) | ✅ done (`proxy_next_*` in `app-service-proxy.tf`) |
+> | §6.6 feature slicing (locations → `features/`) | ✅ done — `--next` green |
+> | njs split into per-feature modules | 🟡 mostly done — modules + shared `common/cms-detection.js`; remaining: the `replaceCmsDomains` decision (QUIRKS B1) |
+> | Cutover (swap `nginx-next.conf.template` → live) | ⬜ to do |
+>
+> Note the built layout differs from the original sketch below in two ways, kept here for
+> the reasoning: features are **folders** (`features/<name>/<name>.{conf,js}`), not flat
+> numbered files; and the shared module is **`common/cms-detection.js`** (there is no file
+> called `common.js`), with `getDomainFromCookie` living in `global-components.js` rather
+> than a separate `navigate-cms.js`.
 
-| Today | Concern | Target |
-|---|---|---|
-| `nginx.js` | auth handover (feat **2**) — already single-concern | → `auth-handover.js` |
-| `cmsenv.js` → `getDomainFromCookie` | navigate-cms (feat **3**), self-contained (own regex, no shared core) | → `navigate-cms.js` |
-| `cmsenv.js` → everything else | CMS-env resolution + upstream rewrite, shared by feat **5**, **6**, and the dev-login part of **2** | → **`common.js`** (the one shared module) |
-| `polaris-script.js` | client-side button script, served/injected under feat **5** (buttons drive **1** & **4**) | keep as a static asset alongside the feat-5 include (it is browser JS, not njs) |
+### 6.1 Where today's njs files landed
 
-### 6.2 The one shared module — `common.js` (unavoidable)
+| Live file                           | Concern                                                                                             | Landed at (in `config/features/`)                                                    |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `nginx.js`                          | auth handover (feat **2**) — already single-concern                                                 | `auth-handover/auth-handover.js`                                                     |
+| `cmsenv.js` → `getDomainFromCookie` | navigate-cms (feat **3**), self-contained (own regex, no shared core)                               | `global-components/global-components.js` (the `/api/navigate-cms` route's home)      |
+| `cmsenv.js` → CMS-env resolution    | resolution + upstream rewrite, shared by feat **5**, **6**, and the dev-login part of **2**         | **`common/cms-detection.js`** (the one shared module — see §6.2)                     |
+| `cmsenv.js` → internal getters      | the `*Internal` upstream getters for the DC-internal routes                                          | `polaris-ddei/polaris-ddei.js` (self-contained; own getter copies — see QUIRKS D7)  |
+| `polaris-script.js`                 | client-side button script, served/injected under feat **5** (buttons drive **1** & **4**)           | `cms-proxy/polaris-script.js` — static asset beside its feature (browser JS, not njs) |
 
-Every CMS-proxy / internal / dev-login path funnels through `__getCmsEnvInternal`
+There is also an `app-launch/app-launch.js` (feat **1**) that emerged during the slice.
+
+### 6.2 The one shared module — `common/cms-detection.js`
+
+Every CMS-proxy / internal / dev-login path funnels through the CMS-env detection
 (cookie → `default/cin2/cin4/cin5`) and the `r.variables[cmsEnv + 'UpstreamCms…']`
-lookup convention. Features **5** and **6** even share the same getters, and 6's
-`*Internal` fns just call 5's. Splitting per-feature would force **three copies** of the
-cin logic (drift risk — recall cin5 was added later). So this stays one module.
+lookup convention. Splitting that detection per-feature would force copies of the cin
+logic (drift risk — recall cin5 was added later), so it stays one module:
+**`common/cms-detection.js`**, kept as a single-responsibility primitive ("resolve the
+CMS upstream for the current environment"), _not_ a utils junk-drawer.
 
-Keep it a **single-responsibility primitive** ("resolve/rewrite the CMS upstream for the
-current environment"), _not_ a utils junk-drawer. It holds: `getCmsEnv`, the
-`proxyDestination*` / `upstreamCms*` getters, `replaceCmsDomains*`, `__replaceContent`.
+Two deliberate departures from the original "one shared module holds everything" sketch,
+both landed and worth knowing:
+
+- **`replaceCmsDomains*` / `__replaceContent` live in `cms-proxy/cms-proxy.js`**, not the
+  shared module — cms-proxy is their only caller (and the known-bug decision, QUIRKS **B1**,
+  is scoped there).
+- **`polaris-ddei` keeps its own copies of the upstream getters** rather than importing the
+  shared ones, so the feature stays independently deletable (QUIRKS **D7**); the small
+  duplication is intentional.
 
 > Later optimisation to shrink even this: move the cookie→env detection into an nginx
 > `map $http_cookie $cms_env { ~*cin2 cin2; ~*cin4 cin4; ~*cin5 cin5; default default; }`
@@ -289,35 +381,49 @@ current environment"), _not_ a utils junk-drawer. It holds: `getCmsEnv`, the
 
 ### 6.3 What always stays in the parent `nginx.conf` (never per-feature)
 
-The server-scope preamble: `js_import` of every module, the 31 `js_var` upstream vars
-(L88–119), `limit_req_zone` ×2, `resolver` (or the future `map`), security-header
-defaults, and the `include` list. Plus the **ordering contract**: all CMS regexes
-(feature-5 injectors + the `^/CMS.*` catch-all) live together in the feature-5 include,
-so include order stays free (see §5 / precedence notes).
+The server-scope preamble: `js_import` of every module, the CMS-upstream `js_var` vars
+(the `js_var` bridge of §2), `limit_req_zone` ×2, `resolver` (or the future `map`),
+security-header defaults, and the `include` list. Plus the **ordering contract**: all CMS
+regexes (the cms-proxy injectors + the `^/CMS.*` catch-all) live together in the cms-proxy
+include, so include order stays free (see §5 / precedence notes).
 
-### 6.4 Proposed layout
+### 6.4 As-built layout
+
+Features are **folders**, each self-contained (conf + njs + its tests + its `QUIRKS.md`),
+under `config/` — the parent `nginx.conf` is preamble + `include features/*/*.conf;`:
 
 ```
-nginx.conf                 # parent: preamble + ordered includes only
-common.js                  # SHARED primitive: CMS-env resolution + upstream rewrite
-features/
-  00-health.conf
-  01-app-launch.conf
-  02-auth-handover.conf    + auth-handover.js     (was nginx.js)
-  03-rcms.conf             + navigate-cms.js      (getDomainFromCookie)
-  04-cwa-materials.conf
-  05-cms-proxy.conf        (+ polaris-script.js asset; uses common.js — holds ALL CMS regexes)
-  06-polaris-ddei.conf     (uses common.js)
-  # X — redundant: delete (e.g. /sas-url, and the drop-candidates in §4)
-global-components.conf     + global-components.js  (existing, separate track)
+config/
+  nginx.conf                       # parent: preamble + ordered includes only
+  QUIRKS.md                        # cross-cutting quirks + the index
+  features/
+    app-launch/        app-launch.conf   + app-launch.js
+    auth-handover/     auth-handover.conf + auth-handover.js        (was nginx.js)
+    cms-proxy/         cms-proxy.conf     + cms-proxy.js + polaris-script.js
+                       (holds ALL CMS regexes — the ordering contract; + fixtures/)
+    common/            cms-detection.js                              (the SHARED primitive)
+    cwa-materials/     cwa-materials.conf
+    global-components/ global-components.conf + global-components.js (getDomainFromCookie)
+    polaris-ddei/      polaris-ddei.conf  + polaris-ddei.js          (own getter copies)
+    # each folder also carries <name>.unit.test.js / <name>.integration.test.js / QUIRKS.md
 ```
 
-Cross-feature references are fine and expected: the `/polaris` location (feat-5 conf)
-calls `auth-handover.js` (feat 2); feat-5 and feat-6 confs both `import` `common.js`.
+`global-components.conf` remains on its own track (existing, separate). Cross-feature
+references are fine and expected: the `/polaris` location (cms-proxy conf) calls
+`auth-handover.js`; features that need CMS-env resolution import `common/cms-detection.js`.
+Redundant routes (e.g. `/sas-url/`, §4) were **pruned**, not sliced — there is no
+`redundant` feature.
 
-### 6.5 Terraform mechanics — and the `md5` to make generic (do this FIRST)
+### 6.5 Terraform mechanics — genericised blob/`md5` wiring ✅ done
 
-Every config file today is wired **three times** by hand, per file:
+**Landed.** `app-service-proxy.tf` now uploads the whole `config/` tree via a `fileset`
+(`local.proxy_next_*`): `.conf` → `*.conf.template`, `.js` as-is, `*.test.js` / `fixtures/`
+excluded (guarded by `tests/unit/deploy-safety.unit.test.js`), and a single
+`local.proxy_next_config_hash` appended to `FORCE_REFRESH_CONFIG`. The refactored root
+ships **parked** as `nginx-next.conf.template` — inert until cutover (nothing `include`s
+it). The original problem and the approach it took, kept for reference:
+
+Every config file used to be wired **three times** by hand, per file:
 
 1. an explicit `azurerm_storage_blob` (uploaded to the container mounted at
    `/etc/nginx/templates`; `.conf` → `*.conf.template` for `envsubst`, `.js` → plain and
@@ -348,7 +454,11 @@ FORCE_REFRESH_CONFIG = md5(join(":", [for f in sort(local.proxy_files) : filemd5
 
 This turns the migration into pure file adds/moves; terraform picks them up by glob.
 
-### 6.6 Step 1 — empty-file scaffold (prove the loop before moving logic)
+### 6.6 Feature slicing ✅ done — (was: empty-file scaffold to prove the loop)
+
+**Landed.** Every `location` has been sliced into `features/<name>/<name>.conf` and
+`./run-tests.sh --next` is green. The zero-risk scaffold approach that got us there, kept
+for reference:
 
 nginx `include` semantics make a zero-risk first slice possible:
 
@@ -380,168 +490,86 @@ context**, so `location {}` blocks only.
 
 ### 6.7 Constraints carried into the refactor
 
-- **Regex ordering:** all CMS regexes stay in `05-cms-proxy.conf`, current relative order.
+- **Regex ordering:** all CMS regexes stay in `cms-proxy/cms-proxy.conf`, current relative
+  order.
 - **No duplicate literal locations** across includes (nginx won't boot).
 - **Server-scope directives** (`js_import` / `js_var` / `map` / `limit_req_zone`) stay in
   the parent — feature files contain `location {}` blocks only.
-- **`include` order** only matters for the CMS-regex file; wildcard `include features/*.conf`
-  is safe because the colliding regexes are co-located (numeric filename prefixes give a
-  stable order for free).
+- **`include` order** only matters for the CMS-regex file; the wildcard
+  `include features/*/*.conf` is safe because the colliding regexes are all co-located in
+  the one cms-proxy conf.
 
-_(Step 0 = §6.5 md5/blob genericisation; Step 1 = §6.6 empty-file scaffold. Next: the
-transition plan proper — moving logic feature-by-feature while keeping the build green
-and terraform happy.)_
+_(§6.5 and §6.6 are done. Remaining: finish consolidating the shared njs logic — gated on
+the `replaceCmsDomains` decision, QUIRKS **B1** — then cutover: swap
+`nginx-next.conf.template` → `nginx.conf.template` and delete the live copies.)_
 
 ## 7. Testing the proxy — integration + unit (the refactor safety net)
 
-**Why.** The whole §6 refactor (condense `cmsenv.js` → `common.js`, slice config into
-feature includes) is only safe if we can prove behaviour is unchanged after each move.
-The parallel repo `CPS/global-components/infra/proxy/` already runs exactly the kind of
-harness we need — njs unit tests **and** Docker-based integration tests against the
-rendered nginx config — so we mirror it here. The goal, in the user's words: **feed in
-every relevant app setting ourselves, boot the existing config, then manipulate the env /
-cookies to integration-test every path** — first to characterise today's behaviour, then
-to guarantee parity through the transplant and the later condensing.
+**Built and green.** The golden-master harness described here as a plan now exists and
+runs against both the live and `next` configs. Full mechanics — layout, how to run it,
+live-vs-next, conventions — live in **[`../README.md`](../README.md)**; this section keeps
+only the _why_ and the coverage matrix that the suite is measured against.
 
-### 7.1 How the reference harness works (what we copy)
+**Why.** The whole §6 refactor (slice config into feature includes, consolidate the shared
+CMS-env logic) is only safe if we can prove behaviour is unchanged after each move. So we
+feed in every relevant app setting ourselves, boot the existing config against a mock
+upstream, and manipulate the env / cookies to exercise every path — first to characterise
+today's behaviour, then to guarantee parity through the slice and the later consolidation.
+The **§2 grid is the env manifest** (`tests/integration/docker/cmsproxy.mock.env`); the
+mock echoes each request back as JSON so tests assert what nginx forwarded.
 
-- **njs unit tests** (`config/**/tests/*.unit.test.ts`, run via `ts-node`): esbuild bundles
-  the njs module to `.dist/*.bundle.js`, then `import()`s it; a `createMockRequest()` fakes
-  the njs `r` object (`args`, `headersIn`, `headersOut`, `variables`, `return(code, body)`),
-  calls the exported fns, and asserts on `r.returnCode` / `r.returnBody` /
-  `headersOut['Set-Cookie']`. Types from `njs-types`. No nginx → fast pure-logic tests.
-- **Integration tests** (`run-tests.sh` + `docker compose`):
-  - `docker/Dockerfile.base` = `nginx:1.27-alpine` + `nginx-mod-http-js`; the config +
-    njs are mounted in (`.conf` → `/etc/nginx/templates/*.conf.template` so `envsubst`
-    renders them at start, `.js` mounted alongside for `js_import`).
-  - a **`mock-upstream`** service (`docker/mock-server.js`, node on `:3000`/`:3443` with a
-    self-signed cert) stands in for **every** backend via path routing + header checks +
-    CORS simulation — so no real backend is needed.
-  - env is fed via **`env_file: *.mock.env`** (the canonical variable manifest with test
-    values) plus inline `environment:` — notably `WEBSITE_DNS_SERVER=127.0.0.11`, Docker's
-    embedded DNS, so nginx's `resolver` can resolve service names like `mock-upstream`.
-  - tests are plain node `fetch(url, { redirect: "manual" })` scripts asserting on
-    `status` / `Location` / `Set-Cookie` / body, via a tiny shared `test-utils.js`
-    (`assert` / `assertEqual` / `test`). `run-tests.sh` brings the stack up, waits on a
-    health endpoint (`curl`), runs the node test file, tears down.
+**Golden-master ordering.** The suite was written against the **current** config first, so
+it encodes today's behaviour; every §6 step is validated by re-running the same green suite,
+and behaviour drift shows up as a red test pinned to the step that caused it. `QUIRK:` tests
+pin the known-wrong behaviours (see [`../config/QUIRKS.md`](../config/QUIRKS.md)) so a
+refactor cannot change them silently.
 
-### 7.2 Proposed Polaris harness (what we add)
-
-Location: `polaris-terraform/main-terraform/test/`, next to the config files.
-
-```
-test/
-  docker/
-    Dockerfile.base          # nginx + njs; mounts nginx.conf, nginx.js, cmsenv.js, polaris-script.js
-    Dockerfile.mock
-    docker-compose.yml       # nginx + mock-upstream
-    cmsproxy.mock.env        # EVERY relevant app setting, test values → mock-upstream
-    mock-server.js           # stands in for CMS / DDEI / gateway / SPA / Materials / WM-MDS / blob / SAS
-  tests/
-    auth-handover.integration.test.js   # feat 2: /init /polaris /auth-refresh-*
-    cms-proxy.integration.test.js       # feat 5: /CMS.* inject + rewrites + /cinN switch
-    …one file per feature id…
-    cmsenv.unit.test.ts                 # __getCmsEnv, upstream getters, replaceCmsDomains
-    nginx.unit.test.ts                  # auth-handover redirects
-  run-tests.sh
-  test-utils.js
-```
-
-Simpler than the reference in one way: **Polaris njs is already plain `.js`** (`nginx.js`,
-`cmsenv.js`), so there's no TS→njs build step — mount them straight in. (esbuild is still
-handy for the unit layer, to `import()` an ESM bundle.)
-
-### 7.3 Feeding every app setting — the §2 grid *is* the manifest
-
-`cmsproxy.mock.env` enumerates all ~50 vars with test values, taken straight from §2:
-
-- Every upstream (all 28 CMS-upstream keys, DDEI, gateway, SPA, Materials, WM-MDS, blob,
-  SAS) → `mock-upstream`. Set the `*_IP_*` vars to the service **name** `mock-upstream`
-  too (nginx `resolver` resolves it — no literal IP needed for the mock).
-- `WEBSITE_DNS_SERVER=127.0.0.11`, scheme/protocol, a test `AUTH_HANDOVER_WHITELIST`, the
-  rate limits, `APP_SUBFOLDER_PATH=polaris-ui`; secrets (DDEI key, WM-MDS key) → dummies.
-
-That realises the goal literally: we supply the env, boot the real `nginx.conf`, then vary
-env / the `__CMSENV` cookie / cin domains to drive each path.
-
-### 7.4 Golden-master ordering
-
-Write the suite against the **current** config first — it encodes today's behaviour per
-feature. Then every §6 step (0 md5, 1 scaffold, moving locations, `cmsenv.js` → `common.js`,
-condensing) is validated by re-running the same green suite. Behaviour drift shows up as a
-red test, pinned to the step that caused it.
-
-### 7.5 Decisions & constraints
-
-- **Full coverage is the acceptance bar.** A golden master only holds if it exercises
-  _every_ path before we refactor — the target is a test for **every §4 location / every
-  feature** (see §7.7). The build order below is **ordering, not scope**: we need it all in
-  the end.
-- **Fixtures are best-effort and replaceable.** Real CMS sample bodies _may_ be supplied
-  but are **not** assumed. The mock therefore ships **synthesised minimal stand-ins** (a
-  fake `uainMenuBar.js`, a fake case page containing the CMS domains) behind a clear fixture
-  seam, and we drop in real captures if/when available **without touching the tests**.
-- **One mock; data centres collapse.** Corsham and Farnborough both resolve to the single
-  `mock-upstream` — behaviour parity holds; DC-routing itself isn't distinguished unless we
-  add a second mock later.
-- **CMS IPs → service name.** Point the `*_IP_*` vars at `mock-upstream`; `proxy_pass` via
-  `resolver` tolerates a hostname (confirm no path assumes a literal IP).
-- **HTTPS upstreams** (blob, SAS, CMS) → self-signed mock cert on `:3443`; tests set
-  `NODE_TLS_REJECT_UNAUTHORIZED=0`; nginx skips verify for the mock.
-- **Build order (ordering only, all required):** **2** auth handover → **5** CMS proxy +
-  `cmsenv.js` (the refactor's blast radius) → **4** CWA/materials → **6** ddei → **1**
-  launch → **3** rCMS → **0** health → **X** redundant (characterise _before_ deleting).
-
-### 7.6 Reference mechanics to reuse verbatim
-
-- **env → njs bridge.** nginx exposes `envsubst`'d vars to njs via `js_var $x ${VAR};` →
-  njs reads `r.variables.x`. Polaris already does this for the 28 CMS-upstream vars +
-  `endpointHttpProtocol` / `websiteHostname` (`nginx.conf` L88–119), so feeding the mock
-  env "just works" for `cmsenv.js`. The two `process.env` reads in `nginx.js`
-  (`AUTH_HANDOVER_WHITELIST`, `DEFAULT_UPSTREAM_CMS_DOMAIN_NAME`) are supplied to unit
-  tests by setting/restoring `process.env`.
-- **Config in via `.template` + `envsubst`.** Mount `nginx.conf` →
-  `/etc/nginx/templates/nginx.conf.template` and set `NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx`;
-  the stock nginx entrypoint renders `${VAR}` at boot. Mount the `.js` njs files alongside
-  (no `.template` suffix). Bind-mounts mean config edits need no image rebuild.
-- **Mock upstream = header echo.** The default mock handler echoes received headers back as
-  JSON — that's how you assert what nginx forwarded (Host, cookies, `cms-auth-values`,
-  function keys). Add a few fixture routes returning representative bodies for the
-  rewrite/inject paths.
-- **`WEBSITE_DNS_SERVER=127.0.0.11`** (Docker's embedded DNS) so nginx's `resolver`
-  resolves `mock-upstream`; point every upstream var at that service name.
-- **Test-only conf via the include glob.** `nginx.conf` already ends with
-  `include global-components*.conf;` — a matching-named file injects test-only nginx (e.g.
-  a stub health/location) without editing the main config, exactly as the reference does
-  with its `test-only.upgrade-shim.conf`.
-- **Unit layer.** esbuild-bundle each njs module → `import()` → drive with
-  `createMockRequest({ args, headersIn, headersOut, variables, return(), sendBuffer() })`;
-  assert on `r.returnCode` / `r.returnBody` / `headersOut` / `sentBuffer`. Plain `.js`
-  bundles fine (no TypeScript toolchain needed). Orchestrator is `run-tests.sh` (the repo's
-  `run-integration-tests.js` is deprecated); non-root nginx listens on **:8080**, health on
-  `= /` for Polaris.
-
-### 7.7 Coverage matrix — the golden master must hit every path
+### 7.1 Coverage matrix — the golden master must hit every path
 
 One row per feature; the suite is "done" only when every §4 location has an assertion.
 Body-fixture column flags where the mock must return a representative body (the rest are
 redirect / header-echo assertions that need no fixture).
 
-| Feat | Paths (from §4) | Assert | Body fixture |
-|---|---|---|---|
-| 0 💓 | `= /`, `/robots933456.txt` | 200 + "…online" body / probe answers | — |
-| 1 🚀 | `/launch/cms`, `/launch/cin2–5`, `/launch/*-proxy` (10) | 302 + `Location` chain (OutSystems/CMS; uses `DEFAULT_…DOMAIN`) | — |
-| 2 🤝 | `/auth-refresh-outbound`, `/polaris`, `/init`, `/auth-refresh-inbound`, `/auth-refresh-termination`, `/auth-refresh-cms-modern-token`, `/dev-login/`, `/api/dev-login-full-cookie/` | 302/403, `Cms-Session-Hint` cookie attrs, whitelist, `cc=` param, DDEI proxied | DDEI echo |
-| 3 🧭 | `= /api/navigate-cms`, `= /navigate-cms-close` | IE-mode iframe HTML, `X-InternetExplorerMode`, `getDomainFromCookie` | — (nginx-built) |
-| 4 📁 | `/${APP_SUBFOLDER_PATH}`, `/materials`, `= /materials-ui`, materials deep-link, `/materials-ui/`, `/api/`, `/sas-url/`, `/v2/` | proxied to right upstream (echo `Host`), `/materials` 302 handover, `sub_filter` API-domain→`$host` & SAS→`/sas-url/` | body w/ API+SAS domains (synth) |
-| 5 🔀 | CMS regexes (`uainGeneratedScript`, `uainMenuBar`, `uacdCDTabs`, `CMSModern/Files`, `^/CMS.*`), `/cin2–5` switch, root `/`, `/ajax/viewer/` | env pick via `__CMSENV`/LB cookie, `replaceCmsDomains`→`$host`, **button/script injection**, cookie set + LB-cookie clear | **CMS bodies (bespoke)** |
-| 6 🔌 | `/internal-implementation/{corsham,farnborough}[/modern]/` (4) | internal-only proxy to CMS classic/modern per DC, IP pick | CMS echo |
-| X 🗑️ | `/sas-url/` (+ §4 drop-candidates) | characterise current behaviour **before** deletion | as feat 4 |
-| — | cross-cutting | security headers (HSTS, `X-Frame-Options`, `Cache-Control: no-store`), IE/Edge `$ieaction`, scheme rewrites | per path |
+| Feat | Paths (from §4)                                                                                                                                                                     | Assert                                                                                                                    | Body fixture                    |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| 0 💓 | `= /`, `/robots933456.txt`                                                                                                                                                          | 200 + "…online" body / probe answers                                                                                      | —                               |
+| 1 🚀 | `/launch/cms`, `/launch/cin2–5`, `/launch/*-proxy` (10)                                                                                                                             | 302 + `Location` chain (OutSystems/CMS; uses `DEFAULT_…DOMAIN`)                                                           | —                               |
+| 2 🤝 | `/auth-refresh-outbound`, `/polaris`, `/init`, `/auth-refresh-inbound`, `/auth-refresh-termination`, `/auth-refresh-cms-modern-token`, `/dev-login/`, `/api/dev-login-full-cookie/` | 302/403, `Cms-Session-Hint` cookie attrs, whitelist, `cc=` param, DDEI proxied                                            | DDEI echo                       |
+| 3 🧭 | `= /api/navigate-cms`, `= /navigate-cms-close`                                                                                                                                      | IE-mode iframe HTML, `X-InternetExplorerMode`, `getDomainFromCookie`                                                      | — (nginx-built)                 |
+| 4 📁 | `/${APP_SUBFOLDER_PATH}`, `/materials`, `= /materials-ui`, materials deep-link, `/materials-ui/`, `/api/`, `/sas-url/`, `/v2/`                                                      | proxied to right upstream (echo `Host`), `/materials` 302 handover, `sub_filter` API-domain→`$host` & SAS→`/sas-url/`     | body w/ API+SAS domains (synth) |
+| 5 🔀 | CMS regexes (`uainGeneratedScript`, `uainMenuBar`, `uacdCDTabs`, `CMSModern/Files`, `^/CMS.*`), `/cin2–5` switch, root `/`, `/ajax/viewer/`                                         | env pick via `__CMSENV`/LB cookie, `replaceCmsDomains`→`$host`, **button/script injection**, cookie set + LB-cookie clear | **CMS bodies (bespoke)**        |
+| 6 🔌 | `/internal-implementation/{corsham,farnborough}[/modern]/` (4)                                                                                                                      | internal-only proxy to CMS classic/modern per DC, IP pick                                                                 | CMS echo                        |
+| X 🗑️ | `/sas-url/` (+ §4 drop-candidates)                                                                                                                                                  | characterise current behaviour **before** deletion                                                                        | as feat 4                       |
+| —    | cross-cutting                                                                                                                                                                       | security headers (HSTS, `X-Frame-Options`, `Cache-Control: no-store`), IE/Edge `$ieaction`, scheme rewrites               | per path                        |
 
 `global-components*.conf` locations are covered by the parallel repo's own harness; our
 suite only smoke-tests that the `include` loads.
 
-_(This harness is the precondition for confidently doing §6. Suggested order overall:
-build §7 golden-master → §6.5 md5 → §6.6 scaffold → move features one at a time, each
-gated on a green suite.)_
+_(This harness was the precondition for §6, and both its groundwork steps are now done:
+the golden master is green, §6.5 (terraform genericisation) and §6.6 (feature slicing) have
+landed. What remains is consolidating the shared njs logic and cutover — see §6.)_
+
+## Appendix — Config source-of-truth (reference note)
+
+> Recorded to explain the 🟡 **Shared with app** scope in §2 and the _implied
+> dual/multiple use of app settings_ across components. We are **not** changing the UI.
+
+- The same logical settings (feature flags, reauth URLs, redirect URLs, global-components
+  URL, private-beta groups, pipeline-refresh interval, local-storage expiry, redaction-offline
+  flag) are defined in **both** the tfvars **and** the UI `.env.<env>` files — two
+  unsynchronised copies with no shared source.
+- **Which copy wins:** Create-React-App inlines `REACT_APP_*` from `.env.<env>` at **build
+  time**. `subsititute-config.js` only rewrites literal `--REACT_APP_X--` placeholder tokens
+  at container start, and no `.env` file contains such tokens — so the SPA's Terraform
+  `REACT_APP_*` `app_settings` (in `app-service-spa.tf`) are effectively **inert**; the
+  `.env.<env>` values are what users get.
+- **Genuinely shared Terraform vars** (single source, consumed by two components):
+  `var.polaris_ui_sub_folder` (proxy `APP_SUBFOLDER_PATH` ↔ SPA OAuth `redirect_uris` ↔ UI
+  `package.json` `PUBLIC_URL`) and `var.cps_global_components` (proxy `blob_storage_domain`
+  ↔ SPA `script_url`). These are the two 🟡 rows in §2.
+- **Observed drift:** `REACT_APP_REAUTH_REDIRECT_URL_OUTBOUND` differs by env — prod matches
+  tfvars (`/auth-refresh-outbound,/polaris`), but `.env.qa` and `.env.uat` carry hard-coded
+  `cinN.cps.gov.uk/polaris` domain lists with no tfvars counterpart.
+- **Split-brain reauth:** the UI holds the redirect _strings_; the proxy holds
+  `AUTH_HANDOVER_WHITELIST` and _implements_ the `/auth-refresh-*`, `/polaris`, `/init`
+  endpoints (see the split-brain bullet in §5).

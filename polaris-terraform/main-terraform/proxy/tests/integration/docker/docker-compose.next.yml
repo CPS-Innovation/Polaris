@@ -10,7 +10,7 @@
 # env manifest, the mock upstream and its network aliases) is inherited unchanged.
 #
 # The two configs are exercised by the identical test suite; green on both proves
-# the refactor changed no behaviour. See proxy/config/README.md and docs/PROXY.md §6/§7.
+# the refactor changed no behaviour. See proxy/README.md and docs/PROXY.md §6/§7.
 #
 # FEATURES ARE DROP-IN: the features tree is mounted as one directory and staged
 # by stage-config.sh, which does the .conf -> .conf.template rename envsubst needs.

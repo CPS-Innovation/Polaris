@@ -1,27 +1,15 @@
-# Phase 1
+# PLAN — proxy refactor roadmap
 
-- Integration and unit tests
-- Reorganise into separate files
-- Small prune of redundant locations
-
-# Phase 2
-
-- Refactor separate sections
-
-# Phase 3
-
-- Reimplement polaris-ddei functionality in njs and drop polaris-ddei project
-
-# Phase 4
-
-- Rationalise various auth handover flows (including converting CGI case-specific flow to /go)
-
-# Phase 5
-
-- Add v2 auth into flow in test
-- Get MDS endpoint built
-
-# To do
-
-- Feed global-components logic back to repo
-- Remove `SAS_URL_DOMAIN_NAME` from terraform variables
+| Phase                     | Item                                                                                               | Status | Notes                                                                                                                                   |
+| ------------------------- | -------------------------------------------------------------------------------------------------- | :----: | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **1 — Harness + slice**   | Integration and unit tests                                                                         |   ✅   | Golden-master harness built and green on live **and** `--next` (see [`../README.md`](../README.md)).                                    |
+| 1                         | Reorganise into separate files                                                                     |   ✅   | Live `nginx.conf` sliced into `config/features/<name>/<name>.{conf,js}`; parent is preamble + `include`s.                               |
+| 1                         | Small prune of redundant locations                                                                 |   ✅   | `/sas-url/` dropped from the `next` config; further drop-candidates recorded in QUIRKS (D8, D10).                                       |
+| **2 — Refactor sections** | Refactor separate sections (njs split + consolidation)                                             |   🟡   | Per-feature njs modules + shared `common/cms-detection.js` done. Remaining: `replaceCmsDomains` delete/repair decision (QUIRKS **B1**). |
+| 2                         | Cutover — swap `nginx-next.conf.template` → `nginx.conf.template`                                  |   ⬜   | Deploy plumbing already parked/inert ([`PROXY.md` §6.5](./PROXY.md)); one-blob swap, tests have proved parity. Do in staging first.     |
+| **3 — Drop polaris-ddei** | Reimplement polaris-ddei functionality in njs and drop the polaris-ddei project                    |   ⬜   | The `polaris-ddei` feature is already self-contained / independently deletable (QUIRKS **A4**, **D7**).                                 |
+| **4 — Auth handover**     | Rationalise the various auth-handover flows (incl. converting the CGI case-specific flow to `/go`) |   ⬜   |                                                                                                                                         |
+| **5 — v2 auth + MDS**     | Add v2 auth into the flow in test                                                                  |   ⬜   | v2 auth spike currently lives in the **global-components** repo, not Polaris.                                                           |
+| 5                         | Get MDS endpoint built                                                                             |   ⬜   |                                                                                                                                         |
+| **Backlog**               | Feed global-components logic back to repo                                                          |   ⬜   |                                                                                                                                         |
+| Backlog                   | Remove `SAS_URL_DOMAIN_NAME` from terraform variables                                              |   ⬜   | Follows the `/sas-url/` prune (Phase 1).                                                                                                |

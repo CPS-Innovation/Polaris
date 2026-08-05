@@ -302,7 +302,7 @@ function handleCaseReviewRedirect(r) {
 }
 // Moved from cmsenv.js. Used only by the legacy /api/navigate-cms block in
 // global-components.conf. Self-contained: its own regex, no CMS-env detection.
-// NOTE: throws if the cookie has no *.cps.gov.uk domain (docs/QUIRKS.md C4) —
+// NOTE: throws if the cookie has no *.cps.gov.uk domain (QUIRKS.md C4) —
 // preserved verbatim.
 function getDomainFromCookie(r) {
   let cookie = r.headersIn.Cookie || "";

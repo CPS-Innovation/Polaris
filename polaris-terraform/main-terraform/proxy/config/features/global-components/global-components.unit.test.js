@@ -30,7 +30,7 @@ async function domainFromCookie(gloco) {
   // ---------------------------------------------------------------------------
   // QUIRK (characterisation): no match -> domainMatch[0] on null -> TypeError.
   // In nginx this surfaces as an njs exception on the js_set, not a clean value.
-  // See docs/QUIRKS.md C4. Preserved verbatim through the move from cmsenv.js.
+  // See QUIRKS.md C4. Preserved verbatim through the move from cmsenv.js.
   // ---------------------------------------------------------------------------
   await test("QUIRK: throws when the cookie has no *.cps.gov.uk domain", () => {
     const err = assertThrows(

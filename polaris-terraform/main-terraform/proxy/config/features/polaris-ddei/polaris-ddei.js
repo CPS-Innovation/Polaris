@@ -1,6 +1,6 @@
 // Feature 6 🔌 — polaris-ddei internal routes.
 //
-// This feature is self-contained (it is slated for deletion — docs/QUIRKS.md A4
+// This feature is self-contained (it is slated for deletion — QUIRKS.md A4
 // / PLAN.md Phase 3), so it owns EVERY CMS-upstream getter its conf js_sets,
 // built from its own getter factories over common.setting. Some compute the same
 // value as getters in cms-proxy.js (the Corsham dests + domain getters) — that
