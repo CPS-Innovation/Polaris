@@ -1,125 +1,129 @@
-﻿using System;
+﻿// <copyright file="ConvertToPdf.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace pdf_generator.Functions;
+
+using System;
 using System.Net;
+using System.Threading.Tasks;
 using Common.Configuration;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.AspNetCore.Http;
-using pdf_generator.Services.PdfService;
-using pdf_generator.TelemetryEvents;
+using Common.Constants;
 using Common.Exceptions;
-using pdf_generator.Extensions;
 using Common.Extensions;
 using Common.Logging;
-using Common.Telemetry;
 using Common.Streaming;
-using System.Threading.Tasks;
-using Common.Constants;
+using Common.Telemetry;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
+using pdf_generator.Extensions;
+using pdf_generator.Services.PdfService;
+using pdf_generator.TelemetryEvents;
 
-namespace pdf_generator.Functions
+/// <summary>
+/// Represents a function that converts a case material in PNG format to PDF format.
+/// This function is designed to be triggered by an HTTP POST request and is intended to be accessed via the Housekeeping UI front-end.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="ConvertToPdf"/> class.
+/// </remarks>
+/// <param name="pdfOrchestratorService">The service used to orchestrate PDF conversion by selecting appropriate format-specific PDF service for the input document.</param>
+/// <param name="logger">The logger instance used to log information and errors.</param>
+/// <param name="telemetryClient">The telemetry client used to track application events and metrics.</param>
+public class ConvertToPdf(
+     IPdfOrchestratorService pdfOrchestratorService,
+     ILogger<ConvertToPdf> logger,
+     ITelemetryClient telemetryClient)
 {
-    public class ConvertToPdf
+    private const string LoggingName = nameof(ConvertToPdf);
+
+    private readonly IPdfOrchestratorService pdfOrchestratorService = pdfOrchestratorService;
+    private readonly ILogger<ConvertToPdf> logger = logger;
+    private readonly ITelemetryClient telemetryClient = telemetryClient;
+
+    [ProducesResponseType((int)HttpStatusCode.OK)]
+    [ProducesResponseType((int)HttpStatusCode.UnsupportedMediaType)]
+    [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
+    [Function(nameof(ConvertToPdf))]
+    public async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
+        int caseId,
+        string materialId,
+        string documentId)
     {
-        private readonly IPdfOrchestratorService _pdfOrchestratorService;
-        private readonly ILogger<ConvertToPdf> _logger;
-        private readonly ITelemetryClient _telemetryClient;
-        private const string LoggingName = nameof(ConvertToPdf);
-
-        public ConvertToPdf(
-             IPdfOrchestratorService pdfOrchestratorService,
-             ILogger<ConvertToPdf> logger,
-             ITelemetryClient telemetryClient)
+        var currentCorrelationId = request.Headers.GetCorrelationId();
+        var telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId)
         {
-            _pdfOrchestratorService = pdfOrchestratorService;
-            _logger = logger;
-            _telemetryClient = telemetryClient;
-        }
-
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.UnsupportedMediaType)]
-        [ProducesResponseType((int)HttpStatusCode.InternalServerError)]
-        [Function(nameof(ConvertToPdf))]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ConvertToPdf)] HttpRequest request,
-            string caseUrn, int caseId, string materialId, string documentId)
+            OperationName = nameof(ConvertToPdf),
+        };
+        try
         {
-            Guid currentCorrelationId = default;
-            currentCorrelationId = request.Headers.GetCorrelationId();
+            var fileType = ConvertToPdfHelper.GetFileType(request.Headers);
 
-            var telemetryEvent = new ConvertedDocumentEvent(currentCorrelationId)
+            telemetryEvent.FileType = fileType.ToString();
+            telemetryEvent.CaseId = caseId.ToString();
+            telemetryEvent.DocumentId = materialId;
+            telemetryEvent.VersionId = documentId;
+
+            var startTime = DateTime.UtcNow;
+            telemetryEvent.StartTime = startTime;
+
+            if (request.Body == null)
             {
-                OperationName = nameof(ConvertToPdf),
-            };
-            try
+                throw new BadRequestException("An empty document stream was received from the Coordinator", nameof(request));
+            }
+
+            var inputStream = await request.Body
+                .EnsureSeekableAsync(); // Aspose demands a seekable stream, and as we want to record the size of the stream, we need to ensure it is seekable also.
+
+            var originalBytes = inputStream.Length;
+            telemetryEvent.OriginalBytes = originalBytes;
+
+            var conversionResult = await this.pdfOrchestratorService.ReadToPdfStreamAsync(inputStream, fileType, materialId, currentCorrelationId);
+
+            // #25834 - Successfully converted documents may still have a failure reason we need to record
+            if (conversionResult.HasFailureReason())
             {
-                var fileType = ConvertToPdfHelper.GetFileType(request.Headers);
+                telemetryEvent.FailureReason = conversionResult.GetFailureReason();
+            }
 
-                telemetryEvent.FileType = fileType.ToString();
-                telemetryEvent.CaseId = caseId.ToString();
-                telemetryEvent.CaseUrn = caseUrn;
-                telemetryEvent.DocumentId = materialId;
-                telemetryEvent.VersionId = documentId;
+            if (conversionResult.ConversionStatus == PdfConversionStatus.DocumentConverted)
+            {
+                var bytes = conversionResult.ConvertedDocument.Length;
 
-                var startTime = DateTime.UtcNow;
-                telemetryEvent.StartTime = startTime;
-
-                if (request.Body == null)
-                {
-                    throw new BadRequestException("An empty document stream was received from the Coordinator", nameof(request));
-                }
-
-                var inputStream = await request.Body
-                    // Aspose demands a seekable stream, and as we want to record the size of the stream, we need to ensure it is seekable also.
-                    .EnsureSeekableAsync();
-
-                var originalBytes = inputStream.Length;
-                telemetryEvent.OriginalBytes = originalBytes;
-
-                var conversionResult = await _pdfOrchestratorService.ReadToPdfStreamAsync(inputStream, fileType, materialId, currentCorrelationId);
-
-                // #25834 - Successfully converted documents may still have a failure reason we need to record
-                if (conversionResult.HasFailureReason())
-                {
-                    telemetryEvent.FailureReason = conversionResult.GetFailureReason();
-                }
-
-                if (conversionResult.ConversionStatus == PdfConversionStatus.DocumentConverted)
-                {
-                    var bytes = conversionResult.ConvertedDocument.Length;
-
-                    telemetryEvent.Bytes = bytes;
-                    telemetryEvent.EndTime = DateTime.UtcNow;
-                    telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
-
-                    _telemetryClient.TrackEvent(telemetryEvent);
-
-                    return new FileStreamResult(conversionResult.ConvertedDocument, "application/pdf")
-                    {
-                        FileDownloadName = $"{nameof(ConvertToPdf)}.pdf",
-                    };
-                }
-
+                telemetryEvent.Bytes = bytes;
+                telemetryEvent.EndTime = DateTime.UtcNow;
                 telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
-                _telemetryClient.TrackEventFailure(telemetryEvent);
 
-                return new ObjectResult(conversionResult.ConversionStatus)
+                this.telemetryClient.TrackEvent(telemetryEvent);
+
+                return new FileStreamResult(conversionResult.ConvertedDocument, "application/pdf")
                 {
-                    StatusCode = (int)HttpStatusCode.UnsupportedMediaType
+                    FileDownloadName = $"{nameof(ConvertToPdf)}.pdf",
                 };
             }
-            catch (Exception exception)
+
+            telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
+            this.telemetryClient.TrackEventFailure(telemetryEvent);
+
+            return new ObjectResult(conversionResult.ConversionStatus)
             {
-                _logger.LogMethodError(currentCorrelationId, LoggingName, exception.Message, exception);
-
-                telemetryEvent.FailureReason = exception.Message;
-                _telemetryClient.TrackEventFailure(telemetryEvent);
-
-                return new ObjectResult(exception.ToFormattedString())
-                {
-                    StatusCode = (int)HttpStatusCode.InternalServerError
-                };
-            }
+                StatusCode = (int)HttpStatusCode.UnsupportedMediaType,
+            };
         }
+        catch (Exception exception)
+        {
+            this.logger.LogMethodError(currentCorrelationId, LoggingName, exception.Message, exception);
 
+            telemetryEvent.FailureReason = exception.Message;
+            this.telemetryClient.TrackEventFailure(telemetryEvent);
 
+            return new ObjectResult(exception.ToFormattedString())
+            {
+                StatusCode = (int)HttpStatusCode.InternalServerError,
+            };
+        }
     }
 }

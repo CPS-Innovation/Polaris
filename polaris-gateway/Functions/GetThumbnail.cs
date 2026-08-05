@@ -53,7 +53,7 @@ public class GetThumbnail : BaseFunction
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
 
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Thumbnail)] HttpRequest req,
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.ThumbnailLegacy)] HttpRequest req,
         string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int pageIndex, CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);

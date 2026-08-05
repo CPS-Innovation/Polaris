@@ -19,22 +19,22 @@ using Microsoft.Extensions.Configuration;
 
 namespace coordinator.Functions
 {
-    public class SearchCase
+    public class SearchCaseLegacy
     {
         private const string QueryStringSearchParam = "query";
         private readonly ITextExtractorClient _textExtractorClient;
         private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
         private readonly ITelemetryClient _telemetryClient;
-        private readonly ILogger<SearchCase> _logger;
+        private readonly ILogger<SearchCaseLegacy> _logger;
 
-        public SearchCase(
+        public SearchCaseLegacy(
             IConfiguration configuration,
             ITextExtractorClient textExtractorClient,
             ISearchFilterDocumentMapper searchFilterDocumentMapper,
             Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
             ITelemetryClient telemetryClient,
-            ILogger<SearchCase> logger)
+            ILogger<SearchCaseLegacy> logger)
         {
             _textExtractorClient = textExtractorClient;
             _searchFilterDocumentMapper = searchFilterDocumentMapper;
@@ -43,12 +43,12 @@ namespace coordinator.Functions
             _logger = logger;
         }
 
-        [Function(nameof(SearchCase))]
+        [Function(nameof(SearchCaseLegacy))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearch)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearchLegacy)] HttpRequest req,
             string caseUrn,
             int caseId)
         {
@@ -93,7 +93,7 @@ namespace coordinator.Functions
                     caseId,
                     documentIdsChunk)
                 {
-                    OperationName = nameof(SearchCase),
+                    OperationName = nameof(SearchCaseLegacy),
                 };
                 _telemetryClient.TrackEvent(telemetryEvent);
             }

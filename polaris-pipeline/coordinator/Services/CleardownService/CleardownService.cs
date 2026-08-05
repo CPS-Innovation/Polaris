@@ -38,7 +38,7 @@ namespace coordinator.Services.ClearDownService
                 caseId,
                 DateTime.UtcNow)
             {
-                OperationName = nameof(DeleteCase),
+                OperationName = nameof(DeleteCaseLegacy),
             };
             try
             {
