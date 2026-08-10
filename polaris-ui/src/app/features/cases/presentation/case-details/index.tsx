@@ -587,9 +587,9 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           redactionLog.redactionLogLookUpsData.status === "succeeded" && (
             <RedactionLogModal
               redactionLogType={redactionLog.type}
-              caseUrn={caseState.data.uniqueReferenceNumber}
-              isCaseCharged={caseState.data.isCaseCharged}
-              owningUnit={caseState.data.owningUnit}
+              caseUrn={caseState.data?.uniqueReferenceNumber ?? params.urn}
+              isCaseCharged={caseState.data?.isCaseCharged}
+              owningUnit={caseState.data?.owningUnit}
               documentName={activeTabMappedDocument.presentationTitle}
               cmsDocumentTypeId={
                 activeTabMappedDocument.cmsDocType.documentTypeId
@@ -661,19 +661,23 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   Case navigation panel
                 </span>
                 <div>
-                  <KeyDetails
-                    handleOpenPdf={() => {
-                      handleOpenPdf({
-                        documentId: dacDocumentId,
-                        mode: "read",
-                      });
-                    }}
-                    caseDetails={caseState.data}
-                    isMultipleDefendantsOrCharges={
-                      isMultipleDefendantsOrCharges
-                    }
-                    dacDocumentId={dacDocumentId}
-                  />
+                  {caseState.data ? (
+                    <KeyDetails
+                      handleOpenPdf={() => {
+                        handleOpenPdf({
+                          documentId: dacDocumentId,
+                          mode: "read",
+                        });
+                      }}
+                      caseDetails={caseState.data}
+                      isMultipleDefendantsOrCharges={
+                        isMultipleDefendantsOrCharges
+                      }
+                      dacDocumentId={dacDocumentId}
+                    />
+                  ) : (
+                    <div>Unable to load defendants data</div>
+                  )}
 
                   {!isMultipleDefendantsOrCharges && (
                     <Charges caseDetails={caseState.data} />
@@ -703,7 +707,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                         className={`${classes.newWindowBtn} govuk-button--secondary`}
                         name="secondary"
                       >
-                        Bulk UM Classification
+                        Materials and Communications
                       </Button>
                     </div>
                   }
