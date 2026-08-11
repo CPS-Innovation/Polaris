@@ -15,7 +15,7 @@ public class DirectImplementation : IRedactionImplementation
         {
             FillColor = Color.Black,
             Color = Color.Black,
-            OverlayText = string.Empty,
+            OverlayText = null,
             Opacity = 1,
         };
 
