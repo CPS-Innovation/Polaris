@@ -703,7 +703,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                         className={`${classes.newWindowBtn} govuk-button--secondary`}
                         name="secondary"
                       >
-                        Bulk UM Classification
+                        Materials and Communications
                       </Button>
                     </div>
                   }
