@@ -217,6 +217,14 @@ async function envSwitch() {
     assertIncludes(setCookie, "LBsessioncookie=deleted", "Should clear LB session cookies")
   })
 
+  await test("/cin2 clears the OTHER envs' EXACT pool/LB cookies, not its own", async () => {
+    const res = await get("/cin2", { headers: ie })
+    const setCookie = res.headers.getSetCookie().join("\n")
+    assertIncludes(setCookie, "BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "exact cin3 pool cookie")
+    assertIncludes(setCookie, "F-CIN5-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "exact cin5 LB cookie")
+    if (setCookie.indexOf("CIN2-cin2") !== -1) throw new Error("must NOT clear its own env (cin2)")
+  })
+
   await test("non-IE + non-configurable -> 402 'requires Internet Explorer mode'", async () => {
     const res = await get("/cin2", { headers: { "User-Agent": EDGE_UA } })
     assertEqual(res.status, 402, "Should 402")

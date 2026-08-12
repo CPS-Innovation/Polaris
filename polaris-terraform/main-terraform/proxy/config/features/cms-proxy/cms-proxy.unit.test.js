@@ -178,12 +178,69 @@ async function menuBar(cmsProxy) {
   })
 }
 
+async function cinSwitchTests(cmsProxy) {
+  console.log("\ncinSwitch — /cin env switch (IE gate + cookies + redirect):")
+  const restore = applyEnv({ WEBSITE_SCHEME: "https" })
+  const IE_UA = "Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko"
+  const EDGE_UA = "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 Chrome/120 Safari/537.36"
+
+  // cinSwitch now gates via ieMode.coerce, which reads the UA + configurable HEADERS
+  // (not $ieaction) — so drive it with headers, as production requests do.
+  const call = (uri, ua, conf) => {
+    const r = createMockRequest({
+      uri,
+      headersIn: {
+        ...(ua !== undefined ? { "User-Agent": ua } : {}),
+        ...(conf !== undefined ? { "X-InternetExplorerModeConfigurable": conf } : {}),
+      },
+      variables: { host: "polaris.example", request_uri: uri },
+    })
+    cmsProxy.cinSwitch(r)
+    return r
+  }
+  const cookies = (uri) => call(uri, IE_UA).headersOut["Set-Cookie"] // IE UA -> proceeds
+
+  // --- IE-desired gate (delegated to ieMode.coerce) ---
+  await test("nonie+nonconfigurable -> 402", () => {
+    assertEqual(call("/cin2", EDGE_UA).returnCode, 402)
+  })
+  await test("nonie+configurable -> 302 self + X-InternetExplorerMode: 1", () => {
+    const r = call("/cin2", EDGE_UA, "1")
+    assertEqual(r.returnCode, 302, "302")
+    assertEqual(r.headersOut["X-InternetExplorerMode"], "1", "asks for IE mode")
+    assertEqual(r.returnBody, "https://polaris.example/cin2", "self-redirect to request_uri")
+  })
+
+  // --- proceed (IE browser): redirect + env cookie + clearing ---
+  await test("ie -> 302 to /CMS", () => {
+    assertEqual(call("/cin2", IE_UA).returnBody, "https://polaris.example/CMS")
+  })
+  await test("__CMSENV set per env — cin3 IS 'default' (QUIRK D9)", () => {
+    assertIncludes(cookies("/cin2").join("\n"), "__CMSENV=cin2", "cin2")
+    assertIncludes(cookies("/cin3").join("\n"), "__CMSENV=default", "cin3 -> default")
+    assertIncludes(cookies("/cin4").join("\n"), "__CMSENV=cin4", "cin4")
+    assertIncludes(cookies("/cin5").join("\n"), "__CMSENV=cin5", "cin5")
+  })
+  await test("clears the OTHER envs' pool + LB cookies, leaves the current env's alone", () => {
+    const joined = cookies("/cin2").join("\n")
+    assertIncludes(joined, "BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "clears cin3 pool")
+    assertIncludes(joined, "F-CIN5-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "clears cin5 LB")
+    assertNotIncludes(joined, "CIN2-cin2", "does NOT clear the current env (cin2)")
+  })
+  await test("exactly 13 Set-Cookie values: __CMSENV + 3 envs x (2 pool + 2 lb)", () => {
+    assertEqual(cookies("/cin2").length, 1 + 3 * 4)
+  })
+
+  restore()
+}
+
 async function main() {
   const cmsProxy = await loadNjs("features/cms-proxy/cms-proxy.js")
   const restoreEnv = applyEnv(cmsEnvObject())
   await getters(cmsProxy)
   await bodyFilters(cmsProxy)
   await menuBar(cmsProxy)
+  await cinSwitchTests(cmsProxy)
   restoreEnv()
   process.exit(summarise("cms-proxy.js (unit)"))
 }

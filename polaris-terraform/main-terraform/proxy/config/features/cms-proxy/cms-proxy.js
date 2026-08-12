@@ -5,6 +5,7 @@
 // launch buttons into the CMS menu bar. Per-environment app-setting reads come
 // from the shared common.cms-detection module.
 import common from "../common/cms-detection.js";
+import ieMode from "../common/ie-mode.js";
 
 // Getter factories, built on common.setting: a getter for a raw upstream value, and
 // one that prefixes the protocol to build a proxy_pass target. `name` is the
@@ -74,6 +75,46 @@ function __replaceContent(content, replacements) {
     return content;
 }
 
+// ---------------------------------------------------------------------------
+// Env-switch endpoints /cin2../cin5 (pre-prod only) — collapsed from four
+// near-identical conf blocks into one handler. Sets the __CMSENV hint cookie for
+// the chosen environment (cin3 IS "default" — see cms-detection.js / QUIRK D9),
+// clears the OTHER three environments' BIG-IP pool + LB session cookies (they can
+// carry the env token cms-detection scans for), then 302s to /CMS. The IE-desired
+// gate reads $ieaction (features/common/ie-mode.js). As a js_content location it now
+// inherits the server security headers on the 302 — harmless for a cookie-set +
+// redirect; the old conf blocks dropped them (QUIRK B3). Pre-prod only.
+const CIN_EXPIRE = "=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+
+// Expired pool (ACP+AFP) then LB (C+F) cookies for every env EXCEPT `digit`, in the
+// original conf order: all pool cookies (env-ascending, ACP before AFP), then all LB.
+function _clearOtherCinEnvs(digit) {
+    const pool = [];
+    const lb = [];
+    ["2", "3", "4", "5"].forEach((d) => {
+        if (d === digit) return;
+        const E = "CIN" + d;
+        const e = "cin" + d;
+        pool.push("BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-" + E + "-" + e + ".cps.gov.uk_POOL" + CIN_EXPIRE);
+        pool.push("BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-" + E + "-" + e + ".cps.gov.uk_POOL" + CIN_EXPIRE);
+        lb.push("C-" + E + "-LBsessioncookie" + CIN_EXPIRE);
+        lb.push("F-" + E + "-LBsessioncookie" + CIN_EXPIRE);
+    });
+    return pool.concat(lb);
+}
+
+function cinSwitch(r) {
+    // IE-desired gate, rejecting a non-switchable non-IE browser — via the shared
+    // helper (== the old inline nonie+nonconfigurable->402 / nonie+configurable->302).
+    if (ieMode.coerce(r, "ie", true)) return;
+    // proceed — switch environment (env picked from the request path).
+    const m = (r.uri || "").match(/^\/cin([2-5])/);
+    const digit = m ? m[1] : "";
+    const env = digit === "3" ? "default" : "cin" + digit;
+    r.headersOut["Set-Cookie"] = ["__CMSENV=" + env].concat(_clearOtherCinEnvs(digit));
+    r.return(302, process.env.WEBSITE_SCHEME + "://" + r.variables.host + "/CMS");
+}
+
 export default {
     // CMS-upstream getters this feature js_sets (Corsham dests + the domain
     // getters). Built from this feature's own factories (over common.setting);
@@ -87,4 +128,6 @@ export default {
     replaceCmsDomains,
     replaceCmsDomainsAjaxViewer,
     cmsMenuBarFilters,
+    // env-switch endpoints /cin2..5
+    cinSwitch,
 };

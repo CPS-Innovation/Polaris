@@ -1,5 +1,6 @@
 import qs from "querystring"
 import common from "../common/cms-detection.js"
+import ieMode from "../common/ie-mode.js"
 
 const IS_PROXY_SESSION_PARAM_NAME = "is-proxy-session"
 const SESSION_HINT_COOKIE_NAME = "Cms-Session-Hint"
@@ -113,6 +114,8 @@ function setSessionHintCookie(r) {
 }
 
 function appAuthRedirect(r) {
+  // Edge Mode Desired (was the two conf `if ($ieaction …)` gates on /init).
+  if (ieMode.coerce(r, "edge", true)) return
   setSessionHintCookie(r)
 
   const args = _argsShim(r.args)
@@ -144,6 +147,9 @@ This request has an r query parameter of ${args["r"]}`
 //  Primarily useful when users are using CMS delivered through this proxy. In this use case, users are on this proxy
 //  domain when using CMS.  We inject a P button and simulated the prod /polaris handover endpoint using this function.
 function polarisAuthRedirect(r) {
+  // IE Mode Desired (was the conf `if ($ieaction = 'nonie+configurable+')` gate on
+  // /polaris). No reject: a non-IE browser that can't switch just proceeds.
+  if (ieMode.coerce(r, "ie", false)) return
   const serializedArgs = qs.stringify(r.args)
   const clonedArgs = qs.parse(serializedArgs)
   clonedArgs.cookie = r.headersIn.Cookie

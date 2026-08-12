@@ -28,6 +28,8 @@ const {
 
 // nginx.js builds absolute redirects from X-Forwarded-Proto + Host.
 const H = { "X-Forwarded-Proto": "https" }
+const IE_UA = "Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko"
+const EDGE_UA = "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 Chrome/120 Safari/537.36"
 
 function sessionHint(setCookie) {
   const m = /Cms-Session-Hint=([^;]+)/.exec(setCookie || "")
@@ -223,9 +225,42 @@ async function ddeiTests() {
   })
 }
 
+async function gateTests() {
+  console.log("\n/polaris + /init — IE/Edge coercion gate (ieMode.coerce):")
+
+  // /polaris — IE Mode Desired, NO 402: coerce a switchable non-IE browser, else proceed.
+  await test("/polaris nonie+configurable -> 302 + X-InternetExplorerMode: 1 (coerce IE)", async () => {
+    const res = await get("/polaris", {
+      headers: { ...H, "User-Agent": EDGE_UA, "X-InternetExplorerModeConfigurable": "1" },
+    })
+    assertEqual(res.status, 302, "Should coerce")
+    assertEqual(res.headers.get("x-internetexplorermode"), "1", "asks for IE mode")
+  })
+  await test("/polaris nonie+nonconfigurable -> proceeds (no coercion, hands to /init)", async () => {
+    const res = await get("/polaris?r=/auth-refresh-inbound", { headers: { ...H, "User-Agent": EDGE_UA } })
+    assertEqual(res.status, 302, "Should proceed to the handover")
+    assertEqual(res.headers.get("x-internetexplorermode"), null, "no coercion header")
+    assertIncludes(res.headers.get("location"), "/init", "hands off, not a self-redirect")
+  })
+
+  // /init — Edge Mode Desired, WITH 402.
+  await test("/init ie+nonconfigurable -> 402 (Edge required, cannot ask)", async () => {
+    const res = await get("/init", { headers: { ...H, "User-Agent": IE_UA } })
+    assertEqual(res.status, 402, "Should refuse")
+  })
+  await test("/init ie+configurable -> 302 + X-InternetExplorerMode: 0 (coerce Edge)", async () => {
+    const res = await get("/init", {
+      headers: { ...H, "User-Agent": IE_UA, "X-InternetExplorerModeConfigurable": "1" },
+    })
+    assertEqual(res.status, 302, "Should coerce")
+    assertEqual(res.headers.get("x-internetexplorermode"), "0", "asks for Edge mode")
+  })
+}
+
 async function main() {
   await initTests()
   await polarisTests()
+  await gateTests()
   await outboundTests()
   await ddeiTests()
   process.exit(summarise("Auth handover (feature 2)"))
