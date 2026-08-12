@@ -1,7 +1,11 @@
-using Aspose.Pdf;
-using Aspose.Pdf.Annotations;
+// <copyright file="DirectImplementation.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
 
 namespace pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementations;
+
+using global::Aspose.Pdf;
+using global::Aspose.Pdf.Annotations;
 
 public class DirectImplementation : IRedactionImplementation
 {
@@ -11,6 +15,8 @@ public class DirectImplementation : IRedactionImplementation
         {
             FillColor = Color.Black,
             Color = Color.Black,
+            OverlayText = null,
+            Opacity = 1,
         };
 
         page.Annotations.Add(redaction, true);
