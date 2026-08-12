@@ -99,7 +99,7 @@ public class RedactDocument
             if (redactedDocumentStream == null)
             {
                 string error = $"Error Saving redaction details to the document for {caseId}, materialId {materialId}";
-                throw new Exception(error);
+                throw new InvalidOperationException(error);
             }
         }
 
@@ -133,7 +133,7 @@ public class RedactDocument
             if (modifiedDocumentStream == null)
             {
                 string error = $"Error modifying document for {caseId}, materialId {materialId}";
-                throw new Exception(error);
+                throw new InvalidOperationException(error);
             }
         }
 
