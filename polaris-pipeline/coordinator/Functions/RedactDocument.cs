@@ -69,12 +69,12 @@ public class RedactDocument
 
         var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
-        var redactPdfRequest = await req.ReadFromJsonAsync<RedactPdfRequestDto>();
+        var redactPdfRequest = await req.ReadFromJsonAsync<RedactPdfRequestDto>(cancellationToken);
 
         using var documentStream = await this.polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, materialId, documentId, BlobType.Pdf));
 
         using var memoryStream = new MemoryStream();
-        await documentStream.CopyToAsync(memoryStream);
+        await documentStream.CopyToAsync(memoryStream, cancellationToken);
         var bytes = memoryStream.ToArray();
 
         Stream redactedDocumentStream = null;
@@ -89,7 +89,7 @@ public class RedactDocument
                 RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
             };
 
-            var validationResult = await this.requestValidator.ValidateAsync(redactionRequest);
+            var validationResult = await this.requestValidator.ValidateAsync(redactionRequest, cancellationToken);
             if (!validationResult.IsValid)
             {
                 throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
@@ -112,7 +112,7 @@ public class RedactDocument
             if (redactedDocumentStream != null)
             {
                 using var redactedMemoryStream = new MemoryStream();
-                await redactedDocumentStream.CopyToAsync(redactedMemoryStream);
+                await redactedDocumentStream.CopyToAsync(redactedMemoryStream, cancellationToken);
                 bytesToModify = redactedMemoryStream.ToArray();
             }
             else
@@ -145,7 +145,7 @@ public class RedactDocument
             DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document),
             documentId);
 
-        var ddeiResult = await this.mdsClient.UploadPdfAsync(arg, modifiedDocumentStream ?? redactedDocumentStream);
+        var ddeiResult = await this.mdsClient.UploadPdfAsync(arg, modifiedDocumentStream ?? redactedDocumentStream, cancellationToken);
 
         if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
         {
