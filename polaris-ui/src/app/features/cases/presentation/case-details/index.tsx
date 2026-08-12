@@ -686,6 +686,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                             `${CASE_REVIEW_APP_REDIRECT_URL}?URN=${urn}&CMSCaseId=${caseId}`
                           );
                         }}
+                        style={{ textAlign: "center", width: "100%" }}
                         data-testid="btn-case-review-app"
                         id="btn-case-review-app"
                         className={`${classes.newWindowBtn} govuk-button--secondary`}
@@ -698,12 +699,13 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                         onClick={() => {
                           openInSameTab(`${BULK_UM_REDIRECT_URL}/${caseId}`);
                         }}
+                        style={{ textAlign: "center", width: "100%" }}
                         data-testid="btn-bulk-um-classification"
                         id="btn-bulk-um-classification"
                         className={`${classes.newWindowBtn} govuk-button--secondary`}
                         name="secondary"
                       >
-                        Materials and Communications
+                        Manage Materials and Communications
                       </Button>
                     </div>
                   }
