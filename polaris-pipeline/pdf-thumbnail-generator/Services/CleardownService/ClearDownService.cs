@@ -5,6 +5,7 @@ using Common.Services.BlobStorage;
 using Common.Telemetry;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using pdf_thumbnail_generator.Durable.Providers;
 using pdf_thumbnail_generator.Functions.Maintenance;
 using pdf_thumbnail_generator.TelemetryEvents;
@@ -15,13 +16,13 @@ public class ClearDownService : IClearDownService
 { 
     private readonly IPolarisBlobStorageService _blobStorageServiceContainerThumbnails;
     private readonly IOrchestrationProvider _orchestrationProvider;
-    private readonly ITelemetryClient _telemetryClient;
-    
-    public ClearDownService(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOrchestrationProvider orchestrationProvider, ITelemetryClient telemetryClient, IConfiguration configuration) 
+    private readonly ILogger<ClearDownService> _logger;
+
+    public ClearDownService(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOrchestrationProvider orchestrationProvider, ILogger<ClearDownService> logger, IConfiguration configuration) 
     { 
         _blobStorageServiceContainerThumbnails = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameThumbnails] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
         _orchestrationProvider = orchestrationProvider;
-        _telemetryClient = telemetryClient;
+        _logger = logger;
     }
 
     public async Task DeleteCaseThumbnailAsync(DurableTaskClient client, string caseUrn, string instanceId, DateTime earliestDateToKeep, Guid correlationId)
@@ -49,7 +50,7 @@ public class ClearDownService : IClearDownService
             if (orchestrationResult.IsSuccess)
             { 
                 telemetryEvent.EndTime = orchestrationResult.OrchestrationEndDateTime;
-                _telemetryClient.TrackEvent(telemetryEvent);
+                _logger.TrackEvent(telemetryEvent);
             }
             else
             { 
@@ -58,7 +59,7 @@ public class ClearDownService : IClearDownService
         }
         catch (Exception)
         { 
-            _telemetryClient.TrackEventFailure(telemetryEvent);
+            _logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }

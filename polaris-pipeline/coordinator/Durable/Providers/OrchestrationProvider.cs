@@ -6,7 +6,6 @@ namespace coordinator.Durable.Providers;
 
 using Azure;
 using Common.Dto.Response;
-using Common.Telemetry;
 using coordinator.Durable.Orchestration;
 using coordinator.Durable.Payloads;
 using coordinator.Enums;
@@ -52,18 +51,15 @@ public class OrchestrationProvider : IOrchestrationProvider
     private readonly IConfiguration configuration;
     private readonly IQueryConditionFactory queryConditionFactory;
     private readonly ILogger<OrchestrationProvider> logger;
-    private readonly ITelemetryClient telemetryClient;
 
     public OrchestrationProvider(
             IConfiguration configuration,
             IQueryConditionFactory queryConditionFactory,
-            ILogger<OrchestrationProvider> logger,
-            ITelemetryClient telemetryClient)
+            ILogger<OrchestrationProvider> logger)
     {
         this.configuration = configuration;
         this.queryConditionFactory = queryConditionFactory;
         this.logger = logger;
-        this.telemetryClient = telemetryClient;
     }
 
     public static string GetKey(int caseId) => $"[{caseId}]";
@@ -127,7 +123,7 @@ public class OrchestrationProvider : IOrchestrationProvider
         }
         catch (Exception ex)
         {
-            this.telemetryClient.TrackException(ex);
+            this.logger.LogError(ex, "Error deleting case orchestration");
             return result;
         }
     }

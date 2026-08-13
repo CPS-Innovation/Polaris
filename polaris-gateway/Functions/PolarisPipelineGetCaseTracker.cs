@@ -1,5 +1,4 @@
 ﻿using Common.Configuration;
-using Common.Telemetry;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -20,17 +19,14 @@ public class PolarisPipelineGetCaseTracker : BaseFunction
 {
     private readonly ILogger<PolarisPipelineGetCaseTracker> _logger;
     private readonly ICoordinatorClient _coordinatorClient;
-    private readonly ITelemetryClient _telemetryClient;
 
     public PolarisPipelineGetCaseTracker(
         ILogger<PolarisPipelineGetCaseTracker> logger,
-        ICoordinatorClient coordinatorClient,
-        ITelemetryClient telemetryClient)
+        ICoordinatorClient coordinatorClient)
         : base()
     {
         _logger = logger;
         _coordinatorClient = coordinatorClient;
-        _telemetryClient = telemetryClient;
     }
 
     [Function(nameof(PolarisPipelineGetCaseTracker))]

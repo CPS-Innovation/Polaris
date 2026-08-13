@@ -2,6 +2,7 @@
 using Aspose.Pdf.Facades;
 using Common.Dto.Request;
 using Common.Telemetry;
+using Microsoft.Extensions.Logging;
 using pdf_redactor.TelemetryEvents;
 using Common.Streaming;
 using pdf_redactor.Functions;
@@ -11,7 +12,7 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose;
 public class AsposeRedactionProvider(
     IRedactionImplementation redactionImplementation,
     ICoordinateCalculator coordinateCalculator,
-    ITelemetryClient telemetryClient) : IRedactionProvider
+    ILogger<AsposeRedactionProvider> logger) : IRedactionProvider
 {
 
     public async Task<Stream> Redact(Stream stream, int caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
@@ -61,13 +62,13 @@ public class AsposeRedactionProvider(
 
             telemetryEvent.Bytes = outputStream.Length;
             telemetryEvent.EndTime = DateTime.UtcNow;
-            telemetryClient.TrackEvent(telemetryEvent);
+            logger.TrackEvent(telemetryEvent);
 
             return outputStream;
         }
         catch (Exception)
         {
-            telemetryClient.TrackEventFailure(telemetryEvent);
+            logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }

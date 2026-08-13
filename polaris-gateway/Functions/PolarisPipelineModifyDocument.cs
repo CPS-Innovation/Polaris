@@ -26,19 +26,16 @@ public class PolarisPipelineModifyDocument : BaseFunction
     private readonly ILogger<PolarisPipelineModifyDocument> _logger;
     private readonly ICoordinatorClient _coordinatorClient;
     private readonly IModifyDocumentRequestMapper _modifyDocumentRequestMapper;
-    private readonly ITelemetryClient _telemetryClient;
 
     public PolarisPipelineModifyDocument(
         ILogger<PolarisPipelineModifyDocument> logger,
         ICoordinatorClient coordinatorClient,
-        IModifyDocumentRequestMapper modifyDocumentRequestMapper,
-        ITelemetryClient telemetryClient)
+        IModifyDocumentRequestMapper modifyDocumentRequestMapper)
         : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
         _modifyDocumentRequestMapper = modifyDocumentRequestMapper ?? throw new ArgumentNullException(nameof(modifyDocumentRequestMapper));
-        _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
     }
 
     [Function(nameof(PolarisPipelineModifyDocument))]
@@ -72,7 +69,7 @@ public class PolarisPipelineModifyDocument : BaseFunction
 
             if (!isRequestJsonValid)
             {
-                _telemetryClient.TrackEvent(telemetryEvent);
+                _logger.TrackEvent(telemetryEvent);
                 return await new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.BadRequest
@@ -91,12 +88,12 @@ public class PolarisPipelineModifyDocument : BaseFunction
 
             telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
 
-            _telemetryClient.TrackEvent(telemetryEvent);
+            _logger.TrackEvent(telemetryEvent);
             return await response.ToActionResult();
         }
         catch
         {
-            _telemetryClient.TrackEventFailure(telemetryEvent);
+            _logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }

@@ -1,6 +1,5 @@
 ﻿using Common.Dto.Request;
 using Common.Dto.Response.Document;
-using Common.Telemetry;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Factories;
 using Microsoft.AspNetCore.Http;
@@ -23,7 +22,6 @@ public class ReclassifyDocumentTests
     private readonly Mock<ILogger<ReclassifyDocument>> _loggerMock;
     private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IMdsReclassifyDocumentOrchestrationService> _orchestrationServiceMock;
-    private readonly Mock<ITelemetryClient> _telemetryClientMock;
     private readonly ReclassifyDocument _reclassifyDocument;
 
     public ReclassifyDocumentTests()
@@ -31,8 +29,7 @@ public class ReclassifyDocumentTests
         _loggerMock = new Mock<ILogger<ReclassifyDocument>>();
         _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _orchestrationServiceMock = new Mock<IMdsReclassifyDocumentOrchestrationService>();
-        _telemetryClientMock = new Mock<ITelemetryClient>();
-        _reclassifyDocument = new ReclassifyDocument(_loggerMock.Object, _mdsArgFactoryMock.Object, _telemetryClientMock.Object, _orchestrationServiceMock.Object);
+        _reclassifyDocument = new ReclassifyDocument(_loggerMock.Object, _mdsArgFactoryMock.Object, _orchestrationServiceMock.Object);
     }
 
     [Fact]
