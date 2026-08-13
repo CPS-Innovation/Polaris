@@ -98,3 +98,30 @@ and the redirect proceeds as normal. The user gets a working-looking redirect an
 a poisoned hint cookie, with nothing logged.
 
 **Suggested fix:** decide whether that is a 4xx, and at minimum log it.
+
+---
+
+## New-gen (drop rollout) — not golden-master, design notes
+
+### N1. ⚪ Per-user enrolment page is open (canary)
+
+**Where (next):** `auth-handover.{conf,js}` (`location = /auth-refresh-enrol`,
+`authHandover.enrol`); the gate is the `$cookie_polaris_auth_handover` `if`s in
+`/auth-refresh-inbound`.
+**Test:** `auth-handover.unit.test.js` → "enrol — per-user drop enrolment cookie".
+
+Any user can visit `/auth-refresh-enrol` and set `polaris_auth_handover=drop1|drop2`,
+which **overrides the global switches** and routes only THAT browser into the drop
+(remove the cookie to fall back to the globals). This is deliberate for canary rollout,
+and low-risk: the drops are additive/best-effort (drop2 degrades to drop1, drop1
+fail-redirects), so a self-enrolled user can't get a worse outcome than the legacy path.
+**Before prod / wide rollout:** decide whether to gate the page (allowlist, `internal`,
+or an auth check) so enrolment is controlled rather than open. The cookie is HttpOnly +
+`SameSite=Lax` and read only server-side (nginx `$cookie_`).
+
+### N2. ⚪ No explicit "force DDEI" opt-out value (yet)
+
+Enrolment supports `drop1` / `drop2` / removed(→globals). There is no cookie value that
+forces **legacy DDEI when a global switch is ON** — an escape hatch worth adding once a
+drop becomes the global default (a `ddei` value routing to an internal DDEI `proxy_pass`
+location, ahead of the global `if`s). Not built while the globals are off.

@@ -219,84 +219,135 @@ function _extractCaseId(q) {
 }
 
 // ---------------------------------------------------------------------------
-// Handler — the DDEI /api/init/ pipeline in njs.
+// Pipeline, split into three reusable steps so the drop2 Entra-store feature can
+// insert its OIDC round-trip between "establish" and "finalize":
+//
+//   captureLanding      -> the post-auth redirect intent from the /init request
+//   establishCmsSession -> whitelist cookies -> mint -> verify (the CMS half)
+//   finalize            -> set Cms-Auth-Values + redirect to the landing
+//
+// handleInitNonDdei composes all three (drop1's own switch path). drop2 calls
+// establishCmsSession, carries the result through Azure AD in its state cookie, then
+// calls cmsAuthValuesCookie/finalize in its callback — so the Cms-Auth-Values write
+// stays IDENTICAL across both drops (see auth-handover.drop2.entra). drop1 imports
+// nothing from drop2, so removing drop2 leaves this file working unchanged.
+// ---------------------------------------------------------------------------
+
+// The post-auth redirect intent, captured from the /init request args. Carried by
+// value so drop2 can stash it in its state cookie and finalize on the AD callback
+// (a different request that no longer has these args).
+function captureLanding(r) {
+  return { polarisUiUrl: _arg(r, "polaris-ui-url"), q: _arg(r, "q") };
+}
+
+// Establish the CMS session: cookies present -> whitelist (+WindowID=MASTER) ->
+// mint the modern token -> verify against CMS Modern. On any handled failure it
+// performs the fail-redirect (using landing.polarisUiUrl) and returns null; on
+// success returns { cookieHeader, token, versionId }. The CMS cookie arrives as
+// `cc` (appAuthRedirect appended &cc=<cookie> on the 302 to /auth-refresh-inbound).
+async function establishCmsSession(r, landing) {
+  const host = _header(r, "Host");
+
+  const cc = _arg(r, "cc");
+  if (!cc) {
+    _failRedirect(r, landing.polarisUiUrl, FAIL_NO_COOKIES);
+    return null;
+  }
+
+  const cookieHeader = _whitelistCookies(cc);
+  if (!cookieHeader) {
+    _failRedirect(r, landing.polarisUiUrl, FAIL_NO_CMSAUTH);
+    return null;
+  }
+
+  let mint;
+  try {
+    mint = await _mintModernToken(host, cookieHeader);
+  } catch (e) {
+    _failRedirect(r, landing.polarisUiUrl, FAIL_CMS_AUTH);
+    return null;
+  }
+  if (!mint.token) {
+    _failRedirect(r, landing.polarisUiUrl, FAIL_CMS_AUTH);
+    return null;
+  }
+
+  let verified = false;
+  try {
+    verified = await _verifyModernToken(host, mint.token, cookieHeader);
+  } catch (e) {
+    verified = false;
+  }
+  if (!verified) {
+    _failRedirect(r, landing.polarisUiUrl, FAIL_CMS_MODERN);
+    return null;
+  }
+
+  return { cookieHeader: cookieHeader, token: mint.token, versionId: mint.versionId };
+}
+
+// Build the Cms-Auth-Values Set-Cookie string for an established session (the
+// gateway reads this). Session shape matches establishCmsSession's return. Kept
+// separate from finalize so drop2's iframe path can set the cookie WITHOUT a redirect.
+function cmsAuthValuesCookie(r, session) {
+  const secure = (_header(r, "X-Forwarded-Proto") || "https") === "https";
+  const dto = {
+    cookies: session.cookieHeader,
+    userIpAddress: _clientIp(r),
+    token: session.token,
+    sessionCorrelationId: _uuid(),
+    sessionCreatedTime: new Date().toISOString(),
+    cmsVersionId: session.versionId,
+  };
+  return _buildCmsAuthValuesCookie(dto, secure);
+}
+
+// Finalize: set Cms-Auth-Values (appended to any cookies already queued on the
+// response — drop2 queues its id-token cookie first) + redirect by auth-flow mode.
+function finalize(r, session, landing) {
+  const queued = r.headersOut["Set-Cookie"] || [];
+  r.headersOut["Set-Cookie"] = queued.concat([cmsAuthValuesCookie(r, session)]);
+
+  if (landing.polarisUiUrl) {
+    // PolarisAuthRedirect: UI passed the post-auth return URL.
+    // NOTE: a production version must whitelist this (open-redirect surface) —
+    // see docs/PLAN.md Phase 4 / the /auth-refresh-inbound switch discussion.
+    r.return(302, landing.polarisUiUrl);
+    return;
+  }
+  // CmsLaunch: q = {"caseId":n}. Let the UI resolve the URN via /polaris-ui/go.
+  const caseId = _extractCaseId(landing.q);
+  if (caseId) {
+    r.return(
+      302,
+      GO_ROUTE + "?ctx=" + encodeURIComponent('{"caseId":' + caseId + "}"),
+    );
+    return;
+  }
+  r.return(302, FALLBACK_LANDING);
+}
+
+// ---------------------------------------------------------------------------
+// Handler — the DDEI /api/init/ pipeline in njs (drop1's own switch path).
 // ---------------------------------------------------------------------------
 
 async function handleInitNonDdei(r) {
-  const polarisUiUrl = _arg(r, "polaris-ui-url");
+  const landing = captureLanding(r);
   try {
-    const host = _header(r, "Host");
-    const secure = (_header(r, "X-Forwarded-Proto") || "https") === "https";
-
-    // 1. cookies present? The CMS cookie arrives as `cc` — appAuthRedirect appended
-    //    it as &cc=<cookie> on the 302 to /auth-refresh-inbound, which the switch
-    //    internally rewrites to here.
-    const cc = _arg(r, "cc");
-    if (!cc) {
-      return _failRedirect(r, polarisUiUrl, FAIL_NO_COOKIES);
-    }
-
-    // 2. whitelist (+ WindowID=MASTER)
-    const cookieHeader = _whitelistCookies(cc);
-    if (!cookieHeader) {
-      return _failRedirect(r, polarisUiUrl, FAIL_NO_CMSAUTH);
-    }
-
-    // 3. mint the modern token
-    let mint;
-    try {
-      mint = await _mintModernToken(host, cookieHeader);
-    } catch (e) {
-      return _failRedirect(r, polarisUiUrl, FAIL_CMS_AUTH);
-    }
-    if (!mint.token) {
-      return _failRedirect(r, polarisUiUrl, FAIL_CMS_AUTH);
-    }
-
-    // 4. verify it against CMS Modern
-    let verified = false;
-    try {
-      verified = await _verifyModernToken(host, mint.token, cookieHeader);
-    } catch (e) {
-      verified = false;
-    }
-    if (!verified) {
-      return _failRedirect(r, polarisUiUrl, FAIL_CMS_MODERN);
-    }
-
-    // 5. set the Cms-Auth-Values cookie (the gateway reads this)
-    const dto = {
-      cookies: cookieHeader,
-      userIpAddress: _clientIp(r),
-      token: mint.token,
-      sessionCorrelationId: _uuid(),
-      sessionCreatedTime: new Date().toISOString(),
-      cmsVersionId: mint.versionId,
-    };
-    r.headersOut["Set-Cookie"] = [_buildCmsAuthValuesCookie(dto, secure)];
-
-    // 6. redirect by auth-flow mode
-    if (polarisUiUrl) {
-      // PolarisAuthRedirect: UI passed the post-auth return URL.
-      // NOTE: a production version must whitelist this (open-redirect surface) —
-      // see docs/PLAN.md Phase 4 / the /auth-refresh-inbound switch discussion.
-      r.return(302, polarisUiUrl);
-      return;
-    }
-    // CmsLaunch: q = {"caseId":n}. Let the UI resolve the URN via /polaris-ui/go.
-    const caseId = _extractCaseId(_arg(r, "q"));
-    if (caseId) {
-      r.return(
-        302,
-        GO_ROUTE + "?ctx=" + encodeURIComponent('{"caseId":' + caseId + "}"),
-      );
-      return;
-    }
-    r.return(302, FALLBACK_LANDING);
+    const session = await establishCmsSession(r, landing);
+    if (!session) return; // establishCmsSession already fail-redirected
+    finalize(r, session, landing);
   } catch (e) {
     // DDEI wraps the whole handler: any unexpected throw -> auth-fail-reason.
-    _failRedirect(r, polarisUiUrl, FAIL_UNEXPECTED);
+    _failRedirect(r, landing.polarisUiUrl, FAIL_UNEXPECTED);
   }
 }
 
-export default { handleInitNonDdei };
+export default {
+  handleInitNonDdei,
+  // reused by feature auth-handover.drop2.entra:
+  captureLanding,
+  establishCmsSession,
+  cmsAuthValuesCookie,
+  finalize,
+};

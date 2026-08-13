@@ -370,6 +370,58 @@ async function devLogin(authHandover) {
   })
 }
 
+async function enrol(authHandover) {
+  console.log("\nenrol — per-user drop enrolment cookie (/auth-refresh-enrol):")
+
+  const cookieOf = (r) => (r.headersOut["Set-Cookie"] || [])[0] || ""
+
+  await test("no action -> 200 page, shows 'default' when no cookie", () => {
+    const r = req({})
+    authHandover.enrol(r)
+    assertEqual(r.returnCode, 200, "200")
+    assertIncludes(r.returnBody, "default (follows the server switch)", "shows default")
+  })
+
+  await test("no action -> page reflects the current cookie", () => {
+    const r = req({}, { Cookie: "polaris_auth_handover=drop2" })
+    authHandover.enrol(r)
+    assertIncludes(r.returnBody, "drop 2 — Entra store", "shows drop2")
+  })
+
+  await test("?set=drop1 -> 302 back to the page + sets the cookie (HttpOnly, 30d)", () => {
+    const r = req({ set: "drop1" })
+    authHandover.enrol(r)
+    assertEqual(r.returnCode, 302, "302 (PRG)")
+    assertEqual(r.returnBody, "https://proxy.example.org/auth-refresh-enrol", "-> clean URL")
+    const c = cookieOf(r)
+    assertIncludes(c, "polaris_auth_handover=drop1", "cookie value")
+    assertIncludes(c, "HttpOnly", "HttpOnly")
+    assertIncludes(c, "Max-Age=2592000", "30 days")
+  })
+
+  await test("?set=drop2 -> sets drop2", () => {
+    const r = req({ set: "drop2" })
+    authHandover.enrol(r)
+    assertIncludes(cookieOf(r), "polaris_auth_handover=drop2", "cookie value")
+  })
+
+  await test("?set=<bogus> -> never writes an arbitrary cookie (renders the page)", () => {
+    const r = req({ set: "../../evil" })
+    authHandover.enrol(r)
+    assertEqual(r.returnCode, 200, "renders, no redirect")
+    assertEqual(cookieOf(r), "", "no Set-Cookie")
+  })
+
+  await test("?clear=1 -> 302 + clears the cookie (Max-Age=0)", () => {
+    const r = req({ clear: "1" })
+    authHandover.enrol(r)
+    assertEqual(r.returnCode, 302, "302")
+    const c = cookieOf(r)
+    assertIncludes(c, "polaris_auth_handover=", "cookie named")
+    assertIncludes(c, "Max-Age=0", "expired")
+  })
+}
+
 async function main() {
   const authHandover = await loadNjs("features/auth-handover/auth-handover.js")
   await appAuthRedirect(authHandover)
@@ -377,6 +429,7 @@ async function main() {
   await polarisAuthRedirect(authHandover)
   await authRefreshOutbound(authHandover)
   await devLogin(authHandover)
+  await enrol(authHandover)
   process.exit(summarise("authHandover.js (unit)"))
 }
 

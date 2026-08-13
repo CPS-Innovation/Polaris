@@ -241,4 +241,91 @@ function devLogin(r) {
   }
 }
 
-export default { polarisAuthRedirect, appAuthRedirect, handleAuthRefreshOutbound, devLogin }
+// ---------------------------------------------------------------------------
+// Per-user enrolment (canary) — /auth-refresh-enrol
+//
+// A tiny page that sets/clears the `polaris_auth_handover` cookie so an INDIVIDUAL
+// user can opt into drop1/drop2 ahead of the org-wide switch. The routing gate in
+// auth-handover.conf (/auth-refresh-inbound) reads $cookie_polaris_auth_handover and
+// gives it PRECEDENCE over the global ENTRA_STORE_ENABLED / NON_DDEI_INIT_ENABLED
+// switches. Removing the cookie falls back to those globals (DDEI while they're off).
+//
+// Lives in the base auth-handover feature (not a drop folder) because it arbitrates
+// BETWEEN the drops and DDEI, so it must outlive any single drop. Server-side only:
+// the cookie is written here and read by nginx ($cookie_) — never by a script — so it
+// is HttpOnly. GET-only; set/clear then 302 back to a clean URL (post/redirect/get) so
+// a refresh doesn't re-apply and the address bar shows no action param.
+// ---------------------------------------------------------------------------
+const ENROL_COOKIE = "polaris_auth_handover"
+const ENROL_PATH = "/auth-refresh-enrol"
+const ENROL_MODES = ["drop1", "drop2"]
+const ENROL_COOKIE_MAX_AGE = 30 * 24 * 60 * 60 // 30 days
+
+function _enrolLabel(mode) {
+  if (mode === "drop2") return "drop 2 — Entra store"
+  if (mode === "drop1") return "drop 1 — non-DDEI init"
+  return "default (follows the server switch)"
+}
+
+// Build the Set-Cookie: a mode string enrols for 30 days; "" clears (Max-Age=0 plus a
+// past Expires so old IE honours it too). HttpOnly — only nginx reads it.
+function _enrolSetCookie(mode) {
+  const attrs = "; Path=/; Secure; HttpOnly; SameSite=Lax"
+  if (!mode) {
+    return ENROL_COOKIE + "=" + attrs + "; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+  }
+  return ENROL_COOKIE + "=" + mode + attrs + "; Max-Age=" + ENROL_COOKIE_MAX_AGE
+}
+
+function _enrolPage(current) {
+  const links = ENROL_MODES.map(
+    (m) => '<li><a href="' + ENROL_PATH + "?set=" + m + '">Enrol in ' + _enrolLabel(m) + "</a></li>"
+  ).join("")
+  return (
+    '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+    "<title>Polaris auth handover — enrolment</title>" +
+    "<style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:640px;margin:40px auto;padding:0 20px}li{margin:8px 0}code{background:#f0f0f0;padding:2px 6px;border-radius:3px}</style>" +
+    "</head><body>" +
+    "<h1>Auth handover enrolment</h1>" +
+    "<p>You are currently on: <strong>" + _enrolLabel(current) + "</strong>.</p>" +
+    "<ul>" + links + "</ul>" +
+    '<p><a href="' + ENROL_PATH + '?clear=1">Reset to default</a> (removes the cookie).</p>' +
+    "<p><small>This sets a <code>" + ENROL_COOKIE + "</code> cookie on this browser only; " +
+    "it takes effect on your next CMS&nbsp;&rarr;&nbsp;Polaris handover.</small></p>" +
+    "</body></html>"
+  )
+}
+
+function enrol(r) {
+  const set = r.args["set"]
+  const clear = r.args["clear"]
+
+  // PRG back to the page. Own absolute build (not _redirectToAbsoluteUrl) with a scheme
+  // fallback: this page can be opened directly, where X-Forwarded-Proto is absent — that
+  // helper would emit "undefined://". Default to https.
+  const backToPage = () => {
+    const proto = r.headersIn["X-Forwarded-Proto"] || "https"
+    r.return(302, proto + "://" + r.headersIn["Host"] + ENROL_PATH)
+  }
+
+  // Enrol: only the known modes are accepted (never write an arbitrary cookie value).
+  if (set !== undefined && ENROL_MODES.indexOf(set) !== -1) {
+    r.headersOut["Set-Cookie"] = [_enrolSetCookie(set)]
+    backToPage()
+    return
+  }
+  // Remove: clear the cookie, fall back to the global switches.
+  if (clear !== undefined) {
+    r.headersOut["Set-Cookie"] = [_enrolSetCookie("")]
+    backToPage()
+    return
+  }
+
+  // No (valid) action — render the current enrolment + the enrol/reset links.
+  const current = _getCookieValue(r, ENROL_COOKIE)
+  r.headersOut["Content-Type"] = "text/html; charset=utf-8"
+  r.return(200, _enrolPage(current))
+}
+
+export default { polarisAuthRedirect, appAuthRedirect, handleAuthRefreshOutbound, devLogin, enrol }
