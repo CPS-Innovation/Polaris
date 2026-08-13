@@ -1,18 +1,20 @@
+// <copyright file="TelemetryEventLoggerProvider.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.Extensions.Logging;
 using AppInsights = Microsoft.ApplicationInsights;
 
 namespace Common.Telemetry
 {
     /// <summary>
     /// An <see cref="ILoggerProvider"/> that inspects log entries raised via <see cref="TelemetryEventLoggerExtensions"/>
-    /// and converts them into Application Insights customEvents, preserving the exact shape previously produced by
-    /// Common.Telemetry.TelemetryClient (property/metric name cleaning, telemetryVersion stamp, isFailure flag,
-    /// cloud role name and operation name). All other log entries are ignored by this provider; they continue to be
-    /// handled by the standard ILogger Application Insights provider (added via AddApplicationInsights()).
+    /// and converts them into Application Insights customEvents, preserving the shape previously produced by
+    /// Common.Telemetry.TelemetryClient
     /// </summary>
     public sealed class TelemetryEventLoggerProvider : ILoggerProvider
     {
@@ -114,16 +116,10 @@ namespace Common.Telemetry
             private static string CleanPropertyName(string name)
             {
                 var propertyName = name
-                    // If the fields being captured are private and follow  _foo convention
-                    // then we need to remove the leading underscore
                     .Replace("_", string.Empty);
 
-                // If the fields being captured are public and follow Foo convention
+                // If the fields being captured are public
                 // then we need to lowercase the first character
-
-                // Later note: going to lower case first char was not a good idea. In Log Analytics
-                //  the convention seems to be Title case, and so in our Log Analytics functions (views)
-                //  we are always converting back to title case.  A bit late now to change this.
                 return ToLowerFirstChar(propertyName);
             }
 

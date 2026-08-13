@@ -1,3 +1,7 @@
+// <copyright file="TelemetryEventLoggerExtensions.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
 using Microsoft.Extensions.Logging;
 
 namespace Common.Telemetry
@@ -16,8 +20,6 @@ namespace Common.Telemetry
         {
             if (telemetryEvent is null)
             {
-                // As this is telemetry just silently fail
-                // todo: a better/more assertive approach
                 return;
             }
 
@@ -29,8 +31,6 @@ namespace Common.Telemetry
         {
             if (telemetryEvent is null)
             {
-                // As this is telemetry just silently fail
-                // todo: a better/more assertive approach
                 return;
             }
 

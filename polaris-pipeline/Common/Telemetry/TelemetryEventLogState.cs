@@ -1,3 +1,7 @@
+// <copyright file="TelemetryEventLogState.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
 using System;
 
 namespace Common.Telemetry

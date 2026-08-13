@@ -1,4 +1,8 @@
-using Microsoft.Extensions.DependencyInjection;
+// <copyright file="TelemetryEventLoggingServiceCollectionExtensions.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using AppInsights = Microsoft.ApplicationInsights;
 
