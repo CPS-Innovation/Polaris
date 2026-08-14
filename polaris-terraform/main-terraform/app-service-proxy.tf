@@ -335,7 +335,10 @@ locals {
   proxy_next_files = [
     for f in setunion(
       fileset("${path.module}/proxy/config", "features/**/*.conf"),
-      fileset("${path.module}/proxy/config", "features/**/*.js")
+      fileset("${path.module}/proxy/config", "features/**/*.js"),
+      # Static browser assets served directly by nginx (e.g. the cms-augmentation client +
+      # presence relay). Deployed as-is (no .template suffix -> not envsubst'd).
+      fileset("${path.module}/proxy/config", "features/**/*.html")
     ) : f if !endswith(f, ".test.js") && !strcontains(f, "/fixtures/")
   ]
 

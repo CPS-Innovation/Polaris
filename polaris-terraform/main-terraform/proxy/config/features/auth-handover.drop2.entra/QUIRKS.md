@@ -37,15 +37,24 @@ variant needs its terminal page to render inside the CMS shell, so the
 which is exactly what removes the `DENY` here. Harmless on the top-level 302 (a redirect
 renders nothing). The CSP keeps framing limited to `*.cps.gov.uk`.
 
-### E3. 🟠 id-token cookie is `HttpOnly`
+### E3. 🟠 id-token cookie: `HttpOnly` + host-only (IE cookie-jar hygiene)
 
-The reference set the id-token cookie **without** `HttpOnly` because a client script
-(`cms-auth-v2-client.js`) read it via `document.cookie`. Our consumer is the
-global-components **case-locking `presence-jsonp`** endpoint, which reads the cookie
-**server-side**, so we set `HttpOnly` (safer — no script can read it). Scope:
-`Domain=.cps.gov.uk; Path=/global-components/presence-jsonp; Max-Age=43200` (~12h).
-**Confirm** against how presence-jsonp actually consumes it before prod; flip off
-`HttpOnly` only if a client script genuinely needs `document.cookie` access.
+The reference set the id-token cookie **without** `HttpOnly` and on `Domain=.cps.gov.uk`,
+because it wasn't sure which subdomain would read it (a client script via `document.cookie`, or
+a relay). Our consumer is the case-locking **`presence-jsonp`** endpoint, which reads it
+**server-side** — so:
+- **`HttpOnly`** (safer; no script can read it), and
+- **host-only** (no `Domain` attribute): setter (this callback) and reader (presence-jsonp) are
+  the same polaris host, and nothing cross-subdomain reads it. Host scope keeps the ~1.5–2 KB JWT
+  **out of the shared `cps.gov.uk` jar**, which in IE mode is already crowded with CMS / BIG-IP /
+  LB / auth cookies — a full jar makes IE silently evict cookies (LRU), potentially a CMS session
+  one. `Path=/global-components/presence-jsonp` further keeps it out of every other request's
+  `Cookie` header; `Max-Age=43200` (~12h).
+
+Requires the AD callback host (`ENTRA_REDIRECT_URI`) and the JSONP/browse host to be the **same**
+polaris host (they are in this model). If a cross-subdomain consumer or multi-hostname flow
+appears, revisit. Worth guarding token size too: a groups-heavy id_token can approach the 4 KB
+per-cookie limit.
 
 ### E4. 🟠 Callback path is dictated by the registered redirect URI
 
@@ -104,3 +113,24 @@ embed would need `SameSite=None; Secure`. Revisit if the iframe host changes.
 (`tableStorageDeposit` today). The planned MDS-API endpoint is a drop-in `apiEndpointDeposit`
 (POST + `Authorization: Bearer <accessToken>`) — swap the one binding, no auth-flow change.
 The callback already passes the AD tokens through (Table Storage ignores them).
+
+### E11. 🔴 id-token cookie only works when set in IE mode (IE/Edge jar split) + carries the DEV token today
+
+Two coupled realities for the presence handover:
+
+**IE vs Edge cookie jars are separate** (WinINet vs Chromium), with no sharing absent IT policy.
+The presence-jsonp reads happen in the **IE-mode** proxied CMS shell → the IE jar. So the
+`cms-auth-id-token` cookie is only usable if it was **set by an IE-mode page**. The **top-level**
+`/polaris` flow coerces to **Edge** at `/init`, so its cookie lands in the Chromium jar —
+**invisible** to presence. Only the **framed** flow (hidden iframe spawned by the IE-mode CMS
+shell) sets an IE-jar cookie. The iframe cannot leave IE mode (document mode is tab-level), so it
+stays IE — **but confirm `/init`'s `coerce(edge, reject=true)` doesn't 402/302-loop the IE-locked
+iframe before it reaches `/init-entra`** (if it does, the framed entry must skip that Edge gate,
+à la the reference's framed-stays-IE design). The store deposit is unaffected (server-side).
+
+**The cookie carries the DEV token today** (`PRESENCE_COOKIE_TOKEN`), not the real id_token — a
+proving stopgap so the full round-trip (set in IE jar → presence-jsonp reads → backend accepts)
+can be verified before the backend validates real Entra id-tokens. The real idToken still goes to
+the store deposit. Swap `PRESENCE_COOKIE_TOKEN` → the real `idToken` in `_succeed` when ready
+(and drop the dev-bearer fallback in case-locking — CL7). Kept in sync with case-locking's
+`_PRESENCE_DEV_BEARER`.

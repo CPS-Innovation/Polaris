@@ -52,13 +52,27 @@ const STATE_COOKIE = "entra_auth_state";
 const STATE_SET_OPTS = "; Path=/init-v2; HttpOnly; Secure; SameSite=Lax; Max-Age=300";
 const STATE_CLEAR_OPTS = "; Path=/init-v2; HttpOnly; Secure; SameSite=Lax; Max-Age=0";
 
-// The id-token cookie handed to the global-components case-locking presence-jsonp
-// endpoint (its only consumer; drop2 just SETS it). Common registrable domain so it
-// crosses subdomains; path-scoped so the browser sends it to that one endpoint;
-// ~12h; HttpOnly (presence-jsonp reads it server-side — see QUIRKS.md).
+// The id-token cookie read by the global-components case-locking presence-jsonp endpoint
+// (its only consumer; drop2 just SETS it). HOST-ONLY — no Domain attribute — so it binds to
+// the exact host that set it (this callback) and stays OUT of the crowded shared cps.gov.uk
+// cookie jar (IE evicts LRU cookies once a domain's jar is full — see QUIRKS.md). Setter
+// (this callback) and reader (presence-jsonp) are the same polaris host, and nothing
+// cross-subdomain reads it (HttpOnly, server-side only), so host scope is sufficient.
+// Path-scoped so the browser sends it only to that one endpoint; ~12h; HttpOnly.
 const ID_TOKEN_COOKIE = "cms-auth-id-token";
 const ID_TOKEN_SET_OPTS =
-  "; Domain=.cps.gov.uk; Path=/global-components/presence-jsonp; Max-Age=43200; Secure; SameSite=Lax; HttpOnly";
+  "; Path=/global-components/presence-jsonp; Max-Age=43200; Secure; SameSite=Lax; HttpOnly";
+
+// PROVING STOPGAP — the value we write INTO the id-token cookie. case-locking's presence-jsonp
+// reads it and sends it to the presence API as the Bearer. The backend accepts ONLY the static
+// alg:none dev token today, so we write THAT here (not the real Entra id_token) — which lets us
+// prove the whole cookie round-trip end to end (drop2 sets it in the IE jar via the framed flow
+// -> presence-jsonp reads it -> backend accepts) before the backend validates real id-tokens.
+// The REAL idToken still goes to the store deposit, so nothing is lost. When the backend
+// validates real tokens: write `idToken` here instead (see _succeed) and delete this. Kept in
+// sync with case-locking's _PRESENCE_DEV_BEARER.
+const PRESENCE_COOKIE_TOKEN =
+  "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzb3VyY2VfYXBwbGljYXRpb24iOiJQb3N0bWFuIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZW1haWxhZGRyZXNzIjoiZGV2LnVzZXJAY3BzLmdvdi51ayJ9.";
 
 // The iframe terminal: a bare page whose sole job is to fire `onload` so the harness
 // that opened the hidden iframe can destroy it. No script, no data.
@@ -325,17 +339,20 @@ async function handleInitEntraCallback(r) {
       return;
     }
 
-    _succeed(r, st, tok.idToken);
+    _succeed(r, st);
   } catch (e) {
     _degrade(r, st, null, "callback-error: " + String(e));
   }
 }
 
 // Success terminal: clear state, set the id-token cookie, then branch on mode.
-function _succeed(r, st, idToken) {
+function _succeed(r, st) {
   const cookies = [
     STATE_COOKIE + "=deleted" + STATE_CLEAR_OPTS,
-    ID_TOKEN_COOKIE + "=" + encodeURIComponent(idToken) + ID_TOKEN_SET_OPTS,
+    // Cookie carries the DEV token today (PROVING — see PRESENCE_COOKIE_TOKEN); the real idToken
+    // already went to the store deposit above. Swap PRESENCE_COOKIE_TOKEN -> the real idToken
+    // (thread tok.idToken back into _succeed) when the backend validates real Entra id-tokens.
+    ID_TOKEN_COOKIE + "=" + encodeURIComponent(PRESENCE_COOKIE_TOKEN) + ID_TOKEN_SET_OPTS,
   ];
   if (st.term === "iframe") {
     // Pure side-channel: store + id-token cookie only, no Cms-Auth-Values, static page.
@@ -404,6 +421,7 @@ export default {
       STATE_COOKIE: STATE_COOKIE,
       ID_TOKEN_COOKIE: ID_TOKEN_COOKIE,
       ID_TOKEN_SET_OPTS: ID_TOKEN_SET_OPTS,
+      PRESENCE_COOKIE_TOKEN: PRESENCE_COOKIE_TOKEN,
       TENANT_ID: TENANT_ID,
       TERMINAL_HTML: TERMINAL_HTML,
     },

@@ -5,8 +5,15 @@
  * plain-js njs-harness. NEW-GEN: these routes are not in the live monolith, so this is
  * outside the golden master.
  */
-const { test, assertEqual, summarise } = require("../../../tests/unit/test-utils")
+const { test, assert, assertEqual, summarise } = require("../../../tests/unit/test-utils")
 const { loadNjs, createMockRequest } = require("../../../tests/unit/njs-harness")
+
+// ngx.fetch mock for handlePresenceJsonp (the filters don't use ngx). Swap fetchImpl per test.
+let fetchImpl = async () => {
+  throw new Error("no ngx.fetch stub set for this test")
+}
+global.ngx = { fetch: (...args) => fetchImpl(...args), log: () => {}, ERR: 4 }
+const presRes = (status, body) => ({ status, text: async () => body })
 
 const SR_URL =
   "https://sr-cms-presence.service.signalr.net/client/?hub=sectionsessionhub&asrs.op=%2Fsection-view"
@@ -17,6 +24,7 @@ const SAME_ORIGIN =
 function req(uri, opts = {}) {
   return createMockRequest({
     uri,
+    args: opts.args || {},
     headersIn: { Host: "proxy.example.com", ...(opts.headersIn || {}) },
     headersOut: { ...(opts.headersOut || {}) },
     variables: { scheme: "https", host: "proxy.example.com", ...(opts.variables || {}) },
@@ -100,10 +108,97 @@ async function filterBody(cl) {
   })
 }
 
+async function presenceJsonp(cl) {
+  console.log("\nhandlePresenceJsonp — JSONP adapter over the presence API:")
+  const PJ = "/global-components/presence-jsonp"
+  const withCookie = { Cookie: "cms-auth-id-token=THE-TOKEN" }
+
+  await test("rejects a non-identifier callback (XSS guard) -> 400 text/plain", async () => {
+    const r = req(PJ, { args: { callback: "alert(1)", op: "poll", sid: "s1" } })
+    await cl.handlePresenceJsonp(r)
+    assertEqual(r.returnCode, 400, "400")
+    assertEqual(r.returnBody, "invalid callback", "no script emitted")
+  })
+
+  await test("unknown op -> jsonpError wrapped in the callback (200 text/javascript)", async () => {
+    const r = req(PJ, { args: { callback: "cb", op: "bogus" }, headersIn: withCookie })
+    await cl.handlePresenceJsonp(r)
+    assertEqual(r.returnCode, 200, "200")
+    assertEqual(r.headersOut["Content-Type"], "text/javascript; charset=utf-8", "js content-type")
+    assertEqual(r.returnBody, 'cb(' + JSON.stringify({ jsonpError: "unknown op: bogus" }) + ')')
+  })
+
+  await test("create -> POST /sessions with sectionId body; sends the id-token COOKIE value as Bearer (_PRESENCE_USE_ID_TOKEN=true)", async () => {
+    let captured
+    fetchImpl = async (url, opts) => {
+      captured = { url, opts }
+      return presRes(200, '{"sid":"new"}')
+    }
+    const r = req(PJ, { args: { callback: "cb", op: "create", sectionId: "sec-1" }, headersIn: withCookie })
+    await cl.handlePresenceJsonp(r)
+    assertEqual(captured.url, "https://app-cms-presence-api.azurewebsites.net/api/sessions", "url")
+    assertEqual(captured.opts.method, "POST", "POST")
+    // Switch on: the cookie value (drop2 writes the dev token here today) is decoded + sent —
+    // this is the path that proves the round-trip. In prod drop2 later writes the real id_token.
+    assertEqual(captured.opts.headers.Authorization, "Bearer THE-TOKEN", "Bearer from the cookie")
+    assertEqual(JSON.parse(captured.opts.body).sectionId, "sec-1", "sectionId body")
+    assertEqual(r.returnBody, 'cb({"sid":"new"})', "wraps upstream JSON verbatim")
+  })
+
+  await test("heartbeat -> PUT /sessions/<sid>/heartbeat, no body", async () => {
+    let captured
+    fetchImpl = async (url, opts) => {
+      captured = { url, opts }
+      return presRes(200, "{}")
+    }
+    const r = req(PJ, { args: { callback: "cb", op: "heartbeat", sid: "S9" }, headersIn: withCookie })
+    await cl.handlePresenceJsonp(r)
+    assertEqual(captured.url, "https://app-cms-presence-api.azurewebsites.net/api/sessions/S9/heartbeat", "url")
+    assertEqual(captured.opts.method, "PUT", "PUT")
+    assertEqual(captured.opts.body, undefined, "no body")
+  })
+
+  await test("no id-token cookie -> dev bearer fallback", async () => {
+    let captured
+    fetchImpl = async (url, opts) => {
+      captured = { url, opts }
+      return presRes(200, "[]")
+    }
+    const r = req(PJ, { args: { callback: "cb", op: "poll", sid: "S1" } })
+    await cl.handlePresenceJsonp(r)
+    assert(captured.opts.headers.Authorization.indexOf("Bearer eyJ") === 0, "dev bearer used")
+    assertEqual(r.returnBody, "cb([])", "wraps array verbatim")
+  })
+
+  await test("upstream non-2xx -> jsonpError with status + upstream body", async () => {
+    fetchImpl = async () => presRes(503, "down")
+    const r = req(PJ, { args: { callback: "cb", op: "poll", sid: "S1" }, headersIn: withCookie })
+    await cl.handlePresenceJsonp(r)
+    assertEqual(r.returnBody, 'cb(' + JSON.stringify({ jsonpError: "upstream 503", upstreamBody: "down" }) + ')')
+  })
+
+  await test("empty upstream body -> cb({})", async () => {
+    fetchImpl = async () => presRes(200, "")
+    const r = req(PJ, { args: { callback: "cb", op: "poll", sid: "S1" }, headersIn: withCookie })
+    await cl.handlePresenceJsonp(r)
+    assertEqual(r.returnBody, "cb({})")
+  })
+
+  await test("fetch throw -> jsonpError in the callback (never a blank 500)", async () => {
+    fetchImpl = async () => {
+      throw new Error("boom")
+    }
+    const r = req(PJ, { args: { callback: "cb", op: "poll", sid: "S1" }, headersIn: withCookie })
+    await cl.handlePresenceJsonp(r)
+    assert(r.returnBody.indexOf('cb({"jsonpError":') === 0, "wrapped error, callback preserved")
+  })
+}
+
 async function main() {
   const cl = await loadNjs("features/case-locking/case-locking.js")
   await dropContentLength(cl)
   await filterBody(cl)
+  await presenceJsonp(cl)
   process.exit(summarise("case-locking.js (unit)"))
 }
 

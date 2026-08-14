@@ -265,6 +265,7 @@ async function callbackScenario({ term, storeStatus = 204, adError = null }) {
 
 async function callbackTests() {
   console.log("\nhandleInitEntraCallback — deposit + finalize / degrade:")
+  const entra = await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")
 
   await test("top-level success: 302 landing + id-token cookie + Cms-Auth-Values (additive), state cleared", async () => {
     const r = await callbackScenario({ term: "top-level" })
@@ -273,8 +274,15 @@ async function callbackTests() {
     const sc = r.headersOut["Set-Cookie"]
     assert(!!findCookie(sc, "cms-auth-id-token="), "id-token cookie set")
     const idc = findCookie(sc, "cms-auth-id-token=")
-    assert(idc.indexOf("Domain=.cps.gov.uk") !== -1, "id-token cookie on .cps.gov.uk")
+    assert(idc.indexOf("Domain=") === -1, "id-token cookie is host-only (no Domain -> out of the shared cps.gov.uk jar)")
     assert(idc.indexOf("Path=/global-components/presence-jsonp") !== -1, "id-token cookie path-scoped")
+    assert(idc.indexOf("HttpOnly") !== -1, "HttpOnly (presence-jsonp reads it server-side)")
+    // PROVING: the cookie carries the dev token the presence backend accepts today, NOT the real
+    // id_token (which went to the store deposit) — so the presence round-trip can be proven now.
+    assert(
+      idc.indexOf("cms-auth-id-token=" + encodeURIComponent(entra.__test.constants.PRESENCE_COOKIE_TOKEN)) === 0,
+      "cookie carries the proving dev token",
+    )
     assert(!!findCookie(sc, "Cms-Auth-Values="), "Cms-Auth-Values still set (additive)")
     assert(findCookie(sc, "entra_auth_state=deleted") !== undefined, "state cookie cleared")
   })
