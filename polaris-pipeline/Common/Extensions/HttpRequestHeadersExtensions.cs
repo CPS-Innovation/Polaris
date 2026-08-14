@@ -59,7 +59,7 @@ namespace Common.Extensions
 
             headers.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var values);
 
-            return values.First();
+            return values.FirstOrDefault();
         }
 
         public static Guid EstablishCorrelation(HttpRequest req) =>
@@ -70,12 +70,19 @@ namespace Common.Extensions
 
         public static CmsAuthValues BuildCmsAuthValues(this HttpRequest req)
         {
-            if (req?.Cookies is null)
+            if (req is null)
             {
                 return null;
             }
 
             var cmsAuthValues = req.Headers.GetCmsAuthValues();
+
+            if (string.IsNullOrWhiteSpace(cmsAuthValues)
+                && req.Cookies.TryGetValue(HttpHeaderKeys.CmsAuthValues, out var cookieValue))
+            {
+                cmsAuthValues = cookieValue;
+            }
+
             var correlation = EstablishCorrelation(req);
 
             return new CmsAuthValues(cmsAuthValues, correlation);
