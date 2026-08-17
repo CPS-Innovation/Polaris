@@ -166,6 +166,8 @@ function __getCmsEnvInternal(cookie) {
     if (cookie.includes("cin2")) return "cin2";
     if (cookie.includes("cin4")) return "cin4";
     if (cookie.includes("cin5")) return "cin5";
+    if (cookie.includes("cpt")) return "cpt";
+    if (cookie.includes("mod")) return "cmo";
     return "default";
 }
 
