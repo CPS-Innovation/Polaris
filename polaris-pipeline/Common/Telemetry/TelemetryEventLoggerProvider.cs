@@ -82,10 +82,8 @@ namespace Common.Telemetry
 
                 var eventTelemetry = new EventTelemetry(PrepareEventName(baseTelemetryEvent.EventName));
 
-                if (properties.Count > 0)
-                {
-                    CopyDictionary(PrepareKeyNames(properties), eventTelemetry.Properties);
-                }
+                // Always copy properties (may include only telemetryVersion) to preserve schema consistency in App Insights.
+                CopyDictionary(PrepareKeyNames(properties), eventTelemetry.Properties);
 
                 if (nonNullMetrics.Count > 0)
                 {
