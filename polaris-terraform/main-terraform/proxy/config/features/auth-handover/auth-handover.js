@@ -328,4 +328,19 @@ function enrol(r) {
   r.return(200, _enrolPage(current))
 }
 
-export default { polarisAuthRedirect, appAuthRedirect, handleAuthRefreshOutbound, devLogin, enrol }
+// Feature-switch getters for the /auth-refresh-inbound routing gate (js_set).
+// Read at REQUEST time from process.env, so a MISSING app setting reads as "off"
+// rather than wedging nginx at boot — which is what `set $x "${ENTRA_STORE_ENABLED}"`
+// (conf-side envsubst) did when the app setting was absent: envsubst left the token
+// literal and nginx died with `[emerg] unknown "entra_store_enabled" variable`.
+// js_set carries no `${...}` token, so envsubst never touches it and the config always
+// boots. Returns the string "true"/"false" the conf's `if (... = "true")` compares.
+// Parity with the old exact `= "true"` test: only the literal "true" enables.
+function entraStoreEnabled(r) {
+  return process.env.ENTRA_STORE_ENABLED === "true" ? "true" : "false"
+}
+function nonDdeiInitEnabled(r) {
+  return process.env.NON_DDEI_INIT_ENABLED === "true" ? "true" : "false"
+}
+
+export default { polarisAuthRedirect, appAuthRedirect, handleAuthRefreshOutbound, devLogin, enrol, entraStoreEnabled, nonDdeiInitEnabled }

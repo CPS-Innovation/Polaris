@@ -12,14 +12,18 @@ numbering is local to this feature.
 
 ---
 
-### AU1. 🟠 Own getter module + distinct `$aug*` vars (js_set collision avoidance)
+### AU1. 🟠 Reuse cms-proxy's getters via distinct `$aug*` vars (no own module)
 
-The uaglCMS route needs the per-CMS-env upstream getters. `js_set` variables are server-global
-and collide when the same name is bound to a different function, and cms-proxy already owns
-`$proxyDestination` / `$upstreamCms*` → `cmsProxy.*`. So this feature imports its **own** getter
-module (`cms-upstream.js`, a feature-local copy of the two factories over `../common` — the
-established per-feature pattern) under the binding `cmsAug`, and js_sets **distinct** `$aug*`
-names. Do not "dedupe" against cms-proxy's vars — it would `[emerg] redeclare` them.
+The uaglCMS route needs the per-CMS-env upstream getters. Because this feature already fully
+depends on cms-proxy (AU3 — it overrides cms-proxy's `^/CMS.*` catch-all and mirrors its
+proxying), it does **not** keep a feature-local getter copy; it reuses cms-proxy's already-global
+`cmsProxy` binding directly. The one real constraint is that `js_set` **variable** names are
+server-global and `[emerg] redeclare` if the same name is bound to a different function — so we use
+**distinct** `$aug*` names but point them at `cmsProxy.*` (a unique-name, set-once js_set, which is
+fine; cms-proxy itself repeats `js_set $proxyDestination cmsProxy.proxyDestinationCorsham` across
+many blocks). Do **not** reuse cms-proxy's `$proxyDestination` / `$upstreamCms*` **variable** names —
+*that* would redeclare. (Earlier this feature carried its own `cms-upstream.js` copy bound as
+`cmsAug`; removed as needless duplication once the total cms-proxy coupling was clear.)
 
 ### AU2. 🟠 uaglCMS path is version-pinned (`/CMS.24.0.01/uaglCMS.aspx`)
 

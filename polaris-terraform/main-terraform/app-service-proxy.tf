@@ -72,6 +72,11 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
+    # auth-handover drop switches (next config only). MUST exist even when off: the next
+    # nginx.conf does `set $x "${VAR}"`, and an unset var is left literal by envsubst -> nginx
+    # reads it as an unknown variable and fails to boot. Default off; flip to "true" to arm.
+    "NON_DDEI_INIT_ENABLED"                           = "false"
+    "ENTRA_STORE_ENABLED"                             = "false"
     "WM_MDS_BASE_URL"                                 = "https://fa-${local.wm_mds_resource_name}.azurewebsites.net/api/"
     "WM_MDS_ACCESS_KEY"                               = data.azurerm_key_vault_secret.kvs_fa_wm_mds_host_keys.value
     "CPS_GLOBAL_COMPONENTS_BLOB_STORAGE_DOMAIN"       = var.cps_global_components.blob_storage_domain
