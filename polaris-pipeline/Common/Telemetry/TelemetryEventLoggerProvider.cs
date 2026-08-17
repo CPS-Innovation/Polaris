@@ -126,12 +126,9 @@ namespace Common.Telemetry
 
             private static void CopyDictionary<TValue>(IDictionary<string, TValue> source, IDictionary<string, TValue> target)
             {
-                foreach (var item in source)
+                foreach (var item in source.Where(item => !string.IsNullOrEmpty(item.Key) && !target.ContainsKey(item.Key)))
                 {
-                    if (!string.IsNullOrEmpty(item.Key) && !target.ContainsKey(item.Key))
-                    {
-                        target[item.Key] = item.Value;
-                    }
+                    target[item.Key] = item.Value;
                 }
             }
 
