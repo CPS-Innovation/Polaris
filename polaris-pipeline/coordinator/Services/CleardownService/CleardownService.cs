@@ -79,9 +79,8 @@ namespace coordinator.Services.ClearDownService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error deleting case {CaseId}", caseId);
                 _logger.TrackEventFailure(telemetryEvent);
-                throw;
+                throw new InvalidOperationException($"Error deleting case {caseId}", ex);
             }
         }
     }
