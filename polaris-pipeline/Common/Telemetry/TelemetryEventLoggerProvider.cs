@@ -82,12 +82,12 @@ namespace Common.Telemetry
 
                 var eventTelemetry = new EventTelemetry(PrepareEventName(baseTelemetryEvent.EventName));
 
-                if (properties != null && properties.Count > 0)
+                if (properties.Count > 0)
                 {
                     CopyDictionary(PrepareKeyNames(properties), eventTelemetry.Properties);
                 }
 
-                if (nonNullMetrics != null && nonNullMetrics.Count > 0)
+                if (nonNullMetrics.Count > 0)
                 {
                     CopyDictionary(PrepareKeyNames(nonNullMetrics), eventTelemetry.Metrics);
                 }
