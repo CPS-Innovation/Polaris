@@ -6,6 +6,11 @@
  */
 
 const PROXY_BASE = process.env.PROXY_BASE || "http://localhost:8080"
+// Which config the running proxy was built from — set by run-tests.sh.
+// "live" (main-terraform/nginx.conf) | "next" (proxy/config). Lets a test gate an
+// assertion to one config when a behaviour deliberately differs between them.
+const CONFIG_KIND = process.env.PROXY_CONFIG_KIND || "live"
+const isNext = CONFIG_KIND === "next"
 
 const state = { passed: 0, failed: 0, results: [] }
 
@@ -88,6 +93,8 @@ function summarise(label) {
 
 module.exports = {
   PROXY_BASE,
+  CONFIG_KIND,
+  isNext,
   getState,
   assert,
   assertEqual,

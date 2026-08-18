@@ -19,11 +19,13 @@ PROXY_BASE="${PROXY_BASE:-http://localhost:8080}"
 # Args: --next (use the to-be config) anywhere; any other arg is a filename filter.
 COMPOSE_FILES="-f docker-compose.yml"
 CONFIG_LABEL="live (main-terraform)"
+CONFIG_KIND="live"   # exported to tests as PROXY_CONFIG_KIND so a test can gate an
+                     # assertion to one config (e.g. a next-gen-only behaviour).
 FILTER=""
 for arg in "$@"; do
   case "$arg" in
     --next) COMPOSE_FILES="-f docker-compose.yml -f docker-compose.next.yml"
-            CONFIG_LABEL="next (proxy/config)" ;;
+            CONFIG_LABEL="next (proxy/config)"; CONFIG_KIND="next" ;;
     *)      FILTER="$arg" ;;
   esac
 done
@@ -86,7 +88,7 @@ for f in $(find "$CONFIG_DIR" -name '*.integration.test.js' | sort); do
   if [ -n "$FILTER" ] && [[ "$f" != *"$FILTER"* ]]; then continue; fi
   echo ""
   echo -e "${YELLOW}==== $(basename "$f") ====${NC}"
-  if ! PROXY_BASE="$PROXY_BASE" node "$f"; then
+  if ! PROXY_BASE="$PROXY_BASE" PROXY_CONFIG_KIND="$CONFIG_KIND" node "$f"; then
     FAILED=$((FAILED + 1))
   fi
 done
