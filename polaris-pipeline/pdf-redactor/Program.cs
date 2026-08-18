@@ -64,7 +64,7 @@ var host = new HostBuilder()
         services.AddScoped<IValidator<RedactPdfRequestWithDocumentDto>, RedactPdfRequestWithDocumentValidator>();
         services.AddScoped<IValidator<ModifyDocumentWithDocumentDto>, ModifyDocumentWithDocumentValidator>();
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
-        services.AddSingleton<ITelemetryClient, TelemetryClient>();
+        services.AddTelemetryEventLogging();
         services.AddSingleton<Microsoft.ApplicationInsights.TelemetryClient, Microsoft.ApplicationInsights.TelemetryClient>();
     })
     .Build();

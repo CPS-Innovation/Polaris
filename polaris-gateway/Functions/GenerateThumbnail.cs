@@ -1,6 +1,5 @@
 using Common.Configuration;
 using Common.Dto.Request;
-using Common.Telemetry;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -21,17 +20,14 @@ public class GenerateThumbnail : BaseFunction
 {
     private readonly ILogger<GenerateThumbnail> _logger;
     private readonly IPdfThumbnailGeneratorClient _pdfThumbnailGeneratorClient;
-    private readonly ITelemetryClient _telemetryClient;
 
     public GenerateThumbnail(
         ILogger<GenerateThumbnail> logger,
-        IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient,
-        ITelemetryClient telemetryClient)
+        IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient)
         : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _pdfThumbnailGeneratorClient = pdfThumbnailGeneratorClient ?? throw new ArgumentNullException(nameof(pdfThumbnailGeneratorClient));
-        _telemetryClient = telemetryClient;
     }
 
     [Function(nameof(GenerateThumbnail))]
