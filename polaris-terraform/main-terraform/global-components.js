@@ -5,6 +5,7 @@ const CMS_AUTH_VALUES_COOKIE_NAME = "Cms-Auth-Values"
 const CORS_ALLOWED_ORIGINS = [
   "https://cps.outsystemsenterprise.com",
   "https://cps-tst.outsystemsenterprise.com",
+  "https://cps-tst1.outsystemsenterprise.com",
   "https://cps-dev.outsystemsenterprise.com",
   "http://localhost",
   "https://localhost",
