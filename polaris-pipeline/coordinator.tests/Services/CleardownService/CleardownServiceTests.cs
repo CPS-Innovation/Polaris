@@ -91,10 +91,12 @@ namespace coordinator.tests.Services.CleardownServiceTests
               .ReturnsAsync(orchestrationResult);
 
             // Act
-            var exception = await Assert.ThrowsAsync<Exception>(() => _clearDownService.DeleteCaseAsync(_mockDurableOrchestrationClient.Object, _caseUrn, _caseId, _correlationId));
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _clearDownService.DeleteCaseAsync(_mockDurableOrchestrationClient.Object, _caseUrn, _caseId, _correlationId));
 
             // Assert
-            exception.Message.Should().Be("DeleteCaseOrchestrationAsync failed");
+            exception.Message.Should().Be($"Error deleting case {_caseId}");
+            exception.InnerException.Should().NotBeNull();
+            exception.InnerException.Message.Should().Be("DeleteCaseOrchestrationAsync failed");
         }
     }
 }
