@@ -170,3 +170,19 @@ comment either way.
 Any unmatched path falls through to CMS Modern. Flagged in §4 as "has always been
 a bit dodgy just being on the root". It means the proxy has no real 404 — unknown
 paths become CMS requests.
+
+### D11. 🟢 `/cpt` env-switch: next-gen fixes a live cookie-clearing bug
+
+**Where (live):** `nginx.conf` (`location /cpt`, added by FCT2-18732)
+**Where (next):** `cms-proxy.js` (`cinSwitch` / `_clearOtherEnvs`), `cms-proxy.conf` (`location /cpt`)
+**Test:** `cms-proxy.unit.test.js` + `cms-proxy.integration.test.js` — "/cpt clears CIN3 + MOD, NOT its own CPT"
+
+The live `/cpt` block (copy-pasted from the CIN blocks) regressed: it **missed CIN3**
+(neither pool nor LB cleared) and wrongly **cleared its own CPT** LB cookies. Our
+handler clears "every env EXCEPT the target", so it's correct by construction — it
+emits CIN2–CIN5 (pool + LB) + MOD and leaves CPT alone. The live block has since been
+fixed to match (same commit as this port). Also note two deliberate parity carries
+from the live config, NOT bugs we introduced: `cmo` is detected from the `mod` token
+and has **no upstream config** yet (see [`../common/cms-detection.js`]), and the
+`cpt`/`cmo` `CASEWORK_TOOLS_URL` sub_filters hard-code the UAT host (qa→uat) — both to
+be addressed wholesale later.

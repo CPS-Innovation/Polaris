@@ -42,7 +42,10 @@ function coerce(r, want, reject) {
     r.headersOut["X-InternetExplorerMode"] = want === "ie" ? "1" : "0";
     r.return(
       302,
-      process.env.WEBSITE_SCHEME + "://" + r.variables.host + r.variables.request_uri,
+      process.env.WEBSITE_SCHEME +
+        "://" +
+        r.variables.host +
+        r.variables.request_uri,
     );
     return true;
   }

@@ -1,5 +1,3 @@
-// Feature 6 🔌 — polaris-ddei internal routes.
-//
 // This feature is self-contained (it is slated for deletion — QUIRKS.md A4
 // / PLAN.md Phase 3), so it owns EVERY CMS-upstream getter its conf js_sets,
 // built from its own getter factories over common.setting. Some compute the same
@@ -12,7 +10,8 @@ import common from "../common/cms-detection.js";
 
 // Getter factories, built on common.setting (kept feature-local — see common/cms-detection.js).
 const upstream = (name) => (r) => common.setting(r, name);
-const dest = (name) => (r) => process.env.ENDPOINT_HTTP_PROTOCOL + "://" + common.setting(r, name);
+const dest = (name) => (r) =>
+  process.env.ENDPOINT_HTTP_PROTOCOL + "://" + common.setting(r, name);
 
 export default {
   // shared-value getters (own copies; also in cms-proxy.js)
@@ -27,5 +26,7 @@ export default {
   upstreamCmsIpCorsham: upstream("UPSTREAM_CMS_IP_CORSHAM"),
   upstreamCmsModernIpCorsham: upstream("UPSTREAM_CMS_MODERN_IP_CORSHAM"),
   upstreamCmsIpFarnborough: upstream("UPSTREAM_CMS_IP_FARNBOROUGH"),
-  upstreamCmsModernIpFarnborough: upstream("UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"),
+  upstreamCmsModernIpFarnborough: upstream(
+    "UPSTREAM_CMS_MODERN_IP_FARNBOROUGH",
+  ),
 };

@@ -83,7 +83,9 @@ function _uuid() {
     return s;
   };
   const y = (8 + Math.floor(Math.random() * 4)).toString(16);
-  return hex(8) + "-" + hex(4) + "-4" + hex(3) + "-" + y + hex(3) + "-" + hex(12);
+  return (
+    hex(8) + "-" + hex(4) + "-4" + hex(3) + "-" + y + hex(3) + "-" + hex(12)
+  );
 }
 
 function _isWhitelisted(tok) {
@@ -283,7 +285,11 @@ async function establishCmsSession(r, landing) {
     return null;
   }
 
-  return { cookieHeader: cookieHeader, token: mint.token, versionId: mint.versionId };
+  return {
+    cookieHeader: cookieHeader,
+    token: mint.token,
+    versionId: mint.versionId,
+  };
 }
 
 // Build the Cms-Auth-Values Set-Cookie string for an established session (the

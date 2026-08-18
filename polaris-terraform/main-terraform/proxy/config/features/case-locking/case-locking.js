@@ -37,9 +37,11 @@ function filterNegotiateBody(r, data, flags) {
   // Rewrite to an ABSOLUTE same-origin URL (not path-relative) because the SignalR
   // client constructs `new URL(response.url)` without supplying a base — a relative URL
   // there throws "Invalid URL".
-  const scheme = r.headersIn["X-Forwarded-Proto"] || r.variables.scheme || "https";
+  const scheme =
+    r.headersIn["X-Forwarded-Proto"] || r.variables.scheme || "https";
   const host = r.headersIn["Host"] || r.variables.host;
-  const replacement = scheme + "://" + host + "/global-components/case-locking/api/sr";
+  const replacement =
+    scheme + "://" + host + "/global-components/case-locking/api/sr";
 
   const result = data.replace(
     /https?:\/\/[a-zA-Z0-9.-]+\.service\.signalr\.net/g,
@@ -150,7 +152,10 @@ async function handlePresenceJsonp(r) {
     ? _PRESENCE_OPS[args.op]
     : null;
   if (!op) {
-    r.return(200, cb + "(" + JSON.stringify({ jsonpError: "unknown op: " + args.op }) + ")");
+    r.return(
+      200,
+      cb + "(" + JSON.stringify({ jsonpError: "unknown op: " + args.op }) + ")",
+    );
     return;
   }
 
@@ -182,7 +187,13 @@ async function handlePresenceJsonp(r) {
       // Raw JSONP has no error channel; give the browser callback one.
       r.return(
         200,
-        cb + "(" + JSON.stringify({ jsonpError: "upstream " + resp.status, upstreamBody: text }) + ")",
+        cb +
+          "(" +
+          JSON.stringify({
+            jsonpError: "upstream " + resp.status,
+            upstreamBody: text,
+          }) +
+          ")",
       );
       return;
     }

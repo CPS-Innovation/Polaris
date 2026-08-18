@@ -14,11 +14,18 @@ function detect(cookie) {
   if (cookie.includes("cin2")) return "cin2";
   if (cookie.includes("cin4")) return "cin4";
   if (cookie.includes("cin5")) return "cin5";
+  if (cookie.includes("cpt")) return "cpt";
+  if (cookie.includes("mod")) return "cmo";
   return "default";
 }
+// NOTE (parity with the live config, FCT2-18732): the substring scan is deliberately
+// naive — there is no guarantee of a __CMSENV cookie, so we fall through to whatever
+// env token appears in the LB/BIG-IP cookies. "cmo" is detected from the "mod" token
+// (its LB cookies are named MOD). Known-fragile (a stray "mod"/"cpt" substring
+// mis-routes); to be addressed wholesale later, not here.
 
 // Read a per-environment CMS app setting from process.env: the value of
-// <ENV>_<name>, where <ENV> is the request's environment (DEFAULT/CIN2/CIN4/CIN5,
+// <ENV>_<name>, where <ENV> is the request's environment (DEFAULT/CIN2/CIN4/CIN5/CPT/CMO,
 // detected from the incoming Cookie header) and <name> is the setting's own
 // env-var name — e.g. setting(r, "UPSTREAM_CMS_MODERN_DOMAIN_NAME") ->
 // process.env.CIN4_UPSTREAM_CMS_MODERN_DOMAIN_NAME.

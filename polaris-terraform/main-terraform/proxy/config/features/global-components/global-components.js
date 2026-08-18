@@ -1,10 +1,11 @@
-const SESSION_HINT_COOKIE_NAME = "Cms-Session-Hint"
-const CMS_AUTH_VALUES_COOKIE_NAME = "Cms-Auth-Values"
+const SESSION_HINT_COOKIE_NAME = "Cms-Session-Hint";
+const CMS_AUTH_VALUES_COOKIE_NAME = "Cms-Auth-Values";
 // Plenty of hardcoded stuff elsewhere in the nginx config. Let's keep only things
 //  that are sensitive or trigger differences in the ENV/App settings.
 const CORS_ALLOWED_ORIGINS = [
   "https://cps.outsystemsenterprise.com",
   "https://cps-tst.outsystemsenterprise.com",
+  "https://cps-tst1.outsystemsenterprise.com",
   "https://cps-dev.outsystemsenterprise.com",
   "http://localhost",
   "https://localhost",
@@ -13,16 +14,16 @@ const CORS_ALLOWED_ORIGINS = [
   "https://lacc-app-ui-spa-staging.azurewebsites.net",
   "https://lacc-app-ui-spa-dev.azurewebsites.net",
   // see later for check for localhost with port
-]
+];
 const STATE_COOKIE_NAME = "cps-global-components-state";
 const STATE_COOKIE_LIFESPAN_MS = 365 * 24 * 60 * 60 * 1000;
 function _getHeaderValue(r, headerName) {
-  return r.headersIn[headerName] || ""
+  return r.headersIn[headerName] || "";
 }
 function _getCookieValue(r, cookieName) {
-  const cookies = _getHeaderValue(r, "Cookie")
-  const match = cookies.match(new RegExp(`(?:^|;\\s*)${cookieName}=([^;]*)`))
-  return match ? match[1] : ""
+  const cookies = _getHeaderValue(r, "Cookie");
+  const match = cookies.match(new RegExp(`(?:^|;\\s*)${cookieName}=([^;]*)`));
+  return match ? match[1] : "";
 }
 function _maybeDecodeURIComponent(value) {
   // Check if value appears not to be URL-encoded
@@ -32,8 +33,7 @@ function _maybeDecodeURIComponent(value) {
   }
   try {
     return decodeURIComponent(value);
-  }
-  catch (e) {
+  } catch (e) {
     return value;
   }
 }
@@ -58,8 +58,7 @@ function _wrapState(plaintext) {
 function _unwrapState(wrapped) {
   try {
     return _base64UrlDecode(wrapped);
-  }
-  catch (e) {
+  } catch (e) {
     // If decode fails, return null (corrupted or legacy data)
     return null;
   }
@@ -86,46 +85,42 @@ function _setCookie(r, name, value, options) {
   // For multiple cookies, we need to use an array
   const existing = r.headersOut["Set-Cookie"];
   if (existing) {
-      if (Array.isArray(existing)) {
-          existing.push(cookie);
-      }
-      else {
-          // Convert single string to array and add new cookie
-          r.headersOut["Set-Cookie"] = [existing, cookie];
-      }
-  }
-  else {
-      // First cookie - use string for compatibility
-      r.headersOut["Set-Cookie"] = cookie;
+    if (Array.isArray(existing)) {
+      existing.push(cookie);
+    } else {
+      // Convert single string to array and add new cookie
+      r.headersOut["Set-Cookie"] = [existing, cookie];
+    }
+  } else {
+    // First cookie - use string for compatibility
+    r.headersOut["Set-Cookie"] = cookie;
   }
 }
 function _extractDomainFromSessionHint(r) {
   var cookies = r.headersIn["Cookie"] || "";
   var match = cookies.match(/Cms-Session-Hint=([^;]+)/);
-  if (!match)
-      return "";
+  if (!match) return "";
   try {
-      var decoded = decodeURIComponent(match[1]);
-      var parsed = JSON.parse(decoded);
-      var endpoint = parsed.handoverEndpoint || "";
-      var domainMatch = endpoint.match(/https?:\/\/([^\/]+)/);
-      return domainMatch ? domainMatch[1] : "";
-  }
-  catch (e) {
-      return "";
+    var decoded = decodeURIComponent(match[1]);
+    var parsed = JSON.parse(decoded);
+    var endpoint = parsed.handoverEndpoint || "";
+    var domainMatch = endpoint.match(/https?:\/\/([^\/]+)/);
+    return domainMatch ? domainMatch[1] : "";
+  } catch (e) {
+    return "";
   }
 }
 
 function readCmsAuthValues(r) {
   return _maybeDecodeURIComponent(
     _getHeaderValue(r, CMS_AUTH_VALUES_COOKIE_NAME) ||
-      _getCookieValue(r, CMS_AUTH_VALUES_COOKIE_NAME)
-    )
+      _getCookieValue(r, CMS_AUTH_VALUES_COOKIE_NAME),
+  );
 }
 
 // For nginx js_set - returns origin if allowed, empty string otherwise
 function readCorsOrigin(r) {
-  const origin = r.headersIn["Origin"]
+  const origin = r.headersIn["Origin"];
   return CORS_ALLOWED_ORIGINS.includes(origin) ||
     origin.endsWith(".cps.gov.uk") ||
     origin.startsWith("http://localhost:") ||
@@ -133,11 +128,11 @@ function readCorsOrigin(r) {
     origin.startsWith("http://127.0.0.1:") ||
     origin.startsWith("https://127.0.0.1:")
     ? origin
-    : ""
+    : "";
 }
 function handleSessionHint(r) {
-  const hintValue = _getCookieValue(r, SESSION_HINT_COOKIE_NAME)
-  r.return(200, hintValue ? _maybeDecodeURIComponent(hintValue) : "null")
+  const hintValue = _getCookieValue(r, SESSION_HINT_COOKIE_NAME);
+  r.return(200, hintValue ? _maybeDecodeURIComponent(hintValue) : "null");
 }
 async function handleState(r) {
   if (!["GET", "PUT"].includes(r.method)) {
@@ -167,7 +162,10 @@ async function handleState(r) {
         Secure: true,
         SameSite: "None",
       });
-      r.return(200, JSON.stringify({ success: true, path: r.uri, cleared: true }));
+      r.return(
+        200,
+        JSON.stringify({ success: true, path: r.uri, cleared: true }),
+      );
       return;
     }
     // Wrap the body and store in cookie
@@ -208,66 +206,78 @@ function handleNavigateCms(r) {
     var domain = _extractDomainFromSessionHint(r);
     if (!domain) {
       r.headersOut["Content-Type"] = "text/html";
-      r.return(400, "<html><body><p>Error: could not determine CMS domain from session.</p></body></html>");
+      r.return(
+        400,
+        "<html><body><p>Error: could not determine CMS domain from session.</p></body></html>",
+      );
       return;
     }
     var args = r.variables.args || "";
     var separator = args ? "&" : "";
     r.headersOut["X-InternetExplorerMode"] = "1";
-    r.return(302, proto +
-      "://" +
-      host +
-      r.uri +
-      "?" +
-      args +
-      separator +
-      "cmsDomain=" +
-      encodeURIComponent(domain));
+    r.return(
+      302,
+      proto +
+        "://" +
+        host +
+        r.uri +
+        "?" +
+        args +
+        separator +
+        "cmsDomain=" +
+        encodeURIComponent(domain),
+    );
     return;
   }
   // Now in IE mode (or non-configurable): get domain from query param (IE) or cookie (non-configurable)
   var cmsDomain = r.args.cmsDomain || _extractDomainFromSessionHint(r);
   if (!cmsDomain) {
     r.headersOut["Content-Type"] = "text/html";
-    r.return(400, "<html><body><p>Error: could not determine CMS domain from session.</p></body></html>");
+    r.return(
+      400,
+      "<html><body><p>Error: could not determine CMS domain from session.</p></body></html>",
+    );
     return;
   }
   var caseId = r.args.caseId || "";
   var taskId = r.args.taskId || "";
   var iframeSrc = taskId
     ? proto +
-        "://" +
-        cmsDomain +
-        "/CMSModern/Navigation/Notification.html?action=activate_task&screen=case_details&wId=MASTER&taskId=" +
-        taskId +
-        "&caseId=" +
-        caseId
+      "://" +
+      cmsDomain +
+      "/CMSModern/Navigation/Notification.html?action=activate_task&screen=case_details&wId=MASTER&taskId=" +
+      taskId +
+      "&caseId=" +
+      caseId
     : proto +
-        "://" +
-        cmsDomain +
-        "/CMSModern/Navigation/Notification.html?action=navigate&screen=case_details&wId=MASTER&caseId=" +
-        caseId;
+      "://" +
+      cmsDomain +
+      "/CMSModern/Navigation/Notification.html?action=navigate&screen=case_details&wId=MASTER&caseId=" +
+      caseId;
   var closeUrl = "/global-components/navigate-cms?step=close";
   var heading = taskId ? "Opening task in CMS" : "Opening case in CMS";
   r.headersOut["Content-Type"] = "text/html";
-  r.return(200, "<!DOCTYPE html>" +
-    "<html><head><title>" +
-    heading +
-    "</title></head>" +
-    '<body style="font-family: Arial, sans-serif; margin: 30px;">' +
-    '<h1 style="font-size: 24px; font-weight: 700; margin: 0 0 20px 0;">' +
-    heading +
-    "</h1>" +
-    '<div style="border-left: 10px solid #b1b4b6; padding: 15px; margin: 0; clear: both;">' +
-    '<p style="font-size: 16px; margin: 0 0 10px 0;">This may take a few seconds.</p>' +
-    '<p style="font-size: 16px; margin: 0;">Please do not close this window. It will close automatically when CMS has finished navigating.</p>' +
-    "</div>" +
-    '<iframe src="' +
-    iframeSrc +
-    '" style="display:none" onload="window.location.href=\'' +
-    closeUrl +
-    "'\"></iframe>" +
-    "</body></html>");
+  r.return(
+    200,
+    "<!DOCTYPE html>" +
+      "<html><head><title>" +
+      heading +
+      "</title></head>" +
+      '<body style="font-family: Arial, sans-serif; margin: 30px;">' +
+      '<h1 style="font-size: 24px; font-weight: 700; margin: 0 0 20px 0;">' +
+      heading +
+      "</h1>" +
+      '<div style="border-left: 10px solid #b1b4b6; padding: 15px; margin: 0; clear: both;">' +
+      '<p style="font-size: 16px; margin: 0 0 10px 0;">This may take a few seconds.</p>' +
+      '<p style="font-size: 16px; margin: 0;">Please do not close this window. It will close automatically when CMS has finished navigating.</p>' +
+      "</div>" +
+      '<iframe src="' +
+      iframeSrc +
+      '" style="display:none" onload="window.location.href=\'' +
+      closeUrl +
+      "'\"></iframe>" +
+      "</body></html>",
+  );
 }
 function handleCaseReviewRedirect(r) {
   const proto = r.headersIn["X-Forwarded-Proto"] || "https";
@@ -278,7 +288,10 @@ function handleCaseReviewRedirect(r) {
   const osSubdomain = parts[2] || "";
   const envFolder = parts[3] || "";
   if (!osSubdomain || !envFolder) {
-    r.return(400, "case-review: expected path /case-review-redirect/{osSubdomain}/{envFolder}");
+    r.return(
+      400,
+      "case-review: expected path /case-review-redirect/{osSubdomain}/{envFolder}",
+    );
     return;
   }
   const osDomain = `${osSubdomain}.outsystemsenterprise.com`;
@@ -292,13 +305,17 @@ function handleCaseReviewRedirect(r) {
   const finalDest = `https://${osDomain}/CaseReview/LandingPage?CMSCaseId=${caseId}&URN=${urn}`;
   // Auth handover page with src (our JS), stage, and encoded final destination
   const authHandoverJs = `${proto}://${host}/global-components/${envFolder}/auth-handover.js`;
-  const authHandoverPage = `https://${osDomain}/Casework_Patterns/auth-handover.html` +
+  const authHandoverPage =
+    `https://${osDomain}/Casework_Patterns/auth-handover.html` +
     `?src=${encodeURIComponent(authHandoverJs)}` +
     `&stage=os-cookie-return` +
     `&r=${encodeURIComponent(finalDest)}`;
   // Redirect through /auth-refresh-outbound which determines the correct
   // CMS polaris endpoint from the Cms-Session-Hint cookie (or default domain)
-  r.return(302, `${proto}://${host}/auth-refresh-outbound?r=${encodeURIComponent(authHandoverPage)}`);
+  r.return(
+    302,
+    `${proto}://${host}/auth-refresh-outbound?r=${encodeURIComponent(authHandoverPage)}`,
+  );
 }
 // Moved from cmsenv.js. Used only by the legacy /api/navigate-cms block in
 // global-components.conf. Self-contained: its own regex, no CMS-env detection.
@@ -321,4 +338,4 @@ export default {
   // Export helper functions for vnext
   _getCookieValue,
   _maybeDecodeURIComponent,
-}
+};

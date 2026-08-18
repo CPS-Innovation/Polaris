@@ -215,11 +215,12 @@ async function cinSwitchTests(cmsProxy) {
   await test("ie -> 302 to /CMS", () => {
     assertEqual(call("/cin2", IE_UA).returnBody, "https://polaris.example/CMS")
   })
-  await test("__CMSENV set per env — cin3 IS 'default' (QUIRK D9)", () => {
+  await test("__CMSENV set per env — cin3 IS 'default' (QUIRK D9); /cpt IS 'cpt'", () => {
     assertIncludes(cookies("/cin2").join("\n"), "__CMSENV=cin2", "cin2")
     assertIncludes(cookies("/cin3").join("\n"), "__CMSENV=default", "cin3 -> default")
     assertIncludes(cookies("/cin4").join("\n"), "__CMSENV=cin4", "cin4")
     assertIncludes(cookies("/cin5").join("\n"), "__CMSENV=cin5", "cin5")
+    assertIncludes(cookies("/cpt").join("\n"), "__CMSENV=cpt", "cpt (FCT2-18732)")
   })
   await test("clears the OTHER envs' pool + LB cookies, leaves the current env's alone", () => {
     const joined = cookies("/cin2").join("\n")
@@ -227,8 +228,24 @@ async function cinSwitchTests(cmsProxy) {
     assertIncludes(joined, "F-CIN5-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "clears cin5 LB")
     assertNotIncludes(joined, "CIN2-cin2", "does NOT clear the current env (cin2)")
   })
-  await test("exactly 13 Set-Cookie values: __CMSENV + 3 envs x (2 pool + 2 lb)", () => {
-    assertEqual(cookies("/cin2").length, 1 + 3 * 4)
+  await test("every switch also clears the MOD + CPT LB session cookies (FCT2-18732)", () => {
+    const joined = cookies("/cin2").join("\n")
+    assertIncludes(joined, "C-MOD-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "clears MOD LB")
+    assertIncludes(joined, "F-CPT-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "clears CPT LB")
+  })
+  await test("cin switch = 17 Set-Cookie: __CMSENV + 3 cin x (2 pool + 2 lb) + mod/cpt x 2 lb", () => {
+    assertEqual(cookies("/cin2").length, 1 + 3 * 4 + 2 * 2)
+  })
+  await test("/cpt clears CIN3 + MOD, NOT its own CPT (fixes the live /cpt bug)", () => {
+    const joined = cookies("/cpt").join("\n")
+    // Live /cpt regressed: it missed CIN3 and cleared its own CPT. Clear-all-except-target fixes both.
+    assertIncludes(joined, "BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "clears cin3 pool")
+    assertIncludes(joined, "F-CIN3-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "clears cin3 LB")
+    assertIncludes(joined, "C-MOD-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "clears the other LB-only env (mod)")
+    assertNotIncludes(joined, "CPT-LBsessioncookie", "does NOT clear its own env (cpt)")
+  })
+  await test("/cpt switch = 19 Set-Cookie: __CMSENV + 4 cin x (2 pool + 2 lb) + mod x 2 lb", () => {
+    assertEqual(cookies("/cpt").length, 1 + 4 * 4 + 1 * 2)
   })
 
   restore()

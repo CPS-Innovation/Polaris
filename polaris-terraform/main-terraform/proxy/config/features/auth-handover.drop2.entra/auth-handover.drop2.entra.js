@@ -40,17 +40,22 @@ import store from "./store.js";
 // reference; same tenant/client/redirect). The client SECRET stays empty unless
 // supplied as an app setting. REDIRECT_URI must match a redirect URI registered on the
 // app reg AND the callback location's path (see the .conf).
-const TENANT_ID = process.env.ENTRA_TENANT_ID || "00dd0d1d-d7e6-4338-ac51-565339c7088c";
-const CLIENT_ID = process.env.ENTRA_CLIENT_ID || "8d6133af-9593-47c6-94d0-5c65e9e310f1";
+const TENANT_ID =
+  process.env.ENTRA_TENANT_ID || "00dd0d1d-d7e6-4338-ac51-565339c7088c";
+const CLIENT_ID =
+  process.env.ENTRA_CLIENT_ID || "8d6133af-9593-47c6-94d0-5c65e9e310f1";
 const REDIRECT_URI =
-  process.env.ENTRA_REDIRECT_URI || "https://polaris-qa-notprod.cps.gov.uk/init-v2/callback";
+  process.env.ENTRA_REDIRECT_URI ||
+  "https://polaris-qa-notprod.cps.gov.uk/init-v2/callback";
 const CLIENT_SECRET = process.env.ENTRA_CLIENT_SECRET || "";
 
 // First-party state cookie: holds the (secret) session payload across the AD hop.
 // Path scopes it to the callback; short-lived; HttpOnly so no script can read it.
 const STATE_COOKIE = "entra_auth_state";
-const STATE_SET_OPTS = "; Path=/init-v2; HttpOnly; Secure; SameSite=Lax; Max-Age=300";
-const STATE_CLEAR_OPTS = "; Path=/init-v2; HttpOnly; Secure; SameSite=Lax; Max-Age=0";
+const STATE_SET_OPTS =
+  "; Path=/init-v2; HttpOnly; Secure; SameSite=Lax; Max-Age=300";
+const STATE_CLEAR_OPTS =
+  "; Path=/init-v2; HttpOnly; Secure; SameSite=Lax; Max-Age=0";
 
 // The id-token cookie read by the global-components case-locking presence-jsonp endpoint
 // (its only consumer; drop2 just SETS it). HOST-ONLY — no Domain attribute — so it binds to
@@ -105,11 +110,15 @@ function _cookie(r, name) {
 }
 
 function _authorizeUrl() {
-  return "https://login.microsoftonline.com/" + TENANT_ID + "/oauth2/v2.0/authorize";
+  return (
+    "https://login.microsoftonline.com/" + TENANT_ID + "/oauth2/v2.0/authorize"
+  );
 }
 
 function _tokenUrl() {
-  return "https://login.microsoftonline.com/" + TENANT_ID + "/oauth2/v2.0/token";
+  return (
+    "https://login.microsoftonline.com/" + TENANT_ID + "/oauth2/v2.0/token"
+  );
 }
 
 // utf-8 <-> base64url via Buffer (NOT btoa/atob — the payload can hold non-Latin1 CMS text).
@@ -122,7 +131,10 @@ function _b64urlEncode(str) {
 }
 
 function _b64urlDecode(str) {
-  return Buffer.from(str.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8");
+  return Buffer.from(
+    str.replace(/-/g, "+").replace(/_/g, "/"),
+    "base64",
+  ).toString("utf8");
 }
 
 // Random hex handle for state/nonce. Web Crypto when present; Math.random fallback is
@@ -244,7 +256,9 @@ async function handleInitEntra(r) {
       term: terminal,
       corr: _rand(8),
     };
-    r.headersOut["Set-Cookie"] = [STATE_COOKIE + "=" + _packState(payload) + STATE_SET_OPTS];
+    r.headersOut["Set-Cookie"] = [
+      STATE_COOKIE + "=" + _packState(payload) + STATE_SET_OPTS,
+    ];
 
     const params = [
       "client_id=" + encodeURIComponent(CLIENT_ID),
@@ -322,7 +336,9 @@ async function handleInitEntraCallback(r) {
     }
 
     const oid = String(claims.oid || "");
-    const email = String(claims.email || claims.upn || claims.preferred_username || "");
+    const email = String(
+      claims.email || claims.upn || claims.preferred_username || "",
+    );
     if (!oid) {
       _degrade(r, st, null, "no-oid");
       return;
@@ -331,7 +347,12 @@ async function handleInitEntraCallback(r) {
     // The main event: deposit through the swap-out seam.
     const dep = await store.deposit(
       oid,
-      { cookies: st.cc, modernToken: st.tok, correlationId: st.corr, email: email },
+      {
+        cookies: st.cc,
+        modernToken: st.tok,
+        correlationId: st.corr,
+        email: email,
+      },
       { idToken: tok.idToken, accessToken: tok.accessToken },
     );
     if (!dep.ok) {
@@ -352,7 +373,10 @@ function _succeed(r, st) {
     // Cookie carries the DEV token today (PROVING — see PRESENCE_COOKIE_TOKEN); the real idToken
     // already went to the store deposit above. Swap PRESENCE_COOKIE_TOKEN -> the real idToken
     // (thread tok.idToken back into _succeed) when the backend validates real Entra id-tokens.
-    ID_TOKEN_COOKIE + "=" + encodeURIComponent(PRESENCE_COOKIE_TOKEN) + ID_TOKEN_SET_OPTS,
+    ID_TOKEN_COOKIE +
+      "=" +
+      encodeURIComponent(PRESENCE_COOKIE_TOKEN) +
+      ID_TOKEN_SET_OPTS,
   ];
   if (st.term === "iframe") {
     // Pure side-channel: store + id-token cookie only, no Cms-Auth-Values, static page.

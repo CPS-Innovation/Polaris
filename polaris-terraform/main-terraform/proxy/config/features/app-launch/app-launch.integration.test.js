@@ -21,6 +21,7 @@ const { test, assertEqual, assertIncludes, get, summarise } = require("../../../
 // The OutSystems auth-handover hop every launch redirect routes through.
 const OS_PROD = "cps.outsystemsenterprise.com%2FCasework_Patterns%2Fauth-handover.html"
 const OS_TEST = "cps-tst.outsystemsenterprise.com%2FCasework_Patterns%2Fauth-handover.html"
+const OS_TEST1 = "cps-tst1.outsystemsenterprise.com%2FCasework_Patterns%2Fauth-handover.html" // cpt/cmo (FCT2-18732)
 
 async function launches() {
   // [path, expected redirect host prefix, expected OutSystems hop]
@@ -31,12 +32,16 @@ async function launches() {
     ["/launch/cin3", "https://cin3.cps.gov.uk/polaris?r=", OS_TEST],
     ["/launch/cin4", "https://cin4.cps.gov.uk/polaris?r=", OS_TEST],
     ["/launch/cin5", "https://cin5.cps.gov.uk/polaris?r=", OS_TEST],
+    ["/launch/cpt", "https://cmscpt.cps.gov.uk/polaris?r=", OS_TEST1], // FCT2-18732
+    ["/launch/cmo", "https://cmo.cps.gov.uk/polaris?r=", OS_TEST1], // FCT2-18732
     // Proxied-session launches — hop via the polaris proxy's own /polaris
     ["/launch/cms-proxy", "https://polaris.cps.gov.uk/polaris?r=", OS_PROD],
     ["/launch/cin2-proxy", "https://polaris-qa-notprod.cps.gov.uk/polaris?r=", OS_TEST],
     ["/launch/cin3-proxy", "https://polaris-qa-notprod.cps.gov.uk/polaris?r=", OS_TEST],
     ["/launch/cin4-proxy", "https://polaris-qa-notprod.cps.gov.uk/polaris?r=", OS_TEST],
     ["/launch/cin5-proxy", "https://polaris-qa-notprod.cps.gov.uk/polaris?r=", OS_TEST],
+    ["/launch/cpt-proxy", "https://polaris-uat-notprod.cps.gov.uk/polaris?r=", OS_TEST1], // FCT2-18732
+    ["/launch/cmo-proxy", "https://polaris-uat-notprod.cps.gov.uk/polaris?r=", OS_TEST1], // FCT2-18732
   ]
 
   console.log("\n/launch/* — static handover redirects:")

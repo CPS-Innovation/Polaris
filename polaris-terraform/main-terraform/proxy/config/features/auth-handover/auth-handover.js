@@ -1,14 +1,14 @@
-import qs from "querystring"
-import common from "../common/cms-detection.js"
-import ieMode from "../common/ie-mode.js"
+import qs from "querystring";
+import common from "../common/cms-detection.js";
+import ieMode from "../common/ie-mode.js";
 
-const IS_PROXY_SESSION_PARAM_NAME = "is-proxy-session"
-const SESSION_HINT_COOKIE_NAME = "Cms-Session-Hint"
-const SESSION_HINT_COOKIE_LIFESPAN_MS = 30 * 24 * 60 * 60 * 1000
+const IS_PROXY_SESSION_PARAM_NAME = "is-proxy-session";
+const SESSION_HINT_COOKIE_NAME = "Cms-Session-Hint";
+const SESSION_HINT_COOKIE_LIFESPAN_MS = 30 * 24 * 60 * 60 * 1000;
 
 function _argsShim(args) {
   if (args["r"]) {
-    return args
+    return args;
   }
   // If we have no r param then we assume we are processing a legacy handover from the /polaris endpoint.
   // The CMS P button has no concept of the r param and assumes this endpoint forwards on to CWA domain.
@@ -17,18 +17,18 @@ function _argsShim(args) {
   // Note 2: we use a relative URL rather than a fully-qualified URL as the proxy runs under multiple names
   //  e.g. https://polaris-cmsproxy.azurewebsites.net/ and https://polaris.cps.gov.uk/
 
-  const serializedArgs = qs.stringify(args)
-  const clonedArgsToMutate = qs.parse(serializedArgs)
-  delete clonedArgsToMutate["cookie"]
-  delete clonedArgsToMutate[IS_PROXY_SESSION_PARAM_NAME]
+  const serializedArgs = qs.stringify(args);
+  const clonedArgsToMutate = qs.parse(serializedArgs);
+  delete clonedArgsToMutate["cookie"];
+  delete clonedArgsToMutate[IS_PROXY_SESSION_PARAM_NAME];
   // Do not serialize cookie into our manufactured r param because cookie will be attached as the cc param later on.
   // Similarly do not include our "is-proxy-session" query parameter as that is artificially added by our
   // simulated proxy endpoint (if the user is using proxied CMS)
-  const queryStringWithoutCookie = qs.stringify(clonedArgsToMutate)
+  const queryStringWithoutCookie = qs.stringify(clonedArgsToMutate);
 
-  const clonedArgs = qs.parse(serializedArgs)
-  clonedArgs["r"] = `/auth-refresh-inbound?${queryStringWithoutCookie}`
-  return clonedArgs
+  const clonedArgs = qs.parse(serializedArgs);
+  clonedArgs["r"] = `/auth-refresh-inbound?${queryStringWithoutCookie}`;
+  return clonedArgs;
 }
 
 function _redirectToAbsoluteUrl(r, redirectUrl) {
@@ -44,12 +44,12 @@ function _redirectToAbsoluteUrl(r, redirectUrl) {
     302,
     redirectUrl.lastIndexOf("http", 0) === 0
       ? redirectUrl
-      : `${r.headersIn["X-Forwarded-Proto"]}://${r.headersIn["Host"]}${redirectUrl}`
-  )
+      : `${r.headersIn["X-Forwarded-Proto"]}://${r.headersIn["Host"]}${redirectUrl}`,
+  );
 }
 
 function _getCookieValue(r, cookieName) {
-  const cookies = (r.headersIn["Cookie"]) || "";
+  const cookies = r.headersIn["Cookie"] || "";
   const match = cookies.match(new RegExp(`(?:^|;\\s*)${cookieName}=([^;]*)`));
   return match ? match[1] : "";
 }
@@ -68,78 +68,82 @@ function _maybeDecodeURIComponent(value) {
 }
 
 function setSessionHintCookie(r) {
-  let cookieValue
+  let cookieValue;
   try {
-    const isProxySession = r.args[IS_PROXY_SESSION_PARAM_NAME] === "true"
-    const cookie = r.args["cookie"]
+    const isProxySession = r.args[IS_PROXY_SESSION_PARAM_NAME] === "true";
+    const cookie = r.args["cookie"];
     // The environment domain (e.g. cin3.cps.gov.uk) can come from either LB cookie style.
     // Prefer the load-balancing cookie, named [CF]-<TOKEN>-LBsessioncookie (e.g. C-CIN3-...,
     // F-FOO-...), and derive <token>.cps.gov.uk from the TOKEN. Fall back to the legacy
     // BIGipServer* cookie, whose name embeds the domain immediately before _POOL.
-    const loadBalancingCookies = cookie.match(/(?:^|;\s*)[CF]-[^=;]*-LBsessioncookie/g) || []
+    const loadBalancingCookies =
+      cookie.match(/(?:^|;\s*)[CF]-[^=;]*-LBsessioncookie/g) || [];
     const cmsDomains = loadBalancingCookies.length
       ? loadBalancingCookies.map(
-          (m) => `${m.match(/[CF]-([^=;]*)-LBsessioncookie/)[1].toLowerCase()}.cps.gov.uk`
+          (m) =>
+            `${m.match(/[CF]-([^=;]*)-LBsessioncookie/)[1].toLowerCase()}.cps.gov.uk`,
         )
       : // Match lowercase subdomain(s) followed by .cps.gov.uk (terminated by _POOL).
         // This avoids matching uppercase prefixes like CPSACP-LTM-CM-WAN-CIN3-.
-        cookie.match(/[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)*\.cps\.gov\.uk(?=_POOL)/g) || []
+        cookie.match(
+          /[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*)*\.cps\.gov\.uk(?=_POOL)/g,
+        ) || [];
 
     const handoverEndpoint = isProxySession
       ? `https://${r.headersIn["Host"]}/polaris`
       : cmsDomains.length
         ? // If there is more than one domain string found let's take the first
-        // one. Analytics in global nav will tell us if there are ever multiple
-        // domains found.
-        `https://${cmsDomains[0]}/polaris`
-        : null
+          // one. Analytics in global nav will tell us if there are ever multiple
+          // domains found.
+          `https://${cmsDomains[0]}/polaris`
+        : null;
 
     cookieValue = {
       cmsDomains,
       isProxySession,
       handoverEndpoint,
-    }
+    };
   } catch (error) {
     cookieValue = {
       error,
-    }
+    };
   } finally {
-    const expires = new Date(Date.now() + SESSION_HINT_COOKIE_LIFESPAN_MS)
-    r.headersOut[
-      "Set-Cookie"
-    ] = `${SESSION_HINT_COOKIE_NAME}=${encodeURIComponent(
-      JSON.stringify(cookieValue)
-    )}; Path=/; Expires=${expires.toUTCString()}; Secure; SameSite=None`
+    const expires = new Date(Date.now() + SESSION_HINT_COOKIE_LIFESPAN_MS);
+    r.headersOut["Set-Cookie"] =
+      `${SESSION_HINT_COOKIE_NAME}=${encodeURIComponent(
+        JSON.stringify(cookieValue),
+      )}; Path=/; Expires=${expires.toUTCString()}; Secure; SameSite=None`;
   }
 }
 
 function appAuthRedirect(r) {
   // Edge Mode Desired (was the two conf `if ($ieaction …)` gates on /init).
-  if (ieMode.coerce(r, "edge", true)) return
-  setSessionHintCookie(r)
+  if (ieMode.coerce(r, "edge", true)) return;
+  setSessionHintCookie(r);
 
-  const args = _argsShim(r.args)
+  const args = _argsShim(r.args);
 
-  const whitelistedUrls = process.env.AUTH_HANDOVER_WHITELIST ?? ""
-  const redirectUrl = args["r"]
+  const whitelistedUrls = process.env.AUTH_HANDOVER_WHITELIST ?? "";
+  const redirectUrl = args["r"];
   const isWhitelisted = whitelistedUrls
     .split(",")
-    .some((url) => redirectUrl.startsWith(url))
+    .some((url) => redirectUrl.startsWith(url));
 
   if (isWhitelisted) {
     _redirectToAbsoluteUrl(
       r,
-      `${redirectUrl}${redirectUrl.includes("?") ? "&" : "?"
-      }cc=${encodeURIComponent(args["cookie"] ?? "")}`
-    )
+      `${redirectUrl}${
+        redirectUrl.includes("?") ? "&" : "?"
+      }cc=${encodeURIComponent(args["cookie"] ?? "")}`,
+    );
   } else {
     r.return(
       403,
       `HTTP Status 403: this deployment of the /init endpoint will only accept requests with r query parameters that start with one of the following strings: 
 ${whitelistedUrls}
 
-This request has an r query parameter of ${args["r"]}`
-    )
+This request has an r query parameter of ${args["r"]}`,
+    );
   }
 }
 
@@ -149,15 +153,15 @@ This request has an r query parameter of ${args["r"]}`
 function polarisAuthRedirect(r) {
   // IE Mode Desired (was the conf `if ($ieaction = 'nonie+configurable+')` gate on
   // /polaris). No reject: a non-IE browser that can't switch just proceeds.
-  if (ieMode.coerce(r, "ie", false)) return
-  const serializedArgs = qs.stringify(r.args)
-  const clonedArgs = qs.parse(serializedArgs)
-  clonedArgs.cookie = r.headersIn.Cookie
-  clonedArgs.referer = r.headersIn.Referer
-  clonedArgs[IS_PROXY_SESSION_PARAM_NAME] = "true"
+  if (ieMode.coerce(r, "ie", false)) return;
+  const serializedArgs = qs.stringify(r.args);
+  const clonedArgs = qs.parse(serializedArgs);
+  clonedArgs.cookie = r.headersIn.Cookie;
+  clonedArgs.referer = r.headersIn.Referer;
+  clonedArgs[IS_PROXY_SESSION_PARAM_NAME] = "true";
 
-  const querystring = qs.stringify(clonedArgs)
-  _redirectToAbsoluteUrl(r, `/init?${querystring}`)
+  const querystring = qs.stringify(clonedArgs);
+  _redirectToAbsoluteUrl(r, `/init?${querystring}`);
 }
 
 function handleAuthRefreshOutbound(r) {
@@ -209,9 +213,14 @@ const DEV_LOGIN_CLEARED = (function () {
   const names = ["__CMSENV"];
   const envs = ["CIN2", "CIN3", "CIN4", "CIN5"];
   for (let i = 0; i < envs.length; i++) {
-    const E = envs[i], e = E.toLowerCase();
-    names.push(`BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-${E}-${e}.cps.gov.uk_POOL`);
-    names.push(`BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-${E}-${e}.cps.gov.uk_POOL`);
+    const E = envs[i],
+      e = E.toLowerCase();
+    names.push(
+      `BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-${E}-${e}.cps.gov.uk_POOL`,
+    );
+    names.push(
+      `BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-${E}-${e}.cps.gov.uk_POOL`,
+    );
   }
   for (let i = 0; i < envs.length; i++) {
     names.push(`C-${envs[i]}-LBsessioncookie`);
@@ -256,31 +265,45 @@ function devLogin(r) {
 // is HttpOnly. GET-only; set/clear then 302 back to a clean URL (post/redirect/get) so
 // a refresh doesn't re-apply and the address bar shows no action param.
 // ---------------------------------------------------------------------------
-const ENROL_COOKIE = "polaris_auth_handover"
-const ENROL_PATH = "/auth-refresh-enrol"
-const ENROL_MODES = ["drop1", "drop2"]
-const ENROL_COOKIE_MAX_AGE = 30 * 24 * 60 * 60 // 30 days
+const ENROL_COOKIE = "polaris_auth_handover";
+const ENROL_PATH = "/auth-refresh-enrol";
+const ENROL_MODES = ["drop1", "drop2"];
+const ENROL_COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // 30 days
 
 function _enrolLabel(mode) {
-  if (mode === "drop2") return "drop 2 — Entra store"
-  if (mode === "drop1") return "drop 1 — non-DDEI init"
-  return "default (follows the server switch)"
+  if (mode === "drop2") return "drop 2 — Entra store";
+  if (mode === "drop1") return "drop 1 — non-DDEI init";
+  return "default (follows the server switch)";
 }
 
 // Build the Set-Cookie: a mode string enrols for 30 days; "" clears (Max-Age=0 plus a
 // past Expires so old IE honours it too). HttpOnly — only nginx reads it.
 function _enrolSetCookie(mode) {
-  const attrs = "; Path=/; Secure; HttpOnly; SameSite=Lax"
+  const attrs = "; Path=/; Secure; HttpOnly; SameSite=Lax";
   if (!mode) {
-    return ENROL_COOKIE + "=" + attrs + "; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    return (
+      ENROL_COOKIE +
+      "=" +
+      attrs +
+      "; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    );
   }
-  return ENROL_COOKIE + "=" + mode + attrs + "; Max-Age=" + ENROL_COOKIE_MAX_AGE
+  return (
+    ENROL_COOKIE + "=" + mode + attrs + "; Max-Age=" + ENROL_COOKIE_MAX_AGE
+  );
 }
 
 function _enrolPage(current) {
   const links = ENROL_MODES.map(
-    (m) => '<li><a href="' + ENROL_PATH + "?set=" + m + '">Enrol in ' + _enrolLabel(m) + "</a></li>"
-  ).join("")
+    (m) =>
+      '<li><a href="' +
+      ENROL_PATH +
+      "?set=" +
+      m +
+      '">Enrol in ' +
+      _enrolLabel(m) +
+      "</a></li>",
+  ).join("");
   return (
     '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">' +
@@ -288,44 +311,52 @@ function _enrolPage(current) {
     "<style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:640px;margin:40px auto;padding:0 20px}li{margin:8px 0}code{background:#f0f0f0;padding:2px 6px;border-radius:3px}</style>" +
     "</head><body>" +
     "<h1>Auth handover enrolment</h1>" +
-    "<p>You are currently on: <strong>" + _enrolLabel(current) + "</strong>.</p>" +
-    "<ul>" + links + "</ul>" +
-    '<p><a href="' + ENROL_PATH + '?clear=1">Reset to default</a> (removes the cookie).</p>' +
-    "<p><small>This sets a <code>" + ENROL_COOKIE + "</code> cookie on this browser only; " +
+    "<p>You are currently on: <strong>" +
+    _enrolLabel(current) +
+    "</strong>.</p>" +
+    "<ul>" +
+    links +
+    "</ul>" +
+    '<p><a href="' +
+    ENROL_PATH +
+    '?clear=1">Reset to default</a> (removes the cookie).</p>' +
+    "<p><small>This sets a <code>" +
+    ENROL_COOKIE +
+    "</code> cookie on this browser only; " +
     "it takes effect on your next CMS&nbsp;&rarr;&nbsp;Polaris handover.</small></p>" +
     "</body></html>"
-  )
+  );
 }
 
 function enrol(r) {
-  const set = r.args["set"]
-  const clear = r.args["clear"]
+  const set = r.args["set"];
+  const clear = r.args["clear"];
 
   // PRG back to the page. Own absolute build (not _redirectToAbsoluteUrl) with a scheme
   // fallback: this page can be opened directly, where X-Forwarded-Proto is absent — that
   // helper would emit "undefined://". Default to https.
   const backToPage = () => {
-    const proto = r.headersIn["X-Forwarded-Proto"] || "https"
-    r.return(302, proto + "://" + r.headersIn["Host"] + ENROL_PATH)
-  }
+    const proto = r.headersIn["X-Forwarded-Proto"] || "https";
+    r.return(302, proto + "://" + r.headersIn["Host"] + ENROL_PATH);
+  };
 
   // Enrol: only the known modes are accepted (never write an arbitrary cookie value).
   if (set !== undefined && ENROL_MODES.indexOf(set) !== -1) {
-    r.headersOut["Set-Cookie"] = [_enrolSetCookie(set)]
-    backToPage()
-    return
+    r.headersOut["Set-Cookie"] = [_enrolSetCookie(set)];
+    backToPage();
+    return;
   }
   // Remove: clear the cookie, fall back to the global switches.
   if (clear !== undefined) {
-    r.headersOut["Set-Cookie"] = [_enrolSetCookie("")]
-    backToPage()
-    return
+    r.headersOut["Set-Cookie"] = [_enrolSetCookie("")];
+    backToPage();
+    return;
   }
 
   // No (valid) action — render the current enrolment + the enrol/reset links.
-  const current = _getCookieValue(r, ENROL_COOKIE)
-  r.headersOut["Content-Type"] = "text/html; charset=utf-8"
-  r.return(200, _enrolPage(current))
+  const current = _getCookieValue(r, ENROL_COOKIE);
+  r.headersOut["Content-Type"] = "text/html; charset=utf-8";
+  r.return(200, _enrolPage(current));
 }
 
 // Feature-switch getters for the /auth-refresh-inbound routing gate (js_set).
@@ -337,10 +368,18 @@ function enrol(r) {
 // boots. Returns the string "true"/"false" the conf's `if (... = "true")` compares.
 // Parity with the old exact `= "true"` test: only the literal "true" enables.
 function entraStoreEnabled(r) {
-  return process.env.ENTRA_STORE_ENABLED === "true" ? "true" : "false"
+  return process.env.ENTRA_STORE_ENABLED === "true" ? "true" : "false";
 }
 function nonDdeiInitEnabled(r) {
-  return process.env.NON_DDEI_INIT_ENABLED === "true" ? "true" : "false"
+  return process.env.NON_DDEI_INIT_ENABLED === "true" ? "true" : "false";
 }
 
-export default { polarisAuthRedirect, appAuthRedirect, handleAuthRefreshOutbound, devLogin, enrol, entraStoreEnabled, nonDdeiInitEnabled }
+export default {
+  polarisAuthRedirect,
+  appAuthRedirect,
+  handleAuthRefreshOutbound,
+  devLogin,
+  enrol,
+  entraStoreEnabled,
+  nonDdeiInitEnabled,
+};

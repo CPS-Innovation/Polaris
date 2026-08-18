@@ -192,13 +192,14 @@ async function scriptInjection() {
 }
 
 async function envSwitch() {
-  console.log("\nlocation /cin2 /cin3 /cin4 /cin5 — environment switch:")
+  console.log("\nlocation /cin2 /cin3 /cin4 /cin5 /cpt — environment switch:")
 
   const cases = [
     ["/cin2", "cin2"],
     ["/cin3", "default"], // cin3 IS the default environment
     ["/cin4", "cin4"],
     ["/cin5", "cin5"],
+    ["/cpt", "cpt"], // brought across from the live config (FCT2-18732)
   ]
   for (const [path, expectedEnv] of cases) {
     await test(`${path} (IE mode) sets __CMSENV=${expectedEnv} and 302s to /CMS`, async () => {
@@ -223,6 +224,23 @@ async function envSwitch() {
     assertIncludes(setCookie, "BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "exact cin3 pool cookie")
     assertIncludes(setCookie, "F-CIN5-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "exact cin5 LB cookie")
     if (setCookie.indexOf("CIN2-cin2") !== -1) throw new Error("must NOT clear its own env (cin2)")
+  })
+
+  await test("every switch also clears the MOD + CPT LB session cookies (FCT2-18732)", async () => {
+    const res = await get("/cin2", { headers: ie })
+    const setCookie = res.headers.getSetCookie().join("\n")
+    assertIncludes(setCookie, "C-MOD-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "exact MOD LB cookie")
+    assertIncludes(setCookie, "F-CPT-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "exact CPT LB cookie")
+  })
+
+  await test("/cpt clears CIN3 and does NOT clear its own CPT cookie (fixes the live /cpt bug)", async () => {
+    const res = await get("/cpt", { headers: ie })
+    const setCookie = res.headers.getSetCookie().join("\n")
+    // The live /cpt block regressed on both of these (missed CIN3, cleared its own CPT).
+    assertIncludes(setCookie, "BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "must clear cin3 pool")
+    assertIncludes(setCookie, "F-CIN3-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "must clear cin3 LB")
+    assertIncludes(setCookie, "C-MOD-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "must clear the other LB-only env (mod)")
+    if (setCookie.indexOf("CPT-LBsessioncookie") !== -1) throw new Error("must NOT clear its own env (cpt)")
   })
 
   await test("non-IE + non-configurable -> 402 'requires Internet Explorer mode'", async () => {

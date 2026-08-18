@@ -7,7 +7,8 @@ function getPolarisUrl() {
       "?polaris-ui-url=/materials-ui/" +
       cleanUrn +
       "/" +
-      window.iCaseId + "/materials";
+      window.iCaseId +
+      "/materials";
   }
   return polarisUrl;
 }

@@ -121,7 +121,10 @@
   // else look the person up in the "personId,version,recorderId|..." cache so it
   // resolves whichever role row (Victim or Witness) was clicked.
   function recorderIdFor(win, personId, idx) {
-    var perIdx = splitCsv(win, fieldVal(win, "hidint64OldContactRecorderIdCSV"));
+    var perIdx = splitCsv(
+      win,
+      fieldVal(win, "hidint64OldContactRecorderIdCSV"),
+    );
     var v = perIdx[idx];
     if (v && v !== "0") {
       return v;
@@ -346,25 +349,46 @@
 
   function presenceWriteCookie(name, val) {
     try {
-      document.cookie = name + "=" + encodeURIComponent(val) + "; Domain=" + PRESENCE_COOKIE_DOMAIN + "; Path=/";
+      document.cookie =
+        name +
+        "=" +
+        encodeURIComponent(val) +
+        "; Domain=" +
+        PRESENCE_COOKIE_DOMAIN +
+        "; Path=/";
     } catch (e) {}
   }
   function presenceReadCookie(name) {
     var jar = "";
-    try { jar = document.cookie || ""; } catch (e) { return ""; }
-    var parts = jar.split(";"), i, s;
+    try {
+      jar = document.cookie || "";
+    } catch (e) {
+      return "";
+    }
+    var parts = jar.split(";"),
+      i,
+      s;
     for (i = 0; i < parts.length; i++) {
-      s = parts[i]; while (s.charAt(0) === " ") { s = s.substring(1); }
+      s = parts[i];
+      while (s.charAt(0) === " ") {
+        s = s.substring(1);
+      }
       if (s.substring(0, name.length + 1) === name + "=") {
         var raw = s.substring(name.length + 1);
-        try { return decodeURIComponent(raw); } catch (e2) { return raw; }
+        try {
+          return decodeURIComponent(raw);
+        } catch (e2) {
+          return raw;
+        }
       }
     }
     return "";
   }
 
   function ensureRelayFrame() {
-    if (presenceRelayFrame) { return; }
+    if (presenceRelayFrame) {
+      return;
+    }
     try {
       var f = document.createElement("iframe");
       f.src = PRESENCE_RELAY_URL;
@@ -377,22 +401,36 @@
 
   // The victim/witness edit frame (same one the logger reads), for the banner.
   function findContactFrameWin(win, depth) {
-    if (depth > MAXDEPTH) { return null; }
-    var frames = win.frames, i, child, href, found;
+    if (depth > MAXDEPTH) {
+      return null;
+    }
+    var frames = win.frames,
+      i,
+      child,
+      href,
+      found;
     for (i = 0; i < frames.length; i++) {
       child = frames[i];
       href = "";
-      try { href = child.location.href; } catch (e) {}
-      if (href.indexOf(FRAGMENT) !== -1) { return child; }
+      try {
+        href = child.location.href;
+      } catch (e) {}
+      if (href.indexOf(FRAGMENT) !== -1) {
+        return child;
+      }
       found = findContactFrameWin(child, depth + 1);
-      if (found) { return found; }
+      if (found) {
+        return found;
+      }
     }
     return null;
   }
 
   function presenceShowBanner(emails) {
     var win = findContactFrameWin(window, 0);
-    if (!win) { return; }
+    if (!win) {
+      return;
+    }
     try {
       var doc = win.document;
       var b = doc.getElementById(PRESENCE_BANNER_ID);
@@ -402,7 +440,9 @@
         // OK/Cancel buttons out of reach. cboNShow exists whenever a vic/wit RHP is
         // open, which is exactly when presence is active.
         var anchor = doc.getElementById("cboNShow");
-        if (!anchor || !anchor.parentNode) { return; }
+        if (!anchor || !anchor.parentNode) {
+          return;
+        }
         b = doc.createElement("span");
         b.id = PRESENCE_BANNER_ID;
         b.style.marginLeft = "10px";
@@ -424,20 +464,30 @@
 
   function presenceRemoveBanner() {
     var win = findContactFrameWin(window, 0);
-    if (!win) { return; }
+    if (!win) {
+      return;
+    }
     try {
       var b = win.document.getElementById(PRESENCE_BANNER_ID);
-      if (b && b.parentNode) { b.parentNode.removeChild(b); }
+      if (b && b.parentNode) {
+        b.parentNode.removeChild(b);
+      }
     } catch (e) {}
   }
 
   // Read the relay's result cookie "<sid>||<count>||<emails>" and show/hide banner.
   function presencePoll() {
     var r = presenceReadCookie(PRESENCE_RESULT_COOKIE);
-    if (!r) { return; }
+    if (!r) {
+      return;
+    }
     var parts = r.split("||");
-    if (parts.length < 3) { return; } // "relay-ready" / not a result yet
-    if (parts[0] !== presenceActiveSid) { return; } // result for a different/old section
+    if (parts.length < 3) {
+      return;
+    } // "relay-ready" / not a result yet
+    if (parts[0] !== presenceActiveSid) {
+      return;
+    } // result for a different/old section
     var count = parseInt(parts[1], 10);
     if (!isNaN(count) && count >= PRESENCE_BANNER_MIN) {
       presenceShowBanner(parts[2]);
@@ -447,9 +497,13 @@
   }
 
   function presenceStart(rec) {
-    if (!rec.caseId || !rec.personId) { return; }
+    if (!rec.caseId || !rec.personId) {
+      return;
+    }
     var sid = rec.caseId + ":" + PRESENCE_SECTION_KIND + ":" + rec.personId;
-    if (sid === presenceActiveSid) { return; } // same section (e.g. victim<->witness row of one person)
+    if (sid === presenceActiveSid) {
+      return;
+    } // same section (e.g. victim<->witness row of one person)
     ensureRelayFrame();
     presenceActiveSid = sid;
     presenceWriteCookie(PRESENCE_CMD_COOKIE, sid);
@@ -461,7 +515,9 @@
   }
 
   function presenceStop() {
-    if (!presenceActiveSid) { return; }
+    if (!presenceActiveSid) {
+      return;
+    }
     presenceActiveSid = "";
     presenceWriteCookie(PRESENCE_CMD_COOKIE, "");
     if (presencePollTimer) {
@@ -514,13 +570,24 @@
     var timer = null;
 
     function cleanup() {
-      if (timer) { window.clearTimeout(timer); timer = null; }
-      try { window[cbName] = undefined; } catch (e1) {}
-      try { if (script && script.parentNode) { script.parentNode.removeChild(script); } } catch (e2) {}
+      if (timer) {
+        window.clearTimeout(timer);
+        timer = null;
+      }
+      try {
+        window[cbName] = undefined;
+      } catch (e1) {}
+      try {
+        if (script && script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+      } catch (e2) {}
     }
 
     window[cbName] = function (data) {
-      if (done) { return; }
+      if (done) {
+        return;
+      }
       done = true;
       cleanup();
       onData(data);
@@ -536,7 +603,9 @@
     url = url + "&callback=" + cbName + "&_=" + presenceJsonpSeq;
 
     timer = window.setTimeout(function () {
-      if (done) { return; }
+      if (done) {
+        return;
+      }
       done = true;
       cleanup();
       log("[cc] presence jsonp timeout op=" + op);
@@ -549,7 +618,11 @@
       script.src = url;
       document.documentElement.appendChild(script);
     } catch (e) {
-      if (!done) { done = true; cleanup(); onData(null); }
+      if (!done) {
+        done = true;
+        cleanup();
+        onData(null);
+      }
     }
   }
 
@@ -558,16 +631,23 @@
   // did this shape-agnostically with a regex over the raw text; document-mode 5 has
   // no JSON, so we walk the parsed object instead.
   function presenceCollectEmails(node, out, depth) {
-    if (!node || depth > 6 || typeof node !== "object") { return; }
+    if (!node || depth > 6 || typeof node !== "object") {
+      return;
+    }
     var i, k;
     if (typeof node.length === "number") {
-      for (i = 0; i < node.length; i++) { presenceCollectEmails(node[i], out, depth + 1); }
+      for (i = 0; i < node.length; i++) {
+        presenceCollectEmails(node[i], out, depth + 1);
+      }
       return;
     }
     for (k in node) {
       if (node.hasOwnProperty(k)) {
-        if (k === "userEmail" && node[k]) { out[out.length] = node[k]; }
-        else { presenceCollectEmails(node[k], out, depth + 1); }
+        if (k === "userEmail" && node[k]) {
+          out[out.length] = node[k];
+        } else {
+          presenceCollectEmails(node[k], out, depth + 1);
+        }
       }
     }
   }
@@ -579,21 +659,38 @@
 
   // Compact shape hint for logging: "array[N]" or "object{key,key}".
   function presenceJsonpDescribe(data) {
-    if (data === null || typeof data !== "object") { return String(data); }
-    if (typeof data.length === "number") { return "array[" + data.length + "]"; }
-    var ks = [], k;
-    for (k in data) { if (data.hasOwnProperty(k)) { ks[ks.length] = k; } }
+    if (data === null || typeof data !== "object") {
+      return String(data);
+    }
+    if (typeof data.length === "number") {
+      return "array[" + data.length + "]";
+    }
+    var ks = [],
+      k;
+    for (k in data) {
+      if (data.hasOwnProperty(k)) {
+        ks[ks.length] = k;
+      }
+    }
     return "object{" + ks.join(",") + "}";
   }
 
   function presenceJsonpTick() {
-    if (!presenceJsonpSessionId) { return; }
+    if (!presenceJsonpSessionId) {
+      return;
+    }
     // Heartbeat (PUT-mapped); response ignored.
     presenceJsonp("heartbeat", { sid: presenceJsonpSessionId }, function () {});
     // Poll (GET-mapped) -> members -> banner.
     presenceJsonp("poll", { sid: presenceJsonpSessionId }, function (data) {
-      if (data === null) { log("[cc] presence jsonp poll: no response (timeout)"); return; }
-      if (data.jsonpError) { log("[cc] presence jsonp poll error: " + data.jsonpError); return; }
+      if (data === null) {
+        log("[cc] presence jsonp poll: no response (timeout)");
+        return;
+      }
+      if (data.jsonpError) {
+        log("[cc] presence jsonp poll error: " + data.jsonpError);
+        return;
+      }
       // An empty array = "no change since last poll" (backend delta protocol) — KEEP
       // the last banner rather than clearing it. Mirrors the relay's "[]" handling.
       if (typeof data.length === "number" && data.length === 0) {
@@ -601,7 +698,14 @@
         return;
       }
       var emails = presenceJsonpEmails(data);
-      log("[cc] presence jsonp poll: " + emails.length + " member(s) [" + emails.join(", ") + "] raw=" + presenceJsonpDescribe(data));
+      log(
+        "[cc] presence jsonp poll: " +
+          emails.length +
+          " member(s) [" +
+          emails.join(", ") +
+          "] raw=" +
+          presenceJsonpDescribe(data),
+      );
       if (emails.length >= PRESENCE_BANNER_MIN) {
         presenceShowBanner(emails.join(", "));
       } else {
@@ -611,23 +715,34 @@
   }
 
   function presenceJsonpStart(rec) {
-    if (!rec.caseId || !rec.personId) { return; }
+    if (!rec.caseId || !rec.personId) {
+      return;
+    }
     var sid = rec.caseId + ":" + PRESENCE_SECTION_KIND + ":" + rec.personId;
-    if (sid === presenceJsonpActiveSid) { return; } // same section (e.g. victim<->witness of one person)
+    if (sid === presenceJsonpActiveSid) {
+      return;
+    } // same section (e.g. victim<->witness of one person)
     presenceJsonpStop(); // clears any prior session (and fires its DELETE)
     presenceJsonpActiveSid = sid;
     presenceRemoveBanner();
     log("[cc] presence jsonp create " + sid);
     presenceJsonp("create", { sectionId: sid }, function (data) {
-      if (presenceJsonpActiveSid !== sid) { return; } // superseded while in flight
+      if (presenceJsonpActiveSid !== sid) {
+        return;
+      } // superseded while in flight
       if (data === null || data.jsonpError || !data.sessionId) {
         log("[cc] presence jsonp create failed for " + sid);
         return;
       }
       presenceJsonpSessionId = data.sessionId;
-      log("[cc] presence jsonp session " + presenceJsonpSessionId + " for " + sid);
+      log(
+        "[cc] presence jsonp session " + presenceJsonpSessionId + " for " + sid,
+      );
       presenceJsonpTick();
-      presenceJsonpHbTimer = window.setInterval(presenceJsonpTick, PRESENCE_JSONP_TICK_MS);
+      presenceJsonpHbTimer = window.setInterval(
+        presenceJsonpTick,
+        PRESENCE_JSONP_TICK_MS,
+      );
     });
   }
 
@@ -843,7 +958,9 @@
       return "";
     }
     if (!f) {
-      dlog("frameMain '" + MAIN_FRAME + "' not found. frames = " + listFrames());
+      dlog(
+        "frameMain '" + MAIN_FRAME + "' not found. frames = " + listFrames(),
+      );
       return "";
     }
     try {
@@ -881,12 +998,27 @@
     ticks = ticks + 1;
     var href = mainFrameHref();
     var onLogin = href ? href.indexOf(LOGIN_FRAGMENT) !== -1 : false;
-    dlog("tick " + ticks + ": frameMain=" + (href || "(empty)") + " onLogin=" + onLogin + " wasOnLogin=" + wasOnLogin);
+    dlog(
+      "tick " +
+        ticks +
+        ": frameMain=" +
+        (href || "(empty)") +
+        " onLogin=" +
+        onLogin +
+        " wasOnLogin=" +
+        wasOnLogin,
+    );
     if (!href) {
       return; // can't read frameMain this tick — keep wasOnLogin as-is
     }
     if (wasOnLogin && !onLogin) {
-      log("LOGIN EDGE — frameMain left " + LOGIN_FRAGMENT + " -> " + href + " — spawning auth iframe");
+      log(
+        "LOGIN EDGE — frameMain left " +
+          LOGIN_FRAGMENT +
+          " -> " +
+          href +
+          " — spawning auth iframe",
+      );
       spawnIframe();
       // SINGLE-SHOT: stop polling after the first spawn — one auth capture per shell
       // (== per website) lifecycle.
@@ -925,8 +1057,23 @@
   }
 
   // Console handles: force a spawn, dump state, or quiet the logging.
-  window.__ccAuthHandover = { runNow: spawnIframe, debug: debug, setDebug: setDebug };
+  window.__ccAuthHandover = {
+    runNow: spawnIframe,
+    debug: debug,
+    setDebug: setDebug,
+  };
 
-  log("auth-iframe watcher booted [" + BUILD + "] DEBUG=" + DEBUG + " — watching frame '" + MAIN_FRAME + "' every " + WATCH_INTERVAL + "ms; POLARIS_PATH=" + POLARIS_PATH);
+  log(
+    "auth-iframe watcher booted [" +
+      BUILD +
+      "] DEBUG=" +
+      DEBUG +
+      " — watching frame '" +
+      MAIN_FRAME +
+      "' every " +
+      WATCH_INTERVAL +
+      "ms; POLARIS_PATH=" +
+      POLARIS_PATH,
+  );
   watchTimer = window.setInterval(watch, WATCH_INTERVAL);
 })();

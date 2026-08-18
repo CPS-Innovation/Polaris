@@ -24,7 +24,8 @@ import cryptoModule from "crypto";
 
 // QA defaults baked in (reused from the global-components.cms-auth-v2 reference); the
 // account KEY is a secret and stays empty unless supplied as an app setting.
-const STORAGE_ACCOUNT = process.env.ENTRA_STORAGE_ACCOUNT || "sacpsglobalcomponents";
+const STORAGE_ACCOUNT =
+  process.env.ENTRA_STORAGE_ACCOUNT || "sacpsglobalcomponents";
 const STORAGE_KEY = process.env.ENTRA_STORAGE_KEY || "";
 const STORAGE_TABLE = process.env.ENTRA_STORAGE_TABLE || "cmsauth";
 
@@ -38,7 +39,10 @@ function _sharedKeyLite(account, key, dateStr, resource) {
     "SharedKeyLite " +
     account +
     ":" +
-    cryptoModule.createHmac("sha256", keyBuffer).update(stringToSign).digest("base64")
+    cryptoModule
+      .createHmac("sha256", keyBuffer)
+      .update(stringToSign)
+      .digest("base64")
   );
 }
 
@@ -49,8 +53,10 @@ async function tableStorageDeposit(oid, payload, tokens) {
     return { ok: false, diag: "no-storage-creds" };
   }
 
-  const resource = STORAGE_TABLE + "(PartitionKey='" + oid + "',RowKey='cmsAuth')";
-  const url = "https://" + STORAGE_ACCOUNT + ".table.core.windows.net/" + resource;
+  const resource =
+    STORAGE_TABLE + "(PartitionKey='" + oid + "',RowKey='cmsAuth')";
+  const url =
+    "https://" + STORAGE_ACCOUNT + ".table.core.windows.net/" + resource;
   const dateStr = new Date().toUTCString();
   const auth = _sharedKeyLite(STORAGE_ACCOUNT, STORAGE_KEY, dateStr, resource);
 
@@ -76,8 +82,14 @@ async function tableStorageDeposit(oid, payload, tokens) {
     });
     if (!resp.ok) {
       const errText = await resp.text();
-      ngx.log(ngx.ERR, "entra store PUT failed: " + resp.status + " " + errText);
-      return { ok: false, diag: "HTTP " + resp.status + " " + errText.substring(0, 120) };
+      ngx.log(
+        ngx.ERR,
+        "entra store PUT failed: " + resp.status + " " + errText,
+      );
+      return {
+        ok: false,
+        diag: "HTTP " + resp.status + " " + errText.substring(0, 120),
+      };
     }
     return { ok: true, diag: "ok" };
   } catch (e) {
