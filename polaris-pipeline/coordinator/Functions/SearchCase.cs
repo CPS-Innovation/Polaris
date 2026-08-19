@@ -33,7 +33,7 @@ public class SearchCase
     private readonly ISearchFilterDocumentMapper searchFilterDocumentMapper;
     private readonly IPolarisBlobStorageService polarisBlobStorageService;
     private readonly ICaseUrnResolver caseUrnResolver;
-    private readonly ITelemetryClient telemetryClient;
+    private readonly ILogger<SearchCase> logger;
 
     public SearchCase(
         IConfiguration configuration,
@@ -41,13 +41,13 @@ public class SearchCase
         ISearchFilterDocumentMapper searchFilterDocumentMapper,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         ICaseUrnResolver caseUrnResolver,
-        ITelemetryClient telemetryClient)
+        ILogger<SearchCase> logger)
     {
         this.textExtractorClient = textExtractorClient;
         this.searchFilterDocumentMapper = searchFilterDocumentMapper;
         this.polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
         this.caseUrnResolver = caseUrnResolver;
-        this.telemetryClient = telemetryClient;
+        this.logger = logger;
     }
 
     [Function(nameof(SearchCase))]
@@ -104,7 +104,7 @@ public class SearchCase
             {
                 OperationName = nameof(SearchCase),
             };
-            this.telemetryClient.TrackEvent(telemetryEvent);
+            this.logger.TrackEvent(telemetryEvent);
         }
 
         return new OkObjectResult(filteredSearchResults);

@@ -7,16 +7,19 @@ namespace pdf_redactor.Services.DocumentRedaction.Aspose;
 using global::Aspose.Pdf;
 using global::Aspose.Pdf.Facades;
 using Common.Dto.Request;
+using Common.Telemetry;
+using Microsoft.Extensions.Logging;
+using pdf_redactor.TelemetryEvents;
 using Common.Streaming;
 using Common.Telemetry;
+using Microsoft.Extensions.Logging;
 using pdf_redactor.Functions;
 using pdf_redactor.TelemetryEvents;
 
 public class AsposeRedactionProvider(
     IRedactionImplementation redactionImplementation,
     ICoordinateCalculator coordinateCalculator,
-    ITelemetryClient telemetryClient)
-    : IRedactionProvider
+    ILogger<AsposeRedactionProvider> logger) : IRedactionProvider
 {
     private const double DirectRedactionInsetPoints = 0.5;
 
@@ -81,13 +84,13 @@ public class AsposeRedactionProvider(
 
             telemetryEvent.Bytes = outputStream.Length;
             telemetryEvent.EndTime = DateTime.UtcNow;
-            telemetryClient.TrackEvent(telemetryEvent);
+            logger.TrackEvent(telemetryEvent);
 
             return outputStream;
         }
         catch (Exception)
         {
-            telemetryClient.TrackEventFailure(telemetryEvent);
+            logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }

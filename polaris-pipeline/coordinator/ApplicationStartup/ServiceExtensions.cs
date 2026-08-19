@@ -101,7 +101,6 @@ public static class ServiceExtensions
         services.AddDdeiClientGateway(configuration);
         services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(DocumentToggleService.ReadConfig()));
 
-        services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
         services.AddSingleton<IStateStorageService, StateStorageService>();
         services.AddSingleton<IRedactionSearchDtoMapper, RedactionSearchDtoMapper>();

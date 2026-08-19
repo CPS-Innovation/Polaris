@@ -3,16 +3,17 @@ using Common.Constants;
 using Common.Dto.Request;
 using Common.Streaming;
 using Common.Telemetry;
+using Microsoft.Extensions.Logging;
 
 namespace pdf_redactor.Services.DocumentManipulation.Aspose
 {
     public class AsposeDocumentManipulationProvider : IDocumentManipulationProvider
     {
-        private readonly ITelemetryClient _telemetryClient;
+        private readonly ILogger<AsposeDocumentManipulationProvider> _logger;
 
-        public AsposeDocumentManipulationProvider(ITelemetryClient telemetryClient)
+        public AsposeDocumentManipulationProvider(ILogger<AsposeDocumentManipulationProvider> logger)
         {
-            _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<Stream> ModifyDocument(Stream stream, int caseId, string documentId, ModifyDocumentDto modifications, Guid correlationId)
@@ -63,14 +64,14 @@ namespace pdf_redactor.Services.DocumentManipulation.Aspose
 
                 telemetryEvent.Bytes = outputStream.Length;
                 telemetryEvent.EndTime = DateTime.UtcNow;
-                _telemetryClient.TrackEvent(telemetryEvent);
+                _logger.TrackEvent(telemetryEvent);
 
                 return outputStream;
 
             }
             catch (Exception)
             {
-                _telemetryClient.TrackEventFailure(telemetryEvent);
+                _logger.TrackEventFailure(telemetryEvent);
                 throw;
             }
         }

@@ -21,7 +21,6 @@ namespace coordinator.Durable.Orchestration
     public class RefreshDocumentOrchestrator
     {
         private readonly ILogger<RefreshDocumentOrchestrator> _log;
-        private readonly ITelemetryClient _telemetryClient;
         private const int _prePollingDelayMs = 3000;
         private const int _pollingIntervalMs = 3000;
         private const int _maxPollingAttempts = 6;
@@ -34,10 +33,9 @@ namespace coordinator.Durable.Orchestration
             maxNumberOfAttempts: 3
         )));
 
-        public RefreshDocumentOrchestrator(ILogger<RefreshDocumentOrchestrator> log, ITelemetryClient telemetryClient)
+        public RefreshDocumentOrchestrator(ILogger<RefreshDocumentOrchestrator> log)
         {
             _log = log ?? throw new ArgumentNullException(nameof(log));
-            _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         }
 
         [Function(nameof(RefreshDocumentOrchestrator))]
@@ -100,14 +98,14 @@ namespace coordinator.Durable.Orchestration
 
                 // assumption here that this will not be called multiple times as a result of replaying
                 //  as there should be no replaying after we've got to this point (and completed the orchestration)
-                _telemetryClient.TrackEvent(telemetryEvent);
+                _log.TrackEvent(telemetryEvent);
 
                 return new RefreshDocumentOrchestratorResponse { PdfConversionResponse = pdfConversionResponse, StoreCaseIndexesResponse = indexStoredResult, DocumentId = payload.MaterialId };
             }
             catch (Exception exception)
             {
                 // todo: there is no durable replay protection here, and there is evidence of several failure event records for the same failure event in our analytics.
-                _telemetryClient.TrackEventFailure(telemetryEvent);
+                _log.TrackEventFailure(telemetryEvent);
 
                 await context.CallActivityAsync(nameof(SetDocumentIndexingFailed), new CaseIdAndDocumentIdPayload { DocumentId = payload.MaterialId, CaseId = payload.CaseId });
 

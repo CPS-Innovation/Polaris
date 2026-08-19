@@ -1,6 +1,5 @@
 using Common.Configuration;
 using Common.Dto.Response.Documents;
-using Common.Telemetry;
 using Ddei.Factories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +17,6 @@ using Ddei.Factories;
 using Microsoft.Azure.Functions.Worker;
 using System.Threading.Tasks;
 using System;
-using Common.Telemetry;
 using PolarisGateway.Services.MdsOrchestration;
 
 namespace PolarisGateway.Functions;
@@ -28,19 +26,16 @@ public class GetDocumentList : BaseFunction
     private readonly ILogger<GetDocumentList> _logger;
     private readonly IMdsCaseDocumentsOrchestrationService _mdsOrchestrationService;
     private readonly IMdsArgFactory _mdsArgFactory;
-    private readonly ITelemetryClient _telemetryClient;
 
     public GetDocumentList(
         ILogger<GetDocumentList> logger,
         IMdsCaseDocumentsOrchestrationService mdsOrchestrationService,
-        IMdsArgFactory mdsArgFactory,
-        ITelemetryClient telemetryClient)
+        IMdsArgFactory mdsArgFactory)
         : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _mdsOrchestrationService = mdsOrchestrationService ?? throw new ArgumentNullException(nameof(mdsOrchestrationService));
         _mdsArgFactory = mdsArgFactory ?? throw new ArgumentNullException(nameof(mdsArgFactory));
-        _telemetryClient = telemetryClient;
     }
 
     [Function(nameof(GetDocumentList))]

@@ -24,18 +24,15 @@ public class AddDocumentNote : BaseFunction
 {
     private readonly ILogger<AddDocumentNote> _logger;
     private readonly IMdsArgFactory _mdsArgFactory;
-    private readonly ITelemetryClient _telemetryClient;
     private readonly IMdsClient _mdsClient;
 
     public AddDocumentNote(
         ILogger<AddDocumentNote> logger,
         IMdsArgFactory mdsArgFactory,
-        ITelemetryClient telemetryClient, 
         IMdsClient mdsClient)
     {
         _logger = logger.ExceptionIfNull();
         _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        _telemetryClient = telemetryClient.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
     }
 
@@ -73,7 +70,7 @@ public class AddDocumentNote : BaseFunction
 
             if (!body.IsValid)
             {
-                _telemetryClient.TrackEvent(telemetryEvent);
+                _logger.TrackEvent(telemetryEvent);
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
@@ -81,13 +78,13 @@ public class AddDocumentNote : BaseFunction
             await _mdsClient.AddDocumentNoteAsync(arg);
 
             telemetryEvent.IsSuccess = true;
-            _telemetryClient.TrackEvent(telemetryEvent);
+            _logger.TrackEvent(telemetryEvent);
 
             return new OkResult();
         }
         catch
         {
-            _telemetryClient.TrackEventFailure(telemetryEvent);
+            _logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }
