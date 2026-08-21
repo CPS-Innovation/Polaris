@@ -72,19 +72,25 @@ function _clientIp(r) {
   return xff ? xff.split(",")[0].trim() : "0.0.0.0";
 }
 
-// A v4-ish GUID for the session correlation id. Math.random is fine here — it's
-// a correlation/audit id, not a security token.
+// A v4 GUID for the session correlation id. Not a security token, but we source it from
+// Web Crypto (crypto.getRandomValues, present in njs 0.8.5) rather than Math.random so no
+// insecure-PRNG lint (SonarQube "make sure this pseudorandom generator is safe") fires here.
 function _uuid() {
-  const hex = (n) => {
-    let s = "";
-    for (let i = 0; i < n; i++) {
-      s += Math.floor(Math.random() * 16).toString(16);
-    }
-    return s;
-  };
-  const y = (8 + Math.floor(Math.random() * 4)).toString(16);
+  const b = new Uint8Array(16);
+  crypto.getRandomValues(b);
+  b[6] = (b[6] & 0x0f) | 0x40; // version 4
+  b[8] = (b[8] & 0x3f) | 0x80; // variant 10xx
+  const h = Array.from(b).map((x) => x.toString(16).padStart(2, "0"));
   return (
-    hex(8) + "-" + hex(4) + "-4" + hex(3) + "-" + y + hex(3) + "-" + hex(12)
+    h.slice(0, 4).join("") +
+    "-" +
+    h.slice(4, 6).join("") +
+    "-" +
+    h.slice(6, 8).join("") +
+    "-" +
+    h.slice(8, 10).join("") +
+    "-" +
+    h.slice(10, 16).join("")
   );
 }
 

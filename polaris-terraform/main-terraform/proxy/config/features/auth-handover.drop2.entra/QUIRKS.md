@@ -37,24 +37,13 @@ variant needs its terminal page to render inside the CMS shell, so the
 which is exactly what removes the `DENY` here. Harmless on the top-level 302 (a redirect
 renders nothing). The CSP keeps framing limited to `*.cps.gov.uk`.
 
-### E3. 🟠 id-token cookie: `HttpOnly` + host-only (IE cookie-jar hygiene)
+### E3. ⚪ (removed) presence id-token cookie
 
-The reference set the id-token cookie **without** `HttpOnly` and on `Domain=.cps.gov.uk`,
-because it wasn't sure which subdomain would read it (a client script via `document.cookie`, or
-a relay). Our consumer is the case-locking **`presence-jsonp`** endpoint, which reads it
-**server-side** — so:
-- **`HttpOnly`** (safer; no script can read it), and
-- **host-only** (no `Domain` attribute): setter (this callback) and reader (presence-jsonp) are
-  the same polaris host, and nothing cross-subdomain reads it. Host scope keeps the ~1.5–2 KB JWT
-  **out of the shared `cps.gov.uk` jar**, which in IE mode is already crowded with CMS / BIG-IP /
-  LB / auth cookies — a full jar makes IE silently evict cookies (LRU), potentially a CMS session
-  one. `Path=/global-components/presence-jsonp` further keeps it out of every other request's
-  `Cookie` header; `Max-Age=43200` (~12h).
-
-Requires the AD callback host (`ENTRA_REDIRECT_URI`) and the JSONP/browse host to be the **same**
-polaris host (they are in this model). If a cross-subdomain consumer or multi-hostname flow
-appears, revisit. Worth guarding token size too: a groups-heavy id_token can approach the 4 KB
-per-cookie limit.
+drop2 used to set a browser-side `cms-auth-id-token` cookie (host-only, `HttpOnly`,
+`Path=/global-components/presence-jsonp`) carrying a DEV token, read by the case-locking
+`presence-jsonp` endpoint. That whole presence path was experimental and has been removed
+(both the cookie here and the case-locking consumer). The real id_token still goes to the
+store deposit (E10). Kept as a numbered stub so E-numbers stay stable.
 
 ### E4. 🟠 Callback path is dictated by the registered redirect URI
 
@@ -68,13 +57,12 @@ terraform) and change **both** the conf location and the env var together.
 
 ## Pre-production hardening (must fix before prod)
 
-### E5. 🔴 `_rand` falls back to `Math.random`
+### E5. ✅ (resolved) `_rand` no longer uses `Math.random`
 
-State/nonce generation uses Web Crypto `getRandomValues` when present, falling back to
-`Math.random` (NOT cryptographically secure) — carried over from the reference POC.
-Confirm the deployed njs exposes `crypto.getRandomValues` and **remove the fallback**
-(or fail closed) before prod. Pinned by the unit test's length/shape check only, not its
-randomness.
+State/nonce generation now uses **only** Web Crypto `crypto.getRandomValues` (present in
+njs 0.8.5) — the insecure `Math.random` fallback was removed (it is not a CSPRNG; also
+flagged by SonarQube). drop1's correlation-id `_uuid` was moved to the same source, so the
+config uses no `Math.random` anywhere.
 
 ### E6. 🔴 `js_fetch_verify off` on the AD + storage fetches
 
@@ -103,9 +91,9 @@ deliberately not built here (the top-level flow is the main event).
 
 ### E9. Framed-cookie `SameSite`
 
-The `entra_auth_state` and id-token cookies use `SameSite=Lax`. That is fine while the
-iframe is embedded **same-site** (CMS + proxy both under `cps.gov.uk`). A cross-site
-embed would need `SameSite=None; Secure`. Revisit if the iframe host changes.
+The `entra_auth_state` cookie uses `SameSite=Lax`. That is fine while the iframe is
+embedded **same-site** (CMS + proxy both under `cps.gov.uk`). A cross-site embed would
+need `SameSite=None; Secure`. Revisit if the iframe host changes.
 
 ### E10. Store backend migration (the seam)
 
@@ -114,23 +102,11 @@ embed would need `SameSite=None; Secure`. Revisit if the iframe host changes.
 (POST + `Authorization: Bearer <accessToken>`) — swap the one binding, no auth-flow change.
 The callback already passes the AD tokens through (Table Storage ignores them).
 
-### E11. 🔴 id-token cookie only works when set in IE mode (IE/Edge jar split) + carries the DEV token today
+### E11. ⚪ (removed) presence id-token cookie IE/Edge jar handover
 
-Two coupled realities for the presence handover:
-
-**IE vs Edge cookie jars are separate** (WinINet vs Chromium), with no sharing absent IT policy.
-The presence-jsonp reads happen in the **IE-mode** proxied CMS shell → the IE jar. So the
-`cms-auth-id-token` cookie is only usable if it was **set by an IE-mode page**. The **top-level**
-`/polaris` flow coerces to **Edge** at `/init`, so its cookie lands in the Chromium jar —
-**invisible** to presence. Only the **framed** flow (hidden iframe spawned by the IE-mode CMS
-shell) sets an IE-jar cookie. The iframe cannot leave IE mode (document mode is tab-level), so it
-stays IE — **but confirm `/init`'s `coerce(edge, reject=true)` doesn't 402/302-loop the IE-locked
-iframe before it reaches `/init-entra`** (if it does, the framed entry must skip that Edge gate,
-à la the reference's framed-stays-IE design). The store deposit is unaffected (server-side).
-
-**The cookie carries the DEV token today** (`PRESENCE_COOKIE_TOKEN`), not the real id_token — a
-proving stopgap so the full round-trip (set in IE jar → presence-jsonp reads → backend accepts)
-can be verified before the backend validates real Entra id-tokens. The real idToken still goes to
-the store deposit. Swap `PRESENCE_COOKIE_TOKEN` → the real `idToken` in `_succeed` when ready
-(and drop the dev-bearer fallback in case-locking — CL7). Kept in sync with case-locking's
-`_PRESENCE_DEV_BEARER`.
+Was the analysis of getting the `cms-auth-id-token` cookie into the IE-mode jar for the
+presence-jsonp reader, plus the DEV-token proving stopgap. The presence path (this cookie +
+the case-locking consumer) has been removed as experimental — see E3. Kept as a numbered stub
+so E-numbers stay stable. If presence is revived, this IE/Edge-jar reality (WinINet vs Chromium
+jars are separate; a top-level `/polaris` flow coerced to Edge lands the cookie invisibly to an
+IE-mode reader) is the first thing to re-solve.

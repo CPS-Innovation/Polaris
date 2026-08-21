@@ -267,42 +267,31 @@ async function callbackTests() {
   console.log("\nhandleInitEntraCallback — deposit + finalize / degrade:")
   const entra = await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")
 
-  await test("top-level success: 302 landing + id-token cookie + Cms-Auth-Values (additive), state cleared", async () => {
+  await test("top-level success: 302 landing + Cms-Auth-Values (additive), state cleared", async () => {
     const r = await callbackScenario({ term: "top-level" })
     assertEqual(r.returnCode, 302, "302")
     assertEqual(r.returnBody, "/polaris-ui/case/1", "-> landing")
     const sc = r.headersOut["Set-Cookie"]
-    assert(!!findCookie(sc, "cms-auth-id-token="), "id-token cookie set")
-    const idc = findCookie(sc, "cms-auth-id-token=")
-    assert(idc.indexOf("Domain=") === -1, "id-token cookie is host-only (no Domain -> out of the shared cps.gov.uk jar)")
-    assert(idc.indexOf("Path=/global-components/presence-jsonp") !== -1, "id-token cookie path-scoped")
-    assert(idc.indexOf("HttpOnly") !== -1, "HttpOnly (presence-jsonp reads it server-side)")
-    // PROVING: the cookie carries the dev token the presence backend accepts today, NOT the real
-    // id_token (which went to the store deposit) — so the presence round-trip can be proven now.
-    assert(
-      idc.indexOf("cms-auth-id-token=" + encodeURIComponent(entra.__test.constants.PRESENCE_COOKIE_TOKEN)) === 0,
-      "cookie carries the proving dev token",
-    )
     assert(!!findCookie(sc, "Cms-Auth-Values="), "Cms-Auth-Values still set (additive)")
     assert(findCookie(sc, "entra_auth_state=deleted") !== undefined, "state cookie cleared")
+    // The presence id-token cookie was experimental (consumer removed) — drop2 no longer sets it.
+    assertEqual(findCookie(sc, "cms-auth-id-token="), undefined, "no presence id-token cookie")
   })
 
-  await test("iframe success: 200 static terminal + id-token cookie, NO Cms-Auth-Values", async () => {
+  await test("iframe success: 200 static terminal, NO Cms-Auth-Values", async () => {
     const r = await callbackScenario({ term: "iframe" })
     assertEqual(r.returnCode, 200, "200")
     assert(r.returnBody.indexOf('data-cms-auth="done"') !== -1, "renders the terminal page")
     const sc = r.headersOut["Set-Cookie"]
-    assert(!!findCookie(sc, "cms-auth-id-token="), "id-token cookie set")
     assertEqual(findCookie(sc, "Cms-Auth-Values="), undefined, "pure side-channel: no Cms-Auth-Values")
   })
 
-  await test("store failure degrades (top-level): still lands + Cms-Auth-Values, NO id-token cookie", async () => {
+  await test("store failure degrades (top-level): still lands + Cms-Auth-Values", async () => {
     const r = await callbackScenario({ term: "top-level", storeStatus: 403 })
     assertEqual(r.returnCode, 302, "302")
     assertEqual(r.returnBody, "/polaris-ui/case/1", "-> landing (login not blocked)")
     const sc = r.headersOut["Set-Cookie"]
     assert(!!findCookie(sc, "Cms-Auth-Values="), "Cms-Auth-Values set (degraded to drop1)")
-    assertEqual(findCookie(sc, "cms-auth-id-token="), undefined, "no id-token cookie on failure")
   })
 
   await test("AD error (login_required) degrades: still lands via drop1", async () => {
