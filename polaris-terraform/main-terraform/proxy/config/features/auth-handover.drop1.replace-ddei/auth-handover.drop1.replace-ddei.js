@@ -161,7 +161,9 @@ async function _mintModernToken(host, cookieHeader) {
     headers: { "User-Agent": MSIE_UA, Host: host, Cookie: cookieHeader },
   });
   const body = await resp.text();
-  const m = body.match(/SESS_MODERN_USER_SESSION_ID\s*=\s*'([^']+)'/);
+  const m = body.match(
+    /SESS_MODERN_USER_SESSION_ID\s*=\s*['"]([0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12})['"]/,
+  );
   return { token: m && m[1] ? m[1] : "", versionId };
 }
 

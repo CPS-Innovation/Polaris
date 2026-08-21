@@ -79,9 +79,14 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
-    # auth-handover drop switches (next config only). MUST exist even when off: the next
-    # nginx.conf does `set $x "${VAR}"`, and an unset var is left literal by envsubst -> nginx
-    # reads it as an unknown variable and fails to boot. Default off; flip to "true" to arm.
+    # auth-handover drop switches (next config only). Read at REQUEST time by njs via
+    # process.env (auth-handover.conf uses `js_set $x authHandover.<getter>` -> auth-handover.js
+    # entraStoreEnabled/nonDdeiInitEnabled), NOT conf-side `set $x "${VAR}"` envsubst — so a
+    # MISSING value simply reads "false" (feature off) and NEVER blocks boot. That is deliberate:
+    # the old `${VAR}` form left an unset var literal and `[emerg]`-crashed nginx ("unknown
+    # entra_store_enabled variable") — see the comment at auth-handover.js:362. Do NOT "restore"
+    # a `set $x "${VAR}"` to match this block; it reintroduces that boot failure. Kept here as the
+    # managed default and the knob to arm the features — flip to "true".
     "NON_DDEI_INIT_ENABLED"                           = "false"
     "ENTRA_STORE_ENABLED"                             = "false"
     "WM_MDS_BASE_URL"                                 = "https://fa-${local.wm_mds_resource_name}.azurewebsites.net/api/"
