@@ -27,6 +27,14 @@ first-party, `HttpOnly`, `Secure`, path-scoped `entra_auth_state` cookie
 (`auth-handover.drop2.entra.js`), validated against the handle on callback. This is the
 reference's model and the OIDC-correct one.
 
+**Integrity (not just confidentiality):** `HttpOnly` stops script *reads* but not cross-subdomain
+*writes* — a sibling `*.cps.gov.uk` origin can cookie-toss a `Domain=cps.gov.uk` `entra_auth_state`.
+Since the `state`-param check compares the query param against `st.s` read from that same cookie, a
+forged cookie satisfies it (attacker controls both sides) and then injects `cc`/`tok`/`ui` →
+session fixation + open redirect. So the cookie is **HMAC-SHA256-signed** with a server-side secret
+(`ENTRA_STATE_HMAC_SECRET`); `_unpackState` verifies (constant-time) before use and **fails closed
+when the secret is unset** — a forged/tampered cookie is rejected and the callback degrades to drop1.
+
 ### E2. 🟠 Callback location sheds `X-Frame-Options: DENY` on purpose (QUIRK B3)
 
 The server sets `add_header X-Frame-Options "DENY" always`. The iframe **expansion**

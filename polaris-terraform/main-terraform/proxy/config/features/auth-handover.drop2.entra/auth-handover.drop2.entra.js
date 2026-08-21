@@ -26,7 +26,9 @@
 // assumption): the CMS cookies + modern token are SESSION SECRETS, so they are kept in
 // a first-party HttpOnly state cookie and only a random handle travels in the `state`
 // param — putting them in `state` would leak them to Microsoft (query string, logs,
-// referer). See QUIRKS.md.
+// referer). CONFIDENTIALITY, though, is not enough: the cookie is also HMAC-signed
+// (STATE_HMAC_SECRET) so it can't be FORGED via cookie-tossing from a sibling cps.gov.uk
+// subdomain — without that, the `state`-param check is circular. See QUIRKS.md E1.
 //
 // ISOLATED / NEW-GEN: NOT part of the golden-master before/after; dormant with the
 // switch off. Imports drop1 (establish/finalize) + store.js (the deposit seam); drop1
@@ -35,19 +37,23 @@
 
 import replaceDdei from "../auth-handover.drop1.replace-ddei/auth-handover.drop1.replace-ddei.js";
 import store from "./store.js";
+import cryptoModule from "crypto"; // njs built-in — for the state-cookie HMAC (same as store.js)
 
-// Azure AD app registration — QA defaults baked in (reused from the cms-auth-v2
-// reference; same tenant/client/redirect). The client SECRET stays empty unless
-// supplied as an app setting. REDIRECT_URI must match a redirect URI registered on the
-// app reg AND the callback location's path (see the .conf).
-const TENANT_ID =
-  process.env.ENTRA_TENANT_ID || "00dd0d1d-d7e6-4338-ac51-565339c7088c";
-const CLIENT_ID =
-  process.env.ENTRA_CLIENT_ID || "8d6133af-9593-47c6-94d0-5c65e9e310f1";
-const REDIRECT_URI =
-  process.env.ENTRA_REDIRECT_URI ||
-  "https://polaris-qa-notprod.cps.gov.uk/init-v2/callback";
+// Azure AD app registration — config comes ONLY from app settings; NO baked defaults (see
+// TODO.APP-SETTINGS.md). Missing => "" => the flow fails claims/exchange and degrades to drop1.
+// tenant/client are non-secret ids; the client SECRET is a secret. There is NO ENTRA_REDIRECT_URI
+// setting: the redirect_uri is derived per-request from the incoming Host (see _redirectUri) — the
+// flow always returns to the same host, which must be a redirect URI registered on the app reg.
+const TENANT_ID = process.env.ENTRA_TENANT_ID || "";
+const CLIENT_ID = process.env.ENTRA_CLIENT_ID || "";
 const CLIENT_SECRET = process.env.ENTRA_CLIENT_SECRET || "";
+// Callback path — must match the `location = /init-v2/callback` in the .conf.
+const CALLBACK_PATH = "/init-v2/callback";
+
+// Server-side secret that signs the state cookie (integrity). EMPTY => fail closed: _unpackState
+// rejects every cookie, so the callback degrades to drop1 — drop2 will not run without it. See
+// TODO.APP-SETTINGS.md and QUIRKS E1.
+const STATE_HMAC_SECRET = process.env.ENTRA_STATE_HMAC_SECRET || "";
 
 // First-party state cookie: holds the (secret) session payload across the AD hop.
 // Path scopes it to the callback; short-lived; HttpOnly so no script can read it.
@@ -97,6 +103,14 @@ function _tokenUrl() {
   return (
     "https://login.microsoftonline.com/" + TENANT_ID + "/oauth2/v2.0/token"
   );
+}
+
+// OAuth redirect_uri, derived per-request from the Host — the callback always returns to the
+// same host the flow started on, so there is no ENTRA_REDIRECT_URI setting. The value must be a
+// redirect URI registered on the app reg (AD rejects unregistered URIs — that is also what bounds
+// a spoofed Host). The /authorize and token-exchange calls must pass the SAME value; both derive it.
+function _redirectUri(r) {
+  return "https://" + _header(r, "Host") + CALLBACK_PATH;
 }
 
 // utf-8 <-> base64url via Buffer (NOT btoa/atob — the payload can hold non-Latin1 CMS text).
@@ -159,22 +173,53 @@ function _sessionFrom(st) {
   return { cookieHeader: st.cc, token: st.tok, versionId: st.ver };
 }
 
-// Pack / unpack the state payload (base64url JSON). Kept symmetric + tiny for testing.
+// HMAC-SHA256 (base64url) of a string under the state secret.
+function _stateMac(payload) {
+  return cryptoModule
+    .createHmac("sha256", STATE_HMAC_SECRET)
+    .update(payload)
+    .digest("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+// Constant-time string compare (njs has no crypto.timingSafeEqual). MAC length is fixed and not
+// secret, so the early length check is fine.
+function _constEq(a, b) {
+  if (a.length !== b.length) return false;
+  let d = 0;
+  for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return d === 0;
+}
+
+// Pack / unpack the state payload as `base64url(JSON) . HMAC`. The MAC makes the cookie
+// tamper-evident: an attacker who can SET entra_auth_state (e.g. a Domain=cps.gov.uk cookie-toss
+// from a sibling subdomain) cannot forge a valid one without STATE_HMAC_SECRET, so the circular
+// `state`-param check can no longer be satisfied with a self-supplied cookie. See QUIRKS E1.
 function _packState(st) {
-  return _b64urlEncode(JSON.stringify(st));
+  const payload = _b64urlEncode(JSON.stringify(st));
+  return payload + "." + _stateMac(payload);
 }
 
 function _unpackState(raw) {
-  return JSON.parse(_b64urlDecode(raw));
+  if (!STATE_HMAC_SECRET) throw new Error("state: no HMAC secret configured");
+  const dot = raw.lastIndexOf(".");
+  if (dot === -1) throw new Error("state: no MAC");
+  const payload = raw.substring(0, dot);
+  if (!_constEq(raw.substring(dot + 1), _stateMac(payload))) {
+    throw new Error("state: bad MAC");
+  }
+  return JSON.parse(_b64urlDecode(payload));
 }
 
 // Exchange the authorization code for tokens at the AD token endpoint.
-async function _exchangeCode(code) {
+async function _exchangeCode(code, redirectUri) {
   const body = [
     "client_id=" + encodeURIComponent(CLIENT_ID),
     "client_secret=" + encodeURIComponent(CLIENT_SECRET),
     "code=" + encodeURIComponent(code),
-    "redirect_uri=" + encodeURIComponent(REDIRECT_URI),
+    "redirect_uri=" + encodeURIComponent(redirectUri),
     "grant_type=authorization_code",
     "scope=" + encodeURIComponent(OIDC_SCOPE),
   ].join("&");
@@ -237,7 +282,7 @@ async function handleInitEntra(r) {
     const params = [
       "client_id=" + encodeURIComponent(CLIENT_ID),
       "response_type=code",
-      "redirect_uri=" + encodeURIComponent(REDIRECT_URI),
+      "redirect_uri=" + encodeURIComponent(_redirectUri(r)),
       "scope=" + encodeURIComponent(OIDC_SCOPE),
       "state=" + stateHandle,
       "nonce=" + nonce,
@@ -293,7 +338,7 @@ async function handleInitEntraCallback(r) {
       return;
     }
 
-    const tok = await _exchangeCode(code);
+    const tok = await _exchangeCode(code, _redirectUri(r));
     if (!tok.idToken) {
       _degrade(r, st, null, "token-exchange-failed: " + tok.diag);
       return;

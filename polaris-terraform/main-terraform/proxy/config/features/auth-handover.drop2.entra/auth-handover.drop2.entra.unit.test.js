@@ -124,6 +124,22 @@ async function helperTests(entra) {
   console.log("\ndrop2 helpers — state, claims, encoding:")
   const T = entra.__test
 
+  await test("unpackState rejects a tampered payload (HMAC integrity)", () => {
+    const packed = T.packState({ s: "abc", cc: "x" })
+    const dot = packed.lastIndexOf(".")
+    const payload = packed.slice(0, dot)
+    const tampered = (payload[0] === "A" ? "B" : "A") + payload.slice(1) + packed.slice(dot)
+    let threw = false
+    try { T.unpackState(tampered) } catch (e) { threw = true }
+    assert(threw, "a forged/tampered state cookie must be rejected")
+  })
+
+  await test("unpackState rejects a payload with no MAC", () => {
+    let threw = false
+    try { T.unpackState(T.packState({ s: "a" }).split(".")[0]) } catch (e) { threw = true }
+    assert(threw, "no MAC -> rejected")
+  })
+
   await test("packState/unpackState round-trips (incl. non-Latin1)", () => {
     const st = { s: "abc", n: "def", cc: "n�a=mé; b=2", tok: "T", term: "top-level" }
     assertEqual(JSON.stringify(T.unpackState(T.packState(st))), JSON.stringify(st))
@@ -322,6 +338,7 @@ async function main() {
     ENTRA_STORAGE_KEY: "c2VjcmV0",
     ENTRA_STORAGE_TABLE: "cmsauth",
     ENTRA_CLIENT_SECRET: "test-secret",
+    ENTRA_STATE_HMAC_SECRET: "test-state-hmac-secret",
   })
   const store = await loadNjs("features/auth-handover.drop2.entra/store.js")
   const entra = await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")

@@ -22,10 +22,10 @@
 
 import cryptoModule from "crypto";
 
-// QA defaults baked in (reused from the global-components.cms-auth-v2 reference); the
-// account KEY is a secret and stays empty unless supplied as an app setting.
-const STORAGE_ACCOUNT =
-  process.env.ENTRA_STORAGE_ACCOUNT || "sacpsglobalcomponents";
+// Config from app settings; NO baked account/key defaults (see TODO.APP-SETTINGS.md) — missing
+// => "" => the deposit fails and drop2 degrades. Account + KEY are both required to arm.
+// STORAGE_TABLE keeps a fixed default ("cmsauth" is a constant name, not per-env config).
+const STORAGE_ACCOUNT = process.env.ENTRA_STORAGE_ACCOUNT || "";
 const STORAGE_KEY = process.env.ENTRA_STORAGE_KEY || "";
 const STORAGE_TABLE = process.env.ENTRA_STORAGE_TABLE || "cmsauth";
 
