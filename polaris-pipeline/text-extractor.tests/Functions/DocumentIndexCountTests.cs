@@ -23,13 +23,13 @@ namespace text_extractor.tests.Functions
         private JsonResult _errorResult;
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
-        private readonly Mock<ILogger<DocumentIndexCount>> _mockLogger;
+        private readonly Mock<ILogger<DocumentIndexCountLegacy>> _mockLogger;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Guid _correlationId;
         private readonly int _caseId;
         private readonly string _documentId;
         private readonly long _versionId;
-        private readonly DocumentIndexCount _documentIndexCount;
+        private readonly DocumentIndexCountLegacy _documentIndexCount;
 
         public DocumentIndexCountTests()
         {
@@ -40,7 +40,7 @@ namespace text_extractor.tests.Functions
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _correlationId = _fixture.Create<Guid>();
             _fixture.Create<Guid>();
-            _mockLogger = new Mock<ILogger<DocumentIndexCount>>();
+            _mockLogger = new Mock<ILogger<DocumentIndexCountLegacy>>();
             _caseId = _fixture.Create<int>();
             _documentId = _fixture.Create<string>();
             _versionId = _fixture.Create<long>();
@@ -49,7 +49,7 @@ namespace text_extractor.tests.Functions
                 .Setup(service => service.GetDocumentIndexCount(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>(), It.IsAny<Guid>()))
                 .ReturnsAsync(new SearchIndexCountResult(100));
 
-            _documentIndexCount = new DocumentIndexCount(
+            _documentIndexCount = new DocumentIndexCountLegacy(
                 _mockLogger.Object,
                 _mockSearchIndexService.Object,
                 _mockExceptionHandler.Object
@@ -59,31 +59,31 @@ namespace text_extractor.tests.Functions
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndLoggerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCountLegacy(null, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndSearchIndexServiceIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, null, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCountLegacy(_mockLogger.Object, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndJsonConvertWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCountLegacy(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndTelemetryAugmentationWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCountLegacy(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndExceptionHandlerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new DocumentIndexCountLegacy(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace text_extractor.tests.Functions
         {
             var mockRequest = CreateMockRequest(new StringContent("{}"), null);
             _errorResult = new JsonResult(_fixture.Create<string>()) { StatusCode = (int)HttpStatusCode.Unauthorized };
-            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<DocumentIndexCount>>()))
+            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<DocumentIndexCountLegacy>>()))
                 .Returns(_errorResult);
             
             var response = await _documentIndexCount.Run(mockRequest.Object, _caseId, _documentId, _versionId);

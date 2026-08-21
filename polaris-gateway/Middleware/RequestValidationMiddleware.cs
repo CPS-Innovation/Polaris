@@ -23,7 +23,7 @@ public sealed partial class RequestValidationMiddleware(
     private const int MockUserUserId = int.MinValue;
 
     private readonly string[] _unauthenticatedRoutes = ["/api/status", "/api/login-full-cookie", "/api/login", "/api/init", "/api/polaris"];
-    private readonly string[] _nonCmsAuthenticatedRoutes = [RestApi.CaseTracker, RestApi.CaseSearchCount, RestApi.CaseSearch];//"/api/login-full-cookie", , "/api/login", "/api/init"];
+    private readonly string[] _nonCmsAuthenticatedRoutes = [RestApi.CaseTrackerLegacy, RestApi.CaseSearchCountLegacy, RestApi.CaseSearchLegacy];//"/api/login-full-cookie", , "/api/login", "/api/init"];
 
     public async Task Invoke(FunctionContext context, FunctionExecutionDelegate next)
     {

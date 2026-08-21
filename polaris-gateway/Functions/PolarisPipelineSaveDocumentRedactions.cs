@@ -32,14 +32,12 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
     private readonly IRedactPdfRequestMapper _redactPdfRequestMapper;
     private readonly ILogger<PolarisPipelineSaveDocumentRedactions> _logger;
     private readonly ICoordinatorClient _coordinatorClient;
-    private readonly ITelemetryClient _telemetryClient;
     private readonly IJsonConvertWrapper _jsonConvertWrapper;
 
     public PolarisPipelineSaveDocumentRedactions(
         IRedactPdfRequestMapper redactPdfRequestMapper,
         ICoordinatorClient coordinatorClient,
         ILogger<PolarisPipelineSaveDocumentRedactions> logger,
-        ITelemetryClient telemetryClient,
         IJsonConvertWrapper jsonConvertWrapper)
         : base()
 
@@ -47,7 +45,6 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
         _redactPdfRequestMapper = redactPdfRequestMapper ?? throw new ArgumentNullException(nameof(redactPdfRequestMapper));
         _coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
     }
 
@@ -61,7 +58,7 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
     [OpenApiParameter("documentId", In = ParameterLocation.Path, Type = typeof(long), Description = "The document Id (version) of the material", Required = true)]
     [OpenApiResponseWithBody(HttpStatusCode.OK, "application/json", typeof(IEnumerable<PiiLine>), Description = "OCR processing completed successfully")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocumentLegacy)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
     {
         var telemetryEvent = new RedactionRequestEvent(caseId, materialId)
         {
@@ -85,7 +82,7 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
             if (!isRequestJsonValid)
             {
                 // todo: log these errors to telemetry event
-                _telemetryClient.TrackEvent(telemetryEvent);
+                _logger.TrackEvent(telemetryEvent);
                 return await new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.BadRequest
@@ -105,12 +102,12 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
             telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
             telemetryEvent.DeletedPageCount = redactPdfRequest.DocumentModifications.Count;
 
-            _telemetryClient.TrackEvent(telemetryEvent);
+            _logger.TrackEvent(telemetryEvent);
             return await response.ToActionResult();
         }
         catch
         {
-            _telemetryClient.TrackEventFailure(telemetryEvent);
+            _logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }

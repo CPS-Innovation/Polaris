@@ -24,18 +24,15 @@ public class ReclassifyDocument : BaseFunction
     private readonly ILogger<ReclassifyDocument> _logger;
     private readonly IMdsArgFactory _mdsArgFactory;
     private readonly IMdsReclassifyDocumentOrchestrationService _mdsOrchestrationService;
-    private readonly ITelemetryClient _telemetryClient;
 
     public ReclassifyDocument(
         ILogger<ReclassifyDocument> logger,
         IMdsArgFactory mdsArgFactory,
-        ITelemetryClient telemetryClient,
         IMdsReclassifyDocumentOrchestrationService mdsOrchestrationService)
         : base()
     {
         _logger = logger.ExceptionIfNull();
         _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        _telemetryClient = telemetryClient.ExceptionIfNull();
         _mdsOrchestrationService = mdsOrchestrationService.ExceptionIfNull();
     }
 
@@ -73,7 +70,7 @@ public class ReclassifyDocument : BaseFunction
 
             if (!body.IsValid)
             {
-                _telemetryClient.TrackEvent(telemetryEvent);
+                _logger.TrackEvent(telemetryEvent);
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
@@ -92,7 +89,7 @@ public class ReclassifyDocument : BaseFunction
             if (!reclassifyDocumentResult.IsSuccess)
             {
                 telemetryEvent.IsSuccess = false;
-                _telemetryClient.TrackEvent(telemetryEvent);
+                _logger.TrackEvent(telemetryEvent);
                 return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
             }
 
@@ -103,13 +100,13 @@ public class ReclassifyDocument : BaseFunction
             telemetryEvent.NewDocumentTypeId = reclassifyDocumentResult.Result.DocumentTypeId;
             telemetryEvent.DocumentRenamed = reclassifyDocumentResult.Result.DocumentRenamed;
             telemetryEvent.DocumentRenameOperationName = reclassifyDocumentResult.Result.DocumentRenamedOperationName;
-            _telemetryClient.TrackEvent(telemetryEvent);
+            _logger.TrackEvent(telemetryEvent);
 
             return new ObjectResult(reclassifyDocumentResult.Result);
         }
         catch
         {
-            _telemetryClient.TrackEventFailure(telemetryEvent);
+            _logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }

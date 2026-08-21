@@ -1,5 +1,4 @@
 using Common.Configuration;
-using Common.Telemetry;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -20,17 +19,14 @@ public class PolarisPipelineCaseSearchIndexCount : BaseFunction
 {
     private readonly ILogger<PolarisPipelineCaseSearchIndexCount> _logger;
     private readonly ICoordinatorClient _coordinatorClient;
-    private readonly ITelemetryClient _telemetryClient;
 
     public PolarisPipelineCaseSearchIndexCount(
         ILogger<PolarisPipelineCaseSearchIndexCount> logger,
-        ICoordinatorClient coordinatorClient,
-        ITelemetryClient telemetryClient)
+        ICoordinatorClient coordinatorClient)
         : base()
     {
         _logger = logger;
         _coordinatorClient = coordinatorClient;
-        _telemetryClient = telemetryClient;
     }
 
     [Function(nameof(PolarisPipelineCaseSearchIndexCount))]
@@ -44,7 +40,7 @@ public class PolarisPipelineCaseSearchIndexCount : BaseFunction
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
 
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearchCount)] HttpRequest req, string caseUrn, int caseId, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearchCountLegacy)] HttpRequest req, string caseUrn, int caseId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);

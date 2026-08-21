@@ -27,18 +27,15 @@ namespace PolarisGateway.Functions;
 public class RenameDocument : BaseFunction
 {
     private readonly ILogger<RenameDocument> _logger;
-    private readonly ITelemetryClient _telemetryClient;
     private readonly IMdsClient _mdsClient;
 
     private const string ExhibitClassification = "EXHIBIT";
     private const string StatementClassification = "STATEMENT";
 
     public RenameDocument(ILogger<RenameDocument> logger,
-        ITelemetryClient telemetryClient,
         IMdsClient mdsClient)
     {
         _logger = logger.ExceptionIfNull();
-        _telemetryClient = telemetryClient.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
     }
 
@@ -75,7 +72,7 @@ public class RenameDocument : BaseFunction
 
             if (!isRequestJsonValid)
             {
-                _telemetryClient.TrackEvent(telemetryEvent);
+                _logger.TrackEvent(telemetryEvent);
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
@@ -112,13 +109,13 @@ public class RenameDocument : BaseFunction
             }
 
             telemetryEvent.IsSuccess = true;
-            _telemetryClient.TrackEvent(telemetryEvent);
+            _logger.TrackEvent(telemetryEvent);
 
             return new OkResult();
         }
         catch
         {
-            _telemetryClient.TrackEventFailure(telemetryEvent);
+            _logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }

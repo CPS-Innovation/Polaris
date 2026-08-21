@@ -1,6 +1,5 @@
 using Common.Configuration;
 using Common.Domain.Pii;
-using Common.Telemetry;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
@@ -25,17 +24,14 @@ public class GetThumbnail : BaseFunction
 {
     private readonly ILogger<GetThumbnail> _logger;
     private readonly IPdfThumbnailGeneratorClient _pdfThumbnailGeneratorClient;
-    private readonly ITelemetryClient _telemetryClient;
 
     public GetThumbnail(
         ILogger<GetThumbnail> logger,
-        IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient,
-        ITelemetryClient telemetryClient)
+        IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient)
         : base()
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _pdfThumbnailGeneratorClient = pdfThumbnailGeneratorClient ?? throw new ArgumentNullException(nameof(pdfThumbnailGeneratorClient));
-        _telemetryClient = telemetryClient;
     }
 
     [Function(nameof(GetThumbnail))]
@@ -53,7 +49,7 @@ public class GetThumbnail : BaseFunction
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
 
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Thumbnail)] HttpRequest req,
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.ThumbnailLegacy)] HttpRequest req,
         string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int pageIndex, CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);

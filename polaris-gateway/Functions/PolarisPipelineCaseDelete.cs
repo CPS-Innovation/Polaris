@@ -7,7 +7,6 @@ using Microsoft.Azure.Functions.Worker;
 using System.Threading;
 using System.Threading.Tasks;
 using PolarisGateway.Extensions;
-using Common.Telemetry;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.OpenApi.Models;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
@@ -20,17 +19,14 @@ public class PolarisPipelineCaseDelete : BaseFunction
 {
     private readonly ILogger<PolarisPipelineCaseDelete> _logger;
     private readonly ICoordinatorClient _coordinatorClient;
-    private readonly ITelemetryClient _telemetryClient;
 
     public PolarisPipelineCaseDelete(
         ILogger<PolarisPipelineCaseDelete> logger,
-        ICoordinatorClient coordinatorClient,
-        ITelemetryClient telemetryClient)
+        ICoordinatorClient coordinatorClient)
         : base()
     {
         _logger = logger;
         _coordinatorClient = coordinatorClient;
-        _telemetryClient = telemetryClient;
 
     }
 
@@ -44,7 +40,7 @@ public class PolarisPipelineCaseDelete : BaseFunction
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
 
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.CaseLegacy)] HttpRequest req, string caseUrn, int caseId, CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);

@@ -81,13 +81,13 @@ public class AsposeRedactionProvider(
 
             telemetryEvent.Bytes = outputStream.Length;
             telemetryEvent.EndTime = DateTime.UtcNow;
-            telemetryClient.TrackEvent(telemetryEvent);
+            logger.TrackEvent(telemetryEvent);
 
             return outputStream;
         }
         catch (Exception)
         {
-            telemetryClient.TrackEventFailure(telemetryEvent);
+            logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }
