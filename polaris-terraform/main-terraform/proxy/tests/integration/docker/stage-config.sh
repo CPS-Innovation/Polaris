@@ -23,7 +23,7 @@ DST=/etc/nginx/templates/features
 [ -d "$SRC" ] || exit 0
 mkdir -p "$DST"
 
-find "$SRC" -type f \( -name '*.conf' -o -name '*.js' -o -name '*.html' \)  ! -name '*.test.js' ! -path '*/fixtures/*' | while read -r f; do
+find "$SRC" -type f \( -name '*.conf' -o -name '*.js' \)  ! -name '*.test.js' ! -path '*/fixtures/*' | while read -r f; do
   rel="${f#"$SRC"/}"
   case "$rel" in
     *.conf) out="$DST/$rel.template" ;;
