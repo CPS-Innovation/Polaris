@@ -5,6 +5,11 @@ parameters:
     type: string
 
 steps:
+  - task: UseDotNet@2
+    displayName: "Use .NET SDK from global.json"
+    inputs:
+      packageType: "sdk"
+      useGlobalJson: true
   
   - task: DotNetCoreCLI@2
     inputs:
