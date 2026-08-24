@@ -56,8 +56,6 @@ stages:
               project: "polaris-gateway.integration-tests/polaris-gateway.integration-tests.csproj"
               arguments: >
                 --configuration Release
-                --logger "trx;LogFileName=gateway-integration-tests.trx"
-                --results-directory "$(Agent.TempDirectory)/TestResults"
                 /p:CollectCoverage=true
                 /p:CoverletOutputFormat=cobertura
                 --settings polaris-gateway.integration-tests/test.runsettings
