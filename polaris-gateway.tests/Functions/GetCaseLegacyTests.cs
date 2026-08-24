@@ -13,19 +13,19 @@ using Xunit;
 
 namespace PolarisGateway.Tests.Functions;
 
-public class GetCaseTests
+public class GetCaseLegacyTests
 {
     private readonly Mock<ILogger<GetCaseLegacy>> _loggerMock;
     private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IMdsCaseOrchestrationService> _mdsCaseOrchestrationServiceMock;
     private readonly GetCaseLegacy _getCase;
 
-    public GetCaseTests()
+    public GetCaseLegacyTests()
     {
         _loggerMock = new Mock<ILogger<GetCaseLegacy>>();
         _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _mdsCaseOrchestrationServiceMock = new Mock<IMdsCaseOrchestrationService>();
-        _getCase = new GetCase(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsCaseOrchestrationServiceMock.Object);
+        _getCase = new GetCaseLegacy(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsCaseOrchestrationServiceMock.Object);
     }
 
     [Fact]

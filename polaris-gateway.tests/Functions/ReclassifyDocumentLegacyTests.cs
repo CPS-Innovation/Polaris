@@ -17,19 +17,19 @@ using Xunit;
 
 namespace PolarisGateway.Tests.Functions;
 
-public class ReclassifyDocumentTests
+public class ReclassifyDocumentLegacyTests
 {
     private readonly Mock<ILogger<ReclassifyDocumentLegacy>> _loggerMock;
     private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IMdsReclassifyDocumentOrchestrationService> _orchestrationServiceMock;
     private readonly ReclassifyDocumentLegacy _reclassifyDocument;
 
-    public ReclassifyDocumentTests()
+    public ReclassifyDocumentLegacyTests()
     {
         _loggerMock = new Mock<ILogger<ReclassifyDocumentLegacy>>();
         _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _orchestrationServiceMock = new Mock<IMdsReclassifyDocumentOrchestrationService>();
-        _reclassifyDocument = new ReclassifyDocument(_loggerMock.Object, _mdsArgFactoryMock.Object, _orchestrationServiceMock.Object);
+        _reclassifyDocument = new ReclassifyDocumentLegacy(_loggerMock.Object, _mdsArgFactoryMock.Object, _orchestrationServiceMock.Object);
     }
 
     [Fact]
