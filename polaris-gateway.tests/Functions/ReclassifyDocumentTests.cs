@@ -19,14 +19,14 @@ namespace PolarisGateway.Tests.Functions;
 
 public class ReclassifyDocumentTests
 {
-    private readonly Mock<ILogger<ReclassifyDocument>> _loggerMock;
+    private readonly Mock<ILogger<ReclassifyDocumentLegacy>> _loggerMock;
     private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IMdsReclassifyDocumentOrchestrationService> _orchestrationServiceMock;
-    private readonly ReclassifyDocument _reclassifyDocument;
+    private readonly ReclassifyDocumentLegacy _reclassifyDocument;
 
     public ReclassifyDocumentTests()
     {
-        _loggerMock = new Mock<ILogger<ReclassifyDocument>>();
+        _loggerMock = new Mock<ILogger<ReclassifyDocumentLegacy>>();
         _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _orchestrationServiceMock = new Mock<IMdsReclassifyDocumentOrchestrationService>();
         _reclassifyDocument = new ReclassifyDocument(_loggerMock.Object, _mdsArgFactoryMock.Object, _orchestrationServiceMock.Object);

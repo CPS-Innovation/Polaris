@@ -15,14 +15,14 @@ namespace PolarisGateway.Tests.Functions;
 
 public class GetCaseTests
 {
-    private readonly Mock<ILogger<GetCase>> _loggerMock;
+    private readonly Mock<ILogger<GetCaseLegacy>> _loggerMock;
     private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IMdsCaseOrchestrationService> _mdsCaseOrchestrationServiceMock;
-    private readonly GetCase _getCase;
+    private readonly GetCaseLegacy _getCase;
 
     public GetCaseTests()
     {
-        _loggerMock = new Mock<ILogger<GetCase>>();
+        _loggerMock = new Mock<ILogger<GetCaseLegacy>>();
         _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _mdsCaseOrchestrationServiceMock = new Mock<IMdsCaseOrchestrationService>();
         _getCase = new GetCase(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsCaseOrchestrationServiceMock.Object);

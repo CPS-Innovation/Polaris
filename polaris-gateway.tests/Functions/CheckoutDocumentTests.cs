@@ -16,14 +16,14 @@ namespace PolarisGateway.Tests.Functions;
 
 public class CheckoutDocumentTests
 {
-    private readonly Mock<ILogger<CheckoutDocument>> _loggerMock;
+    private readonly Mock<ILogger<CheckoutDocumentLegacy>> _loggerMock;
     private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IMdsClient> _mdsClientMock;
-    private readonly CheckoutDocument _checkoutDocument;
+    private readonly CheckoutDocumentLegacy _checkoutDocument;
 
     public CheckoutDocumentTests()
     {
-        _loggerMock = new Mock<ILogger<CheckoutDocument>>();
+        _loggerMock = new Mock<ILogger<CheckoutDocumentLegacy>>();
         _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _mdsClientMock = new Mock<IMdsClient>();
         _checkoutDocument = new CheckoutDocument(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsClientMock.Object);

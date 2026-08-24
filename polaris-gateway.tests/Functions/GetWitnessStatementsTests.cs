@@ -18,13 +18,13 @@ namespace PolarisGateway.Tests.Functions;
 
 public class GetWitnessStatementsTests
 {
-    private readonly Mock<ILogger<GetWitnessStatements>> _loggerMock;
+    private readonly Mock<ILogger<GetWitnessStatementsLegacy>> _loggerMock;
     private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IMdsClient> _mdsClientMock;
-    private readonly GetWitnessStatements _getWitnessStatements;
+    private readonly GetWitnessStatementsLegacy _getWitnessStatements;
     public GetWitnessStatementsTests()
     {
-        _loggerMock = new Mock<ILogger<GetWitnessStatements>>();
+        _loggerMock = new Mock<ILogger<GetWitnessStatementsLegacy>>();
         _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _mdsClientMock = new Mock<IMdsClient>();
         _getWitnessStatements = new GetWitnessStatements(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsClientMock.Object);

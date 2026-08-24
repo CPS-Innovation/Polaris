@@ -1,16 +1,8 @@
-﻿// <copyright file="PolarisPipelineSaveDocumentRedactions.cs" company="TheCrownProsecutionService">
-// Copyright (c) The Crown Prosecution Service. All rights reserved.
-// </copyright>
-
-namespace PolarisGateway.Functions;
-
-using Common.Configuration;
+﻿using Common.Configuration;
 using Common.Domain.Pii;
 using Common.Dto.Request;
-using Common.Extensions;
 using Common.Telemetry;
 using Common.Wrappers;
-using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision.Models;
@@ -33,48 +25,49 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class PolarisPipelineSaveDocumentRedactions : BaseFunction
-{
-    private readonly IRedactPdfRequestMapper redactPdfRequestMapper;
-    private readonly ILogger<PolarisPipelineSaveDocumentRedactions> logger;
-    private readonly ICoordinatorClient coordinatorClient;
-    private readonly ICaseUrnResolver caseUrnResolver;
+namespace PolarisGateway.Functions;
 
-    public PolarisPipelineSaveDocumentRedactions(
+public class PolarisPipelineSaveDocumentRedactionsLegacy : BaseFunction
+{
+    private readonly IRedactPdfRequestMapper _redactPdfRequestMapper;
+    private readonly ILogger<PolarisPipelineSaveDocumentRedactionsLegacy> _logger;
+    private readonly ICoordinatorClient _coordinatorClient;
+    private readonly IJsonConvertWrapper _jsonConvertWrapper;
+
+    public PolarisPipelineSaveDocumentRedactionsLegacy(
         IRedactPdfRequestMapper redactPdfRequestMapper,
         ICoordinatorClient coordinatorClient,
-        ILogger<PolarisPipelineSaveDocumentRedactions> logger,
-        ICaseUrnResolver caseUrnResolver)
+        ILogger<PolarisPipelineSaveDocumentRedactionsLegacy> logger,
+        IJsonConvertWrapper jsonConvertWrapper)
         : base()
 
     {
-        this.redactPdfRequestMapper = redactPdfRequestMapper ?? throw new ArgumentNullException(nameof(redactPdfRequestMapper));
-        this.coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
+        _redactPdfRequestMapper = redactPdfRequestMapper ?? throw new ArgumentNullException(nameof(redactPdfRequestMapper));
+        _coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
     }
 
-    [Function(nameof(PolarisPipelineSaveDocumentRedactions))]
+    [Function(nameof(PolarisPipelineSaveDocumentRedactionsLegacy))]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [OpenApiOperation(operationId: nameof(PolarisPipelineSaveDocumentRedactions), tags: ["Documents"], Summary = "Polaris Pipeline Save Document Redactions", Description = "Gives the pdf")]
+    [OpenApiOperation(operationId: nameof(PolarisPipelineSaveDocumentRedactionsLegacy), tags: ["Documents"], Summary = "Polaris Pipeline Save Document Redactions", Description = "Gives the pdf")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
+    [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(string), Description = "The Id of the material", Required = true)]
     [OpenApiParameter("documentId", In = ParameterLocation.Path, Type = typeof(long), Description = "The document Id (version) of the material", Required = true)]
     [OpenApiResponseWithBody(HttpStatusCode.OK, "application/json", typeof(IEnumerable<PiiLine>), Description = "OCR processing completed successfully")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)] HttpRequest req, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocumentLegacy)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
     {
         var telemetryEvent = new RedactionRequestEvent(caseId, materialId)
         {
-            OperationName = nameof(PolarisPipelineSaveDocumentRedactions),
+            OperationName = nameof(PolarisPipelineSaveDocumentRedactionsLegacy),
         };
 
         cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);
-        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
-
-        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
+        var cmsAuthValues = EstablishCmsAuthValues(req);
 
         try
         {
@@ -88,33 +81,33 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
 
             if (!isRequestJsonValid)
             {
-                // TODO: log these errors to telemetry event
-                this.logger.TrackEvent(telemetryEvent);
+                // todo: log these errors to telemetry event
+                _logger.TrackEvent(telemetryEvent);
                 return await new HttpResponseMessage
                 {
-                    StatusCode = HttpStatusCode.BadRequest,
+                    StatusCode = HttpStatusCode.BadRequest
                 }.ToActionResult();
             }
 
-            var redactPdfRequest = this.redactPdfRequestMapper.Map(redactions.Value);
-            var response = await this.coordinatorClient.SaveRedactionsAsync(
+            var redactPdfRequest = _redactPdfRequestMapper.Map(redactions.Value);
+            var response = await _coordinatorClient.SaveRedactionsAsync(
                 caseUrn,
                 caseId,
                 materialId,
                 documentId,
                 redactPdfRequest,
-                cmsAuthValues.CmsAuthFullValue,
+                cmsAuthValues,
                 correlationId);
 
             telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
             telemetryEvent.DeletedPageCount = redactPdfRequest.DocumentModifications.Count;
 
-            this.logger.TrackEvent(telemetryEvent);
+            _logger.TrackEvent(telemetryEvent);
             return await response.ToActionResult();
         }
         catch
         {
-            this.logger.TrackEventFailure(telemetryEvent);
+            _logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }
