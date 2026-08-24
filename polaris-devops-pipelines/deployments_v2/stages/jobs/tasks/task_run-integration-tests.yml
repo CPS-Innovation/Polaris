@@ -5,6 +5,9 @@ parameters:
     type: string
 
 steps:
+  - task: NuGetAuthenticate@1
+    displayName: "Authenticate NuGet feeds"
+
   - task: UseDotNet@2
     displayName: "Use .NET SDK from global.json"
     inputs:
