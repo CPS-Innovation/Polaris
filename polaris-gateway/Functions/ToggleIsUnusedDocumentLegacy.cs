@@ -1,16 +1,8 @@
-﻿// <copyright file="ToggleIsUnusedDocument.cs" company="TheCrownProsecutionService">
-// Copyright (c) The Crown Prosecution Service. All rights reserved.
-// </copyright>
-
-namespace PolarisGateway.Functions;
-
-using Common.Configuration;
+﻿using Common.Configuration;
 using Common.Domain.Document;
-using Common.Dto.Request;
 using Common.Extensions;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Domain.Args;
-using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -22,44 +14,45 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class ToggleIsUnusedDocument : BaseFunction
-{
-    private readonly IMdsClient mdsClient;
-    private readonly ICaseUrnResolver caseUrnResolver;
+namespace PolarisGateway.Functions;
 
-    public ToggleIsUnusedDocument(
-        IMdsClient mdsClient,
-        ICaseUrnResolver caseUrnResolver)
+public class ToggleIsUnusedDocumentLegacy : BaseFunction
+{
+    private readonly ILogger<ToggleIsUnusedDocumentLegacy> _logger;
+    private readonly IMdsClient _mdsClient;
+    public ToggleIsUnusedDocumentLegacy(
+        ILogger<ToggleIsUnusedDocumentLegacy> logger,
+        IMdsClient mdsClient)
     {
-        this.mdsClient = mdsClient.ExceptionIfNull();
-        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
+        _logger = logger.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
     }
 
-    [Function(nameof(ToggleIsUnusedDocument))]
+    [Function(nameof(ToggleIsUnusedDocumentLegacy))]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [OpenApiOperation(operationId: nameof(ToggleIsUnusedDocument), tags: ["Documents"], Summary = "Toggle Is Unused Document", Description = "Toggle Is Unused Document")]
+    [OpenApiOperation(operationId: nameof(ToggleIsUnusedDocumentLegacy), tags: ["Documents"], Summary = "Toggle Is Unused Document", Description = "Toggle Is Unused Document")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
+    [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(string), Description = "The Id of the material", Required = true)]
     [OpenApiParameter("isUnused", In = ParameterLocation.Path, Type = typeof(string), Description = "Is un used document", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(object), Summary = "Document Note List", Description = "Returns list of document notes")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ToggleIsUnusedDocument)] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ToggleIsUnusedDocumentLegacy)] HttpRequest req,
+        string caseUrn,
         int caseId,
         string materialId,
         string isUnused,
         CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
-        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
-
-        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
+        var cmsAuthValues = EstablishCmsAuthValues(req);
 
         var toggleIsUnusedDocumentDto = new MdsToggleIsUnusedDocumentDto
         {
             CaseId = caseId,
-            CmsAuthValues = cmsAuthValues.CmsAuthFullValue,
+            CmsAuthValues = cmsAuthValues,
             CorrelationId = correlationId,
             MaterialId = DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document),
             IsUnused = isUnused,
@@ -67,7 +60,6 @@ public class ToggleIsUnusedDocument : BaseFunction
         };
 
         cancellationToken.ThrowIfCancellationRequested();
-
-        return await this.mdsClient.ToggleIsUnusedDocumentAsync(toggleIsUnusedDocumentDto, cancellationToken) ? new OkResult() : new BadRequestResult();
+        return await _mdsClient.ToggleIsUnusedDocumentAsync(toggleIsUnusedDocumentDto, cancellationToken) ? new OkResult() : new BadRequestResult();
     }
 }

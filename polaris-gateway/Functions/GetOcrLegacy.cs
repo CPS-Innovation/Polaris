@@ -1,9 +1,3 @@
-// <copyright file="GetOcr.cs" company="TheCrownProsecutionService">
-// Copyright (c) The Crown Prosecution Service. All rights reserved.
-// </copyright>
-
-namespace PolarisGateway.Functions;
-
 using Common.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -21,66 +15,67 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.OpenApi.Models;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Common.Domain.Ocr;
-using DdeiClient.Services.CaseUrnResolver;
-using Common.Dto.Request;
 
-public class GetOcr : BaseFunction
+
+namespace PolarisGateway.Functions;
+
+public class GetOcrLegacy : BaseFunction
 {
-    private const string TokenQueryParamName = "token";
-    private const string IsOcrProcessedParamName = "isOcrProcessed";
+    private const string tokenQueryParamName = "token";
+    private const string isOcrProcessedParamName = "isOcrProcessed";
     private const string ForceRefreshParamName = "ForceRefresh";
-    private readonly IOcrArtefactService ocrArtefactService;
-    private readonly ICaseUrnResolver caseUrnResolver;
+    private readonly ILogger<GetOcrLegacy> _logger;
+    private readonly IOcrArtefactService _ocrArtefactService;
 
-    public GetOcr(
-        IOcrArtefactService ocrArtefactService,
-        ICaseUrnResolver caseUrnResolver)
+    public GetOcrLegacy(
+        ILogger<GetOcrLegacy> logger,
+        IOcrArtefactService ocrArtefactService)
         : base()
     {
-        this.ocrArtefactService = ocrArtefactService.ExceptionIfNull();
-        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
+        _logger = logger.ExceptionIfNull();
+        _ocrArtefactService = ocrArtefactService.ExceptionIfNull();
     }
 
-    [Function(nameof(GetOcr))]
+    [Function(nameof(GetOcrLegacy))]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [OpenApiOperation(operationId: nameof(GetOcr), tags: ["Documents"], Summary = "Artefact Result", Description = "Gives the artefact results")]
+    [OpenApiOperation(operationId: nameof(GetOcrLegacy), tags: ["Documents"], Summary = "Artefact Result", Description = "Gives the artefact results")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
+    [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(string), Description = "The Id of the material", Required = true)]
     [OpenApiParameter("documentId", In = ParameterLocation.Path, Type = typeof(long), Description = "The document Id (version) of the material", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(ArtefactResult<AnalyzeResults>), Summary = "Artefact Result", Description = "Gives the artefact results")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Ocr)] HttpRequest req, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.OcrLegacy)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);
-        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
+        var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var isOcrProcessed = req.Query.ContainsKey(IsOcrProcessedParamName) && bool.Parse(req.Query[IsOcrProcessedParamName]);
+        var isOcrProcessed = req.Query.ContainsKey(isOcrProcessedParamName) && bool.Parse(req.Query[isOcrProcessedParamName]);
         var forceRefresh = req.Query.ContainsKey(ForceRefreshParamName) && bool.Parse(req.Query[ForceRefreshParamName]);
-        var token = req.Query.ContainsKey(TokenQueryParamName) ?
-            Guid.Parse(req.Query[TokenQueryParamName]) :
+        var token = req.Query.ContainsKey(tokenQueryParamName) ?
+            Guid.Parse(req.Query[tokenQueryParamName]) :
             (Guid?)null;
 
-        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
-        var ocrResult = await this.ocrArtefactService.GetOcrAsync(cmsAuthValues.CmsAuthFullValue, correlationId, caseUrn, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh);
+        var ocrResult = await _ocrArtefactService.GetOcrAsync(cmsAuthValues, correlationId, caseUrn, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh);
         return ocrResult.Status switch
         {
             ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Artefact)
             {
-                StatusCode = (int)HttpStatusCode.OK,
+                StatusCode = (int)HttpStatusCode.OK
             },
             ResultStatus.PollWithToken => new JsonResult(new
             {
-                NextUrl = $"{req.GetDisplayUrl()}{(req.QueryString.Value.StartsWith('?') ? "&" : "?")}{TokenQueryParamName}={ocrResult.ContinuationToken}",
+                NextUrl = $"{req.GetDisplayUrl()}{(req.QueryString.Value.StartsWith('?') ? "&" : "?")}{tokenQueryParamName}={ocrResult.ContinuationToken}"
             })
             {
-                StatusCode = (int)HttpStatusCode.Accepted, // the client will understand 202 as a signal to poll again
+                StatusCode = (int)HttpStatusCode.Accepted // the client will understand 202 as a signal to poll again
             },
             ResultStatus.Failed => new JsonResult(ocrResult)
             {
-                StatusCode = (int)HttpStatusCode.UnsupportedMediaType,
+                StatusCode = (int)HttpStatusCode.UnsupportedMediaType
             },
             _ => new JsonResult(ocrResult) { StatusCode = (int)HttpStatusCode.InternalServerError },
         };

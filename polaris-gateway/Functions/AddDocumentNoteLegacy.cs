@@ -1,16 +1,9 @@
-// <copyright file="AddDocumentNote.cs" company="TheCrownProsecutionService">
-// Copyright (c) The Crown Prosecution Service. All rights reserved.
-// </copyright>
-
-namespace PolarisGateway.Functions;
-
 using Common.Configuration;
 using Common.Dto.Request;
 using Common.Extensions;
 using Common.Telemetry;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
-using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -25,48 +18,46 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class AddDocumentNote : BaseFunction
-{
-    private readonly ILogger<AddDocumentNote> logger;
-    private readonly IMdsArgFactory mdsArgFactory;
-    private readonly IMdsClient mdsClient;
-    private readonly ICaseUrnResolver caseUrnResolver;
+namespace PolarisGateway.Functions;
 
-    public AddDocumentNote(
-        ILogger<AddDocumentNote> logger,
+public class AddDocumentNoteLegacy : BaseFunction
+{
+    private readonly ILogger<AddDocumentNoteLegacy> _logger;
+    private readonly IMdsArgFactory _mdsArgFactory;
+    private readonly IMdsClient _mdsClient;
+
+    public AddDocumentNoteLegacy(
+        ILogger<AddDocumentNoteLegacy> logger,
         IMdsArgFactory mdsArgFactory,
-        IMdsClient mdsClient,
-        ICaseUrnResolver caseUrnResolver)
+        IMdsClient mdsClient)
     {
-        this.logger = logger.ExceptionIfNull();
-        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        this.mdsClient = mdsClient.ExceptionIfNull();
-        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
+        _logger = logger.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
     }
 
-    [Function(nameof(AddDocumentNote))]
+    [Function(nameof(AddDocumentNoteLegacy))]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [OpenApiOperation(operationId: nameof(AddDocumentNote), tags: ["Documents"], Summary = "Add Document Note", Description = "Returns case information using caseUrl and caseId")]
+    [OpenApiOperation(operationId: nameof(AddDocumentNoteLegacy), tags: ["Documents"], Summary = "Add Document Note", Description = "Returns case information using caseUrl and caseId")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
+    [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(string), Description = "The Id of the material to which the note has to be added", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(AddDocumentNoteRequestDto), Summary = "Case found", Description = "Returns case details")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
-    public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentNotes)] HttpRequest req,
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentNotesLegacy)] HttpRequest req,
+        string caseUrn,
         int caseId,
         string materialId,
         CancellationToken cancellationToken = default)
     {
         var telemetryEvent = new DocumentNoteRequestEvent(caseId, materialId)
         {
-            OperationName = nameof(AddDocumentNote),
+            OperationName = nameof(AddDocumentNoteLegacy),
         };
         var correlationId = EstablishCorrelation(req);
-        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
-
-        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
+        var cmsAuthValues = EstablishCmsAuthValues(req);
 
         try
         {
@@ -74,28 +65,26 @@ public class AddDocumentNote : BaseFunction
             telemetryEvent.CorrelationId = correlationId;
 
             var body = await RequestHelper.GetJsonBody<AddDocumentNoteRequestDto, AddDocumentNoteValidator>(req);
-
             telemetryEvent.IsRequestJsonValid = body.IsValid;
             telemetryEvent.RequestJson = body.RequestJson;
 
             if (!body.IsValid)
             {
-                this.logger.TrackEvent(telemetryEvent);
+                _logger.TrackEvent(telemetryEvent);
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
-            var arg = this.mdsArgFactory.CreateAddDocumentNoteArgDto(cmsAuthValues.CmsAuthFullValue, correlationId, caseUrn, caseId, materialId, body.Value.Text);
-
-            await this.mdsClient.AddDocumentNoteAsync(arg, cancellationToken);
+            var arg = _mdsArgFactory.CreateAddDocumentNoteArgDto(cmsAuthValues, correlationId, caseUrn, caseId, materialId, body.Value.Text);
+            await _mdsClient.AddDocumentNoteAsync(arg);
 
             telemetryEvent.IsSuccess = true;
-            this.logger.TrackEvent(telemetryEvent);
+            _logger.TrackEvent(telemetryEvent);
 
             return new OkResult();
         }
         catch
         {
-            this.logger.TrackEventFailure(telemetryEvent);
+            _logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }

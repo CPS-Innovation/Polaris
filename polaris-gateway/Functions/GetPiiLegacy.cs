@@ -1,14 +1,6 @@
-// <copyright file="GetPii.cs" company="TheCrownProsecutionService">
-// Copyright (c) The Crown Prosecution Service. All rights reserved.
-// </copyright>
-
-namespace PolarisGateway.Functions;
-
 using Common.Configuration;
 using Common.Domain.Pii;
-using Common.Dto.Request;
 using Common.Extensions;
-using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -28,26 +20,31 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class GetPii : BaseFunction
-{
-    private const string TokenQueryParamName = "token";
-    private const string IsOcrProcessedParamName = "isOcrProcessed";
-    private const string ForceRefreshParamName = "ForceRefresh";
-    private readonly IPiiArtefactService piiArtefactService;
-    private readonly ICaseUrnResolver caseUrnResolver;
 
-    public GetPii(
-        IPiiArtefactService piiArtefactService, ICaseUrnResolver caseUrnResolver)
+namespace PolarisGateway.Functions;
+
+public class GetPiiLegacy : BaseFunction
+{
+    private const string tokenQueryParamName = "token";
+    private const string isOcrProcessedParamName = "isOcrProcessed";
+    private const string ForceRefreshParamName = "ForceRefresh";
+    private readonly ILogger<GetPiiLegacy> _logger;
+    private readonly IPiiArtefactService _piiArtefactService;
+
+    public GetPiiLegacy(
+        ILogger<GetPiiLegacy> logger,
+        IPiiArtefactService piiArtefactService)
         : base()
     {
-        this.piiArtefactService = piiArtefactService.ExceptionIfNull();
-        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
+        _logger = logger.ExceptionIfNull();
+        _piiArtefactService = piiArtefactService.ExceptionIfNull();
     }
 
-    [Function(nameof(GetPii))]
+    [Function(nameof(GetPiiLegacy))]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [OpenApiOperation(operationId: nameof(GetPii), tags: ["Documents"], Summary = "Get Pii", Description = "Gives the Pii")]
+    [OpenApiOperation(operationId: nameof(GetPiiLegacy), tags: ["Documents"], Summary = "Get Pii", Description = "Gives the Pii")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
+    [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(string), Description = "The Id of the material", Required = true)]
     [OpenApiParameter("documentId", In = ParameterLocation.Path, Type = typeof(long), Description = "The document Id (version) of the material", Required = true)]
@@ -58,34 +55,32 @@ public class GetPii : BaseFunction
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Pii)] HttpRequest req, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PiiLegacy)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);
-        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
+        var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var isOcrProcessed = req.Query.ContainsKey(IsOcrProcessedParamName) && bool.Parse(req.Query[IsOcrProcessedParamName]);
+        var isOcrProcessed = req.Query.ContainsKey(isOcrProcessedParamName) && bool.Parse(req.Query[isOcrProcessedParamName]);
         var forceRefresh = req.Query.ContainsKey(ForceRefreshParamName) && bool.Parse(req.Query[ForceRefreshParamName]);
-        var token = req.Query.ContainsKey(TokenQueryParamName) ?
-            Guid.Parse(req.Query[TokenQueryParamName]) :
+        var token = req.Query.ContainsKey(tokenQueryParamName) ?
+            Guid.Parse(req.Query[tokenQueryParamName]) :
             (Guid?)null;
 
-        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
-
-        var ocrResult = await this.piiArtefactService.GetPiiAsync(cmsAuthValues.CmsAuthFullValue, correlationId, caseUrn, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh);
+        var ocrResult = await _piiArtefactService.GetPiiAsync(cmsAuthValues, correlationId, caseUrn, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh);
         return ocrResult.Status switch
         {
             ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Artefact),
             ResultStatus.PollWithToken => new JsonResult(new
             {
-                NextUrl = $"{req.GetDisplayUrl()}{(req.QueryString.Value.StartsWith('?') ? "&" : "?")}{TokenQueryParamName}={ocrResult.ContinuationToken}",
+                NextUrl = $"{req.GetDisplayUrl()}{(req.QueryString.Value.StartsWith("?") ? "&" : "?")}{tokenQueryParamName}={ocrResult.ContinuationToken}"
             })
             {
-                StatusCode = (int)HttpStatusCode.Accepted, // the client will understand 202 as a signal to poll again
+                StatusCode = (int)HttpStatusCode.Accepted // the client will understand 202 as a signal to poll again
             },
             ResultStatus.Failed => new JsonResult(ocrResult)
             {
-                StatusCode = (int)HttpStatusCode.UnsupportedMediaType,
+                StatusCode = (int)HttpStatusCode.UnsupportedMediaType
             },
             _ => new JsonResult(ocrResult) { StatusCode = (int)HttpStatusCode.InternalServerError },
         };
