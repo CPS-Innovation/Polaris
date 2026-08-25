@@ -88,7 +88,6 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
 
             if (!isRequestJsonValid)
             {
-                // TODO: log these errors to telemetry event
                 this.logger.TrackEvent(telemetryEvent);
                 return await new HttpResponseMessage
                 {

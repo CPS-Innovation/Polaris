@@ -86,7 +86,7 @@ public class AddDocumentNote : BaseFunction
 
             var arg = this.mdsArgFactory.CreateAddDocumentNoteArgDto(cmsAuthValues.CmsAuthFullValue, correlationId, caseUrn, caseId, materialId, body.Value.Text);
 
-            await this.mdsClient.AddDocumentNoteAsync(arg);
+            await this.mdsClient.AddDocumentNoteAsync(arg, cancellationToken);
 
             telemetryEvent.IsSuccess = true;
             this.logger.TrackEvent(telemetryEvent);

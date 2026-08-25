@@ -24,9 +24,9 @@ using Common.Extensions;
 
 public class PolarisPipelineCaseDelete(ICoordinatorClient coordinatorClient, ICaseUrnResolver caseUrnResolver) : BaseFunction
 {
-    [Function(nameof(PolarisPipelineCaseDeleteLegacy))]
+    [Function(nameof(PolarisPipelineCaseDelete))]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
-    [OpenApiOperation(operationId: nameof(PolarisPipelineCaseDeleteLegacy), tags: ["Case"], Summary = "Polaris Pipeline Case - Delete", Description = "Returns case information using caseURN and caseId")]
+    [OpenApiOperation(operationId: nameof(PolarisPipelineCaseDelete), tags: ["Case"], Summary = "Polaris Pipeline Case - Delete", Description = "Returns case information using caseURN and caseId")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to add a new action plan.", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(object), Summary = "Case found", Description = "Returns case details")]
