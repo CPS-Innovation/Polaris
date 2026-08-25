@@ -82,7 +82,7 @@ export const searchUrn = async (urn: string) => {
 };
 
 export const getCaseDetails = async (urn: string, caseId: number) => {
-  const url = fullUrl(`/api/urns/${urn}/cases/${caseId}/asd`);
+  const url = fullUrl(`/api/urns/${urn}/cases/${caseId}`);
 
   const response = await fetchImplementation("reauth", url, {
     headers: await buildHeaders(),
