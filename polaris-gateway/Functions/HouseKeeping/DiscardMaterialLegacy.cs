@@ -1,4 +1,4 @@
- // <copyright file="DiscardMaterial.cs" company="TheCrownProsecutionService">
+// <copyright file="DiscardMaterialLegacy.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
@@ -29,15 +29,15 @@ using Common.Configuration;
 /// intended to be accessed via the Housekeeping UI front-end.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="DiscardMaterial"/> class.
+/// Initializes a new instance of the <see cref="DiscardMaterialLegacy"/> class.
 /// </remarks>
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="communicationService">The service used to process the request and generate the result.</param>
-public class DiscardMaterial(
-    ILogger<DiscardMaterial> logger,
+public class DiscardMaterialLegacy(
+    ILogger<DiscardMaterialLegacy> logger,
     ICommunicationService communicationService) : BaseFunction(logger)
 {
-    private readonly ILogger<DiscardMaterial> logger = logger;
+    private readonly ILogger<DiscardMaterialLegacy> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
 
     /// <summary>
@@ -45,7 +45,7 @@ public class DiscardMaterial(
     /// </summary>
     /// <param name="request">The HTTP request.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
-    [OpenApiOperation(operationId: "DiscardMaterial", tags: ["Material"], Description = "Represents a function that discards the material.")]
+    [OpenApiOperation(operationId: "DiscardMaterialLegacy", tags: ["Material"], Description = "Represents a function that discards the material.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(DiscardMaterialRequest), Required = true, Description = "The discard material request body.")]
@@ -53,13 +53,13 @@ public class DiscardMaterial(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
-    [Function("DiscardMaterial")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.DiscardMaterial)] HttpRequest request, int caseId, int materialId, CancellationToken cancellationToken = default)
+    [Function("DiscardMaterialLegacy")]
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.DiscardMaterialLegacy)] HttpRequest request, int caseId, int materialId, CancellationToken cancellationToken = default)
     {
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} DiscardMaterial function processed a request.");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} DiscardMaterialLegacy function processed a request.");
             if (caseId < 1)
             {
                 return new BadRequestObjectResult($"{LoggingConstants.HskUiLogPrefix} Invalid case Id. It should be an integer.");
@@ -97,11 +97,11 @@ public class DiscardMaterial(
 
             if (result?.DiscardMaterialData?.Id == null)
             {
-                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] DiscardMaterial function failed in [{stopwatch.Elapsed}]");
+                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] DiscardMaterialLegacy function failed in [{stopwatch.Elapsed}]");
                 return new UnprocessableEntityObjectResult($"Material with Id [{materialId}] has not been found to discard.");
             }
 
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] DiscardMaterial function completed in [{stopwatch.Elapsed}]");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] DiscardMaterialLegacy function completed in [{stopwatch.Elapsed}]");
 
             var response = new OkObjectResult(result);
 
@@ -109,22 +109,22 @@ public class DiscardMaterial(
         }
         catch (InvalidOperationException ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} DiscardMaterial function encountered an invalid operation error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} DiscardMaterialLegacy function encountered an invalid operation error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"{ex.Message}");
         }
         catch (NotSupportedException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} DiscardMaterial function encountered an unsupported content type error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} DiscardMaterialLegacy function encountered an unsupported content type error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"Discard error: {ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} DiscardMaterial function encountered an unauthorized access error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} DiscardMaterialLegacy function encountered an unauthorized access error: {ex.Message}");
             return new UnauthorizedObjectResult($"Discard error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} DiscardMaterial function encountered an error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} DiscardMaterialLegacy function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }

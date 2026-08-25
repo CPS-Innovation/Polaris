@@ -1,0 +1,107 @@
+// <copyright file="GetCaseInfoLegacy.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions.HouseKeeping
+{
+    using System;
+    using System.Diagnostics;
+    using System.Net;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Common.Configuration;
+    using Common.Constants;
+    using Common.Dto.Response.HouseKeeping;
+    using Common.Exceptions;
+    using Cps.Fct.Hk.Ui.Interfaces;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Azure.Functions.Worker;
+    using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+    using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.OpenApi.Models;
+    using PolarisGateway.Helpers;
+
+    /// <summary>
+    /// Represents a function that retrieves the case information for display purposes,
+    /// intended to be accessed via the Housekeeping UI front-end.
+    /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="GetCaseInfoLegacy"/> class.
+    /// </remarks>
+    /// <param name="logger">The logger instance used to log information and errors.</param>
+    /// <param name="caseInfoService">The service used to process the request and generate the result.</param>
+    public class GetCaseInfoLegacy(ILogger<GetCaseInfoLegacy> logger, ICaseInfoService caseInfoService) : BaseFunction(logger)
+    {
+        private readonly ILogger<GetCaseInfoLegacy> logger = logger;
+        private readonly ICaseInfoService caseInfoService = caseInfoService;
+
+        /// <summary>
+        /// The Azure Function that processes an HTTP request for the 'case-info' route.
+        /// </summary>
+        /// <param name="req">The HTTP request.</param>
+        /// <param name="caseId">The case Id.</param>
+        /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
+        /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
+        [OpenApiOperation(operationId: "GetCaseInfoLegacy", tags: ["Case"], Description = "Represents a function that retrieves the case information for display purposes.")]
+        [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
+        [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
+        [OpenApiRequestBody("application/json", typeof(CaseSummaryResponse), Description = "Return case summary response.")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
+        [Function("GetCaseInfoLegacy")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseInfoLegacy)] HttpRequest req, int caseId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var stopwatch = Stopwatch.StartNew();
+                this.logger.LogInformation("{Prefix} GetCaseInfoLegacy function processed a request.", LoggingConstants.HskUiLogPrefix);
+
+                if (caseId < 1)
+                {
+                    return new BadRequestObjectResult($"{LoggingConstants.HskUiLogPrefix} Invalid case Id. It should be an integer.");
+                }
+
+                // Build CMS auth values from cookie extracted from the request
+                var cmsAuthValues = this.BuildCmsAuthValues(req);
+
+                CaseSummaryResponse caseSummary;
+
+                caseSummary = await this.caseInfoService.GetCaseInfoAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+                this.logger.LogInformation(LoggingConstants.UnitNameExtractionSuccess, LoggingConstants.HskUiLogPrefix, caseSummary.UnitName, caseId);
+
+                var response = new OkObjectResult(caseSummary);
+
+                // Set both cache and security headers
+                ResponseHeaderHelper.SetNoCacheHeaders(req.HttpContext.Response);
+                ResponseHeaderHelper.SetSecurityHeaders(req.HttpContext.Response);
+
+                return response;
+            }
+            catch (OperationCanceledException)
+            {
+                // Let cancellation exceptions propagate naturally - they should not be converted to HTTP errors
+                // The runtime will handle them appropriately, no logging needed as this is a control-flow exception
+                throw;
+            }
+            catch (UnprocessableEntityException ex)
+            {
+                this.logger.LogError(ex, "{Prefix} GetCaseInfoLegacy function encountered an unprocessable entity error: {Message}", LoggingConstants.HskUiLogPrefix, ex.Message);
+                return new ObjectResult(ex.Message)
+                {
+                    StatusCode = StatusCodes.Status422UnprocessableEntity,
+                };
+            }
+            catch (InvalidOperationException ex)
+            {
+                this.logger.LogError(ex, "{Prefix} {Message}", LoggingConstants.HskUiLogPrefix, ex.Message);
+                return new UnprocessableEntityObjectResult($"{ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "{Prefix} GetCaseInfoLegacy function encountered an error: {Message}", LoggingConstants.HskUiLogPrefix, ex.Message);
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+    }
+}
