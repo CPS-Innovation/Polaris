@@ -58,7 +58,7 @@ stages:
                 --configuration Release
                 /p:CollectCoverage=true
                 /p:CoverletOutputFormat=cobertura
-                --settings polaris-gateway.integration-tests/test.generated.runsettings
+                --settings polaris-gateway.integration-tests/test.runsettings
                 --
                 TestRunParameters.Parameter(name="\""PolarisGatewayUri"\"", value="\""${{ parameters.polarisGatewayUri }}"\"")
                 TestRunParameters.Parameter(name="\""CmsProxyUri"\"", value="\""${{ parameters.cmsProxyUri }}"\"")
