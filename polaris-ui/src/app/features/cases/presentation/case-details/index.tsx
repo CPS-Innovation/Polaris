@@ -64,11 +64,51 @@ import { saveStateToSessionStorage } from "./utils/stateRetentionUtil";
 import { debounce } from "lodash";
 export const path = "/case-details/:urn/:id/:hkDocumentId?";
 
+const height = 50;
+const WarningTriangle = () => {
+  return (
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        alignItems: "end",
+        justifyContent: "center",
+        height: "50px",
+        width: "50px",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          width: 0,
+          height: 0,
+          borderLeft: `${height / 2}px solid transparent`,
+          borderRight: `${height / 2}px solid transparent`,
+          borderBottom: `${height}px solid #eb621b`,
+        }}
+      />
+      <span
+        className="govuk-heading-l"
+        style={{
+          position: "relative",
+          color: "white",
+          marginBottom: 0,
+          lineHeight: 1,
+          zIndex: 1,
+        }}
+      >
+        !
+      </span>
+    </div>
+  );
+};
+
 type Props = BackLinkingPageProps & {
   context: TaggedContext | undefined;
 };
 
 export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
+  const [showCaseDetailsError, setShowCaseDetailsError] = useState(true);
   const [reclassifyDetails, setReclassifyDetails] = useState<{
     open: boolean;
     documentId: string;
@@ -633,6 +673,47 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
           )}
         </nav>
         <PageContentWrapper>
+          {showCaseDetailsError && !caseState.data && (
+            <div style={{ padding: "0 120px" }}>
+              <div
+                style={{
+                  border: "solid 5px #eb621b",
+                  display: "flex",
+                  gap: "20px",
+                  padding: "15px",
+                }}
+              >
+                <WarningTriangle />
+                <div
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "10px",
+                  }}
+                >
+                  <div
+                    className="govuk-heading-l"
+                    style={{ marginBottom: "0px" }}
+                  >
+                    The defendant details cannot be shown
+                  </div>
+                  <div className="govuk-body-l" style={{ marginBottom: "0px" }}>
+                    You can still view and redact materials
+                  </div>
+                </div>
+                <div>
+                  <LinkButton
+                    type="button"
+                    onClick={() => setShowCaseDetailsError(false)}
+                  >
+                    Close
+                  </LinkButton>
+                </div>
+              </div>
+              <br />
+            </div>
+          )}
           <div
             className={`govuk-grid-row ${classes.mainContent} ${
               featureFlags.notifications
@@ -661,7 +742,7 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                   Case navigation panel
                 </span>
                 <div>
-                  {caseState.data ? (
+                  {caseState.data && (
                     <KeyDetails
                       handleOpenPdf={() => {
                         handleOpenPdf({
@@ -675,8 +756,6 @@ export const Page: React.FC<Props> = ({ backLinkProps, context }) => {
                       }
                       dacDocumentId={dacDocumentId}
                     />
-                  ) : (
-                    <div>Unable to load defendants data</div>
                   )}
 
                   {!isMultipleDefendantsOrCharges && (
