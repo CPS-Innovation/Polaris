@@ -38,7 +38,7 @@ using Common.Exceptions;
 public class GetCaseMaterialsPreview(
     ILogger<GetCaseMaterialsPreview> logger,
     ICommunicationService communicationService,
-    IDocumentService documentService) : BaseFunction(logger)
+    IDocumentService documentService): BaseFunction(logger)
 {
     private readonly ILogger<GetCaseMaterialsPreview> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
@@ -115,7 +115,6 @@ public class GetCaseMaterialsPreview(
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }
-
 
     /// <summary>
     /// Asynchronously retrieves the communication link for a specific material based on the material ID.

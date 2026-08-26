@@ -1,4 +1,4 @@
- // <copyright file="DiscardMaterial.cs" company="TheCrownProsecutionService">
+// <copyright file="DiscardMaterial.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 

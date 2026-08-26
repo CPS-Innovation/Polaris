@@ -122,12 +122,12 @@ public class GetCaseMaterialsLegacy(
     /// </summary>
     private void ValidateRetrievedMaterials(int caseId, RetrievedCaseMaterials materials)
     {
-        if (materials.Communications == null || 
-            materials.UnusedMaterials == null || 
-            materials.UsedStatements == null || 
-            materials.UsedExhibits == null || 
-            materials.UsedMgForms == null || 
-            materials.UsedOtherMaterials == null)
+        if (materials.communications == null || 
+            materials.unusedMaterials == null || 
+            materials.usedStatements == null || 
+            materials.usedExhibits == null || 
+            materials.usedMgForms == null || 
+            materials.usedOtherMaterials == null)
         {
             this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} Failed to retrieve case materials for caseId [{caseId}]");
             throw new UnprocessableEntityException($"Failed to retrieve case materials for caseId [{caseId}]");
@@ -141,16 +141,16 @@ public class GetCaseMaterialsLegacy(
     {
         this.logger?.LogInformation(
             $"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] material count: " +
-            $"communications [{materials.Communications.Count}], " +
-            $"unusedMaterials (exhibits) [{materials.UnusedMaterials.Exhibits?.Count ?? 0}], " +
-            $"unusedMaterials (mgForms) [{materials.UnusedMaterials.MgForms?.Count ?? 0}], " +
-            $"unusedMaterials (otherMaterials) [{materials.UnusedMaterials.OtherMaterials?.Count ?? 0}], " +
-            $"unusedMaterials (statements) [{materials.UnusedMaterials.Statements?.Count ?? 0}], " +
-            $"usedStatements [{materials.UsedStatements.Statements?.Count ?? 0}], " +
-            $"usedExhibits [{materials.UsedExhibits.Exhibits?.Count ?? 0}], " +
-            $"usedMgForms [{materials.UsedMgForms.MgForms?.Count ?? 0}], " +
-            $"usedOtherMaterials [{materials.UsedOtherMaterials.MgForms?.Count ?? 0}] " +
-            $"exhibitProducers [{materials.ExhibitProducers.ExhibitProducers?.Count ?? 0}]");
+            $"communications [{materials.communications.Count}], " +
+            $"unusedMaterials (exhibits) [{materials.unusedMaterials.Exhibits?.Count ?? 0}], " +
+            $"unusedMaterials (mgForms) [{materials.unusedMaterials.MgForms?.Count ?? 0}], " +
+            $"unusedMaterials (otherMaterials) [{materials.unusedMaterials.OtherMaterials?.Count ?? 0}], " +
+            $"unusedMaterials (statements) [{materials.unusedMaterials.Statements?.Count ?? 0}], " +
+            $"usedStatements [{materials.usedStatements.Statements?.Count ?? 0}], " +
+            $"usedExhibits [{materials.usedExhibits.Exhibits?.Count ?? 0}], " +
+            $"usedMgForms [{materials.usedMgForms.MgForms?.Count ?? 0}], " +
+            $"usedOtherMaterials [{materials.usedOtherMaterials.MgForms?.Count ?? 0}] " +
+            $"exhibitProducers [{materials.exhibitProducers.ExhibitProducers?.Count ?? 0}]");
     }
 
     /// <summary>
@@ -161,10 +161,10 @@ public class GetCaseMaterialsLegacy(
         int caseId,
         RetrievedCaseMaterials materials)
     {
-        this.AddUsedExhibits(allCaseMaterials, caseId, materials.Communications, materials.UsedExhibits, materials.ExhibitProducers);
-        this.AddUsedStatements(allCaseMaterials, materials.Communications, materials.UsedStatements);
-        this.AddUsedMgForms(allCaseMaterials, materials.UsedMgForms);
-        this.AddUsedOtherMaterials(allCaseMaterials, materials.UsedOtherMaterials);
+        this.AddUsedExhibits(allCaseMaterials, caseId, materials.communications, materials.usedExhibits, materials.exhibitProducers);
+        this.AddUsedStatements(allCaseMaterials, materials.communications, materials.usedStatements);
+        this.AddUsedMgForms(allCaseMaterials, materials.usedMgForms);
+        this.AddUsedOtherMaterials(allCaseMaterials, materials.usedOtherMaterials);
     }
 
     /// <summary>

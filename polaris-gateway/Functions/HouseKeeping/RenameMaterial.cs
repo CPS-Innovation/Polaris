@@ -51,7 +51,7 @@ public class RenameMaterial(
     /// <param name="caseId">The case that the material belong to.</param>
     /// <param name="materialId">The material to rename.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
-    [OpenApiOperation(operationId: "RenameMaterial", tags: ["Material"], Description = "Represents a function that renames the material name/subject.")]
+    [OpenApiOperation(operationId: "RenameMaterial", tags:["Material"], Description = "Represents a function that renames the material name/subject.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(RenameMaterialRequest), Required = true, Description = "The rename material request body.")]
@@ -75,11 +75,9 @@ public class RenameMaterial(
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            CaseSummaryResponse caseSummary;
-
             string requestBody = await new StreamReader(request.Body).ReadToEndAsync().ConfigureAwait(false);
 
-            RenameMaterialRequest? renameMaterialRequest = JsonConvert.DeserializeObject<RenameMaterialRequest>(requestBody);
+            var renameMaterialRequest = JsonConvert.DeserializeObject<RenameMaterialRequest>(requestBody);
 
             if (string.IsNullOrWhiteSpace(renameMaterialRequest?.subject))
             {
