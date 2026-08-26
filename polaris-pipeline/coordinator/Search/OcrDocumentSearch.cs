@@ -15,6 +15,8 @@ using coordinator.Domain;
 
 public class OcrDocumentSearch(IRedactionSearchDtoMapper redactionSearchDtoMapper): IOcrDocumentSearch
 {
+    private static readonly TimeSpan RegexMatchTimeout = TimeSpan.FromSeconds(1);
+
     public OcrDocumentSearchResponse Search(string searchText, AnalyzeResults results)
     {
         var ocrDocumentSearchResponse = new OcrDocumentSearchResponse();
@@ -139,7 +141,8 @@ public class OcrDocumentSearch(IRedactionSearchDtoMapper redactionSearchDtoMappe
         var matches = Regex.Matches(
             redactionSearchDto.Word,
             $@"(?<![\p{{L}}\p{{N}}]){Regex.Escape(searchTerm)}(?![\p{{L}}\p{{N}}])",
-            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+            RegexMatchTimeout);
 
         if (matches.Count == 0)
         {
