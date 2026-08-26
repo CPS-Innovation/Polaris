@@ -1,18 +1,42 @@
-﻿using Aspose.Pdf;
-using Aspose.Pdf.Facades;
-using Common.Dto.Request;
-using Common.Telemetry;
-using pdf_redactor.TelemetryEvents;
-using Common.Streaming;
-using pdf_redactor.Functions;
+﻿// <copyright file="AsposeRedactionProvider.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
 
 namespace pdf_redactor.Services.DocumentRedaction.Aspose;
+
+using global::Aspose.Pdf;
+using global::Aspose.Pdf.Facades;
+using Common.Dto.Request;
+using Common.Streaming;
+using Common.Telemetry;
+using Microsoft.Extensions.Logging;
+using pdf_redactor.Functions;
+using pdf_redactor.TelemetryEvents;
 
 public class AsposeRedactionProvider(
     IRedactionImplementation redactionImplementation,
     ICoordinateCalculator coordinateCalculator,
-    ITelemetryClient telemetryClient) : IRedactionProvider
+    ILogger<AsposeRedactionProvider> logger)
+    : IRedactionProvider
 {
+    private const double DirectRedactionInsetPoints = 0.5;
+
+    public static void SanitiseDocument(Document document)
+    {
+        document.RemoveMetadata();
+
+        if (IsCandidateForConversion(document))
+        {
+            /*`Convert` streams feedback here, we are not interested currently
+                Note: if we let Aspose do its default behaviour it tries to write
+                to a ConversionLog.xml file, which blows up in production as our azure function
+                is set as read-only due to our packaged deployment. */
+            _ = document.Convert(
+                new MemoryStream(),
+                PdfFormat.v_1_7,
+                ConvertErrorAction.Delete);
+        }
+    }
 
     public async Task<Stream> Redact(Stream stream, int caseId, string documentId, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
     {
@@ -38,21 +62,18 @@ public class AsposeRedactionProvider(
 
             telemetryEvent.PdfFormat = document.PdfFormat.ToString();
             telemetryEvent.PageCount = document.Pages.Count;
-            telemetryEvent.OriginalNullCharCount = GetNullCharacterCount(document);
 
             telemetryEvent.AddAnnotationsStartTime = DateTime.UtcNow;
-            AddAnnotations(document, redactPdfRequest, correlationId);
+            this.AddAnnotations(document, redactPdfRequest, providerType, correlationId);
             telemetryEvent.AddAnnotationsEndTime = DateTime.UtcNow;
 
             telemetryEvent.FinaliseAnnotationsStartTime = DateTime.UtcNow;
-            FinaliseAnnotations(document, correlationId);
+            this.FinaliseAnnotations(document, correlationId);
             telemetryEvent.FinaliseAnnotationsEndTime = DateTime.UtcNow;
 
             telemetryEvent.SanitiseStartTime = DateTime.UtcNow;
             SanitiseDocument(document);
             telemetryEvent.SanitiseEndTime = DateTime.UtcNow;
-
-            telemetryEvent.NullCharCount = GetNullCharacterCount(document);
 
             var outputStream = new MemoryStream();
             await document.SaveAsync(outputStream, CancellationToken.None);
@@ -61,84 +82,23 @@ public class AsposeRedactionProvider(
 
             telemetryEvent.Bytes = outputStream.Length;
             telemetryEvent.EndTime = DateTime.UtcNow;
-            telemetryClient.TrackEvent(telemetryEvent);
+            logger.TrackEvent(telemetryEvent);
 
             return outputStream;
         }
         catch (Exception)
         {
-            telemetryClient.TrackEventFailure(telemetryEvent);
+            logger.TrackEventFailure(telemetryEvent);
             throw;
-        }
-    }
-
-    private void AddAnnotations(Document document, RedactPdfRequestDto redactPdfRequest, Guid correlationId)
-    {
-        var pdfInfo = new PdfFileInfo(document);
-
-        foreach (var redactionPage in redactPdfRequest.RedactionDefinitions)
-        {
-            var currentPage = redactionPage.PageIndex;
-            var annotationPage = document.Pages[currentPage];
-
-            foreach (var boxToDraw in redactionPage.RedactionCoordinates)
-            {
-                var translatedCoordinates = coordinateCalculator.CalculateRelativeCoordinates(redactionPage.Width,
-                    redactionPage.Height, currentPage, boxToDraw, pdfInfo, correlationId);
-
-                var annotationRectangle = new Rectangle(
-                    translatedCoordinates.X1,
-                    translatedCoordinates.Y1,
-                    translatedCoordinates.X2,
-                    translatedCoordinates.Y2);
-
-                redactionImplementation.AttachAnnotation(annotationPage, annotationRectangle);
-            }
-        }
-    }
-
-    private void FinaliseAnnotations(Document document, Guid correlationId) =>
-        redactionImplementation.FinaliseAnnotations(ref document, correlationId);
-
-    private static int GetNullCharacterCount(Document document)
-    {
-        _ = document;
-        // this is disabled as it has a performance time impact on redactions
-        // we are temporarily returning -1 and recording this for telemetry 
-        return -1;
-        // try
-        // {
-        //     var textAbsorber = new TextAbsorber();
-        //     textAbsorber.ExtractionOptions.FormattingMode = TextExtractionOptions.TextFormattingMode.Raw;
-        //     document.Pages.Accept(textAbsorber);
-        //     var extractedText = textAbsorber.Text;
-        //     return extractedText.Count(c => c == 0);
-        // }
-        // catch (Exception)
-        // {
-        //     return -1;
-        // }
-    }
-    public static void SanitiseDocument(Document document)
-    {
-        document.RemoveMetadata();
-
-        if (IsCandidateForConversion(document))
-        {
-            document.Convert(
-                // `Convert` streams feedback here, we are not interested currently
-                //  Note: if we let Aspose do its default behaviour it tries to write
-                //  to a ConversionLog.xml file, which blows up in production as our azure function
-                //  is set as read-only due to our packaged deployment.
-                new MemoryStream(),
-                PdfFormat.v_1_7,
-                ConvertErrorAction.Delete);
         }
     }
 
     private static bool IsCandidateForConversion(Document document)
     {
-
+        // `Validate` streams feedback here, we are not interested currently
+        //  Note: if we let Aspose do its default behaviour it tries to write
+        //  to a ConversionLog.xml file, which blows up in production as our azure function
+        //  is set as read-only due to our packaged deployment.
         return (document.PdfFormat is PdfFormat.v_1_0
                     or PdfFormat.v_1_1
                     or PdfFormat.v_1_2
@@ -147,11 +107,62 @@ public class AsposeRedactionProvider(
                     or PdfFormat.v_1_5
                     or PdfFormat.v_1_6)
                 && document.Validate(
-                    // `Validate` streams feedback here, we are not interested currently
-                    //  Note: if we let Aspose do its default behaviour it tries to write
-                    //  to a ConversionLog.xml file, which blows up in production as our azure function
-                    //  is set as read-only due to our packaged deployment.
                     new MemoryStream(),
                     PdfFormat.v_1_7);
     }
+
+    private void AddAnnotations(Document document, RedactPdfRequestDto redactPdfRequest, ProviderType providerType, Guid correlationId)
+    {
+        var pdfInfo = new PdfFileInfo(document);
+        var shouldInsetDirectRedaction = providerType == ProviderType.DirectRedaction;
+
+        foreach (var redactionPage in redactPdfRequest.RedactionDefinitions)
+        {
+            var currentPage = redactionPage.PageIndex;
+            var annotationPage = document.Pages[currentPage];
+            var pageRect = annotationPage.GetPageRect(true);
+
+            foreach (var boxToDraw in redactionPage.RedactionCoordinates)
+            {
+                var translatedCoordinates = coordinateCalculator.CalculateRelativeCoordinates(
+                    redactionPage.Width, redactionPage.Height, currentPage, boxToDraw, pdfInfo, correlationId);
+
+                var x1 = Math.Min(translatedCoordinates.X1, translatedCoordinates.X2);
+                var x2 = Math.Max(translatedCoordinates.X1, translatedCoordinates.X2);
+                var y1 = Math.Min(translatedCoordinates.Y1, translatedCoordinates.Y2);
+                var y2 = Math.Max(translatedCoordinates.Y1, translatedCoordinates.Y2);
+
+                // Clamp annotation bounds to the page to avoid over-redaction side effects.
+                x1 = Math.Clamp(x1, pageRect.LLX, pageRect.URX);
+                x2 = Math.Clamp(x2, pageRect.LLX, pageRect.URX);
+                y1 = Math.Clamp(y1, pageRect.LLY, pageRect.URY);
+                y2 = Math.Clamp(y2, pageRect.LLY, pageRect.URY);
+
+                if (shouldInsetDirectRedaction)
+                {
+                    // Keep a tiny buffer from adjacent glyph bounds for direct redactions.
+                    x1 += DirectRedactionInsetPoints;
+                    x2 -= DirectRedactionInsetPoints;
+                    y1 += DirectRedactionInsetPoints;
+                    y2 -= DirectRedactionInsetPoints;
+                }
+
+                if (x2 <= x1 || y2 <= y1)
+                {
+                    continue;
+                }
+
+                var annotationRectangle = new Rectangle(
+                    x1,
+                    y1,
+                    x2,
+                    y2);
+
+                redactionImplementation.AttachAnnotation(annotationPage, annotationRectangle);
+            }
+        }
+    }
+
+    private void FinaliseAnnotations(Document document, Guid correlationId) =>
+        redactionImplementation.FinaliseAnnotations(ref document, correlationId);
 }

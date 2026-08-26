@@ -25,7 +25,6 @@ namespace coordinator.Functions
         private readonly ITextExtractorClient _textExtractorClient;
         private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
         private readonly IPolarisBlobStorageService _polarisBlobStorageService;
-        private readonly ITelemetryClient _telemetryClient;
         private readonly ILogger<SearchCaseLegacy> _logger;
 
         public SearchCaseLegacy(
@@ -33,13 +32,11 @@ namespace coordinator.Functions
             ITextExtractorClient textExtractorClient,
             ISearchFilterDocumentMapper searchFilterDocumentMapper,
             Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-            ITelemetryClient telemetryClient,
             ILogger<SearchCaseLegacy> logger)
         {
             _textExtractorClient = textExtractorClient;
             _searchFilterDocumentMapper = searchFilterDocumentMapper;
             _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
-            _telemetryClient = telemetryClient;
             _logger = logger;
         }
 
@@ -95,7 +92,7 @@ namespace coordinator.Functions
                 {
                     OperationName = nameof(SearchCaseLegacy),
                 };
-                _telemetryClient.TrackEvent(telemetryEvent);
+                _logger.TrackEvent(telemetryEvent);
             }
 
             return new OkObjectResult(filteredSearchResults);

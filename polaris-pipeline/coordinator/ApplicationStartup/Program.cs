@@ -2,6 +2,7 @@
 using Azure.Core.Serialization;
 using Common.Extensions;
 using Common.Middleware;
+using Common.Telemetry;
 using coordinator.ApplicationStartup;
 using coordinator.Middleware;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -48,6 +49,7 @@ var host = new HostBuilder()
             telemetryConfiguration.DisableTelemetry = false;
         }); */
         services.ConfigureLoggerFilterOptions();
+        services.AddTelemetryEventLogging();
         services.AddMvc().AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;

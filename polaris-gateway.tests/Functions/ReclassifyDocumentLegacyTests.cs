@@ -1,6 +1,5 @@
 ﻿using Common.Dto.Request;
 using Common.Dto.Response.Document;
-using Common.Telemetry;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Factories;
 using Microsoft.AspNetCore.Http;
@@ -18,21 +17,19 @@ using Xunit;
 
 namespace PolarisGateway.Tests.Functions;
 
-public class ReclassifyDocumentTests
+public class ReclassifyDocumentLegacyTests
 {
-    private readonly Mock<ILogger<ReclassifyDocument>> _loggerMock;
+    private readonly Mock<ILogger<ReclassifyDocumentLegacy>> _loggerMock;
     private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IMdsReclassifyDocumentOrchestrationService> _orchestrationServiceMock;
-    private readonly Mock<ITelemetryClient> _telemetryClientMock;
-    private readonly ReclassifyDocument _reclassifyDocument;
+    private readonly ReclassifyDocumentLegacy _reclassifyDocument;
 
-    public ReclassifyDocumentTests()
+    public ReclassifyDocumentLegacyTests()
     {
-        _loggerMock = new Mock<ILogger<ReclassifyDocument>>();
+        _loggerMock = new Mock<ILogger<ReclassifyDocumentLegacy>>();
         _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _orchestrationServiceMock = new Mock<IMdsReclassifyDocumentOrchestrationService>();
-        _telemetryClientMock = new Mock<ITelemetryClient>();
-        _reclassifyDocument = new ReclassifyDocument(_loggerMock.Object, _mdsArgFactoryMock.Object, _telemetryClientMock.Object, _orchestrationServiceMock.Object);
+        _reclassifyDocument = new ReclassifyDocumentLegacy(_loggerMock.Object, _mdsArgFactoryMock.Object, _orchestrationServiceMock.Object);
     }
 
     [Fact]
