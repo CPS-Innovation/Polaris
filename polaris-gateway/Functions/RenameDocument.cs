@@ -1,3 +1,9 @@
+// <copyright file="RenameDocument.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
 using Common.Configuration;
 using Common.Domain.Document;
 using Common.Dto.Request;
@@ -6,6 +12,7 @@ using Common.Telemetry;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
 using DdeiClient.Clients.Interfaces;
+using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -22,34 +29,35 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Functions;
-
 public class RenameDocument : BaseFunction
 {
-    private readonly ILogger<RenameDocument> _logger;
-    private readonly IMdsClient _mdsClient;
-
     private const string ExhibitClassification = "EXHIBIT";
     private const string StatementClassification = "STATEMENT";
 
-    public RenameDocument(ILogger<RenameDocument> logger,
-        IMdsClient mdsClient)
+    private readonly ILogger<RenameDocument> logger;
+    private readonly IMdsClient mdsClient;
+    private readonly ICaseUrnResolver caseUrnResolver;
+
+    public RenameDocument(
+        ILogger<RenameDocument> logger,
+        IMdsClient mdsClient,
+        ICaseUrnResolver caseUrnResolver)
     {
-        _logger = logger.ExceptionIfNull();
-        _mdsClient = mdsClient.ExceptionIfNull();
+        this.logger = logger.ExceptionIfNull();
+        this.mdsClient = mdsClient.ExceptionIfNull();
+        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
     [Function(nameof(RenameDocument))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [OpenApiOperation(operationId: nameof(RenameDocument), tags: ["Documents"], Summary = "Rename Document", Description = "Rename Document")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
-    [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(string), Description = "The Id of the material", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(object), Summary = "Document rename", Description = "Returns list of document notes")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RenameDocument)] HttpRequest req, string caseUrn, int caseId, string materialId, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RenameDocument)] HttpRequest req, int caseId, string materialId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var telemetryEvent = new RenameDocumentRequestEvent(caseId, materialId)
@@ -58,7 +66,9 @@ public class RenameDocument : BaseFunction
         };
 
         var correlationId = EstablishCorrelation(req);
-        var cmsAuthValues = EstablishCmsAuthValues(req);
+        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
+
+        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         try
         {
@@ -72,50 +82,53 @@ public class RenameDocument : BaseFunction
 
             if (!isRequestJsonValid)
             {
-                _logger.TrackEvent(telemetryEvent);
+                this.logger.TrackEvent(telemetryEvent);
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
             var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto
             {
-                CmsAuthValues = cmsAuthValues,
+                CmsAuthValues = cmsAuthValues.CmsAuthFullValue,
                 CorrelationId = correlationId,
                 Urn = caseUrn,
                 CaseId = caseId,
             };
-            var documents = await _mdsClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto);
+            var documents = await this.mdsClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto, cancellationToken);
             var documentIdNumber = DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document);
 
             var document = documents.SingleOrDefault(x => x.DocumentId == documentIdNumber);
 
-            if (document == null) return new NotFoundObjectResult("Document not found");
+            if (document == null)
+            {
+                return new NotFoundObjectResult("Document not found");
+            }
 
             var mdsRenameDocumentArgDto = new MdsRenameDocumentArgDto
             {
-                CmsAuthValues = cmsAuthValues,
+                CmsAuthValues = cmsAuthValues.CmsAuthFullValue,
                 CorrelationId = correlationId,
                 Urn = caseUrn,
                 CaseId = caseId,
                 MaterialId = documentIdNumber,
-                DocumentName = body.Value.DocumentName
+                DocumentName = body.Value.DocumentName,
             };
             if (string.Equals(document.Classification, ExhibitClassification, StringComparison.InvariantCultureIgnoreCase))
             {
-                await _mdsClient.RenameExhibitAsync(mdsRenameDocumentArgDto);
+                await this.mdsClient.RenameExhibitAsync(mdsRenameDocumentArgDto, cancellationToken);
             }
             else if (!string.Equals(document.Classification, StatementClassification, StringComparison.InvariantCultureIgnoreCase))
             {
-                await _mdsClient.RenameDocumentAsync(mdsRenameDocumentArgDto);
+                await this.mdsClient.RenameDocumentAsync(mdsRenameDocumentArgDto, cancellationToken);
             }
 
             telemetryEvent.IsSuccess = true;
-            _logger.TrackEvent(telemetryEvent);
+            this.logger.TrackEvent(telemetryEvent);
 
             return new OkResult();
         }
         catch
         {
-            _logger.TrackEventFailure(telemetryEvent);
+            this.logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }

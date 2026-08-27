@@ -1,4 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿// <copyright file="PolarisPipelineCaseDelete.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Common.Configuration;
@@ -12,46 +18,34 @@ using Microsoft.OpenApi.Models;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using System.Net;
 using System.Net.Http;
+using DdeiClient.Services.CaseUrnResolver;
+using Common.Dto.Request;
+using Common.Extensions;
 
-namespace PolarisGateway.Functions;
-
-public class PolarisPipelineCaseDelete : BaseFunction
+public class PolarisPipelineCaseDelete(ICoordinatorClient coordinatorClient, ICaseUrnResolver caseUrnResolver) : BaseFunction
 {
-    private readonly ILogger<PolarisPipelineCaseDelete> _logger;
-    private readonly ICoordinatorClient _coordinatorClient;
-
-    public PolarisPipelineCaseDelete(
-        ILogger<PolarisPipelineCaseDelete> logger,
-        ICoordinatorClient coordinatorClient)
-        : base()
-    {
-        _logger = logger;
-        _coordinatorClient = coordinatorClient;
-
-    }
-
     [Function(nameof(PolarisPipelineCaseDelete))]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [OpenApiOperation(operationId: nameof(PolarisPipelineCaseDelete), tags: ["Case"], Summary = "Polaris Pipeline Case - Delete", Description = "Returns case information using caseURN and caseId")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
-    [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to add a new action plan.", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(object), Summary = "Case found", Description = "Returns case details")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
-
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.CaseLegacy)] HttpRequest req, string caseUrn, int caseId, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = RestApi.Case)] HttpRequest req, int caseId, CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
-        var cmsAuthValues = EstablishCmsAuthValues(req);
+        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
+
+        var caseUrn = await caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        return await (await _coordinatorClient.DeleteCaseAsync(
-            caseUrn,
-            caseId,
-            cmsAuthValues,
-            correlationId))
+        return await (await coordinatorClient.DeleteCaseAsync(
+                caseUrn,
+                caseId,
+                cmsAuthValues.CmsAuthFullValue,
+                correlationId))
             .ToActionResult();
     }
 }

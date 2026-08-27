@@ -4,24 +4,23 @@
 
 namespace PolarisGateway.Functions.HouseKeeping;
 
+using Common.Configuration;
+using Common.Constants;
+using Common.Dto.Response.HouseKeeping.Pcd;
+using Cps.Fct.Hk.Ui.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
-using System.Threading;
-using System.Threading.Tasks;
-using Cps.Fct.Hk.Ui.Interfaces;
-using System.Diagnostics;
-using Microsoft.OpenApi.Models;
-using System.Net;
-using System;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Common.Dto.Response.HouseKeeping.Pcd;
-using Common.Constants;
-using Common.Dto.Request;
+using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using System;
+using System.Diagnostics;
 using System.IO;
-using Common.Configuration;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Represents a function that return PCD Request information by case id and PCD id,
@@ -69,7 +68,7 @@ public class GetPcdRequestByPcdId(
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            string requestBody = await new StreamReader(request.Body).ReadToEndAsync().ConfigureAwait(false);
+            string requestBody = await new StreamReader(request.Body).ReadToEndAsync(cancellationToken).ConfigureAwait(false);
 
             PcdRequestDto? result = await this.communicationService.GetPcdRequestByPcdIdAsync(caseId, pcdId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
 

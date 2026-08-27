@@ -12,17 +12,17 @@ using Xunit;
 
 namespace PolarisGateway.Tests.Functions;
 
-public class ToggleIsUnusedDocumentTests
+public class ToggleIsUnusedDocumentLegacyTests
 {
-    private readonly Mock<ILogger<ToggleIsUnusedDocument>> _loggerMock;
+    private readonly Mock<ILogger<ToggleIsUnusedDocumentLegacy>> _loggerMock;
     private readonly Mock<IMdsClient> _mdsClientMock;
-    private readonly ToggleIsUnusedDocument _toggleIsUnusedDocument;
+    private readonly ToggleIsUnusedDocumentLegacy _toggleIsUnusedDocument;
 
-    public ToggleIsUnusedDocumentTests()
+    public ToggleIsUnusedDocumentLegacyTests()
     {
-        _loggerMock = new Mock<ILogger<ToggleIsUnusedDocument>>();
+        _loggerMock = new Mock<ILogger<ToggleIsUnusedDocumentLegacy>>();
         _mdsClientMock = new Mock<IMdsClient>();
-        _toggleIsUnusedDocument = new ToggleIsUnusedDocument(_loggerMock.Object, _mdsClientMock.Object);
+        _toggleIsUnusedDocument = new ToggleIsUnusedDocumentLegacy(_loggerMock.Object, _mdsClientMock.Object);
     }
 
     [Fact]

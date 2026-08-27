@@ -4,26 +4,25 @@
 
 namespace PolarisGateway.Functions.HouseKeeping;
 
+using Common.Configuration;
+using Common.Constants;
+using Common.Dto.Request.HouseKeeping;
+using Common.Dto.Response.HouseKeeping;
+using Cps.Fct.Hk.Ui.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Cps.Fct.Hk.Ui.Interfaces;
-using System.Diagnostics;
-using Newtonsoft.Json;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.OpenApi.Models;
-using System.Net;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Cps.Fct.Hk.Ui.Interfaces.Enums;
-using Common.Dto.Request.HouseKeeping;
-using Common.Dto.Response.HouseKeeping;
-using Common.Constants;
-using System.IO;
-using System;
-using Common.Configuration;
 
 /// <summary>
 /// Represents a function that sets the material read status as read or unread,
@@ -36,7 +35,7 @@ using Common.Configuration;
 /// <param name="communicationService">The service used to get call rename service.</param>
 public class SetMaterialReadStatus(
     ILogger<SetMaterialReadStatus> logger,
-    ICommunicationService communicationService) : BaseFunction(logger)
+    ICommunicationService communicationService): BaseFunction(logger)
 {
     private readonly ILogger<SetMaterialReadStatus> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
@@ -91,7 +90,7 @@ public class SetMaterialReadStatus(
                 return new BadRequestObjectResult(nameof(SetMaterialReadStatusRequest.state));
             }
 
-            SetMaterialReadStatusResponse? result = await this.communicationService.SetMaterialReadStatusAsync(materialId, setMaterialReadStatusRequest.state, cmsAuthValues, cancellationToken:cancellationToken).ConfigureAwait(true);
+            var result = await this.communicationService.SetMaterialReadStatusAsync(materialId, setMaterialReadStatusRequest.state, cmsAuthValues, cancellationToken: cancellationToken).ConfigureAwait(true);
 
             if (result?.CompleteCommunicationData?.Id == null)
             {

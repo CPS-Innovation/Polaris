@@ -78,7 +78,7 @@ public class GetCaseExhibitProducers(ILogger<GetCaseExhibitProducers> logger,
             if (witnesses?.Any() == true)
             {
                 result ??= new ExhibitProducersResponse();
-                result.ExhibitProducers ??= [];
+                result.ExhibitProducers ??=[];
 
                 // Deduplicate existing exhibit producers by Id before adding witnesses.
                 result.ExhibitProducers = result.ExhibitProducers
