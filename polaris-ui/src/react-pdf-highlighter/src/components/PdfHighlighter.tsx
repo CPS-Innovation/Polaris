@@ -14,7 +14,7 @@ import { type Root, createRoot } from "react-dom/client";
 import { scaledToViewport, viewportToScaled } from "../lib/coordinates";
 import getAreaAsPng from "../lib/get-area-as-png";
 import getBoundingRect from "../lib/get-bounding-rect";
-import getClientRects, { PAGE_BORDER_WIDTH } from "../lib/get-client-rects";
+import getClientRects from "../lib/get-client-rects";
 import {
   findOrCreateContainerLayer,
   getPageFromElement,
@@ -726,11 +726,13 @@ export class PdfHighlighter<T_HT extends IHighlight> extends PureComponent<
                 const pageBoundingRect = {
                   ...boundingRect,
                   top:
-                    boundingRect.top - page.node.offsetTop - PAGE_BORDER_WIDTH,
+                    boundingRect.top -
+                    page.node.offsetTop -
+                    page.node.clientTop,
                   left:
                     boundingRect.left -
                     page.node.offsetLeft -
-                    PAGE_BORDER_WIDTH,
+                    page.node.clientLeft,
                   pageNumber: page.number,
                 };
 

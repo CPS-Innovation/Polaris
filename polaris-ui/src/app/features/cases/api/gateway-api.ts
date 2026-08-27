@@ -88,11 +88,7 @@ export const getCaseDetails = async (urn: string, caseId: number) => {
     headers: await buildHeaders(),
   });
 
-  if (!response.ok) {
-    throw caseCallErrorFactory(response, url, "Get Case Details failed");
-  }
-
-  return (await response.json()) as CaseDetails;
+  return (response.ok ? await response.json() : null) as CaseDetails;
 };
 
 export const initiatePipeline = async (

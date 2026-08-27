@@ -14,18 +14,18 @@ using Xunit;
 
 namespace PolarisGateway.Tests.Functions;
 
-public class GetDocumentNotesTests
+public class GetDocumentNotesLegacyTests
 {
-    private readonly Mock<ILogger<GetDocumentNotes>> _loggerMock;
+    private readonly Mock<ILogger<GetDocumentNotesLegacy>> _loggerMock;
     private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IMdsClient> _mdsClientMock;
-    private readonly GetDocumentNotes _getGetDocumentNotes;
-    public GetDocumentNotesTests()
+    private readonly GetDocumentNotesLegacy _getGetDocumentNotes;
+    public GetDocumentNotesLegacyTests()
     {
-        _loggerMock = new Mock<ILogger<GetDocumentNotes>>();
+        _loggerMock = new Mock<ILogger<GetDocumentNotesLegacy>>();
         _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _mdsClientMock = new Mock<IMdsClient>();
-        _getGetDocumentNotes = new GetDocumentNotes(_loggerMock.Object, _mdsClientMock.Object, _mdsArgFactoryMock.Object);
+        _getGetDocumentNotes = new GetDocumentNotesLegacy(_loggerMock.Object, _mdsClientMock.Object, _mdsArgFactoryMock.Object);
     }
 
     [Fact]
