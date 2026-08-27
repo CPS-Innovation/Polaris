@@ -61,7 +61,7 @@ function establishRouter() {
     if (url.indexOf("uainGeneratedScript") !== -1)
       // Must be a real GUID: drop1's _mintModernToken now pins the 8-4-4-4-12 shape (it feeds
       // the GraphQL `$guid: UUID!` verify). A non-GUID here would correctly fail extraction.
-      return res({ body: "var SESS_MODERN_USER_SESSION_ID = '3f2504e0-4f89-41d3-9a0c-0305e82c3301';" })
+      return res({ body: "var SESS_MODERN_USER_SESSION_ID = '00000000-0000-0000-0000-000000000001';" })
     if (url.indexOf("/graphql/") !== -1)
       return res({ body: JSON.stringify({ data: { user: { partyId: 1 } } }) })
     throw new Error("establishRouter: unexpected url " + url)
@@ -95,7 +95,7 @@ async function storeTests(store) {
     }
     const r = await store.deposit(
       "OID-1",
-      { cookies: "c=1", modernToken: "3f2504e0-4f89-41d3-9a0c-0305e82c3301", correlationId: "corr", email: "a@b.gov.uk" },
+      { cookies: "c=1", modernToken: "00000000-0000-0000-0000-000000000001", correlationId: "corr", email: "a@b.gov.uk" },
       { idToken: "id", accessToken: "at" },
     )
     assertEqual(r.ok, true, "ok")
@@ -105,7 +105,7 @@ async function storeTests(store) {
     const sent = JSON.parse(captured.opts.body)
     assertEqual(sent.PartitionKey, "OID-1", "PartitionKey")
     assertEqual(sent.RowKey, "cmsAuth", "RowKey")
-    assertEqual(JSON.parse(sent.Value).modernToken, "3f2504e0-4f89-41d3-9a0c-0305e82c3301", "Value carries the modern token")
+    assertEqual(JSON.parse(sent.Value).modernToken, "00000000-0000-0000-0000-000000000001", "Value carries the modern token")
   })
 
   await test("deposit() propagates a store failure -> {ok:false}", async () => {
@@ -217,7 +217,7 @@ async function beginTests(entra) {
     assert(sc.indexOf("HttpOnly") !== -1 && sc.indexOf("Secure") !== -1, "state cookie is HttpOnly+Secure")
     const packed = sc.slice("entra_auth_state=".length).split(";")[0]
     const st = entra.__test.unpackState(packed)
-    assertEqual(st.tok, "3f2504e0-4f89-41d3-9a0c-0305e82c3301", "state carries the minted modern token")
+    assertEqual(st.tok, "00000000-0000-0000-0000-000000000001", "state carries the minted modern token")
     assertEqual(st.term, "top-level", "defaults to top-level")
     assert(st.cc.indexOf("WindowID=MASTER") !== -1, "state carries the whitelisted cookies")
   })
@@ -246,7 +246,7 @@ async function callbackScenario({ term, storeStatus = 204, adError = null }) {
     s: "STATE-HANDLE",
     n: "NONCE-1",
     cc: "ASP.NET_SessionId=x; WindowID=MASTER",
-    tok: "3f2504e0-4f89-41d3-9a0c-0305e82c3301",
+    tok: "00000000-0000-0000-0000-000000000001",
     ver: "CMS.24.0.01",
     ui: "/polaris-ui/case/1",
     q: "",
