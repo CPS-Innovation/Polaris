@@ -1,4 +1,4 @@
-// <copyright file="GetCaseMaterialsPreview.cs" company="TheCrownProsecutionService">
+// <copyright file="GetMaterialDocuments.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
@@ -22,25 +22,24 @@ using System;
 using System.IO;
 using Common.Configuration;
 using Common.Constants;
-using Common.Exceptions;
 
 /// <summary>
 /// Represents a function that retrieves the case material document for display purposes,
 /// intended to be accessed via the Housekeeping UI front-end.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="GetCaseMaterialsPreview"/> class.
+/// Initializes a new instance of the <see cref="GetMaterialDocumentLegacy"/> class.
 /// </remarks>
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="communicationService">The service used to get inbox communications.</param>
 /// <param name="documentService">The service used to process the request and generate the result.</param>
 /// <param name="cookieService">The service used to handle cookie-related operations.</param>
-public class GetCaseMaterialsPreview(
-    ILogger<GetCaseMaterialsPreview> logger,
+public class GetMaterialDocumentLegacy(
+    ILogger<GetMaterialDocumentLegacy> logger,
     ICommunicationService communicationService,
-    IDocumentService documentService): BaseFunction(logger)
+    IDocumentService documentService) : BaseFunction(logger)
 {
-    private readonly ILogger<GetCaseMaterialsPreview> logger = logger;
+    private readonly ILogger<GetMaterialDocumentLegacy> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
     private readonly IDocumentService documentService = documentService;
 
@@ -51,19 +50,19 @@ public class GetCaseMaterialsPreview(
     /// <param name="caseId">The case Id.</param>
     /// <param name="materialId">The material ID passed as a route parameter.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
-    [OpenApiOperation(operationId: nameof(GetCaseMaterialsPreview), tags: ["Material"], Description = "Represents a function that retrieves the case material document for display purposes.")]
+    [OpenApiOperation(operationId: nameof(GetMaterialDocumentLegacy), tags: ["Material"], Description = "Represents a function that retrieves the case material document for display purposes.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(int), Description = "The material id request parameter.", Required = true)]
     [OpenApiRequestBody("application/json", typeof(FileStreamResult), Description = "Return case summary response.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.OK)]
-    [Function("GetCaseMaterialsPreview")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseMaterialsPreview)] HttpRequest req, int caseId, int materialId, CancellationToken cancellationToken = default)
+    [Function("GetMaterialDocumentLegacy")]
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.MaterialDocumentLegacy)] HttpRequest req, int caseId, int materialId, CancellationToken cancellationToken = default)
     {
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsPreview function processed a request.");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetMaterialDocumentLegacy function processed a request.");
 
             if (caseId < 1)
             {
@@ -79,7 +78,7 @@ public class GetCaseMaterialsPreview(
             var cmsAuthValues = this.BuildCmsAuthValues(req);
 
             // Get the material link
-            string link = await this.GetLinkForMaterialAsync(caseId, materialId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
+            string link = await this.GetLinkForMaterialAsync(caseId, materialId, cmsAuthValues).ConfigureAwait(true);
             if (string.IsNullOrEmpty(link))
             {
                 return new NotFoundObjectResult($"{LoggingConstants.HskUiLogPrefix} No valid link found for the case material document with materialId [{materialId}].");
@@ -99,22 +98,24 @@ public class GetCaseMaterialsPreview(
             this.logger.LogError($"{ex.Message}");
             return new UnprocessableEntityObjectResult($"{ex.Message}");
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetMaterialDocumentLegacy function encountered a password protected document.");
+
+            return new StatusCodeResult(StatusCodes.Status403Forbidden);
+        }
         catch (NotSupportedException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsPreview function encountered unsupported content type.");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetMaterialDocumentLegacy function encountered unsupported content type.");
             return new UnprocessableEntityObjectResult($"Preview error: {ex.Message}");
-        }
-        catch (NotFoundException ex)
-        {
-            this.logger.LogError($"{ex.Message}");
-            return new NotFoundObjectResult(ex.Message);
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsPreview function encountered an error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetMaterialDocumentLegacy function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }
+
 
     /// <summary>
     /// Asynchronously retrieves the communication link for a specific material based on the material ID.
@@ -142,9 +143,9 @@ public class GetCaseMaterialsPreview(
     /// <returns>
     /// An <see cref="IActionResult"/> that either contains the material document if found, or a file with 'not found' content if the document is missing.
     /// </returns>
-    private async Task<IActionResult> GetMaterialDocumentAsync(string caseId, string link, CmsAuthValues cmsAuthValues, Stopwatch stopwatch)
+    private async Task<IActionResult> GetMaterialDocumentAsync(string caseId, string link, CmsAuthValues cmsAuthValues, Stopwatch stopwatch, CancellationToken cancellationToken = default)
     {
-        FileStreamResult downloadedDocument = await this.documentService.GetMaterialDocumentAsync(caseId, link, cmsAuthValues).ConfigureAwait(true);
+        FileStreamResult downloadedDocument = await this.documentService.GetMaterialDocumentAsync(caseId, link, cmsAuthValues, firstPageOnly: false, cancellationToken).ConfigureAwait(true);
 
         if (downloadedDocument == null)
         {
@@ -154,7 +155,7 @@ public class GetCaseMaterialsPreview(
             };
         }
 
-        this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetCaseMaterialsPreview function completed in [{stopwatch.Elapsed}]");
+        this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetMaterialDocumentLegacy function completed in [{stopwatch.Elapsed}]");
 
         return downloadedDocument;
     }

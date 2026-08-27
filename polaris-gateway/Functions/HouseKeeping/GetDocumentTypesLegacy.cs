@@ -1,4 +1,4 @@
-// <copyright file="GetDocumentTypes.cs" company="TheCrownProsecutionService">
+// <copyright file="GetDocumentTypesLegacy.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
@@ -27,11 +27,11 @@ using PolarisGateway.Functions;
 /// <param name="logger">The logger instance used to log warnings and errors.</param>
 /// <param name="documentTypeMapper">The service called to retrieve document types.</param>
 /// <param name="caseId">The case Id.</param>
-public class GetDocumentTypes(
-    ILogger<GetDocumentTypes> logger,
+public class GetDocumentTypesLegacy(
+    ILogger<GetDocumentTypesLegacy> logger,
     IDocumentTypeMapper documentTypeMapper) : BaseFunction(logger)
 {
-    private readonly ILogger<GetDocumentTypes> logger = logger;
+    private readonly ILogger<GetDocumentTypesLegacy> logger = logger;
     private readonly IDocumentTypeMapper documentTypeMapper = documentTypeMapper;
 
     /// <summary>
@@ -40,20 +40,20 @@ public class GetDocumentTypes(
     /// <param name="request">The HTTP request.</param>
     /// <param name="caseId">The case Id.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
-    [OpenApiOperation(operationId: "GetDocumentTypes", tags: ["Document"], Description = "Represents a function that retrieves all document types.")]
+    [OpenApiOperation(operationId: "GetDocumentTypesLegacy", tags: ["Document"], Description = "Represents a function that retrieves all document types.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(DocumentTypeGroup), Description = "Return success response with body.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
-    [Function("GetDocumentTypes")]
-    public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentTypes)] HttpRequest request, int caseId)
+    [Function("GetDocumentTypesLegacy")]
+    public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.DocumentTypesLegacy)] HttpRequest request, int caseId)
     {
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function processed a request.");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetDocumentTypesLegacy function processed a request.");
 
             if (caseId < 1)
             {
@@ -61,32 +61,32 @@ public class GetDocumentTypes(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = this.BuildCmsAuthValues(request);
+            var cmsAuthValues = BuildCmsAuthValues(request);
 
-            IReadOnlyList<DocumentTypeGroup> result = this.documentTypeMapper.GetDocumentTypesWithClassificationGroup();
+            IReadOnlyList<DocumentTypeGroup> result = documentTypeMapper.GetDocumentTypesWithClassificationGroup();
 
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetDocumentTypes function completed in [{stopwatch.Elapsed}]");
+            logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetDocumentTypesLegacy function completed in [{stopwatch.Elapsed}]");
 
             return new OkObjectResult(result);
         }
         catch (InvalidOperationException ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an invalid operation error: {ex.Message}");
+            logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetDocumentTypesLegacy function encountered an invalid operation error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"{ex.Message}");
         }
         catch (NotSupportedException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an unsupported content type error: {ex.Message}");
-            return new UnprocessableEntityObjectResult($"GetDocumentTypes error: {ex.Message}");
+            logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetDocumentTypesLegacy function encountered an unsupported content type error: {ex.Message}");
+            return new UnprocessableEntityObjectResult($"GetDocumentTypesLegacy error: {ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an unauthorized access error: {ex.Message}");
-            return new UnauthorizedObjectResult($"GetDocumentTypes error: {ex.Message}");
+            logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetDocumentTypesLegacy function encountered an unauthorized access error: {ex.Message}");
+            return new UnauthorizedObjectResult($"GetDocumentTypesLegacy error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an error: {ex.Message}");
+            logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetDocumentTypesLegacy function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }

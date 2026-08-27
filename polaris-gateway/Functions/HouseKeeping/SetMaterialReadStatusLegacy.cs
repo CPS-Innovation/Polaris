@@ -1,43 +1,44 @@
-// <copyright file="SetMaterialReadStatus.cs" company="TheCrownProsecutionService">
+// <copyright file="SetMaterialReadStatusLegacy.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
 namespace PolarisGateway.Functions.HouseKeeping;
 
-using Common.Configuration;
-using Common.Constants;
-using Common.Dto.Request.HouseKeeping;
-using Common.Dto.Response.HouseKeeping;
-using Cps.Fct.Hk.Ui.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Cps.Fct.Hk.Ui.Interfaces;
+using System.Diagnostics;
+using Newtonsoft.Json;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.OpenApi.Models;
+using System.Net;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
+using Cps.Fct.Hk.Ui.Interfaces.Enums;
+using Common.Dto.Request.HouseKeeping;
+using Common.Dto.Response.HouseKeeping;
+using Common.Constants;
+using System.IO;
+using System;
+using Common.Configuration;
 
 /// <summary>
 /// Represents a function that sets the material read status as read or unread,
 /// intended to be accessed via the Housekeeping UI front-end.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="SetMaterialReadStatus"/> class.
+/// Initializes a new instance of the <see cref="SetMaterialReadStatusLegacy"/> class.
 /// </remarks>
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="communicationService">The service used to get call rename service.</param>
-public class SetMaterialReadStatus(
-    ILogger<SetMaterialReadStatus> logger,
-    ICommunicationService communicationService): BaseFunction(logger)
+public class SetMaterialReadStatusLegacy(
+    ILogger<SetMaterialReadStatusLegacy> logger,
+    ICommunicationService communicationService) : BaseFunction(logger)
 {
-    private readonly ILogger<SetMaterialReadStatus> logger = logger;
+    private readonly ILogger<SetMaterialReadStatusLegacy> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
 
     /// <summary>
@@ -45,7 +46,7 @@ public class SetMaterialReadStatus(
     /// </summary>
     /// <param name="request">The HTTP request.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
-    [OpenApiOperation(operationId: "SetMaterialReadStatus", tags: ["Material"], Description = "Represents a function that sets the material read or unread status.")]
+    [OpenApiOperation(operationId: "SetMaterialReadStatusLegacy", tags: ["Material"], Description = "Represents a function that sets the material read or unread status.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
     [OpenApiRequestBody("application/json", typeof(SetMaterialReadStatusRequest), Description = "Body containing the material id and read/unread status where 0 = Invalid, 1 = Read and 2 = Unread as status property.", Required = true)]
@@ -53,15 +54,15 @@ public class SetMaterialReadStatus(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
-    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Description = $"{LoggingConstants.HskUiLogPrefix} SetMaterialReadStatus function encountered an error")]
-    [Function("SetMaterialReadStatus")]
+    [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Description = $"{LoggingConstants.HskUiLogPrefix} SetMaterialReadStatusLegacy function encountered an error")]
+    [Function("SetMaterialReadStatusLegacy")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.ReadStatus)] HttpRequest request, int caseId, int materialId, CancellationToken cancellationToken = default)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.ReadStatusLegacy)] HttpRequest request, int caseId, int materialId, CancellationToken cancellationToken = default)
     {
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} SetMaterialReadStatus function processed a request.");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} SetMaterialReadStatusLegacy function processed a request.");
 
             if (caseId < 1)
             {
@@ -90,15 +91,15 @@ public class SetMaterialReadStatus(
                 return new BadRequestObjectResult(nameof(SetMaterialReadStatusRequest.state));
             }
 
-            var result = await this.communicationService.SetMaterialReadStatusAsync(materialId, setMaterialReadStatusRequest.state, cmsAuthValues, cancellationToken: cancellationToken).ConfigureAwait(true);
+            SetMaterialReadStatusResponse? result = await this.communicationService.SetMaterialReadStatusAsync(materialId, setMaterialReadStatusRequest.state, cmsAuthValues, cancellationToken:cancellationToken).ConfigureAwait(true);
 
             if (result?.CompleteCommunicationData?.Id == null)
             {
-                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] and Material id [{materialId}] SetMaterialReadStatus function failed in [{stopwatch.Elapsed}]");
+                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] and Material id [{materialId}] SetMaterialReadStatusLegacy function failed in [{stopwatch.Elapsed}]");
                 return new UnprocessableEntityObjectResult(result);
             }
 
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] and Material id [{setMaterialReadStatusRequest.materialId}] SetMaterialReadStatus function completed in [{stopwatch.Elapsed}]");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] and Material id [{setMaterialReadStatusRequest.materialId}] SetMaterialReadStatusLegacy function completed in [{stopwatch.Elapsed}]");
 
             var response = new OkObjectResult(result);
 
@@ -111,17 +112,17 @@ public class SetMaterialReadStatus(
         }
         catch (NotSupportedException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} SetMaterialReadStatus function encountered unsupported content type.");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} SetMaterialReadStatusLegacy function encountered unsupported content type.");
             return new UnprocessableEntityObjectResult($"Rename error: {ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} SetMaterialReadStatus function encountered UnauthorizedAccess Exception.");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} SetMaterialReadStatusLegacy function encountered UnauthorizedAccess Exception.");
             return new UnauthorizedObjectResult($"Rename error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} SetMaterialReadStatus function encountered an error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} SetMaterialReadStatusLegacy function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }

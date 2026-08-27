@@ -1,4 +1,4 @@
-// <copyright file="GetPreChargeDecision.cs" company="TheCrownProsecutionService">
+// <copyright file="GetPreChargeDecisionByHistoryIdLegacy.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
+using Common.Exceptions;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,19 +22,19 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
 /// <summary>
-/// Represents a function that return case pre charge decision by case id,
+/// Represents a function that return case pre charge decision by case id and history event id,
 /// intended to be accessed via the Housekeeping UI front-end.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="GetPreChargeDecision"/> class.
+/// Initializes a new instance of the <see cref="GetPreChargeDecisionByHistoryIdLegacy"/> class.
 /// </remarks>
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="communicationService">The service used to get call case history service.</param>
-public class GetPreChargeDecision(
-    ILogger<GetPreChargeDecision> logger,
+public class GetPreChargeDecisionByHistoryIdLegacy(
+    ILogger<GetPreChargeDecisionByHistoryIdLegacy> logger,
     ICommunicationService communicationService) : BaseFunction(logger)
 {
-    private readonly ILogger<GetPreChargeDecision> logger = logger;
+    private readonly ILogger<GetPreChargeDecisionByHistoryIdLegacy> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
 
     /// <summary>
@@ -41,42 +42,49 @@ public class GetPreChargeDecision(
     /// </summary>
     /// <param name="request">The HTTP request.</param>
     /// <param name="caseId">The case id to get PCD Review.</param>
+    /// <param name="historyId">History event id.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
-    [OpenApiOperation(operationId: nameof(GetPreChargeDecision), tags: ["CaseHistory"], Description = "Returns PCD with Case Id.")]
+    [OpenApiOperation(operationId: nameof(GetPreChargeDecisionByHistoryIdLegacy), tags: ["CaseHistory"], Description = "Returns PCD with Case Id and history event id and history event id.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to get PCD.", Required = true)]
+    [OpenApiParameter("historyId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to get PCD.", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Cps.MasterDataService.Infrastructure.ApiClient.PreChargeDecisionOutcome), Description = "Return PCD review.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError)]
-    [Function(nameof(GetPreChargeDecision))]
+    [Function(nameof(GetPreChargeDecisionByHistoryIdLegacy))]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PreChargeDecision)] HttpRequest request, int caseId, CancellationToken cancellationToken = default)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PreChargeDecisionByHistoryIdLegacy)] HttpRequest request, int caseId, int historyId, CancellationToken cancellationToken = default)
     {
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetPreChargeDecision function processed a request.");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetPreChargeDecisionByHistoryIdLegacy function processed a request.");
 
             if (caseId < 1)
             {
                 return new BadRequestObjectResult($"{LoggingConstants.HskUiLogPrefix} Invalid case Id. It should be an integer.");
             }
 
+            if (historyId < 1)
+            {
+                return new BadRequestObjectResult($"{LoggingConstants.HskUiLogPrefix} Invalid history Id. It should be an integer.");
+            }
+
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            var result = await this.communicationService.GetPreChargeDecisionCaseHistoryEventDetailsAsync(caseId, cmsAuthValues, cancellationToken);
+            var result = await this.communicationService.GetPreChargeDecisionByHistoryId(caseId,historyId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
 
             if (result == null)
             {
-                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] GetPreChargeDecision function failed in [{stopwatch.Elapsed}]");
+                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] GetPreChargeDecisionByHistoryIdLegacy function failed in [{stopwatch.Elapsed}]");
                 return new UnprocessableEntityObjectResult(result);
             }
 
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetPreChargeDecision function completed in [{stopwatch.Elapsed}]");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetPreChargeDecisionByHistoryIdLegacy function completed in [{stopwatch.Elapsed}]");
 
             var response = new OkObjectResult(result);
 
@@ -89,17 +97,22 @@ public class GetPreChargeDecision(
         }
         catch (NotSupportedException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetPreChargeDecision function encountered unsupported content type.");
-            return new UnprocessableEntityObjectResult($"GetPreChargeDecision error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetPreChargeDecisionByHistoryIdLegacy function encountered unsupported content type.");
+            return new UnprocessableEntityObjectResult($"GetPreChargeDecisionByHistoryIdLegacy error: {ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetPreChargeDecision function encountered UnauthorizedAccess Exception.");
-            return new UnauthorizedObjectResult($"GetPreChargeDecision error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetPreChargeDecisionByHistoryIdLegacy function encountered UnauthorizedAccess Exception.");
+            return new UnauthorizedObjectResult($"GetPreChargeDecisionByHistoryIdLegacy error: {ex.Message}");
+        }
+        catch (NotFoundException ex)
+        {
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetPreChargeDecisionByHistoryIdLegacy function return not found error: {ex.Message}");
+            return new StatusCodeResult(StatusCodes.Status404NotFound);
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetPreChargeDecision function encountered an error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetPreChargeDecisionByHistoryIdLegacy function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }

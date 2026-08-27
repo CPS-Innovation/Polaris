@@ -1,4 +1,4 @@
-// <copyright file="GetPcdReview.cs" company="TheCrownProsecutionService">
+// <copyright file="GetPcdReviewLegacy.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
@@ -25,16 +25,16 @@ using Microsoft.OpenApi.Models;
 /// intended to be accessed via the Housekeeping UI front-end.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="GetPcdReview"/> class.
+/// Initializes a new instance of the <see cref="GetPcdReviewLegacy"/> class.
 /// </remarks>
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="communicationService">The service used to get call PCD Review service.</param>
-public class GetPcdReview(
-    ILogger<GetPcdReview> logger,
-    ICommunicationService communicationService)
-    : BaseFunction(logger)
+
+public class GetPcdReviewLegacy(
+    ILogger<GetPcdReviewLegacy> logger,
+    ICommunicationService communicationService) : BaseFunction(logger)
 {
-    private readonly ILogger<GetPcdReview> logger = logger;
+    private readonly ILogger<GetPcdReviewLegacy> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
 
     /// <summary>
@@ -43,7 +43,7 @@ public class GetPcdReview(
     /// <param name="request">The HTTP request.</param>
     /// <param name="caseId">The case id to get PCD Review.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
-    [OpenApiOperation(operationId: nameof(GetPcdReview), tags: ["PCDReview"], Description = "Returns PCD Review with Case Id.")]
+    [OpenApiOperation(operationId: nameof(GetPcdReviewLegacy), tags: ["PCDReview"], Description = "Returns PCD Review with Case Id.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to get PCD review.", Required = true)]
@@ -52,9 +52,9 @@ public class GetPcdReview(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError)]
-    [Function(nameof(GetPcdReview))]
+    [Function(nameof(GetPcdReviewLegacy))]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PcdReview)] HttpRequest request, int caseId, CancellationToken cancellationToken = default)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.PcdReviewLegacy)] HttpRequest request, int caseId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -73,11 +73,11 @@ public class GetPcdReview(
 
             if (result == null)
             {
-                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] GetPcdReview function failed in [{stopwatch.Elapsed}]");
+                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] GetPcdReviewLegacy function failed in [{stopwatch.Elapsed}]");
                 return new UnprocessableEntityObjectResult(result);
             }
 
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetPcdReview function completed in [{stopwatch.Elapsed}]");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetPcdReviewLegacy function completed in [{stopwatch.Elapsed}]");
 
             var response = new OkObjectResult(result);
 
@@ -90,17 +90,17 @@ public class GetPcdReview(
         }
         catch (NotSupportedException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetPcdReview function encountered unsupported content type.");
-            return new UnprocessableEntityObjectResult($"GetPcdReview error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetPcdReviewLegacy function encountered unsupported content type.");
+            return new UnprocessableEntityObjectResult($"GetPcdReviewLegacy error: {ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetPcdReview function encountered UnauthorizedAccess Exception.");
-            return new UnauthorizedObjectResult($"GetPcdReview error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetPcdReviewLegacy function encountered UnauthorizedAccess Exception.");
+            return new UnauthorizedObjectResult($"GetPcdReviewLegacy error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetPcdReview function encountered an error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetPcdReviewLegacy function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }

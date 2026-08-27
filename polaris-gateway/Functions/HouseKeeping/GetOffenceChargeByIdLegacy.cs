@@ -1,4 +1,4 @@
-// <copyright file="GetOffenceChargeById.cs" company="TheCrownProsecutionService">
+// <copyright file="GetOffenceChargeByIdLegacy.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
@@ -26,18 +26,18 @@ using Common.Exceptions;
 /// intended to be accessed via the Housekeeping UI front-end.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="GetOffenceChargeById"/> class.
+/// Initializes a new instance of the <see cref="GetOffenceChargeByIdLegacy"/> class.
 /// </remarks>
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="communicationService">The service used to get call case history service.</param>
 /// <param name="cookieService">The service used to handle cookie-related operations.</param>
-public class GetOffenceChargeById(
-    ILogger<GetOffenceChargeById> logger,
+public class GetOffenceChargeByIdLegacy(
+    ILogger<GetOffenceChargeByIdLegacy> logger,
     ICommunicationService communicationService) : BaseFunction(logger)
 {
-    private readonly ILogger<GetOffenceChargeById> logger = logger;
+    private readonly ILogger<GetOffenceChargeByIdLegacy> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
-
+ 
     /// <summary>
     /// The Azure Function that processes an HTTP request for the 'case/{caseId}/pcd-review' route.
     /// </summary>
@@ -45,7 +45,7 @@ public class GetOffenceChargeById(
     /// <param name="caseId">The case id.</param>
     /// <param name="historyId">The history Id of the case to get offence charge.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
-    [OpenApiOperation(operationId: nameof(GetOffenceChargeById), tags: ["CaseHistory"], Description = "Returns Offence charge with Case Id.")]
+    [OpenApiOperation(operationId: nameof(GetOffenceChargeByIdLegacy), tags: ["CaseHistory"], Description = "Returns Offence charge with Case Id.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
@@ -55,9 +55,9 @@ public class GetOffenceChargeById(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError)]
-    [Function(nameof(GetOffenceChargeById))]
+    [Function(nameof(GetOffenceChargeByIdLegacy))]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.OffenseCharge)]
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.OffenseChargeLegacy)]
         HttpRequest request,
         int caseId,
         int historyId,
@@ -66,7 +66,7 @@ public class GetOffenceChargeById(
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetOffenceChargeById function processed a request.");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetOffenceChargeByIdLegacy function processed a request.");
 
             if (caseId < 1)
             {
@@ -85,11 +85,11 @@ public class GetOffenceChargeById(
 
             if (result == null)
             {
-                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] GetOffenceChargeById function failed in [{stopwatch.Elapsed}]");
+                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] GetOffenceChargeByIdLegacy function failed in [{stopwatch.Elapsed}]");
                 return new UnprocessableEntityObjectResult(result);
             }
 
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetOffenceChargeById function completed in [{stopwatch.Elapsed}]");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetOffenceChargeByIdLegacy function completed in [{stopwatch.Elapsed}]");
 
             var response = new OkObjectResult(result);
 
@@ -102,17 +102,17 @@ public class GetOffenceChargeById(
         }
         catch (NotSupportedException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetOffenceChargeById function encountered unsupported content type.");
-            return new UnprocessableEntityObjectResult($"GetOffenceChargeById error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetOffenceChargeByIdLegacy function encountered unsupported content type.");
+            return new UnprocessableEntityObjectResult($"GetOffenceChargeByIdLegacy error: {ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetOffenceChargeById function encountered UnauthorizedAccess Exception.");
-            return new UnauthorizedObjectResult($"GetOffenceChargeById error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetOffenceChargeByIdLegacy function encountered UnauthorizedAccess Exception.");
+            return new UnauthorizedObjectResult($"GetOffenceChargeByIdLegacy error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetOffenceChargeById function encountered an error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetOffenceChargeByIdLegacy function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }

@@ -1,4 +1,4 @@
-// <copyright file="UpdateExhibit.cs" company="TheCrownProsecutionService">
+// <copyright file="UpdateStatementLegacy.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
@@ -21,47 +21,46 @@ using Cps.Fct.Hk.Ui.Services.Validators;
 using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response.HouseKeeping;
 using Common.Constants;
-using Common.Dto.Request;
 using System.IO;
-using Common.Configuration;
 using System;
+using Common.Configuration;
 
 /// <summary>
-/// Represents a function that updates exhibit.
+/// Represents a function that updates a statement.
 /// </summary>
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="communicationService">The service used to process the request and generate the result.</param>
 /// <param name="cookieService">The service used to handle cookie-related operations.</param>
-/// <param name="requestValidator">The fluent validation validator for update exhibit request body.</param>
-public class UpdateExhibit(
-     ILogger<UpdateExhibit> logger,
-     ICommunicationService communicationService,
-     UpdateExhibitRequestValidator requestValidator) : BaseFunction(logger)
+/// <param name="requestValidator">The fluent validation validator for update statement request body.</param>
+public class UpdateStatementLegacy(
+    ILogger<UpdateStatementLegacy> logger,
+    ICommunicationService communicationService,
+    UpdateStatementRequestValidator requestValidator) : BaseFunction(logger)
 {
-    private readonly ILogger<UpdateExhibit> logger = logger;
+    private readonly ILogger<UpdateStatementLegacy> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
-    private readonly UpdateExhibitRequestValidator requestValidator = requestValidator;
+    private readonly UpdateStatementRequestValidator requestValidator = requestValidator;
 
     /// <summary>
-    /// The Azure Function that processes an HTTP request for the 'exhibit/update' route.
+    /// The Azure Function that processes an HTTP request for the 'statement/update' route.
     /// </summary>
     /// <param name="request">The HTTP request.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
-    [OpenApiOperation(operationId: "UpdateExhibit", tags: ["Exhibit"], Description = "Represents a function that updates an exhibit.")]
+    [OpenApiOperation(operationId: "UpdateStatementLegacy", tags: ["Statement"], Description = "Represents a function that updates a statement.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
-    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UpdateExhibitRequest), Required = true, Description = "The update exhibit request body.")]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UpdateExhibitResponse), Description = "Return success response with body.")]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UpdateStatementRequest), Required = true, Description = "The update statement request body.")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(UpdateStatementResponse), Description = "Return success response with body.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
-    [Function("UpdateExhibit")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.UpdateExhibit)] HttpRequest request, int caseId, int materialId, CancellationToken cancellationToken = default)
+    [Function("UpdateStatementLegacy")]
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.UpdateStatementLegacy)] HttpRequest request, int caseId, int materialId, CancellationToken cancellationToken = default)
     {
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} UpdateExhibit function processed a request.");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} UpdateStatementLegacy function processed a request.");
 
             if (caseId < 1)
             {
@@ -78,35 +77,33 @@ public class UpdateExhibit(
 
             string requestBody = await new StreamReader(request.Body).ReadToEndAsync().ConfigureAwait(false);
 
-            UpdateExhibitRequest updateExhibitRequest = JsonConvert.DeserializeObject<UpdateExhibitRequest>(requestBody);
+            var updateStatementRequest = JsonConvert.DeserializeObject<UpdateStatementRequest>(requestBody);
+            updateStatementRequest.MaterialId = materialId;
 
-            if (updateExhibitRequest is null)
+            if (updateStatementRequest is null)
             {
-                return new BadRequestObjectResult("Exhibit request is null");
+                return new BadRequestObjectResult("Statement request is null");
             }
 
-            updateExhibitRequest.MaterialId = materialId;
-            updateExhibitRequest.CaseId = caseId;
-
-            FluentValidation.Results.ValidationResult validationResult = this.requestValidator.Validate(updateExhibitRequest);
+            FluentValidation.Results.ValidationResult validationResult = this.requestValidator.Validate(updateStatementRequest);
             if (!validationResult.IsValid)
             {
                 return new BadRequestObjectResult(validationResult.Errors.ToArray());
             }
 
-            UpdateExhibitResponse result = await this.communicationService.UpdateExhibitAsync(
+            UpdateStatementResponse result = await this.communicationService.UpdateStatementAsync(
                 caseId,
-                updateExhibitRequest,
+                updateStatementRequest,
                 cmsAuthValues,
                 cancellationToken: cancellationToken).ConfigureAwait(true);
 
-            if (result?.UpdateExhibitData?.Id == null)
+            if (result?.UpdateStatementData?.Id == null)
             {
-                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] UpdateExhibit function failed in [{stopwatch.Elapsed}]");
-                return new UnprocessableEntityObjectResult($"UpdateExhibit function failed for caseId [{caseId}]");
+                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] UpdateStatementLegacy function failed in [{stopwatch.Elapsed}]");
+                return new UnprocessableEntityObjectResult($"UpdateStatementLegacy function failed for caseId [{caseId}]");
             }
 
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] UpdateExhibit function completed in [{stopwatch.Elapsed}]");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] UpdateStatementLegacy function completed in [{stopwatch.Elapsed}]");
 
             var response = new OkObjectResult(result);
 
@@ -114,22 +111,22 @@ public class UpdateExhibit(
         }
         catch (InvalidOperationException ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} UpdateExhibit function encountered an invalid operation error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} UpdateStatementLegacy function encountered an invalid operation error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"{ex.Message}");
         }
         catch (NotSupportedException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} UpdateExhibit function encountered an unsupported content type error: {ex.Message}");
-            return new UnprocessableEntityObjectResult($"Update exhibit error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} UpdateStatementLegacy function encountered an unsupported content type error: {ex.Message}");
+            return new UnprocessableEntityObjectResult($"Update statement error: {ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} UpdateExhibit function encountered an unauthorized access error: {ex.Message}");
-            return new UnauthorizedObjectResult($"Update exhibit error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} UpdateStatementLegacy function encountered an unauthorized access error: {ex.Message}");
+            return new UnauthorizedObjectResult($"Update statement error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} UpdateExhibit function encountered an error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} UpdateStatementLegacy function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }

@@ -1,69 +1,52 @@
-// <copyright file="GetCaseMaterials.cs" company="TheCrownProsecutionService">
+// <copyright file="GetCaseMaterialsLegacy.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
 namespace PolarisGateway.Functions.HouseKeeping;
 
-using Common.Configuration;
-using Common.Constants;
-using Common.Dto.Request;
-using Common.Dto.Response.HouseKeeping;
-using Common.Enums;
-using Cps.Fct.Hk.Ui.Interfaces;
-using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
-using Cps.Fct.Hk.Ui.Services.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
-using PolarisGateway.Functions;
-using PolarisGateway.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-
-/// <summary>
-/// Container for retrieved case materials data.
-/// </summary>
-/// <param name="communications">The communications collection.</param>
-/// <param name="unusedMaterials">The unused materials.</param>
-/// <param name="usedStatements">The used statements.</param>
-/// <param name="usedExhibits">The used exhibits.</param>
-/// <param name="usedMgForms">The used MG forms.</param>
-/// <param name="usedOtherMaterials">The used other materials.</param>
-/// <param name="exhibitProducers">The exhibit producers.</param>
-internal record RetrievedCaseMaterials(
-    IReadOnlyCollection<Communication> communications,
-    UnusedMaterialsResponse unusedMaterials,
-    UsedStatementsResponse usedStatements,
-    UsedExhibitsResponse usedExhibits,
-    UsedMgFormsResponse usedMgForms,
-    UsedOtherMaterialsResponse usedOtherMaterials,
-    ExhibitProducersResponse exhibitProducers);
+using Cps.Fct.Hk.Ui.Interfaces;
+using System.Diagnostics;
+using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.OpenApi.Models;
+using System.Net;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
+using Cps.Fct.Hk.Ui.Interfaces.Enums;
+using PolarisGateway.Functions;
+using Common.Dto.Response.HouseKeeping;
+using System.Collections.Generic;
+using System.Linq;
+using System;
+using PolarisGateway.Helpers;
+using Common.Dto.Request;
+using Common.Configuration;
+using Common.Constants;
+using Common.Enums;
+using Cps.Fct.Hk.Ui.Services.Constants;
 
 /// <summary>
 /// Represents a function that retrieves the case materials for a case,
 /// intended to be accessed via the Housekeeping UI front-end.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="GetCaseMaterials"/> class.
+/// Initializes a new instance of the <see cref="GetCaseMaterialsLegacy"/> class.
 /// </remarks>
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="communicationService">The service used to process the request and generate the result.</param>
 /// <param name="caseMaterialService">The service used to manage and retrieve case materials.</param>
-public class GetCaseMaterials(
-    ILogger<GetCaseMaterials> logger,
+
+public class GetCaseMaterialsLegacy(
+    ILogger<GetCaseMaterialsLegacy> logger,
     ICommunicationService communicationService,
     ICaseMaterialService caseMaterialService) : BaseFunction(logger)
 {
-    private readonly ILogger<GetCaseMaterials> logger = logger;
+    private readonly ILogger<GetCaseMaterialsLegacy> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
     private readonly ICaseMaterialService caseMaterialService = caseMaterialService;
 
@@ -74,32 +57,32 @@ public class GetCaseMaterials(
     /// <param name="caseId">The case Id.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
-    [OpenApiOperation(operationId: nameof(GetCaseMaterials), tags: ["Material"], Description = "Represents a function that retrieves the case materials for a case.")]
+    [OpenApiOperation(operationId: nameof(GetCaseMaterialsLegacy), tags: ["Material"], Description = "Represents a function that retrieves the case materials for a case.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
     [OpenApiRequestBody("application/json", typeof(List<CaseMaterial>), Description = "Return case summary response.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<CaseMaterial>), Description = "Return List of case materials.")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
-    [Function("GetCaseMaterials")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseMaterials)] HttpRequest req, int caseId, CancellationToken cancellationToken = default)
+    [Function("GetCaseMaterialsLegacy")]
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseMaterialsLegacy)] HttpRequest req, int caseId, CancellationToken cancellationToken = default)
     {
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterials function processed a request.");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsLegacy function processed a request.");
 
             var cmsAuthValues = this.BuildCmsAuthValues(req);
             var (communications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials, exhibitProducers) =
                 await this.caseMaterialService.RetrieveCaseMaterialsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
             var retrievedMaterials = new RetrievedCaseMaterials(
-                communications,
-                unusedMaterials,
-                usedStatements,
-                usedExhibits,
-                usedMgForms,
-                usedOtherMaterials,
+                communications, 
+                unusedMaterials, 
+                usedStatements, 
+                usedExhibits, 
+                usedMgForms, 
+                usedOtherMaterials, 
                 exhibitProducers);
 
             this.ValidateRetrievedMaterials(caseId, retrievedMaterials);
@@ -111,7 +94,7 @@ public class GetCaseMaterials(
             this.ProcessUsedMaterials(allCaseMaterials, caseId, retrievedMaterials);
             this.ProcessUnusedMaterials(allCaseMaterials, communications, unusedMaterials);
 
-            this.logger!.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetCaseMaterials function completed in [{stopwatch.Elapsed}]");
+            this.logger!.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetCaseMaterialsLegacy function completed in [{stopwatch.Elapsed}]");
 
             NormalizeReadStatus(allCaseMaterials);
 
@@ -121,7 +104,7 @@ public class GetCaseMaterials(
         }
         catch (UnprocessableEntityException ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterials function encountered an unprocessable entity error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsLegacy function encountered an unprocessable entity error: {ex.Message}");
             return new ObjectResult(ex.Message)
             {
                 StatusCode = StatusCodes.Status422UnprocessableEntity,
@@ -129,7 +112,7 @@ public class GetCaseMaterials(
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterials function encountered an error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsLegacy function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }
@@ -139,11 +122,11 @@ public class GetCaseMaterials(
     /// </summary>
     private void ValidateRetrievedMaterials(int caseId, RetrievedCaseMaterials materials)
     {
-        if (materials.communications == null ||
-            materials.unusedMaterials == null ||
-            materials.usedStatements == null ||
-            materials.usedExhibits == null ||
-            materials.usedMgForms == null ||
+        if (materials.communications == null || 
+            materials.unusedMaterials == null || 
+            materials.usedStatements == null || 
+            materials.usedExhibits == null || 
+            materials.usedMgForms == null || 
             materials.usedOtherMaterials == null)
         {
             this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} Failed to retrieve case materials for caseId [{caseId}]");
@@ -221,7 +204,10 @@ public class GetCaseMaterials(
     /// </summary>
     private void AddUsedMgForms(List<CaseMaterial> allCaseMaterials, UsedMgFormsResponse usedMgForms)
     {
-        usedMgForms.MgForms?.RemoveAll(mgForm => CommsDocumentTypeIds.ExcludedFromUsedMgForms.Contains(mgForm.MaterialType));
+        if (usedMgForms.MgForms != null)
+        {
+            usedMgForms.MgForms.RemoveAll(mgForm => CommsDocumentTypeIds.ExcludedFromUsedMgForms.Contains(mgForm.MaterialType));
+        }
 
         this.caseMaterialService.AddCaseMaterials(allCaseMaterials, usedMgForms.MgForms ?? Enumerable.Empty<MgForm>(), "MG Form", "MG Form", "Used");
         if (usedMgForms.MgForms != null && usedMgForms.MgForms.Count != 0)
@@ -313,8 +299,8 @@ public class GetCaseMaterials(
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterials function encountered an error fetching attachments for caseId [{caseId}]: {ex.Message}");
-            throw new UnprocessableEntityException($"GetCaseMaterials function encountered an error fetching attachments for caseId [{caseId}]");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsLegacy function encountered an error fetching attachments for caseId [{caseId}]: {ex.Message}");
+            throw new UnprocessableEntityException($"GetCaseMaterialsLegacy function encountered an error fetching attachments for caseId [{caseId}]");
         }
     }
 
@@ -342,8 +328,8 @@ public class GetCaseMaterials(
             }
             catch (Exception ex)
             {
-                this.logger!.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterials function encountered an error mapping attachments to communications for caseId [{caseId}]: {ex.Message}");
-                throw new UnprocessableEntityException($"GetCaseMaterials function encountered an error mapping attachments to communications for caseId [{caseId}]");
+                this.logger!.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterialsLegacy function encountered an error mapping attachments to communications for caseId [{caseId}]: {ex.Message}");
+                throw new UnprocessableEntityException($"GetCaseMaterialsLegacy function encountered an error mapping attachments to communications for caseId [{caseId}]");
             }
         }
 

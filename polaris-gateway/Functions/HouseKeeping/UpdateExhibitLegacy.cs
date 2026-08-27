@@ -1,4 +1,4 @@
-// <copyright file="UpdateExhibit.cs" company="TheCrownProsecutionService">
+// <copyright file="UpdateExhibitLegacy.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
@@ -33,12 +33,12 @@ using System;
 /// <param name="communicationService">The service used to process the request and generate the result.</param>
 /// <param name="cookieService">The service used to handle cookie-related operations.</param>
 /// <param name="requestValidator">The fluent validation validator for update exhibit request body.</param>
-public class UpdateExhibit(
-     ILogger<UpdateExhibit> logger,
+public class UpdateExhibitLegacy(
+     ILogger<UpdateExhibitLegacy> logger,
      ICommunicationService communicationService,
      UpdateExhibitRequestValidator requestValidator) : BaseFunction(logger)
 {
-    private readonly ILogger<UpdateExhibit> logger = logger;
+    private readonly ILogger<UpdateExhibitLegacy> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
     private readonly UpdateExhibitRequestValidator requestValidator = requestValidator;
 
@@ -47,7 +47,7 @@ public class UpdateExhibit(
     /// </summary>
     /// <param name="request">The HTTP request.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
-    [OpenApiOperation(operationId: "UpdateExhibit", tags: ["Exhibit"], Description = "Represents a function that updates an exhibit.")]
+    [OpenApiOperation(operationId: "UpdateExhibitLegacy", tags: ["Exhibit"], Description = "Represents a function that updates an exhibit.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
     [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(UpdateExhibitRequest), Required = true, Description = "The update exhibit request body.")]
@@ -55,13 +55,13 @@ public class UpdateExhibit(
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
-    [Function("UpdateExhibit")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.UpdateExhibit)] HttpRequest request, int caseId, int materialId, CancellationToken cancellationToken = default)
+    [Function("UpdateExhibitLegacy")]
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "patch", Route = RestApi.UpdateExhibitLegacy)] HttpRequest request, int caseId, int materialId, CancellationToken cancellationToken = default)
     {
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} UpdateExhibit function processed a request.");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} UpdateExhibitLegacy function processed a request.");
 
             if (caseId < 1)
             {
@@ -97,16 +97,16 @@ public class UpdateExhibit(
             UpdateExhibitResponse result = await this.communicationService.UpdateExhibitAsync(
                 caseId,
                 updateExhibitRequest,
-                cmsAuthValues,
-                cancellationToken: cancellationToken).ConfigureAwait(true);
+                cmsAuthValues, 
+                cancellationToken:cancellationToken).ConfigureAwait(true);
 
             if (result?.UpdateExhibitData?.Id == null)
             {
-                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] UpdateExhibit function failed in [{stopwatch.Elapsed}]");
-                return new UnprocessableEntityObjectResult($"UpdateExhibit function failed for caseId [{caseId}]");
+                this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] UpdateExhibitLegacy function failed in [{stopwatch.Elapsed}]");
+                return new UnprocessableEntityObjectResult($"UpdateExhibitLegacy function failed for caseId [{caseId}]");
             }
 
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] UpdateExhibit function completed in [{stopwatch.Elapsed}]");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] UpdateExhibitLegacy function completed in [{stopwatch.Elapsed}]");
 
             var response = new OkObjectResult(result);
 
@@ -114,22 +114,22 @@ public class UpdateExhibit(
         }
         catch (InvalidOperationException ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} UpdateExhibit function encountered an invalid operation error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} UpdateExhibitLegacy function encountered an invalid operation error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"{ex.Message}");
         }
         catch (NotSupportedException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} UpdateExhibit function encountered an unsupported content type error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} UpdateExhibitLegacy function encountered an unsupported content type error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"Update exhibit error: {ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} UpdateExhibit function encountered an unauthorized access error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} UpdateExhibitLegacy function encountered an unauthorized access error: {ex.Message}");
             return new UnauthorizedObjectResult($"Update exhibit error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} UpdateExhibit function encountered an error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} UpdateExhibitLegacy function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }
