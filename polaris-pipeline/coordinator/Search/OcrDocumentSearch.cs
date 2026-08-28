@@ -4,212 +4,163 @@
 
 namespace coordinator.Search;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 using Common.Domain.Ocr;
 using Common.Dto.Request.Redaction;
 using Common.Mappers;
 using coordinator.Domain;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
-public class OcrDocumentSearch(IRedactionSearchDtoMapper redactionSearchDtoMapper): IOcrDocumentSearch
+public class OcrDocumentSearch(IRedactionSearchDtoMapper redactionSearchDtoMapper) : IOcrDocumentSearch
 {
-    private static readonly TimeSpan RegexMatchTimeout = TimeSpan.FromSeconds(1);
-
     public OcrDocumentSearchResponse Search(string searchText, AnalyzeResults results)
     {
-        var ocrDocumentSearchResponse = new OcrDocumentSearchResponse();
-        ocrDocumentSearchResponse.RedactionDefinitionDtos = new List<RedactionDefinitionDto>();
+        var response = new OcrDocumentSearchResponse();
 
         try
         {
-            var searchTermList = GetSearchTerms(searchText);
-            if (searchTermList.Count == 0)
+            var searchTerms = searchText
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .ToList();
+
+            var redactionSearchDtos = redactionSearchDtoMapper
+                .Map(results.ReadResults)
+                .ToList();
+
+            var toBeRedacted = new List<RedactionSearchDto>();
+
+            for (int i = 0; i < redactionSearchDtos.Count; i++)
             {
-                return ocrDocumentSearchResponse;
+                var matches = FindMatch(i, searchTerms, redactionSearchDtos);
+
+                if (matches is not null)
+                {
+                    toBeRedacted.AddRange(matches);
+                }
             }
 
-            var redactionSearchDtos = redactionSearchDtoMapper.Map(results.ReadResults).ToList();
-            var toBeRedacted = FindMatches(searchTermList, redactionSearchDtos);
-            ocrDocumentSearchResponse.RedactionDefinitionDtos = BuildRedactionDefinitions(toBeRedacted);
-            return ocrDocumentSearchResponse;
+            response.RedactionDefinitionDtos = BuildRedactionDefinitions(toBeRedacted);
+
+            return response;
         }
         catch (Exception ex)
         {
-            ocrDocumentSearchResponse.FailureReason = ex.Message;
-            return ocrDocumentSearchResponse;
+            response.FailureReason = ex.Message;
+            return response;
         }
     }
 
-    private static List<string> GetSearchTerms(string searchText)
-    {
-        return searchText
-            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .ToList();
-    }
-
-    private static List<RedactionSearchDto> FindMatches(IReadOnlyList<string> searchTermList, IReadOnlyList<RedactionSearchDto> redactionSearchDtos)
-    {
-        if (searchTermList.Count == 1)
-        {
-            return FindSingleTermMatches(searchTermList[0], redactionSearchDtos);
-        }
-
-        return FindPhraseMatches(searchTermList, redactionSearchDtos);
-    }
-
-    private static List<RedactionSearchDto> FindSingleTermMatches(string searchTerm, IReadOnlyList<RedactionSearchDto> redactionSearchDtos)
+    private static List<RedactionSearchDto>? FindMatch(
+        int startIndex,
+        IReadOnlyList<string> searchTerms,
+        IReadOnlyList<RedactionSearchDto> ocrWords)
     {
         var matches = new List<RedactionSearchDto>();
-        foreach (var redactionSearchDto in redactionSearchDtos)
+
+        for (int i = 0; i < searchTerms.Count; i++)
         {
-            matches.AddRange(GetTermMatches(redactionSearchDto, searchTerm));
+            if (startIndex + i >= ocrWords.Count)
+            {
+                return null;
+            }
+
+            var coordinates = GetMatchingCoordinates(
+                ocrWords[startIndex + i],
+                searchTerms[i]);
+
+            if (coordinates is null)
+            {
+                return null;
+            }
+
+            matches.Add(CloneDto(
+                ocrWords[startIndex + i],
+                coordinates));
         }
 
         return matches;
     }
 
-    private static List<RedactionSearchDto> FindPhraseMatches(IReadOnlyList<string> searchTermList, IReadOnlyList<RedactionSearchDto> redactionSearchDtos)
+    private static List<RedactionDefinitionDto> BuildRedactionDefinitions(
+        List<RedactionSearchDto> matches)
     {
-        var toBeRedacted = new List<RedactionSearchDto>();
-
-        for (var i = 0; i < redactionSearchDtos.Count; i++)
-        {
-            if (i + searchTermList.Count > redactionSearchDtos.Count)
+        return matches
+            .GroupBy(x => x.PageIndex)
+            .Select(group =>
             {
-                continue;
-            }
+                var first = group.First();
 
-            var firstTermMatches = GetTermMatches(redactionSearchDtos[i], searchTermList[0]);
-            foreach (var firstTermMatch in firstTermMatches)
-            {
-                var phraseMatch = BuildPhraseMatch(searchTermList, redactionSearchDtos, i, firstTermMatch);
-                if (phraseMatch.Count > 0)
+                return new RedactionDefinitionDto
                 {
-                    toBeRedacted.AddRange(phraseMatch);
-                }
-            }
-        }
-
-        return toBeRedacted;
-    }
-
-    private static List<RedactionSearchDto> BuildPhraseMatch(IReadOnlyList<string> searchTermList, IReadOnlyList<RedactionSearchDto> redactionSearchDtos, int startIndex, RedactionSearchDto firstTermMatch)
-    {
-        var potentialRedactions = new List<RedactionSearchDto>(searchTermList.Count) { firstTermMatch };
-
-        for (var j = 1; j < searchTermList.Count; j++)
-        {
-            var nextTermMatch = GetFirstTermMatch(redactionSearchDtos[startIndex + j], searchTermList[j]);
-            if (nextTermMatch == null)
-            {
-                return [];
-            }
-
-            potentialRedactions.Add(nextTermMatch);
-        }
-
-        return potentialRedactions;
-    }
-
-    private static List<RedactionDefinitionDto> BuildRedactionDefinitions(IReadOnlyCollection<RedactionSearchDto> toBeRedacted)
-    {
-        return toBeRedacted
-            .Select(x => x.PageIndex)
-            .Distinct()
-            .Select(pageIndex => new { pageIndex, page = toBeRedacted.First(x => x.PageIndex == pageIndex) })
-            .Select(@t => new RedactionDefinitionDto
-            {
-                PageIndex = @t.pageIndex,
-                Width = @t.page.Width,
-                Height = @t.page.Height,
-                RedactionCoordinates = toBeRedacted.Where(x => x.PageIndex == @t.pageIndex)
-                    .Select(x => x.RedactionCoordinates)
-                    .ToList(),
+                    PageIndex = group.Key,
+                    Width = first.Width,
+                    Height = first.Height,
+                    RedactionCoordinates = group
+                        .Select(x => x.RedactionCoordinates)
+                        .ToList(),
+                };
             })
             .ToList();
     }
 
-    private static List<RedactionSearchDto> GetTermMatches(RedactionSearchDto redactionSearchDto, string searchTerm)
+    private static RedactionSearchDto CloneDto(
+        RedactionSearchDto source,
+        RedactionCoordinatesDto coordinates)
     {
-        if (string.IsNullOrWhiteSpace(redactionSearchDto.Word) || string.IsNullOrWhiteSpace(searchTerm))
-        {
-            return new List<RedactionSearchDto>();
-        }
-
-        var matches = Regex.Matches(
-            redactionSearchDto.Word,
-            $@"(?<![\p{{L}}\p{{N}}]){Regex.Escape(searchTerm)}(?![\p{{L}}\p{{N}}])",
-            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
-            RegexMatchTimeout);
-
-        if (matches.Count == 0)
-        {
-            return new List<RedactionSearchDto>();
-        }
-
-        var redactionSearchResults = new List<RedactionSearchDto>(matches.Count);
-        foreach (Match match in matches)
-        {
-            redactionSearchResults.Add(CreateMatchRedaction(redactionSearchDto, match.Index, match.Length));
-        }
-
-        return redactionSearchResults;
-    }
-
-    private static RedactionSearchDto GetFirstTermMatch(RedactionSearchDto redactionSearchDto, string searchTerm)
-    {
-        return GetTermMatches(redactionSearchDto, searchTerm).FirstOrDefault();
-    }
-
-    private static RedactionSearchDto CreateMatchRedaction(RedactionSearchDto source, int startIndex, int length)
-    {
-        var sourceWordLength = source.Word.Length;
-        var sourceCoordinates = source.RedactionCoordinates;
-        var x1 = sourceCoordinates.X1;
-        var x2 = sourceCoordinates.X2;
-        var y1 = sourceCoordinates.Y1;
-        var y2 = sourceCoordinates.Y2;
-
-        if (sourceWordLength == 0 || (startIndex == 0 && length == sourceWordLength))
-        {
-            return new RedactionSearchDto
-            {
-                PageIndex = source.PageIndex,
-                Width = source.Width,
-                Height = source.Height,
-                Word = source.Word,
-                RedactionCoordinates = new RedactionCoordinatesDto
-                {
-                    X1 = x1,
-                    Y1 = y1,
-                    X2 = x2,
-                    Y2 = y2,
-                },
-            };
-        }
-
-        var width = x2 - x1;
-        var charWidth = width / sourceWordLength;
-        var matchStartRatio = (double)startIndex / sourceWordLength;
-        var matchEndRatio = (double)(startIndex + length) / sourceWordLength;
-        var adjustedX1 = Math.Max(x1, (x1 + (width * matchStartRatio)) - (charWidth / 2));
-        var adjustedX2 = Math.Min(x2, (x1 + (width * matchEndRatio)) + (charWidth / 2));
-
         return new RedactionSearchDto
         {
+            Word = source.Word,
             PageIndex = source.PageIndex,
             Width = source.Width,
             Height = source.Height,
-            Word = source.Word,
-            RedactionCoordinates = new RedactionCoordinatesDto
-            {
-                X1 = adjustedX1,
-                Y1 = y1,
-                X2 = adjustedX2,
-                Y2 = y2,
-            },
+            RedactionCoordinates = coordinates,
         };
+    }
+
+    private static RedactionCoordinatesDto? GetMatchingCoordinates(
+        RedactionSearchDto dto,
+        string searchTerm)
+    {
+        var match = FindExactTokenMatch(dto.Word, searchTerm);
+
+        if (match is null)
+        {
+            return null;
+        }
+
+        var original = dto.RedactionCoordinates;
+
+        var totalWidth = original.X2 - original.X1;
+        var charWidth = totalWidth / dto.Word.Length;
+
+        var x1 = original.X1 + (charWidth * match.Value.StartIndex);
+        var x2 = x1 + (charWidth * match.Value.Length);
+
+        return new RedactionCoordinatesDto
+        {
+            X1 = x1,
+            Y1 = original.Y1,
+            X2 = x2,
+            Y2 = original.Y2,
+        };
+    }
+
+    private static (int StartIndex, int Length)? FindExactTokenMatch(
+        string input,
+        string searchTerm)
+    {
+        var pattern =
+            $@"(?<![\p{{L}}\p{{N}}]){Regex.Escape(searchTerm)}(?![\p{{L}}\p{{N}}])";
+
+        var match = Regex.Match(
+            input,
+            pattern,
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+        return match.Success
+            ? (match.Index, match.Length)
+            : null;
     }
 }
