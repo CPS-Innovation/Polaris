@@ -31,17 +31,14 @@ using pdf_generator.TelemetryEvents;
 /// </remarks>
 /// <param name="pdfOrchestratorService">The service used to orchestrate PDF conversion by selecting appropriate format-specific PDF service for the input document.</param>
 /// <param name="logger">The logger instance used to log information and errors.</param>
-/// <param name="telemetryClient">The telemetry client used to track application events and metrics.</param>
 public class ConvertToPdf(
      IPdfOrchestratorService pdfOrchestratorService,
-     ILogger<ConvertToPdf> logger,
-     ITelemetryClient telemetryClient)
+     ILogger<ConvertToPdf> logger)
 {
     private const string LoggingName = nameof(ConvertToPdf);
 
     private readonly IPdfOrchestratorService pdfOrchestratorService = pdfOrchestratorService;
     private readonly ILogger<ConvertToPdf> logger = logger;
-    private readonly ITelemetryClient telemetryClient = telemetryClient;
 
     [ProducesResponseType((int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.UnsupportedMediaType)]
@@ -97,7 +94,7 @@ public class ConvertToPdf(
                 telemetryEvent.EndTime = DateTime.UtcNow;
                 telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
 
-                this.telemetryClient.TrackEvent(telemetryEvent);
+                this.logger.TrackEvent(telemetryEvent);
 
                 return new FileStreamResult(conversionResult.ConvertedDocument, "application/pdf")
                 {
@@ -106,7 +103,7 @@ public class ConvertToPdf(
             }
 
             telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
-            this.telemetryClient.TrackEventFailure(telemetryEvent);
+            this.logger.TrackEventFailure(telemetryEvent);
 
             return new ObjectResult(conversionResult.ConversionStatus)
             {
@@ -118,7 +115,7 @@ public class ConvertToPdf(
             this.logger.LogMethodError(currentCorrelationId, LoggingName, exception.Message, exception);
 
             telemetryEvent.FailureReason = exception.Message;
-            this.telemetryClient.TrackEventFailure(telemetryEvent);
+            this.logger.TrackEventFailure(telemetryEvent);
 
             return new ObjectResult(exception.ToFormattedString())
             {

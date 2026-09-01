@@ -29,10 +29,10 @@ using Microsoft.OpenApi.Models;
 /// </remarks>
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="communicationService">The service used to get call PCD Review service.</param>
-
 public class GetPcdReview(
     ILogger<GetPcdReview> logger,
-    ICommunicationService communicationService) : BaseFunction(logger)
+    ICommunicationService communicationService)
+    : BaseFunction(logger)
 {
     private readonly ILogger<GetPcdReview> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;

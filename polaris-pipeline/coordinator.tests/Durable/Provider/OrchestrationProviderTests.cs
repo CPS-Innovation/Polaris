@@ -4,7 +4,6 @@
 
 namespace coordinator.tests.Durable.Provider;
 
-using Common.Telemetry;
 using coordinator.Durable.Orchestration;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Providers;
@@ -23,7 +22,6 @@ public class OrchestrationProviderTests
     private readonly Mock<IConfiguration> configurationMock;
     private readonly Mock<IQueryConditionFactory> queryConditionFactoryMock;
     private readonly Mock<ILogger<OrchestrationProvider>> loggerMock;
-    private readonly Mock<ITelemetryClient> telemetryClientMock;
     private readonly OrchestrationProvider orchestrationProvider;
 
     public OrchestrationProviderTests()
@@ -31,8 +29,7 @@ public class OrchestrationProviderTests
         this.configurationMock = new Mock<IConfiguration>();
         this.queryConditionFactoryMock = new Mock<IQueryConditionFactory>();
         this.loggerMock = new Mock<ILogger<OrchestrationProvider>>();
-        this.telemetryClientMock = new Mock<ITelemetryClient>();
-        this.orchestrationProvider = new OrchestrationProvider(this.configurationMock.Object, this.queryConditionFactoryMock.Object, this.loggerMock.Object, this.telemetryClientMock.Object);
+        this.orchestrationProvider = new OrchestrationProvider(this.configurationMock.Object, this.queryConditionFactoryMock.Object, this.loggerMock.Object);
     }
 
     [Theory]

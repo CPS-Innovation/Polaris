@@ -431,7 +431,7 @@ export const reducer = (
       const coreDocumentsState = mapDocumentsState(
         data,
         (state.caseState?.status === "succeeded" &&
-          state.caseState.data.witnesses) ||
+          state.caseState.data?.witnesses) ||
           []
       );
 

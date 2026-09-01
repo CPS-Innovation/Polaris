@@ -12,19 +12,19 @@ using Xunit;
 
 namespace PolarisGateway.Tests.Functions;
 
-public class CancelCheckoutDocumentTests
+public class CancelCheckoutDocumentLegacyTests
 {
-    private readonly Mock<ILogger<CancelCheckoutDocument>> _loggerMock;
+    private readonly Mock<ILogger<CancelCheckoutDocumentLegacy>> _loggerMock;
     private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
     private readonly Mock<IMdsClient> _mdsClientMock;
-    private readonly CancelCheckoutDocument _cancelCheckoutDocument;
+    private readonly CancelCheckoutDocumentLegacy _cancelCheckoutDocument;
 
-    public CancelCheckoutDocumentTests()
+    public CancelCheckoutDocumentLegacyTests()
     {
-        _loggerMock = new Mock<ILogger<CancelCheckoutDocument>>();
+        _loggerMock = new Mock<ILogger<CancelCheckoutDocumentLegacy>>();
         _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         _mdsClientMock = new Mock<IMdsClient>();
-        _cancelCheckoutDocument = new CancelCheckoutDocument(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsClientMock.Object);
+        _cancelCheckoutDocument = new CancelCheckoutDocumentLegacy(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsClientMock.Object);
     }
 
     [Fact]
