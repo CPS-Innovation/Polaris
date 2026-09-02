@@ -11,7 +11,10 @@ import {
   RedactionLogLookUpsData,
   RedactionLogMappingData,
 } from "../domain/redactionLog/RedactionLogData";
-import { RedactionLogRequestData } from "../domain/redactionLog/RedactionLogRequestData";
+import {
+  CASEWORK_APP_SOURCE_CLIENT_ID,
+  RedactionLogRequestData,
+} from "../domain/redactionLog/RedactionLogRequestData";
 import { Note } from "../domain/gateway/NotesData";
 import { SearchPIIResultItem } from "../domain/gateway/SearchPIIData";
 import { MaterialType } from "../presentation/case-details/reclassify/data/MaterialType";
@@ -253,7 +256,10 @@ export const saveRedactionLog = async (
   const response = await fetchImplementation("no-reauth", url, {
     headers: await buildHeadersRedactionLog(),
     method: "POST",
-    body: JSON.stringify(redactionLogRequestData),
+    body: JSON.stringify({
+      ...redactionLogRequestData,
+      sourceClientId: CASEWORK_APP_SOURCE_CLIENT_ID,
+    }),
   });
 
   if (!response.ok) {
