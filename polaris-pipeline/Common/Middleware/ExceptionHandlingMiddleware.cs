@@ -37,7 +37,7 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
             await next(context);
         }
         catch (Exception exception)
-        {
+       {
             var statusCode = exception switch
             {
                 BadRequestException _ => HttpStatusCode.BadRequest,

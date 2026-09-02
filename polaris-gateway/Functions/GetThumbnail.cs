@@ -30,15 +30,12 @@ using System.Threading.Tasks;
 public class GetThumbnail : BaseFunction
 {
     private readonly IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient;
-    private readonly ICaseUrnResolver caseUrnResolver;
 
     public GetThumbnail(
-        IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient,
-        ICaseUrnResolver caseUrnResolver)
+        IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient)
         : base()
     {
         this.pdfThumbnailGeneratorClient = pdfThumbnailGeneratorClient ?? throw new ArgumentNullException(nameof(pdfThumbnailGeneratorClient));
-        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
     [Function(nameof(GetThumbnail))]
@@ -54,7 +51,6 @@ public class GetThumbnail : BaseFunction
     [OpenApiResponseWithBody(HttpStatusCode.OK, "application/json", typeof(object), Description = "OCR processing completed successfully")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
-
     public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Thumbnail)] HttpRequest req,
         int caseId,
@@ -67,8 +63,6 @@ public class GetThumbnail : BaseFunction
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
-        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
-
-        return await (await this.pdfThumbnailGeneratorClient.GetThumbnailAsync(caseUrn, caseId, materialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues.CmsAuthFullValue, correlationId)).ToActionResult();
+        return await (await this.pdfThumbnailGeneratorClient.GetThumbnailAsync(caseUrn: null, caseId, materialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues.CmsAuthFullValue, correlationId, isLegacy: false)).ToActionResult();
     }
 }

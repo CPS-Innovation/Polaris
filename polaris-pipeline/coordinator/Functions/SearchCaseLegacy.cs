@@ -57,7 +57,7 @@ namespace coordinator.Functions
                 return new BadRequestObjectResult("Search term not supplied.");
             }
 
-            var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
+            var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId, isLegacy: true);
 
             var documentStateBlobId = new BlobIdType(caseId, default, default, BlobType.DocumentState);
             var documentsState = (await _polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityDocumentsState>(documentStateBlobId)) ?? new CaseDurableEntityDocumentsState();
