@@ -39,6 +39,7 @@ public class PdfArtefactService(
         GetPdfRequest request,
         string cmsAuthValues,
         Guid correlationId,
+        bool isLegacy = true,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -51,7 +52,7 @@ public class PdfArtefactService(
             return this.ValidateFileSizeAndCreatePdfResult(stream, request.DocumentId, true, cachedFileSizeInMb ?? 0);
         }
 
-        var result = await this.pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, request.Urn, request.CaseId, request.MaterialId, request.DocumentId);
+        var result = await this.pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, request.Urn, request.CaseId, request.MaterialId, request.DocumentId, isLegacy);
 
         if (result.Status != PdfConversionStatus.DocumentConverted)
         {

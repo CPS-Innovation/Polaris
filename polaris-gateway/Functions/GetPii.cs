@@ -34,14 +34,12 @@ public class GetPii : BaseFunction
     private const string IsOcrProcessedParamName = "isOcrProcessed";
     private const string ForceRefreshParamName = "ForceRefresh";
     private readonly IPiiArtefactService piiArtefactService;
-    private readonly ICaseUrnResolver caseUrnResolver;
 
     public GetPii(
-        IPiiArtefactService piiArtefactService, ICaseUrnResolver caseUrnResolver)
+        IPiiArtefactService piiArtefactService)
         : base()
     {
         this.piiArtefactService = piiArtefactService.ExceptionIfNull();
-        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
     [Function(nameof(GetPii))]
@@ -70,9 +68,7 @@ public class GetPii : BaseFunction
             Guid.Parse(req.Query[TokenQueryParamName]) :
             (Guid?)null;
 
-        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
-
-        var ocrResult = await this.piiArtefactService.GetPiiAsync(cmsAuthValues.CmsAuthFullValue, correlationId, caseUrn, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh);
+        var ocrResult = await this.piiArtefactService.GetPiiAsync(cmsAuthValues.CmsAuthFullValue, correlationId, null, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh, isLegacy: false);
         return ocrResult.Status switch
         {
             ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Artefact),

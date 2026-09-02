@@ -25,15 +25,12 @@ using System.Threading.Tasks;
 public class GenerateThumbnail : BaseFunction
 {
     private readonly IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient;
-    private readonly ICaseUrnResolver caseUrnResolver;
 
     public GenerateThumbnail(
-        IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient,
-        ICaseUrnResolver caseUrnResolver)
+        IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient)
         : base()
     {
         this.pdfThumbnailGeneratorClient = pdfThumbnailGeneratorClient ?? throw new ArgumentNullException(nameof(pdfThumbnailGeneratorClient));
-        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
     [Function(nameof(GenerateThumbnail))]
@@ -61,8 +58,6 @@ public class GenerateThumbnail : BaseFunction
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
-        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
-
-        return await (await this.pdfThumbnailGeneratorClient.GenerateThumbnailAsync(caseUrn, caseId, materialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues.CmsAuthFullValue, correlationId)).ToActionResult();
+        return await (await this.pdfThumbnailGeneratorClient.GenerateThumbnailAsync(null, caseId, materialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues.CmsAuthFullValue, correlationId, isLegacy: false)).ToActionResult();
     }
 }

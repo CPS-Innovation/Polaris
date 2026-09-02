@@ -85,7 +85,7 @@ namespace coordinator.Functions
                 throw new BadRequestException(validationResult.FlattenErrors(), nameof(modificationRequest));
             }
 
-            await using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, materialId, documentId, modificationRequest, currentCorrelationId);
+            await using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, materialId, documentId, modificationRequest, currentCorrelationId, isLegacy: true);
             if (modifiedDocumentStream == null)
             {
                 var error = $"Error modifying document for {caseId}, materialId {materialId}";

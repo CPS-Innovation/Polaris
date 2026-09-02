@@ -50,6 +50,6 @@ public class GenerateThumbnailLegacy : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        return await (await _pdfThumbnailGeneratorClient.GenerateThumbnailAsync(caseUrn, caseId, materialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues, correlationId)).ToActionResult();
+        return await (await _pdfThumbnailGeneratorClient.GenerateThumbnailAsync(caseUrn, caseId, materialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues, correlationId, isLegacy: true)).ToActionResult();
     }
 }

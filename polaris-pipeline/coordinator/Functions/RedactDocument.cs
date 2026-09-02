@@ -95,7 +95,7 @@ public class RedactDocument
                 throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
             }
 
-            redactedDocumentStream = await this.redactionClient.RedactPdfAsync(caseUrn, caseId, materialId, documentId, redactionRequest, currentCorrelationId);
+            redactedDocumentStream = await this.redactionClient.RedactPdfAsync(null, caseId, materialId, documentId, redactionRequest, currentCorrelationId, isLegacy: false);
             if (redactedDocumentStream == null)
             {
                 string error = $"Error Saving redaction details to the document for {caseId}, materialId {materialId}";
@@ -129,7 +129,7 @@ public class RedactDocument
                 VersionId = redactPdfRequest.VersionId,
             };
 
-            modifiedDocumentStream = await this.redactionClient.ModifyDocument(caseUrn, caseId, materialId, documentId, modificationRequest, currentCorrelationId);
+            modifiedDocumentStream = await this.redactionClient.ModifyDocument(null, caseId, materialId, documentId, modificationRequest, currentCorrelationId, isLegacy: false);
             if (modifiedDocumentStream == null)
             {
                 string error = $"Error modifying document for {caseId}, materialId {materialId}";

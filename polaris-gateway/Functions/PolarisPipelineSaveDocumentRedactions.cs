@@ -38,20 +38,17 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
     private readonly IRedactPdfRequestMapper redactPdfRequestMapper;
     private readonly ILogger<PolarisPipelineSaveDocumentRedactions> logger;
     private readonly ICoordinatorClient coordinatorClient;
-    private readonly ICaseUrnResolver caseUrnResolver;
 
     public PolarisPipelineSaveDocumentRedactions(
         IRedactPdfRequestMapper redactPdfRequestMapper,
         ICoordinatorClient coordinatorClient,
-        ILogger<PolarisPipelineSaveDocumentRedactions> logger,
-        ICaseUrnResolver caseUrnResolver)
+        ILogger<PolarisPipelineSaveDocumentRedactions> logger)
         : base()
 
     {
         this.redactPdfRequestMapper = redactPdfRequestMapper ?? throw new ArgumentNullException(nameof(redactPdfRequestMapper));
         this.coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
     [Function(nameof(PolarisPipelineSaveDocumentRedactions))]
@@ -74,8 +71,6 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
-        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
-
         try
         {
             telemetryEvent.IsRequestValid = true;
@@ -97,13 +92,14 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
 
             var redactPdfRequest = this.redactPdfRequestMapper.Map(redactions.Value);
             var response = await this.coordinatorClient.SaveRedactionsAsync(
-                caseUrn,
+                null,
                 caseId,
                 materialId,
                 documentId,
                 redactPdfRequest,
                 cmsAuthValues.CmsAuthFullValue,
-                correlationId);
+                correlationId,
+                isLegacy: false);
 
             telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
             telemetryEvent.DeletedPageCount = redactPdfRequest.DocumentModifications.Count;

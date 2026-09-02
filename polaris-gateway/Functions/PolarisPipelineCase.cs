@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 // note: the analytics KQL queries refer to "PolarisPipelineCase" as the function name,
 //  if we change this then we must change the KQL queries to be `| ... ("PolarisPipelineCase" or "NewName")
-public class PolarisPipelineCase(ICoordinatorClient coordinatorClient, ICaseUrnResolver caseUrnResolver) : BaseFunction
+public class PolarisPipelineCase(ICoordinatorClient coordinatorClient) : BaseFunction
 {
     [Function(nameof(PolarisPipelineCase))]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -39,8 +39,6 @@ public class PolarisPipelineCase(ICoordinatorClient coordinatorClient, ICaseUrnR
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
-        var caseUrn = await caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
-
-        return await (await coordinatorClient.RefreshCaseAsync(caseUrn, caseId, cmsAuthValues.CmsAuthFullValue, correlationId)).ToActionResult();
+        return await (await coordinatorClient.RefreshCaseAsync(null, caseId, cmsAuthValues.CmsAuthFullValue, correlationId, isLegacy: false)).ToActionResult();
     }
 }

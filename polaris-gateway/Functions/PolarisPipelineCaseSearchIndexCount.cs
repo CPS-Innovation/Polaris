@@ -37,14 +37,12 @@ public class PolarisPipelineCaseSearchIndexCount(ICoordinatorClient coordinatorC
     {
         cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);
-        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
-
-        var caseUrn = await caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         return await (await coordinatorClient.GetCaseSearchIndexCount(
-                caseUrn,
+                null,
                 caseId,
-                correlationId))
+                correlationId,
+                isLegacy: false))
             .ToActionResult();
     }
 }

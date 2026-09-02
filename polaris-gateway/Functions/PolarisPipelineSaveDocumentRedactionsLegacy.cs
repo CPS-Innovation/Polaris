@@ -97,7 +97,8 @@ public class PolarisPipelineSaveDocumentRedactionsLegacy : BaseFunction
                 documentId,
                 redactPdfRequest,
                 cmsAuthValues,
-                correlationId);
+                correlationId, 
+                isLegacy: true);
 
             telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
             telemetryEvent.DeletedPageCount = redactPdfRequest.DocumentModifications.Count;

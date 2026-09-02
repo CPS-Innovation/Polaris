@@ -32,19 +32,16 @@ public class PolarisPipelineModifyDocument : BaseFunction
     private readonly ILogger<PolarisPipelineModifyDocument> logger;
     private readonly ICoordinatorClient coordinatorClient;
     private readonly IModifyDocumentRequestMapper modifyDocumentRequestMapper;
-    private readonly ICaseUrnResolver caseUrnResolver;
 
     public PolarisPipelineModifyDocument(
         ILogger<PolarisPipelineModifyDocument> logger,
         ICoordinatorClient coordinatorClient,
-        IModifyDocumentRequestMapper modifyDocumentRequestMapper,
-        ICaseUrnResolver caseUrnResolver)
+        IModifyDocumentRequestMapper modifyDocumentRequestMapper)
         : base()
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
         this.modifyDocumentRequestMapper = modifyDocumentRequestMapper ?? throw new ArgumentNullException(nameof(modifyDocumentRequestMapper));
-        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
     [Function(nameof(PolarisPipelineModifyDocument))]
@@ -64,8 +61,6 @@ public class PolarisPipelineModifyDocument : BaseFunction
         cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
-
-        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         try
         {
@@ -88,13 +83,14 @@ public class PolarisPipelineModifyDocument : BaseFunction
 
             var modifyDocumentDto = this.modifyDocumentRequestMapper.Map(documentChanges.Value);
             var response = await this.coordinatorClient.ModifyDocument(
-                caseUrn,
+                null,
                 caseId,
                 materialId,
                 documentId,
                 modifyDocumentDto,
                 cmsAuthValues.CmsAuthFullValue,
-                correlationId);
+                correlationId,
+                isLegacy: false);
 
             telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
 

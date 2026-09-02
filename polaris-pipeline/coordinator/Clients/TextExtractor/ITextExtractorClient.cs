@@ -9,10 +9,14 @@ namespace coordinator.Clients.TextExtractor
 {
         public interface ITextExtractorClient
         {
-                Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(string materialId, string urn, int caseId, long documentId, Guid correlationId, Stream ocrResults);
-                Task<IList<StreamlinedSearchLine>> SearchTextAsync(string urn, int caseId, string searchTerm, Guid correlationId);
-                Task<IndexDocumentsDeletedResult> RemoveCaseIndexesAsync(string urn, int caseId, Guid correlationId);
-                Task<SearchIndexCountResult> GetCaseIndexCount(string urn, int caseId, Guid correlationId);
-                Task<SearchIndexCountResult> GetDocumentIndexCount(string urn, int caseId, string materialId, long documentId, Guid correlationId);
+            Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(string materialId, string urn, int caseId, long documentId, Guid correlationId, Stream ocrResults, bool isLegacy = true);
+
+            Task<IList<StreamlinedSearchLine>> SearchTextAsync(string urn, int caseId, string searchTerm, Guid correlationId, bool isLegacy = true);
+
+            Task<IndexDocumentsDeletedResult> RemoveCaseIndexesAsync(string urn, int caseId, Guid correlationId, bool isLegacy = true);
+
+            Task<SearchIndexCountResult> GetCaseIndexCount(string urn, int caseId, Guid correlationId, bool isLegacy = true);
+
+            Task<SearchIndexCountResult> GetDocumentIndexCount(string urn, int caseId, string materialId, long documentId, Guid correlationId, bool isLegacy = true);
         }
 }
