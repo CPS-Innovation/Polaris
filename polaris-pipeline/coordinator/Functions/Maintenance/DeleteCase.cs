@@ -31,7 +31,7 @@ public class DeleteCase(IClearDownService clearDownService)
 
         await clearDownService.DeleteCaseAsync(
             orchestrationClient,
-            null,
+            caseUrn: null,
             caseId,
             currentCorrelationId,
             isLegacy: false);

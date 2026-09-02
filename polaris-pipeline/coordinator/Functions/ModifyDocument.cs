@@ -89,7 +89,7 @@ public class ModifyDocument
             throw new BadRequestException(validationResult.FlattenErrors(), nameof(modificationRequest));
         }
 
-        await using var modifiedDocumentStream = await this.pdfRedactorClient.ModifyDocument(null, caseId, materialId, documentId, modificationRequest, currentCorrelationId, isLegacy: false);
+        await using var modifiedDocumentStream = await this.pdfRedactorClient.ModifyDocument(caseUrn: null, caseId, materialId, documentId, modificationRequest, currentCorrelationId, isLegacy: false);
         if (modifiedDocumentStream == null)
         {
             var error = $"Error modifying document for {caseId}, materialId {materialId}";

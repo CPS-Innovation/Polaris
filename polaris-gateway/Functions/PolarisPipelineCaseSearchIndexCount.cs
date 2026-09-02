@@ -39,7 +39,7 @@ public class PolarisPipelineCaseSearchIndexCount(ICoordinatorClient coordinatorC
         var correlationId = EstablishCorrelation(req);
 
         return await (await coordinatorClient.GetCaseSearchIndexCount(
-                null,
+                caseUrn: null,
                 caseId,
                 correlationId,
                 isLegacy: false))

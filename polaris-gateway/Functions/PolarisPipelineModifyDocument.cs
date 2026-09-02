@@ -83,7 +83,7 @@ public class PolarisPipelineModifyDocument : BaseFunction
 
             var modifyDocumentDto = this.modifyDocumentRequestMapper.Map(documentChanges.Value);
             var response = await this.coordinatorClient.ModifyDocument(
-                null,
+                caseUrn: null,
                 caseId,
                 materialId,
                 documentId,

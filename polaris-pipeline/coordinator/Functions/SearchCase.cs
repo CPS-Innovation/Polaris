@@ -64,7 +64,7 @@ public class SearchCase
             return new BadRequestObjectResult("Search term not supplied.");
         }
 
-        var searchResults = await this.textExtractorClient.SearchTextAsync(null, caseId, searchTerm, currentCorrelationId, isLegacy: false);
+        var searchResults = await this.textExtractorClient.SearchTextAsync(urn: null, caseId, searchTerm, currentCorrelationId, isLegacy: false);
 
         var documentStateBlobId = new BlobIdType(caseId, default, default, BlobType.DocumentState);
         var documentsState = (await this.polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityDocumentsState>(documentStateBlobId)) ?? new CaseDurableEntityDocumentsState();

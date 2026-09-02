@@ -92,7 +92,7 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
 
             var redactPdfRequest = this.redactPdfRequestMapper.Map(redactions.Value);
             var response = await this.coordinatorClient.SaveRedactionsAsync(
-                null,
+                caseUrn: null,
                 caseId,
                 materialId,
                 documentId,

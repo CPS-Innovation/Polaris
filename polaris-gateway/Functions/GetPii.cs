@@ -68,7 +68,7 @@ public class GetPii : BaseFunction
             Guid.Parse(req.Query[TokenQueryParamName]) :
             (Guid?)null;
 
-        var ocrResult = await this.piiArtefactService.GetPiiAsync(cmsAuthValues.CmsAuthFullValue, correlationId, null, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh, isLegacy: false);
+        var ocrResult = await this.piiArtefactService.GetPiiAsync(cmsAuthValues.CmsAuthFullValue, correlationId, urn: null, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh, isLegacy: false);
         return ocrResult.Status switch
         {
             ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Artefact),

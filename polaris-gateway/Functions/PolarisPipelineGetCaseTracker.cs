@@ -38,7 +38,7 @@ public class PolarisPipelineGetCaseTracker(ICoordinatorClient coordinatorClient)
         var correlationId = EstablishCorrelation(req);
 
         return await (await coordinatorClient.GetTrackerGetCaseAsync(
-                null,
+                caseUrn: null,
                 caseId,
                 correlationId,
                 isLegacy: false))

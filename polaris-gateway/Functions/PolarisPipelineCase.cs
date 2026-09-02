@@ -39,6 +39,6 @@ public class PolarisPipelineCase(ICoordinatorClient coordinatorClient) : BaseFun
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
-        return await (await coordinatorClient.RefreshCaseAsync(null, caseId, cmsAuthValues.CmsAuthFullValue, correlationId, isLegacy: false)).ToActionResult();
+        return await (await coordinatorClient.RefreshCaseAsync(caseUrn: null, caseId, cmsAuthValues.CmsAuthFullValue, correlationId, isLegacy: false)).ToActionResult();
     }
 }

@@ -40,7 +40,7 @@ public class PolarisPipelineCaseDelete(ICoordinatorClient coordinatorClient) : B
         cancellationToken.ThrowIfCancellationRequested();
 
         return await (await coordinatorClient.DeleteCaseAsync(
-                null,
+                caseUrn: null,
                 caseId,
                 cmsAuthValues.CmsAuthFullValue,
                 correlationId,

@@ -42,7 +42,7 @@ public class PolarisPipelineCaseSearch(ICoordinatorClient coordinatorClient) : B
         var correlationId = EstablishCorrelation(req);
 
         return await (await coordinatorClient.SearchCase(
-                null,
+                caseUrn: null,
                 caseId,
                 req.Query[Query],
                 correlationId,

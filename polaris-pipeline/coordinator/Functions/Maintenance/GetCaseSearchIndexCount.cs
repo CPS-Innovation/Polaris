@@ -25,7 +25,7 @@ public class GetCaseSearchIndexCount(ITextExtractorClient textExtractorClient, I
     {
         var currentCorrelationId = req.Headers.GetCorrelationId();
 
-        var searchIndexCount = await textExtractorClient.GetCaseIndexCount(null, caseId, currentCorrelationId, isLegacy: false);
+        var searchIndexCount = await textExtractorClient.GetCaseIndexCount(urn: null, caseId, currentCorrelationId, isLegacy: false);
 
         return new OkObjectResult(searchIndexCount);
     }

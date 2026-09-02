@@ -63,6 +63,6 @@ public class GetThumbnail : BaseFunction
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
-        return await (await this.pdfThumbnailGeneratorClient.GetThumbnailAsync(null, caseId, materialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues.CmsAuthFullValue, correlationId, isLegacy: false)).ToActionResult();
+        return await (await this.pdfThumbnailGeneratorClient.GetThumbnailAsync(caseUrn: null, caseId, materialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues.CmsAuthFullValue, correlationId, isLegacy: false)).ToActionResult();
     }
 }
