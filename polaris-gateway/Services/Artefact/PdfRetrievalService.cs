@@ -31,7 +31,7 @@ public class PdfRetrievalService : IPdfRetrievalService
         _mdsClient = mdsClient.ExceptionIfNull();
     }
 
-    public async Task<DocumentRetrievalResult> GetPdfStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId)
+    public async Task<DocumentRetrievalResult> GetPdfStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isLegacy = true)
     {
         var (stream, fileType, isKnownFileType) = DocumentNature.GetDocumentNatureType(materialId) switch
         {
@@ -48,7 +48,7 @@ public class PdfRetrievalService : IPdfRetrievalService
             };
         }
 
-        var pdfResult = await _pdfGeneratorClient.ConvertToPdfAsync(correlationId, urn, caseId, materialId, documentId, stream, fileType);
+        var pdfResult = await _pdfGeneratorClient.ConvertToPdfAsync(correlationId, urn, caseId, materialId, documentId, stream, fileType, isLegacy);
 
         return new DocumentRetrievalResult
         {

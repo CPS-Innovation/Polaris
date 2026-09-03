@@ -63,7 +63,7 @@ public class GetPdfLegacy : BaseFunction
             IsOcrProcessed: isOcrProcessed,
             ForceRefresh: forceRefresh);
 
-        var getPdfResult = await this.pdfArtefactService.GetPdfAsync(request, cmsAuthValues, correlationId, cancellationToken);
+        var getPdfResult = await this.pdfArtefactService.GetPdfAsync(request, cmsAuthValues, correlationId, isLegacy: true, cancellationToken);
 
         if (getPdfResult.FileSizeExceedsLimit == true)
         {

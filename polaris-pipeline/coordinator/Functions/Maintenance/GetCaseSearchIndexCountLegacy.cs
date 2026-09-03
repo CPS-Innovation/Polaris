@@ -32,7 +32,7 @@ namespace coordinator.Functions.Maintenance
         {
             var currentCorrelationId = req.Headers.GetCorrelationId();
 
-            var searchIndexCount = await _textExtractorClient.GetCaseIndexCount(caseUrn, caseId, currentCorrelationId);
+            var searchIndexCount = await _textExtractorClient.GetCaseIndexCount(caseUrn, caseId, currentCorrelationId, isLegacy: true);
 
             return new OkObjectResult(searchIndexCount);
         }

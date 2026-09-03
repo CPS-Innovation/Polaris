@@ -48,7 +48,8 @@ public class PolarisPipelineCaseSearchIndexCountLegacy : BaseFunction
         return await (await _coordinatorClient.GetCaseSearchIndexCount(
                 caseUrn,
                 caseId,
-                correlationId))
+                correlationId,
+                isLegacy: true))
                 .ToActionResult();
     }
 }

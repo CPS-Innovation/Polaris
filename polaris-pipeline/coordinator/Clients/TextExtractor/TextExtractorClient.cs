@@ -8,6 +8,7 @@ using Common.Domain.SearchIndex;
 using Common.Dto.Response;
 using Common.Wrappers;
 using Common.Handlers;
+using Common.Helpers;
 
 namespace coordinator.Clients.TextExtractor
 {
@@ -32,9 +33,14 @@ namespace coordinator.Clients.TextExtractor
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        public async Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(string materialId, string urn, int caseId, long documentId, Guid correlationId, Stream ocrResults)
+        public async Task<StoreCaseIndexesResult> StoreCaseIndexesAsync(string materialId, string urn, int caseId, long documentId, Guid correlationId, Stream ocrResults, bool isLegacy = true)
         {
-            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetExtractPath(urn, caseId, materialId, documentId), correlationId);
+            LegacyCaseValidation.EnsureCaseUrnProvided(urn, isLegacy);
+            var path = isLegacy
+                ? RestApi.GetExtractPathLegacy(urn, caseId, materialId, documentId)
+                : RestApi.GetExtractPath(caseId, materialId, documentId);
+
+            var request = _requestFactory.Create(HttpMethod.Post, path, correlationId);
             request.Headers.Add(DocumentId, materialId);
 
             using var requestContent = new StreamContent(ocrResults);
@@ -62,10 +68,16 @@ namespace coordinator.Clients.TextExtractor
             string urn,
             int caseId,
             string searchTerm,
-            Guid correlationId
+            Guid correlationId,
+            bool isLegacy = true
         )
         {
-            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetSearchPath(urn, caseId), correlationId);
+            LegacyCaseValidation.EnsureCaseUrnProvided(urn, isLegacy);
+            var path = isLegacy
+                ? RestApi.GetSearchPathLegacy(urn, caseId)
+                : RestApi.GetSearchPath(caseId);
+
+            var request = _requestFactory.Create(HttpMethod.Post, path, correlationId);
             request.Content = _searchDtoContentFactory.Create(searchTerm);
 
             using (var response = await _httpClient.SendAsync(request))
@@ -76,9 +88,14 @@ namespace coordinator.Clients.TextExtractor
             }
         }
 
-        public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexesAsync(string urn, int caseId, Guid correlationId)
+        public async Task<IndexDocumentsDeletedResult> RemoveCaseIndexesAsync(string urn, int caseId, Guid correlationId, bool isLegacy = true)
         {
-            var request = _requestFactory.Create(HttpMethod.Post, RestApi.GetRemoveCaseIndexesPath(urn, caseId), correlationId);
+            LegacyCaseValidation.EnsureCaseUrnProvided(urn, isLegacy);
+            var path = isLegacy
+                ? RestApi.GetRemoveCaseIndexesPathLegacy(urn, caseId)
+                : RestApi.GetRemoveCaseIndexesPath(caseId);
+
+            var request = _requestFactory.Create(HttpMethod.Post, path, correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {
@@ -88,9 +105,14 @@ namespace coordinator.Clients.TextExtractor
             }
         }
 
-        public async Task<SearchIndexCountResult> GetCaseIndexCount(string urn, int caseId, Guid correlationId)
+        public async Task<SearchIndexCountResult> GetCaseIndexCount(string urn, int caseId, Guid correlationId, bool isLegacy = true)
         {
-            var request = _requestFactory.Create(HttpMethod.Get, RestApi.GetCaseIndexCountResultsPath(urn, caseId), correlationId);
+            LegacyCaseValidation.EnsureCaseUrnProvided(urn, isLegacy);
+            var path = isLegacy
+                ? RestApi.GetCaseIndexCountResultsPathLegacy(urn, caseId)
+                : RestApi.GetCaseIndexCountResultsPath(caseId);
+
+            var request = _requestFactory.Create(HttpMethod.Get, path, correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {
@@ -100,9 +122,14 @@ namespace coordinator.Clients.TextExtractor
             }
         }
 
-        public async Task<SearchIndexCountResult> GetDocumentIndexCount(string urn, int caseId, string materialId, long documentId, Guid correlationId)
+        public async Task<SearchIndexCountResult> GetDocumentIndexCount(string urn, int caseId, string materialId, long documentId, Guid correlationId, bool isLegacy = true)
         {
-            var request = _requestFactory.Create(HttpMethod.Get, RestApi.GetDocumentIndexCountResultsPath(urn, caseId, materialId, documentId), correlationId);
+            LegacyCaseValidation.EnsureCaseUrnProvided(urn, isLegacy);
+            var path = isLegacy
+                ? RestApi.GetDocumentIndexCountResultsPathLegacy(urn, caseId, materialId, documentId)
+                : RestApi.GetDocumentIndexCountResultsPath(caseId, materialId, documentId);
+
+            var request = _requestFactory.Create(HttpMethod.Get, path, correlationId);
 
             using (var response = await _httpClient.SendAsync(request))
             {
