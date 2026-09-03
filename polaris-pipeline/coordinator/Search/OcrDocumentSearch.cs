@@ -16,6 +16,8 @@ using coordinator.Domain;
 public class OcrDocumentSearch(IRedactionSearchDtoMapper redactionSearchDtoMapper): IOcrDocumentSearch
 {
     private static readonly TimeSpan RegexMatchTimeout = TimeSpan.FromSeconds(1);
+    private const double LeadingCharacterPadding = 0.5;
+    private const double TrailingCharacterTrim = 0.5;
 
     public OcrDocumentSearchResponse Search(string searchText, AnalyzeResults results)
     {
@@ -191,18 +193,25 @@ public class OcrDocumentSearch(IRedactionSearchDtoMapper redactionSearchDtoMappe
         }
 
         var width = x2 - x1;
-        var charWidth = width / sourceWordLength;
+        var charWidth = sourceWordLength == 0 ? 0 : width / sourceWordLength;
         var matchStartRatio = (double)startIndex / sourceWordLength;
         var matchEndRatio = (double)(startIndex + length) / sourceWordLength;
-        var adjustedX1 = Math.Max(x1, (x1 + (width * matchStartRatio)) - (charWidth / 2));
-        var adjustedX2 = Math.Min(x2, (x1 + (width * matchEndRatio)) + (charWidth / 2));
+        var rawX1 = x1 + (width * matchStartRatio);
+        var rawX2 = x1 + (width * matchEndRatio);
+        var adjustedX1 = Math.Max(x1, rawX1 - (charWidth * LeadingCharacterPadding));
+        var adjustedX2 = Math.Min(x2, rawX2 - (charWidth * TrailingCharacterTrim));
+        if (adjustedX2 <= adjustedX1)
+        {
+            adjustedX1 = rawX1;
+            adjustedX2 = rawX2;
+        }
 
         return new RedactionSearchDto
         {
             PageIndex = source.PageIndex,
             Width = source.Width,
             Height = source.Height,
-            Word = source.Word,
+            Word = source.Word.Substring(startIndex, length),
             RedactionCoordinates = new RedactionCoordinatesDto
             {
                 X1 = adjustedX1,
