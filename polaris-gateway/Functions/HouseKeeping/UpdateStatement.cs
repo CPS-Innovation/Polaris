@@ -35,7 +35,7 @@ using Common.Configuration;
 public class UpdateStatement(
     ILogger<UpdateStatement> logger,
     ICommunicationService communicationService,
-    UpdateStatementRequestValidator requestValidator) : BaseFunction(logger)
+    UpdateStatementRequestValidator requestValidator): BaseFunction(logger)
 {
     private readonly ILogger<UpdateStatement> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;

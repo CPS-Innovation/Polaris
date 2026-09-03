@@ -43,7 +43,7 @@ public class GetCaseWitnessStatements(
     /// <param name="caseId">The case Id.</param>
     /// <param name="witnessId">The Id of the witness to get statements for.</param>
     /// <returns>An <see cref="IActionResult"/> The response of the function.</returns>
-    [OpenApiOperation(operationId: nameof(GetCaseWitnessStatements), tags: ["Statement"], Description = "Represents a function that retrieves statements for a witness.")]
+    [OpenApiOperation(operationId: nameof(GetCaseWitnessStatements), tags:["Statement"], Description = "Represents a function that retrieves statements for a witness.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]
     [OpenApiSecurity("Cookie", SecuritySchemeType.ApiKey, Name = "Cookie", In = OpenApiSecurityLocationType.Header, Description = "The CMS Auth Values. This can be retrieved via the DDEI Authenticate API Endpoint and URI encoded along with User session token.")]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(WitnessStatementsResponse), Description = "Return success response with body.")]

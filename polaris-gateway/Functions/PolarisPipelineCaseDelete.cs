@@ -22,7 +22,7 @@ using DdeiClient.Services.CaseUrnResolver;
 using Common.Dto.Request;
 using Common.Extensions;
 
-public class PolarisPipelineCaseDelete(ICoordinatorClient coordinatorClient, ICaseUrnResolver caseUrnResolver) : BaseFunction
+public class PolarisPipelineCaseDelete(ICoordinatorClient coordinatorClient) : BaseFunction
 {
     [Function(nameof(PolarisPipelineCaseDelete))]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
@@ -37,15 +37,14 @@ public class PolarisPipelineCaseDelete(ICoordinatorClient coordinatorClient, ICa
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
-        var caseUrn = await caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
-
         cancellationToken.ThrowIfCancellationRequested();
 
         return await (await coordinatorClient.DeleteCaseAsync(
-                caseUrn,
+                caseUrn: null,
                 caseId,
                 cmsAuthValues.CmsAuthFullValue,
-                correlationId))
+                correlationId,
+                isLegacy: false))
             .ToActionResult();
     }
 }

@@ -32,7 +32,6 @@ public class SearchCase
     private readonly ITextExtractorClient textExtractorClient;
     private readonly ISearchFilterDocumentMapper searchFilterDocumentMapper;
     private readonly IPolarisBlobStorageService polarisBlobStorageService;
-    private readonly ICaseUrnResolver caseUrnResolver;
     private readonly ILogger<SearchCase> logger;
 
     public SearchCase(
@@ -40,13 +39,11 @@ public class SearchCase
         ITextExtractorClient textExtractorClient,
         ISearchFilterDocumentMapper searchFilterDocumentMapper,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-        ICaseUrnResolver caseUrnResolver,
         ILogger<SearchCase> logger)
     {
         this.textExtractorClient = textExtractorClient;
         this.searchFilterDocumentMapper = searchFilterDocumentMapper;
         this.polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
-        this.caseUrnResolver = caseUrnResolver;
         this.logger = logger;
     }
 
@@ -60,7 +57,6 @@ public class SearchCase
         CancellationToken cancellation)
     {
         var currentCorrelationId = req.Headers.GetCorrelationId();
-        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
         var searchTerm = req.Query[QueryStringSearchParam];
 
         if (string.IsNullOrWhiteSpace(searchTerm))
@@ -68,8 +64,7 @@ public class SearchCase
             return new BadRequestObjectResult("Search term not supplied.");
         }
 
-        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellation);
-        var searchResults = await this.textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
+        var searchResults = await this.textExtractorClient.SearchTextAsync(urn: null, caseId, searchTerm, currentCorrelationId, isLegacy: false);
 
         var documentStateBlobId = new BlobIdType(caseId, default, default, BlobType.DocumentState);
         var documentsState = (await this.polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityDocumentsState>(documentStateBlobId)) ?? new CaseDurableEntityDocumentsState();

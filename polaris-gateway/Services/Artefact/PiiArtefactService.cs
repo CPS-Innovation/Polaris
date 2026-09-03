@@ -31,14 +31,14 @@ public class PiiArtefactService : IPiiArtefactService
         _ocrArtefactService = ocrArtefactService.ExceptionIfNull();
     }
 
-    public async Task<ArtefactResult<IEnumerable<PiiLine>>> GetPiiAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isOcrProcessed, Guid? operationId = null, bool forceRefresh = false)
+    public async Task<ArtefactResult<IEnumerable<PiiLine>>> GetPiiAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isOcrProcessed, Guid? operationId = null, bool forceRefresh = false, bool isLegacy = true)
     {
         if (!forceRefresh && await _cacheService.TryGetJsonObjectAsync<IEnumerable<PiiLine>>(caseId, materialId, documentId, BlobType.Pii) is (true, var results))
         {
             return _artefactServiceResponseFactory.CreateOkfResult(results, true);
         }
 
-        var ocrResult = await _ocrArtefactService.GetOcrAsync(cmsAuthValues, correlationId, urn, caseId, materialId, documentId, isOcrProcessed, operationId, forceRefresh);
+        var ocrResult = await _ocrArtefactService.GetOcrAsync(cmsAuthValues, correlationId, urn, caseId, materialId, documentId, isOcrProcessed, operationId, forceRefresh, isLegacy);
 
         if (ocrResult.Status != ResultStatus.ArtefactAvailable)
         {

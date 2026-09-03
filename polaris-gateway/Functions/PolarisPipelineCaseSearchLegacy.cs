@@ -52,7 +52,8 @@ public class PolarisPipelineCaseSearchLegacy : BaseFunction
                 caseUrn,
                 caseId,
                 req.Query[Query],
-                correlationId))
+                correlationId,
+                isLegacy: true))
                 .ToActionResult();
     }
 }

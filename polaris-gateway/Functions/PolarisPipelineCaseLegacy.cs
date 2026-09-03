@@ -45,6 +45,6 @@ public class PolarisPipelineCaseLegacy : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        return await (await _coordinatorClient.RefreshCaseAsync(caseUrn, caseId, cmsAuthValues, correlationId)).ToActionResult();
+        return await (await _coordinatorClient.RefreshCaseAsync(caseUrn, caseId, cmsAuthValues, correlationId, isLegacy: true)).ToActionResult();
     }
 }

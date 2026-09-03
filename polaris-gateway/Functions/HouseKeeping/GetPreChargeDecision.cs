@@ -29,14 +29,13 @@ using Microsoft.OpenApi.Models;
 /// </remarks>
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="communicationService">The service used to get call case history service.</param>
-
 public class GetPreChargeDecision(
     ILogger<GetPreChargeDecision> logger,
     ICommunicationService communicationService) : BaseFunction(logger)
 {
     private readonly ILogger<GetPreChargeDecision> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
-    
+
     /// <summary>
     /// The Azure Function that processes an HTTP request for the 'case/{caseId}/pcd-review' route.
     /// </summary>

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Dto.Request;
 using Common.Wrappers;
+using Common.Helpers;
 
 namespace coordinator.Clients.PdfRedactor
 {
@@ -26,13 +27,18 @@ namespace coordinator.Clients.PdfRedactor
             _jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
         }
 
-        public async Task<Stream> RedactPdfAsync(string caseUrn, int caseId, string materialId, long documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId)
+        public async Task<Stream> RedactPdfAsync(string caseUrn, int caseId, string materialId, long documentId, RedactPdfRequestWithDocumentDto redactPdfRequest, Guid correlationId, bool isLegacy = true)
         {
             try
             {
+                LegacyCaseValidation.EnsureCaseUrnProvided(caseUrn, isLegacy);
                 var requestMessage = new StringContent(_jsonConvertWrapper.SerializeObject(redactPdfRequest), Encoding.UTF8, "application/json");
 
-                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(caseUrn, caseId, materialId, documentId)}", correlationId);
+                var path = isLegacy
+                    ? RestApi.GetRedactPdfPathLegacy(caseUrn, caseId, materialId, documentId)
+                    : RestApi.GetRedactPdfPath(caseId, materialId, documentId);
+
+                var request = _pipelineClientRequestFactory.Create(HttpMethod.Put, path, correlationId);
                 request.Content = requestMessage;
 
                 var response = await _httpClient.SendAsync(request);
@@ -52,13 +58,19 @@ namespace coordinator.Clients.PdfRedactor
             }
         }
 
-        public async Task<Stream> ModifyDocument(string caseUrn, int caseId, string materialId, long documentId, ModifyDocumentWithDocumentDto modifyDocumentDto, Guid correlationId)
+        public async Task<Stream> ModifyDocument(string caseUrn, int caseId, string materialId, long documentId, ModifyDocumentWithDocumentDto modifyDocumentDto, Guid correlationId, bool isLegacy = true)
         {
             try
             {
+                LegacyCaseValidation.EnsureCaseUrnProvided(caseUrn, isLegacy);
+
                 var requestMessage = new StringContent(JsonSerializer.Serialize(modifyDocumentDto, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }), Encoding.UTF8, "application/json");
 
-                var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RestApi.GetModifyDocumentPath(caseUrn, caseId, materialId, documentId)}", correlationId);
+                var path = isLegacy
+                    ? RestApi.GetModifyDocumentPathLegacy(caseUrn, caseId, materialId, documentId)
+                    : RestApi.GetModifyDocumentPath(caseId, materialId, documentId);
+
+                var request = _pipelineClientRequestFactory.Create(HttpMethod.Post, path, correlationId);
                 request.Content = requestMessage;
 
                 var response = await _httpClient.SendAsync(request);

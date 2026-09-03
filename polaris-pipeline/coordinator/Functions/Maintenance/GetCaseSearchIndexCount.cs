@@ -25,11 +25,7 @@ public class GetCaseSearchIndexCount(ITextExtractorClient textExtractorClient, I
     {
         var currentCorrelationId = req.Headers.GetCorrelationId();
 
-        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
-
-        var caseUrn = await caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
-
-        var searchIndexCount = await textExtractorClient.GetCaseIndexCount(caseUrn, caseId, currentCorrelationId);
+        var searchIndexCount = await textExtractorClient.GetCaseIndexCount(urn: null, caseId, currentCorrelationId, isLegacy: false);
 
         return new OkObjectResult(searchIndexCount);
     }

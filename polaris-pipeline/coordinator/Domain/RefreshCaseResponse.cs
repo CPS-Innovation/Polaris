@@ -17,7 +17,7 @@ namespace coordinator.Domain
         [JsonPropertyName("trackerUrl")]
         public string TrackerUrl
 		{
-			get => "/api/" + RestApi.GetCaseTrackerPath(_caseUrn, _caseId);
+			get => "/api/" + RestApi.GetCaseTrackerPathLegacy(_caseUrn, _caseId);
 		}
 	}
 }

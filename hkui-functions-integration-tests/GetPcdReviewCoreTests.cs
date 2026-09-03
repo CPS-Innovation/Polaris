@@ -62,10 +62,9 @@ public class GetPcdReviewCoreTests : TestBase
         // Use a fake authentication context to avoid external authentication calls
         var authContext = new AuthenticationContext(cookies: "fakeCookies", token: "fakeToken", expiryTime: DateTimeOffset.UtcNow.AddHours(1));
         this.baseRequest = this.CreateHttpRequestWithCookie(caseId, authContext);
-        var caseUrn = string.Empty;
 
         // Act
-        IActionResult response = await this.sut.Run(this.baseRequest, caseUrn, caseId, CancellationToken.None);
+        IActionResult response = await this.sut.Run(this.baseRequest, caseId, CancellationToken.None);
 
         // Assert
         OkObjectResult okResult = Assert.IsType<OkObjectResult>(response);
@@ -92,7 +91,7 @@ public class GetPcdReviewCoreTests : TestBase
         var caseUrn = string.Empty;
 
         // Act
-        IActionResult response = await this.sut.Run(this.baseRequest, caseUrn, caseId, CancellationToken.None);
+        IActionResult response = await this.sut.Run(this.baseRequest, caseId, CancellationToken.None);
 
         // Assert
         OkObjectResult okResult = Assert.IsType<OkObjectResult>(response);
@@ -126,10 +125,9 @@ public class GetPcdReviewCoreTests : TestBase
 
         var authContext = new AuthenticationContext(cookies: "fakeCookies", token: "fakeToken", expiryTime: DateTimeOffset.UtcNow.AddHours(1));
         this.baseRequest = this.CreateHttpRequestWithCookie(caseId, authContext);
-        var cseUrn = string.Empty;
 
         // Act
-        IActionResult response = await this.sut.Run(this.baseRequest, cseUrn, caseId, CancellationToken.None);
+        IActionResult response = await this.sut.Run(this.baseRequest, caseId, CancellationToken.None);
 
         // Assert
         OkObjectResult okResult = Assert.IsType<OkObjectResult>(response);
@@ -162,7 +160,7 @@ public class GetPcdReviewCoreTests : TestBase
         var caseUrn = string.Empty;
 
         // Act
-        IActionResult response = await this.sut.Run(this.baseRequest, caseUrn, caseId, CancellationToken.None);
+        IActionResult response = await this.sut.Run(this.baseRequest, caseId, CancellationToken.None);
 
         // Assert
         OkObjectResult okResult = Assert.IsType<OkObjectResult>(response);
@@ -197,7 +195,7 @@ public class GetPcdReviewCoreTests : TestBase
         var caseUrn = string.Empty;
 
         // Act
-        IActionResult response = await this.sut.Run(this.baseRequest, caseUrn, caseId, CancellationToken.None);
+        IActionResult response = await this.sut.Run(this.baseRequest, caseId, CancellationToken.None);
 
         // Assert
         OkObjectResult okResult = Assert.IsType<OkObjectResult>(response);
@@ -235,7 +233,7 @@ public class GetPcdReviewCoreTests : TestBase
         var caseUrn = string.Empty;
 
         // Act
-        IActionResult response = await this.sut.Run(this.baseRequest, caseUrn, invalidCaseId, CancellationToken.None);
+        IActionResult response = await this.sut.Run(this.baseRequest, invalidCaseId, CancellationToken.None);
 
         // Assert
         response.Should().BeOfType<BadRequestObjectResult>();
@@ -255,10 +253,9 @@ public class GetPcdReviewCoreTests : TestBase
         // Arrange
         int invalidCaseId = -1;
         this.baseRequest = this.CreateHttpRequestWithoutCookie();
-        var caseUrn = string.Empty;
-
+        
         // Act
-        IActionResult response = await this.sut.Run(this.baseRequest, caseUrn, invalidCaseId, CancellationToken.None);
+        IActionResult response = await this.sut.Run(this.baseRequest, invalidCaseId, CancellationToken.None);
 
         // Assert
         response.Should().BeOfType<BadRequestObjectResult>();

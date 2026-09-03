@@ -37,7 +37,7 @@ public class GetOffenceChargeById(
 {
     private readonly ILogger<GetOffenceChargeById> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
- 
+
     /// <summary>
     /// The Azure Function that processes an HTTP request for the 'case/{caseId}/pcd-review' route.
     /// </summary>

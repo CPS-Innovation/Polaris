@@ -33,7 +33,8 @@ namespace coordinator.Durable.Activity
                 payload.CaseId,
                 payload.DocumentId,
                 payload.CorrelationId,
-                documentStream);
+                documentStream,
+                isLegacy: true); // TODO: Set isLegacy to false when polaris is retired
         }
     }
 }

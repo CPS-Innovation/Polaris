@@ -69,7 +69,7 @@ public class CompleteReclassification(
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function processed a request.");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function processed a request.");
 
             if (caseId < 1)
             {
@@ -82,7 +82,7 @@ public class CompleteReclassification(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = BuildCmsAuthValues(request);
+            var cmsAuthValues = this.BuildCmsAuthValues(request);
 
             string requestBody = await new StreamReader(request.Body).ReadToEndAsync().ConfigureAwait(false);
 
@@ -93,23 +93,23 @@ public class CompleteReclassification(
                 return new BadRequestObjectResult("completeReclassificationRequest is null or empty");
             }
 
-            FluentValidation.Results.ValidationResult validationResult = requestValidator.Validate(completeReclassificationRequest);
+            FluentValidation.Results.ValidationResult validationResult = this.requestValidator.Validate(completeReclassificationRequest);
             if (!validationResult.IsValid)
             {
                 return new BadRequestObjectResult(validationResult.Errors.ToArray());
             }
 
-            CompleteReclassificationResponse result = await reclassificationOrchestrationService.CompleteReclassificationAsync(
+            CompleteReclassificationResponse result = await this.reclassificationOrchestrationService.CompleteReclassificationAsync(
                 caseId,
                 materialId,
                 cmsAuthValues,
-                completeReclassificationRequest, 
+                completeReclassificationRequest,
                 cancellationToken).ConfigureAwait(false);
 
             // All operations succeeded.
             if (result?.overallSuccess == true)
             {
-                logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] CompleteReclassification function completed in [{stopwatch.Elapsed}]");
+                this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] CompleteReclassification function completed in [{stopwatch.Elapsed}]");
                 return new OkObjectResult(result);
             }
 
@@ -120,32 +120,32 @@ public class CompleteReclassification(
                 {
                     StatusCode = 207,
                 };
-                logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] CompleteReclassification function completed in [{stopwatch.Elapsed}]");
+                this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] CompleteReclassification function completed in [{stopwatch.Elapsed}]");
                 return multiStatusObjectResult;
             }
 
             // All operations failed.
-            logger.LogError($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an invalid operation error: {result?.errors}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an invalid operation error: {result?.errors}");
             return new UnprocessableEntityObjectResult(result ?? null);
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogError($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an invalid operation error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an invalid operation error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"{ex.Message}");
         }
         catch (NotSupportedException ex)
         {
-            logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an unsupported content type error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an unsupported content type error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"ReclassifyCaseMaterial error: {ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an unauthorized access error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an unauthorized access error: {ex.Message}");
             return new UnauthorizedObjectResult($"CompleteReclassification error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            logger.LogError($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} CompleteReclassification function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }

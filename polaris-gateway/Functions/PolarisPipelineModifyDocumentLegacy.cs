@@ -84,7 +84,8 @@ public class PolarisPipelineModifyDocumentLegacy : BaseFunction
                 documentId,
                 modifyDocumentDto,
                 cmsAuthValues,
-                correlationId);
+                correlationId, 
+                isLegacy: true);
 
             telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
 

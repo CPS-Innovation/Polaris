@@ -22,7 +22,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class PolarisPipelineCaseSearch(ICoordinatorClient coordinatorClient, ICaseUrnResolver caseUrnResolver) : BaseFunction
+public class PolarisPipelineCaseSearch(ICoordinatorClient coordinatorClient) : BaseFunction
 {
     private const string Query = "query";
 
@@ -40,15 +40,13 @@ public class PolarisPipelineCaseSearch(ICoordinatorClient coordinatorClient, ICa
         cancellationToken.ThrowIfCancellationRequested();
 
         var correlationId = EstablishCorrelation(req);
-        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
-
-        var caseUrn = await caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         return await (await coordinatorClient.SearchCase(
-                caseUrn,
+                caseUrn: null,
                 caseId,
                 req.Query[Query],
-                correlationId))
+                correlationId,
+                isLegacy: false))
             .ToActionResult();
     }
 }

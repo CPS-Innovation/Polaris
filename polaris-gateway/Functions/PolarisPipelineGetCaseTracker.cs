@@ -22,7 +22,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class PolarisPipelineGetCaseTracker(ICoordinatorClient coordinatorClient, ICaseUrnResolver caseUrnResolver) : BaseFunction
+public class PolarisPipelineGetCaseTracker(ICoordinatorClient coordinatorClient) : BaseFunction
 {
     [Function(nameof(PolarisPipelineGetCaseTracker))]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -36,14 +36,12 @@ public class PolarisPipelineGetCaseTracker(ICoordinatorClient coordinatorClient,
     {
         cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);
-        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
-
-        var caseUrn = await caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         return await (await coordinatorClient.GetTrackerGetCaseAsync(
-                caseUrn,
+                caseUrn: null,
                 caseId,
-                correlationId))
+                correlationId,
+                isLegacy: false))
             .ToActionResult();
     }
 }

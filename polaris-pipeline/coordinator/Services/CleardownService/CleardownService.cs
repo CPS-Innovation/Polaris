@@ -32,7 +32,7 @@ namespace coordinator.Services.ClearDownService
             _logger = logger;
         }
 
-        public async Task DeleteCaseAsync(DurableTaskClient client, string caseUrn, int caseId, Guid correlationId)
+        public async Task DeleteCaseAsync(DurableTaskClient client, string caseUrn, int caseId, Guid correlationId, bool isLegacy = true)
         {
             var telemetryEvent = new DeletedCaseEvent(
                 correlationId,
@@ -44,7 +44,9 @@ namespace coordinator.Services.ClearDownService
             try
             {
                 _logger.LogInformation("Calling text extractor remove case indexes {CaseId}", caseId);
-                var deleteResult = await _textExtractorClient.RemoveCaseIndexesAsync(caseUrn, caseId, correlationId);
+
+                var deleteResult = await _textExtractorClient.RemoveCaseIndexesAsync(caseUrn, caseId, correlationId, isLegacy);
+
                 _logger.LogInformation("Text extractor remove case indexes Completed {CaseId}", caseId);
                 telemetryEvent.RemovedCaseIndexTime = DateTime.UtcNow;
                 telemetryEvent.AttemptedRemovedDocumentCount = deleteResult.DocumentCount;

@@ -54,7 +54,7 @@ public class GetCaseWitnesses(ILogger<GetCaseWitnesses> logger,
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} {nameof(GetCaseWitnesses)} function processed a request.");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} {nameof(GetCaseWitnesses)} function processed a request.");
 
             if (caseId < 1)
             {
@@ -62,11 +62,11 @@ public class GetCaseWitnesses(ILogger<GetCaseWitnesses> logger,
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = BuildCmsAuthValues(request);
+            var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            WitnessesResponse result = await witnessService.GetCaseWitnessesAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+            WitnessesResponse result = await this.witnessService.GetCaseWitnessesAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
-            logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] {nameof(GetCaseWitnesses)} function completed in [{stopwatch.Elapsed}]");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] {nameof(GetCaseWitnesses)} function completed in [{stopwatch.Elapsed}]");
 
             var response = new OkObjectResult(result);
 
@@ -78,17 +78,17 @@ public class GetCaseWitnesses(ILogger<GetCaseWitnesses> logger,
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogError($"{LoggingConstants.HskUiLogPrefix} {nameof(GetCaseWitnesses)} function encountered an invalid operation error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} {nameof(GetCaseWitnesses)} function encountered an invalid operation error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"{ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} {nameof(GetCaseWitnesses)} function encountered an unauthorized access error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} {nameof(GetCaseWitnesses)} function encountered an unauthorized access error: {ex.Message}");
             return new UnauthorizedObjectResult($"{nameof(GetCaseWitnesses)} error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            logger.LogError($"{LoggingConstants.HskUiLogPrefix} {nameof(GetCaseWitnesses)} function encountered an error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} {nameof(GetCaseWitnesses)} function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }
