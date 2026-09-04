@@ -1,0 +1,33 @@
+# Single mock that impersonates EVERY upstream the proxy dials:
+# CMS (classic/modern/services), DDEI, the gateway API, the SPA, Materials UI,
+# WM-MDS, and blob/SAS storage.
+#
+#   :3000 http   :3443 https (self-signed — nginx does not verify upstream certs
+#                            by default, so no extra config is needed)
+FROM node:24-alpine
+
+RUN apk add --no-cache openssl
+
+WORKDIR /app
+
+COPY mock-server.js .
+
+# No fixtures are baked in: each feature owns its own canned upstream bodies at
+# config/features/<name>/fixtures/ (+ a routes.json manifest), bind-mounted at
+# /config-features by docker-compose.yml and discovered at startup. That keeps a
+# feature complete in one folder and this image free of per-feature knowledge.
+
+RUN openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+  -keyout /app/key.pem -out /app/cert.pem \
+  -subj '/CN=mock-upstream'
+
+# Deliberately stays root: this test-only container also listens on 443 (a
+# privileged port) so it can answer the hardcoded App Insights hostname that
+# nginx.conf's /v2/ block proxy_passes to. See docker-compose.yml aliases.
+
+EXPOSE 3000 3443 443
+
+HEALTHCHECK --interval=5s --timeout=3s --start-period=2s --retries=5 \
+  CMD node -e "fetch('http://localhost:3000/__mock/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
+CMD ["node", "mock-server.js"]

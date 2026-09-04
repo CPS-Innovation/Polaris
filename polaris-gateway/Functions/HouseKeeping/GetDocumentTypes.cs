@@ -61,32 +61,32 @@ public class GetDocumentTypes(
             }
 
             // Build CMS auth values from cookie extracted from the request
-            var cmsAuthValues = BuildCmsAuthValues(request);
+            var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            IReadOnlyList<DocumentTypeGroup> result = documentTypeMapper.GetDocumentTypesWithClassificationGroup();
+            IReadOnlyList<DocumentTypeGroup> result = this.documentTypeMapper.GetDocumentTypesWithClassificationGroup();
 
-            logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetDocumentTypes function completed in [{stopwatch.Elapsed}]");
+            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetDocumentTypes function completed in [{stopwatch.Elapsed}]");
 
             return new OkObjectResult(result);
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an invalid operation error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an invalid operation error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"{ex.Message}");
         }
         catch (NotSupportedException ex)
         {
-            logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an unsupported content type error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an unsupported content type error: {ex.Message}");
             return new UnprocessableEntityObjectResult($"GetDocumentTypes error: {ex.Message}");
         }
         catch (UnauthorizedAccessException ex)
         {
-            logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an unauthorized access error: {ex.Message}");
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an unauthorized access error: {ex.Message}");
             return new UnauthorizedObjectResult($"GetDocumentTypes error: {ex.Message}");
         }
         catch (Exception ex)
         {
-            logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an error: {ex.Message}");
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetDocumentTypes function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }

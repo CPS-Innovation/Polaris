@@ -1,3 +1,9 @@
+// <copyright file="PolarisPipelineModifyDocument.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
 using System;
 using System.Net;
 using System.Net.Http;
@@ -5,7 +11,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Dto.Request;
+using Common.Extensions;
 using Common.Telemetry;
+using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -19,37 +27,31 @@ using PolarisGateway.Mappers;
 using PolarisGateway.TelemetryEvents;
 using PolarisGateway.Validators;
 
-namespace PolarisGateway.Functions;
-
 public class PolarisPipelineModifyDocument : BaseFunction
 {
-    private readonly ILogger<PolarisPipelineModifyDocument> _logger;
-    private readonly ICoordinatorClient _coordinatorClient;
-    private readonly IModifyDocumentRequestMapper _modifyDocumentRequestMapper;
-    private readonly ITelemetryClient _telemetryClient;
+    private readonly ILogger<PolarisPipelineModifyDocument> logger;
+    private readonly ICoordinatorClient coordinatorClient;
+    private readonly IModifyDocumentRequestMapper modifyDocumentRequestMapper;
 
     public PolarisPipelineModifyDocument(
         ILogger<PolarisPipelineModifyDocument> logger,
         ICoordinatorClient coordinatorClient,
-        IModifyDocumentRequestMapper modifyDocumentRequestMapper,
-        ITelemetryClient telemetryClient)
+        IModifyDocumentRequestMapper modifyDocumentRequestMapper)
         : base()
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
-        _modifyDocumentRequestMapper = modifyDocumentRequestMapper ?? throw new ArgumentNullException(nameof(modifyDocumentRequestMapper));
-        _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.coordinatorClient = coordinatorClient ?? throw new ArgumentNullException(nameof(coordinatorClient));
+        this.modifyDocumentRequestMapper = modifyDocumentRequestMapper ?? throw new ArgumentNullException(nameof(modifyDocumentRequestMapper));
     }
 
     [Function(nameof(PolarisPipelineModifyDocument))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [OpenApiOperation(operationId: nameof(PolarisPipelineModifyDocument), tags: ["Case"], Summary = "Polaris Pipeline Modify Document", Description = "Returns case information using caseURN and caseId")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
-    [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to add a new action plan.", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(object), Summary = "Case found", Description = "Returns case details")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)] HttpRequest req, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
     {
         var telemetryEvent = new DocumentModifiedEvent(caseId, materialId)
         {
@@ -58,7 +60,7 @@ public class PolarisPipelineModifyDocument : BaseFunction
 
         cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);
-        var cmsAuthValues = EstablishCmsAuthValues(req);
+        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
         try
         {
@@ -72,31 +74,32 @@ public class PolarisPipelineModifyDocument : BaseFunction
 
             if (!isRequestJsonValid)
             {
-                _telemetryClient.TrackEvent(telemetryEvent);
+                this.logger.TrackEvent(telemetryEvent);
                 return await new HttpResponseMessage
                 {
-                    StatusCode = HttpStatusCode.BadRequest
+                    StatusCode = HttpStatusCode.BadRequest,
                 }.ToActionResult();
             }
 
-            var modifyDocumentDto = _modifyDocumentRequestMapper.Map(documentChanges.Value);
-            var response = await _coordinatorClient.ModifyDocument(
-                caseUrn,
+            var modifyDocumentDto = this.modifyDocumentRequestMapper.Map(documentChanges.Value);
+            var response = await this.coordinatorClient.ModifyDocument(
+                caseUrn: null,
                 caseId,
                 materialId,
                 documentId,
                 modifyDocumentDto,
-                cmsAuthValues,
-                correlationId);
+                cmsAuthValues.CmsAuthFullValue,
+                correlationId,
+                isLegacy: false);
 
             telemetryEvent.IsSuccess = response.IsSuccessStatusCode;
 
-            _telemetryClient.TrackEvent(telemetryEvent);
+            this.logger.TrackEvent(telemetryEvent);
             return await response.ToActionResult();
         }
         catch
         {
-            _telemetryClient.TrackEventFailure(telemetryEvent);
+            this.logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }

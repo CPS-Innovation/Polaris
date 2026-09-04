@@ -1,4 +1,10 @@
-﻿using Common.Configuration;
+﻿// <copyright file="GetCase.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
+using Common.Configuration;
 using Common.Extensions;
 using Cps.MasterDataService.Infrastructure.ApiClient;
 using Ddei.Factories;
@@ -15,44 +21,45 @@ using System.Net;
 using System.Threading;
 using PolarisGateway.Services.MdsOrchestration;
 using System.Threading.Tasks;
-
-namespace PolarisGateway.Functions;
+using DdeiClient.Services.CaseUrnResolver;
+using Common.Dto.Request;
 
 public class GetCase : BaseFunction
 {
-    private readonly ILogger<GetCase> _logger;
-    private readonly IMdsArgFactory _mdsArgFactory;
-    private readonly IMdsCaseOrchestrationService _mdsOrchestrationService;
+    private readonly IMdsArgFactory mdsArgFactory;
+    private readonly IMdsCaseOrchestrationService mdsOrchestrationService;
+    private readonly ICaseUrnResolver caseUrnResolver;
 
     public GetCase(
-        ILogger<GetCase> logger,
         IMdsArgFactory mdsArgFactory,
-        IMdsCaseOrchestrationService mdsOrchestrationService)
+        IMdsCaseOrchestrationService mdsOrchestrationService,
+        ICaseUrnResolver caseUrnResolver)
         : base()
     {
-        _logger = logger.ExceptionIfNull();
-        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        _mdsOrchestrationService = mdsOrchestrationService.ExceptionIfNull();
+        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        this.mdsOrchestrationService = mdsOrchestrationService.ExceptionIfNull();
+        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
     [Function(nameof(GetCase))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [OpenApiOperation(operationId: nameof(GetCase), tags: ["Case"], Summary = "Get Case", Description = "Returns case information using caseURN and caseId")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
-    [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to add a new action plan.", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK,contentType: "application/json",bodyType: typeof(object),Summary = "Case found",Description = "Returns case details")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request",Description = "Missing or invalid parameters")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Case)] HttpRequest req, string caseUrn, int caseId, CancellationToken cancellationToken = default)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Case)] HttpRequest req, int caseId, CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
 
-        var cmsAuthValues = EstablishCmsAuthValues(req);
+        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
-        var arg = _mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
+        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
-        var result = await _mdsOrchestrationService.GetCase(arg, cancellationToken);
+        var arg = this.mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues.CmsAuthFullValue, correlationId, caseUrn, caseId);
+
+        var result = await this.mdsOrchestrationService.GetCase(arg, cancellationToken);
 
         return new OkObjectResult(result);
     }

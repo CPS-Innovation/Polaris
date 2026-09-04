@@ -1,0 +1,38 @@
+# Override: run the SAME integration tests against the "next" (to-be, refactored)
+# config in ../../../config/ instead of the live config in main-terraform/.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.next.yml up
+#   ../run-tests.sh --next
+#
+# Docker Compose merges `volumes` BY TARGET: a mount here with the same container
+# path as one in docker-compose.yml REPLACES it (verified). So this file only has
+# to repoint the config sources — everything else in the base stack (ports, the
+# env manifest, the mock upstream and its network aliases) is inherited unchanged.
+#
+# The two configs are exercised by the identical test suite; green on both proves
+# the refactor changed no behaviour. See proxy/README.md and docs/PROXY.md §6/§7.
+#
+# FEATURES ARE DROP-IN: the features tree is mounted as one directory and staged
+# by stage-config.sh, which does the .conf -> .conf.template rename envsubst needs.
+# So adding a feature is just creating features/<name>/<name>.{conf,js,unit.test.js}
+# — no mount lines here, and both test runners discover it at run time.
+#
+# (The base stack still mounts the LIVE nginx.js/cmsenv.js/global-components.* at
+# the templates root. The next config references none of them — it includes only
+# features/*/*.conf — so they sit there unused until cutover.)
+
+services:
+  nginx:
+    volumes:
+      # ../../../config == polaris-terraform/main-terraform/proxy/config/
+      #
+      # The root config is a single stable file; everything else is DISCOVERED.
+      - ../../../config/nginx.conf:/etc/nginx/templates/nginx.conf.template:ro
+      #
+      # The whole features tree is mounted as ONE directory and staged into
+      # /etc/nginx/templates/features by stage-config.sh (which maps .conf ->
+      # .conf.template, copies .js as-is and skips *.test.js) — mirroring what the
+      # Azure blob mount does. Consequence: dropping in a new feature folder
+      # (features/<name>/<name>.{conf,js,unit.test.js}) needs NO change here.
+      - ../../../config/features:/config-features:ro
+      - ./stage-config.sh:/docker-entrypoint.d/10-stage-config.sh:ro

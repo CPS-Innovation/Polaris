@@ -23,9 +23,9 @@ namespace pdf_redactor.tests.Functions
         private readonly Fixture _fixture = new();
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
-        private readonly Mock<ILogger<ModifyDocument>> _loggerMock;
+        private readonly Mock<ILogger<ModifyDocumentLegacy>> _loggerMock;
         private readonly Mock<IValidator<ModifyDocumentWithDocumentDto>> _mockValidator;
-        private readonly ModifyDocument _documentModifier;
+        private readonly ModifyDocumentLegacy _documentModifier;
         private readonly string _caseUrn;
         private readonly int _caseId;
         private readonly string _documentId;
@@ -45,7 +45,7 @@ namespace pdf_redactor.tests.Functions
 
             mockDocumentManipulationService.Setup(x => x.RemoveOrRotatePagesAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<ModifyDocumentWithDocumentDto>(), It.IsAny<Guid>())).ReturnsAsync(new MemoryStream());
 
-            _loggerMock = new Mock<ILogger<ModifyDocument>>();
+            _loggerMock = new Mock<ILogger<ModifyDocumentLegacy>>();
 
             _mockValidator = new Mock<IValidator<ModifyDocumentWithDocumentDto>>();
             _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<ModifyDocumentWithDocumentDto>(),
@@ -56,7 +56,7 @@ namespace pdf_redactor.tests.Functions
             _caseId = _fixture.Create<int>();
             _documentId = _fixture.Create<string>();
 
-            _documentModifier = new ModifyDocument(
+            _documentModifier = new ModifyDocumentLegacy(
                 _mockExceptionHandler.Object,
                 _mockJsonConvertWrapper.Object,
                 mockDocumentManipulationService.Object,

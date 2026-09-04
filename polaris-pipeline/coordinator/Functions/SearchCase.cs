@@ -1,4 +1,10 @@
-﻿using System.Linq;
+﻿// <copyright file="SearchCase.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.Functions;
+
+using System.Linq;
 using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Extensions;
@@ -16,89 +22,86 @@ using coordinator.Domain;
 using Common.Services.BlobStorage;
 using System;
 using Microsoft.Extensions.Configuration;
+using DdeiClient.Services.CaseUrnResolver;
+using System.Threading;
+using Common.Dto.Request;
 
-namespace coordinator.Functions
+public class SearchCase
 {
-    public class SearchCase
+    private const string QueryStringSearchParam = "query";
+    private readonly ITextExtractorClient textExtractorClient;
+    private readonly ISearchFilterDocumentMapper searchFilterDocumentMapper;
+    private readonly IPolarisBlobStorageService polarisBlobStorageService;
+    private readonly ILogger<SearchCase> logger;
+
+    public SearchCase(
+        IConfiguration configuration,
+        ITextExtractorClient textExtractorClient,
+        ISearchFilterDocumentMapper searchFilterDocumentMapper,
+        Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
+        ILogger<SearchCase> logger)
     {
-        private const string QueryStringSearchParam = "query";
-        private readonly ITextExtractorClient _textExtractorClient;
-        private readonly ISearchFilterDocumentMapper _searchFilterDocumentMapper;
-        private readonly IPolarisBlobStorageService _polarisBlobStorageService;
-        private readonly ITelemetryClient _telemetryClient;
-        private readonly ILogger<SearchCase> _logger;
+        this.textExtractorClient = textExtractorClient;
+        this.searchFilterDocumentMapper = searchFilterDocumentMapper;
+        this.polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
+        this.logger = logger;
+    }
 
-        public SearchCase(
-            IConfiguration configuration,
-            ITextExtractorClient textExtractorClient,
-            ISearchFilterDocumentMapper searchFilterDocumentMapper,
-            Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-            ITelemetryClient telemetryClient,
-            ILogger<SearchCase> logger)
+    [Function(nameof(SearchCase))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> HttpStart(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearch)] HttpRequest req,
+        int caseId,
+        CancellationToken cancellation)
+    {
+        var currentCorrelationId = req.Headers.GetCorrelationId();
+        var searchTerm = req.Query[QueryStringSearchParam];
+
+        if (string.IsNullOrWhiteSpace(searchTerm))
         {
-            _textExtractorClient = textExtractorClient;
-            _searchFilterDocumentMapper = searchFilterDocumentMapper;
-            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
-            _telemetryClient = telemetryClient;
-            _logger = logger;
+            return new BadRequestObjectResult("Search term not supplied.");
         }
 
-        [Function(nameof(SearchCase))]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> HttpStart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseSearch)] HttpRequest req,
-            string caseUrn,
-            int caseId)
+        var searchResults = await this.textExtractorClient.SearchTextAsync(urn: null, caseId, searchTerm, currentCorrelationId, isLegacy: false);
+
+        var documentStateBlobId = new BlobIdType(caseId, default, default, BlobType.DocumentState);
+        var documentsState = (await this.polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityDocumentsState>(documentStateBlobId)) ?? new CaseDurableEntityDocumentsState();
+
+        // todo: temporary code, need an AllDocuments method as per first refactor
+        var documents =
+            documentsState.CmsDocuments.OfType<BaseDocumentEntity>()
+                .Concat(documentsState.PcdRequests)
+                .Append(documentsState.DefendantsAndCharges)
+                .Select(this.searchFilterDocumentMapper.MapToSearchFilterDocument)
+                .ToList();
+
+        var filteredSearchResults = searchResults
+            .Where(result => documents.Any(doc => doc.DocumentId == result.DocumentId && doc.VersionId == result.VersionId))
+            .ToList();
+
+        var documentIds = filteredSearchResults
+            .Select(result => result.DocumentId)
+            .Distinct()
+            .ToList();
+
+        // the max string length of Application Insights custom properties is 8192
+        // so we chunk the docIds and create multiple events as some cases could exceed this limit
+        var chunkedDocumentIds = ChunkHelper.ChunkStringListByMaxCharacterCount(documentIds, 8192);
+
+        foreach (var documentIdsChunk in chunkedDocumentIds)
         {
-            var currentCorrelationId = req.Headers.GetCorrelationId();
-            var searchTerm = req.Query[QueryStringSearchParam];
-
-            if (string.IsNullOrWhiteSpace(searchTerm))
+            var telemetryEvent = new SearchCaseEvent(
+                currentCorrelationId,
+                caseId,
+                documentIdsChunk)
             {
-                return new BadRequestObjectResult("Search term not supplied.");
-            }
-
-            var searchResults = await _textExtractorClient.SearchTextAsync(caseUrn, caseId, searchTerm, currentCorrelationId);
-
-            var documentStateBlobId = new BlobIdType(caseId, default, default, BlobType.DocumentState);
-            var documentsState = (await _polarisBlobStorageService.TryGetObjectAsync<CaseDurableEntityDocumentsState>(documentStateBlobId)) ?? new CaseDurableEntityDocumentsState();
-
-            // todo: temporary code, need an AllDocuments method as per first refactor
-            var documents =
-                documentsState.CmsDocuments.OfType<BaseDocumentEntity>()
-                    .Concat(documentsState.PcdRequests)
-                    .Append(documentsState.DefendantsAndCharges)
-                    .Select(_searchFilterDocumentMapper.MapToSearchFilterDocument)
-                    .ToList();
-
-            var filteredSearchResults = searchResults
-                .Where(result => documents.Any(doc => doc.DocumentId == result.DocumentId && doc.VersionId == result.VersionId))
-                .ToList();
-
-            var documentIds = filteredSearchResults
-                .Select(result => result.DocumentId)
-                .Distinct()
-                .ToList();
-
-            // the max string length of Application Insights custom properties is 8192
-            // so we chunk the docIds and create multiple events as some cases could exceed this limit
-            var chunkedDocumentIds = ChunkHelper.ChunkStringListByMaxCharacterCount(documentIds, 8192);
-
-            foreach (var documentIdsChunk in chunkedDocumentIds)
-            {
-                var telemetryEvent = new SearchCaseEvent(
-                    currentCorrelationId,
-                    caseId,
-                    documentIdsChunk)
-                {
-                    OperationName = nameof(SearchCase),
-                };
-                _telemetryClient.TrackEvent(telemetryEvent);
-            }
-
-            return new OkObjectResult(filteredSearchResults);
+                OperationName = nameof(SearchCase),
+            };
+            this.logger.TrackEvent(telemetryEvent);
         }
+
+        return new OkObjectResult(filteredSearchResults);
     }
 }

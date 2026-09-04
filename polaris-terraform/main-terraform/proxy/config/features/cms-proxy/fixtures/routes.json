@@ -1,0 +1,19 @@
+[
+  {
+    "re": "^/CMS\\..*/Includes/uainGeneratedScript\\.aspx",
+    "file": "uainGeneratedScript.aspx.js",
+    "type": "application/javascript"
+  },
+  {
+    "re": "^/CMS\\..*/Noexpiry/Toolbar/uainMenuBar\\.js",
+    "file": "uainMenuBar.js",
+    "type": "application/javascript"
+  },
+  {
+    "re": "^/CMS\\..*/Case/uacdCDTabs\\.aspx",
+    "file": "uacdCDTabs.aspx.html",
+    "type": "text/html"
+  },
+  { "re": "^/CMSModern/Files", "file": "cms-page.html", "type": "text/html" },
+  { "re": "^/CMS", "file": "cms-page.html", "type": "text/html" }
+]
