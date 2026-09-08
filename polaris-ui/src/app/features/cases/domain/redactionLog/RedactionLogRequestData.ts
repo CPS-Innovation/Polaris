@@ -29,3 +29,6 @@ export type RedactionLogRequestData = {
     fileCreatedDate: string;
   };
 };
+
+// the redaction log service's source client id for this app
+export const CASEWORK_APP_SOURCE_CLIENT_ID = 1;
