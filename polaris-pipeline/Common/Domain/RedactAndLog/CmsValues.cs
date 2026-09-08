@@ -2,7 +2,7 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace coordinator.Domain;
+namespace Common.Domain.RedactAndLog;
 
 public class CmsValues
 {

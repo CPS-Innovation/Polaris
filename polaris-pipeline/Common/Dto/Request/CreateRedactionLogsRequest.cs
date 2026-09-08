@@ -2,16 +2,16 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-using System.ComponentModel.DataAnnotations;
-using Common.Validators;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Reactive;
-using System.Text;
-
 namespace Common.Dto.Request
 {
+    using System.ComponentModel.DataAnnotations;
+    using System;
+    using System.Collections.Generic;
+    using System.Reactive;
+    using System.Text;
+    using Common.Domain.RedactAndLog;
+    using Common.Validators;
+    using Cps.MasterDataService.Infrastructure.ApiClient;
     public class CreateRedactionLogsRequest
     {
         [Required]
@@ -31,12 +31,12 @@ namespace Common.Dto.Request
 
         [Required]
         [LoggerObject]
-        public List<Redaction> Redactions { get; set; }
+        public List<Common.Domain.RedactAndLog.Redaction> Redactions { get; set; }
 
         public string Notes { get; set; }
 
         [Required]
-        public ChargeStatus ChargeStatus { get; set; }
+        public Common.Enums.ChargeStatus ChargeStatus { get; set; }
 
         [Required]
         public CmsValues CmsValues { get; set; }

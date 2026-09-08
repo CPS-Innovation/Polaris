@@ -2,7 +2,7 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace coordinator.Enums;
+namespace Common.Enums;
 
 public enum ChargeStatus
 {
