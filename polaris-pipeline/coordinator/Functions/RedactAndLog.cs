@@ -142,8 +142,7 @@ public class RedactAndLog
                             documentId,
                             redactionRequest,
                             correlationId,
-                            isLegacy: false,
-                            idempotencyKey: idempotencyKey);
+                            isLegacy: false);
 
                     if (redactedDocumentStream == null)
                     {
@@ -229,8 +228,7 @@ public class RedactAndLog
                         materialId,
                         documentId,
                         modificationRequest,
-                        correlationId,
-                        idempotencyKey);
+                        correlationId);
 
                 if (modifiedDocumentStream == null)
                 {
@@ -288,8 +286,7 @@ public class RedactAndLog
 
                 await this.loggerClient.CreateRedactionLog(
                     createRedactionLogsRequest,
-                    correlationId,
-                    idempotencyKey);
+                    correlationId);
 
                 response = new RedactAndLogResponse
                 {
