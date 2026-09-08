@@ -29,6 +29,7 @@ export const expectedUnderRedactionType1Payload = {
     fileCreatedDate: "2020-06-01",
     documentTypeId: 1,
   },
+  sourceClientId: 1,
 };
 
 export const expectedUnderRedactionType2Payload = {
@@ -62,6 +63,7 @@ export const expectedUnderRedactionType2Payload = {
     fileCreatedDate: "2020-06-01",
     documentTypeId: 1,
   },
+  sourceClientId: 1,
 };
 
 export const expectedOverRedactionLogPayload = {
@@ -95,6 +97,7 @@ export const expectedOverRedactionLogPayload = {
     fileCreatedDate: "2020-06-01",
     documentTypeId: 1,
   },
+  sourceClientId: 1,
 };
 export const expectedOverUnderRedactionLogPayload = {
   urn: "99ZZ9999999",
@@ -137,4 +140,5 @@ export const expectedOverUnderRedactionLogPayload = {
     fileCreatedDate: "2020-06-01",
     documentTypeId: 1,
   },
+  sourceClientId: 1,
 };
