@@ -7,6 +7,7 @@ namespace coordinator.Functions;
 using Common.Configuration;
 using Common.Domain.Document;
 using Common.Dto.Request;
+using Common.Dto.Response;
 using Common.Exceptions;
 using Common.Extensions;
 using Common.Services.BlobStorage;
@@ -69,96 +70,278 @@ public class RedactAndLog
         long documentId,
         CancellationToken cancellationToken)
     {
-        var currentCorrelationId = req.Headers.GetCorrelationId();
+        var correlationId = req.Headers.GetCorrelationId();
+        var idempotencyKey = correlationId; // Use the same key across downstream calls
 
-        var redactPdfRequest = await req.ReadFromJsonAsync<RedactPdfRequestDto>(cancellationToken);
+        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
-        using var documentStream = await this.polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, materialId, documentId, BlobType.Pdf));
+        var request = await req.ReadFromJsonAsync<RedactAndLogRequestDto>(cancellationToken);
+        var redactPdfRequest = request!.RedactionPayload;
 
-        using var memoryStream = new MemoryStream();
-        await documentStream.CopyToAsync(memoryStream, cancellationToken);
-        var bytes = memoryStream.ToArray();
-
-        Stream redactedDocumentStream = null;
-
-        if (redactPdfRequest.RedactionDefinitions.Count != 0)
+        var response = new RedactAndLogResponse
         {
-            var base64Document = Convert.ToBase64String(bytes);
+            CorrelationId = correlationId,
+            Redaction = new StepResult { Status = "NotStarted" },
+            Logging = new StepResult { Status = "NotStarted" },
+        };
 
-            var redactionRequest = new RedactPdfRequestWithDocumentDto
-            {
-                Document = base64Document,
-                RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
-            };
-
-            var validationResult = await this.requestValidator.ValidateAsync(redactionRequest, cancellationToken);
-            if (!validationResult.IsValid)
-            {
-                throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
-            }
-
-            redactedDocumentStream = await this.redactionClient.RedactPdfAsync(caseId, materialId, documentId, redactionRequest, currentCorrelationId);
-            if (redactedDocumentStream == null)
-            {
-                string error = $"Error Saving redaction details to the document for {caseId}, materialId {materialId}";
-                throw new InvalidOperationException(error);
-            }
-        }
-
-        Stream modifiedDocumentStream = null;
-
-        if (redactPdfRequest.DocumentModifications.Count != 0)
+        try
         {
-            byte[] bytesToModify = null;
+            var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(
+                caseId,
+                cmsAuthValues,
+                cancellationToken);
 
-            if (redactedDocumentStream != null)
+            using var documentStream = await this.polarisBlobStorageService.GetBlobAsync(
+                new BlobIdType(caseId, materialId, documentId, BlobType.Pdf));
+
+            using var memoryStream = new MemoryStream();
+            await documentStream.CopyToAsync(memoryStream, cancellationToken);
+
+            var bytes = memoryStream.ToArray();
+
+            Stream redactedDocumentStream = null;
+            Stream modifiedDocumentStream = null;
+
+            // ---------------------------------------------------------
+            // STEP 1 - REDACTION
+            // ---------------------------------------------------------
+            if (redactPdfRequest.RedactionDefinitions.Count != 0)
             {
-                using var redactedMemoryStream = new MemoryStream();
-                await redactedDocumentStream.CopyToAsync(redactedMemoryStream, cancellationToken);
-                bytesToModify = redactedMemoryStream.ToArray();
+                var redactionRequest = new RedactPdfRequestWithDocumentDto
+                {
+                    Document = Convert.ToBase64String(bytes),
+                    RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
+                };
+
+                var validationResult = await this.requestValidator.ValidateAsync(
+                    redactionRequest,
+                    cancellationToken);
+
+                if (!validationResult.IsValid)
+                {
+                    response = new RedactAndLogResponse
+                    {
+                        Redaction = new StepResult
+                        {
+                            Status = "Failed",
+                            Error = validationResult.FlattenErrors(),
+                        },
+                    };
+
+                    return new BadRequestObjectResult(response);
+                }
+
+                try
+                {
+                    redactedDocumentStream =
+                        await this.redactionClient.RedactPdfAsync(
+                            caseUrn: null,
+                            caseId,
+                            materialId,
+                            documentId,
+                            redactionRequest,
+                            correlationId,
+                            isLegacy: false,
+                            idempotencyKey: idempotencyKey);
+
+                    if (redactedDocumentStream == null)
+                    {
+                        throw new InvalidOperationException(
+                            $"Error saving redaction details for {caseId}, materialId {materialId}");
+                    }
+
+                    response = new RedactAndLogResponse
+                    {
+                        Redaction = new StepResult
+                        {
+                            Status = "Succeeded",
+                        },
+                    };
+                }
+                catch (Exception ex)
+                {
+                    response = new RedactAndLogResponse
+                    {
+                        Redaction = new StepResult
+                        {
+                            Status = "Failed",
+                            Error = ex.Message,
+                        },
+                    };
+
+                    return new ObjectResult(response)
+                    {
+                        StatusCode = StatusCodes.Status502BadGateway,
+                    };
+                }
             }
             else
             {
-                bytesToModify = bytes;
+                response = new RedactAndLogResponse
+                {
+                    Redaction = new StepResult
+                    {
+                        Status = "Skipped",
+                    },
+                };
             }
 
-            var base64DocumentToModify = Convert.ToBase64String(bytesToModify);
-
-            var modificationRequest = new ModifyDocumentWithDocumentDto
+            // ---------------------------------------------------------
+            // STEP 2 - DOCUMENT MODIFICATION
+            // ---------------------------------------------------------
+            if (redactPdfRequest.DocumentModifications.Count != 0)
             {
-                Document = base64DocumentToModify,
-                DocumentModifications = redactPdfRequest.DocumentModifications,
-                VersionId = redactPdfRequest.VersionId,
+                byte[] bytesToModify;
+
+                if (redactedDocumentStream != null)
+                {
+                    using var redactedMemoryStream = new MemoryStream();
+
+                    // Ensure the stream can be read from the beginning.
+                    if (redactedDocumentStream.CanSeek)
+                    {
+                        redactedDocumentStream.Position = 0;
+                    }
+
+                    await redactedDocumentStream.CopyToAsync(
+                        redactedMemoryStream,
+                        cancellationToken);
+
+                    bytesToModify = redactedMemoryStream.ToArray();
+                }
+                else
+                {
+                    bytesToModify = bytes;
+                }
+
+                var modificationRequest = new ModifyDocumentWithDocumentDto
+                {
+                    Document = Convert.ToBase64String(bytesToModify),
+                    DocumentModifications = redactPdfRequest.DocumentModifications,
+                    VersionId = redactPdfRequest.VersionId,
+                };
+
+                modifiedDocumentStream =
+                    await this.redactionClient.ModifyDocument(
+                        caseUrn,
+                        caseId,
+                        materialId,
+                        documentId,
+                        modificationRequest,
+                        correlationId,
+                        idempotencyKey);
+
+                if (modifiedDocumentStream == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Error modifying document for {caseId}, materialId {materialId}");
+                }
+            }
+
+            // ---------------------------------------------------------
+            // STEP 3 - UPLOAD DOCUMENT
+            // ---------------------------------------------------------
+            var arg = this.mdsArgFactory.CreateDocumentVersionArgDto(
+                cmsAuthValues.CmsAuthFullValue,
+                correlationId: correlationId,
+                caseUrn,
+                caseId: caseId,
+                DocumentNature.ToNumericDocumentId(
+                    materialId,
+                    DocumentNature.Types.Document),
+                documentId);
+
+            var documentToUpload =
+                modifiedDocumentStream ??
+                redactedDocumentStream;
+
+            var ddeiResult = await this.mdsClient.UploadPdfAsync(
+                arg,
+                documentToUpload,
+                cancellationToken);
+
+            if (ddeiResult.StatusCode == HttpStatusCode.Gone ||
+                ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
+            {
+                response = new RedactAndLogResponse
+                {
+                    Logging = new StepResult
+                    {
+                        Status = "NotStarted",
+                    },
+                };
+
+                return new ObjectResult(response)
+                {
+                    StatusCode = (int)ddeiResult.StatusCode,
+                };
+            }
+
+            // ---------------------------------------------------------
+            // STEP 4 - LOGGING
+            // ---------------------------------------------------------
+            try
+            {
+                var createRedactionLogsRequest =
+                    request.LogPayload;
+
+                await this.loggerClient.CreateRedactionLog(
+                    createRedactionLogsRequest,
+                    correlationId,
+                    idempotencyKey);
+
+                response = new RedactAndLogResponse
+                {
+                    Logging = new StepResult
+                    {
+                        Status = "Succeeded",
+                    },
+                };
+            }
+            catch (Exception ex)
+            {
+                response = new RedactAndLogResponse
+                {
+                    Logging = new StepResult
+                    {
+                        Status = "Failed",
+                        Error = ex.Message,
+                    },
+                };
+
+                return new ObjectResult(response)
+                {
+                    StatusCode = StatusCodes.Status502BadGateway,
+                };
+            }
+
+            // ---------------------------------------------------------
+            // SUCCESS - ONLY AFTER BOTH STEPS SUCCEED
+            // ---------------------------------------------------------
+            response = new RedactAndLogResponse
+            {
+                Success = true,
             };
 
-            modifiedDocumentStream = await this.redactionClient.ModifyDocument(caseUrn, caseId, materialId, documentId, modificationRequest, currentCorrelationId);
-            if (modifiedDocumentStream == null)
-            {
-                string error = $"Error modifying document for {caseId}, materialId {materialId}";
-                throw new InvalidOperationException(error);
-            }
+            return new OkObjectResult(response);
         }
-
-        var arg = this.mdsArgFactory.CreateDocumentVersionArgDto(
-            cmsAuthValues.CmsAuthFullValue,
-            correlationId: currentCorrelationId,
-            caseUrn,
-            caseId: caseId,
-            DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document),
-            documentId);
-
-        var ddeiResult = await this.mdsClient.UploadPdfAsync(arg, modifiedDocumentStream ?? redactedDocumentStream, cancellationToken);
-
-        if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
+        catch (Exception ex)
         {
-            return new StatusCodeResult((int)ddeiResult.StatusCode);
+            response = new RedactAndLogResponse
+            {
+                Success = false,
+                Logging = new StepResult
+                {
+                    Status = "Failed",
+                    Error = ex.Message,
+                },
+            };
+
+            return new ObjectResult(response)
+            {
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
         }
-
-        CreateRedactionLogsRequest createRedactionLogsRequest = new();
-
-
-        await this.loggerClient.CreateRedactionLog(createRedactionLogsRequest, currentCorrelationId);
-
-        return new OkResult();
     }
 }

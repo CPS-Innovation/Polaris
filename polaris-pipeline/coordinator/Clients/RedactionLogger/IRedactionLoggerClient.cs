@@ -4,7 +4,7 @@
 
 namespace coordinator.Clients.RedactionLogger;
 
-using coordinator.Domain;
+using Common.Dto.Request;
 using System;
 using System.Collections.Generic;
 using System.IO;

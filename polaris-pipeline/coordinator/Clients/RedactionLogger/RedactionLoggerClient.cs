@@ -6,9 +6,10 @@ namespace coordinator.Clients.RedactionLogger;
 
 using Common.Configuration;
 using Common.Wrappers;
+using Common.Dto.Request;
 using coordinator.Clients.PdfRedactor;
 using coordinator.Constants;
-using coordinator.Domain;
+
 using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Generic;
