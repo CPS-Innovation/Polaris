@@ -28,7 +28,7 @@ public class OcrArtefactService : IOcrArtefactService
         _pdfArtefactService = pdfArtefactService.ExceptionIfNull();
     }
 
-    public async Task<ArtefactResult<AnalyzeResults>> GetOcrAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isOcrProcessed, Guid? operationId = null, bool forceRefresh = false)
+    public async Task<ArtefactResult<AnalyzeResults>> GetOcrAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isOcrProcessed, Guid? operationId = null, bool forceRefresh = false, bool isLegacy = true)
     {
         if (!forceRefresh && await _cacheService.TryGetJsonObjectAsync<AnalyzeResults>(caseId, materialId, documentId, BlobType.Ocr) is (true, var results))
         {
@@ -60,7 +60,7 @@ public class OcrArtefactService : IOcrArtefactService
             IsOcrProcessed: isOcrProcessed,
             ForceRefresh: forceRefresh);
 
-        var pdfResult = await _pdfArtefactService.GetPdfAsync(request, cmsAuthValues, correlationId);
+        var pdfResult = await _pdfArtefactService.GetPdfAsync(request, cmsAuthValues, correlationId, isLegacy);
 
         if (pdfResult.Status != ResultStatus.ArtefactAvailable)
         {

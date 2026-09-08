@@ -47,7 +47,8 @@ public class PolarisPipelineGetCaseTrackerLegacy : BaseFunction
         return await (await _coordinatorClient.GetTrackerGetCaseAsync(
                 caseUrn,
                 caseId,
-                correlationId))
+                correlationId,
+                isLegacy: true))
             .ToActionResult();
     }
 }

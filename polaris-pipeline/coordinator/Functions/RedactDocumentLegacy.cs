@@ -86,7 +86,7 @@ public class RedactDocumentLegacy
                 throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
             }
 
-            redactedDocumentStream = await _redactionClient.RedactPdfAsync(caseUrn, caseId, materialId, documentId, redactionRequest, currentCorrelationId);
+            redactedDocumentStream = await _redactionClient.RedactPdfAsync(caseUrn, caseId, materialId, documentId, redactionRequest, currentCorrelationId, isLegacy: true);
             if (redactedDocumentStream == null)
             {
                 string error = $"Error Saving redaction details to the document for {caseId}, materialId {materialId}";

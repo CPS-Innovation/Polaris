@@ -38,10 +38,12 @@ namespace coordinator.Functions.Maintenance
         {
             var currentCorrelationId = req.Headers.GetCorrelationId();
 
-            await _clearDownService.DeleteCaseAsync(orchestrationClient,
-                 caseUrn,
-                 caseId,
-                 currentCorrelationId);
+            await _clearDownService.DeleteCaseAsync(
+                orchestrationClient,
+                caseUrn,
+                caseId,
+                currentCorrelationId,
+                isLegacy: true);
 
             return new AcceptedResult();
         }

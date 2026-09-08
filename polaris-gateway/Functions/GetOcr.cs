@@ -63,8 +63,7 @@ public class GetOcr : BaseFunction
             Guid.Parse(req.Query[TokenQueryParamName]) :
             (Guid?)null;
 
-        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
-        var ocrResult = await this.ocrArtefactService.GetOcrAsync(cmsAuthValues.CmsAuthFullValue, correlationId, caseUrn, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh);
+        var ocrResult = await this.ocrArtefactService.GetOcrAsync(cmsAuthValues.CmsAuthFullValue, correlationId, urn: null, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh, isLegacy: false);
         return ocrResult.Status switch
         {
             ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Artefact)

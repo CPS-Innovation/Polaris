@@ -49,7 +49,8 @@ public class SlidingCaseClearDown
                 await _clearDownService.DeleteCaseAsync(client,
                  "sliding-clear-down",
                  caseId,
-                 correlationId);
+                 correlationId,
+                 isLegacy: true);
             }
         }
         catch (Exception ex)

@@ -48,12 +48,11 @@ public class GetThumbnailLegacy : BaseFunction
     [OpenApiResponseWithBody(HttpStatusCode.OK, "application/json", typeof(object), Description = "OCR processing completed successfully")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
-
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.ThumbnailLegacy)] HttpRequest req,
         string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int pageIndex, CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
-        return await (await _pdfThumbnailGeneratorClient.GetThumbnailAsync(caseUrn, caseId, materialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues, correlationId)).ToActionResult();
+        return await (await _pdfThumbnailGeneratorClient.GetThumbnailAsync(caseUrn, caseId, materialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues, correlationId, isLegacy: true)).ToActionResult();
     }
 }

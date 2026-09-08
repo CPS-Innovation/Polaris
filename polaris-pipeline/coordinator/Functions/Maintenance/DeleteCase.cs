@@ -16,7 +16,7 @@ using Microsoft.DurableTask.Client;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class DeleteCase(IClearDownService clearDownService, ICaseUrnResolver caseUrnResolver)
+public class DeleteCase(IClearDownService clearDownService)
 {
     [Function(nameof(DeleteCase))]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
@@ -28,15 +28,13 @@ public class DeleteCase(IClearDownService clearDownService, ICaseUrnResolver cas
             [DurableClient] DurableTaskClient orchestrationClient)
     {
         var currentCorrelationId = req.Headers.GetCorrelationId();
-        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
-        
-        var caseUrn = await caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         await clearDownService.DeleteCaseAsync(
             orchestrationClient,
-            caseUrn,
+            caseUrn: null,
             caseId,
-            currentCorrelationId);
+            currentCorrelationId,
+            isLegacy: false);
 
         return new AcceptedResult();
     }

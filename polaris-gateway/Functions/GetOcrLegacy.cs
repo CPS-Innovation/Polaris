@@ -59,7 +59,7 @@ public class GetOcrLegacy : BaseFunction
             Guid.Parse(req.Query[tokenQueryParamName]) :
             (Guid?)null;
 
-        var ocrResult = await _ocrArtefactService.GetOcrAsync(cmsAuthValues, correlationId, caseUrn, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh);
+        var ocrResult = await _ocrArtefactService.GetOcrAsync(cmsAuthValues, correlationId, caseUrn, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh, isLegacy: true);
         return ocrResult.Status switch
         {
             ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Artefact)

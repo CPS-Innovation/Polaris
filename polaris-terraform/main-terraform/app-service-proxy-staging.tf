@@ -75,7 +75,7 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "SAS_URL_DOMAIN_NAME"                             = "${azurerm_storage_account.sa.name}.blob.core.windows.net"
     "ENDPOINT_HTTP_PROTOCOL"                          = "https"
     "NGINX_ENVSUBST_OUTPUT_DIR"                       = "/etc/nginx"
-    "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}:${md5(file("cmsenv.js"))}::${md5(file("polaris-script.js"))}:${md5(file("global-components.conf"))}:${md5(file("global-components.js"))}" 
+    "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}:${md5(file("cmsenv.js"))}::${md5(file("polaris-script.js"))}:${md5(file("global-components.conf"))}:${md5(file("global-components.js"))}:${local.proxy_next_config_hash}"
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist

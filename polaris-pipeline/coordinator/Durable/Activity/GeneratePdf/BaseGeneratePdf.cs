@@ -56,7 +56,8 @@ public abstract class BaseGeneratePdf
             payload.MaterialId,
             payload.DocumentId,
             documentStream,
-            payload.FileType.Value);
+            payload.FileType.Value,
+            isLegacy: true); // TODO: Set isLegacy to false when polaris is retired
 
         if (response.Status != PdfConversionStatus.DocumentConverted)
         {
