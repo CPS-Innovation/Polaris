@@ -1,4 +1,10 @@
-﻿using Common.Domain.Document;
+﻿// <copyright file="ServiceExtensions.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.ApplicationStartup;
+
+using Common.Domain.Document;
 using Common.Domain.Validators;
 using Common.Dto.Request;
 using Common.Factories.ComputerVisionClientFactory;
@@ -19,10 +25,15 @@ using coordinator.Durable.Providers;
 using coordinator.Factories.UploadFileNameFactory;
 using coordinator.Functions.DurableEntity.Entity.Mapper;
 using coordinator.Mappers;
+using coordinator.Search;
 using coordinator.Services;
 using coordinator.Services.ClearDownService;
 using coordinator.Validators;
 using Ddei.Extensions;
+using DdeiClient.Clients;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Configuration;
+using DdeiClient.Services.CaseUrnResolver;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,17 +43,21 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using coordinator.Search;
 using PdfGenerator = Common.Clients.PdfGenerator;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
 using TextExtractor = coordinator.Clients.TextExtractor;
-
-namespace coordinator.ApplicationStartup;
 
 public static class ServiceExtensions
 {
     private const int RetryAttempts = 2;
     private const int FirstRetryDelaySeconds = 1;
+
+    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy =>
+        Policy
+            .HandleResult<HttpResponseMessage>((result) => ShouldRetry(result.RequestMessage, result))
+            .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(
+            medianFirstRetryDelay: TimeSpan.FromSeconds(FirstRetryDelaySeconds),
+            retryCount: RetryAttempts));
 
     public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
@@ -84,10 +99,8 @@ public static class ServiceExtensions
         services.AddTransient<IOrchestrationProvider, OrchestrationProvider>();
         services.RegisterCoordinatorMapsterConfiguration();
         services.AddDdeiClientGateway(configuration);
-        // services.AddTransient<IDocumentToggleService, DocumentToggleService>();
         services.AddSingleton<IDocumentToggleService>(new DocumentToggleService(DocumentToggleService.ReadConfig()));
 
-        services.AddSingleton<ITelemetryClient, TelemetryClient>();
         services.AddSingleton<ICaseDurableEntityMapper, CaseDurableEntityMapper>();
         services.AddSingleton<IStateStorageService, StateStorageService>();
         services.AddSingleton<IRedactionSearchDtoMapper, RedactionSearchDtoMapper>();
@@ -95,10 +108,16 @@ public static class ServiceExtensions
         services.AddSingleton<IOcrDocumentSearch, OcrDocumentSearch>();
         services.AddScoped<IBulkRedactionSearchResponseBuilder, BulkRedactionSearchResponseBuilder>();
         services.AddScoped<IBulkRedactionSearchService, BulkRedactionSearchService>();
+
+        services.AddMemoryCache();
+        services.AddScoped<ICaseUrnResolver, CaseUrnResolver>();
+        services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>();
+        services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();
+        services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);
         return services;
     }
 
-    public static IHttpClientBuilder AddHttpClientWithDefaults<TInterface, TImplementation>(this IServiceCollection services, IConfiguration configuration, string baseUrlKey, string timeoutKey) 
+    public static IHttpClientBuilder AddHttpClientWithDefaults<TInterface, TImplementation>(this IServiceCollection services, IConfiguration configuration, string baseUrlKey, string timeoutKey)
         where TInterface : class
         where TImplementation : class, TInterface
     {
@@ -122,16 +141,10 @@ public static class ServiceExtensions
         return secret;
     }
 
-    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy =>
-        // https://learn.microsoft.com/en-us/dotnet/architecture/microservices/implement-resilient-applications/implement-http-call-retries-exponential-backoff-polly#add-a-jitter-strategy-to-the-retry-policy
-        Policy
-            .HandleResult<HttpResponseMessage>((result) => ShouldRetry(result.RequestMessage, result))
-            .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(
-            medianFirstRetryDelay: TimeSpan.FromSeconds(FirstRetryDelaySeconds),
-            retryCount: RetryAttempts));
-
+#pragma warning disable SA1313 // Parameter names should begin with lower-case letter
     private static bool ShouldRetry(HttpRequestMessage _, HttpResponseMessage response) =>
         response.StatusCode >= HttpStatusCode.InternalServerError;
+#pragma warning restore SA1313 // Parameter names should begin with lower-case letter
 
     private static void BuildOcrService(IServiceCollection services, IConfiguration configuration)
     {

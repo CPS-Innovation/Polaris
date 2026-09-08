@@ -34,14 +34,14 @@ namespace text_extractor.tests.Functions
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly AnalyzeResults _mockAnalyzeResults;
-        private readonly Mock<ILogger<StoreCaseIndexes>> _mockLogger;
+        private readonly Mock<ILogger<StoreCaseIndexesLegacy>> _mockLogger;
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Guid _correlationId;
         private readonly string _caseUrn;
         private readonly int _caseId;
         private readonly long _versionId;
         private readonly string _documentId;
-        private readonly StoreCaseIndexes _storeCaseIndexes;
+        private readonly StoreCaseIndexesLegacy _storeCaseIndexes;
         private readonly List<ValidationResult> _validationResults;
 
         public StoreCaseIndexesTests()
@@ -67,7 +67,7 @@ namespace text_extractor.tests.Functions
                 .Setup(wrapper => wrapper.Validate(_storeCaseIndexesRequest))
                 .Returns(_validationResults);
 
-            _mockLogger = new Mock<ILogger<StoreCaseIndexes>>();
+            _mockLogger = new Mock<ILogger<StoreCaseIndexesLegacy>>();
 
             _mockJsonConvertWrapper
                 .Setup(wrapper => wrapper.DeserializeObject<AnalyzeResults>(It.IsAny<string>()))
@@ -78,7 +78,7 @@ namespace text_extractor.tests.Functions
             mockDtoHttpRequestHeadersMapper.Setup(mapper => mapper.Map<StoreCaseIndexesRequestDto>(It.IsAny<IHeaderDictionary>()))
                 .Returns(_storeCaseIndexesRequest);
 
-            _storeCaseIndexes = new StoreCaseIndexes(
+            _storeCaseIndexes = new StoreCaseIndexesLegacy(
                                 _mockSearchIndexService.Object,
                                 _mockExceptionHandler.Object,
                                 _mockLogger.Object,
@@ -90,7 +90,7 @@ namespace text_extractor.tests.Functions
         {
             var mockRequest = CreateMockRequest(new StringContent("{}"), null);
             _errorResult = new JsonResult(_fixture.Create<string>()) { StatusCode = (int)HttpStatusCode.Unauthorized };
-            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<StoreCaseIndexes>>(), It.IsAny<object>()))
+            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<StoreCaseIndexesLegacy>>(), It.IsAny<object>()))
                 .Returns(_errorResult);
 
             var response = await _storeCaseIndexes.Run(mockRequest.Object, _caseUrn, _caseId, _documentId, _versionId);

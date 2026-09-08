@@ -37,6 +37,13 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "DEFAULT_UPSTREAM_CMS_DOMAIN_NAME"                = var.cms_details.default_upstream_cms_domain_name
     "DEFAULT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"       = var.cms_details.default_upstream_cms_services_domain_name
     "DEFAULT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"         = var.cms_details.default_upstream_cms_modern_domain_name
+    "CPT_UPSTREAM_CMS_IP_CORSHAM"                     = var.cms_details.cpt_upstream_cms_ip_corsham
+    "CPT_UPSTREAM_CMS_MODERN_IP_CORSHAM"              = var.cms_details.cpt_upstream_cms_modern_ip_corsham
+    "CPT_UPSTREAM_CMS_IP_FARNBOROUGH"                 = var.cms_details.cpt_upstream_cms_ip_farnborough
+    "CPT_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"          = var.cms_details.cpt_upstream_cms_modern_ip_farnborough
+    "CPT_UPSTREAM_CMS_DOMAIN_NAME"                    = var.cms_details.cpt_upstream_cms_domain_name
+    "CPT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"           = var.cms_details.cpt_upstream_cms_services_domain_name
+    "CPT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"             = var.cms_details.cpt_upstream_cms_modern_domain_name
     "CIN2_UPSTREAM_CMS_IP_CORSHAM"                    = var.cms_details.cin2_upstream_cms_ip_corsham
     "CIN2_UPSTREAM_CMS_MODERN_IP_CORSHAM"             = var.cms_details.cin2_upstream_cms_modern_ip_corsham
     "CIN2_UPSTREAM_CMS_IP_FARNBOROUGH"                = var.cms_details.cin2_upstream_cms_ip_farnborough
@@ -68,7 +75,7 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "SAS_URL_DOMAIN_NAME"                             = "${azurerm_storage_account.sa.name}.blob.core.windows.net"
     "ENDPOINT_HTTP_PROTOCOL"                          = "https"
     "NGINX_ENVSUBST_OUTPUT_DIR"                       = "/etc/nginx"
-    "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}:${md5(file("cmsenv.js"))}::${md5(file("polaris-script.js"))}:${md5(file("global-components.conf"))}:${md5(file("global-components.js"))}" 
+    "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}:${md5(file("cmsenv.js"))}::${md5(file("polaris-script.js"))}:${md5(file("global-components.conf"))}:${md5(file("global-components.js"))}:${local.proxy_next_config_hash}"
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist

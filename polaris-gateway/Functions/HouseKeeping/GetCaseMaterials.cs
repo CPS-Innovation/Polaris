@@ -4,50 +4,49 @@
 
 namespace PolarisGateway.Functions.HouseKeeping;
 
+using Common.Configuration;
+using Common.Constants;
+using Common.Dto.Request;
+using Common.Dto.Response.HouseKeeping;
+using Common.Enums;
+using Cps.Fct.Hk.Ui.Interfaces;
+using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
+using Cps.Fct.Hk.Ui.Services.Constants;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using PolarisGateway.Functions;
+using PolarisGateway.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Cps.Fct.Hk.Ui.Interfaces;
-using System.Diagnostics;
-using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.OpenApi.Models;
-using System.Net;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Cps.Fct.Hk.Ui.Interfaces.Enums;
-using PolarisGateway.Functions;
-using Common.Dto.Response.HouseKeeping;
-using System.Collections.Generic;
-using System.Linq;
-using System;
-using PolarisGateway.Helpers;
-using Common.Dto.Request;
-using Common.Configuration;
-using Common.Constants;
-using Common.Enums;
-using Cps.Fct.Hk.Ui.Services.Constants;
 
 /// <summary>
 /// Container for retrieved case materials data.
 /// </summary>
-/// <param name="Communications">The communications collection.</param>
-/// <param name="UnusedMaterials">The unused materials.</param>
-/// <param name="UsedStatements">The used statements.</param>
-/// <param name="UsedExhibits">The used exhibits.</param>
-/// <param name="UsedMgForms">The used MG forms.</param>
-/// <param name="UsedOtherMaterials">The used other materials.</param>
-/// <param name="ExhibitProducers">The exhibit producers.</param>
+/// <param name="communications">The communications collection.</param>
+/// <param name="unusedMaterials">The unused materials.</param>
+/// <param name="usedStatements">The used statements.</param>
+/// <param name="usedExhibits">The used exhibits.</param>
+/// <param name="usedMgForms">The used MG forms.</param>
+/// <param name="usedOtherMaterials">The used other materials.</param>
+/// <param name="exhibitProducers">The exhibit producers.</param>
 internal record RetrievedCaseMaterials(
-    IReadOnlyCollection<Communication> Communications,
-    UnusedMaterialsResponse UnusedMaterials,
-    UsedStatementsResponse UsedStatements,
-    UsedExhibitsResponse UsedExhibits,
-    UsedMgFormsResponse UsedMgForms,
-    UsedOtherMaterialsResponse UsedOtherMaterials,
-    ExhibitProducersResponse ExhibitProducers);
+    IReadOnlyCollection<Communication> communications,
+    UnusedMaterialsResponse unusedMaterials,
+    UsedStatementsResponse usedStatements,
+    UsedExhibitsResponse usedExhibits,
+    UsedMgFormsResponse usedMgForms,
+    UsedOtherMaterialsResponse usedOtherMaterials,
+    ExhibitProducersResponse exhibitProducers);
 
 /// <summary>
 /// Represents a function that retrieves the case materials for a case,
@@ -59,7 +58,6 @@ internal record RetrievedCaseMaterials(
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="communicationService">The service used to process the request and generate the result.</param>
 /// <param name="caseMaterialService">The service used to manage and retrieve case materials.</param>
-
 public class GetCaseMaterials(
     ILogger<GetCaseMaterials> logger,
     ICommunicationService communicationService,
@@ -96,12 +94,12 @@ public class GetCaseMaterials(
                 await this.caseMaterialService.RetrieveCaseMaterialsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
             var retrievedMaterials = new RetrievedCaseMaterials(
-                communications, 
-                unusedMaterials, 
-                usedStatements, 
-                usedExhibits, 
-                usedMgForms, 
-                usedOtherMaterials, 
+                communications,
+                unusedMaterials,
+                usedStatements,
+                usedExhibits,
+                usedMgForms,
+                usedOtherMaterials,
                 exhibitProducers);
 
             this.ValidateRetrievedMaterials(caseId, retrievedMaterials);
@@ -141,12 +139,12 @@ public class GetCaseMaterials(
     /// </summary>
     private void ValidateRetrievedMaterials(int caseId, RetrievedCaseMaterials materials)
     {
-        if (materials.Communications == null || 
-            materials.UnusedMaterials == null || 
-            materials.UsedStatements == null || 
-            materials.UsedExhibits == null || 
-            materials.UsedMgForms == null || 
-            materials.UsedOtherMaterials == null)
+        if (materials.communications == null ||
+            materials.unusedMaterials == null ||
+            materials.usedStatements == null ||
+            materials.usedExhibits == null ||
+            materials.usedMgForms == null ||
+            materials.usedOtherMaterials == null)
         {
             this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} Failed to retrieve case materials for caseId [{caseId}]");
             throw new UnprocessableEntityException($"Failed to retrieve case materials for caseId [{caseId}]");
@@ -160,16 +158,16 @@ public class GetCaseMaterials(
     {
         this.logger?.LogInformation(
             $"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] material count: " +
-            $"communications [{materials.Communications.Count}], " +
-            $"unusedMaterials (exhibits) [{materials.UnusedMaterials.Exhibits?.Count ?? 0}], " +
-            $"unusedMaterials (mgForms) [{materials.UnusedMaterials.MgForms?.Count ?? 0}], " +
-            $"unusedMaterials (otherMaterials) [{materials.UnusedMaterials.OtherMaterials?.Count ?? 0}], " +
-            $"unusedMaterials (statements) [{materials.UnusedMaterials.Statements?.Count ?? 0}], " +
-            $"usedStatements [{materials.UsedStatements.Statements?.Count ?? 0}], " +
-            $"usedExhibits [{materials.UsedExhibits.Exhibits?.Count ?? 0}], " +
-            $"usedMgForms [{materials.UsedMgForms.MgForms?.Count ?? 0}], " +
-            $"usedOtherMaterials [{materials.UsedOtherMaterials.MgForms?.Count ?? 0}] " +
-            $"exhibitProducers [{materials.ExhibitProducers.ExhibitProducers?.Count ?? 0}]");
+            $"communications [{materials.communications.Count}], " +
+            $"unusedMaterials (exhibits) [{materials.unusedMaterials.Exhibits?.Count ?? 0}], " +
+            $"unusedMaterials (mgForms) [{materials.unusedMaterials.MgForms?.Count ?? 0}], " +
+            $"unusedMaterials (otherMaterials) [{materials.unusedMaterials.OtherMaterials?.Count ?? 0}], " +
+            $"unusedMaterials (statements) [{materials.unusedMaterials.Statements?.Count ?? 0}], " +
+            $"usedStatements [{materials.usedStatements.Statements?.Count ?? 0}], " +
+            $"usedExhibits [{materials.usedExhibits.Exhibits?.Count ?? 0}], " +
+            $"usedMgForms [{materials.usedMgForms.MgForms?.Count ?? 0}], " +
+            $"usedOtherMaterials [{materials.usedOtherMaterials.MgForms?.Count ?? 0}] " +
+            $"exhibitProducers [{materials.exhibitProducers.ExhibitProducers?.Count ?? 0}]");
     }
 
     /// <summary>
@@ -180,10 +178,10 @@ public class GetCaseMaterials(
         int caseId,
         RetrievedCaseMaterials materials)
     {
-        this.AddUsedExhibits(allCaseMaterials, caseId, materials.Communications, materials.UsedExhibits, materials.ExhibitProducers);
-        this.AddUsedStatements(allCaseMaterials, materials.Communications, materials.UsedStatements);
-        this.AddUsedMgForms(allCaseMaterials, materials.UsedMgForms);
-        this.AddUsedOtherMaterials(allCaseMaterials, materials.UsedOtherMaterials);
+        this.AddUsedExhibits(allCaseMaterials, caseId, materials.communications, materials.usedExhibits, materials.exhibitProducers);
+        this.AddUsedStatements(allCaseMaterials, materials.communications, materials.usedStatements);
+        this.AddUsedMgForms(allCaseMaterials, materials.usedMgForms);
+        this.AddUsedOtherMaterials(allCaseMaterials, materials.usedOtherMaterials);
     }
 
     /// <summary>
@@ -223,10 +221,7 @@ public class GetCaseMaterials(
     /// </summary>
     private void AddUsedMgForms(List<CaseMaterial> allCaseMaterials, UsedMgFormsResponse usedMgForms)
     {
-        if (usedMgForms.MgForms != null)
-        {
-            usedMgForms.MgForms.RemoveAll(mgForm => CommsDocumentTypeIds.ExcludedFromUsedMgForms.Contains(mgForm.MaterialType));
-        }
+        usedMgForms.MgForms?.RemoveAll(mgForm => CommsDocumentTypeIds.ExcludedFromUsedMgForms.Contains(mgForm.MaterialType));
 
         this.caseMaterialService.AddCaseMaterials(allCaseMaterials, usedMgForms.MgForms ?? Enumerable.Empty<MgForm>(), "MG Form", "MG Form", "Used");
         if (usedMgForms.MgForms != null && usedMgForms.MgForms.Count != 0)

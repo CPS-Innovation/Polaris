@@ -1,19 +1,23 @@
 import type { LTWHP, Page } from "../types.js";
 
 import optimizeClientRects from "./optimize-client-rects";
-export const PAGE_BORDER_WIDTH = 9;
 
-const isClientRectInsidePageRect = (clientRect: DOMRect, pageRect: DOMRect) => {
-  if (clientRect.top < pageRect.top + PAGE_BORDER_WIDTH) {
+const isClientRectInsidePageRect = (
+  clientRect: DOMRect,
+  pageRect: DOMRect,
+  borderLeftWidth: number,
+  borderTopWidth: number
+) => {
+  if (clientRect.top < pageRect.top + borderTopWidth) {
     return false;
   }
-  if (clientRect.bottom > pageRect.bottom - PAGE_BORDER_WIDTH) {
+  if (clientRect.bottom > pageRect.bottom - borderTopWidth) {
     return false;
   }
-  if (clientRect.right > pageRect.right - PAGE_BORDER_WIDTH) {
+  if (clientRect.right > pageRect.right - borderLeftWidth) {
     return false;
   }
-  if (clientRect.left < pageRect.left + PAGE_BORDER_WIDTH) {
+  if (clientRect.left < pageRect.left + borderLeftWidth) {
     return false;
   }
 
@@ -32,9 +36,16 @@ const getClientRects = (
   for (const clientRect of clientRects) {
     for (const page of pages) {
       const pageRect = page.node.getBoundingClientRect();
+      const borderLeftWidth = page.node.clientLeft;
+      const borderTopWidth = page.node.clientTop;
 
       if (
-        isClientRectInsidePageRect(clientRect, pageRect) &&
+        isClientRectInsidePageRect(
+          clientRect,
+          pageRect,
+          borderLeftWidth,
+          borderTopWidth
+        ) &&
         clientRect.width > 0 &&
         clientRect.height > 0 &&
         clientRect.width < pageRect.width &&
@@ -45,12 +56,12 @@ const getClientRects = (
             clientRect.top +
             page.node.scrollTop -
             pageRect.top -
-            PAGE_BORDER_WIDTH,
+            borderTopWidth,
           left:
             clientRect.left +
             page.node.scrollLeft -
             pageRect.left -
-            PAGE_BORDER_WIDTH,
+            borderLeftWidth,
           width: clientRect.width,
           height: clientRect.height,
           pageNumber: page.number,

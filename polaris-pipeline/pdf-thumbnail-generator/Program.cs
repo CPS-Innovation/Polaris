@@ -43,7 +43,7 @@ var host = new HostBuilder()
         services.AddSingleton<IThumbnailGenerationService, ThumbnailGenerationService>();
         services.AddSingleton<IClearDownService, ClearDownService>();
 
-        services.AddSingleton<ITelemetryClient, TelemetryClient>();
+        services.AddTelemetryEventLogging();
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<IJsonConvertWrapper, JsonConvertWrapper>();
         services.AddSingleton<Microsoft.ApplicationInsights.TelemetryClient, Microsoft.ApplicationInsights.TelemetryClient>();

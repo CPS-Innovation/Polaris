@@ -1,9 +1,12 @@
+// <copyright file="ArtefactServiceResponseFactory.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Services.Artefact.Factories;
 
 using Common.Constants;
 using PolarisGateway.Services.Artefact.Domain;
 using System;
-
-namespace PolarisGateway.Services.Artefact.Factories;
 
 public class ArtefactServiceResponseFactory : IArtefactServiceResponseFactory
 {

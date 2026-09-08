@@ -4,6 +4,7 @@
 
 using Common.Extensions;
 using Common.Middleware;
+using Common.Telemetry;
 using Microsoft.ApplicationInsights.WorkerService;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Azure.Functions.Worker;
@@ -62,6 +63,7 @@ var host = new HostBuilder()
             telemetryConfiguration.DisableTelemetry = false;
         }); */
         services.ConfigureLoggerFilterOptions();
+        services.AddTelemetryEventLogging();
 
         // Remove server header to satisfy ITHC requirement.
         services.Configure<KestrelServerOptions>(k => k.AddServerHeader = false);

@@ -14,7 +14,7 @@ parameters:
 
 steps:
   - bash: |
-      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+  az login --service-principal --username "$ARM_CLIENT_ID" --password="$ARM_CLIENT_SECRET" --tenant "$ARM_TENANT_ID"
       az account set --subscription $ARM_SUBSCRIPTION_ID
       az group create --location $ARM_LOCATION --name $ARM_RESOURCE_GROUP
       az storage account create --name $ARM_STORAGE_ACCOUNT --location $ARM_LOCATION --kind StorageV2 --sku Standard_LRS --resource-group $ARM_RESOURCE_GROUP
@@ -66,7 +66,7 @@ steps:
   #     ARM_SUBSCRIPTION_ID: ${{ parameters.subscriptionId }}
 
   - bash: |
-      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+      az login --service-principal --username "$ARM_CLIENT_ID" --password="$ARM_CLIENT_SECRET" --tenant "$ARM_TENANT_ID"
       az account set --subscription $ARM_SUBSCRIPTION_ID
       az tag create --resource-id /subscriptions/$ARM_SUBSCRIPTION_ID/resourcegroups/$ARM_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$ARM_VERSION_SHA --tags Temporary=True
     displayName: Tag image

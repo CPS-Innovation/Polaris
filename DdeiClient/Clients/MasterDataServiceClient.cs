@@ -112,7 +112,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                         mgForm.MaterialType,
                         null,
                         mgForm.Link,
-                        mgForm.Date.ToString(),
+                        mgForm.Status.ToString(),
                         mgForm.Date?.DateTime)).ToList(),
 
                     OtherMaterials = data.OtherMaterials?.Select(otherMaterial => new MgForm(
@@ -230,7 +230,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                          mgForm.MaterialType,
                          null,
                          mgForm.Link,
-                         mgForm.Date.ToString(),
+                         mgForm.Status.ToString(),
                          mgForm.Date?.DateTime)).ToList(),
                 };
             }
@@ -276,7 +276,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                          mgForm.MaterialType,
                          null,
                          mgForm.Link,
-                         mgForm.Date.ToString(),
+                         mgForm.Status.ToString(),
                          mgForm.Date?.DateTime)).ToList(),
                 };
             }

@@ -335,7 +335,7 @@ public class DocumentTypeMapper : IDocumentTypeMapper
     {
         return this.documentTypeMapping.TryGetValue(documentTypeId, out DocumentTypeInfo? info)
             ? info
-            : new DocumentTypeInfo { DocumentType = "Unknown", Category = "Unknown" };
+            : new DocumentTypeInfo { DocumentType = "Unknown", Category = DocumentTypeCategories.Communication, Group = DocumentTypeGroups.Other };
     }
 
     /// <inheritdoc />
@@ -346,12 +346,12 @@ public class DocumentTypeMapper : IDocumentTypeMapper
         {
             return this.documentTypeMapping.TryGetValue(materialTypeId, out DocumentTypeInfo? info)
                 ? info
-                : new DocumentTypeInfo { DocumentType = "Unknown", Category = "Unknown" };
+                : new DocumentTypeInfo { DocumentType = "Unknown", Category = DocumentTypeCategories.Communication, Group = DocumentTypeGroups.Other };
         }
         else
         {
             // If the conversion fails, return a default value
-            return new DocumentTypeInfo { DocumentType = "Unknown", Category = "Unknown" };
+            return new DocumentTypeInfo { DocumentType = "Unknown", Category = DocumentTypeCategories.Communication, Group = DocumentTypeGroups.Other };
         }
     }
 }

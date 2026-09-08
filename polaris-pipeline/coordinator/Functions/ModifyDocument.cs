@@ -1,3 +1,9 @@
+// <copyright file="ModifyDocument.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.Functions;
+
 using Common.Configuration;
 using Common.Domain.Document;
 using Common.Dto.Request;
@@ -19,96 +25,96 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using DdeiClient.Clients.Interfaces;
+using DdeiClient.Services.CaseUrnResolver;
 
-namespace coordinator.Functions
+public class ModifyDocument
 {
-    public class ModifyDocument
+    private readonly IValidator<ModifyDocumentWithDocumentDto> requestValidator;
+    private readonly IPdfRedactorClient pdfRedactorClient;
+    private readonly IPolarisBlobStorageService polarisBlobStorageService;
+    private readonly IMdsArgFactory mdsArgFactory;
+    private readonly IMdsClient mdsClient;
+    private readonly ICaseUrnResolver caseUrnResolver;
+
+    public ModifyDocument(
+        IValidator<ModifyDocumentWithDocumentDto> requestValidator,
+        IPdfRedactorClient pdfRedactorClient,
+        Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
+        IMdsArgFactory mdsArgFactory,
+        IConfiguration configuration,
+        IMdsClient mdsClient,
+        ICaseUrnResolver caseUrnResolver)
     {
-        private readonly IValidator<ModifyDocumentWithDocumentDto> _requestValidator;
-        private readonly IPdfRedactorClient _pdfRedactorClient;
-        private readonly IPolarisBlobStorageService _polarisBlobStorageService;
-        private readonly IMdsArgFactory _mdsArgFactory;
-        private readonly ILogger<ModifyDocument> _logger;
-        private readonly IMdsClient _mdsClient;
+        this.requestValidator = requestValidator.ExceptionIfNull();
+        this.pdfRedactorClient = pdfRedactorClient.ExceptionIfNull();
+        this.polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
+        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
+        this.mdsClient = mdsClient.ExceptionIfNull();
+    }
 
-        public ModifyDocument(
-            IValidator<ModifyDocumentWithDocumentDto> requestValidator,
-            IPdfRedactorClient pdfRedactorClient,
-            Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-            IMdsArgFactory mdsArgFactory,
-            ILogger<ModifyDocument> logger,
-            IConfiguration configuration,
-            IMdsClient mdsClient)
+    [Function(nameof(ModifyDocument))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)]
+        HttpRequest req,
+        int caseId,
+        string materialId,
+        long documentId)
+    {
+        var currentCorrelationId = req.Headers.GetCorrelationId();
+
+        var modifyDocumentRequest = await req.ReadFromJsonAsync<ModifyDocumentRequestDto>();
+
+        await using var documentStream = await this.polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, materialId, documentId, BlobType.Pdf));
+
+        using var memoryStream = new MemoryStream();
+        await documentStream.CopyToAsync(memoryStream);
+        var bytes = memoryStream.ToArray();
+
+        var base64Document = Convert.ToBase64String(bytes);
+
+        var modificationRequest = new ModifyDocumentWithDocumentDto
         {
-            _requestValidator = requestValidator.ExceptionIfNull();
-            _pdfRedactorClient = pdfRedactorClient.ExceptionIfNull();
-            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
-            _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-            _logger = logger.ExceptionIfNull();
-            _mdsClient = mdsClient.ExceptionIfNull();
+            Document = base64Document,
+            DocumentModifications = modifyDocumentRequest.DocumentModifications,
+            VersionId = modifyDocumentRequest.VersionId,
+        };
+
+        var validationResult = await this.requestValidator.ValidateAsync(modificationRequest);
+        if (!validationResult.IsValid)
+        {
+            throw new BadRequestException(validationResult.FlattenErrors(), nameof(modificationRequest));
         }
 
-        [Function(nameof(ModifyDocument))]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.ModifyDocument)]
-            HttpRequest req,
-            string caseUrn,
-            int caseId,
-            string materialId,
-            long documentId)
+        await using var modifiedDocumentStream = await this.pdfRedactorClient.ModifyDocument(caseUrn: null, caseId, materialId, documentId, modificationRequest, currentCorrelationId, isLegacy: false);
+        if (modifiedDocumentStream == null)
         {
-            var currentCorrelationId = req.Headers.GetCorrelationId();
-
-            var modifyDocumentRequest = await req.ReadFromJsonAsync<ModifyDocumentRequestDto>();
-
-            await using var documentStream = await _polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, materialId, documentId, BlobType.Pdf));
-
-            using var memoryStream = new MemoryStream();
-            await documentStream.CopyToAsync(memoryStream);
-            var bytes = memoryStream.ToArray();
-
-            var base64Document = Convert.ToBase64String(bytes);
-
-            var modificationRequest = new ModifyDocumentWithDocumentDto
-            {
-                Document = base64Document,
-                DocumentModifications = modifyDocumentRequest.DocumentModifications,
-                VersionId = modifyDocumentRequest.VersionId
-            };
-
-            var validationResult = await _requestValidator.ValidateAsync(modificationRequest);
-            if (!validationResult.IsValid)
-            {
-                throw new BadRequestException(validationResult.FlattenErrors(), nameof(modificationRequest));
-            }
-
-            await using var modifiedDocumentStream = await _pdfRedactorClient.ModifyDocument(caseUrn, caseId, materialId, documentId, modificationRequest, currentCorrelationId);
-            if (modifiedDocumentStream == null)
-            {
-                var error = $"Error modifying document for {caseId}, materialId {materialId}";
-                throw new Exception(error);
-            }
-
-            var cmsAuthValues = req.Headers.GetCmsAuthValues();
-            var arg = _mdsArgFactory.CreateDocumentVersionArgDto(
-                cmsAuthValues,
-                currentCorrelationId,
-                caseUrn,
-                caseId,
-                DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document),
-                documentId);
-
-            var ddeiResult = await _mdsClient.UploadPdfAsync(arg, modifiedDocumentStream);
-
-            if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
-            {
-                return new StatusCodeResult((int)ddeiResult.StatusCode);
-            }
-
-            return new OkResult();
+            var error = $"Error modifying document for {caseId}, materialId {materialId}";
+            throw new InvalidOperationException(error);
         }
+
+        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
+
+        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues);
+
+        var arg = this.mdsArgFactory.CreateDocumentVersionArgDto(
+            cmsAuthValues.CmsAuthFullValue,
+            currentCorrelationId,
+            caseUrn,
+            caseId,
+            DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document),
+            documentId);
+
+        var ddeiResult = await this.mdsClient.UploadPdfAsync(arg, modifiedDocumentStream);
+
+        if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
+        {
+            return new StatusCodeResult((int)ddeiResult.StatusCode);
+        }
+
+        return new OkResult();
     }
 }

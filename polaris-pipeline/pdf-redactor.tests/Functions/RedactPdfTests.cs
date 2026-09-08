@@ -23,9 +23,9 @@ namespace pdf_redactor.tests.Functions
         private readonly Fixture _fixture = new();
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
-        private readonly Mock<ILogger<RedactPdf>> _loggerMock;
+        private readonly Mock<ILogger<RedactPdfLegacy>> _loggerMock;
         private readonly Mock<IValidator<RedactPdfRequestWithDocumentDto>> _mockValidator;
-        private readonly RedactPdf _pdfRedactor;
+        private readonly RedactPdfLegacy _pdfRedactor;
         private readonly string _caseUrn;
         private readonly int _caseId;
         private readonly string _documentId;
@@ -46,7 +46,7 @@ namespace pdf_redactor.tests.Functions
 
             mockDocumentRedactionService.Setup(x => x.RedactAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<RedactPdfRequestWithDocumentDto>(), It.IsAny<Guid>())).ReturnsAsync(new MemoryStream());
 
-            _loggerMock = new Mock<ILogger<RedactPdf>>();
+            _loggerMock = new Mock<ILogger<RedactPdfLegacy>>();
 
             _mockValidator = new Mock<IValidator<RedactPdfRequestWithDocumentDto>>();
             _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<RedactPdfRequestWithDocumentDto>(),
@@ -58,7 +58,7 @@ namespace pdf_redactor.tests.Functions
             _documentId = _fixture.Create<string>();
             _versionId = _fixture.Create<long>();
 
-            _pdfRedactor = new RedactPdf(
+            _pdfRedactor = new RedactPdfLegacy(
                 _mockExceptionHandler.Object,
                 _mockJsonConvertWrapper.Object,
                 mockDocumentRedactionService.Object,
@@ -108,7 +108,7 @@ namespace pdf_redactor.tests.Functions
 
             var mockRequest = CreateMockRequest(_serializedRedactPdfRequest, Guid.Empty);
 
-            var response = await _pdfRedactor.Run(mockRequest.Object, _caseUrn, _caseId, _documentId, _versionId);
+            var response = await _pdfRedactor.Run(mockRequest.Object, _caseUrn,  _caseId, _documentId, _versionId);
 
             response.Should().Be(errorHttpResponseMessage);
         }

@@ -23,11 +23,11 @@ namespace text_extractor.tests.Functions
         private JsonResult _errorResult;
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
-        private readonly Mock<ILogger<CaseIndexCount>> _mockLogger;
+        private readonly Mock<ILogger<CaseIndexCountLegacy>> _mockLogger;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Guid _correlationId;
         private readonly int _caseId;
-        private readonly CaseIndexCount _caseIndexCount;
+        private readonly CaseIndexCountLegacy _caseIndexCount;
 
         public CaseIndexCountTests()
         {
@@ -37,14 +37,14 @@ namespace text_extractor.tests.Functions
             _mockJsonConvertWrapper = new Mock<IJsonConvertWrapper>();
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _correlationId = _fixture.Create<Guid>();
-            _mockLogger = new Mock<ILogger<CaseIndexCount>>();
+            _mockLogger = new Mock<ILogger<CaseIndexCountLegacy>>();
             _caseId = _fixture.Create<int>();
 
             _mockSearchIndexService
                 .Setup(service => service.GetCaseIndexCount(It.IsAny<int>(), It.IsAny<Guid>()))
                 .ReturnsAsync(new SearchIndexCountResult(100));
 
-            _caseIndexCount = new CaseIndexCount(
+            _caseIndexCount = new CaseIndexCountLegacy(
                 _mockLogger.Object,
                 _mockSearchIndexService.Object,
                 _mockExceptionHandler.Object
@@ -54,31 +54,31 @@ namespace text_extractor.tests.Functions
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndLoggerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCountLegacy(null, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndSearchIndexServiceIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, null, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCountLegacy(_mockLogger.Object, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndJsonConvertWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCountLegacy(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndTelemetryAugmentationWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCountLegacy(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndExceptionHandlerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new CaseIndexCount(_mockLogger.Object, _mockSearchIndexService.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new CaseIndexCountLegacy(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]
@@ -86,7 +86,7 @@ namespace text_extractor.tests.Functions
         {
             var mockRequest = CreateMockRequest(new StringContent("{}"), null);
             _errorResult = new JsonResult(_fixture.Create<string>()) { StatusCode = (int)HttpStatusCode.Unauthorized };
-            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<CaseIndexCount>>()))
+            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<CaseIndexCountLegacy>>()))
                 .Returns(_errorResult);
             
             var response = await _caseIndexCount.Run(mockRequest.Object, _caseId);

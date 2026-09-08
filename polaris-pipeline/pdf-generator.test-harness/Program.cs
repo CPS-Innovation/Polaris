@@ -30,7 +30,7 @@ internal static class Program
     builder.Configuration.AddJsonFile("local.settings.json", optional: false, reloadOnChange: true);
 
     builder.Services.AddSingleton<AppInsights.TelemetryClient>();
-    builder.Services.AddSingleton<ITelemetryClient, TelemetryClient>();
+    builder.Services.AddTelemetryEventLogging();
 
     builder.Services.AddPdfGenerator();
     builder.Services.AddRedactionServices(builder.Configuration);

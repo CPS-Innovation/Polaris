@@ -1,4 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿// <copyright file="GetTracker.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.Functions;
+
+using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Wrappers;
 using Microsoft.AspNetCore.Mvc;
@@ -14,44 +20,21 @@ using Microsoft.Extensions.Configuration;
 using coordinator.Durable.Providers;
 using coordinator.Services;
 
-namespace coordinator.Functions;
-
-public class GetTracker
+public class GetTracker(ICaseDurableEntityMapper caseDurableEntityMapper, IStateStorageService stateStorageService)
 {
-    const string loggingName = $"{nameof(GetTracker)} - {nameof(HttpStart)}";
-
-    private readonly IJsonConvertWrapper _jsonConvertWrapper;
-    private readonly ICaseDurableEntityMapper _caseDurableEntityMapper;
-    private readonly IStateStorageService _stateStorageService;
-    private readonly ILogger<GetTracker> _logger;
-
-    public GetTracker(
-        IJsonConvertWrapper jsonConvertWrapper,
-        ICaseDurableEntityMapper caseDurableEntityMapper,
-        IStateStorageService stateStorageService,
-        ILogger<GetTracker> logger)
-    {
-        _jsonConvertWrapper = jsonConvertWrapper;
-        _caseDurableEntityMapper = caseDurableEntityMapper;
-        _stateStorageService = stateStorageService;
-        _logger = logger;
-    }
-
     [Function(nameof(GetTracker))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> HttpStart(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req,
-        string caseUrn,
-        int caseId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseTracker)] HttpRequest req, int caseId)
     {
         try
         {
-            var caseEntity = await _stateStorageService.GetStateAsync(caseId);
-            var documentsList = await _stateStorageService.GetDurableEntityDocumentsStateAsync(caseId);
+            var caseEntity = await stateStorageService.GetStateAsync(caseId);
+            var documentsList = await stateStorageService.GetDurableEntityDocumentsStateAsync(caseId);
 
-            var trackerDto = _caseDurableEntityMapper.MapCase(caseEntity, documentsList);
+            var trackerDto = caseDurableEntityMapper.MapCase(caseEntity, documentsList);
             return new OkObjectResult(trackerDto);
         }
         catch (Exception ex)

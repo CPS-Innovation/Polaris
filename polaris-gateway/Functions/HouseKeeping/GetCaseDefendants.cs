@@ -4,26 +4,24 @@
 
 namespace PolarisGateway.Functions.HouseKeeping;
 
+using Common.Configuration;
+using Common.Constants;
+using Common.Dto.Response.HouseKeeping;
+using Cps.Fct.Hk.Ui.Interfaces;
+using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
-using System.Threading;
-using System.Threading.Tasks;
-using Cps.Fct.Hk.Ui.Interfaces;
-using System.Diagnostics;
-using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.OpenApi.Models;
-using System.Net;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Common.Dto.Response.HouseKeeping;
-using Common.Constants;
-using Common.Dto.Request;
-using Azure.Core;
+using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using PolarisGateway.Helpers;
 using System;
-using Common.Configuration;
+using System.Diagnostics;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Represents a function that retrieves the case defendants,
@@ -44,7 +42,7 @@ public class GetCaseDefendants(
     /// <summary>
     /// The Azure Function that processes an HTTP request for the 'case-defendants' route.
     /// </summary>
-    /// <param name="req">The HTTP request.</param>
+    /// <param name="request">The HTTP request.</param>
     /// <returns>An <see cref="IActionResult"/> representing the response of the function.</returns>
     [OpenApiOperation(operationId: "GetCaseDefendants", tags: ["Case"], Description = "Represents a function that retrieves the case defendants for display purposes.")]
     [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "The Azure Function API Key.")]

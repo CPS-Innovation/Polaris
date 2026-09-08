@@ -37,6 +37,13 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "DEFAULT_UPSTREAM_CMS_DOMAIN_NAME"                = var.cms_details.default_upstream_cms_domain_name
     "DEFAULT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"       = var.cms_details.default_upstream_cms_services_domain_name
     "DEFAULT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"         = var.cms_details.default_upstream_cms_modern_domain_name
+    "CPT_UPSTREAM_CMS_IP_CORSHAM"                     = var.cms_details.cpt_upstream_cms_ip_corsham
+    "CPT_UPSTREAM_CMS_MODERN_IP_CORSHAM"              = var.cms_details.cpt_upstream_cms_modern_ip_corsham
+    "CPT_UPSTREAM_CMS_IP_FARNBOROUGH"                 = var.cms_details.cpt_upstream_cms_ip_farnborough
+    "CPT_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"          = var.cms_details.cpt_upstream_cms_modern_ip_farnborough
+    "CPT_UPSTREAM_CMS_DOMAIN_NAME"                    = var.cms_details.cpt_upstream_cms_domain_name
+    "CPT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"           = var.cms_details.cpt_upstream_cms_services_domain_name
+    "CPT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"             = var.cms_details.cpt_upstream_cms_modern_domain_name
     "CIN2_UPSTREAM_CMS_IP_CORSHAM"                    = var.cms_details.cin2_upstream_cms_ip_corsham
     "CIN2_UPSTREAM_CMS_MODERN_IP_CORSHAM"             = var.cms_details.cin2_upstream_cms_modern_ip_corsham
     "CIN2_UPSTREAM_CMS_IP_FARNBOROUGH"                = var.cms_details.cin2_upstream_cms_ip_farnborough
@@ -68,10 +75,20 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "SAS_URL_DOMAIN_NAME"                             = "${azurerm_storage_account.sa.name}.blob.core.windows.net"
     "ENDPOINT_HTTP_PROTOCOL"                          = "https"
     "NGINX_ENVSUBST_OUTPUT_DIR"                       = "/etc/nginx"
-    "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}:${md5(file("cmsenv.js"))}::${md5(file("polaris-script.js"))}:${md5(file("global-components.conf"))}:${md5(file("global-components.js"))}"
+    "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}:${md5(file("cmsenv.js"))}::${md5(file("polaris-script.js"))}:${md5(file("global-components.conf"))}:${md5(file("global-components.js"))}:${local.proxy_next_config_hash}"
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
+    # auth-handover drop switches (next config only). Read at REQUEST time by njs via
+    # process.env (auth-handover.conf uses `js_set $x authHandover.<getter>` -> auth-handover.js
+    # entraStoreEnabled/nonDdeiInitEnabled), NOT conf-side `set $x "${VAR}"` envsubst — so a
+    # MISSING value simply reads "false" (feature off) and NEVER blocks boot. That is deliberate:
+    # the old `${VAR}` form left an unset var literal and `[emerg]`-crashed nginx ("unknown
+    # entra_store_enabled variable") — see the comment at auth-handover.js:362. Do NOT "restore"
+    # a `set $x "${VAR}"` to match this block; it reintroduces that boot failure. Kept here as the
+    # managed default and the knob to arm the features — flip to "true".
+    "NON_DDEI_INIT_ENABLED"                           = "false"
+    "ENTRA_STORE_ENABLED"                             = "false"
     "WM_MDS_BASE_URL"                                 = "https://fa-${local.wm_mds_resource_name}.azurewebsites.net/api/"
     "WM_MDS_ACCESS_KEY"                               = data.azurerm_key_vault_secret.kvs_fa_wm_mds_host_keys.value
     "CPS_GLOBAL_COMPONENTS_BLOB_STORAGE_DOMAIN"       = var.cps_global_components.blob_storage_domain
@@ -176,6 +193,13 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       app_settings["DEFAULT_UPSTREAM_CMS_DOMAIN_NAME"],
       app_settings["DEFAULT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
       app_settings["DEFAULT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
+      app_settings["CPT_UPSTREAM_CMS_IP_CORSHAM"],
+      app_settings["CPT_UPSTREAM_CMS_MODERN_IP_CORSHAM"],
+      app_settings["CPT_UPSTREAM_CMS_IP_FARNBOROUGH"],
+      app_settings["CPT_UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"],
+      app_settings["CPT_UPSTREAM_CMS_DOMAIN_NAME"],
+      app_settings["CPT_UPSTREAM_CMS_SERVICES_DOMAIN_NAME"],
+      app_settings["CPT_UPSTREAM_CMS_MODERN_DOMAIN_NAME"],
       app_settings["CIN2_UPSTREAM_CMS_IP_CORSHAM"],
       app_settings["CIN2_UPSTREAM_CMS_MODERN_IP_CORSHAM"],
       app_settings["CIN2_UPSTREAM_CMS_IP_FARNBOROUGH"],
@@ -326,6 +350,48 @@ resource "azurerm_storage_blob" "global_components_js" {
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "global-components.js"
+  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
+}
+
+locals {
+  proxy_next_dir = "${path.module}/proxy/config"
+
+  proxy_next_files = [
+    for f in setunion(
+      fileset("${path.module}/proxy/config", "features/**/*.conf"),
+      fileset("${path.module}/proxy/config", "features/**/*.js")
+    ) : f if !endswith(f, ".test.js") && !strcontains(f, "/fixtures/")
+  ]
+
+  proxy_next_blobs = {
+    for f in local.proxy_next_files :
+    (endswith(f, ".conf") ? "${f}.template" : f) => f
+  }
+
+  proxy_next_config_hash = md5(join(":", concat(
+    [filemd5("${local.proxy_next_dir}/nginx.conf")],
+    [for f in sort(tolist(local.proxy_next_files)) : filemd5("${local.proxy_next_dir}/${f}")]
+  )))
+}
+
+resource "azurerm_storage_blob" "proxy_next_config" {
+  for_each               = local.proxy_next_blobs
+  name                   = each.key
+  content_md5            = filemd5("${local.proxy_next_dir}/${each.value}")
+  storage_account_name   = azurerm_storage_account.sacpspolaris.name
+  storage_container_name = azurerm_storage_container.polaris_proxy_content.name
+  type                   = "Block"
+  source                 = "${local.proxy_next_dir}/${each.value}"
+  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
+}
+
+resource "azurerm_storage_blob" "proxy_next_nginx_conf" {
+  name                   = "nginx-next.conf.template"
+  content_md5            = filemd5("${local.proxy_next_dir}/nginx.conf")
+  storage_account_name   = azurerm_storage_account.sacpspolaris.name
+  storage_container_name = azurerm_storage_container.polaris_proxy_content.name
+  type                   = "Block"
+  source                 = "${local.proxy_next_dir}/nginx.conf"
   depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
 }
 

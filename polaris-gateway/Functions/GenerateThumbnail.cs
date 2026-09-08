@@ -1,6 +1,13 @@
+// <copyright file="GenerateThumbnail.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
 using Common.Configuration;
 using Common.Dto.Request;
-using Common.Telemetry;
+using Common.Extensions;
+using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -15,23 +22,15 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Functions;
-
 public class GenerateThumbnail : BaseFunction
 {
-    private readonly ILogger<GenerateThumbnail> _logger;
-    private readonly IPdfThumbnailGeneratorClient _pdfThumbnailGeneratorClient;
-    private readonly ITelemetryClient _telemetryClient;
+    private readonly IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient;
 
     public GenerateThumbnail(
-        ILogger<GenerateThumbnail> logger,
-        IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient,
-        ITelemetryClient telemetryClient)
+        IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient)
         : base()
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _pdfThumbnailGeneratorClient = pdfThumbnailGeneratorClient ?? throw new ArgumentNullException(nameof(pdfThumbnailGeneratorClient));
-        _telemetryClient = telemetryClient;
+        this.pdfThumbnailGeneratorClient = pdfThumbnailGeneratorClient ?? throw new ArgumentNullException(nameof(pdfThumbnailGeneratorClient));
     }
 
     [Function(nameof(GenerateThumbnail))]
@@ -39,7 +38,6 @@ public class GenerateThumbnail : BaseFunction
     [ProducesResponseType(StatusCodes.Status423Locked)]
     [OpenApiOperation(operationId: nameof(GenerateThumbnail), tags: ["Documents"], Summary = "Generate Thumbnail", Description = "Generate Thumbnail")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
-    [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(string), Description = "The Id of the material", Required = true)]
     [OpenApiParameter("documentId", In = ParameterLocation.Path, Type = typeof(long), Description = "The document Id (version) of the material", Required = true)]
@@ -47,13 +45,19 @@ public class GenerateThumbnail : BaseFunction
     [OpenApiParameter("pageIndex", In = ParameterLocation.Path, Type = typeof(int), Description = "The page Index of the document to generate thumbnail", Required = false)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(AddDocumentNoteRequestDto), Summary = "Case found", Description = "Returns case details")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.GenerateThumbnail)] HttpRequest req,
-        string caseUrn, int caseId, string materialId, int documentId, int maxDimensionPixel, int? pageIndex, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.GenerateThumbnail)] HttpRequest req,
+        int caseId,
+        string materialId,
+        int documentId,
+        int maxDimensionPixel,
+        int? pageIndex,
+        CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);
-        var cmsAuthValues = EstablishCmsAuthValues(req);
+        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
-        return await (await _pdfThumbnailGeneratorClient.GenerateThumbnailAsync(caseUrn, caseId, materialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues, correlationId)).ToActionResult();
+        return await (await this.pdfThumbnailGeneratorClient.GenerateThumbnailAsync(caseUrn: null, caseId, materialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues.CmsAuthFullValue, correlationId, isLegacy: false)).ToActionResult();
     }
 }

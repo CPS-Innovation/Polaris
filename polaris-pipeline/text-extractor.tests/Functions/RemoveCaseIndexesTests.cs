@@ -23,12 +23,12 @@ namespace text_extractor.tests.Functions
         private readonly Fixture _fixture;
         private JsonResult _errorResult;
         private readonly Mock<ISearchIndexService> _mockSearchIndexService;
-        private readonly Mock<ILogger<RemoveCaseIndexes>> _mockLogger;
+        private readonly Mock<ILogger<RemoveCaseIndexesLegacy>> _mockLogger;
         private readonly Mock<IJsonConvertWrapper> _mockJsonConvertWrapper;
         private readonly Mock<IExceptionHandler> _mockExceptionHandler;
         private readonly Guid _correlationId;
         private readonly int _caseId;
-        private readonly RemoveCaseIndexes _removeCaseIndexes;
+        private readonly RemoveCaseIndexesLegacy _removeCaseIndexes;
 
         public RemoveCaseIndexesTests()
         {
@@ -38,7 +38,7 @@ namespace text_extractor.tests.Functions
             _mockExceptionHandler = new Mock<IExceptionHandler>();
             _correlationId = _fixture.Create<Guid>();
             _caseId = _fixture.Create<int>();
-            _mockLogger = new Mock<ILogger<RemoveCaseIndexes>>();
+            _mockLogger = new Mock<ILogger<RemoveCaseIndexesLegacy>>();
 
             _mockSearchIndexService
                 .Setup(service => service.RemoveCaseIndexEntriesAsync(It.IsAny<int>(), It.IsAny<Guid>()))
@@ -49,7 +49,7 @@ namespace text_extractor.tests.Functions
                     FailureCount = 0
                 });
 
-            _removeCaseIndexes = new RemoveCaseIndexes(
+            _removeCaseIndexes = new RemoveCaseIndexesLegacy(
                                 _mockLogger.Object,
                                 _mockSearchIndexService.Object,
                                 _mockExceptionHandler.Object);
@@ -58,25 +58,25 @@ namespace text_extractor.tests.Functions
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndLoggerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(null, null, null));
+            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexesLegacy(null, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndSearchIndexServiceIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(_mockLogger.Object, null, null));
+            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexesLegacy(_mockLogger.Object, null, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndTelemetryAugmentationWrapperIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(_mockLogger.Object, _mockSearchIndexService.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexesLegacy(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]
         public void Run_ShouldReturnAnExceptionWhenInitializingAndExceptionHandlerIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexes(_mockLogger.Object, _mockSearchIndexService.Object, null));
+            Assert.Throws<ArgumentNullException>(() => new RemoveCaseIndexesLegacy(_mockLogger.Object, _mockSearchIndexService.Object, null));
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace text_extractor.tests.Functions
         {
             var mockRequest = CreateMockRequest(new StringContent("{}"), null);
             _errorResult = new JsonResult(_fixture.Create<string>()) { StatusCode = (int)HttpStatusCode.Unauthorized };
-            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<RemoveCaseIndexes>>()))
+            _mockExceptionHandler.Setup(handler => handler.HandleExceptionNew(It.IsAny<Exception>(), It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<ILogger<RemoveCaseIndexesLegacy>>()))
                 .Returns(_errorResult);
             
             var response = await _removeCaseIndexes.Run(mockRequest.Object, _caseId);

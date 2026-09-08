@@ -52,4 +52,7 @@
 		<ProjectReference Include="..\DdeiClient\DdeiClient.csproj" />
 		<ProjectReference Include="..\polaris-pipeline\Common\Common.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Properties\" />
+	</ItemGroup>
 </Project>
