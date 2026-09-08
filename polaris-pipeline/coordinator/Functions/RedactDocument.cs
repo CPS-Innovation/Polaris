@@ -11,6 +11,7 @@ using Common.Exceptions;
 using Common.Extensions;
 using Common.Services.BlobStorage;
 using coordinator.Clients.PdfRedactor;
+using coordinator.Services;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Services.CaseUrnResolver;
@@ -29,7 +30,7 @@ using System.Threading.Tasks;
 public class RedactDocument
 {
     private readonly IValidator<RedactPdfRequestWithDocumentDto> requestValidator;
-    private readonly IPdfRedactorClient redactionClient;
+    private readonly IRedactionService redactionService;
     private readonly IPolarisBlobStorageService polarisBlobStorageService;
     private readonly IMdsArgFactory mdsArgFactory;
     private readonly IMdsClient mdsClient;
@@ -37,7 +38,7 @@ public class RedactDocument
 
     public RedactDocument(
         IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
-        IPdfRedactorClient redactionClient,
+        IRedactionService redactionService,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IMdsArgFactory mdsArgFactory,
         IConfiguration configuration,
@@ -45,7 +46,7 @@ public class RedactDocument
         ICaseUrnResolver caseUrnResolver)
     {
         this.requestValidator = requestValidator.ExceptionIfNull();
-        this.redactionClient = redactionClient.ExceptionIfNull();
+        this.redactionService = redactionService.ExceptionIfNull();
         this.polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         this.mdsClient = mdsClient.ExceptionIfNull();
@@ -64,93 +65,21 @@ public class RedactDocument
         long documentId,
         CancellationToken cancellationToken)
     {
-        var currentCorrelationId = req.Headers.GetCorrelationId();
-        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
+        var correlationId = req.Headers.GetCorrelationId();
+        var cmsAuthValues = req.BuildCmsAuthValues();
 
-        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
+        var request =
+            await req.ReadFromJsonAsync<RedactPdfRequestDto>(
+                cancellationToken);
 
-        var redactPdfRequest = await req.ReadFromJsonAsync<RedactPdfRequestDto>(cancellationToken);
-
-        using var documentStream = await this.polarisBlobStorageService.GetBlobAsync(new BlobIdType(caseId, materialId, documentId, BlobType.Pdf));
-
-        using var memoryStream = new MemoryStream();
-        await documentStream.CopyToAsync(memoryStream, cancellationToken);
-        var bytes = memoryStream.ToArray();
-
-        Stream redactedDocumentStream = null;
-
-        if (redactPdfRequest.RedactionDefinitions.Count != 0)
-        {
-            var base64Document = Convert.ToBase64String(bytes);
-
-            var redactionRequest = new RedactPdfRequestWithDocumentDto
-            {
-                Document = base64Document,
-                RedactionDefinitions = redactPdfRequest.RedactionDefinitions,
-            };
-
-            var validationResult = await this.requestValidator.ValidateAsync(redactionRequest, cancellationToken);
-            if (!validationResult.IsValid)
-            {
-                throw new BadRequestException(validationResult.FlattenErrors(), nameof(redactPdfRequest));
-            }
-
-            redactedDocumentStream = await this.redactionClient.RedactPdfAsync(caseUrn: null, caseId, materialId, documentId, redactionRequest, currentCorrelationId, isLegacy: false);
-            if (redactedDocumentStream == null)
-            {
-                string error = $"Error Saving redaction details to the document for {caseId}, materialId {materialId}";
-                throw new InvalidOperationException(error);
-            }
-        }
-
-        Stream modifiedDocumentStream = null;
-
-        if (redactPdfRequest.DocumentModifications.Count != 0)
-        {
-            byte[] bytesToModify = null;
-
-            if (redactedDocumentStream != null)
-            {
-                using var redactedMemoryStream = new MemoryStream();
-                await redactedDocumentStream.CopyToAsync(redactedMemoryStream, cancellationToken);
-                bytesToModify = redactedMemoryStream.ToArray();
-            }
-            else
-            {
-                bytesToModify = bytes;
-            }
-
-            var base64DocumentToModify = Convert.ToBase64String(bytesToModify);
-
-            var modificationRequest = new ModifyDocumentWithDocumentDto
-            {
-                Document = base64DocumentToModify,
-                DocumentModifications = redactPdfRequest.DocumentModifications,
-                VersionId = redactPdfRequest.VersionId,
-            };
-
-            modifiedDocumentStream = await this.redactionClient.ModifyDocument(caseUrn: null, caseId, materialId, documentId, modificationRequest, currentCorrelationId, isLegacy: false);
-            if (modifiedDocumentStream == null)
-            {
-                string error = $"Error modifying document for {caseId}, materialId {materialId}";
-                throw new InvalidOperationException(error);
-            }
-        }
-
-        var arg = this.mdsArgFactory.CreateDocumentVersionArgDto(
-            cmsAuthValues.CmsAuthFullValue,
-            correlationId: currentCorrelationId,
-            caseUrn,
-            caseId: caseId,
-            DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document),
-            documentId);
-
-        var ddeiResult = await this.mdsClient.UploadPdfAsync(arg, modifiedDocumentStream ?? redactedDocumentStream, cancellationToken);
-
-        if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
-        {
-            return new StatusCodeResult((int)ddeiResult.StatusCode);
-        }
+        await this.redactionService.ProcessAsync(
+            caseId,
+            materialId,
+            documentId,
+            request!,
+            cmsAuthValues,
+            correlationId,
+            cancellationToken);
 
         return new OkResult();
     }
