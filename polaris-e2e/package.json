@@ -30,7 +30,7 @@
     "@testing-library/cypress": "^9.0.0",
     "@types/fs-extra": "^11.0.2",
     "@types/jsonwebtoken": "^9.0.3",
-    "cypress-parallel": "^0.14.0",
+    "cypress-parallel": "^0.15.0",
     "cypress-plugin-api": "^2.11.0",
     "cypress-wait-until": "^1.7.2",
     "jsonwebtoken": "^9.0.2"
