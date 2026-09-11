@@ -10,6 +10,7 @@ public static class ConfigKeys
     public const string SlidingClearDownBatchSize = nameof(SlidingClearDownBatchSize);
     public const string PipelineRedactPdfBaseUrl = "PolarisPipelineRedactPdfBaseUrl";
     public const string PipelineRedactorPdfBaseUrl = "PolarisPipelineRedactorPdfBaseUrl";
+    public const string PipelineRedactionLoggerBaseUrl = "PolarisPipelineRedactionLoggerBaseUrl";
     public const string PipelineTextExtractorBaseUrl = "PolarisPipelineTextExtractorBaseUrl";
     public const string PiiCategories = nameof(PiiCategories);
     public const string PiiChunkCharacterLimit = nameof(PiiChunkCharacterLimit);

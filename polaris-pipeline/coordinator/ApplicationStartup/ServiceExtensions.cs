@@ -45,6 +45,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using PdfGenerator = Common.Clients.PdfGenerator;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
+using RedactionLogger = coordinator.Clients.RedactionLogger;
 using TextExtractor = coordinator.Clients.TextExtractor;
 
 public static class ServiceExtensions
@@ -85,6 +86,7 @@ public static class ServiceExtensions
         services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
         services.AddHttpClientWithDefaults<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(configuration, ConfigKeys.PipelineRedactPdfBaseUrl, ConfigKeys.PdfGeneratorClientTimeoutSeconds).AddPolicyHandler(GetRetryPolicy);
         services.AddHttpClientWithDefaults<PdfRedactor.IPdfRedactorClient, PdfRedactor.PdfRedactorClient>(configuration, ConfigKeys.PipelineRedactorPdfBaseUrl, ConfigKeys.PdfRedactorClientTimeoutSeconds);
+        services.AddHttpClientWithDefaults<RedactionLogger.IRedactionLoggerClient, RedactionLogger.RedactionLoggerClient>(configuration, ConfigKeys.PipelineRedactorPdfBaseUrl, ConfigKeys.PdfRedactorClientTimeoutSeconds);
         services.AddHttpClientWithDefaults<TextExtractor.ITextExtractorClient, TextExtractor.TextExtractorClient>(configuration, ConfigKeys.PipelineTextExtractorBaseUrl, ConfigKeys.TextExtractorClientTimeoutSeconds);
 
         services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
