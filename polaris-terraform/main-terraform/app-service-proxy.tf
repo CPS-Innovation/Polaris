@@ -75,7 +75,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "SAS_URL_DOMAIN_NAME"                             = "${azurerm_storage_account.sa.name}.blob.core.windows.net"
     "ENDPOINT_HTTP_PROTOCOL"                          = "https"
     "NGINX_ENVSUBST_OUTPUT_DIR"                       = "/etc/nginx"
-    "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}:${md5(file("cmsenv.js"))}::${md5(file("polaris-script.js"))}:${md5(file("global-components.conf"))}:${md5(file("global-components.js"))}:${local.proxy_next_config_hash}"
+    "FORCE_REFRESH_CONFIG"                            = "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}:${md5(file("cmsenv.js"))}::${md5(file("polaris-script.js"))}:${md5(file("global-components.conf"))}:${md5(file("global-components.js"))}"
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
@@ -350,48 +350,6 @@ resource "azurerm_storage_blob" "global_components_js" {
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "global-components.js"
-  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
-}
-
-locals {
-  proxy_next_dir = "${path.module}/proxy/config"
-
-  proxy_next_files = [
-    for f in setunion(
-      fileset("${path.module}/proxy/config", "features/**/*.conf"),
-      fileset("${path.module}/proxy/config", "features/**/*.js")
-    ) : f if !endswith(f, ".test.js") && !strcontains(f, "/fixtures/")
-  ]
-
-  proxy_next_blobs = {
-    for f in local.proxy_next_files :
-    (endswith(f, ".conf") ? "${f}.template" : f) => f
-  }
-
-  proxy_next_config_hash = md5(join(":", concat(
-    [filemd5("${local.proxy_next_dir}/nginx.conf")],
-    [for f in sort(tolist(local.proxy_next_files)) : filemd5("${local.proxy_next_dir}/${f}")]
-  )))
-}
-
-resource "azurerm_storage_blob" "proxy_next_config" {
-  for_each               = local.proxy_next_blobs
-  name                   = each.key
-  content_md5            = filemd5("${local.proxy_next_dir}/${each.value}")
-  storage_account_name   = azurerm_storage_account.sacpspolaris.name
-  storage_container_name = azurerm_storage_container.polaris_proxy_content.name
-  type                   = "Block"
-  source                 = "${local.proxy_next_dir}/${each.value}"
-  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
-}
-
-resource "azurerm_storage_blob" "proxy_next_nginx_conf" {
-  name                   = "nginx-next.conf.template"
-  content_md5            = filemd5("${local.proxy_next_dir}/nginx.conf")
-  storage_account_name   = azurerm_storage_account.sacpspolaris.name
-  storage_container_name = azurerm_storage_container.polaris_proxy_content.name
-  type                   = "Block"
-  source                 = "${local.proxy_next_dir}/nginx.conf"
   depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
 }
 
