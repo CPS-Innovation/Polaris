@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
-using Common.Dto.Request.DocumentManipulation;
+﻿using Common.Dto.Request.DocumentManipulation;
 using Common.Dto.Request.Redaction;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Common.Dto.Request
 {
+
     public class RedactPdfRequestDto
     {
         public long VersionId { get; set; }

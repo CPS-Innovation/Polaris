@@ -55,7 +55,7 @@ namespace coordinator.Services
             int caseId,
             string materialId,
             long documentId,
-            RedactPdfRequestDto request,
+            RedactionPayload request,
             CmsAuthValues cmsAuthValues,
             Guid correlationId,
             CancellationToken cancellationToken)
@@ -83,7 +83,7 @@ namespace coordinator.Services
 
             Stream document = null;
 
-            if (request.RedactionDefinitions.Count != 0)
+            if (request.Redactions.Count != 0)
             {
                 document = await RedactAsync(
                     bytes,
@@ -133,7 +133,7 @@ namespace coordinator.Services
         }
         private async Task<Stream> RedactAsync(
                                         byte[] bytes,
-                                        RedactPdfRequestDto request,
+                                        RedactionPayload request,
                                         int caseId,
                                         string materialId,
                                         long documentId,
@@ -143,7 +143,7 @@ namespace coordinator.Services
             var redactionRequest = new RedactPdfRequestWithDocumentDto
             {
                 Document = Convert.ToBase64String(bytes),
-                RedactionDefinitions = request.RedactionDefinitions
+                RedactionDefinitions = request.Redactions
             };
 
             var validationResult =

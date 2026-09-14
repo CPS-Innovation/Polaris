@@ -90,6 +90,7 @@ public static class ServiceExtensions
         services.AddHttpClientWithDefaults<TextExtractor.ITextExtractorClient, TextExtractor.TextExtractorClient>(configuration, ConfigKeys.PipelineTextExtractorBaseUrl, ConfigKeys.TextExtractorClientTimeoutSeconds);
 
         services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
+        services.AddScoped<IRedactionService, RedactionService>();
         services.AddScoped<IValidator<RedactPdfRequestWithDocumentDto>, RedactPdfRequestWithDocumentValidator>();
         services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
         services.AddScoped<IValidator<AddDocumentNoteDto>, DocumentNoteValidator>();
