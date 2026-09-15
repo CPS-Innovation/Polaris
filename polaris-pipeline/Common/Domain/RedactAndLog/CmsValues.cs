@@ -10,7 +10,7 @@ public class CmsValues
 
     public string OriginalFileName { get; set; }
 
-    public string DocumentTypeId { get; set; }
+    public int DocumentTypeId { get; set; }
 
     public string DocumentType { get; set; }
 
