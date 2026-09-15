@@ -11,7 +11,6 @@ namespace Common.Dto.Request
     using System.Text;
     using Common.Domain.RedactAndLog;
     using Common.Validators;
-    using Cps.MasterDataService.Infrastructure.ApiClient;
     public class CreateRedactionLogsRequest
     {
         [Required]
