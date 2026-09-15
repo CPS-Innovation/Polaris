@@ -82,7 +82,7 @@ public class RedactAndLog
             caseId,
             materialId,
             documentId,
-            request!.RedactionPayload,
+            request.RedactionPayload,
             cmsAuthValues,
             correlationId,
             cancellationToken);

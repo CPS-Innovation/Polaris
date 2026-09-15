@@ -1,27 +1,28 @@
-﻿using Common.Configuration;
-using Common.Domain.Document;
-using Common.Dto.Request;
-using Common.Exceptions;
-using Common.Extensions;
-using Common.Services.BlobStorage;
-using coordinator.Clients.PdfRedactor;
-using Ddei.Factories;
-using DdeiClient.Clients.Interfaces;
-using DdeiClient.Services.CaseUrnResolver;
-using FluentValidation;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace coordinator.Services
+﻿namespace coordinator.Services
 {
-   public class RedactionService : IRedactionService
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Net;
+    using System.Net.Http;
+    using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Common.Configuration;
+    using Common.Domain.Document;
+    using Common.Dto.Request;
+    using Common.Dto.Request.Redaction;
+    using Common.Exceptions;
+    using Common.Extensions;
+    using Common.Services.BlobStorage;
+    using coordinator.Clients.PdfRedactor;
+    using Ddei.Factories;
+    using DdeiClient.Clients.Interfaces;
+    using DdeiClient.Services.CaseUrnResolver;
+    using FluentValidation;
+    using Microsoft.Extensions.Configuration;
+
+    public class RedactionService : IRedactionService
     {
         private readonly IValidator<RedactPdfRequestWithDocumentDto> requestValidator;
         private readonly IPdfRedactorClient redactionClient;
@@ -55,7 +56,7 @@ namespace coordinator.Services
             int caseId,
             string materialId,
             long documentId,
-            RedactionPayload request,
+            RedactPdfRequestDto request,
             CmsAuthValues cmsAuthValues,
             Guid correlationId,
             CancellationToken cancellationToken)
@@ -83,11 +84,11 @@ namespace coordinator.Services
 
             Stream document = null;
 
-            if (request.Redactions.Count != 0)
+            if (request.RedactionDefinitions.Count != 0)
             {
-                document = await RedactAsync(
+                document = await this.RedactAsync(
                     bytes,
-                    request,
+                    request.RedactionDefinitions,
                     caseId,
                     materialId,
                     documentId,
@@ -97,7 +98,7 @@ namespace coordinator.Services
 
             if (request.DocumentModifications.Count != 0)
             {
-                document = await ModifyAsync(
+                document = await this.ModifyAsync(
                     document ?? new MemoryStream(bytes),
                     request,
                     caseId,
@@ -131,9 +132,10 @@ namespace coordinator.Services
 
             return document;
         }
+
         private async Task<Stream> RedactAsync(
                                         byte[] bytes,
-                                        RedactionPayload request,
+                                        List<RedactionDefinitionDto> redactionDefinitions,
                                         int caseId,
                                         string materialId,
                                         long documentId,
@@ -143,7 +145,7 @@ namespace coordinator.Services
             var redactionRequest = new RedactPdfRequestWithDocumentDto
             {
                 Document = Convert.ToBase64String(bytes),
-                RedactionDefinitions = request.Redactions
+                RedactionDefinitions = redactionDefinitions,
             };
 
             var validationResult =
@@ -155,7 +157,7 @@ namespace coordinator.Services
             {
                 throw new BadRequestException(
                     validationResult.FlattenErrors(),
-                    nameof(request));
+                    nameof(redactionRequest));
             }
 
             var stream = await this.redactionClient.RedactPdfAsync(
@@ -196,7 +198,7 @@ namespace coordinator.Services
             {
                 Document = Convert.ToBase64String(memoryStream.ToArray()),
                 DocumentModifications = request.DocumentModifications,
-                VersionId = request.VersionId
+                VersionId = request.VersionId,
             };
 
             return await this.redactionClient.ModifyDocument(

@@ -76,7 +76,7 @@ public class RedactDocument
             caseId,
             materialId,
             documentId,
-            request!,
+            request,
             cmsAuthValues,
             correlationId,
             cancellationToken);
