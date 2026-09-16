@@ -167,7 +167,8 @@ function __getCmsEnvInternal(cookie) {
     if (cookie.includes("cin4")) return "cin4";
     if (cookie.includes("cin5")) return "cin5";
     if (cookie.includes("-cpt-lb")) return "cpt";
-    if (cookie.includes("-cmo-lb")) return "cmo";
+    // CMO has no dedicated upstream; in UAT the default upstream is cmo.cps.gov.uk, so CMO sessions use the default env.
+    if (cookie.includes("-cmo-lb")) return "default";
     return "default";
 }
 
