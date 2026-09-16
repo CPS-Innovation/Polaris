@@ -31,7 +31,7 @@ async function detection(common) {
     ["__CMSENV=cin5", "cin5", "cin5"],
     ["__CMSENV=cin3", "default", "cin3 IS the default environment"],
     ["__CMSENV=cpt", "cpt", "cpt (FCT2-18732)"],
-    ["C-MOD-LBsessioncookie=x", "default", "the MOD LB cookie -> default (RMAT-242: cmo has no upstream)"],
+    ["C-CMO-LBsessioncookie=x", "default", "the CMO LB cookie -> default (RMAT-242: cmo has no upstream)"],
     ["__CMSENV=default", "default", "explicit default"],
     ["", "default", "empty -> default"],
     [undefined, "default", "missing -> default"],
@@ -63,10 +63,10 @@ async function detection(common) {
     assertEqual(common.detect("__CMSENV=cin5; stale=cin2"), "cin2", "cin2 checked before cin4/cin5")
   })
 
-  // RMAT-242: cmo has no configured upstream, so "mod"/"cmo" cookies route to default
+  // RMAT-242: cmo has no configured upstream, so "cmo" cookies route to default
   // (the UAT default upstream is cmo.cps.gov.uk) rather than an undefined destination.
-  await test("RMAT-242: 'mod'/'cmo' cookies route to default (cmo has no upstream)", () => {
-    assertEqual(common.detect("__CMSENV=cmo"), "default", "no 'mod' substring -> default")
+  await test("RMAT-242: 'cmo' cookies route to default (cmo has no upstream)", () => {
+    assertEqual(common.detect("__CMSENV=cmo"), "default", "no 'cmo' substring -> default")
     assertEqual(common.detect("x=modern"), "default", "'modern' contains 'mod' -> default")
   })
 }
