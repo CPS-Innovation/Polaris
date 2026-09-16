@@ -15,13 +15,14 @@ function detect(cookie) {
   if (cookie.includes("cin4")) return "cin4";
   if (cookie.includes("cin5")) return "cin5";
   if (cookie.includes("cpt")) return "cpt";
-  if (cookie.includes("mod")) return "cmo";
+  // CMO has no dedicated upstream (RMAT-242); route it to the default env, which is
+  // cmo.cps.gov.uk in UAT.
+  if (cookie.includes("mod")) return "default";
   return "default";
 }
 // NOTE (parity with the live config, FCT2-18732): the substring scan is deliberately
 // naive — there is no guarantee of a __CMSENV cookie, so we fall through to whatever
-// env token appears in the LB/BIG-IP cookies. "cmo" is detected from the "mod" token
-// (its LB cookies are named MOD). Known-fragile (a stray "mod"/"cpt" substring
+// env token appears in the LB/BIG-IP cookies. Known-fragile (a stray "mod"/"cpt" substring
 // mis-routes); to be addressed wholesale later, not here.
 
 // Read a per-environment CMS app setting from process.env: the value of

@@ -94,9 +94,9 @@ const CIN_EXPIRE = "=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
 // Switchable CMS environments whose confounding cookies a switch clears. CIN envs sit
 // behind the F5 BIG-IP pool (ACP+AFP pool cookies) AND carry C-/F- LB session cookies;
-// cpt/cmo carry only the C-/F- LB session cookies (no BIG-IP pool). NOTE the live token
-// quirk: env "cmo" is detected from the "mod" token and its LB cookies are named MOD
-// (see cms-detection.js). cmo has no upstream config yet — mirrors live; wholesale later.
+// cpt/cmo carry only the C-/F- LB session cookies (no BIG-IP pool). NOTE (RMAT-242):
+// cmo has no upstream config, so cms-detection.js routes "mod"/"cmo" cookies to
+// default rather than "cmo" — mirrors the live fix; wholesale env support later.
 const CIN_ENVS = ["cin2", "cin3", "cin4", "cin5"]; // BIG-IP pool + LB session cookies
 const LB_ONLY_ENVS = ["mod", "cpt"]; // LB session cookies only
 
