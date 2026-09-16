@@ -14,10 +14,10 @@ function detect(cookie) {
   if (cookie.includes("cin2")) return "cin2";
   if (cookie.includes("cin4")) return "cin4";
   if (cookie.includes("cin5")) return "cin5";
-  if (cookie.includes("cpt")) return "cpt";
+  if (cookie.includes("-cpt-lb")) return "cpt";
   // CMO has no dedicated upstream (RMAT-242); route it to the default env, which is
   // cmo.cps.gov.uk in UAT.
-  if (cookie.includes("mod")) return "default";
+  if (cookie.includes("-cmo-lb")) return "default";
   return "default";
 }
 // NOTE (parity with the live config, FCT2-18732): the substring scan is deliberately
