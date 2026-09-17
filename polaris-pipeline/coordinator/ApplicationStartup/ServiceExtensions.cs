@@ -39,6 +39,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
+using Polly.Extensions.Http;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -85,9 +86,23 @@ public static class ServiceExtensions
 
         services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
         services.AddHttpClientWithDefaults<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(configuration, ConfigKeys.PipelineRedactPdfBaseUrl, ConfigKeys.PdfGeneratorClientTimeoutSeconds).AddPolicyHandler(GetRetryPolicy);
-        services.AddHttpClientWithDefaults<PdfRedactor.IPdfRedactorClient, PdfRedactor.PdfRedactorClient>(configuration, ConfigKeys.PipelineRedactorPdfBaseUrl, ConfigKeys.PdfRedactorClientTimeoutSeconds);
-        services.AddHttpClientWithDefaults<RedactionLogger.IRedactionLoggerClient, RedactionLogger.RedactionLoggerClient>(configuration, ConfigKeys.PipelineRedactorPdfBaseUrl, ConfigKeys.PdfRedactorClientTimeoutSeconds);
         services.AddHttpClientWithDefaults<TextExtractor.ITextExtractorClient, TextExtractor.TextExtractorClient>(configuration, ConfigKeys.PipelineTextExtractorBaseUrl, ConfigKeys.TextExtractorClientTimeoutSeconds);
+        services.AddHttpClientWithDefaults<
+                    RedactionLogger.IRedactionLoggerClient,
+                    RedactionLogger.RedactionLoggerClient>(
+                        configuration,
+                        ConfigKeys.RedactionLoggerBaseUrl,
+                        ConfigKeys.RedactionLoggerTimeoutSeconds)
+                .AddPolicyHandler(
+                    GetRetryPolicyWithSpecificConfig(configuration, ConfigKeys.RedactionLoggerMaxRetries));
+        services.AddHttpClientWithDefaults<
+                    PdfRedactor.IPdfRedactorClient,
+                    PdfRedactor.PdfRedactorClient>(
+                        configuration,
+                        ConfigKeys.RedactorBaseUrl,
+                        ConfigKeys.RedactorTimeoutSeconds)
+                    .AddPolicyHandler(
+                    GetRetryPolicyWithSpecificConfig(configuration, ConfigKeys.RedactorMaxRetries));
 
         services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
         services.AddScoped<IRedactionService, RedactionService>();
@@ -163,5 +178,22 @@ public static class ServiceExtensions
 #else
             services.AddSingleton<IOcrService, OcrService>();
 #endif
+    }
+
+    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicyWithSpecificConfig(
+    IConfiguration configuration, string configKey)
+    {
+        var hasMaxRetries = int.TryParse(
+            configuration[configKey],
+            out var maxRetries);
+
+        maxRetries = hasMaxRetries ? maxRetries : 5;
+
+        return HttpPolicyExtensions
+            .HandleTransientHttpError()
+            .WaitAndRetryAsync(
+                maxRetries,
+                retryAttempt => TimeSpan.FromSeconds(
+                    Math.Pow(2, retryAttempt)));
     }
 }

@@ -1,22 +1,23 @@
-﻿using Common.Dto.Request;
+﻿// <copyright file="IRedactionService.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+namespace coordinator.Services;
+
+using Common.Dto.Request;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
-namespace coordinator.Services
+public interface IRedactionService
 {
-    public interface IRedactionService
-    {
-        public Task<Stream> ProcessAsync(
-                        int caseId,
-                        string materialId,
-                        long documentId,
-                        RedactPdfRequestDto request,
-                        CmsAuthValues cmsAuthValues,
-                        Guid correlationId,
-                        CancellationToken cancellationToken);
-    }
+    public Task<Stream> ProcessAsync(
+                    int caseId,
+                    string materialId,
+                    long documentId,
+                    RedactPdfRequestDto request,
+                    CmsAuthValues cmsAuthValues,
+                    Guid correlationId,
+                    CancellationToken cancellationToken);
 }

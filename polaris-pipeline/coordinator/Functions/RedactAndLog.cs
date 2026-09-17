@@ -1,4 +1,4 @@
-// <copyright file="RedactDocument.cs" company="TheCrownProsecutionService">
+// <copyright file="RedactAndLog.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
@@ -25,8 +25,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
-using System.IO;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -39,6 +37,7 @@ public class RedactAndLog
     private readonly ICaseUrnResolver caseUrnResolver;
     private readonly IRedactionService redactionService;
     private readonly IRedactionLoggerClient loggerClient;
+    private readonly ILogger<RedactAndLog> logger;
 
     public RedactAndLog(
         IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
@@ -48,19 +47,27 @@ public class RedactAndLog
         IMdsArgFactory mdsArgFactory,
         IConfiguration configuration,
         IMdsClient mdsClient,
-        ICaseUrnResolver caseUrnResolver)
+        ICaseUrnResolver caseUrnResolver,
+        ILogger<RedactAndLog> logger)
     {
         this.requestValidator = requestValidator.ExceptionIfNull();
         this.redactionService = redactionService.ExceptionIfNull();
         this.loggerClient = loggerClient.ExceptionIfNull();
-        this.polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
+
+        this.polarisBlobStorageService =
+            blobStorageServiceFactory(
+                configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty)
+            .ExceptionIfNull();
+
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         this.mdsClient = mdsClient.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
+        this.logger = logger.ExceptionIfNull();
     }
 
     [Function(nameof(RedactAndLog))]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> HttpStart(
@@ -74,28 +81,93 @@ public class RedactAndLog
         var correlationId = req.Headers.GetCorrelationId();
         var cmsAuthValues = req.BuildCmsAuthValues();
 
-        var request =
-            await req.ReadFromJsonAsync<RedactAndLogRequestDto>(
+        try
+        {
+            var request =
+                await req.ReadFromJsonAsync<RedactAndLogRequestDto>(
+                    cancellationToken);
+
+            if (request is null)
+            {
+                this.logger.LogWarning(
+                    "RedactAndLog request was empty. CorrelationId: {CorrelationId}, CaseId: {CaseId}, MaterialId: {MaterialId}, DocumentId: {DocumentId}",
+                    correlationId,
+                    caseId,
+                    materialId,
+                    documentId);
+
+                return new BadRequestObjectResult(
+                    new RedactAndLogResponse
+                    {
+                        CorrelationId = correlationId,
+                        Success = false,
+                    });
+            }
+
+            await this.redactionService.ProcessAsync(
+                caseId,
+                materialId,
+                documentId,
+                request.RedactionPayload,
+                cmsAuthValues,
+                correlationId,
                 cancellationToken);
 
-        await this.redactionService.ProcessAsync(
-            caseId,
-            materialId,
-            documentId,
-            request.RedactionPayload,
-            cmsAuthValues,
-            correlationId,
-            cancellationToken);
+            this.logger.LogInformation(
+                "Redaction completed successfully. CorrelationId: {CorrelationId}, CaseId: {CaseId}, MaterialId: {MaterialId}, DocumentId: {DocumentId}",
+                correlationId,
+                caseId,
+                materialId,
+                documentId);
 
-        await this.loggerClient.CreateRedactionLog(
-            request.LogPayload,
-            correlationId);
+            await this.loggerClient.CreateRedactionLog(
+                request.LogPayload,
+                correlationId);
 
-        return new OkObjectResult(
-            new RedactAndLogResponse
+            this.logger.LogInformation(
+                "Redaction log created successfully. CorrelationId: {CorrelationId}, CaseId: {CaseId}, MaterialId: {MaterialId}, DocumentId: {DocumentId}",
+                correlationId,
+                caseId,
+                materialId,
+                documentId);
+
+            return new OkObjectResult(
+                new RedactAndLogResponse
+                {
+                    CorrelationId = correlationId,
+                    Success = true,
+                });
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            this.logger.LogWarning(
+                "RedactAndLog operation was cancelled. CorrelationId: {CorrelationId}, CaseId: {CaseId}, MaterialId: {MaterialId}, DocumentId: {DocumentId}",
+                correlationId,
+                caseId,
+                materialId,
+                documentId);
+
+            throw;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(
+                ex,
+                "RedactAndLog failed. CorrelationId: {CorrelationId}, CaseId: {CaseId}, MaterialId: {MaterialId}, DocumentId: {DocumentId}",
+                correlationId,
+                caseId,
+                materialId,
+                documentId);
+
+            return new ObjectResult(
+                new RedactAndLogResponse
+                {
+                    CorrelationId = correlationId,
+                    Success = false,
+                })
             {
-                CorrelationId = correlationId,
-                Success = true,
-            });
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
     }
 }
