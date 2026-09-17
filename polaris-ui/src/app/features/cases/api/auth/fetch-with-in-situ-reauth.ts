@@ -117,15 +117,29 @@ const askUserToLogInToCms = async (error: CmsAuthError) => {
   });
 };
 
+/**
+ * tryObtainAuth => reauthWithCorrelationIdIf401ForceUserToLogin
+ *
+ * Uses the correlationId to reauth without getting the user to sign in again.
+ * If it fails it asks the user to sign in again
+ *  - sign in again code is mad and I don't understand
+ *  - fortunately well named
+ */
 const tryObtainAuth = async (correlationId: string | null) => {
   const { isSuccess, failReason } = await inSituReauth(correlationId);
 
   if (!isSuccess) {
-    // Auth is just not there in this browser so we need to ask the user to log in
+    // Auth is not there in this browser so we need to ask the user to log in
     await askUserToLogInToCms(buildCmsAuthError(failReason));
   }
 };
 
+/**
+ * fetchWithInSituReauth => fetchWithCookiesIf401Retry
+ * adds cookies to the fetch, return response if status code is not 401
+ *
+ * On 401 code, inSituReauth called (in tryObtainAuth)
+ */
 export const fetchWithInSituReauth = async (
   ...args: FetchArgs
 ): Promise<Response> => {
@@ -142,7 +156,12 @@ export const fetchWithInSituReauth = async (
   return fetchWithInSituReauth(...args);
 };
 
+/**
+ * I think this always pushes user to login
+ *  - not sure how fetchWithInSituReauth could ever be calld
+ */
 export const fetchWithProactiveInSituReauth = async (...args: FetchArgs) => {
+  // tryObtainAuth will always fail so is just forcing the user to login page
   await tryObtainAuth(null);
   return fetchWithInSituReauth(...args);
 };
