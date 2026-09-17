@@ -47,16 +47,15 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
     }
 
     /// <summary>
-    /// Tests CompleteReclassificationAsync method invokes operations (Reclassify, AddWitness and AddActionPlan) successful, and returns 'success' operations results.
+    /// Tests CompleteReclassificationAsync method invokes the Reclassify operation successfully, and returns 'success' operation results.
     /// </summary>
     /// <returns>Asynchronous operation.</returns>
     [Fact]
-    public async Task CompleteReclassificationAsync_ReclassifyingMaterialToStatement_AddsNewWitnessAndActionPlan_AllExpectedOperations_Succeed()
+    public async Task CompleteReclassificationAsync_ReclassifyingMaterialToStatement_AllExpectedOperations_Succeed()
     {
         // Arrange
         int caseId = 232;
         int materialId = 123;
-        int newWitnessId = 765;
         var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
         var transactionId = Guid.NewGuid();
 
@@ -69,14 +68,6 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
             reclassifyCaseMaterialRequest,
             addCaseActionPlanRequest,
             addWitnessRequest);
-
-        this.mockWitnessService
-            .Setup(x => x.AddWitnessAsync(It.IsAny<string>(), caseId, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()))
-            .ReturnsAsync(newWitnessId);
-
-        this.mockActionPlanService
-            .Setup(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()))
-            .ReturnsAsync(new NoContentResult());
 
         this.mockReclassificationService
             .Setup(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
@@ -100,20 +91,10 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
         Assert.True(result.overallSuccess);
         Assert.Equal("Success", result.status);
 
-        Assert.NotNull(result.addWitnessResult);
-        Assert.Equal("AddWitness", result.addWitnessResult.OperationName);
-        Assert.True(result.addWitnessResult.Success);
-        Assert.Null(result.addWitnessResult.ErrorMessage);
-
         Assert.NotNull(result.reclassificationResult);
         Assert.Equal("ReclassifyCaseMaterial", result.reclassificationResult.OperationName);
         Assert.True(result.reclassificationResult.Success);
         Assert.Null(result.reclassificationResult.ErrorMessage);
-
-        Assert.NotNull(result.actionPlanResult);
-        Assert.Equal("AddCaseActionPlan", result.actionPlanResult.OperationName);
-        Assert.True(result.actionPlanResult.Success);
-        Assert.Null(result.actionPlanResult.ErrorMessage);
 
         // Rename is not called when reclassifying to STATEMENT.
         Assert.Null(result.renameMaterialResult);
@@ -125,124 +106,22 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
 
         Assert.Contains(this.mockLogger.Logs, log =>
          log.LogLevel == LogLevel.Information &&
-         log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} executing witness addition for CaseId: [{caseId}]"));
-
-        Assert.Contains(this.mockLogger.Logs, log =>
-        log.LogLevel == LogLevel.Information &&
-        log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} executing action plan for URN: [{reclassifyCaseMaterialRequest.urn}]"));
-
-        Assert.Contains(this.mockLogger.Logs, log =>
-         log.LogLevel == LogLevel.Information &&
         log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} executing reclassification for MaterialId: [{materialId}]"));
 
-        this.mockWitnessService.Verify(x => x.AddWitnessAsync(It.IsAny<string>(), caseId, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Once());
         this.mockReclassificationService.Verify(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()), Times.Once());
-        this.mockActionPlanService.Verify(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()), Times.Once());
 
         this.mockCommunicationService.Verify(x => x.RenameMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Never());
+
+        this.mockWitnessService.Verify(x => x.AddWitnessAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Never());
+        this.mockActionPlanService.Verify(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()), Times.Never());
     }
 
     /// <summary>
-    /// Tests CompleteReclassificationAsync method invokes operations (Reclassify, AddWitness and AddActionPlan), and returns a parital success operations results.
+    /// Tests CompleteReclassificationAsync method returns a failed operation result when reclassification fails.
     /// </summary>
     /// <returns>Asynchronous operation.</returns>
     [Fact]
-    public async Task CompleteReclassificationAsync_ReclassifyingMaterialToStatement_AddingNewWitnessAndActionPlan_ExecutesExpectedOperations_ParitalSuccess()
-    {
-        // Arrange
-        int caseId = 232;
-        int materialId = 123;
-        int newWitnessId = 765;
-        var cmsAuthValues = new CmsAuthValues("valid cookies", Guid.NewGuid());
-        var transactionId = Guid.NewGuid();
-
-        var reclassifyCaseMaterialRequest = CreateMockReclassifyToStatmentRequest();
-        var addCaseActionPlanRequest = CreateMockAddCaseActionPlanRequest();
-        var addWitnessRequest = new WitnessRequest(caseId, null, "Firstname", "Surname");
-        var renameMaterialRequest = new RenameMaterialRequest(transactionId, materialId, reclassifyCaseMaterialRequest.subject);
-
-        var completeReclassificationRequest = new CompleteReclassificationRequest(
-            reclassifyCaseMaterialRequest,
-            addCaseActionPlanRequest,
-            addWitnessRequest);
-
-        this.mockWitnessService
-            .Setup(x => x.AddWitnessAsync(It.IsAny<string>(), caseId, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()))
-            .ReturnsAsync(newWitnessId);
-
-        var exception = new Exception("DDEI API error");
-
-        // Simulate that action plan execution failed.
-        this.mockActionPlanService
-            .Setup(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()))
-            .ThrowsAsync(exception);
-
-        this.mockReclassificationService
-            .Setup(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(It.IsAny<ReclassificationResponse>());
-
-        this.mockCommunicationService
-            .Setup(x => x.RenameMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()))
-            .ReturnsAsync(It.IsAny<Common.Dto.Response.HouseKeeping.RenameMaterialResponse>());
-
-        // Act
-        var result = await this.sutOrchestrationService.CompleteReclassificationAsync(
-            caseId,
-            materialId,
-            It.IsAny<CmsAuthValues>(),
-            completeReclassificationRequest);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(typeof(CompleteReclassificationResponse), result.GetType());
-
-        Assert.False(result.overallSuccess);
-        Assert.Equal("PartialSuccess", result.status);
-
-        Assert.NotNull(result.addWitnessResult);
-        Assert.Equal("AddWitness", result.addWitnessResult.OperationName);
-        Assert.True(result.addWitnessResult.Success);
-        Assert.Null(result.addWitnessResult.ErrorMessage);
-
-        Assert.NotNull(result.reclassificationResult);
-        Assert.Equal("ReclassifyCaseMaterial", result.reclassificationResult.OperationName);
-        Assert.True(result.reclassificationResult.Success);
-        Assert.Null(result.reclassificationResult.ErrorMessage);
-
-        Assert.NotNull(result.actionPlanResult);
-        Assert.Equal("AddCaseActionPlan", result.actionPlanResult.OperationName);
-        Assert.False(result.actionPlanResult.Success);
-        Assert.Equal(exception.Message, result.actionPlanResult.ErrorMessage);
-
-        // Rename is not called when reclassifying to STATEMENT.
-        Assert.Null(result.renameMaterialResult);
-
-        // Assert logs
-        Assert.Contains(this.mockLogger.Logs, log =>
-         log.LogLevel == LogLevel.Information &&
-         log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} executing witness addition for CaseId: [{caseId}]"));
-
-        Assert.Contains(this.mockLogger.Logs, log =>
-        log.LogLevel == LogLevel.Information &&
-        log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} executing action plan for URN: [{reclassifyCaseMaterialRequest.urn}]"));
-
-        Assert.Contains(this.mockLogger.Logs, log =>
-         log.LogLevel == LogLevel.Information &&
-        log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} executing reclassification for MaterialId: [{materialId}]"));
-
-        this.mockWitnessService.Verify(x => x.AddWitnessAsync(It.IsAny<string>(), caseId, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Once());
-        this.mockReclassificationService.Verify(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()), Times.Once());
-        this.mockActionPlanService.Verify(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()), Times.Once());
-
-        this.mockCommunicationService.Verify(x => x.RenameMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Never());
-    }
-
-    /// <summary>
-    /// Tests CompleteReclassificationAsync method invokes operations (Reclassify, AddWitness and AddActionPlan), all operations fail, and returns a failed operation results.
-    /// </summary>
-    /// <returns>Asynchronous operation.</returns>
-    [Fact]
-    public async Task CompleteReclassificationAsync_ReclassifyingMaterialToStatement_AddingNewWitnessAndActionPlan_ExecutesExpectedOperations_Failed()
+    public async Task CompleteReclassificationAsync_ReclassifyingMaterialToStatement_ExecutesExpectedOperations_Failed()
     {
         // Arrange
         int caseId = 232;
@@ -261,15 +140,6 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
             addWitnessRequest);
 
         var exception = new Exception("DDEI API error");
-
-        this.mockWitnessService
-            .Setup(x => x.AddWitnessAsync(It.IsAny<string>(), caseId, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()))
-            .ThrowsAsync(exception);
-
-        // Simulate that action plan execution failed.
-        this.mockActionPlanService
-            .Setup(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()))
-            .ThrowsAsync(exception);
 
         this.mockReclassificationService
             .Setup(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
@@ -293,20 +163,10 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
         Assert.False(result.overallSuccess);
         Assert.Equal("Failed", result.status);
 
-        Assert.NotNull(result.addWitnessResult);
-        Assert.Equal("AddWitness", result.addWitnessResult.OperationName);
-        Assert.False(result.addWitnessResult.Success);
-        Assert.Equal(exception.Message, result.addWitnessResult.ErrorMessage);
-
         Assert.NotNull(result.reclassificationResult);
         Assert.Equal("ReclassifyCaseMaterial", result.reclassificationResult.OperationName);
         Assert.False(result.reclassificationResult.Success);
         Assert.Equal(exception.Message, result.reclassificationResult.ErrorMessage);
-
-        Assert.NotNull(result.actionPlanResult);
-        Assert.Equal("AddCaseActionPlan", result.actionPlanResult.OperationName);
-        Assert.False(result.actionPlanResult.Success);
-        Assert.Equal(exception.Message, result.actionPlanResult.ErrorMessage);
 
         // Rename is not called when reclassifying to STATEMENT.
         Assert.Null(result.renameMaterialResult);
@@ -314,21 +174,14 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
         // Assert logs
         Assert.Contains(this.mockLogger.Logs, log =>
          log.LogLevel == LogLevel.Error &&
-         log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} witness addition failed for CaseId: [{caseId}]"));
-
-        Assert.Contains(this.mockLogger.Logs, log =>
-        log.LogLevel == LogLevel.Error &&
-        log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Action plan creation failed for URN: [{reclassifyCaseMaterialRequest.urn}]"));
-
-        Assert.Contains(this.mockLogger.Logs, log =>
-         log.LogLevel == LogLevel.Error &&
         log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} reclassification failed for MaterialId: [{materialId}]"));
 
-        this.mockWitnessService.Verify(x => x.AddWitnessAsync(It.IsAny<string>(), caseId, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Once());
         this.mockReclassificationService.Verify(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()), Times.Once());
-        this.mockActionPlanService.Verify(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()), Times.Once());
 
         this.mockCommunicationService.Verify(x => x.RenameMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Never());
+
+        this.mockWitnessService.Verify(x => x.AddWitnessAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Never());
+        this.mockActionPlanService.Verify(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()), Times.Never());
     }
 
     /// <summary>
@@ -355,14 +208,6 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
             addCaseActionPlanRequest,
             addWitnessRequest);
 
-        this.mockWitnessService
-            .Setup(x => x.AddWitnessAsync(It.IsAny<string>(), caseId, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()))
-            .ReturnsAsync(newWitnessId);
-
-        this.mockActionPlanService
-            .Setup(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()))
-            .ReturnsAsync(new NoContentResult());
-
         this.mockReclassificationService
             .Setup(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(It.IsAny<ReclassificationResponse>());
@@ -384,9 +229,6 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
         Assert.True(result.overallSuccess);
         Assert.Equal("Success", result.status);
 
-        // Witness addition not called
-        Assert.Null(result.addWitnessResult);
-
         Assert.NotNull(result.reclassificationResult);
         Assert.Equal("ReclassifyCaseMaterial", result.reclassificationResult.OperationName);
         Assert.True(result.reclassificationResult.Success);
@@ -407,11 +249,12 @@ public class MaterialReclassificationOrchestrationServiceUnitTests
          log.LogLevel == LogLevel.Information &&
         log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} executing reclassification for MaterialId: [{materialId}]"));
 
-        this.mockWitnessService.Verify(x => x.AddWitnessAsync(It.IsAny<string>(), caseId, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Never());
         this.mockReclassificationService.Verify(x => x.ReclassifyCaseMaterialAsync(It.IsAny<ReclassifyCaseMaterialServiceRequest>(), It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()), Times.Once());
-        this.mockActionPlanService.Verify(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()), Times.Never());
 
         this.mockCommunicationService.Verify(x => x.RenameMaterialAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Once());
+
+        this.mockWitnessService.Verify(x => x.AddWitnessAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()), Times.Never());
+        this.mockActionPlanService.Verify(x => x.AddCaseActionPlanAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<AddCaseActionPlanRequest>(), It.IsAny<CmsAuthValues>()), Times.Never());
     }
 
     private static AddCaseActionPlanRequest CreateMockAddCaseActionPlanRequest()
