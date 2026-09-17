@@ -92,7 +92,8 @@ public static class ServiceExtensions
                     RedactionLogger.RedactionLoggerClient>(
                         configuration,
                         ConfigKeys.RedactionLoggerBaseUrl,
-                        ConfigKeys.RedactionLoggerTimeoutSeconds)
+                        ConfigKeys.RedactionLoggerTimeoutSeconds,
+                        ConfigKeys.RedactionLoggerAccessKey)
                 .AddPolicyHandler(
                     GetRetryPolicyWithSpecificConfig(configuration, ConfigKeys.RedactionLoggerMaxRetries));
         services.AddHttpClientWithDefaults<
@@ -100,7 +101,8 @@ public static class ServiceExtensions
                     PdfRedactor.PdfRedactorClient>(
                         configuration,
                         ConfigKeys.RedactorBaseUrl,
-                        ConfigKeys.RedactorTimeoutSeconds)
+                        ConfigKeys.RedactorTimeoutSeconds,
+                        ConfigKeys.RedactorAccessKey)
                     .AddPolicyHandler(
                     GetRetryPolicyWithSpecificConfig(configuration, ConfigKeys.RedactorMaxRetries));
 
@@ -135,17 +137,26 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IHttpClientBuilder AddHttpClientWithDefaults<TInterface, TImplementation>(this IServiceCollection services, IConfiguration configuration, string baseUrlKey, string timeoutKey)
+    public static IHttpClientBuilder AddHttpClientWithDefaults<TInterface, TImplementation>(this IServiceCollection services, IConfiguration configuration, string baseUrlKey, string timeoutKey, string? accessKeyKey = null)
         where TInterface : class
         where TImplementation : class, TInterface
     {
-        return services.AddHttpClient<TInterface, TImplementation>(client =>
-        {
-            client.BaseAddress = new Uri(GetValueFromConfig(configuration, baseUrlKey));
-            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            var hasTimeout = int.TryParse(configuration[timeoutKey], out var timeout);
-            client.Timeout = TimeSpan.FromSeconds(hasTimeout ? timeout : 100);
-        });
+        return services.AddHttpClient<TInterface, TImplementation>(
+            client =>
+            {
+                client.BaseAddress = new Uri(GetValueFromConfig(configuration, baseUrlKey));
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+                var hasTimeout = int.TryParse(configuration[timeoutKey], out var timeout);
+                client.Timeout = TimeSpan.FromSeconds(hasTimeout ? timeout : 100);
+                if (!string.IsNullOrWhiteSpace(accessKeyKey))
+                {
+                    var accessKey = configuration[accessKeyKey];
+                    if (!string.IsNullOrWhiteSpace(accessKey))
+                    {
+                        client.DefaultRequestHeaders.Add("x-functions-key", accessKey);
+                    }
+                }
+            });
     }
 
     public static string GetValueFromConfig(IConfiguration configuration, string secretName)

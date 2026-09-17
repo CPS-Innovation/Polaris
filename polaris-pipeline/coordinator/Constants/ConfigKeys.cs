@@ -25,6 +25,7 @@ public static class ConfigKeys
     public const string RedactorBaseUrl = "Redactor:BaseUrl";
     public const string RedactorTimeoutSeconds = "Redactor:TimeoutSeconds";
     public const string RedactorMaxRetries = "Redactor:MaxRetries";
+    public const string RedactorAccessKey = "Redactor:AccessKey";
     public const string PdfGeneratorClientTimeoutSeconds = nameof(PdfGeneratorClientTimeoutSeconds);
     public const string TextExtractorClientTimeoutSeconds = nameof(TextExtractorClientTimeoutSeconds);
 }
