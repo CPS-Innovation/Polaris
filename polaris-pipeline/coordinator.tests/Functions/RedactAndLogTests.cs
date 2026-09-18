@@ -6,6 +6,7 @@ namespace coordinator.tests.Functions;
 
 using Common.Configuration;
 using Common.Dto.Request;
+using Common.Dto.Request.Redaction;
 using Common.Dto.Response;
 using Common.Services.BlobStorage;
 using coordinator.Clients.PdfRedactor;
@@ -22,6 +23,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -100,11 +102,13 @@ public class RedactAndLogTests
         var documentId = 2L;
         var cancellationToken = CancellationToken.None;
 
+#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
         var request = new RedactAndLogRequestDto
         {
             RedactionPayload = new RedactPdfRequestDto { RedactionDefinitions = [], DocumentModifications = [], },
             LogPayload = null,
         };
+#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
 
         var httpRequest = CreateHttpRequest(
             request,
@@ -120,8 +124,6 @@ public class RedactAndLogTests
                 correlationId,
                 cancellationToken))
             .Returns(Task.FromResult<System.IO.Stream>(new MemoryStream()));
-
-
 
         this.loggerClientMock
             .Setup(s => s.CreateRedactionLog(
@@ -233,7 +235,7 @@ public class RedactAndLogTests
         var materialId = "CMS-12345";
         var documentId = 2L;
         var cancellationToken = CancellationToken.None;
-
+#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
         var request = new RedactAndLogRequestDto
         {
             RedactionPayload = new RedactPdfRequestDto
@@ -243,7 +245,7 @@ public class RedactAndLogTests
             },
             LogPayload = null,
         };
-
+#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
         var httpRequest = CreateHttpRequest(
             request,
             correlationId);
@@ -298,7 +300,7 @@ public class RedactAndLogTests
         var materialId = "CMS-12345";
         var documentId = 2L;
         var cancellationToken = CancellationToken.None;
-
+#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
         var request = new RedactAndLogRequestDto
         {
             RedactionPayload = new RedactPdfRequestDto
@@ -308,7 +310,7 @@ public class RedactAndLogTests
             },
             LogPayload = null,
         };
-
+#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
         var httpRequest = CreateHttpRequest(
             request,
             correlationId);
@@ -352,23 +354,6 @@ public class RedactAndLogTests
 
         Assert.Equal(correlationId, response.CorrelationId);
         Assert.False(response.Success);
-
-        //this.redactionServiceMock.Verify(
-        //    s => s.ProcessAsync(
-        //        caseId,
-        //        materialId,
-        //        documentId,
-        //        request.RedactionPayload,
-        //        It.IsAny<Common.Dto.Request.CmsAuthValues>(),
-        //        correlationId,
-        //        cancellationToken),
-        //    Times.Once);
-
-        //this.loggerClientMock.Verify(
-        //    s => s.CreateRedactionLog(
-        //        request.LogPayload,
-        //        correlationId),
-        //    Times.Once);
     }
 
     [Fact]
@@ -387,7 +372,7 @@ public class RedactAndLogTests
 
         var cancellationToken =
             cancellationTokenSource.Token;
-
+#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
         var request = new RedactAndLogRequestDto
         {
             RedactionPayload = new RedactPdfRequestDto
@@ -397,7 +382,7 @@ public class RedactAndLogTests
             },
             LogPayload = null,
         };
-
+#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
         var httpRequest = CreateHttpRequest(
             request,
             correlationId);
