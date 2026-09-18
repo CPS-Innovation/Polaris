@@ -90,15 +90,16 @@ public class PdfArtefactService(
     {
         if (fileSizeInMb > this.redactionFileSizeOptions.FileSizeLimitMb)
         {
-            this.logger.LogInformation(
-                "Warning: document {DocumentId} has file size {FileSizeMb}MB which exceeds limit {FileSizeLimitMb}MB.",
+            this.logger.LogWarning(
+                "Document with ID {DocumentId} has file size {FileSizeMb}MB which exceeds limit {FileSizeLimitMb}MB.",
                 documentId,
                 fileSizeInMb,
-                this.redactionFileSizeOptions.FileSizeLimitMb
-            );
+                this.redactionFileSizeOptions.FileSizeLimitMb);
 
             return this.artefactServiceResponseFactory.CreateOkResultWithLargeFileFlag(pdfStream, fromCache, true);
         }
+
+        this.logger.LogInformation("Document with ID {DocumentId} has file size {FileSizeMb}MB.", documentId, fileSizeInMb);
 
         return this.artefactServiceResponseFactory.CreateOkfResult(pdfStream, fromCache);
     }
