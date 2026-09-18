@@ -51,3 +51,14 @@ _ReSharper*/
 /hkui-functions-integration-tests/bin
 /hkui-functions-integration-tests/obj
 /hkui-functions-integration-tests/debug
+/.vscode
+/.vscode/tasks.json
+/AzuriteConfig
+/__azurite_db_blob_extent__.json
+/__azurite_db_blob__.json
+/__azurite_db_queue_extent__.json
+/__azurite_db_queue__.json
+/__azurite_db_table__.json
+/__blobstorage__
+/__blobstorage__/148a15ca-8562-4521-859a-b74c4abd4b68
+/__blobstorage__/f4716f6f-6e97-47f9-a7c8-5ee9ad82f283
