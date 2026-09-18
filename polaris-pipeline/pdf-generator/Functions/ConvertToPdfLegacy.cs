@@ -22,17 +22,14 @@ namespace pdf_generator.Functions
     {
         private readonly IPdfOrchestratorService _pdfOrchestratorService;
         private readonly ILogger<ConvertToPdfLegacy> _logger;
-        private readonly ITelemetryClient _telemetryClient;
         private const string LoggingName = nameof(ConvertToPdfLegacy);
 
         public ConvertToPdfLegacy(
              IPdfOrchestratorService pdfOrchestratorService,
-             ILogger<ConvertToPdfLegacy> logger,
-             ITelemetryClient telemetryClient)
+             ILogger<ConvertToPdfLegacy> logger)
         {
             _pdfOrchestratorService = pdfOrchestratorService;
             _logger = logger;
-            _telemetryClient = telemetryClient;
         }
 
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -90,7 +87,7 @@ namespace pdf_generator.Functions
                     telemetryEvent.EndTime = DateTime.UtcNow;
                     telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
 
-                    _telemetryClient.TrackEvent(telemetryEvent);
+                    _logger.TrackEvent(telemetryEvent);
 
                     return new FileStreamResult(conversionResult.ConvertedDocument, "application/pdf")
                     {
@@ -99,7 +96,7 @@ namespace pdf_generator.Functions
                 }
 
                 telemetryEvent.ConversionHandler = conversionResult.ConversionHandler.GetEnumValue();
-                _telemetryClient.TrackEventFailure(telemetryEvent);
+                _logger.TrackEventFailure(telemetryEvent);
 
                 return new ObjectResult(conversionResult.ConversionStatus)
                 {
@@ -111,7 +108,7 @@ namespace pdf_generator.Functions
                 _logger.LogMethodError(currentCorrelationId, LoggingName, exception.Message, exception);
 
                 telemetryEvent.FailureReason = exception.Message;
-                _telemetryClient.TrackEventFailure(telemetryEvent);
+                _logger.TrackEventFailure(telemetryEvent);
 
                 return new ObjectResult(exception.ToFormattedString())
                 {

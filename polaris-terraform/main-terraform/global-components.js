@@ -5,6 +5,7 @@ const CMS_AUTH_VALUES_COOKIE_NAME = "Cms-Auth-Values"
 const CORS_ALLOWED_ORIGINS = [
   "https://cps.outsystemsenterprise.com",
   "https://cps-tst.outsystemsenterprise.com",
+  "https://cps-tst1.outsystemsenterprise.com",
   "https://cps-dev.outsystemsenterprise.com",
   "http://localhost",
   "https://localhost",
@@ -125,7 +126,10 @@ function readCmsAuthValues(r) {
 
 // For nginx js_set - returns origin if allowed, empty string otherwise
 function readCorsOrigin(r) {
-  const origin = r.headersIn["Origin"]
+  const origin = _getHeaderValue(r, "Origin")
+  if (!origin) {
+    return ""
+  }
   return CORS_ALLOWED_ORIGINS.includes(origin) ||
     origin.endsWith(".cps.gov.uk") ||
     origin.startsWith("http://localhost:") ||

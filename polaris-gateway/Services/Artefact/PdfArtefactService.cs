@@ -9,9 +9,6 @@ using Common.Domain.Ocr;
 using Common.Extensions;
 using Common.Services.BlobStorage;
 using Common.Services.OcrService;
-using Microsoft.AspNetCore.Http;
-using Microsoft.CodeAnalysis.Operations;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PolarisGateway.Models;
@@ -42,18 +39,21 @@ public class PdfArtefactService(
         GetPdfRequest request,
         string cmsAuthValues,
         Guid correlationId,
+        bool isLegacy = true,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!request.ForceRefresh && await this.cacheService.TryGetPdfAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed) is (true, var stream))
+        if (!request.ForceRefresh && await this.cacheService.TryGetPdfAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed) is
+            (true, var stream))
+
         {
             var cachedFileSizeInMb = await this.cacheService.GetPdfSizeFromMetadataAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed);
 
             return this.ValidateFileSizeAndCreatePdfResult(stream, request.DocumentId, true, cachedFileSizeInMb ?? 0);
         }
 
-        var result = await this.pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, request.Urn, request.CaseId, request.MaterialId, request.DocumentId);
+        var result = await this.pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, request.Urn, request.CaseId, request.MaterialId, request.DocumentId, isLegacy);
 
         if (result.Status != PdfConversionStatus.DocumentConverted)
         {
@@ -77,6 +77,7 @@ public class PdfArtefactService(
         using (var uploadStream = new MemoryStream(pdfBytes))
         {
             fileSizeInMb = Math.Floor((uploadStream.Length / (1024.0 * 1024.0)) * 10) / 10;
+
             await this.cacheService.UploadPdfAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed, uploadStream, fileSizeInMb);
         }
 

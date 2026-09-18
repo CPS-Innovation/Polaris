@@ -91,7 +91,6 @@ public class GetMaterialDocument(
             ResponseHeaderHelper.SetSecurityHeaders(req.HttpContext.Response);
 
             return await this.GetMaterialDocumentAsync(caseId.ToString(), link, cmsAuthValues, stopwatch).ConfigureAwait(true);
-
         }
         catch (InvalidOperationException ex)
         {
@@ -116,7 +115,6 @@ public class GetMaterialDocument(
         }
     }
 
-
     /// <summary>
     /// Asynchronously retrieves the communication link for a specific material based on the material ID.
     /// </summary>
@@ -129,7 +127,6 @@ public class GetMaterialDocument(
     private async Task<string> GetLinkForMaterialAsync(int caseId, int materialId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         object linkResult = await this.communicationService.GetCaseMaterialLinkAsync(caseId, materialId, cmsAuthValues, cancellationToken).ConfigureAwait(true);
-
         return linkResult is IActionResult ? null : linkResult as string;
     }
 

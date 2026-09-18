@@ -40,7 +40,7 @@ stages:
               azureSubscription: ${{ parameters.azureSubscription }}
               
           - bash: |
-              az login --service-principal -u $clientId -p $clientSecret --tenant $tenantId
+              az login --service-principal --username "$clientId" --password="$clientSecret" --tenant "$tenantId"
               az account set --subscription $subscriptionId
               if [ $(az group exists --name "rg-polaris$targetSuffix") = true ]; then
                 if [ $(az keyvault check-name --name "kv-polaris$targetSuffix" --query="nameAvailable" -o tsv) = false ]; then

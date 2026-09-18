@@ -1,0 +1,19 @@
+# The cmsproxy under test.
+#
+# Deliberately thin: the real config (nginx.conf / *.js) is BIND-MOUNTED by
+# docker-compose rather than COPYed, so editing the config needs no rebuild.
+# All this image adds is the njs module that `load_module` at the top of
+# nginx.conf requires, plus curl for the healthcheck.
+FROM nginx:1.27.1-alpine
+
+RUN apk add --no-cache nginx-mod-http-js curl
+
+# The stock entrypoint renders /etc/nginx/templates/*.template -> $NGINX_ENVSUBST_OUTPUT_DIR
+RUN mkdir -p /etc/nginx/templates
+
+# nginx.conf declares `user nginx;` and `listen 80`, so the master must start as
+# root (the default for this image). Compose maps 8080:80 on the host.
+EXPOSE 80
+
+HEALTHCHECK --interval=5s --timeout=3s --start-period=3s --retries=5 \
+  CMD curl -fsS http://localhost/ || exit 1

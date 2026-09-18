@@ -38,7 +38,7 @@ steps:
 
   # Set Log Analytics Archival Period - remove when supported natively by Terraform
   - bash: |
-      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+      az login --service-principal --username "$ARM_CLIENT_ID" --password="$ARM_CLIENT_SECRET" --tenant "$ARM_TENANT_ID"
       az account set --subscription $ARM_SUBSCRIPTION_ID
       az monitor log-analytics workspace table update --resource-group rg-polaris-analytics$ARM_SUFFIX --workspace-name la-polaris$ARM_SUFFIX --name AppEvents --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID
       az monitor log-analytics workspace table update --resource-group rg-polaris-analytics$ARM_SUFFIX --workspace-name la-polaris$ARM_SUFFIX --name AppRequests --retention-time $LOG_RETENTION_TIME --total-retention-time $TOTAL_LOG_RETENTION_TIME --subscription $ARM_SUBSCRIPTION_ID

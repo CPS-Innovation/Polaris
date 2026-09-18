@@ -29,10 +29,10 @@ public class ConversionService(ILogger<ConversionService> logger,
     IConfiguration configuration)
     : IConversionService
 {
+    private const string PasswordProtectedMessage = "The document is password protected.";
     private readonly ILogger<ConversionService> logger = logger;
     private readonly BlobServiceClient? blobServiceClient = blobServiceClient;
     private readonly IConfiguration configuration = configuration;
-    private const string PasswordProtectedMessage = "The document is password protected.";
 
     /// <inheritdoc />
     public async Task<bool> SaveDownloadedDocumentToTemporaryStorageAsync(FileStreamResult downloadedDocument, CancellationToken cancellationToken = default)
@@ -104,25 +104,25 @@ public class ConversionService(ILogger<ConversionService> logger,
             {
                 pdfFilePath = contentType switch
                 {
-                    var type when this.IsRasterImage(type) => await ConvertToPdfFilePathAsync(() => this.ConvertRasterImageToPdfDocumentAsync(tmpFileDownloadName, cancellationToken)).ConfigureAwait(true),
-                    "application/msword" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)).ConfigureAwait(true), // DOC and DOT files
-                    "application/octet-stream" => await ConvertToPdfFilePathAsync(() => this.ConvertHtmlToPdfDocumentAsync(tmpFileDownloadName, cancellationToken)).ConfigureAwait(true), // HTE, HTM and HTML files
-                    "application/pdf" => await ConvertToPdfFilePathAsync(() => this.ConvertPdfToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)).ConfigureAwait(true),
-                    "application/rtf" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, cancellationToken:cancellationToken)).ConfigureAwait(true),
-                    "application/vnd.ms-excel" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)).ConfigureAwait(true),
-                    "application/vnd.ms-excel.sheet.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
-                    "application/vnd.ms-word.document.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken:cancellationToken)).ConfigureAwait(true),
-                    "application/vnd.ms-word.template.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken:cancellationToken)).ConfigureAwait(true),
-                    "application/vnd.ms-outlook" => await ConvertToPdfFilePathAsync(() => this.ConvertMsgToPdfDocumentAsync(tmpFileDownloadName, cancellationToken: cancellationToken)).ConfigureAwait(true),
-                    "application/vnd.ms-powerpoint" => await ConvertToPdfFilePathAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly,cancellationToken)).ConfigureAwait(true),
-                    "application/vnd.openxmlformats-officedocument.presentationml.presentation" => await ConvertToPdfFilePathAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)).ConfigureAwait(true),
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.template" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)).ConfigureAwait(true),
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
-                    "application/xml" => await ConvertToPdfFilePathAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName, cancellationToken: cancellationToken)).ConfigureAwait(true),
-                    "text/csv" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly)).ConfigureAwait(true),
-                    "text/plain" => await ConvertToPdfFilePathAsync(() => this.ConvertTxtToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
-                    "text/xml" => await ConvertToPdfFilePathAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName)).ConfigureAwait(true),
+                    var type when this.IsRasterImage(type) => await ConvertToPdfFilePathAsync(() => this.ConvertRasterImageToPdfDocumentAsync(tmpFileDownloadName, cancellationToken)),
+                    "application/msword" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)), // DOC and DOT files
+                    "application/octet-stream" => await ConvertToPdfFilePathAsync(() => this.ConvertHtmlToPdfDocumentAsync(tmpFileDownloadName, cancellationToken)), // HTE, HTM and HTML files
+                    "application/pdf" => await ConvertToPdfFilePathAsync(() => this.ConvertPdfToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)),
+                    "application/rtf" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken: cancellationToken)),
+                    "application/vnd.ms-excel" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)),
+                    "application/vnd.ms-excel.sheet.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)),
+                    "application/vnd.ms-word.document.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken: cancellationToken)),
+                    "application/vnd.ms-word.template.macroEnabled.12" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken: cancellationToken)),
+                    "application/vnd.ms-outlook" => await ConvertToPdfFilePathAsync(() => this.ConvertMsgToPdfDocumentAsync(tmpFileDownloadName, cancellationToken: cancellationToken)),
+                    "application/vnd.ms-powerpoint" => await ConvertToPdfFilePathAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)),
+                    "application/vnd.openxmlformats-officedocument.presentationml.presentation" => await ConvertToPdfFilePathAsync(() => this.ConvertPptToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)),
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)),
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.template" => await ConvertToPdfFilePathAsync(() => this.ConvertDocToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)),
+                    "application/xml" => await ConvertToPdfFilePathAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName, cancellationToken: cancellationToken)),
+                    "text/csv" => await ConvertToPdfFilePathAsync(() => this.ConvertXlsToPdfDocumentAsync(tmpFileDownloadName, firstPageOnly, cancellationToken)),
+                    "text/plain" => await ConvertToPdfFilePathAsync(() => this.ConvertTxtToPdfDocumentAsync(tmpFileDownloadName, cancellationToken)),
+                    "text/xml" => await ConvertToPdfFilePathAsync(() => this.ConvertXmlToPdfDocumentAsync(tmpFileDownloadName, cancellationToken)),
                     _ => throw new NotSupportedException($"Unsupported content type: {contentType}")
                 };
             }
@@ -510,23 +510,21 @@ public class ConversionService(ILogger<ConversionService> logger,
         }
 
         // Memory stream to hold the generated PDF
-        using (var pdfStream = new MemoryStream())
-        {
-            // Save the selected pages as a PDF to the memory stream
-            wordDocument.Save(pdfStream, Aspose.Words.SaveFormat.Pdf);
+        using var pdfStream = new MemoryStream();
+        // Save the selected pages as a PDF to the memory stream
+        wordDocument.Save(pdfStream, Aspose.Words.SaveFormat.Pdf);
 
-            // Reset stream position before uploading
-            pdfStream.Position = 0;
+        // Reset stream position before uploading
+        pdfStream.Position = 0;
 
-            // Get a reference to the new PDF blob (output file)
-            BlobClient pdfBlobClient = containerClient.GetBlobClient(pdfFileName);
+        // Get a reference to the new PDF blob (output file)
+        BlobClient pdfBlobClient = containerClient.GetBlobClient(pdfFileName);
 
-            // Upload the generated PDF to Blob Storage
-            await pdfBlobClient.UploadAsync(pdfStream, overwrite: true).ConfigureAwait(false);
+        // Upload the generated PDF to Blob Storage
+        await pdfBlobClient.UploadAsync(pdfStream, overwrite: true).ConfigureAwait(false);
 
-            // Return the URI of the uploaded PDF
-            return pdfBlobClient.Uri.ToString();
-        }
+        // Return the URI of the uploaded PDF
+        return pdfBlobClient.Uri.ToString();
     }
 
     /// <summary>

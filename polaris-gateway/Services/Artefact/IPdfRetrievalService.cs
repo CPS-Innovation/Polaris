@@ -6,5 +6,5 @@ namespace PolarisGateway.Services.Artefact;
 
 public interface IPdfRetrievalService
 {
-    public Task<DocumentRetrievalResult> GetPdfStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId);
+    public Task<DocumentRetrievalResult> GetPdfStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isLegacy = true);
 }

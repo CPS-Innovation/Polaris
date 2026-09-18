@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 /// </remarks>
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="communicationService">The service used to get call PCD Review service.</param>
-public class GetPcdReviewDetails(ILogger<GetPcdReviewDetails> logger, ICommunicationService communicationService) : BaseFunction(logger)
+public class GetPcdReviewDetails(ILogger<GetPcdReviewDetails> logger, ICommunicationService communicationService): BaseFunction(logger)
 {
     private readonly ILogger<GetPcdReviewDetails> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
@@ -64,8 +64,7 @@ public class GetPcdReviewDetails(ILogger<GetPcdReviewDetails> logger, ICommunica
             if (caseId < 1)
             {
                 return new BadRequestObjectResult(
-                                      string.Format("{0} Invalid case Id. It should be an integer.", LoggingConstants.HskUiLogPrefix)
-                                  );
+                                      string.Format("{0} Invalid case Id. It should be an integer.", LoggingConstants.HskUiLogPrefix));
             }
 
             // Build CMS auth values from cookie extracted from the request

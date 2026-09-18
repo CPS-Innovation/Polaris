@@ -60,7 +60,7 @@ var host = new HostBuilder()
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddTransient<IValidatorWrapper<StoreCaseIndexesRequestDto>, ValidatorWrapper<StoreCaseIndexesRequestDto>>();
         services.AddTransient<IJsonConvertWrapper, JsonConvertWrapper>();
-        services.AddSingleton<ITelemetryClient, TelemetryClient>();
+        services.AddTelemetryEventLogging();
         services.AddSingleton<IDtoHttpRequestHeadersMapper, DtoHttpRequestHeadersMapper>();
         services.AddSingleton<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
         services.AddSingleton<Microsoft.ApplicationInsights.TelemetryClient, Microsoft.ApplicationInsights.TelemetryClient>();

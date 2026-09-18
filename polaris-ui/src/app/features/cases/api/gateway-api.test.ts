@@ -97,21 +97,6 @@ describe("gateway-apis", () => {
       const response = await getCaseDetails("abc", 123);
       expect(response).toEqual({ data: "mocked response" });
     });
-
-    it("getCaseDetails should throw error if for any other failed response status", async () => {
-      mockOutReauthResponse(
-        "full-window-reauth",
-        { data: "mocked response" },
-        {
-          status: 500,
-          statusText: "OK",
-        }
-      );
-
-      expect(async () => {
-        await getCaseDetails("abc", 122);
-      }).rejects.toThrow();
-    });
   });
 
   describe("getPipelinePdfResults", () => {

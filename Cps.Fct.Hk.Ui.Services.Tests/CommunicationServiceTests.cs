@@ -3274,7 +3274,7 @@ public class CommunicationServiceTests
         };
 
         this.apiClientMock
-            .Setup(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues))
+            .Setup(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues, customCancellationToken))
             .ReturnsAsync(historyEvents);
 
         // Act
@@ -3282,7 +3282,7 @@ public class CommunicationServiceTests
 
         // Assert
         Assert.NotNull(result);
-        this.apiClientMock.Verify(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues), Times.Once);
+        this.apiClientMock.Verify(client => client.GetHistoryEventsAsync(caseId, cmsAuthValues, customCancellationToken), Times.Once);
     }
 
     /// <summary>

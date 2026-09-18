@@ -39,6 +39,8 @@ resource "azurerm_linux_function_app_slot" "fa_coordinator_staging1" {
     "MdsClientTimeoutSeconds"                         = "200"
     "MDSMockBaseUrl"                                  = "https://as-${local.mds_mock_resource_name}.azurewebsites.net"
     "MDSMockAccessKey"                                = ""
+    "MasterDataServiceClient__BaseAddress"            = "https://fa-${local.wm_mds_resource_name}.azurewebsites.net/api/"
+    "MasterDataServiceClient__FunctionKey"            = data.azurerm_key_vault_secret.kvs_fa_wm_mds_host_keys.value
     "LanguageServiceKey"                              = azurerm_cognitive_account.language_service.primary_access_key
     "LanguageServiceUrl"                              = azurerm_cognitive_account.language_service.endpoint
     "OvernightClearDownSchedule"                      = var.overnight_clear_down.schedule

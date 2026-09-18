@@ -10,7 +10,7 @@ parameters:
 
 steps:
   - bash: |
-      az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
+  az login --service-principal --username "$ARM_CLIENT_ID" --password="$ARM_CLIENT_SECRET" --tenant "$ARM_TENANT_ID"
       az account set --subscription $ARM_SUBSCRIPTION_ID
       az vmss update --resource-group $ARM_RESOURCE_GROUP --name $ARM_AGENT_POOL --set virtualMachineProfile.storageProfile.imageReference.id=/subscriptions/$ARM_SUBSCRIPTION_ID/resourceGroups/$ARM_RESOURCE_GROUP/providers/Microsoft.Compute/images/build-agent-$(versionSha)
       az vmss update-instances --instance-ids "*" --name $ARM_AGENT_POOL --resource-group $ARM_RESOURCE_GROUP --no-wait

@@ -20,5 +20,6 @@ public interface IPdfArtefactService
         GetPdfRequest request,
         string cmsAuthValues,
         Guid correlationId,
+        bool isLegacy = true,
         CancellationToken cancellationToken = default);
 }

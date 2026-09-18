@@ -24,8 +24,8 @@ export const KeyDetails: React.FC<{
   dacDocumentId,
 }) => {
   const getOrderedDefendantsList = (caseDetails: CaseDetails) => {
-    const { defendants } = caseDetails;
-    defendants.sort(
+    const defendants = caseDetails?.defendants;
+    defendants?.sort(
       (a, b) => a.defendantDetails.listOrder - b.defendantDetails.listOrder
     );
     return defendants;
@@ -111,7 +111,7 @@ export const KeyDetails: React.FC<{
             className={`govuk-heading-s ${classes.uniqueReferenceNumber}`}
             data-testid="txt-case-urn"
           >
-            {caseDetails.uniqueReferenceNumber}
+            {caseDetails?.uniqueReferenceNumber}
           </h2>
           {getDOBText() && (
             <h2

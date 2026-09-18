@@ -1,6 +1,14 @@
+// <copyright file="GetPii.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
 using Common.Configuration;
 using Common.Domain.Pii;
+using Common.Dto.Request;
 using Common.Extensions;
+using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -20,31 +28,24 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-
-namespace PolarisGateway.Functions;
-
 public class GetPii : BaseFunction
 {
-    private const string tokenQueryParamName = "token";
-    private const string isOcrProcessedParamName = "isOcrProcessed";
+    private const string TokenQueryParamName = "token";
+    private const string IsOcrProcessedParamName = "isOcrProcessed";
     private const string ForceRefreshParamName = "ForceRefresh";
-    private readonly ILogger<GetPii> _logger;
-    private readonly IPiiArtefactService _piiArtefactService;
+    private readonly IPiiArtefactService piiArtefactService;
 
     public GetPii(
-        ILogger<GetPii> logger,
         IPiiArtefactService piiArtefactService)
         : base()
     {
-        _logger = logger.ExceptionIfNull();
-        _piiArtefactService = piiArtefactService.ExceptionIfNull();
+        this.piiArtefactService = piiArtefactService.ExceptionIfNull();
     }
 
     [Function(nameof(GetPii))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [OpenApiOperation(operationId: nameof(GetPii), tags: ["Documents"], Summary = "Get Pii", Description = "Gives the Pii")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
-    [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(string), Description = "The Id of the material", Required = true)]
     [OpenApiParameter("documentId", In = ParameterLocation.Path, Type = typeof(long), Description = "The document Id (version) of the material", Required = true)]
@@ -55,32 +56,32 @@ public class GetPii : BaseFunction
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Pii)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.Pii)] HttpRequest req, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var correlationId = EstablishCorrelation(req);
-        var cmsAuthValues = EstablishCmsAuthValues(req);
+        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
-        var isOcrProcessed = req.Query.ContainsKey(isOcrProcessedParamName) && bool.Parse(req.Query[isOcrProcessedParamName]);
+        var isOcrProcessed = req.Query.ContainsKey(IsOcrProcessedParamName) && bool.Parse(req.Query[IsOcrProcessedParamName]);
         var forceRefresh = req.Query.ContainsKey(ForceRefreshParamName) && bool.Parse(req.Query[ForceRefreshParamName]);
-        var token = req.Query.ContainsKey(tokenQueryParamName) ?
-            Guid.Parse(req.Query[tokenQueryParamName]) :
+        var token = req.Query.ContainsKey(TokenQueryParamName) ?
+            Guid.Parse(req.Query[TokenQueryParamName]) :
             (Guid?)null;
 
-        var ocrResult = await _piiArtefactService.GetPiiAsync(cmsAuthValues, correlationId, caseUrn, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh);
+        var ocrResult = await this.piiArtefactService.GetPiiAsync(cmsAuthValues.CmsAuthFullValue, correlationId, urn: null, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh, isLegacy: false);
         return ocrResult.Status switch
         {
             ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Artefact),
             ResultStatus.PollWithToken => new JsonResult(new
             {
-                NextUrl = $"{req.GetDisplayUrl()}{(req.QueryString.Value.StartsWith("?") ? "&" : "?")}{tokenQueryParamName}={ocrResult.ContinuationToken}"
+                NextUrl = $"{req.GetDisplayUrl()}{(req.QueryString.Value.StartsWith('?') ? "&" : "?")}{TokenQueryParamName}={ocrResult.ContinuationToken}",
             })
             {
-                StatusCode = (int)HttpStatusCode.Accepted // the client will understand 202 as a signal to poll again
+                StatusCode = (int)HttpStatusCode.Accepted, // the client will understand 202 as a signal to poll again
             },
             ResultStatus.Failed => new JsonResult(ocrResult)
             {
-                StatusCode = (int)HttpStatusCode.UnsupportedMediaType
+                StatusCode = (int)HttpStatusCode.UnsupportedMediaType,
             },
             _ => new JsonResult(ocrResult) { StatusCode = (int)HttpStatusCode.InternalServerError },
         };

@@ -23,7 +23,8 @@ namespace coordinator.Durable.Activity
                 payload.Payload.CaseId,
                 payload.Payload.MaterialId,
                 payload.Payload.DocumentId,
-                payload.Payload.CorrelationId);
+                payload.Payload.CorrelationId,
+                isLegacy: true);
 
             var isComplete = results.LineCount >= payload.TargetCount;
 

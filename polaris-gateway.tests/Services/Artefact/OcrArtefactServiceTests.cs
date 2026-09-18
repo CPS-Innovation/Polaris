@@ -167,7 +167,7 @@ public class OcrArtefactServiceTests
                 r.MaterialId == _documentId &&
                 r.DocumentId == _versionId &&
                 r.IsOcrProcessed == false &&
-                r.ForceRefresh == false), _cmsAuthValues, _correlationId, default))
+                r.ForceRefresh == false), _cmsAuthValues, _correlationId, It.IsAny<bool>()))
             .ReturnsAsync(pdfResult);
 
         var expectedResult = new ArtefactResult<AnalyzeResults>();
@@ -204,7 +204,7 @@ public class OcrArtefactServiceTests
                 r.MaterialId == _documentId &&
                 r.DocumentId == _versionId &&
                 r.IsOcrProcessed == false &&
-                r.ForceRefresh == false), _cmsAuthValues, _correlationId, default))
+                r.ForceRefresh == false), _cmsAuthValues, _correlationId, It.IsAny<bool>()))
             .ReturnsAsync(pdfResult);
 
         var newOperationId = _fixture.Create<Guid>();

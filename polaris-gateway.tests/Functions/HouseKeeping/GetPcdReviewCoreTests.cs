@@ -67,7 +67,7 @@ public class GetPcdReviewCoreTests
             .ReturnsAsync(expectedResponse);
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, "54KR7689125", caseId, CancellationToken.None);
+        IActionResult result = await this.sut.Run(httpRequest, caseId, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(expectedResponse);
@@ -96,7 +96,7 @@ public class GetPcdReviewCoreTests
             .ReturnsAsync(expectedResponse);
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, "54KR7689125", caseId, CancellationToken.None);
+        IActionResult result = await this.sut.Run(httpRequest, caseId, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(expectedResponse);
@@ -125,7 +125,7 @@ public class GetPcdReviewCoreTests
             .ReturnsAsync((IReadOnlyCollection<PcdReviewCoreResponseDto>)null!);
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, "54KR7689125", caseId, CancellationToken.None);
+        IActionResult result = await this.sut.Run(httpRequest, caseId, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<UnprocessableEntityObjectResult>();
@@ -149,7 +149,7 @@ public class GetPcdReviewCoreTests
                    .ThrowsAsync(new BadRequestException("Invalid request", "caseId"));
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, "54KR7689125", caseId, CancellationToken.None);
+        IActionResult result = await this.sut.Run(httpRequest, caseId, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<BadRequestObjectResult>().Which.Value.Should().Be("Invalid request (Parameter 'caseId')");
@@ -170,7 +170,7 @@ public class GetPcdReviewCoreTests
                    .ThrowsAsync(new InvalidOperationException("Test Exception"));
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, "54KR7689125", caseId, CancellationToken.None);
+        IActionResult result = await this.sut.Run(httpRequest, caseId, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<UnprocessableEntityObjectResult>().Which.Value.Should().Be("Test Exception");
@@ -191,7 +191,7 @@ public class GetPcdReviewCoreTests
             .ThrowsAsync(new NotSupportedException("Unsupported"));
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, "54KR7689125", caseId, CancellationToken.None);
+        IActionResult result = await this.sut.Run(httpRequest, caseId, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<UnprocessableEntityObjectResult>().Which.Value.Should().Be("GetPcdReviewCore error: Unsupported");
@@ -215,7 +215,7 @@ public class GetPcdReviewCoreTests
            .ThrowsAsync(new UnauthorizedAccessException("Unauthorized"));
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, "54KR7689125", caseId, CancellationToken.None);
+        IActionResult result = await this.sut.Run(httpRequest, caseId, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<UnauthorizedObjectResult>().Which.Value.Should().Be("GetPcdReviewCore error: Unauthorized");
@@ -239,7 +239,7 @@ public class GetPcdReviewCoreTests
              .ThrowsAsync(new Exception("General error"));
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, "54KR7689125", caseId, CancellationToken.None);
+        IActionResult result = await this.sut.Run(httpRequest, caseId, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(500);
@@ -261,7 +261,7 @@ public class GetPcdReviewCoreTests
         HttpRequest httpRequest = CreateHttpRequest();
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, "54KR7689125", invalidCaseId, CancellationToken.None);
+        IActionResult result = await this.sut.Run(httpRequest, invalidCaseId, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<BadRequestObjectResult>().Which.Value.Should().Be($"{LoggingConstants.HskUiLogPrefix} Invalid case Id. It should be an integer.");
@@ -287,7 +287,7 @@ public class GetPcdReviewCoreTests
             .ReturnsAsync(expectedResponse);
 
         // Act
-        await this.sut.Run(httpRequest, "54KR7689125", caseId, cancellationToken);
+        await this.sut.Run(httpRequest, caseId, cancellationToken);
 
         // Assert
         this.communicationService.Verify(c => c.GetPcdReviewCoreAsync(caseId, It.IsAny<CmsAuthValues>(), cancellationToken), Times.Once);
@@ -309,7 +309,7 @@ public class GetPcdReviewCoreTests
             .ReturnsAsync(expectedResponse);
 
         // Act
-        IActionResult result = await this.sut.Run(httpRequest, "54KR7689125", caseId, CancellationToken.None);
+        IActionResult result = await this.sut.Run(httpRequest, caseId, CancellationToken.None);
 
         // Assert
         result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(expectedResponse);

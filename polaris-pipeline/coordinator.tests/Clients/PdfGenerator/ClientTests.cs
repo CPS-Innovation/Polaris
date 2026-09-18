@@ -53,7 +53,7 @@ public class ClientTests
             Method = HttpMethod.Put
         };
 
-        _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPath(_caseUrn, _caseId, _documentId, _versionId)}", It.IsAny<Guid>(), null)).Returns(_httpRequestMessage);
+        _mockRequestFactory.Setup(factory => factory.Create(HttpMethod.Put, $"{RestApi.GetRedactPdfPathLegacy(_caseUrn, _caseId, _documentId, _versionId)}", It.IsAny<Guid>(), null)).Returns(_httpRequestMessage);
 
         var response = _fixture.Create<RedactPdfResponse>();
         _httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
@@ -81,7 +81,7 @@ public class ClientTests
         _httpResponseMessage.Content = new StringContent(expectedContent);
 
         _mockRequestFactory
-            .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(_caseUrn, _caseId, _documentId, _versionId)}", It.Is<Guid>(g => g == _correlationId), null))
+            .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPathLegacy(_caseUrn, _caseId, _documentId, _versionId)}", It.Is<Guid>(g => g == _correlationId), null))
             .Returns(_httpRequestMessage);
 
         _mockHttpResponseMessageStreamFactory
@@ -104,7 +104,7 @@ public class ClientTests
         _httpResponseMessage.Content = new StringContent(expectedContent);
 
         _mockRequestFactory
-            .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(_caseUrn, _caseId, _documentId, _versionId)}", It.Is<Guid>(g => g == _correlationId), null))
+            .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPathLegacy(_caseUrn, _caseId, _documentId, _versionId)}", It.Is<Guid>(g => g == _correlationId), null))
             .Returns(_httpRequestMessage);
 
         _mockHttpResponseMessageStreamFactory
@@ -124,7 +124,7 @@ public class ClientTests
     {
         // Arrange
         _mockRequestFactory
-            .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPath(_caseUrn, _caseId, _documentId, _versionId)}", It.Is<Guid>(g => g == _correlationId), null))
+            .Setup(factory => factory.Create(HttpMethod.Post, $"{RestApi.GetConvertToPdfPathLegacy(_caseUrn, _caseId, _documentId, _versionId)}", It.Is<Guid>(g => g == _correlationId), null))
             .Returns(_httpRequestMessage);
         _httpResponseMessage.StatusCode = HttpStatusCode.NotFound;
 

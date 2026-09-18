@@ -27,19 +27,16 @@ namespace coordinator.Durable.Orchestration
         private readonly ILogger<RefreshCaseOrchestrator> _log;
         private readonly IConfiguration _configuration;
         private readonly ICmsDocumentsResponseValidator _cmsDocumentsResponseValidator;
-        private readonly ITelemetryClient _telemetryClient;
         private readonly TimeSpan _timeout;
 
         public RefreshCaseOrchestrator(
             ILogger<RefreshCaseOrchestrator> log,
             IConfiguration configuration,
-            ICmsDocumentsResponseValidator cmsDocumentsResponseValidator,
-            ITelemetryClient telemetryClient)
+            ICmsDocumentsResponseValidator cmsDocumentsResponseValidator)
         {
             _log = log;
             _configuration = configuration;
             _cmsDocumentsResponseValidator = cmsDocumentsResponseValidator;
-            _telemetryClient = telemetryClient;
             _timeout = TimeSpan.FromSeconds(double.Parse(_configuration[ConfigKeys.CoordinatorOrchestratorTimeoutSecs]));
         }
 
@@ -75,7 +72,7 @@ namespace coordinator.Durable.Orchestration
                 {
                     // success case
                     cts.Cancel();
-                    _telemetryClient.TrackEvent(telemetryEvent);
+                    _log.TrackEvent(telemetryEvent);
                     await orchestratorTask;
                     return;
                 }
@@ -87,7 +84,7 @@ namespace coordinator.Durable.Orchestration
                 await context.CallActivityAsync(nameof(SetCaseStatus), new SetCaseStatusPayload { CaseId = payload.CaseId, UpdatedAt = context.CurrentUtcDateTime, Status = CaseRefreshStatus.Failed, FailedReason = exception.Message });
 
                 log.LogMethodError(payload.CorrelationId, nameof(RefreshCaseOrchestrator), $"Error when running {nameof(RefreshCaseOrchestrator)} orchestration with id '{context.InstanceId}'", exception);
-                _telemetryClient.TrackEventFailure(telemetryEvent);
+                _log.TrackEventFailure(telemetryEvent);
                 throw;
             }
         }

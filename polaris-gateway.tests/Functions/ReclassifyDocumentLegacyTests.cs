@@ -1,0 +1,98 @@
+﻿using Common.Dto.Request;
+using Common.Dto.Response.Document;
+using Ddei.Domain.CaseData.Args;
+using Ddei.Factories;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Newtonsoft.Json;
+using PolarisGateway.Functions;
+using PolarisGateway.Services.MdsOrchestration;
+using System;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using Xunit;
+
+namespace PolarisGateway.Tests.Functions;
+
+public class ReclassifyDocumentLegacyTests
+{
+    private readonly Mock<ILogger<ReclassifyDocumentLegacy>> _loggerMock;
+    private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
+    private readonly Mock<IMdsReclassifyDocumentOrchestrationService> _orchestrationServiceMock;
+    private readonly ReclassifyDocumentLegacy _reclassifyDocument;
+
+    public ReclassifyDocumentLegacyTests()
+    {
+        _loggerMock = new Mock<ILogger<ReclassifyDocumentLegacy>>();
+        _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
+        _orchestrationServiceMock = new Mock<IMdsReclassifyDocumentOrchestrationService>();
+        _reclassifyDocument = new ReclassifyDocumentLegacy(_loggerMock.Object, _mdsArgFactoryMock.Object, _orchestrationServiceMock.Object);
+    }
+
+    [Fact]
+    public async Task Run_ReclassifyDocumentIsSuccess_ShouldReturn200()
+    {
+        //arrange
+        var req = new DefaultHttpContext().Request;
+        var caseUrn = "caseUrn";
+        var caseId = 1;
+        var documentId = "12345";
+        var mdsReclassifyDocumentArgDto = new MdsReclassifyDocumentArgDto();
+        var reclassifyDocumentDto = new ReclassifyDocumentDto()
+        {
+            DocumentTypeId = 1001,
+            Other = new ReclassificationOther
+            {
+                DocumentName = "New Document Name",
+                Used = true,
+            },
+        };
+        req.Body = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(reclassifyDocumentDto)));
+        req.ContentType = "application/json";
+
+        var reclassifyResult = new DocumentReclassifiedResult
+        {
+            IsSuccess = true,
+            Result = new DocumentReclassifiedResultDto
+            {
+                DocumentId = 12345,
+                ReclassificationType = "OTHER",
+                OriginalDocumentTypeId = 2001,
+                DocumentTypeId = 1001,
+            },
+        };
+        _mdsArgFactoryMock.Setup(s => s.CreateReclassifyDocumentArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, documentId, reclassifyDocumentDto)).Returns(mdsReclassifyDocumentArgDto);
+        _orchestrationServiceMock.Setup(s => s.ReclassifyDocument(It.IsAny<MdsReclassifyDocumentArgDto>())).ReturnsAsync(reclassifyResult);
+
+        //act
+        var result = await _reclassifyDocument.Run(req, caseUrn, caseId, documentId);
+
+        //assert
+        Assert.IsType<ObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task Run_ReclassifyDocumentInvalidBody_ShouldReturnBadRequestResult()
+    {
+        //arrange
+        var req = new DefaultHttpContext().Request;
+        var caseUrn = "caseUrn";
+        var caseId = 1;
+        var documentId = "12345";
+        var mdsReclassifyDocumentArgDto = new MdsReclassifyDocumentArgDto();
+        var reclassifyDocumentDto = new ReclassifyDocumentDto();
+        req.Body = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(reclassifyDocumentDto)));
+        req.ContentType = "application/json";
+
+        //act
+        var result = await _reclassifyDocument.Run(req, caseUrn, caseId, documentId);
+
+        //assert
+        var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
+        Assert.Equal(400, statusCodeResult.StatusCode);
+
+    }
+}

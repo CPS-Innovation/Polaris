@@ -1,7 +1,15 @@
-﻿using Common.Configuration;
+﻿// <copyright file="CheckoutDocument.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
+using Common.Configuration;
+using Common.Dto.Request;
 using Common.Extensions;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
+using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -13,48 +21,47 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Functions;
-
 public class CheckoutDocument : BaseFunction
 {
-    private readonly ILogger<CheckoutDocument> _logger;
-    private readonly IMdsArgFactory _mdsArgFactory;
-    private readonly IMdsClient _mdsClient;
+    private readonly IMdsArgFactory mdsArgFactory;
+    private readonly IMdsClient mdsClient;
+    private readonly ICaseUrnResolver caseUrnResolver;
 
     public CheckoutDocument(
-        ILogger<CheckoutDocument> logger,
         IMdsArgFactory mdsArgFactory,
-        IMdsClient mdsClient)
+        IMdsClient mdsClient,
+        ICaseUrnResolver caseUrnResolver)
     {
-        _logger = logger.ExceptionIfNull();
-        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        _mdsClient = mdsClient.ExceptionIfNull();
+        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        this.mdsClient = mdsClient.ExceptionIfNull();
+        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
     [Function(nameof(CheckoutDocument))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [OpenApiOperation(operationId: nameof(CheckoutDocument), tags: ["Documents"], Summary = "Checkout", Description = "Checkout Document")]
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
-    [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case.", Required = true)]
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(string), Description = "The Id of the material which has to be checked out", Required = true)]
     [OpenApiParameter("materialId", In = ParameterLocation.Path, Type = typeof(long), Description = "The document Id (version) of the material which has to be checked out", Required = true)]
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(object), Summary = "Case found", Description = "Returns case details")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentCheckout)] HttpRequest req, string caseUrn, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentCheckout)] HttpRequest req, int caseId, string materialId, long documentId, CancellationToken cancellationToken = default)
     {
         var correlationId = EstablishCorrelation(req);
-        var cmsAuthValues = EstablishCmsAuthValues(req);
+        CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
-        var mdsDocumentIdAndVersionIdArgDto = _mdsArgFactory.CreateDocumentVersionArgDto(
-                     cmsAuthValues: cmsAuthValues,
+        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
+
+        var mdsDocumentIdAndVersionIdArgDto = this.mdsArgFactory.CreateDocumentVersionArgDto(
+                     cmsAuthValues: cmsAuthValues.CmsAuthFullValue,
                      correlationId: correlationId,
                      urn: caseUrn,
                      caseId: caseId,
                      materialId: materialId,
                      documentId: documentId);
 
-        await _mdsClient.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto, cancellationToken);
+        await this.mdsClient.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto, cancellationToken);
         return new OkResult();
     }
 }

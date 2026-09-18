@@ -39,7 +39,7 @@ public class CoordinatorStartTests
     private readonly Mock<IOrchestrationProvider> _mockOrchestrationProvider;
     private readonly Mock<IMdsArgFactory> _mockMdsArgFactory;
     private readonly Mock<IDdeiAuthClient> _ddeiAuthClientMock;
-    private readonly RefreshCase _coordinatorStart;
+    private readonly RefreshCaseLegacy _coordinatorStart;
 
     public CoordinatorStartTests()
     {
@@ -56,7 +56,7 @@ public class CoordinatorStartTests
         _httpRequestHeaders = _httpRequest.Headers;
 
         _mockDurableOrchestrationClient = new Mock<DurableTaskClient>("name");
-        var mockLogger = new Mock<ILogger<RefreshCase>>();
+        var mockLogger = new Mock<ILogger<RefreshCaseLegacy>>();
 
         var mockConfiguration = new Mock<IConfiguration>();
         mockConfiguration.Setup(x => x[StorageKeys.BlobServiceContainerNameDocuments]).Returns("Documents");
@@ -89,7 +89,7 @@ public class CoordinatorStartTests
         _ddeiAuthClientMock = new Mock<IDdeiAuthClient>();
         _ddeiAuthClientMock.Setup(client => client.VerifyCmsAuthAsync(_mockVerifyArg));
 
-        _coordinatorStart = new RefreshCase(mockLogger.Object, _mockOrchestrationProvider.Object, _mockMdsArgFactory.Object, _ddeiAuthClientMock.Object);
+        _coordinatorStart = new RefreshCaseLegacy(mockLogger.Object, _mockOrchestrationProvider.Object, _mockMdsArgFactory.Object, _ddeiAuthClientMock.Object);
     }
 
     [Fact]

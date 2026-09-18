@@ -15,7 +15,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using Common.Telemetry;
 using coordinator.Validators;
 using coordinator.Durable.Payloads;
 using coordinator.Durable.Payloads.Domain;
@@ -38,7 +37,6 @@ namespace coordinator.tests.Durable.Orchestration
         private readonly CaseDeltasEntity _deltaDocuments;
         private readonly Mock<TaskOrchestrationContext> _mockTaskOrchestrationContext;
         private readonly Mock<ICmsDocumentsResponseValidator> _mockCmsDocumentsResponseValidator;
-        private readonly Mock<ITelemetryClient> _mockTelemetryClient;
         private readonly RefreshCaseOrchestrator _coordinatorOrchestrator;
 
         public RefreshCaseOrchestratorTests()
@@ -86,7 +84,6 @@ namespace coordinator.tests.Durable.Orchestration
             var mockLogger = new Mock<ILogger<RefreshCaseOrchestrator>>();
             _mockTaskOrchestrationContext = new Mock<TaskOrchestrationContext>();
             _mockTaskOrchestrationContext.Setup(c => c.CreateReplaySafeLogger(nameof(RefreshCaseOrchestrator))).Returns(mockLogger.Object);
-            _mockTelemetryClient = new Mock<ITelemetryClient>();
             _mockCmsDocumentsResponseValidator = new Mock<ICmsDocumentsResponseValidator>();
             _mockTaskOrchestrationContext.Setup(c => c.CallActivityAsync<CaseDeltasEntity>(nameof(GetCaseDocumentChanges), _caseId, default))
                 .ReturnsAsync(_deltaDocuments);
@@ -123,8 +120,7 @@ namespace coordinator.tests.Durable.Orchestration
             _coordinatorOrchestrator = new RefreshCaseOrchestrator(
                 mockLogger.Object,
                 mockConfiguration.Object,
-                _mockCmsDocumentsResponseValidator.Object,
-                _mockTelemetryClient.Object);
+                _mockCmsDocumentsResponseValidator.Object);
         }
 
         [Fact]

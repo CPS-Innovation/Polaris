@@ -5,16 +5,17 @@ import classes from "./index.module.scss";
 export const Charges: React.FC<{ caseDetails: CaseDetails }> = ({
   caseDetails,
 }) => {
+  if (caseDetails === null) return <></>;
   const { custodyExpiryDays, custodyExpiryDate } = getFormattedCustodyTimeData(
-    caseDetails.defendants?.[0]?.custodyTimeLimit
+    caseDetails?.defendants?.[0]?.custodyTimeLimit
   );
   return (
     <div className={classes.charges} data-testid="div-charges">
       <h2 className="govuk-heading-s" data-testid="charges-title">
-        {caseDetails.isCaseCharged ? "Charges:" : "Proposed Charges:"}
+        {caseDetails?.isCaseCharged ? "Charges:" : "Proposed Charges:"}
       </h2>
       <ul>
-        <li>{caseDetails.headlineCharge.charge}</li>
+        <li>{caseDetails?.headlineCharge?.charge}</li>
       </ul>
       <h2 className="govuk-heading-s">Custody time limit: </h2>
       <p>{custodyExpiryDays}</p>
