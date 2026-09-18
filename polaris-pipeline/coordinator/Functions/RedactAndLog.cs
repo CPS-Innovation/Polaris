@@ -160,11 +160,17 @@ public class RedactAndLog
                 documentId);
 
             return new ObjectResult(
-                new RedactAndLogResponse
-                {
-                    CorrelationId = correlationId,
-                    Success = false,
-                })
+               new RedactAndLogResponse
+               {
+                   CorrelationId = correlationId,
+                   Success = false,
+                   Redaction = new StepResult
+                   {
+                       Status = "Failed",
+                       Error = ex.Message,
+                   },
+                   Logging = null!,
+               })
             {
                 StatusCode = StatusCodes.Status500InternalServerError,
             };
