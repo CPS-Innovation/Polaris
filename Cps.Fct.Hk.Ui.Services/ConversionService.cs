@@ -457,8 +457,11 @@ public class ConversionService(ILogger<ConversionService> logger,
                     // Check if the document has at least one page
                     if (document.PageCount > 0)
                     {
-                        // Extract pages, convert to PDF, upload to Blob Storage, and get the PDF URL
-                        pdfFileUrl = await ExtractPagesAndUploadPdfAsync(document, containerClient, pdfFileName, convertAllPages, cancellationToken);
+                        // Save the selected pages directly from the original document (avoids
+                        // Document.ExtractPages, which rebuilds the document and can drop
+                        // embedded/OLE content such as signature images), convert to PDF,
+                        // upload to Blob Storage, and get the PDF URL
+                        pdfFileUrl = await SavePagesAndUploadPdfAsync(document, containerClient, pdfFileName, convertAllPages, cancellationToken);
                         string firstPageText = !convertAllPages ? "(first page)" : string.Empty;
 
                         this.logger.LogInformation(
@@ -494,25 +497,25 @@ public class ConversionService(ILogger<ConversionService> logger,
     }
 
 
-    private static async Task<string> ExtractPagesAndUploadPdfAsync(Aspose.Words.Document document, BlobContainerClient containerClient, string pdfFileName, bool convertAllPages, CancellationToken cancellationToken)
+    private static async Task<string> SavePagesAndUploadPdfAsync(Aspose.Words.Document document, BlobContainerClient containerClient, string pdfFileName, bool convertAllPages, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Aspose.Words.Document wordDocument;
-        if (convertAllPages)
+
+        // Restrict which pages are rendered via PdfSaveOptions.PageSet rather than
+        // Document.ExtractPages. ExtractPages rebuilds the document tree, which can
+        // silently drop OLE/embedded objects (e.g. a signature image). Saving the
+        // original document directly with a page range preserves such content.
+        var saveOptions = new Aspose.Words.Saving.PdfSaveOptions
         {
-            // Extract all pages (0-based index, full page count)
-            wordDocument = document.ExtractPages(0, document.PageCount);
-        }
-        else
-        {
-            // Extract the first page only (0-based index)
-            wordDocument = document.ExtractPages(0, 1);
-        }
+            PageSet = convertAllPages
+                ? new Aspose.Words.Saving.PageSet(0, document.PageCount - 1)
+                : new Aspose.Words.Saving.PageSet(0),
+        };
 
         // Memory stream to hold the generated PDF
         using var pdfStream = new MemoryStream();
         // Save the selected pages as a PDF to the memory stream
-        wordDocument.Save(pdfStream, Aspose.Words.SaveFormat.Pdf);
+        document.Save(pdfStream, saveOptions);
 
         // Reset stream position before uploading
         pdfStream.Position = 0;
