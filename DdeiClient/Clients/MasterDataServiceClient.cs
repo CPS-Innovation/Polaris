@@ -610,7 +610,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
             {
                 results.Witnesses = data.Select(witness => new Witness(
                     witness.CaseId,
-                    witness.WitnessId,
+                    (int)witness.WitnessId,
                     witness.FirstName,
                     witness.Surname)).ToList();
             }
@@ -652,7 +652,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
             if (data?.StatementsForWitness is not null)
             {
                 results.WitnessStatements = data.StatementsForWitness.Select(statement =>
-                    new WitnessStatement(statement.Id, statement.Title)).ToList();
+                    new WitnessStatement((int)statement.Id, (int)statement.Title)).ToList();
             }
 
             if (results.WitnessStatements?.Count > 0)
@@ -948,7 +948,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
             {
                 results = data.Select(pcd => new PcdRequestCore()
                 {
-                    Id = pcd.Id,
+                    Id = (int)pcd.Id,
                     Type = pcd.Type,
                     DecisionRequiredBy = pcd.DecisionRequiredBy,
                     DecisionRequested = pcd.DecisionRequested,
@@ -1021,7 +1021,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                             Subject = mat.Subject,
                             Date = mat.Date,
                         }).ToList(),
-                        Id = data.Id,
+                        Id = (int)data.Id,
                         Type = data.Type,
                         DecisionRequested = data.DecisionRequested,
                         DecisionRequiredBy = data.DecisionRequiredBy,

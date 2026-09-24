@@ -3,6 +3,8 @@ using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Extensions;
 using Common.Services.DocumentToggle;
+using Common.Dto.Request.HouseKeeping;
+using Common.Dto.Request;
 using coordinator.Domain;
 using coordinator.Durable.Payloads;
 using coordinator.Services;
@@ -11,14 +13,17 @@ using DdeiClient.Clients.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Common.Dto.Response.HouseKeeping.Pcd;
 
 namespace coordinator.Durable.Activity;
 
 public class GetCaseDocuments
 {
     private readonly IMdsClient _mdsClient;
+    private readonly IMasterDataServiceClient _masterDataServiceClient;
     private readonly IMdsArgFactory _mdsArgFactory;
     private readonly IDocumentToggleService _documentToggleService;
     private readonly IStateStorageService _stateStorageService;
@@ -26,12 +31,14 @@ public class GetCaseDocuments
 
     public GetCaseDocuments(
         IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient,
         IMdsArgFactory mdsArgFactory,
         IDocumentToggleService documentToggleService,
         IStateStorageService stateStorageService,
         ILogger<GetCaseDocuments> logger)
     {
         _mdsClient = mdsClient.ExceptionIfNull();
+        _masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
         _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _documentToggleService = documentToggleService.ExceptionIfNull();
         _stateStorageService = stateStorageService.ExceptionIfNull();
@@ -61,7 +68,6 @@ public class GetCaseDocuments
             throw new ArgumentException("CorrelationId must be valid GUID");
         }
 
-
         var arg = _mdsArgFactory.CreateCaseIdentifiersArg(
             payload.CmsAuthValues,
             payload.CorrelationId,
@@ -69,7 +75,12 @@ public class GetCaseDocuments
             payload.CaseId);
 
         var getDocumentsTask = _mdsClient.ListDocumentsAsync(arg);
-        var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg);
+        //var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg);
+
+        var getPcdRequestsTask = _masterDataServiceClient.GetPcdRequestCoreAsync(
+            new GetPcdRequestsCoreRequest(payload.CaseId, payload.CorrelationId),
+            new CmsAuthValues(payload.CmsAuthValues, payload.CorrelationId));
+
         var getDefendantsAndChargesTask = _mdsClient.GetDefendantAndChargesAsync(arg);
 
         await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
@@ -78,7 +89,19 @@ public class GetCaseDocuments
             .Select(MapPresentationFlags)
             .ToArray();
 
+        //var pcdRequests = getPcdRequestsTask.Result
+        //    .Select(MapPresentationFlags)
+        //    .ToArray();
+
+        // tahmeedChange
+
         var pcdRequests = getPcdRequestsTask.Result
+            .Select(x => new PcdRequestCoreDto
+            {
+                Id = x.Id,
+                DecisionRequiredBy = x.DecisionRequiredBy,
+                DecisionRequested = x.DecisionRequested,
+            })
             .Select(MapPresentationFlags)
             .ToArray();
 
