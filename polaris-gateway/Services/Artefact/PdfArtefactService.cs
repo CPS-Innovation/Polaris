@@ -46,6 +46,7 @@ public class PdfArtefactService(
 
         if (!request.ForceRefresh && await this.cacheService.TryGetPdfAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed) is
             (true, var stream))
+
         {
             var cachedFileSizeInMb = await this.cacheService.GetPdfSizeFromMetadataAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed);
 
@@ -75,7 +76,8 @@ public class PdfArtefactService(
         // For PDF upload: use another fresh MemoryStream
         using (var uploadStream = new MemoryStream(pdfBytes))
         {
-            fileSizeInMb = uploadStream.Length / (1024.0 * 1024.0);
+            fileSizeInMb = Math.Floor((uploadStream.Length / (1024.0 * 1024.0)) * 10) / 10;
+
             await this.cacheService.UploadPdfAsync(request.CaseId, request.MaterialId, request.DocumentId, request.IsOcrProcessed, uploadStream, fileSizeInMb);
         }
 
@@ -89,13 +91,15 @@ public class PdfArtefactService(
         if (fileSizeInMb > this.redactionFileSizeOptions.FileSizeLimitMb)
         {
             this.logger.LogWarning(
-                "Document {DocumentId} has file size {FileSizeMb}MB which exceeds limit {FileSizeLimitMb}MB.",
+                "Document with ID {DocumentId} has file size {FileSizeMb}MB which exceeds limit {FileSizeLimitMb}MB.",
                 documentId,
                 fileSizeInMb,
                 this.redactionFileSizeOptions.FileSizeLimitMb);
 
             return this.artefactServiceResponseFactory.CreateOkResultWithLargeFileFlag(pdfStream, fromCache, true);
         }
+
+        this.logger.LogInformation("Document with ID {DocumentId} has file size {FileSizeMb}MB.", documentId, fileSizeInMb);
 
         return this.artefactServiceResponseFactory.CreateOkfResult(pdfStream, fromCache);
     }

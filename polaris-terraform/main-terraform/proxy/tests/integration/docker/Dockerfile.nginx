@@ -4,6 +4,9 @@
 # docker-compose rather than COPYed, so editing the config needs no rebuild.
 # All this image adds is the njs module that `load_module` at the top of
 # nginx.conf requires, plus curl for the healthcheck.
+#checkov:skip=CKV_DOCKER_3:Test-only container; nginx.conf declares "user nginx;" and listens on
+# port 80, so the master must start as root (the image's default) to bind that port and drop
+# worker privileges itself — adding a USER here would break that.
 FROM nginx:1.27.1-alpine
 
 RUN apk add --no-cache nginx-mod-http-js curl
