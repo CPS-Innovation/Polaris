@@ -6,15 +6,12 @@ namespace coordinator.Clients.RedactionLogger;
 
 using Common.Dto.Request;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 public interface IRedactionLoggerClient
 {
     public Task<Stream> CreateRedactionLog(
         CreateRedactionLogsRequest redactionLogRequest,
-        string accessToken,
         Guid correlationId);
 }

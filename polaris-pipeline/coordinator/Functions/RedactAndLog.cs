@@ -91,8 +91,6 @@ public class RedactAndLog
             return new UnauthorizedResult();
         }
 
-        string accessToken = authHeader.Parameter;
-
         try
         {
             var request =
@@ -134,7 +132,6 @@ public class RedactAndLog
 
             await this.loggerClient.CreateRedactionLog(
                 request.LogPayload,
-                accessToken,
                 correlationId);
 
             this.logger.LogInformation(

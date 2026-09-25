@@ -94,6 +94,7 @@ public static class ServiceExtensions
                         ConfigKeys.RedactionLoggerBaseUrl,
                         ConfigKeys.RedactionLoggerTimeoutSeconds,
                         ConfigKeys.RedactionLoggerAccessKey)
+                .AddHttpMessageHandler<RedactionLogger.RedactionLoggerAuthDelegatingHandler>()
                 .AddPolicyHandler(
                     GetRetryPolicyWithSpecificConfig(configuration, ConfigKeys.RedactionLoggerMaxRetries));
         services.AddHttpClientWithDefaults<
@@ -131,6 +132,8 @@ public static class ServiceExtensions
 
         services.AddMemoryCache();
         services.AddScoped<ICaseUrnResolver, CaseUrnResolver>();
+        services.AddTransient<RedactionLogger.RedactionLoggerAuthDelegatingHandler>();
+        services.AddServiceOptions<RedactionLogger.RedactionLoggerConfig>(RedactionLogger.RedactionLoggerConfig.DefaultSectionName);
         services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>();
         services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();
         services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);

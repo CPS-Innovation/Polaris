@@ -184,6 +184,7 @@ public class RedactAndLogTests
 
         httpRequest.Headers["Correlation-Id"] =
             correlationId.ToString();
+        httpRequest.Headers["Authorization"] = "Bearer test-token";
 
         // Act
         var result = await this.redactAndLog.HttpStart(
@@ -403,6 +404,7 @@ public class RedactAndLogTests
         var httpRequest = context.Request;
         httpRequest.Headers["Correlation-Id"] = correlationId.ToString();
         httpRequest.Headers["Cms-Auth-Values"] = "Cms-auth-values";
+        httpRequest.Headers["Authorization"] = "Bearer test-token";
         httpRequest.ContentType = "application/json";
         var json = System.Text.Json.JsonSerializer.Serialize(request);
         var bytes = System.Text.Encoding.UTF8.GetBytes(json);

@@ -9,12 +9,9 @@ using Common.Dto.Request;
 using Common.Wrappers;
 using coordinator.Clients.PdfRedactor;
 using coordinator.Constants;
-using Microsoft.CodeAnalysis.Operations;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,12 +26,10 @@ public class RedactionLoggerClient(
 
     public async Task<Stream> CreateRedactionLog(
         CreateRedactionLogsRequest redactionLogRequest,
-        string accessToken,
         Guid correlationId = default)
     {
         var requestMessage = new StringContent(this.jsonConvertWrapper.SerializeObject(redactionLogRequest), Encoding.UTF8, "application/json");
         var request = this.pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RedactionLog.RedactionLogApiUri}", correlationId);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         request.Content = requestMessage;
 
         var response = await this.httpClient.SendAsync(request);
