@@ -13,5 +13,8 @@ using System.Threading.Tasks;
 
 public interface IRedactionLoggerClient
 {
-    public Task<Stream> CreateRedactionLog(CreateRedactionLogsRequest redactionLogRequest, Guid correlationId);
+    public Task<Stream> CreateRedactionLog(
+        CreateRedactionLogsRequest redactionLogRequest,
+        string accessToken,
+        Guid correlationId);
 }

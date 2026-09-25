@@ -145,7 +145,7 @@ public static class RestApi
         $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/redact";
 
     public static string GetRedactDocumentPath(int caseId, string materialId, long documentId) =>
-        $"cases/{caseId}/materials/{materialId}/documents/{documentId}/redact";
+        $"cases/{caseId}/materials/{materialId}/redact";
 
     public static string GetConvertToPdfPathLegacy(string caseUrn, int caseId, string materialId, long documentId) =>
         $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/convert-to-pdf";
@@ -171,7 +171,7 @@ public static class RestApi
         $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/redact";
 
     public static string GetRedactPdfPath(int caseId, string materialId, long documentId) =>
-        $"cases/{caseId}/materials/{materialId}/documents/{documentId}/redact";
+        $"cases/{caseId}/materials/{materialId}/redact";
 
     public static string GetCaseIndexCountResultsPathLegacy(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}/case-index-count";
     public static string GetCaseIndexCountResultsPath(int caseId) => $"cases/{caseId}/case-index-count";

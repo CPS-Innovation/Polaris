@@ -5,16 +5,16 @@
 namespace coordinator.Clients.RedactionLogger;
 
 using Common.Configuration;
-using Common.Wrappers;
 using Common.Dto.Request;
+using Common.Wrappers;
 using coordinator.Clients.PdfRedactor;
 using coordinator.Constants;
-
 using Microsoft.CodeAnalysis.Operations;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,10 +27,14 @@ public class RedactionLoggerClient(
     private readonly IJsonConvertWrapper jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
     private readonly IRequestFactory pipelineClientRequestFactory = pipelineClientRequestFactory ?? throw new ArgumentNullException(nameof(pipelineClientRequestFactory));
 
-    public async Task<Stream> CreateRedactionLog(CreateRedactionLogsRequest redactionLogRequest, Guid correlationId = default)
+    public async Task<Stream> CreateRedactionLog(
+        CreateRedactionLogsRequest redactionLogRequest,
+        string accessToken,
+        Guid correlationId = default)
     {
         var requestMessage = new StringContent(this.jsonConvertWrapper.SerializeObject(redactionLogRequest), Encoding.UTF8, "application/json");
-        var request = this.pipelineClientRequestFactory.Create(HttpMethod.Get, $"{RedactionLog.RedactionLogApiUri}", correlationId);
+        var request = this.pipelineClientRequestFactory.Create(HttpMethod.Post, $"{RedactionLog.RedactionLogApiUri}", correlationId);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
         request.Content = requestMessage;
 
         var response = await this.httpClient.SendAsync(request);

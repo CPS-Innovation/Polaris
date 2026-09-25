@@ -100,7 +100,7 @@ public class RedactionService : IRedactionService
                 cancellationToken);
         }
 
-        if (request.DocumentModifications.Count != 0)
+        if (request.DocumentModifications != null && request.DocumentModifications.Count != 0)
         {
             document = await this.ModifyAsync(
                 document ?? new MemoryStream(bytes),

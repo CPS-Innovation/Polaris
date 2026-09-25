@@ -25,6 +25,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -81,6 +82,17 @@ public class RedactAndLog
         var correlationId = req.Headers.GetCorrelationId();
         var cmsAuthValues = req.BuildCmsAuthValues();
 
+        var authorizationHeader = req.Headers.Authorization.ToString();
+
+        if (string.IsNullOrWhiteSpace(authorizationHeader) ||
+            !AuthenticationHeaderValue.TryParse(authorizationHeader, out var authHeader) ||
+            !string.Equals(authHeader.Scheme, "Bearer", StringComparison.OrdinalIgnoreCase))
+        {
+            return new UnauthorizedResult();
+        }
+
+        string accessToken = authHeader.Parameter;
+
         try
         {
             var request =
@@ -122,6 +134,7 @@ public class RedactAndLog
 
             await this.loggerClient.CreateRedactionLog(
                 request.LogPayload,
+                accessToken,
                 correlationId);
 
             this.logger.LogInformation(
