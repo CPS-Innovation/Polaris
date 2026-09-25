@@ -310,5 +310,7 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
         Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task<IEnumerable<PcdRequestDto>> GetPcdRequestsAsync(int caseId, CmsAuthValues cmsAuthValues);
     }
 }

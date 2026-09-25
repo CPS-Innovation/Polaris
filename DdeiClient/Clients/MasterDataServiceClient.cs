@@ -928,6 +928,76 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
+    public async Task<IEnumerable<PcdRequestDto>> GetPcdRequestsAsync(int caseId, CmsAuthValues cmsAuthValues)
+    {
+        const string OperationName = "PcdRequests";
+        List<PcdRequestDto> results = new List<PcdRequestDto>();
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+
+            var data = await client.GetCasePcdRequestsAsync(caseId);
+
+            if (data is not null)
+            {
+                results = data.Select(pcd => new PcdRequestDto
+                {
+                    Id = (int)pcd.Id,
+                    DecisionRequested = pcd.DecisionRequested,
+                    DecisionRequiredBy = pcd.DecisionRequiredBy,
+                    Comments = pcd.Comments == null
+                        ? null
+                        : new PcdComments
+                        {
+                            Text = pcd.Comments.Text,
+                            TextWithCmsMarkup = pcd.Comments.TextWithCmsMarkup,
+                        },
+
+                    CaseOutline = pcd.CaseOutline?
+                        .Select(line => new PcdCaseOutlineLine
+                        {
+                            Heading = line.Heading,
+                            Text = line.Text,
+                            TextWithCmsMarkup = line.TextWithCmsMarkup,
+                        })
+                        .ToList(),
+
+                    Suspects = pcd.Suspects?
+                        .Select(suspect => new PcdRequestSuspect
+                        {
+                            Surname = suspect.Surname,
+                            FirstNames = suspect.FirstNames,
+                            Dob = suspect.Dob,
+                            BailConditions = suspect.BailConditions,
+                            BailDate = suspect.BailDate,
+                            RemandStatus = suspect.RemandStatus,
+
+                            ProposedCharges = suspect.ProposedCharges?
+                                .Select(charge => new PcdProposedCharge
+                                {
+                                    Charge = charge.Charge,
+                                    EarlyDate = charge.EarlyDate,
+                                    LateDate = charge.LateDate,
+                                    Location = charge.Location,
+                                    Category = charge.Category,
+                                })
+                                .ToList(),
+                        })
+                        .ToList(),
+                })
+                .ToList();
+            }
+        }
+        catch (Exception exception)
+        {
+            // this.HandleException("GetPcdRequests", exception, new { caseId }, TimeSpan.Zero);
+            //throw;
+        }
+
+        return results;
+    }
+
     /// <inheritdoc/>
     public async Task<List<PcdRequestCore>> GetPcdRequestCoreAsync(GetPcdRequestsCoreRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {

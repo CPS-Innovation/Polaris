@@ -108,6 +108,11 @@ namespace Ddei.Mappers
             return witnesses.Select(witness => MapWitness(witness));
         }
 
+        public IEnumerable<Common.Dto.Response.Case.PreCharge.PcdRequestDto> MapPcdRequests(IEnumerable<Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto> requests)
+        {
+            return requests.Select(request => this.MapPcdRequest(request));
+        }
+
         private PcdRequestCoreDto MapCorePreChargeDecisionRequest(MdsPcdRequestCoreDto pcd)
         {
             return new PcdRequestCoreDto
@@ -177,6 +182,50 @@ namespace Ddei.Mappers
                 SpecialNeeds = witness.SpecialNeeds,
                 Intimidated = witness.Intimidated,
                 Victim = witness.Victim
+            };
+        }
+
+        private Common.Dto.Response.Case.PreCharge.PcdRequestDto MapPcdRequest(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto request)
+        {
+            return new Common.Dto.Response.Case.PreCharge.PcdRequestDto
+            {
+                Id = request.Id,
+                DecisionRequested = request.DecisionRequested,
+                DecisionRequiredBy = request.DecisionRequiredBy,
+
+                Comments = request.Comments == null
+                    ? null
+                    : new PcdCommentsDto
+                    {
+                        Text = request.Comments.Text,
+                        TextWithCmsMarkup = request.Comments.TextWithCmsMarkup,
+                    },
+
+                CaseOutline = request.CaseOutline?.Select(co => new PcdCaseOutlineLineDto
+                {
+                    Heading = co.Heading,
+                    Text = co.Text,
+                    TextWithCmsMarkup = co.TextWithCmsMarkup,
+                }).ToList(),
+
+                Suspects = request.Suspects?.Select(sus => new PcdRequestSuspectDto
+                {
+                    Surname = sus.Surname,
+                    FirstNames = sus.FirstNames,
+                    Dob = sus.Dob,
+                    BailConditions = sus.BailConditions,
+                    BailDate = sus.BailDate,
+                    RemandStatus = sus.RemandStatus,
+
+                    ProposedCharges = sus.ProposedCharges?.Select(charge => new PcdProposedChargeDto
+                    {
+                        Charge = charge.Charge,
+                        EarlyDate = charge.EarlyDate,
+                        LateDate = charge.LateDate,
+                        Location = charge.Location,
+                        Category = charge.Category,
+                    }).ToList(),
+                }).ToList(),
             };
         }
 
