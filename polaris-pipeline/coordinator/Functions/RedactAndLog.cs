@@ -155,7 +155,11 @@ public class RedactAndLog
                 materialId,
                 documentId);
 
-            throw;
+            throw new OperationCanceledException(
+                    $"RedactAndLog operation was cancelled. CorrelationId: {correlationId}, " +
+                    $"CaseId: {caseId}, MaterialId: {materialId}, DocumentId: {documentId}",
+                    opex,
+                    cancellationToken);
         }
         catch (Exception ex)
         {
