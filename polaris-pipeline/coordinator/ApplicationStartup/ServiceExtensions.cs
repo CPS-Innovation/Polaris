@@ -51,19 +51,10 @@ using TextExtractor = coordinator.Clients.TextExtractor;
 
 public static class ServiceExtensions
 {
-    private const int RetryAttempts = 2;
     private const int FirstRetryDelaySeconds = 1;
-
-    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy =>
-        Policy
-            .HandleResult<HttpResponseMessage>((result) => ShouldRetry(result.RequestMessage, result))
-            .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(
-            medianFirstRetryDelay: TimeSpan.FromSeconds(FirstRetryDelaySeconds),
-            retryCount: RetryAttempts));
 
     public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
-        var isLocal = string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
         var sp = services.BuildServiceProvider();
         var configuration = sp.GetService<IConfiguration>();
 
@@ -85,8 +76,11 @@ public static class ServiceExtensions
         services.AddPiiService();
 
         services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
-        services.AddHttpClientWithDefaults<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(configuration, ConfigKeys.PipelineRedactPdfBaseUrl, ConfigKeys.PdfGeneratorClientTimeoutSeconds).AddPolicyHandler(GetRetryPolicy);
-        services.AddHttpClientWithDefaults<TextExtractor.ITextExtractorClient, TextExtractor.TextExtractorClient>(configuration, ConfigKeys.PipelineTextExtractorBaseUrl, ConfigKeys.TextExtractorClientTimeoutSeconds);
+        services.AddHttpClientWithDefaults<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(
+                    configuration, ConfigKeys.PipelineRedactPdfBaseUrl, ConfigKeys.PdfGeneratorClientTimeoutSeconds)
+                .AddPolicyHandler(GetRetryPolicy(configuration, ConfigKeys.RedactionLoggerMaxRetries));
+        services.AddHttpClientWithDefaults<TextExtractor.ITextExtractorClient, TextExtractor.TextExtractorClient>(
+                    configuration, ConfigKeys.PipelineTextExtractorBaseUrl, ConfigKeys.TextExtractorClientTimeoutSeconds);
         services.AddHttpClientWithDefaults<
                     RedactionLogger.IRedactionLoggerClient,
                     RedactionLogger.RedactionLoggerClient>(
@@ -96,7 +90,7 @@ public static class ServiceExtensions
                         ConfigKeys.RedactionLoggerAccessKey)
                 .AddHttpMessageHandler<RedactionLogger.RedactionLoggerAuthDelegatingHandler>()
                 .AddPolicyHandler(
-                    GetRetryPolicyWithSpecificConfig(configuration, ConfigKeys.RedactionLoggerMaxRetries));
+                    GetRetryPolicy(configuration, ConfigKeys.RedactionLoggerMaxRetries));
         services.AddHttpClientWithDefaults<
                     PdfRedactor.IPdfRedactorClient,
                     PdfRedactor.PdfRedactorClient>(
@@ -105,7 +99,7 @@ public static class ServiceExtensions
                         ConfigKeys.RedactorTimeoutSeconds,
                         ConfigKeys.RedactorAccessKey)
                     .AddPolicyHandler(
-                    GetRetryPolicyWithSpecificConfig(configuration, ConfigKeys.RedactorMaxRetries));
+                    GetRetryPolicy(configuration, ConfigKeys.RedactorMaxRetries));
 
         services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
         services.AddScoped<IRedactionService, RedactionService>();
@@ -140,10 +134,14 @@ public static class ServiceExtensions
         return services;
     }
 
-    public static IHttpClientBuilder AddHttpClientWithDefaults<TInterface, TImplementation>(this IServiceCollection services, IConfiguration configuration, string baseUrlKey, string timeoutKey, string? accessKeyKey = null)
+    public static IHttpClientBuilder AddHttpClientWithDefaults<TInterface, TImplementation>(this IServiceCollection services, IConfiguration configuration, string baseUrlKey, string timeoutKey, string accessKeyKey = null)
         where TInterface : class
         where TImplementation : class, TInterface
     {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentException.ThrowIfNullOrEmpty(baseUrlKey);
+        ArgumentException.ThrowIfNullOrEmpty(timeoutKey);
         return services.AddHttpClient<TInterface, TImplementation>(
             client =>
             {
@@ -173,6 +171,21 @@ public static class ServiceExtensions
         return secret;
     }
 
+    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(
+        IConfiguration configuration,
+        string retryAttemptsConfigKey)
+    {
+        var retryAttempts = configuration.GetValue<int>(retryAttemptsConfigKey);
+
+        return Policy
+            .HandleResult<HttpResponseMessage>(
+                result => ShouldRetry(result.RequestMessage, result))
+            .WaitAndRetryAsync(
+                Backoff.DecorrelatedJitterBackoffV2(
+                    medianFirstRetryDelay: TimeSpan.FromSeconds(FirstRetryDelaySeconds),
+                    retryCount: retryAttempts));
+    }
+
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
     private static bool ShouldRetry(HttpRequestMessage _, HttpResponseMessage response) =>
         response.StatusCode >= HttpStatusCode.InternalServerError;
@@ -192,22 +205,5 @@ public static class ServiceExtensions
 #else
             services.AddSingleton<IOcrService, OcrService>();
 #endif
-    }
-
-    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicyWithSpecificConfig(
-    IConfiguration configuration, string configKey)
-    {
-        var hasMaxRetries = int.TryParse(
-            configuration[configKey],
-            out var maxRetries);
-
-        maxRetries = hasMaxRetries ? maxRetries : 5;
-
-        return HttpPolicyExtensions
-            .HandleTransientHttpError()
-            .WaitAndRetryAsync(
-                maxRetries,
-                retryAttempt => TimeSpan.FromSeconds(
-                    Math.Pow(2, retryAttempt)));
     }
 }
