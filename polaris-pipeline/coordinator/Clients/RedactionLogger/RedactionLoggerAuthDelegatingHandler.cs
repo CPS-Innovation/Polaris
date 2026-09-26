@@ -36,7 +36,7 @@ public class RedactionLoggerAuthDelegatingHandler(IOptions<RedactionLoggerConfig
         return await base.SendAsync(request, cancellationToken);
     }
 
-    private static string Validate(string propertyName, string? value)
+    private static string Validate(string propertyName, string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {

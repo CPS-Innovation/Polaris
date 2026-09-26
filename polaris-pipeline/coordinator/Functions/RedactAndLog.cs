@@ -31,37 +31,23 @@ using System.Threading.Tasks;
 
 public class RedactAndLog
 {
-    private readonly IValidator<RedactPdfRequestWithDocumentDto> requestValidator;
-    private readonly IPolarisBlobStorageService polarisBlobStorageService;
-    private readonly IMdsArgFactory mdsArgFactory;
-    private readonly IMdsClient mdsClient;
+    private readonly IValidator<RedactPdfRequestDto> requestValidator;
     private readonly ICaseUrnResolver caseUrnResolver;
     private readonly IRedactionService redactionService;
     private readonly IRedactionLoggerClient loggerClient;
     private readonly ILogger<RedactAndLog> logger;
 
     public RedactAndLog(
-        IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
+        IValidator<RedactPdfRequestDto> requestValidator,
         IRedactionService redactionService,
         IRedactionLoggerClient loggerClient,
-        Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-        IMdsArgFactory mdsArgFactory,
         IConfiguration configuration,
-        IMdsClient mdsClient,
         ICaseUrnResolver caseUrnResolver,
         ILogger<RedactAndLog> logger)
     {
         this.requestValidator = requestValidator.ExceptionIfNull();
         this.redactionService = redactionService.ExceptionIfNull();
         this.loggerClient = loggerClient.ExceptionIfNull();
-
-        this.polarisBlobStorageService =
-            blobStorageServiceFactory(
-                configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty)
-            .ExceptionIfNull();
-
-        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        this.mdsClient = mdsClient.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
         this.logger = logger.ExceptionIfNull();
     }
@@ -106,6 +92,20 @@ public class RedactAndLog
                     materialId,
                     documentId);
 
+                return new BadRequestObjectResult(
+                    new RedactAndLogResponse
+                    {
+                        CorrelationId = correlationId,
+                        Success = false,
+                    });
+            }
+
+            var validationResult = await this.requestValidator.ValidateAsync(
+                                        request.RedactionPayload,
+                                        cancellationToken);
+
+            if (!validationResult.IsValid)
+            {
                 return new BadRequestObjectResult(
                     new RedactAndLogResponse
                     {

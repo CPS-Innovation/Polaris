@@ -13,5 +13,5 @@ public interface IRedactionLoggerClient
 {
     public Task<Stream> CreateRedactionLog(
         CreateRedactionLogsRequest redactionLogRequest,
-        Guid correlationId);
+        Guid correlationId = default);
 }

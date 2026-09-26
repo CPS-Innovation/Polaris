@@ -18,7 +18,8 @@ using System.Threading.Tasks;
 public class RedactionLoggerClient(
     HttpClient httpClient,
     IJsonConvertWrapper jsonConvertWrapper,
-    IRequestFactory pipelineClientRequestFactory) : IRedactionLoggerClient
+    IRequestFactory pipelineClientRequestFactory)
+    : IRedactionLoggerClient
 {
     private readonly HttpClient httpClient = httpClient;
     private readonly IJsonConvertWrapper jsonConvertWrapper = jsonConvertWrapper ?? throw new ArgumentNullException(nameof(jsonConvertWrapper));
