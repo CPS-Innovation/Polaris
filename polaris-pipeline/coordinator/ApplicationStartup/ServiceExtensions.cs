@@ -39,29 +39,22 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
+using Polly.Extensions.Http;
 using System;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using PdfGenerator = Common.Clients.PdfGenerator;
 using PdfRedactor = coordinator.Clients.PdfRedactor;
+using RedactionLogger = coordinator.Clients.RedactionLogger;
 using TextExtractor = coordinator.Clients.TextExtractor;
 
 public static class ServiceExtensions
 {
-    private const int RetryAttempts = 2;
     private const int FirstRetryDelaySeconds = 1;
-
-    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy =>
-        Policy
-            .HandleResult<HttpResponseMessage>((result) => ShouldRetry(result.RequestMessage, result))
-            .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(
-            medianFirstRetryDelay: TimeSpan.FromSeconds(FirstRetryDelaySeconds),
-            retryCount: RetryAttempts));
 
     public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
-        var isLocal = string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID"));
         var sp = services.BuildServiceProvider();
         var configuration = sp.GetService<IConfiguration>();
 
@@ -83,11 +76,33 @@ public static class ServiceExtensions
         services.AddPiiService();
 
         services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
-        services.AddHttpClientWithDefaults<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(configuration, ConfigKeys.PipelineRedactPdfBaseUrl, ConfigKeys.PdfGeneratorClientTimeoutSeconds).AddPolicyHandler(GetRetryPolicy);
-        services.AddHttpClientWithDefaults<PdfRedactor.IPdfRedactorClient, PdfRedactor.PdfRedactorClient>(configuration, ConfigKeys.PipelineRedactorPdfBaseUrl, ConfigKeys.PdfRedactorClientTimeoutSeconds);
-        services.AddHttpClientWithDefaults<TextExtractor.ITextExtractorClient, TextExtractor.TextExtractorClient>(configuration, ConfigKeys.PipelineTextExtractorBaseUrl, ConfigKeys.TextExtractorClientTimeoutSeconds);
+        services.AddHttpClientWithDefaults<PdfGenerator.IPdfGeneratorClient, PdfGenerator.PdfGeneratorClient>(
+                    configuration, ConfigKeys.PipelineRedactPdfBaseUrl, ConfigKeys.PdfGeneratorClientTimeoutSeconds)
+                .AddPolicyHandler(GetRetryPolicy(configuration, ConfigKeys.RedactionLoggerMaxRetries));
+        services.AddHttpClientWithDefaults<TextExtractor.ITextExtractorClient, TextExtractor.TextExtractorClient>(
+                    configuration, ConfigKeys.PipelineTextExtractorBaseUrl, ConfigKeys.TextExtractorClientTimeoutSeconds);
+        services.AddHttpClientWithDefaults<
+                    RedactionLogger.IRedactionLoggerClient,
+                    RedactionLogger.RedactionLoggerClient>(
+                        configuration,
+                        ConfigKeys.RedactionLoggerBaseUrl,
+                        ConfigKeys.RedactionLoggerTimeoutSeconds,
+                        ConfigKeys.RedactionLoggerAccessKey)
+                .AddHttpMessageHandler<RedactionLogger.RedactionLoggerAuthDelegatingHandler>()
+                .AddPolicyHandler(
+                    GetRetryPolicy(configuration, ConfigKeys.RedactionLoggerMaxRetries));
+        services.AddHttpClientWithDefaults<
+                    PdfRedactor.IPdfRedactorClient,
+                    PdfRedactor.PdfRedactorClient>(
+                        configuration,
+                        ConfigKeys.RedactorBaseUrl,
+                        ConfigKeys.RedactorTimeoutSeconds,
+                        ConfigKeys.RedactorAccessKey)
+                    .AddPolicyHandler(
+                    GetRetryPolicy(configuration, ConfigKeys.RedactorMaxRetries));
 
         services.AddTransient<ISearchFilterDocumentMapper, SearchFilterDocumentMapper>();
+        services.AddScoped<IRedactionService, RedactionService>();
         services.AddScoped<IValidator<RedactPdfRequestWithDocumentDto>, RedactPdfRequestWithDocumentValidator>();
         services.AddScoped<IValidator<RedactPdfRequestDto>, RedactPdfRequestValidator>();
         services.AddScoped<IValidator<AddDocumentNoteDto>, DocumentNoteValidator>();
@@ -111,23 +126,38 @@ public static class ServiceExtensions
 
         services.AddMemoryCache();
         services.AddScoped<ICaseUrnResolver, CaseUrnResolver>();
+        services.AddTransient<RedactionLogger.RedactionLoggerAuthDelegatingHandler>();
+        services.AddServiceOptions<RedactionLogger.RedactionLoggerConfig>(RedactionLogger.RedactionLoggerConfig.DefaultSectionName);
         services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>();
         services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();
         services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);
         return services;
     }
 
-    public static IHttpClientBuilder AddHttpClientWithDefaults<TInterface, TImplementation>(this IServiceCollection services, IConfiguration configuration, string baseUrlKey, string timeoutKey)
+    public static IHttpClientBuilder AddHttpClientWithDefaults<TInterface, TImplementation>(this IServiceCollection services, IConfiguration configuration, string baseUrlKey, string timeoutKey, string accessKeyKey = null)
         where TInterface : class
         where TImplementation : class, TInterface
     {
-        return services.AddHttpClient<TInterface, TImplementation>(client =>
-        {
-            client.BaseAddress = new Uri(GetValueFromConfig(configuration, baseUrlKey));
-            client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
-            var hasTimeout = int.TryParse(configuration[timeoutKey], out var timeout);
-            client.Timeout = TimeSpan.FromSeconds(hasTimeout ? timeout : 100);
-        });
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentException.ThrowIfNullOrEmpty(baseUrlKey);
+        ArgumentException.ThrowIfNullOrEmpty(timeoutKey);
+        return services.AddHttpClient<TInterface, TImplementation>(
+            client =>
+            {
+                client.BaseAddress = new Uri(GetValueFromConfig(configuration, baseUrlKey));
+                client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue { NoCache = true };
+                var hasTimeout = int.TryParse(configuration[timeoutKey], out var timeout);
+                client.Timeout = TimeSpan.FromSeconds(hasTimeout ? timeout : 100);
+                if (!string.IsNullOrWhiteSpace(accessKeyKey))
+                {
+                    var accessKey = configuration[accessKeyKey];
+                    if (!string.IsNullOrWhiteSpace(accessKey))
+                    {
+                        client.DefaultRequestHeaders.Add("x-functions-key", accessKey);
+                    }
+                }
+            });
     }
 
     public static string GetValueFromConfig(IConfiguration configuration, string secretName)
@@ -139,6 +169,21 @@ public static class ServiceExtensions
         }
 
         return secret;
+    }
+
+    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(
+        IConfiguration configuration,
+        string retryAttemptsConfigKey)
+    {
+        var retryAttempts = configuration.GetValue<int>(retryAttemptsConfigKey);
+
+        return Policy
+            .HandleResult<HttpResponseMessage>(
+                result => ShouldRetry(result.RequestMessage, result))
+            .WaitAndRetryAsync(
+                Backoff.DecorrelatedJitterBackoffV2(
+                    medianFirstRetryDelay: TimeSpan.FromSeconds(FirstRetryDelaySeconds),
+                    retryCount: retryAttempts));
     }
 
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter

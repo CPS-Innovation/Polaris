@@ -26,6 +26,7 @@ public static class RestApi
     public const string RedactDocumentLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/redact";
     public const string RedactDocument = "cases/{caseId:min(1)}/materials/{materialId}/documents/{documentId:min(1)}/redact";
     public const string RedactPdf = "cases/{caseId:min(1)}/materials/{materialId}/redact";
+    public const string RedactAndLog = "cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/redactandlog";
     public const string ModifyDocumentLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/modify";
     public const string ModifyDocument = "cases/{caseId:min(1)}/materials/{materialId}/documents/{documentId:min(1)}/modify";
     public const string RenameDocumentLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/rename";
@@ -144,7 +145,7 @@ public static class RestApi
         $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/redact";
 
     public static string GetRedactDocumentPath(int caseId, string materialId, long documentId) =>
-        $"cases/{caseId}/materials/{materialId}/documents/{documentId}/redact";
+        $"cases/{caseId}/materials/{materialId}/redact";
 
     public static string GetConvertToPdfPathLegacy(string caseUrn, int caseId, string materialId, long documentId) =>
         $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/convert-to-pdf";
@@ -170,7 +171,7 @@ public static class RestApi
         $"urns/{caseUrn}/cases/{caseId}/documents/{materialId}/versions/{documentId}/redact";
 
     public static string GetRedactPdfPath(int caseId, string materialId, long documentId) =>
-        $"cases/{caseId}/materials/{materialId}/documents/{documentId}/redact";
+        $"cases/{caseId}/materials/{materialId}/redact";
 
     public static string GetCaseIndexCountResultsPathLegacy(string caseUrn, int caseId) => $"urns/{caseUrn}/cases/{caseId}/case-index-count";
     public static string GetCaseIndexCountResultsPath(int caseId) => $"cases/{caseId}/case-index-count";
