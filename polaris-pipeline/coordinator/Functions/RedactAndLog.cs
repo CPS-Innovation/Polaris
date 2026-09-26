@@ -32,7 +32,6 @@ using System.Threading.Tasks;
 public class RedactAndLog
 {
     private readonly IValidator<RedactPdfRequestDto> requestValidator;
-    private readonly ICaseUrnResolver caseUrnResolver;
     private readonly IRedactionService redactionService;
     private readonly IRedactionLoggerClient loggerClient;
     private readonly ILogger<RedactAndLog> logger;
@@ -42,13 +41,11 @@ public class RedactAndLog
         IRedactionService redactionService,
         IRedactionLoggerClient loggerClient,
         IConfiguration configuration,
-        ICaseUrnResolver caseUrnResolver,
         ILogger<RedactAndLog> logger)
     {
         this.requestValidator = requestValidator.ExceptionIfNull();
         this.redactionService = redactionService.ExceptionIfNull();
         this.loggerClient = loggerClient.ExceptionIfNull();
-        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
         this.logger = logger.ExceptionIfNull();
     }
 
@@ -148,9 +145,10 @@ public class RedactAndLog
                     Success = true,
                 });
         }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException opex) when (cancellationToken.IsCancellationRequested)
         {
             this.logger.LogWarning(
+                opex,
                 "RedactAndLog operation was cancelled. CorrelationId: {CorrelationId}, CaseId: {CaseId}, MaterialId: {MaterialId}, DocumentId: {DocumentId}",
                 correlationId,
                 caseId,
@@ -179,7 +177,7 @@ public class RedactAndLog
                        Status = "Failed",
                        Error = ex.Message,
                    },
-                   Logging = null!,
+                   Logging = null,
                })
             {
                 StatusCode = StatusCodes.Status500InternalServerError,
