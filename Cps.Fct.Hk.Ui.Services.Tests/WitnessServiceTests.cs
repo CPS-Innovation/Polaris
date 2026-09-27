@@ -330,7 +330,7 @@ public class WitnessServiceTests
             });
 
         // Act
-        int? result = await this.sutWitnessService.AddWitnessAsync(urn, caseId, "Joe", "SMITH", It.IsAny<CmsAuthValues>(), It.IsAny<Guid>());
+        long? result = await this.sutWitnessService.AddWitnessAsync(urn, caseId, "Joe", "SMITH", It.IsAny<CmsAuthValues>(), It.IsAny<Guid>());
 
         Assert.Contains(this.mockLogger.Logs, log =>
            log.LogLevel == LogLevel.Information &&

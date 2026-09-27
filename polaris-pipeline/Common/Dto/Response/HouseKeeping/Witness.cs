@@ -14,6 +14,6 @@ using System.Text.Json.Serialization;
 /// <param name="Surname">Surname of witness.</param>
 public record Witness(
     [property: JsonPropertyName("caseId")] int CaseId,
-    [property: JsonPropertyName("witnessId")] int? WitnessId,
+    [property: JsonPropertyName("witnessId")] long? WitnessId,
     [property: JsonPropertyName("firstName")] string FirstName,
     [property: JsonPropertyName("surname")] string Surname);
