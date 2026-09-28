@@ -312,4 +312,23 @@ public class DocumentTypeMapperTests
         // Other
         Assert.Equal(13, result.Count(x => x.Group == DocumentTypeGroups.Other));
     }
+
+    /// <summary>
+    /// Tests that document types with no <see cref="DocumentTypeInfo.Group"/> set are treated as
+    /// not reclassifiable and are excluded from <see cref="DocumentTypeMapper.GetDocumentTypesWithClassificationGroup"/>.
+    /// </summary>
+    [Fact]
+    public void GetDocumentTypeGroups_EntryWithNoGroupSet_IsNotReclassifiable()
+    {
+        // Arrange - documentTypeId 1055 ("DREP") has no Group set in the mapping,
+        // so it should be considered not reclassifiable.
+        const int documentTypeIdWithNoGroup = 1055;
+
+        // Act
+        var result = this.documentTypeMapper.GetDocumentTypesWithClassificationGroup();
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.DoesNotContain(result, g => g.Id == documentTypeIdWithNoGroup);
+    }
 }

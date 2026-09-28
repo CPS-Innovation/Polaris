@@ -298,7 +298,7 @@ public class DocumentTypeMapper : IDocumentTypeMapper
             { 1022, new DocumentTypeInfo { DocumentType = "MG 15(T)",       Category = DocumentTypeCategories.Exhibit, Group = DocumentTypeGroups.Exhibit } },
             { 1023, new DocumentTypeInfo { DocumentType = "MG 15(T)(CONT)", Category = DocumentTypeCategories.Exhibit, Group = DocumentTypeGroups.Exhibit } },
             { 1406, new DocumentTypeInfo { DocumentType = "ABE Recording", Category = DocumentTypeCategories.Exhibit, Group = DocumentTypeGroups.Exhibit } },
-            { 225522, new DocumentTypeInfo { DocumentType = "999Wav", Category = DocumentTypeCategories.Exhibit, Group = DocumentTypeGroups.Exhibit } },
+            { 225522, new DocumentTypeInfo { DocumentType = "999Wav", Category = DocumentTypeCategories.Exhibit } },
         };
     }
 
