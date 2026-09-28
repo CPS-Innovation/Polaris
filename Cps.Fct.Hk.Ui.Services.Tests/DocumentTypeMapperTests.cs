@@ -331,4 +331,36 @@ public class DocumentTypeMapperTests
         Assert.NotNull(result);
         Assert.DoesNotContain(result, g => g.Id == documentTypeIdWithNoGroup);
     }
+
+    /// <summary>
+    /// Tests that every document type entry with no <see cref="DocumentTypeInfo.Group"/> set in the
+    /// underlying mapping is excluded from <see cref="DocumentTypeMapper.GetDocumentTypesWithClassificationGroup"/>,
+    /// i.e. all such entries are treated as not reclassifiable.
+    /// </summary>
+    [Fact]
+    public void GetDocumentTypeGroups_AllEntriesWithNoGroupSet_AreNotReclassifiable()
+    {
+        // Arrange - use reflection to access the private mapping dictionary so we can
+        // exhaustively verify every entry without a Group is excluded from the result.
+        var mappingField = typeof(DocumentTypeMapper).GetField(
+            "documentTypeMapping",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        Assert.NotNull(mappingField);
+
+        var mapping = (Dictionary<int, DocumentTypeInfo>)mappingField!.GetValue(this.documentTypeMapper)!;
+        var idsWithNoGroup = mapping.Where(x => x.Value.Group == null).Select(x => x.Key).ToList();
+
+        // Sanity check - ensure the test is actually exercising entries without a Group.
+        Assert.NotEmpty(idsWithNoGroup);
+
+        // Act
+        var result = this.documentTypeMapper.GetDocumentTypesWithClassificationGroup();
+
+        // Assert
+        Assert.NotNull(result);
+        foreach (int id in idsWithNoGroup)
+        {
+            Assert.DoesNotContain(result, g => g.Id == id);
+        }
+    }
 }
