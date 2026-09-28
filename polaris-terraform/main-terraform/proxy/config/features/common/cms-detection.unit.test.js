@@ -31,7 +31,7 @@ async function detection(common) {
     ["__CMSENV=cin5", "cin5", "cin5"],
     ["__CMSENV=cin3", "default", "cin3 IS the default environment"],
     ["__CMSENV=cpt", "cpt", "cpt (FCT2-18732)"],
-    ["C-MOD-LBsessioncookie=x", "cmo", "the MOD LB cookie -> cmo (detected from 'mod', not 'cmo')"],
+    ["C-CMO-LBsessioncookie=x", "default", "the CMO LB cookie -> default (RMAT-242: cmo has no upstream)"],
     ["__CMSENV=default", "default", "explicit default"],
     ["", "default", "empty -> default"],
     [undefined, "default", "missing -> default"],
@@ -63,12 +63,11 @@ async function detection(common) {
     assertEqual(common.detect("__CMSENV=cin5; stale=cin2"), "cin2", "cin2 checked before cin4/cin5")
   })
 
-  // QUIRK (FCT2-18732): env "cmo" is detected from the substring "mod", NOT "cmo" —
-  // so the literal token "cmo" does not select it, and any cookie containing "mod"
-  // (e.g. "modern") mis-selects the (upstream-less) cmo env. Intentional/naive for now.
-  await test("QUIRK: 'cmo' is detected from 'mod', so '__CMSENV=cmo' does NOT select cmo", () => {
-    assertEqual(common.detect("__CMSENV=cmo"), "default", "no 'mod' substring -> default")
-    assertEqual(common.detect("x=modern"), "cmo", "'modern' contains 'mod' -> cmo (fragile)")
+  // RMAT-242: cmo has no configured upstream, so "cmo" cookies route to default
+  // (the UAT default upstream is cmo.cps.gov.uk) rather than an undefined destination.
+  await test("RMAT-242: 'cmo' cookies route to default (cmo has no upstream)", () => {
+    assertEqual(common.detect("__CMSENV=cmo"), "default", "no 'cmo' substring -> default")
+    assertEqual(common.detect("x=modern"), "default", "'modern' contains 'mod' -> default")
   })
 }
 

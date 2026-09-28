@@ -4,6 +4,8 @@
 #
 #   :3000 http   :3443 https (self-signed — nginx does not verify upstream certs
 #                            by default, so no extra config is needed)
+#checkov:skip=CKV_DOCKER_3:Test-only container; deliberately stays root as it listens on the
+# privileged port 443 (see the EXPOSE comment below for why).
 FROM node:24-alpine
 
 RUN apk add --no-cache openssl

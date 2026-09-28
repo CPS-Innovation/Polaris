@@ -619,8 +619,6 @@ public class HkUiFunctionsTests : TestBase
         ReclassificationResponse reclassificationResultData = (ReclassificationResponse)result.reclassificationResult.ResultData!;
         Assert.Equal(materialId, reclassificationResultData.ReclassifyCommunication.Id);
         Assert.Equal("ReclassifyCaseMaterial", result.reclassificationResult.OperationName);
-        Assert.Null(result.addWitnessResult);
-        Assert.Null(result.actionPlanResult);
     }
 
     /// <summary>

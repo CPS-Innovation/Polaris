@@ -38,13 +38,14 @@ public class MaterialReclassificationOrchestrationService(
         int caseId,
         int materialId,
         CmsAuthValues cmsAuthValues,
-        CompleteReclassificationRequest request, 
+        CompleteReclassificationRequest request,
         CancellationToken cancellationToken = default)
     {
         var transactionId = Guid.NewGuid();
         var renameMaterialRequest = new RenameMaterialRequest(transactionId, materialId, request.reclassification.subject);
-        int newWitnessId;
 
+        // The caller may still provide a witness ID to be associated with the statement (e.g. an existing witness),
+        // but this flow no longer supports creating a new witness record.
         if (request?.witness?.WitnessId != null && request.HasStatement())
         {
             request.reclassification.Statement!.Witness = request.witness.WitnessId.Value;
@@ -56,29 +57,8 @@ public class MaterialReclassificationOrchestrationService(
         var tasksToRun = new List<Task<OperationResult>>();
 
         Task<OperationResult>? reclassificationTask = null;
-        Task<OperationResult>? actionPlanTask = null;
         Task<OperationResult>? renameMaterialTask = null;
-        OperationResult? addWitnessResult = null;
-
-        // Add witness task must be executed first when user has selected add witness flow, due to reclassification to Statement having a dependency on a new witness id.
-        if (request!.AddWitness())
-        {
-            addWitnessResult = await this.ExecuteAddWitness(request.reclassification.urn, caseId, request.witness!, cmsAuthValues, transactionId, cancellationToken).ConfigureAwait(false);
-
-            if (addWitnessResult.Success)
-            {
-                newWitnessId = (int)addWitnessResult.ResultData!;
-                request.reclassification.Statement!.Witness = newWitnessId;
-            }
-        }
-
-        // Add Action plan task to collection of tasks to be run in parallel
-        if (request.HasActionPlan())
-        {
-            actionPlanTask = this.ExecuteAddActionPlan(request.reclassification.urn, caseId, request.actionPlan!, cmsAuthValues, transactionId, cancellationToken);
-            tasksToRun.Add(actionPlanTask);
-        }
-
+  
         // Rename material for all other non statement reclassification.
         if (!request.HasStatement())
         {
@@ -96,13 +76,6 @@ public class MaterialReclassificationOrchestrationService(
         var operationResults = results.ToList();
         OperationResult? reclassificationResult = operationResults.FirstOrDefault(x => x.OperationName == "ReclassifyCaseMaterial");
         OperationResult? renameMaterialResult = operationResults.FirstOrDefault(x => x.OperationName == "RenameMaterial");
-        OperationResult? actionPlanResult = operationResults.FirstOrDefault(x => x.OperationName == "AddCaseActionPlan");
-
-        // Add add the result of witness operation to all operations result, if user journey flow is add witness.
-        if (request.AddWitness() && addWitnessResult != null)
-        {
-            operationResults.Add(addWitnessResult);
-        }
 
         // Determine overall status
         bool success = results.All(x => x.Success);
@@ -118,8 +91,6 @@ public class MaterialReclassificationOrchestrationService(
             transactionId: transactionId.ToString(),
             reclassificationResult: reclassificationResult!,
             renameMaterialResult: renameMaterialResult,
-            actionPlanResult: actionPlanResult,
-            addWitnessResult: addWitnessResult,
             errors: errors!);
     }
 
@@ -197,78 +168,6 @@ public class MaterialReclassificationOrchestrationService(
             return new OperationResult(
                 Success: false,
                 OperationName: "RenameMaterial",
-                ErrorMessage: ex.Message,
-                ResultData: null);
-        }
-    }
-
-    private async Task<OperationResult> ExecuteAddActionPlan(
-         string urn,
-         int caseId,
-         AddCaseActionPlanRequest request,
-         CmsAuthValues cmsAuthValues,
-         Guid transactionId, 
-         CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} executing action plan for URN: [{urn}], TransactionId: [{transactionId}]");
-
-            // Call the underlying service method directly
-            NoContentResult result = await this.caseActionPlanService.AddCaseActionPlanAsync(urn, caseId, request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
-
-            return new OperationResult(
-                Success: true,
-                OperationName: "AddCaseActionPlan",
-                ErrorMessage: null,
-                ResultData: result);
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} Action plan creation failed for URN: [{urn}], TransactionId: [{transactionId}]");
-
-            return new OperationResult(
-                Success: false,
-                OperationName: "AddCaseActionPlan",
-                ErrorMessage: ex.Message,
-                ResultData: null);
-        }
-    }
-
-    private async Task<OperationResult> ExecuteAddWitness(
-        string urn,
-        int caseId,
-        Common.Dto.Request.HouseKeeping.WitnessRequest request,
-        CmsAuthValues cmsAuthValues,
-        Guid transactionId,
-        CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} executing witness addition for CaseId: [{caseId}], TransactionId: [{transactionId}]");
-
-            var result = await this.witnessService.AddWitnessAsync(
-                urn,
-                caseId,
-                request.FirstName,
-                request.Surname,
-                cmsAuthValues,
-                transactionId,
-                cancellationToken);
-
-            return new OperationResult(
-                Success: true,
-                OperationName: "AddWitness",
-                ErrorMessage: null,
-                ResultData: result);
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} witness addition failed for CaseId: [{caseId}], TransactionId: [{transactionId}]");
-
-            return new OperationResult(
-                Success: false,
-                OperationName: "AddWitness",
                 ErrorMessage: ex.Message,
                 ResultData: null);
         }

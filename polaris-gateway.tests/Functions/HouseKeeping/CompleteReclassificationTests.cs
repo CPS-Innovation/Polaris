@@ -88,8 +88,6 @@ public class CompleteReclassificationTests
             transactionId: transactionId.ToString(),
             new(true, "ReclassifyCaseMaterial", null, 12121),
             renameMaterialResult: null,
-            new(true, "AddCaseActionPlan", null, null),
-            new(true, "AddWitness", null, 543),
             errors: []);
 
         // Mock the material occhestration service to return the expected response.
@@ -160,8 +158,6 @@ public class CompleteReclassificationTests
             transactionId: transactionId.ToString(),
             new(true, "ReclassifyCaseMaterial", null, 12121),
             renameMaterialResult: null,
-            new(false, "AddCaseActionPlan", errorMessage, null),
-            new(true, "AddWitness", null, 543),
             errors: []);
 
         // Mock the material occhestration service to return the expected response.
@@ -233,8 +229,6 @@ public class CompleteReclassificationTests
             transactionId: transactionId.ToString(),
             new(false, "ReclassifyCaseMaterial", errorMessage, null),
             renameMaterialResult: null,
-            new(false, "AddCaseActionPlan", errorMessage, null),
-            new(false, "AddWitness", null, null),
             errors: []);
 
         // Mock the material occhestration service to return the expected response.
@@ -306,8 +300,6 @@ public class CompleteReclassificationTests
             transactionId: transactionId.ToString(),
             new(false, "ReclassifyCaseMaterial", errorMessage, null),
             renameMaterialResult: null,
-            new(false, "AddCaseActionPlan", errorMessage, null),
-            new(false, "AddWitness", null, null),
             errors: []);
 
         this.mockOrchestrationService
@@ -373,8 +365,6 @@ public class CompleteReclassificationTests
             transactionId: transactionId.ToString(),
             new(false, "ReclassifyCaseMaterial", errorMessage, null),
             renameMaterialResult: null,
-            new(false, "AddCaseActionPlan", errorMessage, null),
-            new(false, "AddWitness", null, null),
             errors: []);
 
         this.mockOrchestrationService
