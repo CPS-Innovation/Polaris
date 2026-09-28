@@ -73,7 +73,7 @@ namespace PolarisGateway.Services.MdsOrchestration
             };
             var defendantsAndCharges = await getDefendantsAndChargesTask;
             var witnesses = this.MapWitnesses(await witnessesTask);
-            var preChargeDecisionRequests = this.MapPcdRequests(await getPcdRequestTask);
+            var preChargeDecisionRequests = this.MapPcdRequests(await getPcdRequestTask); // will need to refactor mapper when retiring polaris
 
             return new CaseDetailsDto
             {
