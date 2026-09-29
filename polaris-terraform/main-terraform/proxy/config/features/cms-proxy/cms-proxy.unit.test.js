@@ -167,6 +167,8 @@ async function menuBar(cmsProxy) {
     const out = run(MENU_BAR)
     assertIncludes(out, "Launch Materials", "Materials button injected")
     assertIncludes(out, "openMaterials()", "Wired to openMaterials()")
+    // FCT2-15621: wrapped in an anchor so the button is keyboard-focusable.
+    assertIncludes(out, '<a href="#" onclick="openMaterials();return false;">', "Focusable anchor wrapper")
     assert(
       out.indexOf("Launch Materials") < out.indexOf("var sMenuBarRight"),
       "Button must be injected BEFORE sMenuBarRight"

@@ -96,6 +96,24 @@ async function blobAndAnalytics() {
     assertIncludes(echo.url, "/test/global-components.js", "Path preserved to blob")
   })
 
+  // gzip on the blob route (ported from global-components #1056). The echo body
+  // must clear gzip_min_length (1024) and blob forwards no request headers, so a
+  // long path is the only way to pad it.
+  const BIG_BLOB = `/global-components/test/${"x".repeat(1100)}.js`
+
+  await test("/global-components/{env}/* gzips when the client accepts it", async () => {
+    const res = await get(BIG_BLOB, { headers: { "Accept-Encoding": "gzip" } })
+    assertEqual(res.status, 200, "Should proxy to the blob mock")
+    assertEqual(res.headers.get("content-encoding"), "gzip", "Compressed")
+    assertIncludes(res.headers.get("vary") || "", "Accept-Encoding", "gzip_vary on")
+  })
+
+  await test("/global-components/{env}/* stays identity when the client does not accept gzip", async () => {
+    const res = await get(BIG_BLOB, { headers: { "Accept-Encoding": "identity" } })
+    assertEqual(res.status, 200, "Should proxy to the blob mock")
+    assertEqual(res.headers.get("content-encoding"), null, "Not compressed")
+  })
+
   await test("/global-components/analytics/* proxies to App Insights", async () => {
     const res = await get("/global-components/analytics/v2/track")
     assertEqual(res.status, 200, "Should proxy to the (mocked) App Insights host")
