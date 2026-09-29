@@ -13,9 +13,6 @@ public class RedactionLoggerConfig : IHttpClientConfig
     [Required]
     public string BaseUrl { get; init; } = string.Empty;
 
-    [Required]
-    public string AccessKey { get; init; } = string.Empty;
-
     [Range(1, int.MaxValue)]
     public int TimeoutSeconds { get; init; } = 200;
 

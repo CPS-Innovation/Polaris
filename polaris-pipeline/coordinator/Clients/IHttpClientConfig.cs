@@ -9,6 +9,4 @@ public interface IHttpClientConfig
     string BaseUrl { get; }
 
     int TimeoutSeconds { get; }
-
-    string AccessKey { get; }
 }

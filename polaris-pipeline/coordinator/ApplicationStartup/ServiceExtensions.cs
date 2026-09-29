@@ -186,13 +186,6 @@ public static class ServiceExtensions
                     };
 
                 client.Timeout = TimeSpan.FromSeconds(config.TimeoutSeconds);
-
-                if (!string.IsNullOrWhiteSpace(config.AccessKey))
-                {
-                    client.DefaultRequestHeaders.Add(
-                        "x-functions-key",
-                        config.AccessKey);
-                }
             });
     }
 
