@@ -16,5 +16,6 @@ namespace Ddei.Mappers
         IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<MdsPcdRequestDto> pcdRequests);
         CaseSummaryDto Map(MdsCaseSummaryDto mdsResult);
         IEnumerable<WitnessDto> MapWitnesses(IEnumerable<BaseCaseWitnessResponse> witnesses);
+        IEnumerable<Common.Dto.Response.Case.PreCharge.PcdRequestDto> MapPcdRequests(IEnumerable<Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto> requests);
     }
 }

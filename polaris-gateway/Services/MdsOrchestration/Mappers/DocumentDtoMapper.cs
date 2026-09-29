@@ -39,7 +39,7 @@ public class DocumentDtoMapper : IDocumentDtoMapper
         };
     }
 
-    public DocumentDto Map(PcdRequestCoreDto pcdRequest, PresentationFlagsDto presentationFlagsDto)
+    public DocumentDto Map(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto pcdRequest, PresentationFlagsDto presentationFlagsDto)
     {
         var documentId = DocumentNature.ToQualifiedStringDocumentId(pcdRequest.Id, DocumentNature.Types.PreChargeDecisionRequest);
 

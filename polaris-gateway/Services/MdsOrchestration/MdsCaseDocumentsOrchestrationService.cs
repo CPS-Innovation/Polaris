@@ -1,7 +1,15 @@
+// <copyright file="MdsCaseDocumentsOrchestrationService.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Services.MdsOrchestration;
+
+using Common.Dto.Request;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
+using Common.Dto.Response.HouseKeeping.Pcd;
 using Common.Extensions;
 using Common.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args.Core;
@@ -13,31 +21,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Services.MdsOrchestration;
-
-public class MdsCaseDocumentsOrchestrationService : IMdsCaseDocumentsOrchestrationService
+public class MdsCaseDocumentsOrchestrationService (
+        IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient,
+        IMdsArgFactory mdsArgFactory,
+        IDocumentToggleService documentToggleService,
+        IDocumentDtoMapper cmsDocumentMapper)
+    : IMdsCaseDocumentsOrchestrationService
 {
-    private readonly IMdsClient _mdsClient;
-    private readonly IDocumentToggleService _documentToggleService;
-    private readonly IDocumentDtoMapper _cmsDocumentMapper;
-
-    public MdsCaseDocumentsOrchestrationService(
-            IMdsClient mdsClient,
-            IMdsArgFactory mdsArgFactory,
-            IDocumentToggleService documentToggleService,
-            IDocumentDtoMapper cmsDocumentMapper
-        )
-    {
-        _mdsClient = mdsClient.ExceptionIfNull();
-        _documentToggleService = documentToggleService.ExceptionIfNull();
-        _cmsDocumentMapper = cmsDocumentMapper.ExceptionIfNull();
-    }
-
     public async Task<IEnumerable<DocumentDto>> GetCaseDocuments(MdsCaseIdentifiersArgDto arg)
     {
-        var getDocumentsTask = _mdsClient.ListDocumentsAsync(arg);
-        var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg);
-        var getDefendantsAndChargesTask = _mdsClient.GetDefendantAndChargesAsync(arg);
+        var getDocumentsTask = mdsClient.ListDocumentsAsync(arg);
+        //var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg); // calls /cases/{arg.CaseId}/pcd-requests/overview  returns PcdRequestCoreDto
+
+        var getPcdRequestsTask = masterDataServiceClient.GetCasePcdRequestsAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
+
+        var getDefendantsAndChargesTask = mdsClient.GetDefendantAndChargesAsync(arg);
 
         await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 
@@ -46,22 +45,22 @@ public class MdsCaseDocumentsOrchestrationService : IMdsCaseDocumentsOrchestrati
         var defendantAndCharges = getDefendantsAndChargesTask.Result;
 
         return Enumerable.Empty<DocumentDto>()
-            .Concat(cmsDocuments.Select(MapDocument))
-            .Concat(pcdRequests.Select(MapPcdRequest))
+            .Concat(cmsDocuments.Select(this.MapDocument))
+            .Concat(pcdRequests.Select(this.MapPcdRequest))
             .Concat(
                 defendantAndCharges.DefendantsAndCharges.Any() ||
                 defendantAndCharges.DefendantsAndCharges.Any(x => x.Charges.Any())
-                    ? [MapDefendantAndCharges(defendantAndCharges)]
+                    ? [this.MapDefendantAndCharges(defendantAndCharges)]
                     : []
             );
     }
 
     public DocumentDto MapDocument(CmsDocumentDto document) =>
-        _cmsDocumentMapper.Map(document, _documentToggleService.GetDocumentPresentationFlags(document));
+        cmsDocumentMapper.Map(document, documentToggleService.GetDocumentPresentationFlags(document));
 
-    public DocumentDto MapPcdRequest(PcdRequestCoreDto pcdRequest) =>
-        _cmsDocumentMapper.Map(pcdRequest, _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest));
+    public DocumentDto MapPcdRequest(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto pcdRequest) =>
+        cmsDocumentMapper.Map(pcdRequest, documentToggleService.GetPcdRequestPresentationFlags(pcdRequest));
 
     public DocumentDto MapDefendantAndCharges(DefendantsAndChargesListDto defendantAndCharges) =>
-        _cmsDocumentMapper.Map(defendantAndCharges, _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantAndCharges));
+        cmsDocumentMapper.Map(defendantAndCharges, documentToggleService.GetDefendantAndChargesPresentationFlags(defendantAndCharges));
 }

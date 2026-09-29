@@ -3,6 +3,8 @@ using Common.Constants;
 using Common.Domain.Document;
 using Common.Extensions;
 using Common.Services.RenderHtmlService;
+using Common.Dto.Request.HouseKeeping;
+using Common.Dto.Request;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using PolarisGateway.Services.Artefact.Domain;
@@ -18,17 +20,20 @@ public class PdfRetrievalService : IPdfRetrievalService
     private readonly IConvertModelToHtmlService _convertModelToHtmlService;
     private readonly IPdfGeneratorClient _pdfGeneratorClient;
     private readonly IMdsClient _mdsClient;
+    private readonly IMasterDataServiceClient _masterDataServiceClient;
 
     public PdfRetrievalService(
         IMdsArgFactory mdsArgFactory,
         IConvertModelToHtmlService convertModelToHtmlService,
-        IPdfGeneratorClient pdfGeneratorClient, 
-        IMdsClient mdsClient)
+        IPdfGeneratorClient pdfGeneratorClient,
+        IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient)
     {
         _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _convertModelToHtmlService = convertModelToHtmlService.ExceptionIfNull();
         _pdfGeneratorClient = pdfGeneratorClient.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
+        _masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
     }
 
     public async Task<DocumentRetrievalResult> GetPdfStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isLegacy = true)
@@ -70,7 +75,11 @@ public class PdfRetrievalService : IPdfRetrievalService
     private async Task<(Stream Stream, FileType FileType, bool IsKnownFileType)> GetPcdRequestStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId)
     {
         var mdsPcdArgDto = _mdsArgFactory.CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, documentId);
-        var pcdRequest = await _mdsClient.GetPcdRequestAsync(mdsPcdArgDto);
+        //var pcdRequest = await _mdsClient.GetPcdRequestAsync(mdsPcdArgDto); ; // calls /cases/{arg.CaseId}/pcd-request/{arg.PcdId}      returns case.precharge.PcdRequestDto
+
+        var pcdRequest = await _masterDataServiceClient.GetPcdRequestByPcdIdAsync(
+            new GetPcdRequestByPcdIdCoreRequest(mdsPcdArgDto.CaseId, mdsPcdArgDto.PcdId, mdsPcdArgDto.CorrelationId),
+            new CmsAuthValues(mdsPcdArgDto.CmsAuthValues, mdsPcdArgDto.CorrelationId));
 
         var stream = await _convertModelToHtmlService.ConvertAsync(pcdRequest);
         return (stream, FileTypeHelper.PseudoDocumentFileType, true);

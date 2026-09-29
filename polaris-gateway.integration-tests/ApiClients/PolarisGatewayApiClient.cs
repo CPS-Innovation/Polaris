@@ -264,7 +264,7 @@ public class PolarisGatewayApiClient : BaseApiClient
     public async Task<ApiClientResponse<WitnessStatementsResponse>> GetCaseWitnessStatementsHkAsync(
             string urn,
             int caseId,
-            int witnessId,
+            long witnessId,
             CancellationToken cancellationToken)
     {
         var route = $"urns/{urn}/cases/{caseId}/witnesses/{witnessId}/witness-statements";

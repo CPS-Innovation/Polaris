@@ -82,18 +82,21 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return _caseDetailsMapper.Map(mdsResult);
     }
 
+    // calls /cases/{arg.CaseId}/pcd-requests/overview
     public async Task<IEnumerable<PcdRequestCoreDto>> GetPcdRequestsCoreAsync(MdsCaseIdentifiersArgDto arg, CancellationToken cancellationToken = default)
     {
         var pcdRequests = await CallHttpClientAsync<IEnumerable<MdsPcdRequestCoreDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues, cancellationToken);
         return _caseDetailsMapper.MapCorePreChargeDecisionRequests(pcdRequests);
     }
 
+    // calls /cases/{arg.CaseId}/pcd-requests/overview
     public async Task<IEnumerable<PcdRequestDto>> GetPcdRequestsAsync(MdsCaseIdentifiersArgDto arg, CancellationToken cancellationToken = default)
     {
         var pcdRequests = await CallHttpClientAsync<IEnumerable<MdsPcdRequestDto>>(_mdsClientRequestFactory.CreateGetPcdRequestsRequest(arg), arg.CmsAuthValues, cancellationToken);
         return _caseDetailsMapper.MapPreChargeDecisionRequests(pcdRequests);
     }
 
+    // calls /cases/{arg.CaseId}/pcd-request/{arg.PcdId}
     public async Task<PcdRequestDto> GetPcdRequestAsync(MdsPcdArgDto arg, CancellationToken cancellationToken = default)
     {
         var pcdRequest = await CallHttpClientAsync<MdsPcdRequestDto>(_mdsClientRequestFactory.CreateGetPcdRequest(arg), arg.CmsAuthValues, cancellationToken);

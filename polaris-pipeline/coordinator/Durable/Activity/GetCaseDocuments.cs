@@ -1,6 +1,8 @@
+using Common.Dto.Request;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
+using Common.Dto.Response.HouseKeeping.Pcd;
 using Common.Extensions;
 using Common.Services.DocumentToggle;
 using coordinator.Domain;
@@ -19,6 +21,7 @@ namespace coordinator.Durable.Activity;
 public class GetCaseDocuments
 {
     private readonly IMdsClient _mdsClient;
+    private readonly IMasterDataServiceClient _masterDataServiceClient;
     private readonly IMdsArgFactory _mdsArgFactory;
     private readonly IDocumentToggleService _documentToggleService;
     private readonly IStateStorageService _stateStorageService;
@@ -26,12 +29,14 @@ public class GetCaseDocuments
 
     public GetCaseDocuments(
         IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient,
         IMdsArgFactory mdsArgFactory,
         IDocumentToggleService documentToggleService,
         IStateStorageService stateStorageService,
         ILogger<GetCaseDocuments> logger)
     {
         _mdsClient = mdsClient.ExceptionIfNull();
+        _masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
         _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _documentToggleService = documentToggleService.ExceptionIfNull();
         _stateStorageService = stateStorageService.ExceptionIfNull();
@@ -69,7 +74,12 @@ public class GetCaseDocuments
             payload.CaseId);
 
         var getDocumentsTask = _mdsClient.ListDocumentsAsync(arg);
-        var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg);
+        //var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg); // mdsClient calls /cases/{arg.CaseId}/pcd-requests/overview
+
+        var getPcdRequestsTask = _masterDataServiceClient.GetCasePcdRequestsAsync(
+            arg,
+            new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
+
         var getDefendantsAndChargesTask = _mdsClient.GetDefendantAndChargesAsync(arg);
 
         await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
@@ -97,10 +107,17 @@ public class GetCaseDocuments
         return document;
     }
 
-    private PcdRequestCoreDto MapPresentationFlags(PcdRequestCoreDto pcdRequest)
+    // need to refactor this if we add PresentationFlags to MDS response and HK PcdRequestDto
+    private PcdRequestCoreDto MapPresentationFlags(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto pcdRequest)
     {
-        pcdRequest.PresentationFlags = _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
-        return pcdRequest;
+        PcdRequestCoreDto pcdRequestCoreDto = new PcdRequestCoreDto
+        {
+            Id = pcdRequest.Id,
+            DecisionRequiredBy = pcdRequest.DecisionRequiredBy,
+            DecisionRequested = pcdRequest.DecisionRequested,
+        };
+        pcdRequestCoreDto.PresentationFlags = _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
+        return pcdRequestCoreDto;
     }
 
     private DefendantsAndChargesListDto MapPresentationFlags(DefendantsAndChargesListDto defendantsAndCharges)

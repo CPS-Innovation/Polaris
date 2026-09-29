@@ -8,6 +8,7 @@ namespace DdeiClient.Clients.Interfaces
     using Common.Dto.Request.HouseKeeping;
     using Common.Dto.Response.HouseKeeping;
     using Common.Dto.Response.HouseKeeping.Pcd;
+    using Ddei.Domain.CaseData.Args.Core;
     using Microsoft.AspNetCore.Mvc;
     using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
 
@@ -310,5 +311,7 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, with a string containing the lock release status.</returns>
         Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task<IEnumerable<PcdRequestDto>> GetCasePcdRequestsAsync(MdsCaseIdentifiersArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
     }
 }

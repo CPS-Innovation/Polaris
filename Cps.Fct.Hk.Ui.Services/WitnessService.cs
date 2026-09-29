@@ -74,7 +74,7 @@ public class WitnessService(
     }
 
     /// <inheritdoc/>
-    public async Task<int?> AddWitnessAsync(string urn, int caseId, string firstName, string lastName, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default)
+    public async Task<long?> AddWitnessAsync(string urn, int caseId, string firstName, string lastName, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -86,7 +86,7 @@ public class WitnessService(
                 throw new CaseLockedException($"{LoggingConstants.HskUiLogPrefix} Attempting to add case witness for caseId [{caseId}] is failed as case is locked by [{checkCaeLockStatus.LockedByUser}].");
             }
 
-            int? newWitnessId = null;
+            long? newWitnessId = null;
             var request = new AddWitnessRequest(correspondenceId == default ? Guid.NewGuid() : correspondenceId, caseId, firstName, lastName);
 
             await this.apiClient.AddWitnessAsync(request, cmsAuthValues).ConfigureAwait(false);

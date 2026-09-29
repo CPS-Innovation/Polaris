@@ -9,6 +9,6 @@ namespace PolarisGateway.Services.MdsOrchestration.Mappers;
 public interface IDocumentDtoMapper
 {
     DocumentDto Map(CmsDocumentDto document, PresentationFlagsDto presentationFlagsDto);
-    DocumentDto Map(PcdRequestCoreDto pcdRequest, PresentationFlagsDto presentationFlagsDto);
+    DocumentDto Map(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto pcdRequest, PresentationFlagsDto presentationFlagsDto);
     DocumentDto Map(DefendantsAndChargesListDto defendantAndCharges, PresentationFlagsDto presentationFlagsDto);
 }

@@ -36,7 +36,7 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
 
     public HttpRequestMessage CreateGetPcdRequestsRequest(MdsCaseIdentifiersArgDto arg)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/pcd-requests/overview");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/pcd-requests/overview"); // calls /cases/{arg.CaseId}/pcd-requests/overview
         CreateRequest(request, arg);
         return request;
     }

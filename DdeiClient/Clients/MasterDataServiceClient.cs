@@ -4,11 +4,13 @@
 
 namespace DdeiClient.Clients;
 
+using Azure.Core;
 using Common.Constants;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Response.HouseKeeping.Pcd;
+using Ddei.Domain.CaseData.Args.Core;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Diagnostics;
 using DdeiClient.Utils;
@@ -928,6 +930,89 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
+    public async Task<IEnumerable<PcdRequestDto>> GetCasePcdRequestsAsync(MdsCaseIdentifiersArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(arg);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
+
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "GetCasePcdRequests";
+
+        List<PcdRequestDto> results = new ();
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+
+            var data = await client.GetCasePcdRequestsAsync(arg.CaseId); // calls mds, /cases/{caseId}/pcd-requests/overview
+
+            if (data is not null)
+            {
+                results = data.Select(pcd => new PcdRequestDto()
+                {
+                    Id = pcd.Id,
+                    Type = pcd.Type,
+                    DecisionRequested = pcd.DecisionRequested,
+                    DecisionRequiredBy = pcd.DecisionRequiredBy,
+                    PoliceContactDetails = pcd.PoliceContactDetails?
+                        .Select(police => new PCDPoliceContactDetails
+                        {
+                            Role = police.Role,
+                            Rank = police.Rank,
+                            Name = police.Name,
+                            Number = police.Number,
+                        })
+                        .ToList(),
+                    Comments = pcd.Comments == null
+                        ? null
+                        : new PcdComments
+                        {
+                            Text = pcd.Comments.Text,
+                            TextWithCmsMarkup = pcd.Comments.TextWithCmsMarkup,
+                        },
+
+                    CaseOutline = pcd.CaseOutline?
+                        .Select(line => new PcdCaseOutlineLine
+                        {
+                            Heading = line.Heading,
+                            Text = line.Text,
+                            TextWithCmsMarkup = line.TextWithCmsMarkup,
+                        })
+                        .ToList(),
+
+                    Suspects = pcd.Suspects?
+                        .Select(suspect => new PcdRequestSuspect
+                        {
+                            Surname = suspect.Surname,
+                            FirstNames = suspect.FirstNames,
+                            Dob = suspect.Dob,
+                            BailConditions = suspect.BailConditions,
+                            BailDate = suspect.BailDate,
+                            RemandStatus = suspect.RemandStatus,
+
+                            ProposedCharges = suspect.ProposedCharges?
+                                .Select(charge => new PcdProposedCharge
+                                {
+                                    Charge = charge.Charge,
+                                    EarlyDate = charge.EarlyDate,
+                                    LateDate = charge.LateDate,
+                                    Location = charge.Location,
+                                    Category = charge.Category,
+                                })
+                                .ToList(),
+                        })
+                        .ToList(),
+                })
+                .ToList();
+            }
+        }
+        catch (Exception exception)
+        {
+            throw;
+        }
+
+        return results;
+    }
+
     /// <inheritdoc/>
     public async Task<List<PcdRequestCore>> GetPcdRequestCoreAsync(GetPcdRequestsCoreRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
@@ -942,7 +1027,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-            var data = await client.GetCasePcdRequestCoreAsync(request.caseId, cancellationToken);
+            var data = await client.GetCasePcdRequestCoreAsync(request.caseId, cancellationToken); // calls mds, cases/{caseId}/pcd-requests/core
 
             if (data is not null)
             {
@@ -981,7 +1066,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-            var data = await client.GetCasePcdRequestByPcdIdAsync(request.caseId, request.pcdId, cancellationToken);
+            var data = await client.GetCasePcdRequestByPcdIdAsync(request.caseId, request.pcdId, cancellationToken); // calls mds, cases/{caseId}/pcd-request/{pcdId}
 
             if (data is not null)
             {

@@ -1,6 +1,8 @@
 ﻿using Common.Clients.PdfGenerator;
 using Common.Services.BlobStorage;
 using Common.Services.RenderHtmlService;
+using Common.Dto.Request.HouseKeeping;
+using Common.Dto.Request;
 using coordinator.Domain;
 using coordinator.Durable.Activity.GeneratePdf;
 using coordinator.Durable.Payloads;
@@ -17,9 +19,11 @@ namespace coordinator.Durable.Activity;
 public class GeneratePdfFromPcdRequest : BaseGeneratePdf
 {
     private readonly IConvertModelToHtmlService _convertPcdRequestToHtmlService;
+    private readonly IMasterDataServiceClient _masterDataServiceClient;
     public GeneratePdfFromPcdRequest(
         IPdfGeneratorClient pdfGeneratorClient,
         IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IMdsArgFactory mdsArgFactory,
         IConvertModelToHtmlService convertPcdRequestToHtmlService,
@@ -27,6 +31,7 @@ public class GeneratePdfFromPcdRequest : BaseGeneratePdf
         : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient)
     {
         _convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
+        _masterDataServiceClient = masterDataServiceClient;
 
     }
 
@@ -44,8 +49,13 @@ public class GeneratePdfFromPcdRequest : BaseGeneratePdf
             payload.Urn,
             payload.CaseId,
             payload.MaterialId);
-            
-        var pcdRequest = await MdsClient.GetPcdRequestAsync(arg);
+
+        //var pcdRequest1 = await MdsClient.GetPcdRequestAsync(arg); // calls /cases/{arg.CaseId}/pcd-request/{arg.PcdId}      returns case.precharge.PcdRequestDto
+
+        var pcdRequest = await _masterDataServiceClient.GetPcdRequestByPcdIdAsync(
+            new GetPcdRequestByPcdIdCoreRequest(arg.CaseId, arg.PcdId, arg.CorrelationId),
+            new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
+
         return await _convertPcdRequestToHtmlService.ConvertAsync(pcdRequest);
     }
 }

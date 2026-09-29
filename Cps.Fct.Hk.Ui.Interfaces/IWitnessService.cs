@@ -42,5 +42,5 @@ public interface IWitnessService
     /// <param name="correspondenceId">correspondenceId.</param>
     /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
     /// <returns>The Id of the witness added.</returns>
-    Task<int?> AddWitnessAsync(string urn, int caseId, string firstName, string lastName, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default);
+    Task<long?> AddWitnessAsync(string urn, int caseId, string firstName, string lastName, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default);
 }
