@@ -32,7 +32,7 @@ using Xunit;
 
 public class RedactAndLogTests
 {
-    private readonly Mock<IValidator<RedactPdfRequestWithDocumentDto>> requestValidatorMock;
+    private readonly Mock<IValidator<RedactPdfRequestDto>> requestValidatorMock;
     private readonly Mock<IRedactionService> redactionServiceMock;
     private readonly Mock<IRedactionLoggerClient> loggerClientMock;
     private readonly Mock<IPolarisBlobStorageService> blobStorageServiceMock;
@@ -47,7 +47,7 @@ public class RedactAndLogTests
     public RedactAndLogTests()
     {
         this.requestValidatorMock =
-            new Mock<IValidator<RedactPdfRequestWithDocumentDto>>();
+            new Mock<IValidator<RedactPdfRequestDto>>();
 
         this.redactionServiceMock =
             new Mock<IRedactionService>();
@@ -84,11 +84,7 @@ public class RedactAndLogTests
             this.requestValidatorMock.Object,
             this.redactionServiceMock.Object,
             this.loggerClientMock.Object,
-            blobStorageServiceFactory,
-            this.mdsArgFactoryMock.Object,
             this.configurationMock.Object,
-            this.mdsClientMock.Object,
-            this.caseUrnResolverMock.Object,
             this.loggerMock.Object);
     }
 
