@@ -39,7 +39,7 @@ when the secret is unset** — a forged/tampered cookie is rejected and the call
 
 The server sets `add_header X-Frame-Options "DENY" always`. The iframe **expansion**
 variant needs its terminal page to render inside the CMS shell, so the
-`/init-v2/callback` location sets its own `add_header` (a scoped
+`/init-entra/callback` location sets its own `add_header` (a scoped
 `Content-Security-Policy: frame-ancestors https://*.cps.gov.uk`). By QUIRK
 [B3](../../QUIRKS.md), a location with any `add_header` drops the inherited server set —
 which is exactly what removes the `DENY` here. Harmless on the top-level 302 (a redirect
@@ -53,13 +53,16 @@ drop2 used to set a browser-side `cms-auth-id-token` cookie (host-only, `HttpOnl
 (both the cookie here and the case-locking consumer). The real id_token still goes to the
 store deposit (E10). Kept as a numbered stub so E-numbers stay stable.
 
-### E4. 🟠 Callback path is dictated by the registered redirect URI
+### E4. 🟠 Callback path must be a registered redirect URI
 
-`/init-v2/callback` is not our naming preference — it is the path baked into the reused
-reference app registration's redirect URI (`ENTRA_REDIRECT_URI`). AD only redirects to a
-**registered** URI, so the location path and `ENTRA_REDIRECT_URI` must agree. To re-path
-(e.g. `/init-entra/callback`) you must register the new URI on the app reg (portal, no
-terraform) and change **both** the conf location and the env var together.
+The callback is `/init-entra/callback` (was `/init-v2/callback`, borrowed from
+global-components' cms-auth-v2 — renamed so the two can load in the same server; that
+flow is now `/init-presence/*`). AD only redirects to a **registered** URI, so
+`https://<host>/init-entra/callback` must be registered (web redirect URIs, portal, no
+terraform) on the reused app reg **for every host** drop2 runs on. The redirect_uri is
+derived per-request from the Host (`_redirectUri`), so the njs `CALLBACK_PATH` and the
+conf location are the only two places to keep in step; `ENTRA_REDIRECT_URI` in
+`cmsproxy.mock.env` is vestigial (nothing reads it).
 
 ---
 
