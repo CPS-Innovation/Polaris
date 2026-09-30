@@ -1,15 +1,17 @@
 using Common.Clients.PdfGenerator;
 using Common.Constants;
 using Common.Domain.Document;
+using Common.Dto.Request;
+using Common.Dto.Request.HouseKeeping;
+using Common.Dto.Response.Case.PreCharge;
 using Common.Extensions;
 using Common.Services.RenderHtmlService;
-using Common.Dto.Request.HouseKeeping;
-using Common.Dto.Request;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using PolarisGateway.Services.Artefact.Domain;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PolarisGateway.Services.Artefact;
@@ -81,7 +83,7 @@ public class PdfRetrievalService : IPdfRetrievalService
             new GetPcdRequestByPcdIdCoreRequest(mdsPcdArgDto.CaseId, mdsPcdArgDto.PcdId, mdsPcdArgDto.CorrelationId),
             new CmsAuthValues(mdsPcdArgDto.CmsAuthValues, mdsPcdArgDto.CorrelationId));
 
-        var stream = await _convertModelToHtmlService.ConvertAsync(pcdRequest);
+        var stream = await _convertModelToHtmlService.ConvertAsync(MapPcdRequest(pcdRequest));
         return (stream, FileTypeHelper.PseudoDocumentFileType, true);
     }
 
@@ -91,5 +93,49 @@ public class PdfRetrievalService : IPdfRetrievalService
         var defendantsAndCharges = await _mdsClient.GetDefendantAndChargesAsync(mdsCaseIdentifiersArgDto);
         var stream = await _convertModelToHtmlService.ConvertAsync(defendantsAndCharges);
         return (stream, FileTypeHelper.PseudoDocumentFileType, true);
+    }
+
+    private Common.Dto.Response.Case.PreCharge.PcdRequestDto MapPcdRequest(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto request)
+    {
+        return new Common.Dto.Response.Case.PreCharge.PcdRequestDto
+        {
+            Id = request.Id,
+            DecisionRequested = request.DecisionRequested,
+            DecisionRequiredBy = request.DecisionRequiredBy,
+
+            Comments = request.Comments == null
+                ? null
+                : new PcdCommentsDto
+                {
+                    Text = request.Comments.Text,
+                    TextWithCmsMarkup = request.Comments.TextWithCmsMarkup,
+                },
+
+            CaseOutline = request.CaseOutline?.Select(co => new PcdCaseOutlineLineDto
+            {
+                Heading = co.Heading,
+                Text = co.Text,
+                TextWithCmsMarkup = co.TextWithCmsMarkup,
+            }).ToList(),
+
+            Suspects = request.Suspects?.Select(sus => new PcdRequestSuspectDto
+            {
+                Surname = sus.Surname,
+                FirstNames = sus.FirstNames,
+                Dob = sus.Dob,
+                BailConditions = sus.BailConditions,
+                BailDate = sus.BailDate,
+                RemandStatus = sus.RemandStatus,
+
+                ProposedCharges = sus.ProposedCharges?.Select(charge => new PcdProposedChargeDto
+                {
+                    Charge = charge.Charge,
+                    EarlyDate = charge.EarlyDate,
+                    LateDate = charge.LateDate,
+                    Location = charge.Location,
+                    Category = charge.Category,
+                }).ToList(),
+            }).ToList(),
+        };
     }
 }
