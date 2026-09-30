@@ -65,8 +65,12 @@ public class PdfRetrievalServiceTests
         };
         _mdsArgFactoryMock.Setup(s => s.CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, materialId)).Returns(mdsPcdArgDto);
         //_mdsClientMock.Setup(s => s.GetPcdRequestAsync(mdsPcdArgDto)).ReturnsAsync(pcdRequest);
-        _masterDataServiceClientMock.Setup(s => s.GetPcdRequestByPcdIdAsync(pcdRequestByPcdIdCoreRequest, It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(pcdRequest));
-        _convertModelToHtmlServiceMock.Setup(s => s.ConvertAsync(pcdRequest)).ReturnsAsync(stream);
+        _masterDataServiceClientMock.Setup(x => x.GetPcdRequestByPcdIdAsync(
+            It.IsAny<GetPcdRequestByPcdIdCoreRequest>(),
+            It.IsAny<CmsAuthValues>(),
+            It.IsAny<CancellationToken>()))
+        .ReturnsAsync(pcdRequest);
+        _convertModelToHtmlServiceMock.Setup(s => s.ConvertAsync(It.IsAny<Common.Dto.Response.Case.PreCharge.PcdRequestDto>())).ReturnsAsync(stream);
         _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(correlationId, urn, caseId, materialId, documentId, stream, FileTypeHelper.PseudoDocumentFileType)).ReturnsAsync(pdfResult);
 
         //act
@@ -110,8 +114,12 @@ public class PdfRetrievalServiceTests
         };
         _mdsArgFactoryMock.Setup(s => s.CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, materialId)).Returns(mdsPcdArgDto);
         //_mdsClientMock.Setup(s => s.GetPcdRequestAsync(mdsPcdArgDto)).ReturnsAsync(pcdRequest);
-        _masterDataServiceClientMock.Setup(s => s.GetPcdRequestByPcdIdAsync(pcdRequestByPcdIdCoreRequest, It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(pcdRequest));
-        _convertModelToHtmlServiceMock.Setup(s => s.ConvertAsync(pcdRequest)).ReturnsAsync(stream);
+        _masterDataServiceClientMock.Setup(s => s.GetPcdRequestByPcdIdAsync(
+            It.IsAny<GetPcdRequestByPcdIdCoreRequest>(),
+            It.IsAny<CmsAuthValues>(),
+            It.IsAny<CancellationToken>()))
+        .ReturnsAsync(pcdRequest);
+        _convertModelToHtmlServiceMock.Setup(s => s.ConvertAsync(It.IsAny<Common.Dto.Response.Case.PreCharge.PcdRequestDto>())).ReturnsAsync(stream);
         _pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(correlationId, urn, caseId, materialId, documentId, stream, FileTypeHelper.PseudoDocumentFileType)).ReturnsAsync(pdfResult);
 
         //act
