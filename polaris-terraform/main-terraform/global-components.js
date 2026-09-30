@@ -5,6 +5,7 @@ const CMS_AUTH_VALUES_COOKIE_NAME = "Cms-Auth-Values"
 const CORS_ALLOWED_ORIGINS = [
   "https://cps.outsystemsenterprise.com",
   "https://cps-tst.outsystemsenterprise.com",
+  "https://cpslon-tst.outsystemsenterprise.com",
   "https://cps-tst1.outsystemsenterprise.com",
   "https://cps-dev.outsystemsenterprise.com",
   "http://localhost",
@@ -273,19 +274,30 @@ function handleNavigateCms(r) {
     "'\"></iframe>" +
     "</body></html>");
 }
+const CASE_REVIEW_OS_HOST_PATTERN = /^[a-z0-9-]+(\.[a-z0-9-]+)*\.(cps\.gov\.uk|outsystemsenterprise\.com)$/i;
 function handleCaseReviewRedirect(r) {
   const proto = r.headersIn["X-Forwarded-Proto"] || "https";
   const host = r.headersIn["Host"] || "";
-  // URI is /case-review-redirect/{osSubdomain}/{envFolder}
+  // URI is /case-review-redirect/{osHost}/{envFolder}, where osHost is either
+  // an outsystemsenterprise.com subdomain (the original form) or a full host,
+  // so OutSystems can move off outsystemsenterprise.com (e.g. to oapps-*.cps.gov.uk)
   // e.g. /case-review-redirect/cps-tst/test
+  //      /case-review-redirect/oapps-qa-notprod.int.cps.gov.uk/test
   const parts = r.uri.split("/");
-  const osSubdomain = parts[2] || "";
+  const osHost = parts[2] || "";
   const envFolder = parts[3] || "";
-  if (!osSubdomain || !envFolder) {
-    r.return(400, "case-review: expected path /case-review-redirect/{osSubdomain}/{envFolder}");
+  if (!osHost || !envFolder) {
+    r.return(400, "case-review: expected path /case-review-redirect/{osHost}/{envFolder}");
     return;
   }
-  const osDomain = `${osSubdomain}.outsystemsenterprise.com`;
+  // A full host is only accepted inside our own estate — this segment ends up
+  // as a redirect target, and must not make us an open redirector.
+  const isFullHost = osHost.indexOf(".") !== -1;
+  if (isFullHost && !CASE_REVIEW_OS_HOST_PATTERN.test(osHost)) {
+    r.return(400, "case-review: unexpected OS host " + osHost);
+    return;
+  }
+  const osDomain = isFullHost ? osHost.toLowerCase() : `${osHost}.outsystemsenterprise.com`;
   const caseId = r.args["CMSCaseId"] || "";
   const urn = r.args["URN"] || "";
   if (!caseId) {
