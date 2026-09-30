@@ -21,7 +21,6 @@ public class RedactionLoggerAuthDelegatingHandler(IOptions<RedactionLoggerConfig
     private readonly IConfidentialClientApplication confidentialClientApplication =
         ConfidentialClientApplicationBuilder
             .Create(Validate(nameof(RedactionLoggerConfig.ClientId), redactionLoggerConfigOptions?.Value?.ClientId))
-            .WithClientSecret(Validate(nameof(RedactionLoggerConfig.ClientSecret), redactionLoggerConfigOptions?.Value?.ClientSecret))
             .WithAuthority($"https://login.microsoftonline.com/{Validate(nameof(RedactionLoggerConfig.TenantId), redactionLoggerConfigOptions?.Value?.TenantId)}")
             .Build();
 
