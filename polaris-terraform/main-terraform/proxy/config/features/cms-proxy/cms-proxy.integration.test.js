@@ -32,6 +32,30 @@ const {
   summarise,
 } = require("../../../tests/integration/test-utils")
 const vm = require("vm")
+const zlib = require("zlib")
+
+/**
+ * Validate a PNG byte-for-byte without knowing the expected image: check the signature,
+ * then every chunk's CRC32 (PNG stores one per chunk). Any altered byte fails. Returns
+ * null if valid, else a reason.
+ */
+function pngProblem(buf) {
+  const SIG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+  if (buf.length < 8 || !buf.subarray(0, 8).equals(SIG)) return "bad PNG signature"
+  let off = 8
+  let sawEnd = false
+  while (off + 12 <= buf.length) {
+    const len = buf.readUInt32BE(off)
+    const typeAndData = buf.subarray(off + 4, off + 8 + len)
+    const type = typeAndData.subarray(0, 4).toString("latin1")
+    if (off + 12 + len > buf.length) return `chunk ${type} overruns the data`
+    const crc = buf.readUInt32BE(off + 8 + len)
+    if (zlib.crc32(typeAndData) !== crc) return `CRC mismatch in chunk ${type} at byte ${off}`
+    off += 12 + len
+    if (type === "IEND") { sawEnd = true; break }
+  }
+  return sawEnd ? null : "no IEND chunk"
+}
 
 const IE_UA = "Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko"
 const EDGE_UA = "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 Chrome/120 Safari/537.36"
@@ -208,6 +232,19 @@ async function menuBarInjection() {
     assertIncludes(body, "openMaterials()", "Materials button should wire up openMaterials()")
     // FCT2-15621: wrapped in an anchor so the button is keyboard-focusable.
     assertIncludes(body, '<a href="#" onclick="openMaterials();return false;">', "Materials button should be a focusable anchor")
+  })
+
+  // The P logo and the Materials icon are inlined as base64 PNGs. Live and next each
+  // carry a copy; a single altered character once garbled the next config's P logo from
+  // ~65% down (7f41e2b59). Every injected image must be an intact PNG.
+  await test("injected button images are intact PNGs (every chunk CRC valid)", async () => {
+    const body = await (await cget("/CMS.Live/Noexpiry/Toolbar/uainMenuBar.js")).text()
+    const images = body.match(/data:image\/png;base64,[A-Za-z0-9+/=]+/g) || []
+    assertEqual(images.length, 2, "P logo + Materials icon")
+    for (const img of images) {
+      const problem = pngProblem(Buffer.from(img.slice("data:image/png;base64,".length), "base64"))
+      assertEqual(problem, null, `image of ${img.length} chars should be a valid PNG`)
+    }
   })
 
   // BEHAVIOUR: run the openMaterials() the sub_filter injects (before `function
