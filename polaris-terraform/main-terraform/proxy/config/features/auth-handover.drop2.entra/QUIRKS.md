@@ -56,7 +56,7 @@ store deposit (E10). Kept as a numbered stub so E-numbers stay stable.
 ### E4. 🟠 Callback path must be a registered redirect URI
 
 The callback is `/init-entra/callback` (was `/init-v2/callback`, borrowed from
-global-components' cms-auth-v2 — renamed so the two can load in the same server; that
+global-components' cms-auth-v2 (since renamed cms-auth-presence) — renamed so the two can load in the same server; that
 flow is now `/init-presence/*`). AD only redirects to a **registered** URI, so
 `https://<host>/init-entra/callback` must be registered (web redirect URIs, portal, no
 terraform) on the reused app reg **for every host** drop2 runs on. The redirect_uri is

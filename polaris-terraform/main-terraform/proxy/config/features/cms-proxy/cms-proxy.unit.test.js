@@ -20,42 +20,6 @@ const {
 } = require("../../../tests/unit/test-utils")
 const { loadNjs, createMockRequest, cmsEnvObject, applyEnv } = require("../../../tests/unit/njs-harness")
 
-async function getters(cmsProxy) {
-  console.log("\nCMS-upstream getters this feature owns (Corsham dests + domain getters):")
-
-  const req = (cookie) => createMockRequest({ headersIn: cookie ? { Cookie: cookie } : {} })
-
-  const table = [
-    ["cin2", { domain: "cin2.cps.gov.uk", modern: "cmsmodcin2.cps.gov.uk", services: "not-used-in-cin2.cps.gov.uk", ip: "10.0.2.1", modernIp: "10.0.2.2" }],
-    ["cin4", { domain: "cin4.cps.gov.uk", modern: "cmsmodstage.cps.gov.uk", services: "not-used-in-cin4.cps.gov.uk", ip: "10.0.4.1", modernIp: "10.0.4.2" }],
-    ["cin5", { domain: "cin5.cps.gov.uk", modern: "cmsmodcin5.cps.gov.uk", services: "not-used-in-cin5.cps.gov.uk", ip: "10.0.5.1", modernIp: "10.0.5.2" }],
-    ["cin3", { domain: "cms.cps.gov.uk", modern: "cmsmodern.cps.gov.uk", services: "cms-services.cps.gov.uk", ip: "10.0.0.1", modernIp: "10.0.0.2" }],
-  ]
-
-  for (const [env, e] of table) {
-    const r = () => req(`__CMSENV=${env}`)
-    await test(`${env}: domain / modern / services`, () => {
-      assertEqual(cmsProxy.upstreamCmsDomainName(r()), e.domain, "classic domain")
-      assertEqual(cmsProxy.upstreamCmsModernDomainName(r()), e.modern, "modern domain")
-      assertEqual(cmsProxy.upstreamCmsServicesDomainName(r()), e.services, "services domain")
-    })
-
-    await test(`${env}: proxyDestinationCorsham / ModernCorsham build <protocol>://<ip>`, () => {
-      assertEqual(cmsProxy.proxyDestinationCorsham(r()), `http://${e.ip}`, "classic Corsham")
-      assertEqual(cmsProxy.proxyDestinationModernCorsham(r()), `http://${e.modernIp}`, "modern Corsham")
-    })
-  }
-
-  await test("proxyDestination* uses ENDPOINT_HTTP_PROTOCOL from process.env", () => {
-    const restore = applyEnv({ ENDPOINT_HTTP_PROTOCOL: "https" })
-    try {
-      assertEqual(cmsProxy.proxyDestinationCorsham(req("__CMSENV=cin2")), "https://10.0.2.1", "protocol from process.env")
-    } finally {
-      restore()
-    }
-  })
-}
-
 async function bodyFilters(cmsProxy) {
   console.log("\nreplaceCmsDomains — the njs body filter:")
 
@@ -256,7 +220,6 @@ async function cinSwitchTests(cmsProxy) {
 async function main() {
   const cmsProxy = await loadNjs("features/cms-proxy/cms-proxy.js")
   const restoreEnv = applyEnv(cmsEnvObject())
-  await getters(cmsProxy)
   await bodyFilters(cmsProxy)
   await menuBar(cmsProxy)
   await cinSwitchTests(cmsProxy)

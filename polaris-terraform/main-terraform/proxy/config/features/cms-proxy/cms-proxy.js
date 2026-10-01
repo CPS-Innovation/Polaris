@@ -5,13 +5,6 @@
 import common from "../common/cms-detection.js";
 import ieMode from "../common/ie-mode.js";
 
-// Getter factories, built on common.setting: a getter for a raw upstream value, and
-// one that prefixes the protocol to build a proxy_pass target. `name` is the
-// setting's env-var name. (Kept feature-local rather than central — see common/cms-detection.js.)
-const upstream = (name) => (r) => common.setting(r, name);
-const dest = (name) => (r) =>
-  process.env.ENDPOINT_HTTP_PROTOCOL + "://" + common.setting(r, name);
-
 function replaceCmsDomains(r, data, flags) {
   __replaceCmsDomainsGeneric(r, data, flags, r.variables.host);
 }
@@ -166,14 +159,8 @@ function cinSwitch(r) {
 }
 
 export default {
-  // CMS-upstream getters this feature js_sets (Corsham dests + the domain
-  // getters). Built from this feature's own factories (over common.setting);
-  // used by no other feature, so they live here rather than centrally.
-  proxyDestinationCorsham: dest("UPSTREAM_CMS_IP_CORSHAM"),
-  proxyDestinationModernCorsham: dest("UPSTREAM_CMS_MODERN_IP_CORSHAM"),
-  upstreamCmsDomainName: upstream("UPSTREAM_CMS_DOMAIN_NAME"),
-  upstreamCmsModernDomainName: upstream("UPSTREAM_CMS_MODERN_DOMAIN_NAME"),
-  upstreamCmsServicesDomainName: upstream("UPSTREAM_CMS_SERVICES_DOMAIN_NAME"),
+  // (The CMS-upstream getters this feature's conf js_sets live in the shared,
+  // contract-bound common/cmsenv.js — see there for why.)
   // response-body filters
   replaceCmsDomains,
   replaceCmsDomainsAjaxViewer,
