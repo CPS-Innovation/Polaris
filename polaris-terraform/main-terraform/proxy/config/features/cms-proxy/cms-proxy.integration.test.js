@@ -31,6 +31,7 @@ const {
   get,
   summarise,
 } = require("../../../tests/integration/test-utils")
+const vm = require("vm")
 
 const IE_UA = "Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko"
 const EDGE_UA = "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 Chrome/120 Safari/537.36"
@@ -59,6 +60,37 @@ async function servedAsset() {
     const res = await get("/polaris-script.js")
     assertEqual(res.headers.get("x-mock-echo"), null, "Should be served locally, not proxied")
     assert((await res.text()).length > 0, "Should have a body")
+  })
+
+  // BEHAVIOUR, not presence: run the script each config actually serves against a stub
+  // DOM and read the link it builds. Live and next each carry their own copy, so a
+  // change made to only one of them fails that config's run (#2189).
+  const runPolarisScript = async (win) => {
+    const src = await (await get("/polaris-script.js")).text()
+    let inserted = null
+    const el = () => ({ style: {}, appendChild() {} })
+    const document = {
+      getElementById: () => ({ children: [{}, {}], insertBefore: (td) => { inserted = td } }),
+      createElement: (tag) => {
+        const e = el()
+        if (tag === "td") e.appendChild = (child) => { e.link = child }
+        return e
+      },
+    }
+    vm.runInNewContext(src, { window: win, document })
+    return inserted && inserted.link
+  }
+
+  await test("builds the Manage Materials link from the case id (no URN, #2189)", async () => {
+    const link = await runPolarisScript({ iCaseId: 99, sURN: "URN1" })
+    assert(link, "Should insert the button")
+    assertEqual(link.href, "/polaris?polaris-ui-url=/materials-ui/99/materials", "caseId deep-link")
+    assertEqual(link.target, "_blank", "opens in a new tab")
+  })
+
+  await test("without a case id, links to plain /polaris", async () => {
+    const link = await runPolarisScript({})
+    assertEqual(link.href, "/polaris", "generic Polaris link")
   })
 }
 
@@ -176,6 +208,29 @@ async function menuBarInjection() {
     assertIncludes(body, "openMaterials()", "Materials button should wire up openMaterials()")
     // FCT2-15621: wrapped in an anchor so the button is keyboard-focusable.
     assertIncludes(body, '<a href="#" onclick="openMaterials();return false;">', "Materials button should be a focusable anchor")
+  })
+
+  // BEHAVIOUR: run the openMaterials() the sub_filter injects (before `function
+  // openPolaris() {`) and capture the URL it opens. Live and next each carry a copy.
+  const runOpenMaterials = async (globals) => {
+    const body = await (await cget("/CMS.Live/Noexpiry/Toolbar/uainMenuBar.js")).text()
+    let opened = null
+    const window = { open: (url) => { opened = url; return { focus() {} } } }
+    const ctx = vm.createContext({ window, ...globals })
+    vm.runInContext(body, ctx)
+    assert(typeof ctx.openMaterials === "function", "openMaterials() should be injected")
+    ctx.openMaterials()
+    return opened
+  }
+
+  await test("openMaterials() opens /materials?caseId=<id> (no URN, #2189)", async () => {
+    assertEqual(await runOpenMaterials({ iScreenCaseID: 99, sURN: "URN1" }), "/materials?caseId=99", "iScreenCaseID")
+    assertEqual(await runOpenMaterials({ iCaseId: 42 }), "/materials?caseId=42", "iCaseId fallback")
+    assertEqual(await runOpenMaterials({ m_iScreenCaseID: 7 }), "/materials?caseId=7", "m_iScreenCaseID fallback")
+  })
+
+  await test("openMaterials() with no case id opens plain /materials", async () => {
+    assertEqual(await runOpenMaterials({}), "/materials", "generic Materials")
   })
 }
 

@@ -32,3 +32,10 @@ upstream; the only differences are `proxy_pass` with vs without a URI, and the
 regex block having _fewer_ `sub_filter_types`. Strong drop candidate — but verify
 against a real deep link first (the URI-vs-bare `proxy_pass` distinction affects
 URI normalisation).
+
+**Update (#2189, 2026-10-01):** the case URN was removed from the entry points
+(`/materials`, `openMaterials()`, `polaris-script.js`), which now build the
+single-segment `/materials-ui/{caseId}/materials`. That no longer matches this
+two-segment regex, so it falls to the `/materials-ui/` prefix block — the regex is now
+reachable only by a hand-built two-segment URL. Even stronger drop candidate (live
+still carries it; left in place for parity).
