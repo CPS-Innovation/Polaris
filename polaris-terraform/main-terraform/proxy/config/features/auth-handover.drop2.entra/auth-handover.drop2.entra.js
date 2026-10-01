@@ -252,6 +252,7 @@ async function _exchangeCode(code, redirectUri) {
 // ---------------------------------------------------------------------------
 
 async function handleInitEntra(r) {
+  replaceDdei.markAuthInit(r, "entra"); // overridden to "entra-degraded" by _degrade
   const landing = replaceDdei.captureLanding(r);
   try {
     // The CMS half is drop1's, unchanged (fail-redirects on its own failures).
@@ -389,6 +390,7 @@ async function handleInitEntraCallback(r) {
 // deposit; drop2 no longer sets a browser-side id-token cookie — that presence-jsonp consumer
 // was experimental and has been removed.)
 function _succeed(r, st) {
+  replaceDdei.markAuthInit(r, "entra");
   const cookies = [STATE_COOKIE + "=deleted" + STATE_CLEAR_OPTS];
   if (st.term === "iframe") {
     // Pure side-channel: store only, no Cms-Auth-Values, static page.
@@ -405,6 +407,8 @@ function _succeed(r, st) {
 // Best-effort degrade path. Never blocks the user's login: top-level still establishes
 // Cms-Auth-Values + lands (plain drop1 behaviour); iframe just renders the terminal.
 function _degrade(r, st, landingFallback, reason) {
+  // Marker only — the reason goes to the error log below, never to the client.
+  replaceDdei.markAuthInit(r, "entra-degraded");
   try {
     ngx.log(ngx.ERR, "drop2 entra degrade — " + reason);
   } catch (e) {

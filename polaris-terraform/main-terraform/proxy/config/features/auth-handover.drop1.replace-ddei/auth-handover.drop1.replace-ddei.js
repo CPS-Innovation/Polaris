@@ -345,7 +345,17 @@ function finalize(r, session, landing) {
 // Handler — the DDEI /api/init/ pipeline in njs (drop1's own switch path).
 // ---------------------------------------------------------------------------
 
+// Observable marker: which auth-init path answered /auth-refresh-inbound. DDEI's
+// proxied answer carries none, so presence/absence in DevTools (or a curl -I) shows
+// whether a switch or enrolment took effect. Values: "non-ddei" (drop1), "entra" /
+// "entra-degraded" (drop2, set by that module). Deliberately carries no error detail.
+const AUTH_INIT_HEADER = "X-Polaris-Auth-Init";
+function markAuthInit(r, value) {
+  r.headersOut[AUTH_INIT_HEADER] = value;
+}
+
 async function handleInitNonDdei(r) {
+  markAuthInit(r, "non-ddei"); // on every answer from this path, success or fail-redirect
   const landing = captureLanding(r);
   try {
     const session = await establishCmsSession(r, landing);
@@ -364,4 +374,5 @@ export default {
   establishCmsSession,
   cmsAuthValuesCookie,
   finalize,
+  markAuthInit,
 };

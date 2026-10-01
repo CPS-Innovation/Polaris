@@ -220,6 +220,7 @@ async function beginTests(entra) {
     assertEqual(st.tok, "00000000-0000-0000-0000-000000000001", "state carries the minted modern token")
     assertEqual(st.term, "top-level", "defaults to top-level")
     assert(st.cc.indexOf("WindowID=MASTER") !== -1, "state carries the whitelisted cookies")
+    assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra", "marker: entra")
   })
 
   await test("no cookies -> drop1 fail-redirect, no AD hop", async () => {
@@ -294,6 +295,7 @@ async function callbackTests() {
     assert(findCookie(sc, "entra_auth_state=deleted") !== undefined, "state cookie cleared")
     // The presence id-token cookie was experimental (consumer removed) — drop2 no longer sets it.
     assertEqual(findCookie(sc, "cms-auth-id-token="), undefined, "no presence id-token cookie")
+    assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra", "marker: entra")
   })
 
   await test("iframe success: 200 static terminal, NO Cms-Auth-Values", async () => {
@@ -310,6 +312,7 @@ async function callbackTests() {
     assertEqual(r.returnBody, "/polaris-ui/case/1", "-> landing (login not blocked)")
     const sc = r.headersOut["Set-Cookie"]
     assert(!!findCookie(sc, "Cms-Auth-Values="), "Cms-Auth-Values set (degraded to drop1)")
+    assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra-degraded", "marker: entra-degraded (no reason leaked)")
   })
 
   await test("AD error (login_required) degrades: still lands via drop1", async () => {
