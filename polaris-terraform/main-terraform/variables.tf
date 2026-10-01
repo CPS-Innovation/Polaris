@@ -146,6 +146,14 @@ variable "auth_handover_whitelist" {
   type = string
 }
 
+variable "non_ddei_init_enabled" {
+  # drop1 (auth-handover.drop1.replace-ddei) global switch -> app setting NON_DDEI_INIT_ENABLED.
+  #  true routes every /auth-refresh-inbound through the njs DDEI-/api/init/ replacement instead
+  #  of proxying to DDEI. Read by njs at request time; only the refactored "next" proxy config
+  #  (proxy/config) acts on it — the live monolith ignores it. No default: set per env in *.tfvars.
+  type = bool
+}
+
 variable "app_service_log_retention" {
   type = number
 }

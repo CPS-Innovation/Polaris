@@ -8,6 +8,8 @@
  * (global-components/infra/proxy); here we just confirm every route family still
  * routes correctly through this proxy — the njs module loads, the CORS/OPTIONS
  * handling works, and the proxied routes reach their (mocked) upstreams.
+ * One exception: /case-review-redirect's host handling (FCT2-22132) is pinned in
+ * full, because it is an open-redirect guard and live + next each carry a copy.
  *
  * Routes (features/global-components.conf):
  *   = /global-components/cms-session-hint        gloco.handleSessionHint
@@ -56,6 +58,35 @@ async function njsHandlers() {
   })
 }
 
+// FCT2-22132: /case-review-redirect/{osHost}/{envFolder} — osHost is an
+// outsystemsenterprise.com subdomain (original form) or a full host in our estate.
+// Runs against BOTH configs, so it also pins live and next to the same behaviour.
+async function caseReviewRedirect() {
+  console.log("\n/case-review-redirect — OS host forms (FCT2-22132):")
+
+  // The OS landing URL is double-encoded inside the 302 (auth-refresh-outbound?r=<handover>?r=<landing>).
+  const landingOf = (res) => decodeURIComponent(decodeURIComponent(res.headers.get("location") || ""))
+
+  await test("subdomain form -> <sub>.outsystemsenterprise.com, via auth-refresh-outbound", async () => {
+    const res = await get("/case-review-redirect/cps-tst/test?URN=1&CMSCaseId=2")
+    assertEqual(res.status, 302, "302")
+    assertIncludes(res.headers.get("location"), "/auth-refresh-outbound?r=", "routed through auth-refresh-outbound")
+    assertIncludes(landingOf(res), "https://cps-tst.outsystemsenterprise.com/CaseReview/LandingPage?CMSCaseId=2&URN=1", "OS landing")
+  })
+
+  await test("full cps.gov.uk host is used as-is (lower-cased)", async () => {
+    const res = await get("/case-review-redirect/OApps-QA-NotProd.int.cps.gov.uk/test?URN=1&CMSCaseId=2")
+    assertEqual(res.status, 302, "302")
+    assertIncludes(landingOf(res), "https://oapps-qa-notprod.int.cps.gov.uk/CaseReview/LandingPage", "full host, lower-cased")
+  })
+
+  await test("a full host outside our estate is refused (no open redirect)", async () => {
+    const res = await get("/case-review-redirect/evil.com/test?URN=1&CMSCaseId=2")
+    assertEqual(res.status, 400, "400")
+    assertIncludes(await res.text(), "unexpected OS host", "explained")
+  })
+}
+
 async function mdsProxy() {
   console.log("\nMDS API proxy (WM_MDS_*):")
 
@@ -96,6 +127,24 @@ async function blobAndAnalytics() {
     assertIncludes(echo.url, "/test/global-components.js", "Path preserved to blob")
   })
 
+  // gzip on the blob route (ported from global-components #1056). The echo body
+  // must clear gzip_min_length (1024) and blob forwards no request headers, so a
+  // long path is the only way to pad it.
+  const BIG_BLOB = `/global-components/test/${"x".repeat(1100)}.js`
+
+  await test("/global-components/{env}/* gzips when the client accepts it", async () => {
+    const res = await get(BIG_BLOB, { headers: { "Accept-Encoding": "gzip" } })
+    assertEqual(res.status, 200, "Should proxy to the blob mock")
+    assertEqual(res.headers.get("content-encoding"), "gzip", "Compressed")
+    assertIncludes(res.headers.get("vary") || "", "Accept-Encoding", "gzip_vary on")
+  })
+
+  await test("/global-components/{env}/* stays identity when the client does not accept gzip", async () => {
+    const res = await get(BIG_BLOB, { headers: { "Accept-Encoding": "identity" } })
+    assertEqual(res.status, 200, "Should proxy to the blob mock")
+    assertEqual(res.headers.get("content-encoding"), null, "Not compressed")
+  })
+
   await test("/global-components/analytics/* proxies to App Insights", async () => {
     const res = await get("/global-components/analytics/v2/track")
     assertEqual(res.status, 200, "Should proxy to the (mocked) App Insights host")
@@ -129,6 +178,7 @@ async function cors() {
 
 async function main() {
   await njsHandlers()
+  await caseReviewRedirect()
   await mdsProxy()
   await blobAndAnalytics()
   await cors()

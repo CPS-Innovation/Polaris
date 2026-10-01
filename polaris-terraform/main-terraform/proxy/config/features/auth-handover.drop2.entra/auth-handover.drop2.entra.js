@@ -11,7 +11,7 @@
 //        cookie + a random anti-CSRF handle in the OAuth `state` param
 //     -> 302 to Entra /authorize (prompt=none, silent).
 //
-//   handleInitEntraCallback  (/init-v2/callback, public — AD 302s the browser here)
+//   handleInitEntraCallback  (/init-entra/callback, public — AD 302s the browser here)
 //     validate state -> exchange code -> id_token -> validate claims -> extract OID
 //     -> store.deposit(oid, {cookies, modernToken, correlationId, email}, {idToken})
 //     -> set the id-token cookie
@@ -47,8 +47,8 @@ import cryptoModule from "crypto"; // njs built-in — for the state-cookie HMAC
 const TENANT_ID = process.env.ENTRA_TENANT_ID || "";
 const CLIENT_ID = process.env.ENTRA_CLIENT_ID || "";
 const CLIENT_SECRET = process.env.ENTRA_CLIENT_SECRET || "";
-// Callback path — must match the `location = /init-v2/callback` in the .conf.
-const CALLBACK_PATH = "/init-v2/callback";
+// Callback path — must match the `location = /init-entra/callback` in the .conf.
+const CALLBACK_PATH = "/init-entra/callback";
 
 // Server-side secret that signs the state cookie (integrity). EMPTY => fail closed: _unpackState
 // rejects every cookie, so the callback degrades to drop1 — drop2 will not run without it. See
@@ -59,9 +59,9 @@ const STATE_HMAC_SECRET = process.env.ENTRA_STATE_HMAC_SECRET || "";
 // Path scopes it to the callback; short-lived; HttpOnly so no script can read it.
 const STATE_COOKIE = "entra_auth_state";
 const STATE_SET_OPTS =
-  "; Path=/init-v2; HttpOnly; Secure; SameSite=Lax; Max-Age=300";
+  "; Path=/init-entra; HttpOnly; Secure; SameSite=Lax; Max-Age=300";
 const STATE_CLEAR_OPTS =
-  "; Path=/init-v2; HttpOnly; Secure; SameSite=Lax; Max-Age=0";
+  "; Path=/init-entra; HttpOnly; Secure; SameSite=Lax; Max-Age=0";
 
 // The iframe terminal: a bare page whose sole job is to fire `onload` so the harness
 // that opened the hidden iframe can destroy it. No script, no data.
@@ -252,6 +252,7 @@ async function _exchangeCode(code, redirectUri) {
 // ---------------------------------------------------------------------------
 
 async function handleInitEntra(r) {
+  replaceDdei.markAuthInit(r, "entra"); // overridden to "entra-degraded" by _degrade
   const landing = replaceDdei.captureLanding(r);
   try {
     // The CMS half is drop1's, unchanged (fail-redirects on its own failures).
@@ -301,7 +302,7 @@ async function handleInitEntra(r) {
 }
 
 // ---------------------------------------------------------------------------
-// /init-v2/callback — code exchange, claims validation, store deposit, finalize.
+// /init-entra/callback — code exchange, claims validation, store deposit, finalize.
 // ---------------------------------------------------------------------------
 
 async function handleInitEntraCallback(r) {
@@ -389,6 +390,7 @@ async function handleInitEntraCallback(r) {
 // deposit; drop2 no longer sets a browser-side id-token cookie — that presence-jsonp consumer
 // was experimental and has been removed.)
 function _succeed(r, st) {
+  replaceDdei.markAuthInit(r, "entra");
   const cookies = [STATE_COOKIE + "=deleted" + STATE_CLEAR_OPTS];
   if (st.term === "iframe") {
     // Pure side-channel: store only, no Cms-Auth-Values, static page.
@@ -405,6 +407,8 @@ function _succeed(r, st) {
 // Best-effort degrade path. Never blocks the user's login: top-level still establishes
 // Cms-Auth-Values + lands (plain drop1 behaviour); iframe just renders the terminal.
 function _degrade(r, st, landingFallback, reason) {
+  // Marker only — the reason goes to the error log below, never to the client.
+  replaceDdei.markAuthInit(r, "entra-degraded");
   try {
     ngx.log(ngx.ERR, "drop2 entra degrade — " + reason);
   } catch (e) {

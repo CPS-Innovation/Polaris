@@ -108,7 +108,9 @@ refactored **in place** here, while the live config keeps running untouched.
 - ✅ **Location slicing — DONE.** Every `location` block moved out of `config/nginx.conf`
   into `features/<name>/<name>.conf`. The parent `nginx.conf` is now just the server
   preamble (`js_import` / `js_var` / `limit_req_zone` / `resolver` / security headers /
-  `$ieaction`) plus `include global-components*.conf;` and `include features/*/*.conf;`.
+  `$ieaction`, plus the `cmsenv` contract import) and `include features/*/*.conf;` — which
+  also loads configs the global-components repo deploys as `features/global-components.<x>/`
+  (see [`docs/PROXY.md` §6.8](./docs/PROXY.md)).
   `./run-tests.sh --next` is green — identical behaviour to the live monolith.
 - ✅ **Deploy plumbing (parked) — DONE.** `app-service-proxy.tf` uploads the `config/`
   tree to the proxy's blob container as **inert** blobs (feature `.conf`s get a

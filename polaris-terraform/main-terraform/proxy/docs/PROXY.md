@@ -503,6 +503,40 @@ _(§6.5 and §6.6 are done. Remaining: finish consolidating the shared njs logic
 the `replaceCmsDomains` decision, QUIRKS **B1** — then cutover: swap
 `nginx-next.conf.template` → `nginx.conf.template` and delete the live copies.)_
 
+### 6.8 The global-components contract — what this config promises foreign configs
+
+The **global-components repo** deploys its own nginx configs into this proxy (vnext,
+case-locking, cms-auth-presence, …) and is their **source of truth** —
+they are deployed from there, ad hoc, not from here. Its `infra/proxy/config/main/` is
+a stand-in for *this* base config, so its configs can only rely on what the base
+provides. Both worlds (live monolith and this refactor) must offer the same surface:
+
+| The base provides                                                                     | Live monolith                        | Next config (`config/`)                                    |
+| ------------------------------------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------- |
+| a wildcard include of their `.conf.template` blobs ¹                                  | root: `include global-components*.conf;` | `features/global-components.<x>/global-components.<x>.conf`, loaded by the existing `include features/*/*.conf;` |
+| their `global-components.<x>.js` (their confs `js_import templates/global-components.<x>.js`) | root blob                            | the **same** root blob (shared by both worlds)             |
+| njs module bound as **`cmsenv`** exporting `proxyDestination[Modern]Corsham`, `upstreamCms{,Modern,Services}DomainName` | `js_import templates/cmsenv.js`      | `js_import cmsenv from …/features/common/cmsenv.js`        |
+| `$proxyDestination[Modern]`, `$upstreamCms*DomainName` bound to **exactly** `cmsenv.<fn>` ² | ✅                                   | ✅ (cms-proxy.conf binds to `cmsenv.*`)                    |
+| `$cors_origin` (js_set), `@gloco_preflight`                                            | `global-components.conf`             | `features/global-components/`                              |
+| `log_format cms_log`, `limit_req_zone cmsproxy`, `$ieaction`                           | ✅                                   | ✅ (`nginx.conf`)                                          |
+
+¹ So global-components' deploy writes each `.conf` TWICE (root for the live world, a
+`features/global-components.<x>/` folder for the next one) and each `.js` once (root). The
+conf text is identical in both places. The next config deliberately has NO root
+`global-components*.conf` include: both worlds share one blob container while dual-running,
+and the live world's own `global-components.conf` sits at that root — it would load on top
+of `features/global-components/` (duplicate locations, no boot). The `features/` folder
+must be exactly one level deep (`include features/*/*.conf`) and must not reuse one of our
+feature names.
+² A `js_set` variable is server-global; nginx refuses to boot if two js_sets bind one
+variable to different `module.function` strings. So these names are frozen: don't rename
+`cmsenv` or its exports, or move the getters back into a feature (unit-pinned by
+`common/cmsenv.unit.test.js`).
+
+**Location namespaces:** their routes must not duplicate ours. cms-auth-presence's flow is
+`/polaris-presence` + `/init-presence/*`; our drop2 is `/init-entra/*`. polaris-non-ddei's
+`/init-non-ddei` DOES duplicate drop1 — never deploy its `.conf` alongside the next config.
+
 ## 7. Testing the proxy — integration + unit (the refactor safety net)
 
 **Built and green.** The golden-master harness described here as a plan now exists and
@@ -542,8 +576,8 @@ redirect / header-echo assertions that need no fixture).
 | X 🗑️ | `/sas-url/` (+ §4 drop-candidates)                                                                                                                                                  | characterise current behaviour **before** deletion                                                                        | as feat 4                       |
 | —    | cross-cutting                                                                                                                                                                       | security headers (HSTS, `X-Frame-Options`, `Cache-Control: no-store`), IE/Edge `$ieaction`, scheme rewrites               | per path                        |
 
-`global-components*.conf` locations are covered by the parallel repo's own harness; our
-suite only smoke-tests that the `include` loads.
+Configs deployed by the global-components repo are not tested here: they are that repo's,
+deployed at its own risk and tested there.
 
 _(This harness was the precondition for §6, and both its groundwork steps are now done:
 the golden master is green, §6.5 (terraform genericisation) and §6.6 (feature slicing) have

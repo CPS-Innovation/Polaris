@@ -84,6 +84,8 @@ cms_details = {
 
 auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst.outsystemsenterprise.com/,https://cpslon-tst.outsystemsenterprise.com/,https://oapps-qa-notprod.int.cps.gov.uk/,https://housekeeping-fn-staging.int.cps.gov.uk/,https://fa-lacc-api-staging.azurewebsites.net/,https://fa-cmrc-api-staging.azurewebsites.net/,https://polaris-qa-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
 
+non_ddei_init_enabled = true
+
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
 
