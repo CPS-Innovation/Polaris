@@ -152,6 +152,7 @@ public static class ServiceExtensions
         services.AddScoped<IBulkRedactionSearchService, BulkRedactionSearchService>();
 
         services.AddMemoryCache();
+        services.AddHttpContextAccessor();
         services.AddScoped<ICaseUrnResolver, CaseUrnResolver>();
         services.AddTransient<RedactionLogger.RedactionLoggerAuthDelegatingHandler>();
         services.AddServiceOptions<RedactionLogger.RedactionLoggerConfig>(RedactionLogger.RedactionLoggerConfig.DefaultSectionName);
@@ -204,8 +205,8 @@ public static class ServiceExtensions
             });
     }
 
-    private static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy(
-        int retryAttempts)
+    private static Polly.Retry.AsyncRetryPolicy<HttpResponseMessage> GetRetryPolicy(
+         int retryAttempts)
     {
         return Policy
             .HandleResult<HttpResponseMessage>(

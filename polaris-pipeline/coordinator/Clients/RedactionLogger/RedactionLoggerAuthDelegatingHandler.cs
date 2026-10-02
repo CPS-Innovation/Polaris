@@ -4,27 +4,25 @@
 
 namespace coordinator.Clients.RedactionLogger;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class RedactionLoggerAuthDelegatingHandler(IOptions<RedactionLoggerConfig> redactionLoggerConfigOptions)
+public class RedactionLoggerAuthDelegatingHandler(
+    IOptions<RedactionLoggerConfig> redactionLoggerConfigOptions,
+    IHttpContextAccessor httpContextAccessor)
     : DelegatingHandler
 {
+    private readonly IHttpContextAccessor httpContextAccessor =
+        httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+
     private readonly string[] scopes =
         [Validate(nameof(RedactionLoggerConfig.Scope), redactionLoggerConfigOptions?.Value?.Scope)];
-
-    private readonly ICollection<string> _scopes =
-    new Collection<string>
-    {
-        "https://graph.microsoft.com/.default"
-    };
 
     private readonly IConfidentialClientApplication confidentialClientApplication =
         ConfidentialClientApplicationBuilder
@@ -35,8 +33,10 @@ public class RedactionLoggerAuthDelegatingHandler(IOptions<RedactionLoggerConfig
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
+        var accessToken = this.GetIncomingAccessToken(request);
+
         var tokenResult = await this.confidentialClientApplication
-            .AcquireTokenForClient(this.scopes)
+            .AcquireTokenOnBehalfOf(this.scopes, new UserAssertion(accessToken))
             .ExecuteAsync(cancellationToken);
 
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokenResult.AccessToken);
@@ -52,5 +52,27 @@ public class RedactionLoggerAuthDelegatingHandler(IOptions<RedactionLoggerConfig
         }
 
         return value;
+    }
+
+    private string GetIncomingAccessToken(HttpRequestMessage request)
+    {
+        if (request.Headers.Authorization is { Scheme: var scheme, Parameter: var parameter }
+            && string.Equals(scheme, "Bearer", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(parameter))
+        {
+            return parameter;
+        }
+
+        var authorizationHeader = this.httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
+
+        if (string.IsNullOrWhiteSpace(authorizationHeader)
+            || !AuthenticationHeaderValue.TryParse(authorizationHeader, out var authHeader)
+            || !string.Equals(authHeader.Scheme, "Bearer", StringComparison.OrdinalIgnoreCase)
+            || string.IsNullOrWhiteSpace(authHeader.Parameter))
+        {
+            throw new InvalidOperationException("A bearer token is required for redaction logger on-behalf-of authentication.");
+        }
+
+        return authHeader.Parameter;
     }
 }
