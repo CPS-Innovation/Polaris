@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 public class PdfRedactorConfig : IHttpClientConfig
 {
-    public const string DefaultSectionName = "Redactor";
+    public const string DefaultSectionName = "PdfRedactor";
 
     [Required]
     public string BaseUrl { get; init; } = string.Empty;

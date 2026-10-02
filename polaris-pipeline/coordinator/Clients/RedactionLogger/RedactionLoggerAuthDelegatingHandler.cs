@@ -7,6 +7,8 @@ namespace coordinator.Clients.RedactionLogger;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -18,9 +20,16 @@ public class RedactionLoggerAuthDelegatingHandler(IOptions<RedactionLoggerConfig
     private readonly string[] scopes =
         [Validate(nameof(RedactionLoggerConfig.Scope), redactionLoggerConfigOptions?.Value?.Scope)];
 
+    private readonly ICollection<string> _scopes =
+    new Collection<string>
+    {
+        "https://graph.microsoft.com/.default"
+    };
+
     private readonly IConfidentialClientApplication confidentialClientApplication =
         ConfidentialClientApplicationBuilder
             .Create(Validate(nameof(RedactionLoggerConfig.ClientId), redactionLoggerConfigOptions?.Value?.ClientId))
+            .WithClientSecret(Validate(nameof(RedactionLoggerConfig.ClientSecret), redactionLoggerConfigOptions?.Value?.ClientSecret))
             .WithAuthority($"https://login.microsoftonline.com/{Validate(nameof(RedactionLoggerConfig.TenantId), redactionLoggerConfigOptions?.Value?.TenantId)}")
             .Build();
 

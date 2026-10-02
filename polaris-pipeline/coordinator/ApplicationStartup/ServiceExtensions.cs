@@ -38,6 +38,7 @@ using DdeiClient.Services.CaseUrnResolver;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
@@ -78,18 +79,19 @@ public static class ServiceExtensions
         services.AddPiiService();
 
         services.AddSingleton<IUploadFileNameFactory, UploadFileNameFactory>();
-        services.AddHttpClientWithDefaults<
-        PdfGenerator.IPdfGeneratorClient,
-        PdfGenerator.PdfGeneratorClient,
-        coordinator.Clients.PdfGenerator.GeneratorConfig>()
-            .AddPolicyHandler((serviceProvider, _) =>
-            {
-                var config = serviceProvider
-                    .GetRequiredService<IOptions<coordinator.Clients.PdfGenerator.GeneratorConfig>>()
-                    .Value;
+        services
+            .AddHttpClientWithDefaults<
+                PdfGenerator.IPdfGeneratorClient,
+                PdfGenerator.PdfGeneratorClient,
+                coordinator.Clients.PdfGenerator.GeneratorConfig>()
+                    .AddPolicyHandler((serviceProvider, _) =>
+                    {
+                        var config = serviceProvider
+                            .GetRequiredService<IOptions<coordinator.Clients.PdfGenerator.GeneratorConfig>>()
+                            .Value;
 
-                return GetRetryPolicy(config.MaxRetries);
-            });
+                        return GetRetryPolicy(config.MaxRetries);
+                    });
 
         services
             .AddHttpClientWithDefaults<
@@ -153,6 +155,9 @@ public static class ServiceExtensions
         services.AddScoped<ICaseUrnResolver, CaseUrnResolver>();
         services.AddTransient<RedactionLogger.RedactionLoggerAuthDelegatingHandler>();
         services.AddServiceOptions<RedactionLogger.RedactionLoggerConfig>(RedactionLogger.RedactionLoggerConfig.DefaultSectionName);
+        services.AddServiceOptions<TextExtractor.TextExtractorConfig>(TextExtractor.TextExtractorConfig.DefaultSectionName);
+        services.AddServiceOptions<PdfRedactor.PdfRedactorConfig>(PdfRedactor.PdfRedactorConfig.DefaultSectionName);
+        services.AddServiceOptions<coordinator.Clients.PdfGenerator.GeneratorConfig>(coordinator.Clients.PdfGenerator.GeneratorConfig.DefaultSectionName);
         services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>();
         services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();
         services.AddServiceOptions<MasterDataServiceClientOptions>(MasterDataServiceClientOptions.DefaultSectionName);
@@ -173,9 +178,19 @@ public static class ServiceExtensions
         return services.AddHttpClient<TInterface, TImplementation>(
             (serviceProvider, client) =>
             {
+                var logger = serviceProvider
+                            .GetRequiredService<ILogger<TImplementation>>();
+
                 var config = serviceProvider
                     .GetRequiredService<IOptions<TConfig>>()
                     .Value;
+
+                logger.LogInformation(
+                    "Configuring HttpClient {ImplementationType} using {ConfigType}. BaseUrl: '{BaseUrl}', TimeoutSeconds: {TimeoutSeconds}",
+                    typeof(TImplementation).FullName,
+                    typeof(TConfig).FullName,
+                    config.BaseUrl,
+                    config.TimeoutSeconds);
 
                 client.BaseAddress = new Uri(config.BaseUrl);
 

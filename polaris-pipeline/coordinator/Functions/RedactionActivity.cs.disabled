@@ -1,0 +1,50 @@
+
+
+namespace coordinator.Functions;
+
+using Common.Dto.Response;
+using Microsoft.Azure.Functions.Worker;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using static coordinator.Functions.RedactAndLogOrchestrator;
+public class RedactionActivity
+{
+    [Function(nameof(RedactionActivity))]
+    public async Task<StepResult> Redact(
+     [ActivityTrigger] RedactAndLogOrchestrationInput input)
+    {
+        try
+        {
+            await this.redactionService.ProcessAsync(
+                input.CaseId,
+                input.MaterialId,
+                input.DocumentId,
+                input.Request.RedactionPayload,
+                input.CmsAuthValues,
+                input.CorrelationId,
+                CancellationToken.None);
+
+            return new StepResult
+            {
+                Status = "Succeeded"
+            };
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(
+                ex,
+                "Redaction failed. CorrelationId: {CorrelationId}, CaseId: {CaseId}, MaterialId: {MaterialId}, DocumentId: {DocumentId}",
+                input.CorrelationId,
+                input.CaseId,
+                input.MaterialId,
+                input.DocumentId);
+
+            return new StepResult
+            {
+                Status = "Failed",
+                Error = ex.Message
+            };
+        }
+    }
+}
