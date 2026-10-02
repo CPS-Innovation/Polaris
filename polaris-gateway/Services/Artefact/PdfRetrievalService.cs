@@ -7,6 +7,7 @@ using Common.Dto.Response.Case.PreCharge;
 using Common.Extensions;
 using Common.Services.RenderHtmlService;
 using Ddei.Factories;
+using Ddei.Mappers;
 using DdeiClient.Clients.Interfaces;
 using PolarisGateway.Services.Artefact.Domain;
 using System;
@@ -23,19 +24,22 @@ public class PdfRetrievalService : IPdfRetrievalService
     private readonly IPdfGeneratorClient _pdfGeneratorClient;
     private readonly IMdsClient _mdsClient;
     private readonly IMasterDataServiceClient _masterDataServiceClient;
+    private readonly ICaseDetailsMapper _caseDetailsMapper;
 
     public PdfRetrievalService(
         IMdsArgFactory mdsArgFactory,
         IConvertModelToHtmlService convertModelToHtmlService,
         IPdfGeneratorClient pdfGeneratorClient,
         IMdsClient mdsClient,
-        IMasterDataServiceClient masterDataServiceClient)
+        IMasterDataServiceClient masterDataServiceClient,
+        ICaseDetailsMapper caseDetailsMapper)
     {
         _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _convertModelToHtmlService = convertModelToHtmlService.ExceptionIfNull();
         _pdfGeneratorClient = pdfGeneratorClient.ExceptionIfNull();
         _mdsClient = mdsClient.ExceptionIfNull();
         _masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        _caseDetailsMapper = caseDetailsMapper.ExceptionIfNull();
     }
 
     public async Task<DocumentRetrievalResult> GetPdfStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId, bool isLegacy = true)
@@ -90,8 +94,15 @@ public class PdfRetrievalService : IPdfRetrievalService
     private async Task<(Stream Stream, FileType FileType, bool IsKnownFileType)> GetDefendantsAndChargesStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId)
     {
         var mdsCaseIdentifiersArgDto = _mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId);
-        var defendantsAndCharges = await _mdsClient.GetDefendantAndChargesAsync(mdsCaseIdentifiersArgDto);
-        var stream = await _convertModelToHtmlService.ConvertAsync(defendantsAndCharges);
+        
+        //var defendantsAndCharges = await _mdsClient.GetDefendantAndChargesAsync(mdsCaseIdentifiersArgDto);
+        var defendantsAndCharges = await _masterDataServiceClient.GetCaseDefendantsAsync(
+            new ListCaseDefendantsRequest(mdsCaseIdentifiersArgDto.CaseId, mdsCaseIdentifiersArgDto.CorrelationId),
+            new CmsAuthValues(mdsCaseIdentifiersArgDto.CmsAuthValues, mdsCaseIdentifiersArgDto.CorrelationId));
+
+        var defendantsAndChargesMapped = _caseDetailsMapper.MapDefendantsResponseToDefendantsAndChargesListDto(defendantsAndCharges, mdsCaseIdentifiersArgDto.CaseId);
+
+        var stream = await _convertModelToHtmlService.ConvertAsync(defendantsAndChargesMapped);
         return (stream, FileTypeHelper.PseudoDocumentFileType, true);
     }
 

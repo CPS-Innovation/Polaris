@@ -553,7 +553,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-            var data = await client.ListCaseDefendantsAsync(request.CaseId, cancellationToken);
+            var data = await client.ListCaseDefendantsAsync(request.CaseId, cancellationToken); // calls /cases/{caseId}/defendants
 
             var listCaseDefendantsResponse = new DefendantsResponse
             {

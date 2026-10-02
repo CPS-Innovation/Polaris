@@ -1,10 +1,11 @@
+using Common.Dto.Response;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
+using Common.Dto.Response.HouseKeeping;
 using Ddei.Domain.Response;
-using Ddei.Domain.Response.PreCharge;
 using Ddei.Domain.Response.Defendant;
+using Ddei.Domain.Response.PreCharge;
 using System.Text.RegularExpressions;
-using Common.Dto.Response;
 
 namespace Ddei.Mappers
 {
@@ -108,6 +109,13 @@ namespace Ddei.Mappers
             return witnesses.Select(witness => MapWitness(witness));
         }
 
+        public DefendantsAndChargesListDto MapDefendantsResponseToDefendantsAndChargesListDto(DefendantsResponse defendantsResponse, int caseId)
+        {
+            List<MdsCaseDefendantDto> defendants = MapDefendantsResponseToMdsCaseDefendantDtos(defendantsResponse);
+            DefendantsAndChargesListDto defendantsAndChargesListDto = this.MapDefendantsAndCharges(defendants, caseId, string.Empty);
+            return defendantsAndChargesListDto;
+        }
+
         public IEnumerable<Common.Dto.Response.Case.PreCharge.PcdRequestDto> MapPcdRequests(IEnumerable<Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto> requests)
         {
             return requests.Select(request => this.MapPcdRequest(request));
@@ -203,6 +211,48 @@ namespace Ddei.Mappers
                 ExpiryDays = custodyTimeLimit?.ExpiryDays,
                 ExpiryIndicator = custodyTimeLimit?.ExpiryIndicator
             };
+        }
+
+        private List<MdsCaseDefendantDto> MapDefendantsResponseToMdsCaseDefendantDtos(DefendantsResponse response)
+        {
+            return response?.Defendants?
+                .Select(d => new MdsCaseDefendantDto
+                {
+                    Id = d.Id ?? 0,
+                    ListOrder = d.ListOrder,
+                    Type = d.Type,
+                    FirstNames = d.FirstNames,
+                    Surname = d.Surname,
+                    Dob = d.Dob?.ToString("yyyy-MM-dd"),
+                    PoliceRemandStatus = d.PoliceRemandStatus,
+                    Youth = d.Youth ?? false,
+
+                    CustodyTimeLimit = string.IsNullOrWhiteSpace(d.CustodyTimeLimit)
+                        ? null
+                        : new MdsCustodyTimeLimitDto
+                        {
+                            ExpiryDate = d.CustodyTimeLimit,
+                        },
+
+                    Offences = d.Offences?.Select(o => new MdsOffenceDto
+                    {
+                        Id = o.Id ?? 0,
+                        ListOrder = o.ListOrder,
+                        Code = o.Code,
+                        Type = o.Type,
+                        Active = o.Active,
+                        Description = o.Description,
+                        FromDate = o.FromDate,
+                        ToDate = o.ToDate,
+                        LatestPlea = o.LatestPlea,
+                        LatestVerdict = o.LatestVerdict,
+                        DisposedReason = o.DisposedReason,
+                        LastHearingOutcome = o.LastHearingOutcome,
+                    }),
+                    NextHearing = null,
+                })
+                .ToList()
+                ?? new List<MdsCaseDefendantDto>();
         }
 
         private WitnessDto MapWitness(BaseCaseWitnessResponse witness)

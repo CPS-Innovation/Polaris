@@ -1,4 +1,5 @@
 using Common.Dto.Request;
+using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
@@ -9,6 +10,7 @@ using coordinator.Domain;
 using coordinator.Durable.Payloads;
 using coordinator.Services;
 using Ddei.Factories;
+using Ddei.Mappers;
 using DdeiClient.Clients.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -23,6 +25,7 @@ public class GetCaseDocuments
     private readonly IMdsClient _mdsClient;
     private readonly IMasterDataServiceClient _masterDataServiceClient;
     private readonly IMdsArgFactory _mdsArgFactory;
+    private readonly ICaseDetailsMapper _caseDetailsMapper;
     private readonly IDocumentToggleService _documentToggleService;
     private readonly IStateStorageService _stateStorageService;
     private readonly ILogger<GetCaseDocuments> _log;
@@ -31,6 +34,7 @@ public class GetCaseDocuments
         IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient,
         IMdsArgFactory mdsArgFactory,
+        ICaseDetailsMapper caseDetailsMapper,
         IDocumentToggleService documentToggleService,
         IStateStorageService stateStorageService,
         ILogger<GetCaseDocuments> logger)
@@ -38,6 +42,7 @@ public class GetCaseDocuments
         _mdsClient = mdsClient.ExceptionIfNull();
         _masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
         _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        _caseDetailsMapper = caseDetailsMapper.ExceptionIfNull();
         _documentToggleService = documentToggleService.ExceptionIfNull();
         _stateStorageService = stateStorageService.ExceptionIfNull();
         _log = logger.ExceptionIfNull();
@@ -80,7 +85,10 @@ public class GetCaseDocuments
             arg,
             new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
 
-        var getDefendantsAndChargesTask = _mdsClient.GetDefendantAndChargesAsync(arg);
+        //var getDefendantsAndChargesTask = _mdsClient.GetDefendantAndChargesAsync(arg);
+        var getDefendantsAndChargesTask = _masterDataServiceClient.GetCaseDefendantsAsync(
+            new ListCaseDefendantsRequest(arg.CaseId, arg.CorrelationId),
+            new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
 
         await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 
@@ -93,9 +101,10 @@ public class GetCaseDocuments
             .ToArray();
 
         var defendantsAndCharges = getDefendantsAndChargesTask.Result;
-        MapPresentationFlags(defendantsAndCharges);
+        var defendandAndChargesMapped = _caseDetailsMapper.MapDefendantsResponseToDefendantsAndChargesListDto(defendantsAndCharges, arg.CaseId);
+        MapPresentationFlags(defendandAndChargesMapped);
 
-        var documents = new GetCaseDocumentsResponse(cmsDocuments, pcdRequests, defendantsAndCharges);
+        var documents = new GetCaseDocumentsResponse(cmsDocuments, pcdRequests, defendandAndChargesMapped);
         await _stateStorageService.UpdateCaseDocumentsAsync(payload.CaseId, documents);
 
         return documents;

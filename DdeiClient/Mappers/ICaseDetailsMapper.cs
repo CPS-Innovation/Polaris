@@ -1,6 +1,7 @@
 using Common.Dto.Response;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
+using Common.Dto.Response.HouseKeeping;
 using Ddei.Domain.Response;
 using Ddei.Domain.Response.Defendant;
 using Ddei.Domain.Response.PreCharge;
@@ -11,6 +12,7 @@ namespace Ddei.Mappers
     {
         CaseDto MapCaseDetails(CaseDetailsDto caseDetails);
         DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<MdsCaseDefendantDto> defendants, int caseId, string etag);
+        DefendantsAndChargesListDto MapDefendantsResponseToDefendantsAndChargesListDto(DefendantsResponse defendantsResponse, int caseId);
         PcdRequestDto MapPreChargeDecisionRequest(MdsPcdRequestDto pcdr);
         IEnumerable<PcdRequestCoreDto> MapCorePreChargeDecisionRequests(IEnumerable<MdsPcdRequestCoreDto> pcdRequests);
         IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<MdsPcdRequestDto> pcdRequests);

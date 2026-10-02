@@ -5,6 +5,7 @@
 namespace PolarisGateway.Services.MdsOrchestration;
 
 using Common.Dto.Request;
+using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
@@ -14,6 +15,7 @@ using Common.Extensions;
 using Common.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
+using Ddei.Mappers;
 using DdeiClient.Clients.Interfaces;
 using PolarisGateway.Services.MdsOrchestration.Mappers;
 using System;
@@ -25,6 +27,7 @@ public class MdsCaseDocumentsOrchestrationService (
         IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient,
         IMdsArgFactory mdsArgFactory,
+        ICaseDetailsMapper caseDetailsMapper,
         IDocumentToggleService documentToggleService,
         IDocumentDtoMapper cmsDocumentMapper)
     : IMdsCaseDocumentsOrchestrationService
@@ -36,21 +39,25 @@ public class MdsCaseDocumentsOrchestrationService (
 
         var getPcdRequestsTask = masterDataServiceClient.GetCasePcdRequestsAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
 
-        var getDefendantsAndChargesTask = mdsClient.GetDefendantAndChargesAsync(arg);
+        //var getDefendantsAndChargesTask = mdsClient.GetDefendantAndChargesAsync(arg);
+        var getDefendantsAndChargesTask = masterDataServiceClient.GetCaseDefendantsAsync(
+            new ListCaseDefendantsRequest(arg.CaseId, arg.CorrelationId),
+            new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
 
         await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 
         var cmsDocuments = getDocumentsTask.Result;
         var pcdRequests = getPcdRequestsTask.Result;
         var defendantAndCharges = getDefendantsAndChargesTask.Result;
+        var defendandAndChargesMapped = caseDetailsMapper.MapDefendantsResponseToDefendantsAndChargesListDto(defendantAndCharges, arg.CaseId);
 
         return Enumerable.Empty<DocumentDto>()
             .Concat(cmsDocuments.Select(this.MapDocument))
             .Concat(pcdRequests.Select(this.MapPcdRequest))
             .Concat(
-                defendantAndCharges.DefendantsAndCharges.Any() ||
-                defendantAndCharges.DefendantsAndCharges.Any(x => x.Charges.Any())
-                    ? [this.MapDefendantAndCharges(defendantAndCharges)]
+                defendandAndChargesMapped.DefendantsAndCharges.Any() ||
+                defendandAndChargesMapped.DefendantsAndCharges.Any(x => x.Charges.Any())
+                    ? [this.MapDefendantAndCharges(defendandAndChargesMapped)]
                     : []
             );
     }

@@ -103,6 +103,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return _caseDetailsMapper.MapPreChargeDecisionRequest(pcdRequest);
     }
 
+    // calls /cases/{caseId}/defendants
     public async Task<DefendantsAndChargesListDto> GetDefendantAndChargesAsync(MdsCaseIdentifiersArgDto arg, CancellationToken cancellationToken = default)
     {
         var response = await CallHttpClientAsync(_mdsClientRequestFactory.CreateGetDefendantAndChargesRequest(arg), arg.CmsAuthValues, cancellationToken);
