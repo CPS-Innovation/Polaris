@@ -9,12 +9,17 @@ data "azurerm_function_app_host_keys" "fa_ddei_host_keys" {
 }
 # end: ddei lookup
 
-# begin: MDS FA secret lookup - Retrieval of secret stored in vault for the host keys of the MDS FA which is in a different subscription. Secret is a manual entry.
-data "azurerm_key_vault_secret" "kvs_fa_mds_host_keys" {
-  name         = "MDS-FA-AccessKey"
+# Retrieval of secret stored in vault for the host keys of redaction function. Secret is a manual entry.
+data "azurerm_key_vault_secret" "kvs_fa_redactor_host_keys" {
+  name         = "Redactor-AccessKey"
   key_vault_id = azurerm_key_vault.kv_polaris.id
 }
-# end: MDS FA secret lookup
+
+# Retrieval of secret stored in vault for the host keys of redaction logger function. Secret is a manual entry.
+data "azurerm_key_vault_secret" "kvs_fa_redactionlogger_host_keys" {
+  name         = "RedactionLogger-AccessKey"
+  key_vault_id = azurerm_key_vault.kv_polaris.id
+}
 
 # UMA FA secret lookup - Retrieval of secret stored in vault for the host keys of the UMA FA which is in a different subscription. Secret is a manual entry.
 data "azurerm_key_vault_secret" "kvs_fa_uma_host_keys" {

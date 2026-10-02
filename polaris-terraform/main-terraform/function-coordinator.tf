@@ -75,6 +75,14 @@ resource "azurerm_linux_function_app" "fa_coordinator" {
     "WEBSITE_SWAP_WARMUP_PING_STATUSES"               = "200,202"
     "WEBSITE_WARMUP_PATH"                             = "/api/status"
     "WEBSITES_ENABLE_APP_SERVICE_STORAGE"             = "true"
+    "Redactor__BaseUrl"                               = "https://fa-${local.global_resource_name}-pdf-redactor.azurewebsites.net/api/"
+    "Redactor__AccessKey"                             = data.azurerm_key_vault_secret.kvs_fa_redactor_host_keys.value
+    "Redactor__TimeoutSeconds"                        = "200"
+    "Redactor__MaxRetries"                            = "5"
+    "RedactionLogger__BaseUrl"                        = "https://fa-redaction-log-${var.env}-reporting.azurewebsites.net/api"
+    "RedactionLogger__AccessKey"                      = data.azurerm_key_vault_secret.kvs_fa_redactionlogger_host_keys.value
+    "RedactionLogger__TimeoutSeconds"                 = "200"
+    "RedactionLogger__MaxRetries"                     = "5"
   }
 
   sticky_settings {
