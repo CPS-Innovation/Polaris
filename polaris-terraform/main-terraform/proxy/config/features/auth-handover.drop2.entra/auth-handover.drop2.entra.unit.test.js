@@ -227,9 +227,8 @@ async function beginTests(entra) {
 }
 
 // Drive the callback with a valid state cookie + code, routing exchange / OBO / MDS.
-async function callbackScenario({ term, exchange = "ok", obo = "ok", mdsStatus = 204, adError = null, sendNeutral = false }) {
+async function callbackScenario({ term, exchange = "ok", obo = "ok", mdsStatus = 204, adError = null }) {
   const entra = await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")
-  entra.__test.setMdsSendNeutralToken(sendNeutral)
   const st = {
     s: "STATE-HANDLE",
     cc: "ASP.NET_SessionId=x; WindowID=MASTER",
@@ -272,36 +271,7 @@ const PRESENCE_PREFIX = "cms-auth-presence-token="
 const presenceCookies = (r) => (r.headersOut["Set-Cookie"] || []).filter((c) => c.indexOf(PRESENCE_PREFIX) === 0)
 
 async function callbackTests() {
-  console.log("\nhandleInitEntraCallback — interim switch MDS_SEND_NEUTRAL_TOKEN:")
-
-  await test("shipped default: MDS_SEND_NEUTRAL_TOKEN is ON (QA interim — turn off once admin consent lands)", async () => {
-    const fresh = await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")
-    assertEqual(fresh.__test.getMdsSendNeutralToken(), true, "shipped value")
-  })
-
-  await test("switch ON: no OBO; MDS gets the NEUTRAL token; works with no consent", async () => {
-    const r = await callbackScenario({ term: "top-level", sendNeutral: true, obo: "fail" })
-    const calls = fetchLog.map((c) => (c.url.indexOf("cms-auth-store") !== -1 ? "mds" : form(c.init.body).grant_type))
-    assertEqual(calls.join(" > "), "authorization_code > mds", "no swap attempted")
-    assertEqual(fetchLog[1].init.headers.Authorization, "Bearer NEUTRAL-TOKEN", "neutral token to MDS")
-    assertEqual(r.returnBody, "/polaris-ui/case/1", "-> landing")
-    assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra", "marker: entra (deposit succeeded)")
-  })
-
-  await test("switch ON, iframe: presence cookies + MDS deposit with the neutral token", async () => {
-    const r = await callbackScenario({ term: "iframe", sendNeutral: true })
-    assertEqual(presenceCookies(r).length, 2, "presence cookies")
-    assertEqual(fetchLog[fetchLog.length - 1].init.headers.Authorization, "Bearer NEUTRAL-TOKEN", "neutral to MDS")
-    assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra", "marker")
-  })
-
-  await test("switch ON: an MDS failure still degrades (lands + Cms-Auth-Values)", async () => {
-    const r = await callbackScenario({ term: "top-level", sendNeutral: true, mdsStatus: 500 })
-    assertEqual(r.returnBody, "/polaris-ui/case/1", "-> landing")
-    assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra-degraded", "marker")
-  })
-
-  console.log("\nhandleInitEntraCallback — switch OFF (proper): neutral token -> OBO -> MDS deposit -> finalize / degrade:")
+  console.log("\nhandleInitEntraCallback — neutral token -> OBO -> MDS deposit -> finalize / degrade:")
 
   await test("top-level success: exchange(neutral) -> OBO(MDS) -> PUT; 302 landing + Cms-Auth-Values; no presence cookie", async () => {
     const r = await callbackScenario({ term: "top-level" })

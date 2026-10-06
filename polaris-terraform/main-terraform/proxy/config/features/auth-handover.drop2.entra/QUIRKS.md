@@ -85,12 +85,12 @@ The callback disables TLS verification for the `ngx.fetch` calls to
 setup). For **external** endpoints this should be `on` with a trusted CA bundle
 (`js_fetch_trusted_certificate`). Fix before prod.
 
-### E7. ⚪ njs `crypto` + `Buffer` dependency (new in this repo's config)
+### E7. ✅ (resolved) njs `crypto` + `Buffer` dependency (new in this repo's config)
 
-`store.js` is the first config module to use njs's built-in `crypto` (`createHmac`) and
-`Buffer` (base64). No other feature does. Confirm the deployed njs build provides both
-(the reference relies on the same, so this is expected) — a smoke test of the SharedKeyLite
-signature against a known key/date is the cheapest check.
+`auth-handover.drop2.entra.js` is the only config module to use njs's built-in `crypto`
+(`createHmac`, for the state-cookie HMAC) and `Buffer` (base64url). No other feature does
+(`store.js` used both for the Table Storage SharedKeyLite signature; that backend is gone, E10).
+Proven on QA 2026-10-06: callbacks verified the signed state cookie and reached the MDS deposit.
 
 ---
 
@@ -120,18 +120,14 @@ need `SameSite=None; Secure`. Revisit if the iframe host changes.
 `Authorization: Bearer <OBO token>` + `x-functions-key` (the same two settings the
 global-components `/global-components/api` route uses — not that route itself, which strips
 Authorization) and body `{cookies, token, expiryTime: "2000-01-01T00:00:00Z"}` (fixed; MDS ignores
-it today — revisit if it ever honours it). MDS takes the user from the token's `oid`; today it
-checks nothing else, full validation arrives later as MDS middleware. The Table Storage backend
+it today — revisit if it ever honours it). MDS takes the user from the token's `oid`, after full
+JwtBearer validation (signature, issuer, lifetime, aud = the MDS app reg) — so only the on-behalf-of
+token will do; the neutral token gets a 401. The Table Storage backend
 (SharedKeyLite, `ENTRA_STORAGE_*`, rows keyed by an id_token OID) is removed — git history has it.
-The swap needs the MDS permission on our app reg **plus admin consent** (CPS blocks user consent);
-until then the on-behalf-of call fails (AADSTS65001) and drop2 degrades — safe.
-
-**⚠ Interim switch `MDS_SEND_NEUTRAL_TOKEN` (2026-10-06, a config constant in
-`auth-handover.drop2.entra.js`, NOT an app setting) — currently ON:** skips the swap and sends the
-NEUTRAL token to MDS, so deposits work on QA before admin consent (MDS only reads `oid` today). Costs: MDS
-receives a token that is, today, a valid presence-API credential (aud `8d6133af`, scp
-`api.presence.user.readwrite`), and it stops working when MDS adds validation. **Turn OFF once admin
-consent is granted; never ship beyond QA with it on.** Unit-pinned (both sides + the shipped value).
+The swap needs the MDS permission on our app reg **plus consent**. CPS blocks user consent, so MDS
+**pre-authorises** our client on its app reg (MDS terraform `global_components_client_id`, PR
+2026-10-06); until that is applied the on-behalf-of call fails (AADSTS65001) and drop2 degrades — safe.
+(An interim switch that sent the neutral token instead was removed 2026-10-06: MDS rejects it.)
 
 ### E11. ⚪ (removed) presence id-token cookie IE/Edge jar handover
 

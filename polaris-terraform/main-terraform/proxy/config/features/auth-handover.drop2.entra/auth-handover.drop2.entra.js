@@ -46,7 +46,7 @@
 
 import replaceDdei from "../auth-handover.drop1.replace-ddei/auth-handover.drop1.replace-ddei.js";
 import store from "./store.js";
-import cryptoModule from "crypto"; // njs built-in — for the state-cookie HMAC (same as store.js)
+import cryptoModule from "crypto"; // njs built-in — for the state-cookie HMAC
 
 // Azure AD app registration — config comes ONLY from app settings; NO baked defaults (see
 // TODO.APP-SETTINGS.md). Missing => "" => the flow fails the exchange/swap and degrades to drop1.
@@ -92,17 +92,6 @@ const APP_SCOPE = process.env.ENTRA_APP_SCOPE || "";
 // Set on the IFRAME terminal only (the iframe runs in the CMS shell's IE-mode cookie jar, which is
 // where the presence calls are made).
 const PRESENCE_COOKIE = "cms-auth-presence-token";
-
-// ⚠ INTERIM SWITCH (config, deliberately NOT an app setting) — 2026-10-06, QA.
-// true  = send the NEUTRAL token straight to MDS (no on-behalf-of swap). Works TODAY because MDS
-//         currently only reads `oid` and validates nothing else, and needs no admin consent.
-// false = the proper shape: swap on-behalf-of for store.scope (needs the MDS permission + ADMIN
-//         CONSENT on our app reg; until then the swap fails with AADSTS65001 and drop2 degrades).
-// WHY INTERIM: today the neutral token IS a valid presence-API credential (aud 8d6133af, scp
-// api.presence.user.readwrite — presence borrows our app reg), so with this on MDS receives a token it
-// could replay against presence, and it will stop working the day MDS adds token validation.
-// Set to false as soon as admin consent is granted; never ship beyond QA with it on.
-let MDS_SEND_NEUTRAL_TOKEN = true;
 const PRESENCE_PATHS = [
   "/global-components/presence-jsonp",
   "/global-components/case-locking",
@@ -273,7 +262,8 @@ function _exchangeCode(code, redirectUri) {
 
 // On-behalf-of swap: the user's neutral token (aud = our app) for a token for another API's
 // scope, keeping the user's identity (oid). Needs: our app reg has the API permission for `scope`
-// + consent (admin consent in CPS — the tenant blocks user consent). See PLAN-entra-unified-flow.
+// + consent. The CPS tenant blocks user consent, so the API's app reg pre-authorises our client
+// (MDS: azuread_application_pre_authorized in MDS terraform) — otherwise AADSTS65001.
 function _obo(assertion, scope) {
   if (!scope) return { accessToken: "", expiresIn: 0, diag: "no-scope" };
   return _tokenRequest([
@@ -396,18 +386,14 @@ async function handleInitEntraCallback(r) {
     const extra =
       st.term === "iframe" ? _presenceCookies(tok.accessToken, tok.expiresIn) : [];
 
-    // The auth store: swap the neutral token for the store backend's token (or, with the interim
-    // switch on, send the neutral token as-is), then deposit.
-    let bearer = tok.accessToken;
-    if (!MDS_SEND_NEUTRAL_TOKEN) {
-      const mds = await _obo(tok.accessToken, store.scope);
-      if (!mds.accessToken) {
-        _degrade(r, st, null, "obo-failed: " + mds.diag, extra);
-        return;
-      }
-      bearer = mds.accessToken;
+    // The auth store: swap the neutral token for the store backend's token, then deposit. (The
+    // neutral token itself won't do: MDS validates the audience.)
+    const mds = await _obo(tok.accessToken, store.scope);
+    if (!mds.accessToken) {
+      _degrade(r, st, null, "obo-failed: " + mds.diag, extra);
+      return;
     }
-    const dep = await store.deposit({ cookies: st.cc, token: st.tok }, bearer);
+    const dep = await store.deposit({ cookies: st.cc, token: st.tok }, mds.accessToken);
     if (!dep.ok) {
       _degrade(r, st, null, "store-deposit-failed: " + dep.diag, extra);
       return;
@@ -485,13 +471,6 @@ export default {
     b64urlDecode: _b64urlDecode,
     obo: _obo,
     presenceCookies: _presenceCookies,
-    // lets the unit tests exercise both sides of the interim switch
-    setMdsSendNeutralToken: function (v) {
-      MDS_SEND_NEUTRAL_TOKEN = !!v;
-    },
-    getMdsSendNeutralToken: function () {
-      return MDS_SEND_NEUTRAL_TOKEN;
-    },
     rand: _rand,
     authorizeUrl: _authorizeUrl,
     tokenUrl: _tokenUrl,

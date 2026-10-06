@@ -15,9 +15,9 @@
 // sends (we read the SAME two settings, WM_MDS_BASE_URL + WM_MDS_ACCESS_KEY, rather than calling
 // that route: it strips Authorization, and a loopback would leave and re-enter the proxy).
 //
-// MDS identifies the user from the token (`oid`) — the store sends no identity of its own. Today
-// MDS only reads `oid`; full token validation arrives later as MDS middleware, which this token's
-// shape (v2, aud = the MDS app, scp = ENTRA_MDS_SCOPE, the user's oid) is built to pass.
+// MDS identifies the user from the token (`oid`) — the store sends no identity of its own. MDS
+// validates the token in full (JwtBearer: signature, issuer, lifetime, aud = the MDS app reg), so
+// it must be the on-behalf-of token for ENTRA_MDS_SCOPE; our neutral token is rejected with 401.
 //
 // History: the previous backend was Azure Table Storage (SharedKeyLite, ENTRA_STORAGE_*), keyed
 // by an OID taken from a validated id_token. Replaced 2026-10 — see git history / QUIRKS E10.

@@ -17,4 +17,5 @@ Removed with the Table Storage backend (stale values on an App Service are harml
 `ENTRA_STORAGE_ACCOUNT`, `ENTRA_STORAGE_KEY`, `ENTRA_STORAGE_TABLE`.
 
 Entra prerequisites (not settings): `/init-entra/callback` registered (web) on our app reg for each
-host; the MDS delegated permission on our app reg **with admin consent**.
+host; the MDS delegated permission on our app reg, with our client **pre-authorised** on the MDS app
+reg (MDS terraform `global_components_client_id`) for consent.
