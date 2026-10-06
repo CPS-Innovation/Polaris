@@ -30,6 +30,7 @@ const {
   assertNotIncludes,
   get,
   summarise,
+  isNext,
 } = require("../../../tests/integration/test-utils")
 const vm = require("vm")
 const zlib = require("zlib")
@@ -105,12 +106,28 @@ async function servedAsset() {
     return inserted && inserted.link
   }
 
-  await test("builds the Manage Materials link from the case id (no URN, #2189)", async () => {
-    const link = await runPolarisScript({ iCaseId: 99, sURN: "URN1" })
-    assert(link, "Should insert the button")
-    assertEqual(link.href, "/polaris?polaris-ui-url=/materials-ui/99/materials", "caseId deep-link")
-    assertEqual(link.target, "_blank", "opens in a new tab")
-  })
+  // #2189 (case URN removed from the materials handover) is HELD BACK in the next config (2026-10-06:
+  // not ready for QA) while the live monolith already has it — a DELIBERATE, temporary divergence, so
+  // these expectations are per config (isNext). See cwa-materials/QUIRKS.md D13. When #2189 is released
+  // to the next config, revert that hold-back commit and collapse these back to the live expectation.
+  if (isNext) {
+    await test("NEXT (pre-#2189): Manage Materials link = /materials-ui/{cleanUrn}/{caseId}/materials", async () => {
+      const link = await runPolarisScript({ iCaseId: 99, sURN: "URN1/2(abc)" })
+      assert(link, "Should insert the button")
+      assertEqual(link.href, "/polaris?polaris-ui-url=/materials-ui/URN1/99/materials", "URN cleaned at / or (")
+      assertEqual(link.target, "_blank", "opens in a new tab")
+    })
+    await test("NEXT (pre-#2189): a case id without a URN -> plain /polaris", async () => {
+      assertEqual((await runPolarisScript({ iCaseId: 99 })).href, "/polaris", "needs both")
+    })
+  } else {
+    await test("LIVE (#2189): builds the Manage Materials link from the case id (no URN)", async () => {
+      const link = await runPolarisScript({ iCaseId: 99, sURN: "URN1" })
+      assert(link, "Should insert the button")
+      assertEqual(link.href, "/polaris?polaris-ui-url=/materials-ui/99/materials", "caseId deep-link")
+      assertEqual(link.target, "_blank", "opens in a new tab")
+    })
+  }
 
   await test("without a case id, links to plain /polaris", async () => {
     const link = await runPolarisScript({})
@@ -253,18 +270,40 @@ async function menuBarInjection() {
     const body = await (await cget("/CMS.Live/Noexpiry/Toolbar/uainMenuBar.js")).text()
     let opened = null
     const window = { open: (url) => { opened = url; return { focus() {} } } }
-    const ctx = vm.createContext({ window, ...globals })
+    // The pre-#2189 copy falls back to scanning <td> text for a URN; stub just that.
+    const cells = globals.__cells || []
+    const document = { getElementsByTagName: () => cells }
+    const ctx = vm.createContext({ window, document, ...globals })
     vm.runInContext(body, ctx)
     assert(typeof ctx.openMaterials === "function", "openMaterials() should be injected")
     ctx.openMaterials()
     return opened
   }
 
-  await test("openMaterials() opens /materials?caseId=<id> (no URN, #2189)", async () => {
-    assertEqual(await runOpenMaterials({ iScreenCaseID: 99, sURN: "URN1" }), "/materials?caseId=99", "iScreenCaseID")
-    assertEqual(await runOpenMaterials({ iCaseId: 42 }), "/materials?caseId=42", "iCaseId fallback")
-    assertEqual(await runOpenMaterials({ m_iScreenCaseID: 7 }), "/materials?caseId=7", "m_iScreenCaseID fallback")
-  })
+  // #2189 (case URN removed from the materials handover) is HELD BACK in the next config (2026-10-06:
+  // not ready for QA) while the live monolith already has it — a DELIBERATE, temporary divergence, so
+  // these expectations are per config (isNext). See cwa-materials/QUIRKS.md D13. When #2189 is released
+  // to the next config, revert that hold-back commit and collapse these back to the live expectation.
+  if (isNext) {
+    await test("NEXT (pre-#2189): openMaterials() opens /materials?caseUrn=<urn>&caseId=<id>", async () => {
+      assertEqual(await runOpenMaterials({ iScreenCaseID: 99, sURN: "URN1" }), "/materials?caseUrn=URN1&caseId=99", "sURN")
+      assertEqual(await runOpenMaterials({ iCaseId: 42, caseUrn: "U2" }), "/materials?caseUrn=U2&caseId=42", "caseUrn fallback")
+      assertEqual(
+        await runOpenMaterials({ m_iScreenCaseID: 7, __cells: [{ innerText: "x 12AB3456789 y" }] }),
+        "/materials?caseUrn=12AB3456789&caseId=7",
+        "<td> URN scan fallback",
+      )
+    })
+    await test("NEXT (pre-#2189): a case id without any URN -> plain /materials", async () => {
+      assertEqual(await runOpenMaterials({ iScreenCaseID: 99 }), "/materials", "needs both")
+    })
+  } else {
+    await test("LIVE (#2189): openMaterials() opens /materials?caseId=<id> (no URN)", async () => {
+      assertEqual(await runOpenMaterials({ iScreenCaseID: 99, sURN: "URN1" }), "/materials?caseId=99", "iScreenCaseID")
+      assertEqual(await runOpenMaterials({ iCaseId: 42 }), "/materials?caseId=42", "iCaseId fallback")
+      assertEqual(await runOpenMaterials({ m_iScreenCaseID: 7 }), "/materials?caseId=7", "m_iScreenCaseID fallback")
+    })
+  }
 
   await test("openMaterials() with no case id opens plain /materials", async () => {
     assertEqual(await runOpenMaterials({}), "/materials", "generic Materials")
