@@ -9,18 +9,27 @@
 //     drop1.establishCmsSession (whitelist cookies -> mint + verify modern token)
 //     -> pack {cookies, token, version, landing, terminal} into a first-party state
 //        cookie + a random anti-CSRF handle in the OAuth `state` param
-//     -> 302 to Entra /authorize (prompt=none, silent).
+//     -> 302 to Entra /authorize (prompt=none, silent) for the NEUTRAL scope.
 //
 //   handleInitEntraCallback  (/init-entra/callback, public — AD 302s the browser here)
-//     validate state -> exchange code -> id_token -> validate claims -> extract OID
-//     -> store.deposit(oid, {cookies, modernToken, correlationId, email}, {idToken})
-//     -> set the id-token cookie
+//     validate state -> exchange code -> NEUTRAL access token (aud = our own app)
+//     -> IFRAME only: presence token cookie (the neutral token — our app IS the presence API's
+//        app reg, so it is used as-is), on the two presence paths, Max-Age = token lifetime
+//     -> on-behalf-of swap: neutral token -> MDS token (store.scope)
+//     -> store.deposit({cookies, token}, mdsToken)   (MDS PUT /cms-auth-store)
 //     -> finalize: TOP-LEVEL 302 to the landing (+ Cms-Auth-Values, ADDITIVE);
 //        IFRAME 200 static terminal page (harness tears the iframe down on its onload).
 //
+// TOKEN MODEL (PLAN-entra-unified-flow): ONE silent sign-in for a neutral token addressed to OUR
+// app (ENTRA_APP_SCOPE; client == resource, so no consent prompt), then an on-behalf-of swap per
+// backend on demand. The browser only ever holds a token for our app. No id_token is used: the
+// backends identify the user from their own token (oid), so there is no nonce/claims step here.
+// The swap itself is also a check on the neutral token — Entra refuses to swap a forged one.
+//
 // TRANSPARENT / ADDITIVE / BEST-EFFORT: any Entra or store failure degrades to plain
-// drop1 behaviour (top-level: still set Cms-Auth-Values + land the user; iframe: just
-// render the terminal) — the store write never breaks the user's login.
+// drop1 behaviour (top-level: still set Cms-Auth-Values + land the user; iframe: still
+// render the terminal, keeping any presence cookie already obtained) — the store write never
+// breaks the user's login, and never costs presence its token.
 //
 // SECURITY NOTE (deviates from the plan's "carry state in the OAuth state param"
 // assumption): the CMS cookies + modern token are SESSION SECRETS, so they are kept in
@@ -40,7 +49,7 @@ import store from "./store.js";
 import cryptoModule from "crypto"; // njs built-in — for the state-cookie HMAC (same as store.js)
 
 // Azure AD app registration — config comes ONLY from app settings; NO baked defaults (see
-// TODO.APP-SETTINGS.md). Missing => "" => the flow fails claims/exchange and degrades to drop1.
+// TODO.APP-SETTINGS.md). Missing => "" => the flow fails the exchange/swap and degrades to drop1.
 // tenant/client are non-secret ids; the client SECRET is a secret. There is NO ENTRA_REDIRECT_URI
 // setting: the redirect_uri is derived per-request from the incoming Host (see _redirectUri) — the
 // flow always returns to the same host, which must be a redirect URI registered on the app reg.
@@ -70,7 +79,34 @@ const TERMINAL_HTML =
   "<title>CMS auth captured</title></head>" +
   '<body data-cms-auth="done"><!-- entra store populated --></body></html>';
 
-const OIDC_SCOPE = "openid profile email";
+// The NEUTRAL scope: one our own app registration exposes (QA: 8d6133af's
+// api://8d6133af-9593-47c6-94d0-5c65e9e310f1/api.presence.user.readwrite — which is also the presence
+// API's scope, since the presence API shares that app reg). Requested at BOTH /authorize and the
+// code exchange: a code is bound to the scopes consented at authorize (AADSTS70011 otherwise).
+const APP_SCOPE = process.env.ENTRA_APP_SCOPE || "";
+
+// Presence: the neutral token, handed to global-components' presence transports in a cookie they
+// already read (contract with global-components: name + paths). HttpOnly (no page JS), Secure,
+// path-scoped so it rides ONLY the two presence routes; the proxy lifts it into a Bearer upstream.
+// Max-Age = the token's own lifetime (expires_in), so the cookie never outlives the token.
+// Set on the IFRAME terminal only (the iframe runs in the CMS shell's IE-mode cookie jar, which is
+// where the presence calls are made).
+const PRESENCE_COOKIE = "cms-auth-presence-token";
+
+// ⚠ INTERIM SWITCH (config, deliberately NOT an app setting) — 2026-10-06, QA.
+// true  = send the NEUTRAL token straight to MDS (no on-behalf-of swap). Works TODAY because MDS
+//         currently only reads `oid` and validates nothing else, and needs no admin consent.
+// false = the proper shape: swap on-behalf-of for store.scope (needs the MDS permission + ADMIN
+//         CONSENT on our app reg; until then the swap fails with AADSTS65001 and drop2 degrades).
+// WHY INTERIM: today the neutral token IS a valid presence-API credential (aud 8d6133af, scp
+// api.presence.user.readwrite — presence borrows our app reg), so with this on MDS receives a token it
+// could replay against presence, and it will stop working the day MDS adds token validation.
+// Set to false as soon as admin consent is granted; never ship beyond QA with it on.
+let MDS_SEND_NEUTRAL_TOKEN = true;
+const PRESENCE_PATHS = [
+  "/global-components/presence-jsonp",
+  "/global-components/case-locking",
+];
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -129,10 +165,10 @@ function _b64urlDecode(str) {
   ).toString("utf8");
 }
 
-// Random hex handle for state/nonce — cryptographically secure via Web Crypto
+// Random hex handle for the OAuth state — cryptographically secure via Web Crypto
 // (crypto.getRandomValues is present in njs 0.8.5). No Math.random fallback: it is not a
 // CSPRNG (SonarQube "make sure this pseudorandom generator is safe") and this value guards
-// the OAuth state/nonce (CSRF), so a weak source would be a real weakness, not lint noise.
+// the OAuth state (CSRF), so a weak source would be a real weakness, not lint noise.
 function _rand(byteLen) {
   const bytes = new Uint8Array(byteLen);
   crypto.getRandomValues(bytes);
@@ -141,31 +177,6 @@ function _rand(byteLen) {
       return b.toString(16).padStart(2, "0");
     })
     .join("");
-}
-
-function _decodeJwtPayload(token) {
-  const parts = token.split(".");
-  if (parts.length !== 3) return null;
-  try {
-    return JSON.parse(_b64urlDecode(parts[1]));
-  } catch (e) {
-    return null;
-  }
-}
-
-// Validate id_token claims. Returns "" when valid, else a short reason code.
-function _validateClaims(claims, nonce) {
-  if (claims.nonce !== nonce) return "nonce";
-  if (claims.tid !== TENANT_ID) return "tid";
-  const iss = String(claims.iss || "");
-  const validIssuers = [
-    "https://sts.windows.net/" + TENANT_ID + "/",
-    "https://login.microsoftonline.com/" + TENANT_ID + "/v2.0",
-  ];
-  if (validIssuers.indexOf(iss) === -1) return "iss";
-  const exp = Number(claims.exp || 0);
-  if (!exp || exp < Math.floor(Date.now() / 1000)) return "exp";
-  return "";
 }
 
 // Rebuild the drop1 session shape from the unpacked state payload.
@@ -213,16 +224,11 @@ function _unpackState(raw) {
   return JSON.parse(_b64urlDecode(payload));
 }
 
-// Exchange the authorization code for tokens at the AD token endpoint.
-async function _exchangeCode(code, redirectUri) {
-  const body = [
-    "client_id=" + encodeURIComponent(CLIENT_ID),
-    "client_secret=" + encodeURIComponent(CLIENT_SECRET),
-    "code=" + encodeURIComponent(code),
-    "redirect_uri=" + encodeURIComponent(redirectUri),
-    "grant_type=authorization_code",
-    "scope=" + encodeURIComponent(OIDC_SCOPE),
-  ].join("&");
+// POST a form to the AD token endpoint; returns { accessToken, expiresIn, diag }. On an AD error
+// the diag carries AD's error code (e.g. invalid_grant / AADSTS65001 = consent missing) — never
+// the token. Shared by the code exchange and the on-behalf-of swap.
+async function _tokenRequest(fields) {
+  const body = fields.join("&");
   try {
     const resp = await ngx.fetch(_tokenUrl(), {
       method: "POST",
@@ -233,18 +239,62 @@ async function _exchangeCode(code, redirectUri) {
       body: body,
     });
     const text = await resp.text();
-    if (!resp.ok) {
-      return { idToken: "", accessToken: "", diag: "HTTP " + resp.status };
+    let data = {};
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      data = {};
     }
-    const data = JSON.parse(text);
+    if (!resp.ok || !data.access_token) {
+      const codes = Array.isArray(data.error_codes) ? " AADSTS" + data.error_codes.join(",AADSTS") : "";
+      return { accessToken: "", expiresIn: 0, diag: "HTTP " + resp.status + " " + (data.error || "") + codes };
+    }
     return {
-      idToken: data.id_token || "",
-      accessToken: data.access_token || "",
+      accessToken: data.access_token,
+      expiresIn: Number(data.expires_in || 0),
       diag: "ok",
     };
   } catch (e) {
-    return { idToken: "", accessToken: "", diag: String(e) };
+    return { accessToken: "", expiresIn: 0, diag: String(e) };
   }
+}
+
+// Exchange the authorization code for the NEUTRAL access token (APP_SCOPE).
+function _exchangeCode(code, redirectUri) {
+  return _tokenRequest([
+    "client_id=" + encodeURIComponent(CLIENT_ID),
+    "client_secret=" + encodeURIComponent(CLIENT_SECRET),
+    "code=" + encodeURIComponent(code),
+    "redirect_uri=" + encodeURIComponent(redirectUri),
+    "grant_type=authorization_code",
+    "scope=" + encodeURIComponent(APP_SCOPE),
+  ]);
+}
+
+// On-behalf-of swap: the user's neutral token (aud = our app) for a token for another API's
+// scope, keeping the user's identity (oid). Needs: our app reg has the API permission for `scope`
+// + consent (admin consent in CPS — the tenant blocks user consent). See PLAN-entra-unified-flow.
+function _obo(assertion, scope) {
+  if (!scope) return { accessToken: "", expiresIn: 0, diag: "no-scope" };
+  return _tokenRequest([
+    "client_id=" + encodeURIComponent(CLIENT_ID),
+    "client_secret=" + encodeURIComponent(CLIENT_SECRET),
+    "grant_type=" + encodeURIComponent("urn:ietf:params:oauth:grant-type:jwt-bearer"),
+    "requested_token_use=on_behalf_of",
+    "assertion=" + encodeURIComponent(assertion),
+    "scope=" + encodeURIComponent(scope),
+  ]);
+}
+
+// The presence cookies for a neutral token (one per presence path).
+function _presenceCookies(accessToken, expiresIn) {
+  const maxAge = expiresIn > 0 ? expiresIn : 3600;
+  return PRESENCE_PATHS.map(function (p) {
+    return (
+      PRESENCE_COOKIE + "=" + accessToken +
+      "; Path=" + p + "; HttpOnly; Secure; SameSite=Lax; Max-Age=" + maxAge
+    );
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -264,10 +314,8 @@ async function handleInitEntra(r) {
     const terminal = _arg(r, "terminal") === "iframe" ? "iframe" : "top-level";
 
     const stateHandle = _rand(16);
-    const nonce = _rand(16);
     const payload = {
       s: stateHandle,
-      n: nonce,
       cc: session.cookieHeader,
       tok: session.token,
       ver: session.versionId,
@@ -284,9 +332,8 @@ async function handleInitEntra(r) {
       "client_id=" + encodeURIComponent(CLIENT_ID),
       "response_type=code",
       "redirect_uri=" + encodeURIComponent(_redirectUri(r)),
-      "scope=" + encodeURIComponent(OIDC_SCOPE),
+      "scope=" + encodeURIComponent(APP_SCOPE),
       "state=" + stateHandle,
-      "nonce=" + nonce,
       "response_mode=query",
       // Silent auth: CMS users already have an AAD session (same tenant), so prompt=none
       // yields a bare 302 (code, or error=login_required) with no UI to render — which is
@@ -340,58 +387,42 @@ async function handleInitEntraCallback(r) {
     }
 
     const tok = await _exchangeCode(code, _redirectUri(r));
-    if (!tok.idToken) {
+    if (!tok.accessToken) {
       _degrade(r, st, null, "token-exchange-failed: " + tok.diag);
       return;
     }
-    const claims = _decodeJwtPayload(tok.idToken);
-    if (!claims) {
-      _degrade(r, st, null, "token-decode-failed");
-      return;
-    }
-    const claimErr = _validateClaims(claims, st.n);
-    if (claimErr) {
-      _degrade(r, st, null, "claims-invalid: " + claimErr);
-      return;
-    }
 
-    const oid = String(claims.oid || "");
-    const email = String(
-      claims.email || claims.upn || claims.preferred_username || "",
-    );
-    if (!oid) {
-      _degrade(r, st, null, "no-oid");
-      return;
-    }
+    // Presence first (iframe only), so a later MDS failure cannot cost presence its token.
+    const extra =
+      st.term === "iframe" ? _presenceCookies(tok.accessToken, tok.expiresIn) : [];
 
-    // The main event: deposit through the swap-out seam.
-    const dep = await store.deposit(
-      oid,
-      {
-        cookies: st.cc,
-        modernToken: st.tok,
-        correlationId: st.corr,
-        email: email,
-      },
-      { idToken: tok.idToken, accessToken: tok.accessToken },
-    );
+    // The auth store: swap the neutral token for the store backend's token (or, with the interim
+    // switch on, send the neutral token as-is), then deposit.
+    let bearer = tok.accessToken;
+    if (!MDS_SEND_NEUTRAL_TOKEN) {
+      const mds = await _obo(tok.accessToken, store.scope);
+      if (!mds.accessToken) {
+        _degrade(r, st, null, "obo-failed: " + mds.diag, extra);
+        return;
+      }
+      bearer = mds.accessToken;
+    }
+    const dep = await store.deposit({ cookies: st.cc, token: st.tok }, bearer);
     if (!dep.ok) {
-      _degrade(r, st, null, "store-deposit-failed: " + dep.diag);
+      _degrade(r, st, null, "store-deposit-failed: " + dep.diag, extra);
       return;
     }
 
-    _succeed(r, st);
+    _succeed(r, st, extra);
   } catch (e) {
     _degrade(r, st, null, "callback-error: " + String(e));
   }
 }
 
-// Success terminal: clear state, then branch on mode. (The real idToken lands in the store
-// deposit; drop2 no longer sets a browser-side id-token cookie — that presence-jsonp consumer
-// was experimental and has been removed.)
-function _succeed(r, st) {
+// Success terminal: clear state (+ any presence cookies), then branch on mode.
+function _succeed(r, st, extra) {
   replaceDdei.markAuthInit(r, "entra");
-  const cookies = [STATE_COOKIE + "=deleted" + STATE_CLEAR_OPTS];
+  const cookies = [STATE_COOKIE + "=deleted" + STATE_CLEAR_OPTS].concat(extra || []);
   if (st.term === "iframe") {
     // Pure side-channel: store only, no Cms-Auth-Values, static page.
     r.headersOut["Set-Cookie"] = cookies;
@@ -406,7 +437,7 @@ function _succeed(r, st) {
 
 // Best-effort degrade path. Never blocks the user's login: top-level still establishes
 // Cms-Auth-Values + lands (plain drop1 behaviour); iframe just renders the terminal.
-function _degrade(r, st, landingFallback, reason) {
+function _degrade(r, st, landingFallback, reason, extra) {
   // Marker only — the reason goes to the error log below, never to the client.
   replaceDdei.markAuthInit(r, "entra-degraded");
   try {
@@ -414,16 +445,16 @@ function _degrade(r, st, landingFallback, reason) {
   } catch (e) {
     // logging is best-effort
   }
-  const clear = STATE_COOKIE + "=deleted" + STATE_CLEAR_OPTS;
+  const clear = [STATE_COOKIE + "=deleted" + STATE_CLEAR_OPTS].concat(extra || []);
 
   if (st && st.term === "iframe") {
-    r.headersOut["Set-Cookie"] = [clear];
+    r.headersOut["Set-Cookie"] = clear;
     r.headersOut["Content-Type"] = "text/html; charset=utf-8";
     r.return(200, TERMINAL_HTML);
     return;
   }
   if (st) {
-    r.headersOut["Set-Cookie"] = [clear];
+    r.headersOut["Set-Cookie"] = clear;
     replaceDdei.finalize(r, _sessionFrom(st), { polarisUiUrl: st.ui, q: st.q });
     return;
   }
@@ -452,8 +483,15 @@ export default {
     unpackState: _unpackState,
     b64urlEncode: _b64urlEncode,
     b64urlDecode: _b64urlDecode,
-    decodeJwtPayload: _decodeJwtPayload,
-    validateClaims: _validateClaims,
+    obo: _obo,
+    presenceCookies: _presenceCookies,
+    // lets the unit tests exercise both sides of the interim switch
+    setMdsSendNeutralToken: function (v) {
+      MDS_SEND_NEUTRAL_TOKEN = !!v;
+    },
+    getMdsSendNeutralToken: function () {
+      return MDS_SEND_NEUTRAL_TOKEN;
+    },
     rand: _rand,
     authorizeUrl: _authorizeUrl,
     tokenUrl: _tokenUrl,
@@ -461,6 +499,7 @@ export default {
       STATE_COOKIE: STATE_COOKIE,
       TENANT_ID: TENANT_ID,
       TERMINAL_HTML: TERMINAL_HTML,
+      PRESENCE_COOKIE: PRESENCE_COOKIE,
     },
   },
 };

@@ -51,7 +51,10 @@ drop2 used to set a browser-side `cms-auth-id-token` cookie (host-only, `HttpOnl
 `Path=/global-components/presence-jsonp`) carrying a DEV token, read by the case-locking
 `presence-jsonp` endpoint. That whole presence path was experimental and has been removed
 (both the cookie here and the case-locking consumer). The real id_token still goes to the
-store deposit (E10). Kept as a numbered stub so E-numbers stay stable.
+store deposit (E10). Kept as a numbered stub so E-numbers stay stable. **Superseded 2026-10:**
+drop2 sets the presence cookie again — now `cms-auth-presence-token` (global-components' existing
+contract), carrying the NEUTRAL **access** token, on the iframe terminal only, Max-Age = token
+lifetime. See PLAN-entra-unified-flow.
 
 ### E4. 🟠 Callback path must be a registered redirect URI
 
@@ -75,10 +78,10 @@ njs 0.8.5) — the insecure `Math.random` fallback was removed (it is not a CSPR
 flagged by SonarQube). drop1's correlation-id `_uuid` was moved to the same source, so the
 config uses no `Math.random` anywhere.
 
-### E6. 🔴 `js_fetch_verify off` on the AD + storage fetches
+### E6. 🔴 `js_fetch_verify off` on the AD + MDS fetches
 
 The callback disables TLS verification for the `ngx.fetch` calls to
-`login.microsoftonline.com` and `*.table.core.windows.net` (mirrors drop1's loopback
+`login.microsoftonline.com` (code exchange + on-behalf-of) and MDS (mirrors drop1's loopback
 setup). For **external** endpoints this should be `on` with a trusted CA bundle
 (`js_fetch_trusted_certificate`). Fix before prod.
 
@@ -96,9 +99,13 @@ signature against a known key/date is the cheapest check.
 ### E8. `terminal=iframe` harness wiring
 
 The core supports both modes; `handleInitEntra` reads `terminal=iframe` off the request.
-Threading that marker through `/polaris → /init → /auth-refresh-inbound`, and the small
-JS harness that opens/destroys the hidden iframe in CMS Classic, are **future** work —
-deliberately not built here (the top-level flow is the main event).
+**Threading (done 2026-10):** with no `r`, `/init`'s shim copies `terminal` into the synthesised
+`r=/auth-refresh-inbound?…` (an explicit `r` must include it itself), and the rewrite to
+`/init-entra` keeps the query. `/init` **skips its Edge gate** when `terminal=iframe`: the iframe
+lives in the CMS Classic IE-mode tab, cannot change mode (coercion would loop or 402), and must
+stay in IE mode so the presence cookie lands in the IE jar (`auth-handover.js` appAuthRedirect;
+unit-pinned). **Still future:** the small JS harness in CMS Classic that opens/destroys the
+hidden iframe at login (global-components' Classic client, step 2 of the plan).
 
 ### E9. Framed-cookie `SameSite`
 
@@ -108,10 +115,23 @@ need `SameSite=None; Secure`. Revisit if the iframe host changes.
 
 ### E10. Store backend migration (the seam)
 
-`store.js` deposits via a single `deposit(oid, payload, tokens)` binding
-(`tableStorageDeposit` today). The planned MDS-API endpoint is a drop-in `apiEndpointDeposit`
-(POST + `Authorization: Bearer <accessToken>`) — swap the one binding, no auth-flow change.
-The callback already passes the AD tokens through (Table Storage ignores them).
+**Done 2026-10: the backend is MDS.** `store.js` exports `scope` (`ENTRA_MDS_SCOPE`) and
+`deposit(payload, bearer)` = `mdsDeposit`: `PUT <WM_MDS_BASE_URL>cms-auth-store` with
+`Authorization: Bearer <OBO token>` + `x-functions-key` (the same two settings the
+global-components `/global-components/api` route uses — not that route itself, which strips
+Authorization) and body `{cookies, token, expiryTime: "2000-01-01T00:00:00Z"}` (fixed; MDS ignores
+it today — revisit if it ever honours it). MDS takes the user from the token's `oid`; today it
+checks nothing else, full validation arrives later as MDS middleware. The Table Storage backend
+(SharedKeyLite, `ENTRA_STORAGE_*`, rows keyed by an id_token OID) is removed — git history has it.
+The swap needs the MDS permission on our app reg **plus admin consent** (CPS blocks user consent);
+until then the on-behalf-of call fails (AADSTS65001) and drop2 degrades — safe.
+
+**⚠ Interim switch `MDS_SEND_NEUTRAL_TOKEN` (2026-10-06, a config constant in
+`auth-handover.drop2.entra.js`, NOT an app setting) — currently ON:** skips the swap and sends the
+NEUTRAL token to MDS, so deposits work on QA before admin consent (MDS only reads `oid` today). Costs: MDS
+receives a token that is, today, a valid presence-API credential (aud `8d6133af`, scp
+`api.presence.user.readwrite`), and it stops working when MDS adds validation. **Turn OFF once admin
+consent is granted; never ship beyond QA with it on.** Unit-pinned (both sides + the shipped value).
 
 ### E11. ⚪ (removed) presence id-token cookie IE/Edge jar handover
 

@@ -117,8 +117,12 @@ function setSessionHintCookie(r) {
 }
 
 function appAuthRedirect(r) {
-  // Edge Mode Desired (was the two conf `if ($ieaction …)` gates on /init).
-  if (ieMode.coerce(r, "edge", true)) return;
+  // Edge Mode Desired (was the two conf `if ($ieaction …)` gates on /init) — EXCEPT for the
+  // hidden-iframe handover (terminal=iframe, drop2 QUIRK E8): that runs inside the CMS Classic
+  // shell, an IE-mode tab, and an iframe cannot change mode, so coercing would loop
+  // (X-InternetExplorerMode: 0 redirects) or 402. It also MUST stay in IE mode: the presence
+  // cookie it ends with belongs in the IE-mode jar. Absent terminal=iframe, behaviour is unchanged.
+  if (r.args.terminal !== "iframe" && ieMode.coerce(r, "edge", true)) return;
   setSessionHintCookie(r);
 
   const args = _argsShim(r.args);
