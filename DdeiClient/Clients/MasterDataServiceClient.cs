@@ -8,6 +8,8 @@ using Azure.Core;
 using Common.Constants;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
+using Common.Dto.Response.Document;
+using Common.Dto.Response.Documents;
 using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Response.HouseKeeping.Pcd;
 using Ddei.Domain.CaseData.Args.Core;
@@ -71,6 +73,80 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
 
         return result;
+    }
+
+    public async Task<IEnumerable<DocumentDto>> ListDocumentsAsync(MdsCaseIdentifiersArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var results = new List<DocumentDto>();
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+
+            var data = await client.ListDocuments2Async(arg.CaseId, cancellationToken); // returns ApiClient.DocumentDetails
+
+            if (data is not null)
+            {
+                results = data.Select(document => new DocumentDto
+                {
+                    DocumentId = document.Id.ToString(),
+                    VersionId = document.VersionId ?? 0,
+                    EntityId = document.EntityId,
+
+                    PresentationTitle = document.PresentationTitle,
+                    CmsOriginalFileName = document.OriginalFileName,
+                    CmsFileCreatedDate = document.Date,
+
+                    IsOcrProcessed = document.IsOcrProcessed,
+                    CategoryListOrder = document.CategoryListOrder,
+
+                    ParentDocumentId = document.ParentId?.ToString(),
+                    WitnessId = document.WitnessId,
+
+                    HasFailedAttachments = document.HasFailedAttachments,
+                    HasNotes = document.HasNotes,
+
+                    IsUnused = document.IsUnused,
+                    IsInbox = document.IsInbox,
+
+                    Classification = document.Classification?.ToString(),
+                    IsWitnessManagement = document.IsWitnessManagement,
+                    CanReclassify = document.CanReclassify,
+                    CanRename = document.CanRename,
+
+                    RenameStatus = document.RenameStatus?.ToString(),
+                    Reference = document.Reference,
+
+                    CmsDocType = new DocumentTypeDto
+                    {
+                        DocumentTypeId = document.TypeId,
+                        DocumentType = document.Type,
+                        DocumentCategory = document.CmsDocCategory?.ToString(),
+                    },
+
+                    Status = Enum.TryParse<DocumentStatus>( // maybe remove or rework this...
+                        document.Status,
+                        true,
+                        out var status)
+                            ? status
+                            : DocumentStatus.New,
+
+                    FileExtension = document.FileExtension,
+                    MimeType = document.MimeType,
+                    Path = document.Path,
+                    Title = document.Title,
+                    PresentationFlags = null, // should this akways be null??? ...
+                    ConversionStatus = default,
+                    PiiVersionId = null,
+                }).ToList();
+            }
+
+            return results;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "An error occurred while listing documents.");
+            throw;
+        }
     }
 
     /// <inheritdoc/>

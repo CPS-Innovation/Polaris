@@ -2,6 +2,7 @@ using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Dto.Response.Document;
 using Common.Extensions;
+using Common.Mappers;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.Response.Document;
 using Ddei.Factories;
@@ -20,14 +21,20 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
     private const string DefenceStatementClassification = "DEFENCESTATEMENT";
     private const int DefenceStatementTypeId = -2;
     private readonly IMdsClient _mdsClient;
+    private readonly IMasterDataServiceClient _masterDataServiceClient;
+    private readonly ICmsDocumentDtoMapper _cmsDocumentDtoMapper;
     private readonly IMdsArgFactory _mdsArgFactory;
 
     public MdsReclassifyDocumentOrchestrationService(
             IMdsClient mdsClient,
+            IMasterDataServiceClient masterDataServiceClient,
+            ICmsDocumentDtoMapper cmsDocumentDtoMapper,
             IMdsArgFactory mdsArgFactory
         )
     {
         _mdsClient = mdsClient.ExceptionIfNull();
+        _masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        _cmsDocumentDtoMapper = cmsDocumentDtoMapper.ExceptionIfNull();
         _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
     }
 
@@ -62,12 +69,15 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
 
     private async Task<(IEnumerable<CmsDocumentDto> caseDocuments, IEnumerable<MaterialTypeDto> materialTypeList)> FetchDocumentAndMaterialTypes(IMdsClient mdsClient, MdsReclassifyDocumentArgDto arg)
     {
-        var caseDocumentsTask = mdsClient.ListDocumentsAsync(arg);
+        //var caseDocumentsTaskOld = mdsClient.ListDocumentsAsync(arg);
+        var caseDocumentsTask = _masterDataServiceClient.ListDocumentsAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
         var materialTypeListTask = mdsClient.GetMaterialTypeListAsync(arg);
 
         await Task.WhenAll(caseDocumentsTask, materialTypeListTask);
 
-        return (caseDocumentsTask.Result, materialTypeListTask.Result);
+        var caseDocumentsMapped = caseDocumentsTask.Result.Select(x => _cmsDocumentDtoMapper.Map(x, null)).ToList();
+
+        return (caseDocumentsMapped, materialTypeListTask.Result);
     }
 
     private async Task<MdsCommunicationReclassifiedResponse> ReclassifyDocument(IMdsClient mdsClient, MdsReclassifyDocumentArgDto arg, CmsDocumentDto document, MaterialTypeDto materialType)

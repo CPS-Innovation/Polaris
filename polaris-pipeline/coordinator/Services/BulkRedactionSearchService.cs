@@ -11,6 +11,7 @@ using Common.Domain.Ocr;
 using Common.Dto.Request;
 using Common.Dto.Response.Document;
 using Common.Extensions;
+using Common.Mappers;
 using Common.Services.BlobStorage;
 using coordinator.Builders;
 using coordinator.Domain;
@@ -37,16 +38,20 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
     private readonly IBulkRedactionSearchResponseBuilder bulkRedactionSearchResponseBuilder;
     private readonly IOcrDocumentSearch ocrDocumentSearch;
     private readonly IMdsClient mdsClient;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
+    private readonly ICmsDocumentDtoMapper cmsDocumentDtoMapper;
     private readonly IMdsArgFactory mdsArgFactory;
     private readonly ILogger<BulkRedactionSearchService> logger;
 
-    public BulkRedactionSearchService(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOrchestrationProvider orchestrationProvider, IBulkRedactionSearchResponseBuilder bulkRedactionSearchResponseBuilder, IOcrDocumentSearch ocrDocumentSearch, IConfiguration configuration, IMdsClient mdsClient, IMdsArgFactory mdsArgFactory, ILogger<BulkRedactionSearchService> logger)
+    public BulkRedactionSearchService(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory, IOrchestrationProvider orchestrationProvider, IBulkRedactionSearchResponseBuilder bulkRedactionSearchResponseBuilder, IOcrDocumentSearch ocrDocumentSearch, IConfiguration configuration, IMdsClient mdsClient, IMasterDataServiceClient masterDataServiceClient, ICmsDocumentDtoMapper cmsDocumentDtoMapper, IMdsArgFactory mdsArgFactory, ILogger<BulkRedactionSearchService> logger)
     {
         this.polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
         this.orchestrationProvider = orchestrationProvider.ExceptionIfNull();
         this.bulkRedactionSearchResponseBuilder = bulkRedactionSearchResponseBuilder.ExceptionIfNull();
         this.ocrDocumentSearch = ocrDocumentSearch.ExceptionIfNull();
         this.mdsClient = mdsClient.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        this.cmsDocumentDtoMapper = cmsDocumentDtoMapper.ExceptionIfNull();
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         this.logger = logger.ExceptionIfNull();
     }
@@ -167,9 +172,11 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
             bulkRedactionSearchDto.Urn,
             bulkRedactionSearchDto.CaseId);
 
-        var listDocumentResponse = await this.mdsClient.ListDocumentsAsync(caseIdentifiersArg);
+        //var listDocumentResponseOld = await this.mdsClient.ListDocumentsAsync(caseIdentifiersArg);
+        var listDocumentResponse = await this.masterDataServiceClient.ListDocumentsAsync(caseIdentifiersArg, new CmsAuthValues(caseIdentifiersArg.CmsAuthValues, caseIdentifiersArg.CorrelationId));
+        var listDocumentsMapped = listDocumentResponse.Select(x => this.cmsDocumentDtoMapper.Map(x, null)).ToList();
 
-        var cmsDocumentDto = listDocumentResponse.FirstOrDefault(
+        var cmsDocumentDto = listDocumentsMapped.FirstOrDefault(
             x => bulkRedactionSearchDto.MaterialId.Contains(x.DocumentId.ToString()) &&
                  x.VersionId == bulkRedactionSearchDto.DocumentId);
 

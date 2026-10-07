@@ -55,7 +55,7 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
         return request;
     }
 
-    public HttpRequestMessage CreateListCaseDocumentsRequest(MdsCaseIdentifiersArgDto arg)
+    public HttpRequestMessage   CreateListCaseDocumentsRequest(MdsCaseIdentifiersArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/documents/cwa");
         CreateRequest(request, arg);

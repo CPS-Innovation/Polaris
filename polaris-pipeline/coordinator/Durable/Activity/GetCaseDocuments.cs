@@ -5,6 +5,7 @@ using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.HouseKeeping.Pcd;
 using Common.Extensions;
+using Common.Mappers;
 using Common.Services.DocumentToggle;
 using coordinator.Domain;
 using coordinator.Durable.Payloads;
@@ -26,6 +27,7 @@ public class GetCaseDocuments
     private readonly IMasterDataServiceClient _masterDataServiceClient;
     private readonly IMdsArgFactory _mdsArgFactory;
     private readonly ICaseDetailsMapper _caseDetailsMapper;
+    private readonly ICmsDocumentDtoMapper _cmsDocumentDtoMapper;
     private readonly IDocumentToggleService _documentToggleService;
     private readonly IStateStorageService _stateStorageService;
     private readonly ILogger<GetCaseDocuments> _log;
@@ -35,6 +37,7 @@ public class GetCaseDocuments
         IMasterDataServiceClient masterDataServiceClient,
         IMdsArgFactory mdsArgFactory,
         ICaseDetailsMapper caseDetailsMapper,
+        ICmsDocumentDtoMapper cmsDocumentDtoMapper,
         IDocumentToggleService documentToggleService,
         IStateStorageService stateStorageService,
         ILogger<GetCaseDocuments> logger)
@@ -43,6 +46,7 @@ public class GetCaseDocuments
         _masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
         _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         _caseDetailsMapper = caseDetailsMapper.ExceptionIfNull();
+        _cmsDocumentDtoMapper = cmsDocumentDtoMapper.ExceptionIfNull();
         _documentToggleService = documentToggleService.ExceptionIfNull();
         _stateStorageService = stateStorageService.ExceptionIfNull();
         _log = logger.ExceptionIfNull();
@@ -71,16 +75,16 @@ public class GetCaseDocuments
             throw new ArgumentException("CorrelationId must be valid GUID");
         }
 
-
         var arg = _mdsArgFactory.CreateCaseIdentifiersArg(
             payload.CmsAuthValues,
             payload.CorrelationId,
             payload.Urn,
             payload.CaseId);
 
-        var getDocumentsTask = _mdsClient.ListDocumentsAsync(arg);
-        //var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg); // mdsClient calls /cases/{arg.CaseId}/pcd-requests/overview
+        //var getDocumentsTaskOld = _mdsClient.ListDocumentsAsync(arg);
+        var getDocumentsTask = _masterDataServiceClient.ListDocumentsAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
 
+        //var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg); // mdsClient calls /cases/{arg.CaseId}/pcd-requests/overview
         var getPcdRequestsTask = _masterDataServiceClient.GetCasePcdRequestsAsync(
             arg,
             new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
@@ -92,7 +96,14 @@ public class GetCaseDocuments
 
         await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 
-        var cmsDocuments = getDocumentsTask.Result
+        //var getDocumentsTaskMapped = getDocumentsTask.Select(x => _cmsDocumentDtoMapper.Map(x, null)).ToList();
+        var getDocumentsTaskMapped = getDocumentsTask.Result.Select(x => _cmsDocumentDtoMapper.Map(x, null)).ToList();
+
+        //var ghanaDocuments = getDocumentsTaskOld.Result
+        //    .Select(MapPresentationFlags)
+        //    .ToArray();
+
+        var cmsDocuments = getDocumentsTaskMapped
             .Select(MapPresentationFlags)
             .ToArray();
 

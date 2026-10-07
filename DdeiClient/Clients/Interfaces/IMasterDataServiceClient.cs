@@ -6,6 +6,7 @@ namespace DdeiClient.Clients.Interfaces
 {
     using Common.Dto.Request;
     using Common.Dto.Request.HouseKeeping;
+    using Common.Dto.Response.Documents;
     using Common.Dto.Response.HouseKeeping;
     using Common.Dto.Response.HouseKeeping.Pcd;
     using Ddei.Domain.CaseData.Args.Core;
@@ -313,5 +314,7 @@ namespace DdeiClient.Clients.Interfaces
         Task<ApiClient.PcdReviewData> GetPcdReview(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         Task<IEnumerable<PcdRequestDto>> GetCasePcdRequestsAsync(MdsCaseIdentifiersArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task<IEnumerable<DocumentDto>> ListDocumentsAsync(MdsCaseIdentifiersArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
     }
 }

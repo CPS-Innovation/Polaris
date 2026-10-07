@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Common.Mappers;
+using Microsoft.Extensions.DependencyInjection;
 using PolarisGateway.Services.MdsOrchestration.Mappers;
 
 namespace PolarisGateway.Services.MdsOrchestration
@@ -12,6 +13,7 @@ namespace PolarisGateway.Services.MdsOrchestration
             services.AddSingleton<IMdsCaseOrchestrationService, MdsCaseOrchestrationService>();
             services.AddSingleton<IMdsCaseOrchestrationService, MdsCaseOrchestrationService>();
             services.AddSingleton<IDocumentDtoMapper, DocumentDtoMapper>();
+            services.AddSingleton<ICmsDocumentDtoMapper, CmsDocumentDtoMapper>();
         }
     }
 }

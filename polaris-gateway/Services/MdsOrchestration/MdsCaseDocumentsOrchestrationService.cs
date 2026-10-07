@@ -12,6 +12,7 @@ using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
 using Common.Dto.Response.HouseKeeping.Pcd;
 using Common.Extensions;
+using Common.Mappers;
 using Common.Services.DocumentToggle;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
@@ -26,17 +27,19 @@ using System.Threading.Tasks;
 public class MdsCaseDocumentsOrchestrationService (
         IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient,
+        ICmsDocumentDtoMapper cmsDocumentDtoMapper,
         IMdsArgFactory mdsArgFactory,
         ICaseDetailsMapper caseDetailsMapper,
         IDocumentToggleService documentToggleService,
-        IDocumentDtoMapper cmsDocumentMapper)
+        IDocumentDtoMapper documentMapper)
     : IMdsCaseDocumentsOrchestrationService
 {
     public async Task<IEnumerable<DocumentDto>> GetCaseDocuments(MdsCaseIdentifiersArgDto arg)
     {
-        var getDocumentsTask = mdsClient.ListDocumentsAsync(arg);
-        //var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg); // calls /cases/{arg.CaseId}/pcd-requests/overview  returns PcdRequestCoreDto
+        //var getDocumentsTaskOld = mdsClient.ListDocumentsAsync(arg);
+        var getDocumentsTask = masterDataServiceClient.ListDocumentsAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
 
+        //var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg); // calls /cases/{arg.CaseId}/pcd-requests/overview  returns PcdRequestCoreDto
         var getPcdRequestsTask = masterDataServiceClient.GetCasePcdRequestsAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
 
         //var getDefendantsAndChargesTask = mdsClient.GetDefendantAndChargesAsync(arg);
@@ -46,7 +49,9 @@ public class MdsCaseDocumentsOrchestrationService (
 
         await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 
-        var cmsDocuments = getDocumentsTask.Result;
+        var getDocumentsMapped = getDocumentsTask.Result.Select(x => cmsDocumentDtoMapper.Map(x, null)).ToList();
+
+        var cmsDocuments = getDocumentsMapped;
         var pcdRequests = getPcdRequestsTask.Result;
         var defendantAndCharges = getDefendantsAndChargesTask.Result;
         var defendandAndChargesMapped = caseDetailsMapper.MapDefendantsResponseToDefendantsAndChargesListDto(defendantAndCharges, arg.CaseId);
@@ -63,11 +68,11 @@ public class MdsCaseDocumentsOrchestrationService (
     }
 
     public DocumentDto MapDocument(CmsDocumentDto document) =>
-        cmsDocumentMapper.Map(document, documentToggleService.GetDocumentPresentationFlags(document));
+        documentMapper.Map(document, documentToggleService.GetDocumentPresentationFlags(document));
 
     public DocumentDto MapPcdRequest(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto pcdRequest) =>
-        cmsDocumentMapper.Map(pcdRequest, documentToggleService.GetPcdRequestPresentationFlags(pcdRequest));
+        documentMapper.Map(pcdRequest, documentToggleService.GetPcdRequestPresentationFlags(pcdRequest));
 
     public DocumentDto MapDefendantAndCharges(DefendantsAndChargesListDto defendantAndCharges) =>
-        cmsDocumentMapper.Map(defendantAndCharges, documentToggleService.GetDefendantAndChargesPresentationFlags(defendantAndCharges));
+        documentMapper.Map(defendantAndCharges, documentToggleService.GetDefendantAndChargesPresentationFlags(defendantAndCharges));
 }
