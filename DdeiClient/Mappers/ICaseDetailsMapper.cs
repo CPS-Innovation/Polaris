@@ -1,3 +1,9 @@
+// <copyright file="ICaseDetailsMapper.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace Ddei.Mappers;
+
 using Common.Dto.Response;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
@@ -6,19 +12,25 @@ using Ddei.Domain.Response;
 using Ddei.Domain.Response.Defendant;
 using Ddei.Domain.Response.PreCharge;
 
-namespace Ddei.Mappers
+public interface ICaseDetailsMapper
 {
-    public interface ICaseDetailsMapper
-    {
-        CaseDto MapCaseDetails(CaseDetailsDto caseDetails);
-        DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<MdsCaseDefendantDto> defendants, int caseId, string etag);
-        DefendantsAndChargesListDto MapDefendantsResponseToDefendantsAndChargesListDto(DefendantsResponse defendantsResponse, int caseId);
-        PcdRequestDto MapPreChargeDecisionRequest(MdsPcdRequestDto pcdr);
-        IEnumerable<PcdRequestCoreDto> MapCorePreChargeDecisionRequests(IEnumerable<MdsPcdRequestCoreDto> pcdRequests);
-        IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<MdsPcdRequestDto> pcdRequests);
-        CaseSummaryDto Map(MdsCaseSummaryDto mdsResult);
-        IEnumerable<WitnessDto> MapWitnesses(IEnumerable<BaseCaseWitnessResponse> witnesses);
-        IEnumerable<Common.Dto.Response.Case.PreCharge.PcdRequestDto> MapPcdRequests(IEnumerable<Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto> requests);
-        Common.Dto.Response.Case.PreCharge.PcdRequestDto MapPcdRequest(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto request);
-    }
+    CaseDto MapCaseDetails(CaseDetailsDto caseDetails);
+
+    DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<MdsCaseDefendantDto> defendants, int caseId, string etag);
+
+    DefendantsAndChargesListDto MapDefendantsResponseToDefendantsAndChargesListDto(DefendantsResponse defendantsResponse, int caseId);
+
+    PcdRequestDto MapPreChargeDecisionRequest(MdsPcdRequestDto pcdr);
+
+    IEnumerable<PcdRequestCoreDto> MapCorePreChargeDecisionRequests(IEnumerable<MdsPcdRequestCoreDto> pcdRequests);
+
+    IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<MdsPcdRequestDto> pcdRequests);
+
+    CaseSummaryDto Map(MdsCaseSummaryDto mdsResult);
+
+    IEnumerable<WitnessDto> MapWitnesses(IEnumerable<BaseCaseWitnessResponse> witnesses);
+
+    IEnumerable<Common.Dto.Response.Case.PreCharge.PcdRequestDto> MapPcdRequests(IEnumerable<Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto> requests);
+
+    Common.Dto.Response.Case.PreCharge.PcdRequestDto MapPcdRequest(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto request);
 }

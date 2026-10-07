@@ -1,3 +1,9 @@
+// <copyright file="CaseDetailsMapper.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace Ddei.Mappers;
+
 using Common.Dto.Response;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
@@ -7,470 +13,468 @@ using Ddei.Domain.Response.Defendant;
 using Ddei.Domain.Response.PreCharge;
 using System.Text.RegularExpressions;
 
-namespace Ddei.Mappers
+public class CaseDetailsMapper : ICaseDetailsMapper
 {
-    public class CaseDetailsMapper : ICaseDetailsMapper
+    private const string NotYetChargedCode = "NYC";
+
+    public CaseDto MapCaseDetails(CaseDetailsDto caseDetails)
     {
-        private const string NotYetChargedCode = "NYC";
+        var summary = caseDetails.Summary;
 
-        public CaseDto MapCaseDetails(CaseDetailsDto caseDetails)
+        var defendants = caseDetails.DefendantsAndCharges;
+        foreach (var defendant in defendants)
         {
-            var summary = caseDetails.Summary;
+            defendant.ProposedCharges = this.MapProposedCharges(defendant, caseDetails.PreChargeDecisionRequests);
+        }
 
-            var defendants = caseDetails.DefendantsAndCharges;
-            foreach (var defendant in defendants)
+        var leadDefendant = this.FindLeadDefendant(defendants, (summary.LeadDefendantFirstNames, summary.LeadDefendantSurname, summary.LeadDefendantType));
+        var witnesses = caseDetails.Witnesses;
+        var headlineCharge = this.FindHeadlineCharge(leadDefendant);
+        var isCaseCharged = this.FindIsCaseCharged(defendants);
+        var preChargeDecisionRequests = caseDetails.PreChargeDecisionRequests;
+
+        return new CaseDto
+        {
+            Id = summary.Id,
+            UniqueReferenceNumber = summary.Urn,
+            IsCaseCharged = isCaseCharged,
+            NumberOfDefendants = summary.NumberOfDefendants,
+            OwningUnit = summary.OwningUnit,
+            LeadDefendantDetails = leadDefendant != null ? leadDefendant.DefendantDetails : null,
+            DefendantsAndCharges = defendants,
+            HeadlineCharge = headlineCharge,
+            PreChargeDecisionRequests = preChargeDecisionRequests,
+            Witnesses = witnesses,
+        };
+    }
+
+    public DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<MdsCaseDefendantDto> defendants, int caseId, string etag)
+    {
+        var defendantsAndCharges = defendants
+            .Select(defendant => this.MapDefendantAndCharges(defendant))
+            .OrderBy(dac => dac.ListOrder)
+            .ToList();
+
+        return new DefendantsAndChargesListDto
+        {
+            CaseId = caseId,
+            DefendantsAndCharges = defendantsAndCharges.OrderBy(dac => dac.ListOrder),
+            VersionId = GetVersionIdFromEtag(etag) ?? 1,
+        };
+    }
+
+    public PcdRequestDto MapPreChargeDecisionRequest(MdsPcdRequestDto pcdr)
+    {
+        return new PcdRequestDto
+        {
+            Id = pcdr.Id,
+            DecisionRequiredBy = pcdr.DecisionRequiredBy,
+            DecisionRequested = pcdr.DecisionRequested,
+            CaseOutline = pcdr.CaseOutline.Select(ol => this.MapPcdCaseOutlineLine(ol)).ToList(),
+            Comments = this.MapPreChargeDecisionComments(pcdr.Comments),
+            Suspects = pcdr.Suspects.Select(s => this.MapPcdSuspect(s)).ToList(),
+        };
+    }
+
+    public IEnumerable<PcdRequestCoreDto> MapCorePreChargeDecisionRequests(IEnumerable<MdsPcdRequestCoreDto> pcdRequests)
+    {
+        return pcdRequests.Select(pcd => this.MapCorePreChargeDecisionRequest(pcd));
+    }
+
+    public IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<MdsPcdRequestDto> pcdRequests)
+    {
+        return pcdRequests.Select(pcdr => this.MapPreChargeDecisionRequest(pcdr));
+    }
+
+    public CaseSummaryDto Map(MdsCaseSummaryDto mdsResult)
+    {
+        return new CaseSummaryDto
+        {
+            Urn = mdsResult.Urn,
+            Id = mdsResult.Id,
+            NumberOfDefendants = mdsResult.NumberOfDefendants,
+            LeadDefendantFirstNames = mdsResult.LeadDefendantFirstNames,
+            LeadDefendantSurname = mdsResult.LeadDefendantSurname,
+            LeadDefendantType = mdsResult.LeadDefendantType,
+            Deleted = mdsResult.Deleted,
+            Finalised = mdsResult.Finalised,
+            NextHearingDate = mdsResult.NextHearingDate,
+            NextHearingType = mdsResult.NextHearingType,
+            NextHearingTypeCode = mdsResult.NextHearingTypeCode,
+            NextHearingVenue = mdsResult.NextHearingVenue,
+            NextHearingVenueCode = mdsResult.NextHearingVenueCode,
+            OwningUnit = mdsResult.UnitName,
+            CtlActive = mdsResult.CtlActive,
+            EarliestCtlDate = mdsResult.EarliestCtlDate,
+        };
+    }
+
+    public IEnumerable<WitnessDto> MapWitnesses(IEnumerable<BaseCaseWitnessResponse> witnesses)
+    {
+        return witnesses.Select(witness => this.MapWitness(witness));
+    }
+
+    public DefendantsAndChargesListDto MapDefendantsResponseToDefendantsAndChargesListDto(DefendantsResponse defendantsResponse, int caseId)
+    {
+        List<MdsCaseDefendantDto> defendants = this.MapDefendantsResponseToMdsCaseDefendantDtos(defendantsResponse);
+        DefendantsAndChargesListDto defendantsAndChargesListDto = this.MapDefendantsAndCharges(defendants, caseId, string.Empty);
+        return defendantsAndChargesListDto;
+    }
+
+    public IEnumerable<Common.Dto.Response.Case.PreCharge.PcdRequestDto> MapPcdRequests(IEnumerable<Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto> requests)
+    {
+        return requests.Select(request => this.MapPcdRequest(request));
+    }
+
+    public Common.Dto.Response.Case.PreCharge.PcdRequestDto MapPcdRequest(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto request)
+    {
+        return new Common.Dto.Response.Case.PreCharge.PcdRequestDto
+        {
+            Id = request.Id,
+            DecisionRequested = request.DecisionRequested,
+            DecisionRequiredBy = request.DecisionRequiredBy,
+
+            Comments = request.Comments == null
+                ? null
+                : new PcdCommentsDto
+                {
+                    Text = request.Comments.Text,
+                    TextWithCmsMarkup = request.Comments.TextWithCmsMarkup,
+                },
+
+            CaseOutline = request.CaseOutline?.Select(co => new PcdCaseOutlineLineDto
             {
-                defendant.ProposedCharges = MapProposedCharges(defendant, caseDetails.PreChargeDecisionRequests);
-            }
-            var leadDefendant = FindLeadDefendant(defendants, (summary.LeadDefendantFirstNames, summary.LeadDefendantSurname, summary.LeadDefendantType));
-            var witnesses = caseDetails.Witnesses;
-            var headlineCharge = FindHeadlineCharge(leadDefendant);
-            var isCaseCharged = FindIsCaseCharged(defendants);
-            var preChargeDecisionRequests = caseDetails.PreChargeDecisionRequests;
+                Heading = co.Heading,
+                Text = co.Text,
+                TextWithCmsMarkup = co.TextWithCmsMarkup,
+            }).ToList(),
 
-            return new CaseDto
+            Suspects = request.Suspects?.Select(sus => new PcdRequestSuspectDto
             {
-                Id = summary.Id,
-                UniqueReferenceNumber = summary.Urn,
-                IsCaseCharged = isCaseCharged,
-                NumberOfDefendants = summary.NumberOfDefendants,
-                OwningUnit = summary.OwningUnit,
-                LeadDefendantDetails = leadDefendant != null ? leadDefendant.DefendantDetails : null,
-                DefendantsAndCharges = defendants,
-                HeadlineCharge = headlineCharge,
-                PreChargeDecisionRequests = preChargeDecisionRequests,
-                Witnesses = witnesses
-            };
-        }
+                Surname = sus.Surname,
+                FirstNames = sus.FirstNames,
+                Dob = sus.Dob,
+                BailConditions = sus.BailConditions,
+                BailDate = sus.BailDate,
+                RemandStatus = sus.RemandStatus,
 
-        public DefendantsAndChargesListDto MapDefendantsAndCharges(IEnumerable<MdsCaseDefendantDto> defendants, int caseId, string etag)
+                ProposedCharges = sus.ProposedCharges?.Select(charge => new PcdProposedChargeDto
+                {
+                    Charge = charge.Charge,
+                    EarlyDate = charge.EarlyDate,
+                    LateDate = charge.LateDate,
+                    Location = charge.Location,
+                    Category = charge.Category,
+                }).ToList(),
+            }).ToList(),
+        };
+    }
+
+    private PcdRequestCoreDto MapCorePreChargeDecisionRequest(MdsPcdRequestCoreDto pcd)
+    {
+        return new PcdRequestCoreDto
         {
-            var defendantsAndCharges = defendants
-                .Select(defendant => MapDefendantAndCharges(defendant))
-                .OrderBy(dac => dac.ListOrder)
-                .ToList();
+            Id = pcd.Id,
+            DecisionRequiredBy = pcd.DecisionRequiredBy,
+            DecisionRequested = pcd.DecisionRequested,
+        };
+    }
 
-            return new DefendantsAndChargesListDto
+    private DefendantAndChargesDto MapDefendantAndCharges(MdsCaseDefendantDto defendant)
+    {
+        return new DefendantAndChargesDto
+        {
+            Id = defendant.Id,
+            ListOrder = defendant.ListOrder,
+            DefendantDetails = this.MapDefendantDetails(defendant),
+            CustodyTimeLimit = this.MapCustodyTimeLimit(defendant.CustodyTimeLimit),
+            Charges = this.MapCharges(defendant),
+        };
+    }
+
+    private DefendantDetailsDto MapDefendantDetails(MdsCaseDefendantDto defendant)
+    {
+        return new DefendantDetailsDto
+        {
+            Id = defendant.Id,
+            ListOrder = defendant.ListOrder,
+            FirstNames = defendant.FirstNames,
+            Surname = defendant.Surname,
+            // todo: no organisation name in DDEI?
+            OrganisationName = defendant.Surname,
+            Dob = defendant.Dob,
+            IsYouth = defendant.Youth,
+            Type = defendant.Type,
+        };
+    }
+
+    private CustodyTimeLimitDto MapCustodyTimeLimit(MdsCustodyTimeLimitDto custodyTimeLimit)
+    {
+        return new CustodyTimeLimitDto
+        {
+            ExpiryDate = custodyTimeLimit?.ExpiryDate,
+            ExpiryDays = custodyTimeLimit?.ExpiryDays,
+            ExpiryIndicator = custodyTimeLimit?.ExpiryIndicator,
+        };
+    }
+
+    private List<MdsCaseDefendantDto> MapDefendantsResponseToMdsCaseDefendantDtos(DefendantsResponse response)
+    {
+        return response?.Defendants?
+            .Select(d => new MdsCaseDefendantDto
             {
-                CaseId = caseId,
-                DefendantsAndCharges = defendantsAndCharges.OrderBy(dac => dac.ListOrder),
-                VersionId = GetVersionIdFromEtag(etag) ?? 1
-            };
-        }
+                Id = d.Id ?? 0,
+                ListOrder = d.ListOrder,
+                Type = d.Type,
+                FirstNames = d.FirstNames,
+                Surname = d.Surname,
+                Dob = d.Dob?.ToString("yyyy-MM-dd"),
+                PoliceRemandStatus = d.PoliceRemandStatus,
+                Youth = d.Youth ?? false,
 
-        public PcdRequestDto MapPreChargeDecisionRequest(MdsPcdRequestDto pcdr)
-        {
-            return new PcdRequestDto
-            {
-                Id = pcdr.Id,
-                DecisionRequiredBy = pcdr.DecisionRequiredBy,
-                DecisionRequested = pcdr.DecisionRequested,
-                CaseOutline = pcdr.CaseOutline.Select(ol => MapPcdCaseOutlineLine(ol)).ToList(),
-                Comments = MapPreChargeDecisionComments(pcdr.Comments),
-                Suspects = pcdr.Suspects.Select(s => MapPcdSuspect(s)).ToList(),
-            };
-        }
-
-        public IEnumerable<PcdRequestCoreDto> MapCorePreChargeDecisionRequests(IEnumerable<MdsPcdRequestCoreDto> pcdRequests)
-        {
-            return pcdRequests.Select(pcd => MapCorePreChargeDecisionRequest(pcd));
-        }
-
-        public IEnumerable<PcdRequestDto> MapPreChargeDecisionRequests(IEnumerable<MdsPcdRequestDto> preChargeDecisionRequests)
-        {
-            return preChargeDecisionRequests.Select(pcdr => MapPreChargeDecisionRequest(pcdr));
-        }
-
-        public CaseSummaryDto Map(MdsCaseSummaryDto mdsResult)
-        {
-            return new CaseSummaryDto
-            {
-                Urn = mdsResult.Urn,
-                Id = mdsResult.Id,
-                NumberOfDefendants = mdsResult.NumberOfDefendants,
-                LeadDefendantFirstNames = mdsResult.LeadDefendantFirstNames,
-                LeadDefendantSurname = mdsResult.LeadDefendantSurname,
-                LeadDefendantType = mdsResult.LeadDefendantType,
-                Deleted = mdsResult.Deleted,
-                Finalised = mdsResult.Finalised,
-                NextHearingDate = mdsResult.NextHearingDate,
-                NextHearingType = mdsResult.NextHearingType,
-                NextHearingTypeCode = mdsResult.NextHearingTypeCode,
-                NextHearingVenue = mdsResult.NextHearingVenue,
-                NextHearingVenueCode = mdsResult.NextHearingVenueCode,
-                OwningUnit = mdsResult.UnitName,
-                CtlActive = mdsResult.CtlActive,
-                EarliestCtlDate = mdsResult.EarliestCtlDate,
-            };
-        }
-
-        public IEnumerable<WitnessDto> MapWitnesses(IEnumerable<BaseCaseWitnessResponse> witnesses)
-        {
-            return witnesses.Select(witness => MapWitness(witness));
-        }
-
-        public DefendantsAndChargesListDto MapDefendantsResponseToDefendantsAndChargesListDto(DefendantsResponse defendantsResponse, int caseId)
-        {
-            List<MdsCaseDefendantDto> defendants = MapDefendantsResponseToMdsCaseDefendantDtos(defendantsResponse);
-            DefendantsAndChargesListDto defendantsAndChargesListDto = this.MapDefendantsAndCharges(defendants, caseId, string.Empty);
-            return defendantsAndChargesListDto;
-        }
-
-        public IEnumerable<Common.Dto.Response.Case.PreCharge.PcdRequestDto> MapPcdRequests(IEnumerable<Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto> requests)
-        {
-            return requests.Select(request => this.MapPcdRequest(request));
-        }
-
-        public Common.Dto.Response.Case.PreCharge.PcdRequestDto MapPcdRequest(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto request)
-        {
-            return new Common.Dto.Response.Case.PreCharge.PcdRequestDto
-            {
-                Id = request.Id,
-                DecisionRequested = request.DecisionRequested,
-                DecisionRequiredBy = request.DecisionRequiredBy,
-
-                Comments = request.Comments == null
+                CustodyTimeLimit = string.IsNullOrWhiteSpace(d.CustodyTimeLimit)
                     ? null
-                    : new PcdCommentsDto
+                    : new MdsCustodyTimeLimitDto
                     {
-                        Text = request.Comments.Text,
-                        TextWithCmsMarkup = request.Comments.TextWithCmsMarkup,
+                        ExpiryDate = d.CustodyTimeLimit,
                     },
 
-                CaseOutline = request.CaseOutline?.Select(co => new PcdCaseOutlineLineDto
+                Offences = d.Offences?.Select(o => new MdsOffenceDto
                 {
-                    Heading = co.Heading,
-                    Text = co.Text,
-                    TextWithCmsMarkup = co.TextWithCmsMarkup,
-                }).ToList(),
+                    Id = o.Id ?? 0,
+                    ListOrder = o.ListOrder,
+                    Code = o.Code,
+                    Type = o.Type,
+                    Active = o.Active,
+                    Description = o.Description,
+                    FromDate = o.FromDate,
+                    ToDate = o.ToDate,
+                    LatestPlea = o.LatestPlea,
+                    LatestVerdict = o.LatestVerdict,
+                    DisposedReason = o.DisposedReason,
+                    LastHearingOutcome = o.LastHearingOutcome,
+                }),
+                NextHearing = null,
+            })
+            .ToList()
+            ?? new List<MdsCaseDefendantDto>();
+    }
 
-                Suspects = request.Suspects?.Select(sus => new PcdRequestSuspectDto
-                {
-                    Surname = sus.Surname,
-                    FirstNames = sus.FirstNames,
-                    Dob = sus.Dob,
-                    BailConditions = sus.BailConditions,
-                    BailDate = sus.BailDate,
-                    RemandStatus = sus.RemandStatus,
-
-                    ProposedCharges = sus.ProposedCharges?.Select(charge => new PcdProposedChargeDto
-                    {
-                        Charge = charge.Charge,
-                        EarlyDate = charge.EarlyDate,
-                        LateDate = charge.LateDate,
-                        Location = charge.Location,
-                        Category = charge.Category,
-                    }).ToList(),
-                }).ToList(),
-            };
-        }
-
-        private PcdRequestCoreDto MapCorePreChargeDecisionRequest(MdsPcdRequestCoreDto pcd)
+    private WitnessDto MapWitness(BaseCaseWitnessResponse witness)
+    {
+        return new WitnessDto
         {
-            return new PcdRequestCoreDto
-            {
-                Id = pcd.Id,
-                DecisionRequiredBy = pcd.DecisionRequiredBy,
-                DecisionRequested = pcd.DecisionRequested,
-            };
-        }
+            Id = witness.Id,
+            ShoulderNumber = witness.ShoulderNumber,
+            Title = witness.Title,
+            Name = witness.Name,
+            HasStatements = witness.HasStatements,
+            ListOrder = witness.ListOrder,
+            Child = witness.Child,
+            Expert = witness.Expert,
+            GreatestNeed = witness.GreatestNeed,
+            Prisoner = witness.Prisoner,
+            Interpreter = witness.Interpreter,
+            Vulnerable = witness.Vulnerable,
+            Police = witness.Police,
+            Professional = witness.Professional,
+            SpecialNeeds = witness.SpecialNeeds,
+            Intimidated = witness.Intimidated,
+            Victim = witness.Victim,
+        };
+    }
 
-        private DefendantAndChargesDto MapDefendantAndCharges(MdsCaseDefendantDto defendant)
+    private IEnumerable<ChargeDto> MapCharges(MdsCaseDefendantDto defendant)
+    {
+        var nextHearingDate = defendant.NextHearing?.Date;
+
+        return defendant.Offences
+            .Select(offence => this.MapCharge(offence, nextHearingDate));
+    }
+
+    private IEnumerable<ProposedChargeDto> MapProposedCharges(DefendantAndChargesDto defendant, IEnumerable<PcdRequestDto> pcdRequests)
+    {
+        return pcdRequests
+                    .SelectMany(pcdRequest => pcdRequest.Suspects)
+
+                    // weakness here:  because we screen-scrape, we don't actually ever see a unique numerical id
+                    //  for a suspect.  When we want to join between defendants and suspect, all we have are
+                    //  the Dob etc fields to join on, and hope for the best that they all match
+                    .Where(suspect => suspect.Dob == defendant.DefendantDetails.Dob
+                            && suspect.FirstNames == defendant.DefendantDetails.FirstNames
+                            && suspect.Surname == defendant.DefendantDetails.Surname)
+                    .SelectMany(suspect => suspect.ProposedCharges)
+                    .Select(proposedCharge => this.MapProposedCharge(proposedCharge));
+    }
+
+    private ChargeDto MapCharge(MdsOffenceDto offence, string nextHearingDate)
+    {
+        return new ChargeDto
         {
-            return new DefendantAndChargesDto
-            {
-                Id = defendant.Id,
-                ListOrder = defendant.ListOrder,
-                DefendantDetails = MapDefendantDetails(defendant),
-                CustodyTimeLimit = MapCustodyTimeLimit(defendant.CustodyTimeLimit),
-                Charges = MapCharges(defendant),
-            };
-        }
+            Id = offence.Id,
+            ListOrder = offence.ListOrder,
+            IsCharged = true, // TODO: offences have an Active status in CMS, we probably want to exclude these
+            NextHearingDate = nextHearingDate,
+            EarlyDate = offence.FromDate,
+            LateDate = offence.ToDate,
+            Code = offence.Code,
+            ShortDescription = offence.Description,
+            LongDescription = offence.Description,
+            CustodyTimeLimit = this.MapCustodyTimeLimit(offence.CustodyTimeLimit),
+        };
+    }
 
-        private DefendantDetailsDto MapDefendantDetails(MdsCaseDefendantDto defendant)
+    private ProposedChargeDto MapProposedCharge(PcdProposedChargeDto proposedCharge)
+    {
+        return new ProposedChargeDto
         {
-            return new DefendantDetailsDto
-            {
-                Id = defendant.Id,
-                ListOrder = defendant.ListOrder,
-                FirstNames = defendant.FirstNames,
-                Surname = defendant.Surname,
-                // todo: no organisation name in DDEI?
-                OrganisationName = defendant.Surname,
-                Dob = defendant.Dob,
-                IsYouth = defendant.Youth,
-                Type = defendant.Type
-            };
-        }
+            Charge = proposedCharge.Charge,
+            EarlyDate = proposedCharge.EarlyDate,
+            LateDate = proposedCharge.LateDate,
+        };
+    }
 
-        private CustodyTimeLimitDto MapCustodyTimeLimit(MdsCustodyTimeLimitDto custodyTimeLimit)
+    private HeadlineChargeDto MapHeadlineCharge(ChargeDto charge)
+    {
+        return new HeadlineChargeDto
         {
-            return new CustodyTimeLimitDto
-            {
-                ExpiryDate = custodyTimeLimit?.ExpiryDate,
-                ExpiryDays = custodyTimeLimit?.ExpiryDays,
-                ExpiryIndicator = custodyTimeLimit?.ExpiryIndicator
-            };
-        }
+            Charge = charge.LongDescription,
+            Date = charge.EarlyDate,
+            NextHearingDate = charge.NextHearingDate,
+        };
+    }
 
-        private List<MdsCaseDefendantDto> MapDefendantsResponseToMdsCaseDefendantDtos(DefendantsResponse response)
+    private HeadlineChargeDto MapHeadlineCharge(ProposedChargeDto proposedCharge)
+    {
+        return new HeadlineChargeDto
         {
-            return response?.Defendants?
-                .Select(d => new MdsCaseDefendantDto
-                {
-                    Id = d.Id ?? 0,
-                    ListOrder = d.ListOrder,
-                    Type = d.Type,
-                    FirstNames = d.FirstNames,
-                    Surname = d.Surname,
-                    Dob = d.Dob?.ToString("yyyy-MM-dd"),
-                    PoliceRemandStatus = d.PoliceRemandStatus,
-                    Youth = d.Youth ?? false,
+            Charge = proposedCharge.Charge,
+            EarlyDate = proposedCharge.EarlyDate,
+            LateDate = proposedCharge.LateDate,
+        };
+    }
 
-                    CustodyTimeLimit = string.IsNullOrWhiteSpace(d.CustodyTimeLimit)
-                        ? null
-                        : new MdsCustodyTimeLimitDto
-                        {
-                            ExpiryDate = d.CustodyTimeLimit,
-                        },
+    private DefendantAndChargesDto FindLeadDefendant(IEnumerable<DefendantAndChargesDto> defendants, (string LeadDefendantFirstNames, string LeadDefendantSurname, string LeadDefendantType) caseSummary)
+    {
 
-                    Offences = d.Offences?.Select(o => new MdsOffenceDto
-                    {
-                        Id = o.Id ?? 0,
-                        ListOrder = o.ListOrder,
-                        Code = o.Code,
-                        Type = o.Type,
-                        Active = o.Active,
-                        Description = o.Description,
-                        FromDate = o.FromDate,
-                        ToDate = o.ToDate,
-                        LatestPlea = o.LatestPlea,
-                        LatestVerdict = o.LatestVerdict,
-                        DisposedReason = o.DisposedReason,
-                        LastHearingOutcome = o.LastHearingOutcome,
-                    }),
-                    NextHearing = null,
-                })
-                .ToList()
-                ?? new List<MdsCaseDefendantDto>();
-        }
+        // TODO: this is not ideal, DDEI only gives us the names of the lead defendant, so not 100%
+        // that we find the defendant record we want (e.g. if there are two John Smiths on the case?) 
+        var foundDefendants = defendants.Where(defendant =>
+            AreStringsEqual(caseSummary.LeadDefendantFirstNames, defendant.DefendantDetails.FirstNames)
+            && AreStringsEqual(caseSummary.LeadDefendantSurname, defendant.DefendantDetails.Surname)
+            && AreStringsEqual(caseSummary.LeadDefendantType, defendant.DefendantDetails.Type));
 
-        private WitnessDto MapWitness(BaseCaseWitnessResponse witness)
+        // TODO: needs logging as to which logic was used
+        if (foundDefendants.Count() == 1)
         {
-            return new WitnessDto
-            {
-                Id = witness.Id,
-                ShoulderNumber = witness.ShoulderNumber,
-                Title = witness.Title,
-                Name = witness.Name,
-                HasStatements = witness.HasStatements,
-                ListOrder = witness.ListOrder,
-                Child = witness.Child,
-                Expert = witness.Expert,
-                GreatestNeed = witness.GreatestNeed,
-                Prisoner = witness.Prisoner,
-                Interpreter = witness.Interpreter,
-                Vulnerable = witness.Vulnerable,
-                Police = witness.Police,
-                Professional = witness.Professional,
-                SpecialNeeds = witness.SpecialNeeds,
-                Intimidated = witness.Intimidated,
-                Victim = witness.Victim
-            };
+            // we have found one and only one defendant based on name and type match
+            return foundDefendants.First();
         }
-
-        private IEnumerable<ChargeDto> MapCharges(MdsCaseDefendantDto defendant)
+        else
         {
-            var charges = new List<ChargeDto>();
-            var nextHearingDate = defendant.NextHearing?.Date;
-
-            return defendant.Offences
-                .Select(offence => MapCharge(offence, nextHearingDate));
-        }
-
-        private IEnumerable<ProposedChargeDto> MapProposedCharges(DefendantAndChargesDto defendant, IEnumerable<PcdRequestDto> pcdRequests)
-        {
-            return pcdRequests
-                      .SelectMany(pcdRequest => pcdRequest.Suspects)
-                      // weakness here:  because we screen-scrape, we don't actually ever see a unique numerical id
-                      //  for a suspect.  When we want to join between defendants and suspect, all we have are 
-                      //  the Dob etc fields to join on, and hope for the best that they all match
-                      .Where(suspect => suspect.Dob == defendant.DefendantDetails.Dob
-                                && suspect.FirstNames == defendant.DefendantDetails.FirstNames
-                                && suspect.Surname == defendant.DefendantDetails.Surname)
-                      .SelectMany(suspect => suspect.ProposedCharges)
-                      .Select(proposedCharge => MapProposedCharge(proposedCharge));
-        }
-
-        private ChargeDto MapCharge(MdsOffenceDto offence, string nextHearingDate)
-        {
-            return new ChargeDto
-            {
-                Id = offence.Id,
-                ListOrder = offence.ListOrder,
-                IsCharged = true, //todo: offences have an Active status in CMS, we probably want to exclude these
-                NextHearingDate = nextHearingDate,
-                EarlyDate = offence.FromDate,
-                LateDate = offence.ToDate,
-                Code = offence.Code,
-                ShortDescription = offence.Description,
-                LongDescription = offence.Description,
-                CustodyTimeLimit = MapCustodyTimeLimit(offence.CustodyTimeLimit)
-            };
-        }
-
-        private ProposedChargeDto MapProposedCharge(PcdProposedChargeDto proposedCharge)
-        {
-            return new ProposedChargeDto
-            {
-                Charge = proposedCharge.Charge,
-                EarlyDate = proposedCharge.EarlyDate,
-                LateDate = proposedCharge.LateDate
-            };
-        }
-
-        private HeadlineChargeDto MapHeadlineCharge(ChargeDto charge)
-        {
-            return new HeadlineChargeDto
-            {
-                Charge = charge.LongDescription,
-                Date = charge.EarlyDate,
-                NextHearingDate = charge.NextHearingDate
-            };
-        }
-
-        private HeadlineChargeDto MapHeadlineCharge(ProposedChargeDto proposedCharge)
-        {
-            return new HeadlineChargeDto
-            {
-                Charge = proposedCharge.Charge,
-                EarlyDate = proposedCharge.EarlyDate,
-                LateDate = proposedCharge.LateDate
-            };
-        }
-        private DefendantAndChargesDto FindLeadDefendant(IEnumerable<DefendantAndChargesDto> defendants, (string LeadDefendantFirstNames, string LeadDefendantSurname, string LeadDefendantType) caseSummary)
-        {
-
-            // todo: this is not ideal, DDEI only gives us the names of the lead defendant, so not 100%
-            // that we find the defendant record we want (e.g. if there are two John Smiths on the case?) 
-            var foundDefendants = defendants.Where(defendant =>
-                AreStringsEqual(caseSummary.LeadDefendantFirstNames, defendant.DefendantDetails.FirstNames)
-                && AreStringsEqual(caseSummary.LeadDefendantSurname, defendant.DefendantDetails.Surname)
-                && AreStringsEqual(caseSummary.LeadDefendantType, defendant.DefendantDetails.Type));
-
-            // todo: needs logging as to which logic was used
-            if (foundDefendants.Count() == 1)
-            {
-                // we have found one and only one defendant based on name and type match
-                return foundDefendants.First();
-            }
-            else
-            {
-                return defendants
-                    .OrderBy(defendant => defendant.ListOrder)
-                    .FirstOrDefault();
-            }
-        }
-
-        private HeadlineChargeDto FindHeadlineCharge(DefendantAndChargesDto leadDefendant)
-        {
-            if (leadDefendant == null)
-            {
-                // #24083 - ddei sometimes returns no defendants, so no lead defendant exists.
-                return new HeadlineChargeDto();
-            }
-
-            var firstCharge = leadDefendant.Charges
-                .OrderBy(charge => charge.ListOrder)
+            return defendants
+                .OrderBy(defendant => defendant.ListOrder)
                 .FirstOrDefault();
+        }
+    }
 
-
-            if (firstCharge != null && firstCharge.Code != NotYetChargedCode)
-            {
-                return MapHeadlineCharge(firstCharge);
-            }
-
-            var firstProposedCharge = leadDefendant.ProposedCharges.FirstOrDefault();
-
-            if (firstProposedCharge != null)
-            {
-                return MapHeadlineCharge(firstProposedCharge);
-            }
-
-            // todo: what to do if we have no charges?
+    private HeadlineChargeDto FindHeadlineCharge(DefendantAndChargesDto leadDefendant)
+    {
+        if (leadDefendant == null)
+        {
+            // #24083 - ddei sometimes returns no defendants, so no lead defendant exists.
             return new HeadlineChargeDto();
         }
 
-        private bool FindIsCaseCharged(IEnumerable<DefendantAndChargesDto> defendants)
+        var firstCharge = leadDefendant.Charges
+            .OrderBy(charge => charge.ListOrder)
+            .FirstOrDefault();
+
+        if (firstCharge != null && firstCharge.Code != NotYetChargedCode)
         {
-            return defendants
-                .SelectMany(defendant => defendant.Charges)
-                .Where(charge => charge.Code != NotYetChargedCode)
-                .Any();
+            return this.MapHeadlineCharge(firstCharge);
         }
 
-        private PcdCaseOutlineLineDto MapPcdCaseOutlineLine(MdsPcdCaseOutlineLineDto ol)
+        var firstProposedCharge = leadDefendant.ProposedCharges.FirstOrDefault();
+
+        if (firstProposedCharge != null)
         {
-            return new PcdCaseOutlineLineDto
-            {
-                Heading = ol.Heading,
-                Text = ol.Text,
-                TextWithCmsMarkup = ol.TextWithCmsMarkup
-            };
-        }
-        private PcdCommentsDto MapPreChargeDecisionComments(MdsPcdCommentsDto comments)
-        {
-            return new PcdCommentsDto
-            {
-                Text = comments.Text,
-                TextWithCmsMarkup = comments.TextWithCmsMarkup,
-            };
+            return this.MapHeadlineCharge(firstProposedCharge);
         }
 
-        private PcdRequestSuspectDto MapPcdSuspect(MdsPcdRequestSuspectDto requestSuspectDto)
+        // TODO: what to do if we have no charges?
+        return new HeadlineChargeDto();
+    }
+
+    private bool FindIsCaseCharged(IEnumerable<DefendantAndChargesDto> defendants)
+    {
+        return defendants
+            .SelectMany(defendant => defendant.Charges)
+            .Any(charge => charge.Code != NotYetChargedCode);
+    }
+
+    private PcdCaseOutlineLineDto MapPcdCaseOutlineLine(MdsPcdCaseOutlineLineDto ol)
+    {
+        return new PcdCaseOutlineLineDto
         {
-            return new PcdRequestSuspectDto
-            {
-                Surname = requestSuspectDto.Surname,
-                FirstNames = requestSuspectDto.FirstNames,
-                Dob = requestSuspectDto.Dob,
-                BailConditions = requestSuspectDto.BailConditions,
-                BailDate = requestSuspectDto.BailDate,
-                RemandStatus = requestSuspectDto.RemandStatus,
-                ProposedCharges = requestSuspectDto.ProposedCharges.Select(pc => MapPcdProposedCharge(pc)).ToList()
-            };
+            Heading = ol.Heading,
+            Text = ol.Text,
+            TextWithCmsMarkup = ol.TextWithCmsMarkup,
+        };
+    }
+
+    private PcdCommentsDto MapPreChargeDecisionComments(MdsPcdCommentsDto comments)
+    {
+        return new PcdCommentsDto
+        {
+            Text = comments.Text,
+            TextWithCmsMarkup = comments.TextWithCmsMarkup,
+        };
+    }
+
+    private PcdRequestSuspectDto MapPcdSuspect(MdsPcdRequestSuspectDto requestSuspectDto)
+    {
+        return new PcdRequestSuspectDto
+        {
+            Surname = requestSuspectDto.Surname,
+            FirstNames = requestSuspectDto.FirstNames,
+            Dob = requestSuspectDto.Dob,
+            BailConditions = requestSuspectDto.BailConditions,
+            BailDate = requestSuspectDto.BailDate,
+            RemandStatus = requestSuspectDto.RemandStatus,
+            ProposedCharges = requestSuspectDto.ProposedCharges.Select(pc => this.MapPcdProposedCharge(pc)).ToList(),
+        };
+    }
+
+    private PcdProposedChargeDto MapPcdProposedCharge(MdsPcdProposedChargeDto ddeiPcdProposedChargeDto)
+    {
+        return new PcdProposedChargeDto
+        {
+            Charge = ddeiPcdProposedChargeDto.Charge,
+            EarlyDate = ddeiPcdProposedChargeDto.EarlyDate,
+            LateDate = ddeiPcdProposedChargeDto.LateDate,
+            Location = ddeiPcdProposedChargeDto.Location,
+            Category = ddeiPcdProposedChargeDto.Category,
+        };
+    }
+
+    private static bool AreStringsEqual(string a, string b) =>
+    (
+        string.IsNullOrEmpty(a) && string.IsNullOrEmpty(b))
+        || string.Equals(a, b, StringComparison.CurrentCultureIgnoreCase
+    );
+
+    private static long? GetVersionIdFromEtag(string etag)
+    {
+        if (string.IsNullOrEmpty(etag))
+        {
+            return null;
         }
 
-        private PcdProposedChargeDto MapPcdProposedCharge(MdsPcdProposedChargeDto ddeiPcdProposedChargeDto)
-        {
-            return new PcdProposedChargeDto
-            {
-                Charge = ddeiPcdProposedChargeDto.Charge,
-                EarlyDate = ddeiPcdProposedChargeDto.EarlyDate,
-                LateDate = ddeiPcdProposedChargeDto.LateDate,
-                Location = ddeiPcdProposedChargeDto.Location,
-                Category = ddeiPcdProposedChargeDto.Category
-            };
-        }
+        var match = Regex.Match(etag, @"\d+", RegexOptions.None, TimeSpan.FromSeconds(1));
 
-        private static bool AreStringsEqual(string a, string b) =>
-        (
-            string.IsNullOrEmpty(a) && string.IsNullOrEmpty(b))
-            || string.Equals(a, b, StringComparison.CurrentCultureIgnoreCase
-        );
-
-        private static long? GetVersionIdFromEtag(string etag)
-        {
-            if (string.IsNullOrEmpty(etag))
-            {
-                return null;
-            }
-
-            var match = Regex.Match(etag, @"\d+", RegexOptions.None, TimeSpan.FromSeconds(1));
-
-            return match.Success
-                ? long.Parse(match.Value)
-                : null;
-        }
+        return match.Success
+            ? long.Parse(match.Value)
+            : null;
     }
 }

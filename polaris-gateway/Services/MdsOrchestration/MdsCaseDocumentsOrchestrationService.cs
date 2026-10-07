@@ -25,10 +25,8 @@ using System.Linq;
 using System.Threading.Tasks;
 
 public class MdsCaseDocumentsOrchestrationService (
-        IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient,
         ICmsDocumentDtoMapper cmsDocumentDtoMapper,
-        IMdsArgFactory mdsArgFactory,
         ICaseDetailsMapper caseDetailsMapper,
         IDocumentToggleService documentToggleService,
         IDocumentDtoMapper documentMapper)
@@ -58,8 +56,7 @@ public class MdsCaseDocumentsOrchestrationService (
                 defendandAndChargesMapped.DefendantsAndCharges.Any() ||
                 defendandAndChargesMapped.DefendantsAndCharges.Any(x => x.Charges.Any())
                     ? [this.MapDefendantAndCharges(defendandAndChargesMapped)]
-                    : []
-            );
+                    : []);
     }
 
     public DocumentDto MapDocument(CmsDocumentDto document) =>

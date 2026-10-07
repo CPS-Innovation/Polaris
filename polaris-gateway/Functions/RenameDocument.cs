@@ -39,7 +39,7 @@ public class RenameDocument : BaseFunction
     private readonly ILogger<RenameDocument> logger;
     private readonly IMdsClient mdsClient;
     private readonly IMasterDataServiceClient masterDataServiceClient;
-    private readonly ICmsDocumentDtoMapper _cmsDocumentDtoMapper;
+    private readonly ICmsDocumentDtoMapper cmsDocumentDtoMapper;
     private readonly ICaseUrnResolver caseUrnResolver;
 
     public RenameDocument(
@@ -52,7 +52,7 @@ public class RenameDocument : BaseFunction
         this.logger = logger.ExceptionIfNull();
         this.mdsClient = mdsClient.ExceptionIfNull();
         this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
-        this._cmsDocumentDtoMapper = cmsDocumentDtoMapper.ExceptionIfNull();
+        this.cmsDocumentDtoMapper = cmsDocumentDtoMapper.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
@@ -103,7 +103,7 @@ public class RenameDocument : BaseFunction
             };
 
             var documentsResponse = await this.masterDataServiceClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto, new CmsAuthValues(cmsAuthValues.CmsAuthFullValue, correlationId), cancellationToken);
-            var documents = documentsResponse.Select(x => _cmsDocumentDtoMapper.Map(x, null)).ToList();
+            var documents = documentsResponse.Select(x => this.cmsDocumentDtoMapper.Map(x, null)).ToList();
             var documentIdNumber = DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document);
 
             var document = documents.SingleOrDefault(x => x.DocumentId == documentIdNumber);

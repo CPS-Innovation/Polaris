@@ -50,8 +50,6 @@ public class GeneratePdfFromPcdRequest : BaseGeneratePdf
             payload.CaseId,
             payload.MaterialId);
 
-        //var pcdRequest1 = await MdsClient.GetPcdRequestAsync(arg); // calls /cases/{arg.CaseId}/pcd-request/{arg.PcdId}      returns case.precharge.PcdRequestDto
-
         var pcdRequest = await _masterDataServiceClient.GetPcdRequestByPcdIdAsync(
             new GetPcdRequestByPcdIdCoreRequest(arg.CaseId, arg.PcdId, arg.CorrelationId),
             new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));

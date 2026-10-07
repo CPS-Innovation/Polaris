@@ -1,3 +1,9 @@
+// <copyright file="MdsReclassifyDocumentOrchestrationService.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Services.MdsOrchestration;
+
 using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Dto.Response.Document;
@@ -12,18 +18,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Services.MdsOrchestration;
-
 public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentOrchestrationService
 {
     private const string ExhibitClassification = "EXHIBIT";
     private const string StatementClassification = "STATEMENT";
     private const string DefenceStatementClassification = "DEFENCESTATEMENT";
     private const int DefenceStatementTypeId = -2;
-    private readonly IMdsClient _mdsClient;
-    private readonly IMasterDataServiceClient _masterDataServiceClient;
-    private readonly ICmsDocumentDtoMapper _cmsDocumentDtoMapper;
-    private readonly IMdsArgFactory _mdsArgFactory;
+
+    private readonly IMdsClient mdsClient;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
+    private readonly ICmsDocumentDtoMapper cmsDocumentDtoMapper;
+    private readonly IMdsArgFactory mdsArgFactory;
 
     public MdsReclassifyDocumentOrchestrationService(
             IMdsClient mdsClient,
@@ -32,25 +37,31 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
             IMdsArgFactory mdsArgFactory
         )
     {
-        _mdsClient = mdsClient.ExceptionIfNull();
-        _masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
-        _cmsDocumentDtoMapper = cmsDocumentDtoMapper.ExceptionIfNull();
-        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        this.mdsClient = mdsClient.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        this.cmsDocumentDtoMapper = cmsDocumentDtoMapper.ExceptionIfNull();
+        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
     }
 
     public async Task<DocumentReclassifiedResult> ReclassifyDocument(MdsReclassifyDocumentArgDto arg)
     {
-        var (caseDocuments, materialTypeList) = await FetchDocumentAndMaterialTypes(_mdsClient, arg);
+        var (caseDocuments, materialTypeList) = await this.FetchDocumentAndMaterialTypes(this.mdsClient, arg);
 
         var document = caseDocuments.SingleOrDefault(x => x.DocumentId == arg.MaterialId);
-        if (document == null) return new DocumentReclassifiedResult { IsSuccess = false, Result = null };
+        if (document == null)
+        {
+            return new DocumentReclassifiedResult { IsSuccess = false, Result = null };
+        }
 
         var materialType = materialTypeList.SingleOrDefault(x => x.TypeId == arg.DocumentTypeId);
-        if (materialType == null) return new DocumentReclassifiedResult { IsSuccess = false, Result = null };
+        if (materialType == null)
+        {
+            return new DocumentReclassifiedResult { IsSuccess = false, Result = null };
+        }
 
-        var reclassifyResponse = await ReclassifyDocument(_mdsClient, arg, document, materialType);
+        var reclassifyResponse = await this.ReclassifyDocument(this.mdsClient, arg, document, materialType);
 
-        var (documentRenamed, documentRenamedResult) = await HandleDocumentRenaming(arg, _mdsClient, materialType);
+        var (documentRenamed, documentRenamedResult) = await this.HandleDocumentRenaming(arg, this.mdsClient, materialType);
 
         return new DocumentReclassifiedResult
         {
@@ -69,12 +80,12 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
 
     private async Task<(IEnumerable<CmsDocumentDto> caseDocuments, IEnumerable<MaterialTypeDto> materialTypeList)> FetchDocumentAndMaterialTypes(IMdsClient mdsClient, MdsReclassifyDocumentArgDto arg)
     {
-        var caseDocumentsTask = _masterDataServiceClient.ListDocumentsAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
+        var caseDocumentsTask = this.masterDataServiceClient.ListDocumentsAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
         var materialTypeListTask = mdsClient.GetMaterialTypeListAsync(arg);
 
         await Task.WhenAll(caseDocumentsTask, materialTypeListTask);
 
-        var caseDocumentsMapped = caseDocumentsTask.Result.Select(x => _cmsDocumentDtoMapper.Map(x, null)).ToList();
+        var caseDocumentsMapped = caseDocumentsTask.Result.Select(x => this.cmsDocumentDtoMapper.Map(x, null)).ToList();
 
         return (caseDocumentsMapped, materialTypeListTask.Result);
     }
@@ -101,8 +112,8 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
 
     private async Task<DocumentRenamedResultDto> RenameDocument(MdsReclassifyDocumentArgDto arg, IMdsClient mdsClient, MaterialTypeDto materialType, string documentName)
     {
-        var renameDocumentArg = _mdsArgFactory.CreateRenameDocumentArgDto(arg.CmsAuthValues, arg.CorrelationId, arg.Urn, arg.CaseId, arg.MaterialId, documentName);
-        DocumentRenamedResultDto response = new();
+        var renameDocumentArg = this.mdsArgFactory.CreateRenameDocumentArgDto(arg.CmsAuthValues, arg.CorrelationId, arg.Urn, arg.CaseId, arg.MaterialId, documentName);
+        DocumentRenamedResultDto response = new ();
 
         if (materialType.Classification == ExhibitClassification)
         {
@@ -126,7 +137,7 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
         }
 
         var documentName = !string.IsNullOrEmpty(arg.Other?.DocumentName) ? arg.Other?.DocumentName : arg.Immediate?.DocumentName;
-        var documentRenamedResult = await RenameDocument(arg, mdsClient, materialType, documentName);
+        var documentRenamedResult = await this.RenameDocument(arg, mdsClient, materialType, documentName);
 
         return (true, documentRenamedResult);
     }
@@ -148,7 +159,7 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
             {
                 StatementNo = statementNo,
                 WitnessId = documentReclassify.Statement.WitnessId,
-                Date = statementDate.ToString("yyyy-MM-dd")
+                Date = statementDate.ToString("yyyy-MM-dd"),
             };
         }
 
@@ -173,7 +184,10 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
 
     private static bool? SetReclassifyDocumentUsed(MaterialTypeDto materialType, MdsReclassifyDocumentArgDto documentReclassifyArgument)
     {
-        if (materialType.AddAsUsedOrUnused == "N" || materialType.AddAsUsedOrUnused == null) return null;
+        if (materialType.AddAsUsedOrUnused == "N" || materialType.AddAsUsedOrUnused == null)
+        {
+            return null;
+        }
 
         return documentReclassifyArgument switch
         {

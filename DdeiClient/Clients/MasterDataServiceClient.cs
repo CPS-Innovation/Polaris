@@ -85,7 +85,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
             var results = new List<DocumentDto>();
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-            var data = await client.ListDocuments2Async(arg.CaseId, cancellationToken); // returns ApiClient.DocumentDetails
+            var data = await client.ListDocuments2Async(arg.CaseId, cancellationToken);
 
             if (data is not null)
             {
@@ -126,7 +126,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                         DocumentCategory = document.CmsDocCategory?.ToString(),
                     },
 
-                    Status = Enum.TryParse<DocumentStatus>( 
+                    Status = Enum.TryParse<DocumentStatus>(
                         document.Status,
                         true,
                         out var status)
@@ -164,7 +164,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         try
         {
-            UnusedMaterialsResponse results = new();
+            UnusedMaterialsResponse results = new ();
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
             string additionalInfo = $"received #0 unused materials";
@@ -244,7 +244,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         try
         {
-            UsedExhibitsResponse results = new() { Exhibits = new List<Exhibit>() };
+            UsedExhibitsResponse results = new () { Exhibits = new List<Exhibit>() };
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
             string additionalInfo = $"received #0 used exhibits";
@@ -295,7 +295,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         try
         {
-            UsedMgFormsResponse results = new() { MgForms = new List<MgForm>() };
+            UsedMgFormsResponse results = new () { MgForms = new List<MgForm>() };
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
             var data = await client.GetUsedMgFormsAsync(request.CaseId, cancellationToken);
@@ -341,7 +341,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         try
         {
-            UsedOtherMaterialsResponse results = new() { MgForms = new List<MgForm>() };
+            UsedOtherMaterialsResponse results = new () { MgForms = new List<MgForm>() };
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
             var data = await client.GetUsedOtherMaterialsAsync(request.CaseId, cancellationToken);
@@ -386,7 +386,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         try
         {
-            UsedStatementsResponse results = new() { Statements = new List<Statement>() };
+            UsedStatementsResponse results = new () { Statements = new List<Statement>() };
 
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
@@ -437,7 +437,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         try
         {
-            List<Communication> results = new();
+            List<Communication> results = new ();
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
             string additionalInfo = $"received #0 communications";
 
@@ -487,7 +487,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "GetAttachments";
-        AttachmentsResponse results = new();
+        AttachmentsResponse results = new ();
 
         try
         {
@@ -581,7 +581,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "GetExhibitProducers";
-        ExhibitProducersResponse results = new();
+        ExhibitProducersResponse results = new ();
 
         try
         {
@@ -626,13 +626,12 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "ListCaseDefendants";
-        List<Defendant> results = new();
 
         try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-            var data = await client.ListCaseDefendantsAsync(request.CaseId, cancellationToken); // calls /cases/{caseId}/defendants
+            var data = await client.ListCaseDefendantsAsync(request.CaseId, cancellationToken);
 
             var listCaseDefendantsResponse = new DefendantsResponse
             {
@@ -679,7 +678,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "ListCaseWitnesses";
         string additionalInfo = $"received #0 witnesses";
-        WitnessesResponse results = new();
+        WitnessesResponse results = new ();
 
         try
         {
@@ -722,7 +721,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         const string OperationName = "GetStatementsForWitness";
         string additionalInfo = "received #0 statements";
 
-        WitnessStatementsResponse results = new();
+        WitnessStatementsResponse results = new ();
 
         try
         {
@@ -837,7 +836,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                 return default;
             }
 
-            RenameMaterialResponse result = new(new RenameMaterialData { Id = data.UpdateCommunication.Id });
+            RenameMaterialResponse result = new (new RenameMaterialData { Id = data.UpdateCommunication.Id });
 
             this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
 
@@ -1102,7 +1101,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "PcdRequestCore";
 
-        List<PcdRequestCore> results = new();
+        List<PcdRequestCore> results = new ();
         try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
