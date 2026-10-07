@@ -52,8 +52,7 @@ namespace coordinator.Durable.Activity
                             payload.CorrelationId,
                             payload.Urn,
                             payload.CaseId);
-            
-            //var defendantsAndCharges = await MdsClient.GetDefendantAndChargesAsync(arg);
+
             var defendantsAndCharges = await _masterDataServiceClient.GetCaseDefendantsAsync(
                 new ListCaseDefendantsRequest(arg.CaseId, arg.CorrelationId),
                 new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));

@@ -77,6 +77,9 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
     public async Task<IEnumerable<DocumentDto>> ListDocumentsAsync(MdsCaseIdentifiersArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "ListDocuments";
+
         try
         {
             var results = new List<DocumentDto>();
@@ -123,7 +126,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                         DocumentCategory = document.CmsDocCategory?.ToString(),
                     },
 
-                    Status = Enum.TryParse<DocumentStatus>( // maybe remove or rework this...
+                    Status = Enum.TryParse<DocumentStatus>( 
                         document.Status,
                         true,
                         out var status)
@@ -134,7 +137,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                     MimeType = document.MimeType,
                     Path = document.Path,
                     Title = document.Title,
-                    PresentationFlags = null, // should this akways be null??? ...
+                    PresentationFlags = null,
                     ConversionStatus = default,
                     PiiVersionId = null,
                 }).ToList();
@@ -144,7 +147,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "An error occurred while listing documents.");
+            this.HandleException(OperationName, ex, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
             throw;
         }
     }
@@ -1011,6 +1014,9 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         Requires.NotNull(arg);
         Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
 
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "GetCasePcdRequests";
+
         List<PcdRequestDto> results = new ();
         try
         {
@@ -1080,7 +1086,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
         catch (Exception exception)
         {
-            this.logger.LogError(exception, "An error occurred while getting PCD requests.");
+            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
             throw;
         }
 

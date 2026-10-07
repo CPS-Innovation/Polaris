@@ -81,7 +81,6 @@ public class PdfRetrievalService : IPdfRetrievalService
     private async Task<(Stream Stream, FileType FileType, bool IsKnownFileType)> GetPcdRequestStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string documentId)
     {
         var mdsPcdArgDto = _mdsArgFactory.CreatePcdArg(cmsAuthValues, correlationId, urn, caseId, documentId);
-        //var pcdRequest = await _mdsClient.GetPcdRequestAsync(mdsPcdArgDto); ; // calls /cases/{arg.CaseId}/pcd-request/{arg.PcdId}      returns case.precharge.PcdRequestDto
 
         var pcdRequest = await _masterDataServiceClient.GetPcdRequestByPcdIdAsync(
             new GetPcdRequestByPcdIdCoreRequest(mdsPcdArgDto.CaseId, mdsPcdArgDto.PcdId, mdsPcdArgDto.CorrelationId),
@@ -95,7 +94,6 @@ public class PdfRetrievalService : IPdfRetrievalService
     {
         var mdsCaseIdentifiersArgDto = _mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, urn, caseId);
         
-        //var defendantsAndCharges = await _mdsClient.GetDefendantAndChargesAsync(mdsCaseIdentifiersArgDto);
         var defendantsAndCharges = await _masterDataServiceClient.GetCaseDefendantsAsync(
             new ListCaseDefendantsRequest(mdsCaseIdentifiersArgDto.CaseId, mdsCaseIdentifiersArgDto.CorrelationId),
             new CmsAuthValues(mdsCaseIdentifiersArgDto.CmsAuthValues, mdsCaseIdentifiersArgDto.CorrelationId));

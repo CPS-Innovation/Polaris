@@ -91,7 +91,6 @@ public class RenameDocumentLegacy : BaseFunction
                 Urn = caseUrn,
                 CaseId = caseId,
             };
-            //var documentsOld = await _mdsClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto);
             var documentsResponse = await _masterDataServiceClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto, new CmsAuthValues(cmsAuthValues, correlationId), cancellationToken);
             var documents = documentsResponse.Select(x => _cmsDocumentDtoMapper.Map(x, null)).ToList();
             var documentIdNumber = DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document);
@@ -107,7 +106,7 @@ public class RenameDocumentLegacy : BaseFunction
                 Urn = caseUrn,
                 CaseId = caseId,
                 MaterialId = documentIdNumber,
-                DocumentName = body.Value.DocumentName
+                DocumentName = body.Value.DocumentName,
             };
             if (string.Equals(document.Classification, ExhibitClassification, StringComparison.InvariantCultureIgnoreCase))
             {

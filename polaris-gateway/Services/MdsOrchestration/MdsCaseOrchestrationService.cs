@@ -54,16 +54,11 @@ namespace PolarisGateway.Services.MdsOrchestration
         private async Task<CaseDetailsDto> GetCaseDetails(MdsCaseIdentifiersArgDto arg, CancellationToken cancellationToken = default)
         {
             var caseSummaryRequest = new GetCaseSummaryRequest(arg.CaseId, arg.CorrelationId);
-
             var cmsAuthValues = new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId);
 
             var getCaseSummaryTask = this.masterDataServiceClient.GetCaseSummaryAsync(caseSummaryRequest, cmsAuthValues, cancellationToken);
             var witnessesTask = this.mdsClient.GetWitnessesAsync(arg, cancellationToken);
-            
-            //var getDefendantsAndChargesTask = this.mdsClient.GetDefendantAndChargesAsync(arg, cancellationToken);
             var getDefendantsAndChargesTask = this.masterDataServiceClient.GetCaseDefendantsAsync(new ListCaseDefendantsRequest(arg.CaseId, arg.CorrelationId), new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId), cancellationToken);
-
-            //var getPcdRequestTask = this.mdsClient.GetPcdRequestsAsync(arg, cancellationToken); // mdsClient calls /cases/{arg.CaseId}/pcd-requests/overview
             var getPcdRequestTask = this.masterDataServiceClient.GetCasePcdRequestsAsync(arg, cmsAuthValues, cancellationToken);
 
             var caseSummaryResponse = await getCaseSummaryTask;
@@ -97,7 +92,5 @@ namespace PolarisGateway.Services.MdsOrchestration
 
         private IEnumerable<Common.Dto.Response.Case.PreCharge.PcdRequestDto> MapPcdRequests(IEnumerable<Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto> requests) =>
             this.caseDetailsMapper.MapPcdRequests(requests);
-
-        
     }
 }

@@ -69,7 +69,6 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
 
     private async Task<(IEnumerable<CmsDocumentDto> caseDocuments, IEnumerable<MaterialTypeDto> materialTypeList)> FetchDocumentAndMaterialTypes(IMdsClient mdsClient, MdsReclassifyDocumentArgDto arg)
     {
-        //var caseDocumentsTaskOld = mdsClient.ListDocumentsAsync(arg);
         var caseDocumentsTask = _masterDataServiceClient.ListDocumentsAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
         var materialTypeListTask = mdsClient.GetMaterialTypeListAsync(arg);
 

@@ -36,13 +36,8 @@ public class MdsCaseDocumentsOrchestrationService (
 {
     public async Task<IEnumerable<DocumentDto>> GetCaseDocuments(MdsCaseIdentifiersArgDto arg)
     {
-        //var getDocumentsTaskOld = mdsClient.ListDocumentsAsync(arg);
         var getDocumentsTask = masterDataServiceClient.ListDocumentsAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
-
-        //var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg); // calls /cases/{arg.CaseId}/pcd-requests/overview  returns PcdRequestCoreDto
         var getPcdRequestsTask = masterDataServiceClient.GetCasePcdRequestsAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
-
-        //var getDefendantsAndChargesTask = mdsClient.GetDefendantAndChargesAsync(arg);
         var getDefendantsAndChargesTask = masterDataServiceClient.GetCaseDefendantsAsync(
             new ListCaseDefendantsRequest(arg.CaseId, arg.CorrelationId),
             new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));

@@ -172,7 +172,6 @@ public class BulkRedactionSearchService : IBulkRedactionSearchService
             bulkRedactionSearchDto.Urn,
             bulkRedactionSearchDto.CaseId);
 
-        //var listDocumentResponseOld = await this.mdsClient.ListDocumentsAsync(caseIdentifiersArg);
         var listDocumentResponse = await this.masterDataServiceClient.ListDocumentsAsync(caseIdentifiersArg, new CmsAuthValues(caseIdentifiersArg.CmsAuthValues, caseIdentifiersArg.CorrelationId));
         var listDocumentsMapped = listDocumentResponse.Select(x => this.cmsDocumentDtoMapper.Map(x, null)).ToList();
 

@@ -81,15 +81,10 @@ public class GetCaseDocuments
             payload.Urn,
             payload.CaseId);
 
-        //var getDocumentsTaskOld = _mdsClient.ListDocumentsAsync(arg);
         var getDocumentsTask = _masterDataServiceClient.ListDocumentsAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
-
-        //var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg); // mdsClient calls /cases/{arg.CaseId}/pcd-requests/overview
         var getPcdRequestsTask = _masterDataServiceClient.GetCasePcdRequestsAsync(
             arg,
             new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
-
-        //var getDefendantsAndChargesTask = _mdsClient.GetDefendantAndChargesAsync(arg);
         var getDefendantsAndChargesTask = _masterDataServiceClient.GetCaseDefendantsAsync(
             new ListCaseDefendantsRequest(arg.CaseId, arg.CorrelationId),
             new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
