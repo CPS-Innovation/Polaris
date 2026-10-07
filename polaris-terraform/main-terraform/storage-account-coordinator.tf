@@ -66,6 +66,25 @@ resource "azurerm_storage_account" "sa_coordinator" {
   tags = local.common_tags
 }
 
+resource "azurerm_storage_management_policy" "sa_coordinator_retention_policy" {
+  storage_account_id = azurerm_storage_account.sa_coordinator.id
+
+  rule {
+    name    = "purge-expired-case-data"
+    enabled = true
+
+    filters {
+      blob_types = ["blockBlob"]
+    }
+
+    actions {
+      base_blob {
+        delete_after_days_since_modification_greater_than = var.blob_storage_retention_days
+      }
+    }
+  }
+}
+
 # Coordinator Storage Account Private Endpoint and DNS Config
 # Create Private Endpoint for Blobs
 resource "azurerm_private_endpoint" "pipeline_sa_coordinator_blob_pe" {

@@ -1,89 +1,85 @@
+// <copyright file="CleardownService.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.Services.ClearDownService;
+
+using Common.Configuration;
 using Common.Services.BlobStorage;
 using Common.Telemetry;
 using coordinator.Clients.TextExtractor;
 using coordinator.Durable.Providers;
+using coordinator.Functions.Maintenance;
 using coordinator.TelemetryEvents;
-using System;
-using System.Threading.Tasks;
-using Common.Configuration;
+using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.DurableTask.Client;
-using coordinator.Functions.Maintenance;
+using System;
+using System.Threading.Tasks;
 
-namespace coordinator.Services.ClearDownService
+public class ClearDownService(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
+  ITextExtractorClient textExtractorClient,
+  IOrchestrationProvider orchestrationProvider,
+  ILogger<ClearDownService> logger,
+  IConfiguration configuration)
+    : IClearDownService
 {
-    public class ClearDownService : IClearDownService
+    private readonly IPolarisBlobStorageService polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
+
+    public async Task DeleteCaseAsync(DurableTaskClient client, string caseUrn, int caseId, Guid correlationId, bool isLegacy = true, bool removeBlobs = true)
     {
-        private readonly IPolarisBlobStorageService _polarisBlobStorageService;
-        private readonly ITextExtractorClient _textExtractorClient;
-        private readonly IOrchestrationProvider _orchestrationProvider;
-        private readonly ILogger<ClearDownService> _logger;
-
-        public ClearDownService(Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
-          ITextExtractorClient textExtractorClient,
-          IOrchestrationProvider orchestrationProvider,
-          ILogger<ClearDownService> logger,
-          IConfiguration configuration)
+        var telemetryEvent = new DeletedCaseEvent(
+            correlationId,
+            caseId,
+            DateTime.UtcNow)
         {
-            _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
-            _textExtractorClient = textExtractorClient;
-            _orchestrationProvider = orchestrationProvider;
-            _logger = logger;
-        }
-
-        public async Task DeleteCaseAsync(DurableTaskClient client, string caseUrn, int caseId, Guid correlationId, bool isLegacy = true)
+            OperationName = nameof(DeleteCaseLegacy),
+        };
+        try
         {
-            var telemetryEvent = new DeletedCaseEvent(
-                correlationId,
-                caseId,
-                DateTime.UtcNow)
+            logger.LogInformation("Calling text extractor remove case indexes {CaseId}", caseId);
+
+            var deleteResult = await textExtractorClient.RemoveCaseIndexesAsync(caseUrn, caseId, correlationId, isLegacy);
+
+            logger.LogInformation("Text extractor remove case indexes Completed {CaseId}", caseId);
+            telemetryEvent.RemovedCaseIndexTime = DateTime.UtcNow;
+            telemetryEvent.AttemptedRemovedDocumentCount = deleteResult.DocumentCount;
+            telemetryEvent.SuccessfulRemovedDocumentCount = deleteResult.SuccessCount;
+            telemetryEvent.FailedRemovedDocumentCount = deleteResult.FailureCount;
+
+            if (removeBlobs)
             {
-                OperationName = nameof(DeleteCaseLegacy),
-            };
-            try
-            {
-                _logger.LogInformation("Calling text extractor remove case indexes {CaseId}", caseId);
-
-                var deleteResult = await _textExtractorClient.RemoveCaseIndexesAsync(caseUrn, caseId, correlationId, isLegacy);
-
-                _logger.LogInformation("Text extractor remove case indexes Completed {CaseId}", caseId);
-                telemetryEvent.RemovedCaseIndexTime = DateTime.UtcNow;
-                telemetryEvent.AttemptedRemovedDocumentCount = deleteResult.DocumentCount;
-                telemetryEvent.SuccessfulRemovedDocumentCount = deleteResult.SuccessCount;
-                telemetryEvent.FailedRemovedDocumentCount = deleteResult.FailureCount;
-
-                _logger.LogInformation("Deleting blobs with prefix: {CaseId}", caseId);
-                await _polarisBlobStorageService.DeleteBlobsByPrefixAsync(caseId);
-                _logger.LogInformation("Deleted blobs with prefix: {CaseId}", caseId);
+                logger.LogInformation("Deleting blobs with prefix: {CaseId}", caseId);
+                await this.polarisBlobStorageService.DeleteBlobsByPrefixAsync(caseId);
+                logger.LogInformation("Deleted blobs with prefix: {CaseId}", caseId);
                 telemetryEvent.BlobsDeletedTime = DateTime.UtcNow;
-
-                _logger.LogInformation("Deleting case orchestration: {CaseId}", caseId);
-                var orchestrationResult = await _orchestrationProvider.DeleteCaseOrchestrationAsync(client, caseId);
-                telemetryEvent.TerminatedInstancesCount = orchestrationResult.TerminatedInstancesCount;
-                telemetryEvent.GotTerminateInstancesTime = orchestrationResult.GotTerminateInstancesDateTime;
-                telemetryEvent.DidOrchestrationsTerminate = orchestrationResult.DidOrchestrationsTerminate;
-                telemetryEvent.TerminatedInstancesSettledTime = orchestrationResult.TerminatedInstancesSettledDateTime;
-                telemetryEvent.GotPurgeInstancesTime = orchestrationResult.GotPurgeInstancesDateTime;
-                telemetryEvent.PurgeInstancesCount = orchestrationResult.PurgeInstancesCount;
-                telemetryEvent.PurgedInstancesCount = orchestrationResult.PurgedInstancesCount;
-                _logger.LogInformation("Deleted case orchestration: {CaseId}", caseId);
-
-                if (orchestrationResult.IsSuccess)
-                {
-                    telemetryEvent.EndTime = orchestrationResult.OrchestrationEndDateTime;
-                    _logger.TrackEvent(telemetryEvent);
-                }
-                else
-                {
-                    throw new Exception($"DeleteCaseOrchestrationAsync failed");
-                }
             }
-            catch (Exception ex)
+
+            logger.LogInformation("Deleting case orchestration: {CaseId}", caseId);
+            var orchestrationResult = await orchestrationProvider.DeleteCaseOrchestrationAsync(client, caseId);
+            telemetryEvent.TerminatedInstancesCount = orchestrationResult.TerminatedInstancesCount;
+            telemetryEvent.GotTerminateInstancesTime = orchestrationResult.GotTerminateInstancesDateTime;
+            telemetryEvent.DidOrchestrationsTerminate = orchestrationResult.DidOrchestrationsTerminate;
+            telemetryEvent.TerminatedInstancesSettledTime = orchestrationResult.TerminatedInstancesSettledDateTime;
+            telemetryEvent.GotPurgeInstancesTime = orchestrationResult.GotPurgeInstancesDateTime;
+            telemetryEvent.PurgeInstancesCount = orchestrationResult.PurgeInstancesCount;
+            telemetryEvent.PurgedInstancesCount = orchestrationResult.PurgedInstancesCount;
+            logger.LogInformation("Deleted case orchestration: {CaseId}", caseId);
+
+            if (orchestrationResult.IsSuccess)
             {
-                _logger.TrackEventFailure(telemetryEvent);
-                throw new InvalidOperationException($"Error deleting case {caseId}", ex);
+                telemetryEvent.EndTime = orchestrationResult.OrchestrationEndDateTime;
+                logger.TrackEvent(telemetryEvent);
             }
+            else
+            {
+                throw new Exception($"DeleteCaseOrchestrationAsync failed");
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.TrackEventFailure(telemetryEvent);
+            throw new InvalidOperationException($"Error deleting case {caseId}", ex);
         }
     }
 }
