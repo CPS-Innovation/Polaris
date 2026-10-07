@@ -103,7 +103,7 @@ public class RenameDocument : BaseFunction
             };
 
             // var documents = await this.mdsClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto, cancellationToken);
-            var documentsResponse = await this.masterDataServiceClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto, new CmsAuthValues(cmsAuthValues.CmsAuthFullValue, correlationId));
+            var documentsResponse = await this.masterDataServiceClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto, new CmsAuthValues(cmsAuthValues.CmsAuthFullValue, correlationId), cancellationToken);
             var documents = documentsResponse.Select(x => _cmsDocumentDtoMapper.Map(x, null)).ToList();
             var documentIdNumber = DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document);
 

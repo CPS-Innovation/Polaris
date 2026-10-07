@@ -121,7 +121,7 @@ namespace Ddei.Mappers
             return requests.Select(request => this.MapPcdRequest(request));
         }
 
-        private Common.Dto.Response.Case.PreCharge.PcdRequestDto MapPcdRequest(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto request)
+        public Common.Dto.Response.Case.PreCharge.PcdRequestDto MapPcdRequest(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto request)
         {
             return new Common.Dto.Response.Case.PreCharge.PcdRequestDto
             {

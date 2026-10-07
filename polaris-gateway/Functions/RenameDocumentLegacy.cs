@@ -92,7 +92,7 @@ public class RenameDocumentLegacy : BaseFunction
                 CaseId = caseId,
             };
             //var documentsOld = await _mdsClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto);
-            var documentsResponse = await _masterDataServiceClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto, new CmsAuthValues(cmsAuthValues, correlationId));
+            var documentsResponse = await _masterDataServiceClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto, new CmsAuthValues(cmsAuthValues, correlationId), cancellationToken);
             var documents = documentsResponse.Select(x => _cmsDocumentDtoMapper.Map(x, null)).ToList();
             var documentIdNumber = DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document);
 

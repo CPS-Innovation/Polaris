@@ -61,7 +61,7 @@ namespace PolarisGateway.Services.MdsOrchestration
             var witnessesTask = this.mdsClient.GetWitnessesAsync(arg, cancellationToken);
             
             //var getDefendantsAndChargesTask = this.mdsClient.GetDefendantAndChargesAsync(arg, cancellationToken);
-            var getDefendantsAndChargesTask = this.masterDataServiceClient.GetCaseDefendantsAsync(new ListCaseDefendantsRequest(arg.CaseId, arg.CorrelationId), new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
+            var getDefendantsAndChargesTask = this.masterDataServiceClient.GetCaseDefendantsAsync(new ListCaseDefendantsRequest(arg.CaseId, arg.CorrelationId), new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId), cancellationToken);
 
             //var getPcdRequestTask = this.mdsClient.GetPcdRequestsAsync(arg, cancellationToken); // mdsClient calls /cases/{arg.CaseId}/pcd-requests/overview
             var getPcdRequestTask = this.masterDataServiceClient.GetCasePcdRequestsAsync(arg, cmsAuthValues, cancellationToken);

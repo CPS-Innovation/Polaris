@@ -128,7 +128,7 @@ public class BulkRedactionSearchServiceTests
     }
 
     [Fact]
-    public async Task BulkRedactionSearchAsync_OrchestrationProviderStatusesInitiated_ShouldReturnBulkRedactionSearchResponse()// ghana
+    public async Task BulkRedactionSearchAsync_OrchestrationProviderStatusesInitiated_ShouldReturnBulkRedactionSearchResponse()
     {
         // arrange
         var bulkRedactionSearchDto = new BulkRedactionSearchDto

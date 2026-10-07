@@ -96,12 +96,7 @@ public class GetCaseDocuments
 
         await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 
-        //var getDocumentsTaskMapped = getDocumentsTask.Select(x => _cmsDocumentDtoMapper.Map(x, null)).ToList();
         var getDocumentsTaskMapped = getDocumentsTask.Result.Select(x => _cmsDocumentDtoMapper.Map(x, null)).ToList();
-
-        //var ghanaDocuments = getDocumentsTaskOld.Result
-        //    .Select(MapPresentationFlags)
-        //    .ToArray();
 
         var cmsDocuments = getDocumentsTaskMapped
             .Select(MapPresentationFlags)

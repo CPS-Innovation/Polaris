@@ -1011,9 +1011,6 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         Requires.NotNull(arg);
         Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
 
-        var stopwatch = Stopwatch.StartNew();
-        const string OperationName = "GetCasePcdRequests";
-
         List<PcdRequestDto> results = new ();
         try
         {
@@ -1083,6 +1080,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
         catch (Exception exception)
         {
+            this.logger.LogError(exception, "An error occurred while getting PCD requests.");
             throw;
         }
 
