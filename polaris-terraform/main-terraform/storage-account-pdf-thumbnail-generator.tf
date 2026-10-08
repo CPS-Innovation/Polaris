@@ -66,25 +66,6 @@ resource "azurerm_storage_account" "sa_pdf_thumbnail_generator" {
   tags = local.common_tags
 }
 
-resource "azurerm_storage_management_policy" "sa_pdf_thumbnail_generator_retention_policy" {
-  storage_account_id = azurerm_storage_account.sa_pdf_thumbnail_generator.id
-
-  rule {
-    name    = "purge-expired-thumbnail-data"
-    enabled = true
-
-    filters {
-      blob_types = ["blockBlob"]
-    }
-
-    actions {
-      base_blob {
-        delete_after_days_since_modification_greater_than = var.blob_storage_retention_days
-      }
-    }
-  }
-}
-
 # PDF Generator Storage Account Private Endpoint and DNS Config
 # Create Private Endpoint for Blobs
 resource "azurerm_private_endpoint" "pipeline_sa_pdf_thumbnail_generator_blob_pe" {
