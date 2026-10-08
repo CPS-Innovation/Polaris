@@ -110,6 +110,7 @@ public static class ServiceExtensions
         services.AddScoped<IBulkRedactionSearchService, BulkRedactionSearchService>();
 
         services.AddMemoryCache();
+        services.AddScoped<ICmsDocumentDtoMapper, CmsDocumentDtoMapper>();
         services.AddScoped<ICaseUrnResolver, CaseUrnResolver>();
         services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>();
         services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();

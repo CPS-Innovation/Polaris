@@ -33,7 +33,7 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8" />
 		<PackageReference Include="RazorLight" Version="2.3.1" />
 		<PackageReference Include="System.Text.Json" Version="10.0.8" />
-		<PackageReference Include="Cps.MasterDataService.Infrastructure.ApiClient" Version="1.1.164739" />
+		<PackageReference Include="Cps.MasterDataService.Infrastructure.ApiClient" Version="1.1.186561" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Remove="Services\RenderHtmlService\DefendantsAndChargesList.cshtml" />
