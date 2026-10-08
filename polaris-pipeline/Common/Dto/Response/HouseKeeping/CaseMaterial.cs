@@ -3,6 +3,8 @@
 // </copyright>
 
 using System;
+using Common.Dto.Response.Document;
+using Common.Dto.Response.Document.FeatureFlags;
 
 namespace Common.Dto.Response.HouseKeeping;
 
@@ -20,12 +22,22 @@ public record CaseMaterial
     public int Id { get; init; }
 
     /// <summary>
-    /// Gets the original file name associated with the case material.
+    /// Gets the material type identifier for the material. Maps to the UI's parentId.
+    /// </summary>
+    public int MaterialId { get; init; }
+
+    /// <summary>
+    /// Gets the document/version identifier for the material. Maps to the UI's childId/versionId.
+    /// </summary>
+    public int? DocumentId { get; init; }
+
+    /// <summary>
+    /// Gets the original file name associated with the case material. Maps to CmsOriginalName.
     /// </summary>
     public string OriginalFileName { get; init; }
 
     /// <summary>
-    /// Gets the subject of the case material.
+    /// Gets the subject of the case material. Maps to PresentationTitle.
     /// </summary>
     public string Subject { get; init; }
 
@@ -35,22 +47,12 @@ public record CaseMaterial
     public int DocumentTypeId { get; init; }
 
     /// <summary>
-    /// Gets the material type identifier for the material.
-    /// </summary>
-    public int MaterialId { get; init; }
-
-    /// <summary>
-    /// Gets the link to the case material.
-    /// </summary>
-    public string Link { get; init; }
-
-    /// <summary>
-    /// Gets the category of the case material (e.g., "Exhibit", "Statement").
+    /// Gets the category of the case material (e.g., "MG Form").
     /// </summary>
     public string Category { get; init; }
 
     /// <summary>
-    /// Gets the type of the case material (e.g., "Used", "Unused").
+    /// Gets the type of the case material (e.g., "MG3").
     /// </summary>
     public string Type { get; init; }
 
@@ -110,11 +112,6 @@ public record CaseMaterial
     public string Producer { get; init; }
 
     /// <summary>
-    /// Gets the exhibit reference producer associated with the case material.
-    /// </summary>
-    public string Reference { get; init; }
-
-    /// <summary>
     /// Gets the exhibit item for the case material.
     /// </summary>
     public string Item { get; init; }
@@ -128,6 +125,36 @@ public record CaseMaterial
     /// Gets a value indicating whether the case material can be reclassified or not.
     /// </summary>
     public bool IsReclassifiable { get; init; }
+
+    /// <summary>
+    /// Gets the CMS document type details (id, type, category) for the case material.
+    /// </summary>
+    public DocumentTypeDto CmsDocType { get; init; }
+
+    /// <summary>
+    /// Gets the presentation flags (read/write) controlling how the case material can be interacted with.
+    /// </summary>
+    public PresentationFlagsDto PresentationFlags { get; init; }
+
+    /// <summary>
+    /// Gets a value indicating whether the case material has notes associated with it.
+    /// </summary>
+    public bool HasNotes { get; init; }
+
+    /// <summary>
+    /// Gets a value indicating whether the case material is marked as unused.
+    /// </summary>
+    public bool IsUnused { get; init; }
+
+    /// <summary>
+    /// Gets the link to the case material.
+    /// </summary>
+    public string Link { get; init; }
+
+    /// <summary>
+    /// Gets the exhibit reference producer associated with the case material.
+    /// </summary>
+    public string Reference { get; init; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CaseMaterial"/> class.
@@ -155,6 +182,11 @@ public record CaseMaterial
     /// <param name="item">The exhibit item associated with the case material.</param>
     /// <param name="producer">The exhibit producer associated with the case material.</param>
     /// <param name="existingProducerOrWitnessId">The exhibit existingProducerOrWitnessId.</param>
+    /// <param name="documentId">The document identifier for the case material, as held by the CMS document store.</param>
+    /// <param name="cmsDocType">The CMS document type details (id, type, category) for the case material.</param>
+    /// <param name="presentationFlags">The presentation flags (read/write) controlling how the case material can be interacted with.</param>
+    /// <param name="hasNotes">A value indicating whether the case material has notes associated with it.</param>
+    /// <param name="isUnused">A value indicating whether the case material is marked as unused.</param>
     public CaseMaterial(
         int id,
         string originalFileName,
@@ -170,7 +202,7 @@ public record CaseMaterial
         string method = null,
         string direction = null,
         string party = null,
-        DateTime? date = null,
+        DateTime? date = null,  
         DateTime? recordedDate = null,
         int? witnessId = null,
         string title = null,
@@ -178,9 +210,15 @@ public record CaseMaterial
         string item = null,
         string producer = null,
         int? existingProducerOrWitnessId = null,
-        bool isReclassifiable = false)
+        bool isReclassifiable = false,
+        int? documentId = null,
+        DocumentTypeDto cmsDocType = null,
+        PresentationFlagsDto presentationFlags = null,
+        bool hasNotes = false,
+        bool isUnused = false)
     {
         Id = id;
+        DocumentId = documentId;
         OriginalFileName = originalFileName;
         Subject = subject;
         DocumentTypeId = documentTypeId;
@@ -203,5 +241,9 @@ public record CaseMaterial
         Producer = producer;
         ExistingProducerOrWitnessId = existingProducerOrWitnessId;
         IsReclassifiable = isReclassifiable;
+        CmsDocType = cmsDocType;
+        PresentationFlags = presentationFlags;
+        HasNotes = hasNotes;
+        IsUnused = isUnused;
     }
 }

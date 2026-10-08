@@ -20,7 +20,7 @@ public static class RestApi
     public const string WitnessStatementsLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
     public const string WitnessStatements = "cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
     public const string DocumentsLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents";
-    public const string Documents = "cases/{caseId:min(1)}/documents";
+    public const string Documents = "cases/{caseId:min(1)}/documentsOld";
     public const string DocumentNotesLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/notes";
     public const string DocumentNotes = "cases/{caseId:min(1)}/materials/{materialId}/notes";
     public const string RedactDocumentLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/redact";
@@ -78,7 +78,7 @@ public static class RestApi
 
     // House keeping endpoints (new, no URN in route)
     public const string CaseInfo = "case-info/{caseId:min(1)}";
-    public const string CaseMaterials = "cases/{caseId:min(1)}/case-materials";
+    public const string CaseMaterials = "cases/{caseId:min(1)}/documents";
     public const string CaseMaterialsPreview = "cases/{caseId:min(1)}/materials/{materialId}/preview";
     public const string MaterialDocument = "cases/{caseId:min(1)}/materials/{materialId}/document";
     public const string DocumentTypes = "cases/{caseId:min(1)}/document-types";

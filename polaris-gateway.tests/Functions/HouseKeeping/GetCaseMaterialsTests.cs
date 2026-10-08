@@ -16,8 +16,14 @@ using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
 using PolarisGateway.Functions.HouseKeeping;
 using Common.Dto.Response.HouseKeeping;
+using Common.Dto.Response.Documents;
 using Common.Dto.Request;
 using Common.Constants;
+using PolarisGateway.Services.MdsOrchestration;
+using Ddei.Factories;
+using DdeiClient.Services.CaseUrnResolver;
+using Ddei.Domain.CaseData.Args.Core;
+using System.Linq;
 
 /// <summary>
 /// Unit tests for the <see cref="GetCaseMaterials"/> class.
@@ -27,6 +33,9 @@ public class GetCaseMaterialsTests
     private readonly TestLogger<GetCaseMaterials> mockLogger;
     private readonly Mock<ICommunicationService> mockCommunicationService;
     private readonly Mock<ICaseMaterialService> mockCaseMaterialService;
+    private readonly Mock<IMdsCaseDocumentsOrchestrationService> mockMdsOrchestrationService;
+    private readonly Mock<IMdsArgFactory> mockMdsArgFactory;
+    private readonly Mock<ICaseUrnResolver> mockCaseUrnResolver;
     private readonly GetCaseMaterials getCaseMaterialsFunction;
     private readonly DateTime receivedDate = new DateTime(2025, 04, 01);
     private readonly DateTime statementTakenDate = new DateTime(2025, 03, 02);
@@ -40,12 +49,22 @@ public class GetCaseMaterialsTests
         mockLogger = new TestLogger<GetCaseMaterials>();
         mockCommunicationService = new Mock<ICommunicationService>();
         mockCaseMaterialService = new Mock<ICaseMaterialService>();
+        mockMdsOrchestrationService = new Mock<IMdsCaseDocumentsOrchestrationService>();
+        mockMdsArgFactory = new Mock<IMdsArgFactory>();
+        mockCaseUrnResolver = new Mock<ICaseUrnResolver>();
+
+        mockMdsOrchestrationService
+            .Setup(s => s.GetCaseDocuments(It.IsAny<MdsCaseIdentifiersArgDto>()))
+            .ReturnsAsync(Enumerable.Empty<DocumentDto>());
 
         // Initialize the function class
         getCaseMaterialsFunction = new GetCaseMaterials(
             mockLogger,
             mockCommunicationService.Object,
-            mockCaseMaterialService.Object);
+            mockCaseMaterialService.Object,
+            mockMdsOrchestrationService.Object,
+            mockMdsArgFactory.Object,
+            mockCaseUrnResolver.Object);
     }
 
 
