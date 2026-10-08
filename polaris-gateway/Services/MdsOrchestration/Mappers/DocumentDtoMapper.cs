@@ -1,3 +1,8 @@
+// <copyright file="DocumentDtoMapper.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Services.MdsOrchestration.Mappers;
 
 using Common.Domain.Document;
 using Common.Dto.Response.Case;
@@ -6,8 +11,6 @@ using Common.Dto.Response.Document;
 using Common.Dto.Response.Document.FeatureFlags;
 using Common.Dto.Response.Documents;
 using System;
-
-namespace PolarisGateway.Services.MdsOrchestration.Mappers;
 
 public class DocumentDtoMapper : IDocumentDtoMapper
 {
@@ -35,11 +38,11 @@ public class DocumentDtoMapper : IDocumentDtoMapper
             CanReclassify = document.CanReclassify,
             CanRename = document.CanRename,
             RenameStatus = document.RenameStatus,
-            Reference = document.Reference
+            Reference = document.Reference,
         };
     }
 
-    public DocumentDto Map(PcdRequestCoreDto pcdRequest, PresentationFlagsDto presentationFlagsDto)
+    public DocumentDto Map(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto pcdRequest, PresentationFlagsDto presentationFlagsDto)
     {
         var documentId = DocumentNature.ToQualifiedStringDocumentId(pcdRequest.Id, DocumentNature.Types.PreChargeDecisionRequest);
 
@@ -47,13 +50,13 @@ public class DocumentDtoMapper : IDocumentDtoMapper
         {
             DocumentId = documentId,
             VersionId = pcdRequest.Id,
-            // todo: stop sending CmsDocType for non-CMS documents. The UI looks to this to discern between CMS and non-CMS documents
-            //  so we should add a top-level property to the document DTO to indicate the source of the document instead.
+            // TODO: stop sending CmsDocType for non-CMS documents. The UI looks to this to discern between CMS and non-CMS documents
+            // so we should add a top-level property to the document DTO to indicate the source of the document instead.
             CmsDocType = new DocumentTypeDto("PCD", null, "Review"),
             CmsFileCreatedDate = pcdRequest.DecisionRequested,
             CmsOriginalFileName = $"{documentId}.pdf",
             PresentationTitle = documentId,
-            PresentationFlags = presentationFlagsDto
+            PresentationFlags = presentationFlagsDto,
         };
     }
 
@@ -65,14 +68,14 @@ public class DocumentDtoMapper : IDocumentDtoMapper
         {
             DocumentId = documentId,
             VersionId = defendantAndCharges.VersionId,
-            // todo: stop sending CmsDocType for non-CMS documents. The UI looks to this to discern between CMS and non-CMS documents
-            //  so we should add a top-level property to the document DTO to indicate the source of the document instead.
+            // TODO: stop sending CmsDocType for non-CMS documents. The UI looks to this to discern between CMS and non-CMS documents
+            // so we should add a top-level property to the document DTO to indicate the source of the document instead.
             CmsDocType = new DocumentTypeDto("DAC", null, "Review"),
             // this date is never displayed, and is not used for any logic
             CmsFileCreatedDate = new DateTime(1970, 1, 1).ToString("yyyy-MM-dd"),
             CmsOriginalFileName = $"{documentId}.pdf",
             PresentationTitle = documentId,
-            PresentationFlags = presentationFlagsDto
+            PresentationFlags = presentationFlagsDto,
         };
     }
 }

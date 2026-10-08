@@ -15,7 +15,7 @@ public class PcdRequestCore
     /// Gets or sets the Pcd request id.
     /// </summary>
     [JsonPropertyName("id")]
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     /// <summary>
     /// Gets or sets the Pcd request Type.
