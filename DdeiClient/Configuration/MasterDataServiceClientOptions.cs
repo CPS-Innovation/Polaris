@@ -1,4 +1,4 @@
-﻿// <copyright file="MdsClientOptions.cs" company="TheCrownProsecutionService">
+﻿// <copyright file="MasterDataServiceClientOptions.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
