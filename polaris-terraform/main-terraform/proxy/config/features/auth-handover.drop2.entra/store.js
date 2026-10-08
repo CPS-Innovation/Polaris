@@ -34,11 +34,13 @@ const MDS_BASE_URL = process.env.WM_MDS_BASE_URL || "";
 const MDS_ACCESS_KEY = process.env.WM_MDS_ACCESS_KEY || "";
 const MDS_PATH = "cms-auth-store";
 
-// Decided 2026-10-06: the CMS session's real expiry is unknowable to us (.CMSAUTH is an encrypted
-// forms ticket; the modern token is a bare GUID), and MDS does not use expiryTime today. A fixed,
-// obviously-artificial value. NB: if MDS ever starts honouring expiryTime, a past date means every
-// record is born expired — change this to a policy value (e.g. now + N hours) at that point.
-const EXPIRY_TIME = "2000-01-01T00:00:00Z";
+// The CMS session's real expiry is unknowable to us (.CMSAUTH is an encrypted forms ticket; the
+// modern token is a bare GUID), and MDS does not use expiryTime beyond validating it. A fixed,
+// obviously-artificial value — but MDS rejects any non-future time with 400 ("ExpiryTime must be a
+// future timestamp"), so it is far future (2026-10-08; was 2000-01-01). NB: if MDS ever starts
+// honouring expiryTime, records would never expire — change this to a policy value (e.g. now + N
+// hours) at that point.
+const EXPIRY_TIME = "2100-01-01T00:00:00Z";
 
 // base (e.g. "https://fa-wm-app-ddei-staging.azurewebsites.net/api/") + path, tolerating either
 // trailing-slash convention.

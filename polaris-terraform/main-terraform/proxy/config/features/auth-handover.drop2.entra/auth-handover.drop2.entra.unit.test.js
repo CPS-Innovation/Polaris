@@ -106,7 +106,8 @@ async function storeTests(store) {
     const body = JSON.parse(init.body)
     assertEqual(body.cookies, "a=1; b=2", "cookies")
     assertEqual(body.token, "tok-guid", "token")
-    assertEqual(body.expiryTime, "2000-01-01T00:00:00Z", "the agreed fixed expiryTime")
+    assertEqual(body.expiryTime, "2100-01-01T00:00:00Z", "the agreed fixed expiryTime")
+    assert(Date.parse(body.expiryTime) > Date.now(), "MDS rejects a non-future expiryTime (400)")
     assertEqual(Object.keys(body).sort().join(","), "cookies,expiryTime,token", "exactly the MDS contract")
   })
 

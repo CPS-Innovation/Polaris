@@ -119,7 +119,7 @@ need `SameSite=None; Secure`. Revisit if the iframe host changes.
 `deposit(payload, bearer)` = `mdsDeposit`: `PUT <WM_MDS_BASE_URL>cms-auth-store` with
 `Authorization: Bearer <OBO token>` + `x-functions-key` (the same two settings the
 global-components `/global-components/api` route uses — not that route itself, which strips
-Authorization) and body `{cookies, token, expiryTime: "2000-01-01T00:00:00Z"}` (fixed; MDS ignores
+Authorization) and body `{cookies, token, expiryTime: "2100-01-01T00:00:00Z"}` (fixed, far future — MDS 400s a non-future one; MDS ignores
 it today — revisit if it ever honours it). MDS takes the user from the token's `oid`, after full
 JwtBearer validation (signature, issuer, lifetime, aud = the MDS app reg) — so only the on-behalf-of
 token will do; the neutral token gets a 401. The Table Storage backend
