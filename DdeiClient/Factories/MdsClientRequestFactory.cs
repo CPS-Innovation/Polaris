@@ -1,15 +1,20 @@
-﻿using Common.Constants;
+﻿// <copyright file="MdsClientRequestFactory.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace DdeiClient.Factories;
+
+using Common.Constants;
 using Common.Dto.Request;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using DdeiClient.Domain.Args;
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-
-namespace DdeiClient.Factories;
 
 public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClientRequestFactory
 {
@@ -18,14 +23,14 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
     public HttpRequestMessage CreateUrnLookupRequest(MdsCaseIdOnlyArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/urn");
-        AddAuthHeaders(request, arg);
+        this.AddAuthHeaders(request, arg);
         return request;
     }
 
     public HttpRequestMessage CreateListCasesRequest(MdsUrnArgDto arg)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{Encode(arg.Urn)}/case-identifiers");
-        AddAuthHeaders(request, arg);
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/urns/{this.Encode(arg.Urn)}/case-identifiers");
+        this.AddAuthHeaders(request, arg);
         return request;
     }
 
@@ -36,50 +41,50 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
 
     public HttpRequestMessage CreateGetPcdRequestsRequest(MdsCaseIdentifiersArgDto arg)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/pcd-requests/overview");
-        CreateRequest(request, arg);
+        var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/pcd-requests/overview"); // calls /cases/{arg.CaseId}/pcd-requests/overview
+        this.CreateRequest(request, arg);
         return request;
     }
 
     public HttpRequestMessage CreateGetPcdRequest(MdsPcdArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/pcd-request/{arg.PcdId}");
-        CreateRequest(request, arg);
+        this.CreateRequest(request, arg);
         return request;
     }
 
     public HttpRequestMessage CreateGetDefendantAndChargesRequest(MdsCaseIdentifiersArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/defendants");
-        CreateRequest(request, arg);
+        this.CreateRequest(request, arg);
         return request;
     }
 
-    public HttpRequestMessage CreateListCaseDocumentsRequest(MdsCaseIdentifiersArgDto arg)
+    public HttpRequestMessage   CreateListCaseDocumentsRequest(MdsCaseIdentifiersArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/documents/cwa");
-        CreateRequest(request, arg);
+        this.CreateRequest(request, arg);
         return request;
     }
 
     public HttpRequestMessage CreateCheckoutDocumentRequest(MdsMaterialIdAndDocumentIdArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, $"api/cases/{arg.CaseId}/documents/{arg.MaterialId}/versions/{arg.DocumentId}/checkout");
-        CreateRequest(request, arg);
+        this.CreateRequest(request, arg);
         return request;
     }
 
     public HttpRequestMessage CreateCancelCheckoutDocumentRequest(MdsMaterialIdAndDocumentIdArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Delete, $"api/cases/{arg.CaseId}/documents/{arg.MaterialId}/versions/{arg.DocumentId}/checkout");
-        CreateRequest(request, arg);
+        this.CreateRequest(request, arg);
         return request;
     }
 
     public HttpRequestMessage CreateGetDocumentRequest(MdsMaterialIdAndDocumentIdArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/documents/{arg.MaterialId}/versions/{arg.DocumentId}");
-        CreateRequest(request, arg);
+        this.CreateRequest(request, arg);
         return request;
     }
 
@@ -93,7 +98,7 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
         var request = new HttpRequestMessage(HttpMethod.Put, $"api/cases/{arg.CaseId}/documents/{arg.MaterialId}/versions/{arg.DocumentId}");
         var content = new StreamContent(stream);
         content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
-        CreateRequest(request, arg, content);
+        this.CreateRequest(request, arg, content);
         return request;
     }
 
@@ -105,7 +110,7 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
     public HttpRequestMessage CreateGetDocumentNotesRequest(MdsDocumentArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/documents/{arg.MaterialId}/notes");
-        AddAuthHeaders(request, arg);
+        this.AddAuthHeaders(request, arg);
         return request;
     }
 
@@ -117,7 +122,7 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
         });
         var request = new HttpRequestMessage(HttpMethod.Post, $"api/cases/{arg.CaseId}/documents/{arg.MaterialId}/notes");
         var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
-        CreateRequest(request, arg, httpContent);
+        this.CreateRequest(request, arg, httpContent);
         return request;
     }
 
@@ -126,11 +131,11 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
         var content = JsonSerializer.Serialize(new RenameMaterialDto()
         {
             Subject = arg.DocumentName,
-            MaterialId = arg.MaterialId
+            MaterialId = arg.MaterialId,
         });
         var request = new HttpRequestMessage(HttpMethod.Patch, $"api/material/{arg.MaterialId}/rename");
         var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
-        CreateRequest(request, arg, httpContent);
+        this.CreateRequest(request, arg, httpContent);
         return request;
     }
 
@@ -139,11 +144,11 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
         var content = JsonSerializer.Serialize(new RenameExhibitMaterialDto()
         {
             Description = arg.DocumentName,
-            MaterialId = arg.MaterialId
+            MaterialId = arg.MaterialId,
         });
         var request = new HttpRequestMessage(HttpMethod.Patch, $"api/material/{arg.MaterialId}/rename-exhibit");
         var httpContent = new StringContent(content, Encoding.UTF8, "application/json");
-        CreateRequest(request, arg, httpContent);
+        this.CreateRequest(request, arg, httpContent);
         return request;
     }
 
@@ -163,9 +168,9 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
             Statement = arg.Statement is not null
                 ? new CommunicationStatementType
                 {
-                    Date = DateOnly.FromDateTime(DateTime.Parse(arg.Statement.Date)),
+                    Date = DateOnly.FromDateTime(DateTime.Parse(arg.Statement.Date, CultureInfo.InvariantCulture)),
                     Witness = arg.Statement.WitnessId,
-                    StatementNo = arg.Statement.StatementNo
+                    StatementNo = arg.Statement.StatementNo,
                 }
                 : null,
             Exhibit = arg.Exhibit is not null
@@ -174,13 +179,13 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
                     Item = arg.Exhibit.Item,
                     Reference = arg.Exhibit.Reference,
                     ExistingProducerOrWitnessId = arg.Exhibit.ExistingProducerOrWitnessId,
-                    Producer = arg.Exhibit.NewProducer
+                    Producer = arg.Exhibit.NewProducer,
                 }
                 : null,
-            Used = arg.Used
+            Used = arg.Used,
         });
         var request = new HttpRequestMessage(HttpMethod.Post, $"api/communication/reclassify");
-        AddAuthHeaders(request, arg);
+        this.AddAuthHeaders(request, arg);
         request.Content = new StringContent(content, Encoding.UTF8, ContentType.Json);
         return request;
     }
@@ -188,42 +193,42 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
     public HttpRequestMessage CreateGetExhibitProducersRequest(MdsCaseIdentifiersArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/producers");
-        CreateRequest(request, arg);
+        this.CreateRequest(request, arg);
         return request;
     }
 
     public HttpRequestMessage CreateCaseWitnessesRequest(MdsCaseIdentifiersArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/witnesses");
-        CreateRequest(request, arg);
+        this.CreateRequest(request, arg);
         return request;
     }
 
     public HttpRequestMessage CreateGetMaterialTypeListRequest(CmsBaseArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/reference/reclassification");
-        AddAuthHeaders(request, arg);
+        this.AddAuthHeaders(request, arg);
         return request;
     }
 
     public HttpRequestMessage CreateGetWitnessStatementsRequest(MdsWitnessStatementsArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/witnesses/{arg.WitnessId}/statements");
-        CreateRequest(request, arg);
+        this.CreateRequest(request, arg);
         return request;
     }
 
     public HttpRequestMessage CreateToggleIsUnusedDocumentRequest(MdsToggleIsUnusedDocumentDto dto)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, $"api/cases/{dto.CaseId}/documents/{dto.MaterialId}/toggle/{dto.IsUnused}");
-        CreateRequest(request, dto);
+        this.CreateRequest(request, dto);
         return request;
     }
 
     public HttpRequestMessage CreateGetCaseSummary(MdsCaseIdOnlyArgDto arg)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"api/cases/{arg.CaseId}/summary");
-        CreateRequest(request, arg);
+        this.CreateRequest(request, arg);
         return request;
     }
 
@@ -236,12 +241,16 @@ public class MdsClientRequestFactory : CmsBaseHttpClientRequestFactory, IMdsClie
 
     private void CreateRequest(HttpRequestMessage request, MdsUrnArgDto arg, HttpContent content = null)
     {
-        AddAuthHeaders(request, arg);
+        this.AddAuthHeaders(request, arg);
 
         if (!string.IsNullOrEmpty(arg.Urn))
+        {
             request.Headers.Add(UrnHeaderName, arg.Urn);
+        }
 
         if (content is not null)
+        {
             request.Content = content;
+        }
     }
 }

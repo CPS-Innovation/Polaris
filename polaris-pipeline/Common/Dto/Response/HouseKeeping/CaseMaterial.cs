@@ -122,7 +122,7 @@ public record CaseMaterial
     /// <summary>
     /// Gets existing exhibit producer or witness Id associated with the case material.
     /// </summary>
-    public int? ExistingProducerOrWitnessId { get; init; }
+    public long? ExistingProducerOrWitnessId { get; init; }
 
     /// <summary>
     /// Gets a value indicating whether the case material can be reclassified or not.
@@ -177,7 +177,7 @@ public record CaseMaterial
         string reference = null,
         string item = null,
         string producer = null,
-        int? existingProducerOrWitnessId = null,
+        long? existingProducerOrWitnessId = null,
         bool isReclassifiable = false)
     {
         Id = id;

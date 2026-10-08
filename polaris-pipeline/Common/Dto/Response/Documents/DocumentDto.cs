@@ -25,6 +25,9 @@ namespace Common.Dto.Response.Documents
         [JsonPropertyName("versionId")]
         public long VersionId { get; set; }
 
+        [JsonPropertyName("entityId")]
+        public long EntityId { get; set; }
+
         [JsonPropertyName("childId")]
         public long ChildId => VersionId;
 
@@ -100,5 +103,17 @@ namespace Common.Dto.Response.Documents
 
         [JsonPropertyName("reference")]
         public string Reference { get; set; }
+
+        [JsonPropertyName("fileExtension")]
+        public string? FileExtension { get; set; }
+
+        [JsonPropertyName("mimeType")]
+        public string? MimeType { get; set; }
+
+        [JsonPropertyName("path")]
+        public string? Path { get; set; }
+
+        [JsonPropertyName("title")]
+        public string? Title { get; set; }
     }
 }

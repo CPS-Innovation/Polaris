@@ -8,6 +8,8 @@ using Common.Configuration;
 using Common.Domain.Ocr;
 using Common.Dto.Request;
 using Common.Dto.Response.Document;
+using Common.Dto.Response.Documents;
+using Common.Mappers;
 using Common.Services.BlobStorage;
 using coordinator.Builders;
 using coordinator.Domain;
@@ -35,7 +37,8 @@ public class BulkRedactionSearchServiceTests
     private readonly Mock<IPolarisBlobStorageService> polarisBlobStorageServiceMock;
     private readonly Mock<IBulkRedactionSearchResponseBuilder> bulkRedactionSearchResponseBuilderMock;
     private readonly Mock<IOcrDocumentSearch> ocrDocumentSearchMock;
-    private readonly Mock<IMdsClient> mdsClientMock;
+    private readonly Mock<IMasterDataServiceClient> masterDataServiceClientMock;
+    private readonly Mock<ICmsDocumentDtoMapper> cmsDocumentDtoMapperMock;
     private readonly Mock<IMdsArgFactory> mdsArgFactoryMock;
     private readonly BulkRedactionSearchService bulkRedactionSearchService;
     private readonly Mock<ILogger<BulkRedactionSearchService>> loggerMock;
@@ -46,7 +49,8 @@ public class BulkRedactionSearchServiceTests
         this.polarisBlobStorageServiceMock = new Mock<IPolarisBlobStorageService>();
         this.bulkRedactionSearchResponseBuilderMock = new Mock<IBulkRedactionSearchResponseBuilder>();
         this.ocrDocumentSearchMock = new Mock<IOcrDocumentSearch>();
-        this.mdsClientMock = new Mock<IMdsClient>();
+        this.masterDataServiceClientMock = new Mock<IMasterDataServiceClient>();
+        this.cmsDocumentDtoMapperMock = new Mock<ICmsDocumentDtoMapper>();
         this.mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         this.loggerMock = new Mock<ILogger<BulkRedactionSearchService>>();
 
@@ -55,7 +59,7 @@ public class BulkRedactionSearchServiceTests
         var blobStorageServiceFactoryMock = new Mock<Func<string, IPolarisBlobStorageService>>();
         blobStorageServiceFactoryMock.Setup(s => s.Invoke(string.Empty)).Returns(this.polarisBlobStorageServiceMock.Object);
 
-        this.bulkRedactionSearchService = new BulkRedactionSearchService(blobStorageServiceFactoryMock.Object, this.orchestrationProviderMock.Object, this.bulkRedactionSearchResponseBuilderMock.Object, this.ocrDocumentSearchMock.Object, configurationMock.Object, this.mdsClientMock.Object, this.mdsArgFactoryMock.Object, this.loggerMock.Object);
+        this.bulkRedactionSearchService = new BulkRedactionSearchService(blobStorageServiceFactoryMock.Object, this.orchestrationProviderMock.Object, this.bulkRedactionSearchResponseBuilderMock.Object, this.ocrDocumentSearchMock.Object, configurationMock.Object, this.masterDataServiceClientMock.Object, this.cmsDocumentDtoMapperMock.Object, this.mdsArgFactoryMock.Object, this.loggerMock.Object);
     }
 
     [Theory]
@@ -96,7 +100,7 @@ public class BulkRedactionSearchServiceTests
         var orchestrationClientMock = new Mock<DurableTaskClient>("name");
         var cancellationToken = CancellationToken.None;
         var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
-        var listDocumentResponse = new List<CmsDocumentDto>();
+        var listDocumentResponse = new List<DocumentDto>();
         var failureReason = "Document not found in list document";
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
         var bulkRedactionSearchDto = new BulkRedactionSearchDto
@@ -110,7 +114,7 @@ public class BulkRedactionSearchServiceTests
             CorrelationId = Guid.NewGuid(),
         };
         this.mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(mdsCaseIdentifiersArgDto);
-        this.mdsClientMock.Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto)).ReturnsAsync(listDocumentResponse);
+        this.masterDataServiceClientMock.Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto, It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>())).ReturnsAsync(listDocumentResponse);
         this.bulkRedactionSearchResponseBuilderMock.Setup(v => v.BuildDocumentRefreshFailed(failureReason, true)).Returns(this.bulkRedactionSearchResponseBuilderMock.Object);
         this.bulkRedactionSearchResponseBuilderMock.Setup(s => s.Build(bulkRedactionSearchDto)).Returns(bulkRedactionSearchResponse);
 
@@ -139,16 +143,22 @@ public class BulkRedactionSearchServiceTests
         var cancellationToken = CancellationToken.None;
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
         var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
-        var listDocumentResponse = new List<CmsDocumentDto>()
+        var listDocumentResponse = new List<DocumentDto>()
         {
             new ()
             {
-                DocumentId = 12345,
+                DocumentId = "12345",
                 VersionId = bulkRedactionSearchDto.DocumentId,
             },
         };
         this.mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(mdsCaseIdentifiersArgDto);
-        this.mdsClientMock.Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto)).ReturnsAsync(listDocumentResponse);
+        this.masterDataServiceClientMock.Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto,It.IsAny<CmsAuthValues>(),It.IsAny<CancellationToken>())).ReturnsAsync(listDocumentResponse);
+        this.cmsDocumentDtoMapperMock.Setup(x => x.Map(It.IsAny<DocumentDto>(), null))
+            .Returns(new CmsDocumentDto
+            {
+                DocumentId = 12345,
+                VersionId = bulkRedactionSearchDto.DocumentId,
+            });
         this.polarisBlobStorageServiceMock
             .Setup(s => s.TryGetObjectAsync<CaseDurableEntityDocumentsState>(It.IsAny<BlobIdType>())).ReturnsAsync((CaseDurableEntityDocumentsState)null);
         this.orchestrationProviderMock.Setup(s => s.BulkSearchDocumentAsync(orchestrationClientMock.Object, It.IsAny<DocumentPayload>(),cancellationToken))
@@ -182,16 +192,22 @@ public class BulkRedactionSearchServiceTests
         var cancellationToken = CancellationToken.None;
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
         var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
-        var listDocumentResponse = new List<CmsDocumentDto>()
+        var listDocumentResponse = new List<DocumentDto>()
         {
             new ()
             {
-                DocumentId = 12345,
+                DocumentId = "12345",
                 VersionId = bulkRedactionSearchDto.DocumentId,
             },
         };
         this.mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(mdsCaseIdentifiersArgDto);
-        this.mdsClientMock.Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto)).ReturnsAsync(listDocumentResponse);
+        this.masterDataServiceClientMock.Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto, It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>())).ReturnsAsync(listDocumentResponse);
+        this.cmsDocumentDtoMapperMock.Setup(x => x.Map(It.IsAny<DocumentDto>(), null))
+            .Returns(new CmsDocumentDto
+            {
+                DocumentId = 12345,
+                VersionId = bulkRedactionSearchDto.DocumentId,
+            });
         this.polarisBlobStorageServiceMock
             .Setup(s => s.TryGetObjectAsync<CaseDurableEntityDocumentsState>(It.IsAny<BlobIdType>())).ReturnsAsync((CaseDurableEntityDocumentsState)null);
         this.orchestrationProviderMock
@@ -227,16 +243,22 @@ public class BulkRedactionSearchServiceTests
         var failureReason = "Orchestration failure";
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
         var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
-        var listDocumentResponse = new List<CmsDocumentDto>()
+        var listDocumentResponse = new List<DocumentDto>()
         {
             new ()
             {
-                DocumentId = 12345,
+                DocumentId = "12345",
                 VersionId = bulkRedactionSearchDto.DocumentId,
             },
         };
         this.mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(mdsCaseIdentifiersArgDto);
-        this.mdsClientMock.Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto)).ReturnsAsync(listDocumentResponse);
+        this.masterDataServiceClientMock.Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto, It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>())).ReturnsAsync(listDocumentResponse);
+        this.cmsDocumentDtoMapperMock.Setup(x => x.Map(It.IsAny<DocumentDto>(), null))
+            .Returns(new CmsDocumentDto
+            {
+                DocumentId = 12345,
+                VersionId = bulkRedactionSearchDto.DocumentId,
+            });
         this.polarisBlobStorageServiceMock
             .Setup(s => s.TryGetObjectAsync<CaseDurableEntityDocumentsState>(It.IsAny<BlobIdType>())).ReturnsAsync((CaseDurableEntityDocumentsState)null);
         this.orchestrationProviderMock.Setup(s => s.BulkSearchDocumentAsync(orchestrationClientMock.Object, It.IsAny<DocumentPayload>(), cancellationToken))
@@ -271,16 +293,22 @@ public class BulkRedactionSearchServiceTests
         var failureReason = "OCR Document Not Found";
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
         var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
-        var listDocumentResponse = new List<CmsDocumentDto>()
+        var listDocumentResponse = new List<DocumentDto>()
         {
             new ()
             {
-                DocumentId = 12345,
+                DocumentId = "12345",
                 VersionId = bulkRedactionSearchDto.DocumentId,
             },
         };
         this.mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(mdsCaseIdentifiersArgDto);
-        this.mdsClientMock.Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto)).ReturnsAsync(listDocumentResponse);
+        this.masterDataServiceClientMock.Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto, It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>())).ReturnsAsync(listDocumentResponse);
+        this.cmsDocumentDtoMapperMock.Setup(x => x.Map(It.IsAny<DocumentDto>(), null))
+            .Returns(new CmsDocumentDto
+            {
+                DocumentId = 12345,
+                VersionId = bulkRedactionSearchDto.DocumentId,
+            });
         this.polarisBlobStorageServiceMock .Setup(s => s.TryGetObjectAsync<CaseDurableEntityDocumentsState>(It.IsAny<BlobIdType>())).ReturnsAsync((CaseDurableEntityDocumentsState)null);
         this.orchestrationProviderMock.Setup(s => s.BulkSearchDocumentAsync(orchestrationClientMock.Object, It.IsAny<DocumentPayload>(), cancellationToken))
             .ReturnsAsync((OrchestrationProviderStatus.Completed, "instance-123"));
@@ -319,11 +347,11 @@ public class BulkRedactionSearchServiceTests
         var failureReason = "SearchFailed";
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
         var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
-        var listDocumentResponse = new List<CmsDocumentDto>()
+        var listDocumentResponse = new List<DocumentDto>()
         {
             new ()
             {
-                DocumentId = 12345,
+                DocumentId = "12345",
                 VersionId = bulkRedactionSearchDto.DocumentId,
             },
         };
@@ -333,7 +361,13 @@ public class BulkRedactionSearchServiceTests
             FailureReason = failureReason,
         };
         this.mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(mdsCaseIdentifiersArgDto);
-        this.mdsClientMock.Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto)).ReturnsAsync(listDocumentResponse);
+        this.masterDataServiceClientMock.Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto,It.IsAny<CmsAuthValues>(),It.IsAny<CancellationToken>())).ReturnsAsync(listDocumentResponse);
+        this.cmsDocumentDtoMapperMock.Setup(x => x.Map(It.IsAny<DocumentDto>(), null))
+            .Returns(new CmsDocumentDto
+            {
+                DocumentId = 12345,
+                VersionId = bulkRedactionSearchDto.DocumentId,
+            });
         this.polarisBlobStorageServiceMock
             .Setup(s => s.TryGetObjectAsync<CaseDurableEntityDocumentsState>(It.IsAny<BlobIdType>())).ReturnsAsync((CaseDurableEntityDocumentsState)null);
         this.orchestrationProviderMock.Setup(s => s.BulkSearchDocumentAsync(orchestrationClientMock.Object, It.IsAny<DocumentPayload>(), cancellationToken))
@@ -369,21 +403,26 @@ public class BulkRedactionSearchServiceTests
         };
         var orchestrationClientMock = new Mock<DurableTaskClient>("name");
         var cancellationToken = CancellationToken.None;
-        var failureReason = "SearchFailed";
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
         var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
-        var listDocumentResponse = new List<CmsDocumentDto>()
+        var listDocumentResponse = new List<DocumentDto>()
         {
             new ()
             {
-                DocumentId = 12345,
-                VersionId = bulkRedactionSearchDto.DocumentId,
+            DocumentId = "12345",
+            VersionId = bulkRedactionSearchDto.DocumentId,
             },
         };
         var results = new AnalyzeResults();
         var ocrDocumentSearchResponse = new OcrDocumentSearchResponse();
         this.mdsArgFactoryMock.Setup(s => s.CreateCaseIdentifiersArg(bulkRedactionSearchDto.CmsAuthValues, bulkRedactionSearchDto.CorrelationId, bulkRedactionSearchDto.Urn, bulkRedactionSearchDto.CaseId)).Returns(mdsCaseIdentifiersArgDto);
-        this.mdsClientMock.Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto)).ReturnsAsync(listDocumentResponse);
+        this.masterDataServiceClientMock.Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto,It.IsAny<CmsAuthValues>(),It.IsAny<CancellationToken>())).ReturnsAsync(listDocumentResponse);
+        this.cmsDocumentDtoMapperMock.Setup(x => x.Map(It.IsAny<DocumentDto>(), null))
+            .Returns(new CmsDocumentDto
+            {
+                DocumentId = 12345,
+                VersionId = bulkRedactionSearchDto.DocumentId,
+            });
         this.polarisBlobStorageServiceMock
             .Setup(s => s.TryGetObjectAsync<CaseDurableEntityDocumentsState>(It.IsAny<BlobIdType>())).ReturnsAsync((CaseDurableEntityDocumentsState)null);
         this.orchestrationProviderMock
@@ -404,7 +443,6 @@ public class BulkRedactionSearchServiceTests
         this.polarisBlobStorageServiceMock.Verify(v => v.UploadObjectAsync(It.IsAny<CaseDurableEntityDocumentsState>(), It.IsAny<BlobIdType>()));
         Assert.Same(result, bulkRedactionSearchResponse);
     }
-
 
     [Theory]
     [InlineData("PCD")]
@@ -457,11 +495,11 @@ public class BulkRedactionSearchServiceTests
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
         var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
 
-        var listDocumentResponse = new List<CmsDocumentDto>
+        var listDocumentResponse = new List<DocumentDto>
         {
             new ()
             {
-                DocumentId = 12345,
+                DocumentId = "12345",
                 VersionId = bulkRedactionSearchDto.DocumentId,
             },
         };
@@ -474,9 +512,20 @@ public class BulkRedactionSearchServiceTests
                 bulkRedactionSearchDto.CaseId))
             .Returns(mdsCaseIdentifiersArgDto);
 
-        this.mdsClientMock
-            .Setup(x => x.ListDocumentsAsync(mdsCaseIdentifiersArgDto))
+        this.masterDataServiceClientMock
+            .Setup(x => x.ListDocumentsAsync(
+                mdsCaseIdentifiersArgDto,
+                It.IsAny<CmsAuthValues>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(listDocumentResponse);
+
+        this.cmsDocumentDtoMapperMock
+            .Setup(x => x.Map(It.IsAny<DocumentDto>(), null))
+            .Returns(new CmsDocumentDto
+            {
+                DocumentId = 12345,
+                VersionId = bulkRedactionSearchDto.DocumentId,
+            });
 
         this.orchestrationProviderMock
             .Setup(x => x.GetOrchestrationProviderStatus(
@@ -516,11 +565,11 @@ public class BulkRedactionSearchServiceTests
 
         var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
 
-        var listDocumentResponse = new List<CmsDocumentDto>
+        var listDocumentResponse = new List<DocumentDto>
         {
             new ()
             {
-                DocumentId = 12345,
+                DocumentId = "12345",
                 VersionId = bulkRedactionSearchDto.DocumentId,
             },
         };
@@ -532,8 +581,20 @@ public class BulkRedactionSearchServiceTests
             bulkRedactionSearchDto.CaseId))
             .Returns(mdsCaseIdentifiersArgDto);
 
-        this.mdsClientMock.Setup(x => x.ListDocumentsAsync(mdsCaseIdentifiersArgDto))
+        this.masterDataServiceClientMock
+            .Setup(x => x.ListDocumentsAsync(
+                mdsCaseIdentifiersArgDto,
+                It.IsAny<CmsAuthValues>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(listDocumentResponse);
+
+        this.cmsDocumentDtoMapperMock
+        .Setup(x => x.Map(It.IsAny<DocumentDto>(), null))
+        .Returns(new CmsDocumentDto
+        {
+            DocumentId = 12345,
+            VersionId = bulkRedactionSearchDto.DocumentId,
+        });
 
         this.orchestrationProviderMock
             .Setup(x => x.GetOrchestrationProviderStatus(
@@ -573,11 +634,11 @@ public class BulkRedactionSearchServiceTests
 
         var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
 
-        var listDocumentResponse = new List<CmsDocumentDto>
+        var listDocumentResponse = new List<DocumentDto>
         {
             new ()
             {
-                DocumentId = 12345,
+                DocumentId = "12345",
                 VersionId = bulkRedactionSearchDto.DocumentId,
             },
         };
@@ -589,8 +650,20 @@ public class BulkRedactionSearchServiceTests
             bulkRedactionSearchDto.CaseId))
             .Returns(mdsCaseIdentifiersArgDto);
 
-        this.mdsClientMock.Setup(x => x.ListDocumentsAsync(mdsCaseIdentifiersArgDto))
+        this.masterDataServiceClientMock
+            .Setup(x => x.ListDocumentsAsync(
+                mdsCaseIdentifiersArgDto,
+                It.IsAny<CmsAuthValues>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(listDocumentResponse);
+
+        this.cmsDocumentDtoMapperMock
+            .Setup(x => x.Map(It.IsAny<DocumentDto>(), null))
+            .Returns(new CmsDocumentDto
+            {
+                DocumentId = 12345,
+                VersionId = bulkRedactionSearchDto.DocumentId,
+            });
 
         this.orchestrationProviderMock
             .Setup(x => x.GetOrchestrationProviderStatus(
@@ -640,11 +713,11 @@ public class BulkRedactionSearchServiceTests
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
         var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
 
-        var listDocumentResponse = new List<CmsDocumentDto>
+        var listDocumentResponse = new List<DocumentDto>
         {
             new ()
             {
-                DocumentId = 12345,
+                DocumentId = "12345",
                 VersionId = bulkRedactionSearchDto.DocumentId,
             },
         };
@@ -657,9 +730,20 @@ public class BulkRedactionSearchServiceTests
                 bulkRedactionSearchDto.CaseId))
             .Returns(mdsCaseIdentifiersArgDto);
 
-        this.mdsClientMock
-            .Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto))
+        this.masterDataServiceClientMock
+            .Setup(s => s.ListDocumentsAsync(
+                mdsCaseIdentifiersArgDto,
+                It.IsAny<CmsAuthValues>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(listDocumentResponse);
+
+        this.cmsDocumentDtoMapperMock
+            .Setup(x => x.Map(It.IsAny<DocumentDto>(), null))
+            .Returns(new CmsDocumentDto
+            {
+                DocumentId = 12345,
+                VersionId = bulkRedactionSearchDto.DocumentId,
+            });
 
         this.orchestrationProviderMock
             .Setup(s => s.GetOrchestrationProviderStatus(
@@ -713,11 +797,11 @@ public class BulkRedactionSearchServiceTests
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
         var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
 
-        var listDocumentResponse = new List<CmsDocumentDto>
+        var listDocumentResponse = new List<DocumentDto>
         {
             new ()
             {
-                DocumentId = 12345,
+                DocumentId = "12345",
                 VersionId = bulkRedactionSearchDto.DocumentId,
             },
         };
@@ -737,9 +821,20 @@ public class BulkRedactionSearchServiceTests
                 bulkRedactionSearchDto.CaseId))
             .Returns(mdsCaseIdentifiersArgDto);
 
-        this.mdsClientMock
-            .Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto))
+        this.masterDataServiceClientMock
+            .Setup(s => s.ListDocumentsAsync(
+                mdsCaseIdentifiersArgDto,
+                It.IsAny<CmsAuthValues>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(listDocumentResponse);
+
+        this.cmsDocumentDtoMapperMock
+            .Setup(x => x.Map(It.IsAny<DocumentDto>(), null))
+            .Returns(new CmsDocumentDto
+            {
+                DocumentId = 12345,
+                VersionId = bulkRedactionSearchDto.DocumentId,
+            });
 
         this.orchestrationProviderMock
             .Setup(s => s.GetOrchestrationProviderStatus(
@@ -795,11 +890,11 @@ public class BulkRedactionSearchServiceTests
         var bulkRedactionSearchResponse = new BulkRedactionSearchResponse();
         var mdsCaseIdentifiersArgDto = new MdsCaseIdentifiersArgDto();
 
-        var listDocumentResponse = new List<CmsDocumentDto>
+        var listDocumentResponse = new List<DocumentDto>
         {
             new ()
             {
-                DocumentId = 12345,
+                DocumentId = "12345",
                 VersionId = bulkRedactionSearchDto.DocumentId,
             },
         };
@@ -816,9 +911,20 @@ public class BulkRedactionSearchServiceTests
                 bulkRedactionSearchDto.CaseId))
             .Returns(mdsCaseIdentifiersArgDto);
 
-        this.mdsClientMock
-            .Setup(s => s.ListDocumentsAsync(mdsCaseIdentifiersArgDto))
+        this.masterDataServiceClientMock
+            .Setup(s => s.ListDocumentsAsync(
+                mdsCaseIdentifiersArgDto,
+                It.IsAny<CmsAuthValues>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(listDocumentResponse);
+
+        this.cmsDocumentDtoMapperMock
+            .Setup(x => x.Map(It.IsAny<DocumentDto>(), null))
+            .Returns(new CmsDocumentDto
+            {
+                DocumentId = 12345,
+                VersionId = bulkRedactionSearchDto.DocumentId,
+            });
 
         this.orchestrationProviderMock
             .Setup(s => s.GetOrchestrationProviderStatus(

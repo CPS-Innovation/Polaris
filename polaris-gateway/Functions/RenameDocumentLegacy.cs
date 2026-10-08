@@ -1,7 +1,14 @@
+// <copyright file="RenameDocumentLegacy.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
 using Common.Configuration;
 using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Extensions;
+using Common.Mappers;
 using Common.Telemetry;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
@@ -14,6 +21,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using PolarisGateway.Helpers;
+using PolarisGateway.Services.MdsOrchestration.Mappers;
 using PolarisGateway.TelemetryEvents;
 using PolarisGateway.Validators;
 using System;
@@ -22,21 +30,26 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Functions;
-
 public class RenameDocumentLegacy : BaseFunction
 {
-    private readonly ILogger<RenameDocumentLegacy> _logger;
-    private readonly IMdsClient _mdsClient;
-
     private const string ExhibitClassification = "EXHIBIT";
     private const string StatementClassification = "STATEMENT";
 
-    public RenameDocumentLegacy(ILogger<RenameDocumentLegacy> logger,
-        IMdsClient mdsClient)
+    private readonly ILogger<RenameDocumentLegacy> logger;
+    private readonly IMdsClient mdsClient;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
+    private readonly ICmsDocumentDtoMapper cmsDocumentDtoMapper;
+
+    public RenameDocumentLegacy(
+        ILogger<RenameDocumentLegacy> logger,
+        IMdsClient mdsClient, 
+        IMasterDataServiceClient masterDataServiceClient,
+        ICmsDocumentDtoMapper cmsDocumentDtoMapper)
     {
-        _logger = logger.ExceptionIfNull();
-        _mdsClient = mdsClient.ExceptionIfNull();
+        this.logger = logger.ExceptionIfNull();
+        this.mdsClient = mdsClient.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        this.cmsDocumentDtoMapper = cmsDocumentDtoMapper.ExceptionIfNull();
     }
 
     [Function(nameof(RenameDocumentLegacy))]
@@ -72,7 +85,7 @@ public class RenameDocumentLegacy : BaseFunction
 
             if (!isRequestJsonValid)
             {
-                _logger.TrackEvent(telemetryEvent);
+                this.logger.TrackEvent(telemetryEvent);
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
@@ -83,12 +96,16 @@ public class RenameDocumentLegacy : BaseFunction
                 Urn = caseUrn,
                 CaseId = caseId,
             };
-            var documents = await _mdsClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto);
+            var documentsResponse = await this.masterDataServiceClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto, new CmsAuthValues(cmsAuthValues, correlationId), cancellationToken);
+            var documents = documentsResponse.Select(x => this.cmsDocumentDtoMapper.Map(x, null)).ToList();
             var documentIdNumber = DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document);
 
             var document = documents.SingleOrDefault(x => x.DocumentId == documentIdNumber);
 
-            if (document == null) return new NotFoundObjectResult("Document not found");
+            if (document == null)
+            {
+                return new NotFoundObjectResult("Document not found");
+            }
 
             var mdsRenameDocumentArgDto = new MdsRenameDocumentArgDto
             {
@@ -97,25 +114,25 @@ public class RenameDocumentLegacy : BaseFunction
                 Urn = caseUrn,
                 CaseId = caseId,
                 MaterialId = documentIdNumber,
-                DocumentName = body.Value.DocumentName
+                DocumentName = body.Value.DocumentName,
             };
             if (string.Equals(document.Classification, ExhibitClassification, StringComparison.InvariantCultureIgnoreCase))
             {
-                await _mdsClient.RenameExhibitAsync(mdsRenameDocumentArgDto);
+                await this.mdsClient.RenameExhibitAsync(mdsRenameDocumentArgDto, cancellationToken);
             }
             else if (!string.Equals(document.Classification, StatementClassification, StringComparison.InvariantCultureIgnoreCase))
             {
-                await _mdsClient.RenameDocumentAsync(mdsRenameDocumentArgDto);
+                await this.mdsClient.RenameDocumentAsync(mdsRenameDocumentArgDto, cancellationToken);
             }
 
             telemetryEvent.IsSuccess = true;
-            _logger.TrackEvent(telemetryEvent);
+            this.logger.TrackEvent(telemetryEvent);
 
             return new OkResult();
         }
         catch
         {
-            _logger.TrackEventFailure(telemetryEvent);
+            this.logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }
