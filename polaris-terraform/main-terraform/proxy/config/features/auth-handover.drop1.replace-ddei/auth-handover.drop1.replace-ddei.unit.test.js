@@ -47,7 +47,7 @@ async function markerTests(drop1) {
     })
     await drop1.handleInitNonDdei(r)
     assertEqual(r.returnCode, 302, "302")
-    assertEqual(r.returnBody, "/polaris-ui/case/1", "-> landing")
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/case/1", "-> landing, absolute https")
     assert((r.headersOut["Set-Cookie"] || []).some((c) => c.indexOf("Cms-Auth-Values=") === 0), "Cms-Auth-Values set")
     assertEqual(r.headersOut["X-Polaris-Auth-Init"], "non-ddei", "marker")
   })
@@ -57,8 +57,30 @@ async function markerTests(drop1) {
     const r = createMockRequest({ args: { "polaris-ui-url": "/polaris-ui/" }, headersIn: { Host: "proxy.example" } })
     await drop1.handleInitNonDdei(r)
     assertEqual(r.returnCode, 302, "302")
-    assert(r.returnBody.indexOf("auth-fail-reason=no-cookies") !== -1, "fail-redirect")
+    assert(r.returnBody.indexOf("https://proxy.example/polaris-ui/?auth-fail-reason=no-cookies") === 0, "absolute fail-redirect: " + r.returnBody)
     assertEqual(r.headersOut["X-Polaris-Auth-Init"], "non-ddei", "marker")
+  })
+}
+
+// njs would build a relative Location with nginx's own (http) scheme behind the TLS front.
+async function absoluteUrlTests(drop1) {
+  console.log("\nabsoluteUrl — redirects never fall back to http behind the TLS front:")
+  const req = (headersIn) => createMockRequest({ headersIn })
+
+  await test("relative path -> forwarded proto + Host", async () => {
+    assertEqual(drop1.absoluteUrl(req({ Host: "h.example", "X-Forwarded-Proto": "https" }), "/polaris-ui/x?a=1"), "https://h.example/polaris-ui/x?a=1", "abs")
+  })
+
+  await test("no X-Forwarded-Proto -> https (never nginx's own http)", async () => {
+    assertEqual(drop1.absoluteUrl(req({ Host: "h.example" }), "/p"), "https://h.example/p", "https default")
+  })
+
+  await test("an explicit http proto is honoured (local docker)", async () => {
+    assertEqual(drop1.absoluteUrl(req({ Host: "localhost:8080", "X-Forwarded-Proto": "http" }), "/p"), "http://localhost:8080/p", "http")
+  })
+
+  await test("absolute URLs pass through unchanged", async () => {
+    assertEqual(drop1.absoluteUrl(req({ Host: "h.example", "X-Forwarded-Proto": "https" }), "https://other.example/x"), "https://other.example/x", "unchanged")
   })
 }
 
@@ -66,6 +88,7 @@ async function main() {
   const restore = applyEnv({ WEBSITE_SCHEME: "https", ENDPOINT_HTTP_PROTOCOL: "https" })
   const drop1 = await loadNjs("features/auth-handover.drop1.replace-ddei/auth-handover.drop1.replace-ddei.js")
   await markerTests(drop1)
+  await absoluteUrlTests(drop1)
   restore()
   process.exit(summarise("auth-handover.drop1.replace-ddei (unit)"))
 }

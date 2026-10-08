@@ -276,7 +276,7 @@ async function callbackTests() {
   await test("top-level success: exchange(neutral) -> OBO(MDS) -> PUT; 302 landing + Cms-Auth-Values; no presence cookie", async () => {
     const r = await callbackScenario({ term: "top-level" })
     assertEqual(r.returnCode, 302, "302")
-    assertEqual(r.returnBody, "/polaris-ui/case/1", "-> landing")
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/case/1", "-> landing")
     const sc = r.headersOut["Set-Cookie"]
     assert(!!findCookie(sc, "Cms-Auth-Values="), "Cms-Auth-Values still set (additive)")
     assert(findCookie(sc, "entra_auth_state=deleted") !== undefined, "state cookie cleared")
@@ -304,7 +304,7 @@ async function callbackTests() {
   await test("OBO failure (consent missing) degrades: top-level still lands + Cms-Auth-Values; no MDS call", async () => {
     const r = await callbackScenario({ term: "top-level", obo: "fail" })
     assertEqual(r.returnCode, 302, "302")
-    assertEqual(r.returnBody, "/polaris-ui/case/1", "-> landing (login not blocked)")
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/case/1", "-> landing (login not blocked)")
     assert(!!findCookie(r.headersOut["Set-Cookie"], "Cms-Auth-Values="), "Cms-Auth-Values set (degraded to drop1)")
     assertEqual(fetchLog.filter((c) => c.url.indexOf("cms-auth-store") !== -1).length, 0, "no MDS call")
     assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra-degraded", "marker: entra-degraded")
@@ -319,7 +319,7 @@ async function callbackTests() {
 
   await test("MDS failure degrades: top-level lands + Cms-Auth-Values; iframe keeps presence cookies", async () => {
     const top = await callbackScenario({ term: "top-level", mdsStatus: 401 })
-    assertEqual(top.returnBody, "/polaris-ui/case/1", "-> landing")
+    assertEqual(top.returnBody, "https://proxy.example/polaris-ui/case/1", "-> landing")
     assert(!!findCookie(top.headersOut["Set-Cookie"], "Cms-Auth-Values="), "Cms-Auth-Values set")
     assertEqual(top.headersOut["X-Polaris-Auth-Init"], "entra-degraded", "marker")
     const ifr = await callbackScenario({ term: "iframe", mdsStatus: 500 })
@@ -336,7 +336,7 @@ async function callbackTests() {
   await test("AD error (login_required) degrades: still lands via drop1", async () => {
     const r = await callbackScenario({ term: "top-level", adError: "login_required" })
     assertEqual(r.returnCode, 302, "302")
-    assertEqual(r.returnBody, "/polaris-ui/case/1", "-> landing")
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/case/1", "-> landing")
     assert(!!findCookie(r.headersOut["Set-Cookie"], "Cms-Auth-Values="), "Cms-Auth-Values set")
   })
 
@@ -348,7 +348,7 @@ async function callbackTests() {
     const r = createMockRequest({ args: { state: "x", code: "y" }, headersIn: { Host: "proxy.example" } })
     await entra.handleInitEntraCallback(r)
     assertEqual(r.returnCode, 302, "302")
-    assertEqual(r.returnBody, "/polaris-ui/", "fallback landing")
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/", "fallback landing, absolute https (no X-Forwarded-Proto -> https)")
   })
 }
 

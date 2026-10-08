@@ -67,6 +67,15 @@ function _header(r, name) {
   return v !== undefined ? v : "";
 }
 
+// njs turns a relative r.return(302, "/x") into an absolute Location using nginx's OWN scheme,
+// which behind the TLS-terminating front is http — an extra http->https hop on every redirect
+// (DDEI's relative Location never had it). Same fix as auth-handover.js _redirectToAbsoluteUrl:
+// resolve relative paths against the forwarded proto + Host; absolute URLs pass through.
+function absoluteUrl(r, url) {
+  if (url.lastIndexOf("http", 0) === 0) return url;
+  return (_header(r, "X-Forwarded-Proto") || "https") + "://" + _header(r, "Host") + url;
+}
+
 function _clientIp(r) {
   const xff = _header(r, "X-Forwarded-For");
   return xff ? xff.split(",")[0].trim() : "0.0.0.0";
@@ -220,7 +229,7 @@ function _buildCmsAuthValuesCookie(dto, secure) {
 function _failRedirect(r, polarisUiUrl, reason) {
   const base = polarisUiUrl || FALLBACK_LANDING;
   const delim = base.indexOf("?") !== -1 ? "&" : "?";
-  r.return(302, base + delim + "auth-fail-reason=" + reason);
+  r.return(302, absoluteUrl(r, base + delim + "auth-fail-reason=" + reason));
 }
 
 function _extractCaseId(q) {
@@ -326,7 +335,7 @@ function finalize(r, session, landing) {
     // PolarisAuthRedirect: UI passed the post-auth return URL.
     // NOTE: a production version must whitelist this (open-redirect surface) —
     // see docs/PLAN.md Phase 4 / the /auth-refresh-inbound switch discussion.
-    r.return(302, landing.polarisUiUrl);
+    r.return(302, absoluteUrl(r, landing.polarisUiUrl));
     return;
   }
   // CmsLaunch: q = {"caseId":n}. Let the UI resolve the URN via /polaris-ui/go.
@@ -334,11 +343,11 @@ function finalize(r, session, landing) {
   if (caseId) {
     r.return(
       302,
-      GO_ROUTE + "?ctx=" + encodeURIComponent('{"caseId":' + caseId + "}"),
+      absoluteUrl(r, GO_ROUTE + "?ctx=" + encodeURIComponent('{"caseId":' + caseId + "}")),
     );
     return;
   }
-  r.return(302, FALLBACK_LANDING);
+  r.return(302, absoluteUrl(r, FALLBACK_LANDING));
 }
 
 // ---------------------------------------------------------------------------
@@ -375,4 +384,5 @@ export default {
   cmsAuthValuesCookie,
   finalize,
   markAuthInit,
+  absoluteUrl,
 };

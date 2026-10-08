@@ -446,7 +446,7 @@ function _degrade(r, st, landingFallback, reason, extra) {
   }
   // No recoverable state. Prefer a captured landing (begin-time failure) if we have one.
   const ui = landingFallback && landingFallback.polarisUiUrl;
-  r.return(302, ui || "/polaris-ui/");
+  r.return(302, replaceDdei.absoluteUrl(r, ui || "/polaris-ui/"));
 }
 
 // Recover state without throwing (used on the AD-error branch).
