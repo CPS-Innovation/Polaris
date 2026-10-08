@@ -1021,7 +1021,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-            var data = await client.GetCasePcdRequestsAsync(arg.CaseId); // calls mds, /cases/{caseId}/pcd-requests/overview
+            var data = await client.GetCasePcdRequestsAsync(arg.CaseId, cancellationToken); // calls mds, /cases/{caseId}/pcd-requests/overview
 
             if (data is not null)
             {

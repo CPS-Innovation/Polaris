@@ -8,7 +8,7 @@ namespace Common.Dto.Response.Case.PreCharge
         {
         }
             
-        public PcdRequestCoreDto(int id, string decisionRequiredBy, string decisionRequested, PresentationFlagsDto presentationFlags)
+        public PcdRequestCoreDto(long id, string decisionRequiredBy, string decisionRequested, PresentationFlagsDto presentationFlags)
         {
             Id = id;
             DecisionRequiredBy = decisionRequiredBy;
