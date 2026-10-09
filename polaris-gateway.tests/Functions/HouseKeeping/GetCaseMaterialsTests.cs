@@ -80,8 +80,8 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "None"),
-            new CaseMaterial(2, "FileB.pdf", "Subject B", 1034, 456, "/some/path/doc2.pdf", "Evidential", "Type B", false, "None"),
+            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
+            new CaseMaterial(2, "FileB.pdf", "Subject B", 1034, 456, "Evidential", "Type B", false, "None"),
         };
 
         var mockCommunications = new List<Communication>
@@ -1114,10 +1114,10 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "Pending"),
-            new CaseMaterial(2, "FileB.pdf", "Subject B", 1034, 456, "/some/path/doc2.pdf", "Evidential", "Type B", false, "Pending"),
-            new CaseMaterial(3, "AttachmentA.pdf", "Attachment A", 5, 101, "/path/to/attachmentA", "Administrative", "Type A", false, "Pending"),
-            new CaseMaterial(4, "AttachmentB.pdf", "Attachment B", 10, 102, "/path/to/attachmentB", "Administrative", "Type B", false, "Pending"),
+            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "Pending"),
+            new CaseMaterial(2, "FileB.pdf", "Subject B", 1034, 456, "Evidential", "Type B", false, "Pending"),
+            new CaseMaterial(3, "AttachmentA.pdf", "Attachment A", 5, 101, "Administrative", "Type A", false, "Pending"),
+            new CaseMaterial(4, "AttachmentB.pdf", "Attachment B", 10, 102, "Administrative", "Type B", false, "Pending"),
         };
 
         mockCaseMaterialService
@@ -1263,10 +1263,10 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "Pending"),
-            new CaseMaterial(2, "FileB.pdf", "Subject B", 1034, 456, "/some/path/doc2.pdf", "Evidential", "Type B", false, "Complete"),
-            new CaseMaterial(3, "AttachmentA.pdf", "Attachment A", 5, 101, "/path/to/attachmentA", "Administrative", "Type A", false, "Pending"),
-            new CaseMaterial(4, "AttachmentB.pdf", "Attachment B", 10, 102, "/path/to/attachmentB", "Administrative", "Type B", false, "Complete"),
+            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "Pending"),
+            new CaseMaterial(2, "FileB.pdf", "Subject B", 1034, 456, "Evidential", "Type B", false, "Complete"),
+            new CaseMaterial(3, "AttachmentA.pdf", "Attachment A", 5, 101, "Administrative", "Type A", false, "Pending"),
+            new CaseMaterial(4, "AttachmentB.pdf", "Attachment B", 10, 102, "Administrative", "Type B", false, "Complete"),
         };
 
         mockCaseMaterialService
@@ -1345,7 +1345,7 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "None"),
+            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
         };
 
         // Create Used MG Forms data
@@ -1376,8 +1376,8 @@ public class GetCaseMaterialsTests
 
         var mappedUsedMgFormsCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "usedMgForm1.pdf", "Used MG Form One", 1202, 1, "http://example1.com", "MG Form", "MG Form", false, "Used"),
-            new CaseMaterial(2, "usedMgForm2.pdf", "Used MG Form Two", 1203, 2, "http://example2.com", "MG Form", "MG Form", false, "Used"),
+            new CaseMaterial(1, "usedMgForm1.pdf", "Used MG Form One", 1202, 1, "MG Form", "MG Form", false, "Used"),
+            new CaseMaterial(2, "usedMgForm2.pdf", "Used MG Form Two", 1203, 2, "MG Form", "MG Form", false, "Used"),
         };
 
         // Mock empty responses for other materials
@@ -1437,7 +1437,7 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "None"),
+            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
         };
 
         // Create Used Other Materials data
@@ -1468,8 +1468,8 @@ public class GetCaseMaterialsTests
 
         var mappedUsedOtherMaterialsCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "usedOtherMaterial1.pdf", "Used Other Material One", 1204, 1, "http://example1.com", "Other Material", "Other Material", false, "Used"),
-            new CaseMaterial(2, "usedOtherMaterial2.pdf", "Used Other Material Two", 1205, 2, "http://example2.com", "Other Material", "Other Material", false, "Used"),
+            new CaseMaterial(1, "usedOtherMaterial1.pdf", "Used Other Material One", 1204, 1, "Other Material", "Other Material", false, "Used"),
+            new CaseMaterial(2, "usedOtherMaterial2.pdf", "Used Other Material Two", 1205, 2, "Other Material", "Other Material", false, "Used"),
         };
 
         // Mock empty responses for other materials
@@ -1529,7 +1529,7 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "None"),
+            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
         };
 
         // Create Used MG Forms data
@@ -1566,12 +1566,12 @@ public class GetCaseMaterialsTests
 
         var mappedUsedMgFormsCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "usedMgForm.pdf", "Used MG Form", 1202, 1, "http://example1.com", "MG Form", "MG Form", false, "Used"),
+            new CaseMaterial(1, "usedMgForm.pdf", "Used MG Form", 1202, 1, "MG Form", "MG Form", false, "Used"),
         };
 
         var mappedUsedOtherMaterialsCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(2, "usedOtherMaterial.pdf", "Used Other Material", 1204, 2, "http://example2.com", "Other Material", "Other Material", false, "Used"),
+            new CaseMaterial(2, "usedOtherMaterial.pdf", "Used Other Material", 1204, 2, "Other Material", "Other Material", false, "Used"),
         };
 
         // Mock empty responses for other materials
@@ -1638,7 +1638,7 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "None"),
+            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
         };
 
         // Create empty Used MG Forms
@@ -1697,7 +1697,7 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "None"),
+            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
         };
 
         // Create Used MG Forms with both excluded and included material types
@@ -1749,7 +1749,7 @@ public class GetCaseMaterialsTests
         // Only the valid MG form should be mapped (PE3, PE4, DREP excluded)
         var mappedUsedMgFormsCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(4, "valid.pdf", "Valid MG Form", 1202, 4, "http://example4.com", "MG Form", "MG Form", false, "Used"),
+            new CaseMaterial(4, "valid.pdf", "Valid MG Form", 1202, 4, "MG Form", "MG Form", false, "Used"),
         };
 
         // Mock empty responses for other materials

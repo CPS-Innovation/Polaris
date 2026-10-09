@@ -288,7 +288,6 @@ public class HkUiFunctionsTests : TestBase
             Assert.Equal(expected.Subject, actual.Subject);
             Assert.Equal(expected.DocumentTypeId, actual.DocumentTypeId);
             Assert.Equal(expected.MaterialId, actual.MaterialId);
-            Assert.EndsWith(expected.OriginalFileName, actual.Link);
             Assert.Equal(expected.Category, actual.Category);
             Assert.Equal(expected.Type, actual.Type);
             Assert.Equal(expected.HasAttachments, actual.HasAttachments);
@@ -360,7 +359,6 @@ public class HkUiFunctionsTests : TestBase
             Assert.Equal(expected.Subject, actual.Subject);
             Assert.Equal(expected.DocumentTypeId, actual.DocumentTypeId);
             Assert.Equal(expected.MaterialId, actual.MaterialId);
-            Assert.EndsWith(expected.OriginalFileName, actual.Link);
             Assert.Equal(expected.Category, actual.Category);
             Assert.Equal(expected.Type, actual.Type);
             Assert.Equal(expected.HasAttachments, actual.HasAttachments);

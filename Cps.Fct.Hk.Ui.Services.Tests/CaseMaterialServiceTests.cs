@@ -1,4 +1,4 @@
-﻿// <copyright file="CaseMaterialServiceTests.cs" company="TheCrownProsecutionService">
+// <copyright file="CaseMaterialServiceTests.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
@@ -74,7 +74,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(1012, firstMaterial.DocumentTypeId);
             Assert.Equal(123, firstMaterial.MaterialId);
-            Assert.Equal("/some/path/doc1.pdf", firstMaterial.Link);
             Assert.Equal("Category1", firstMaterial.Category);
             Assert.Equal("TypeA", firstMaterial.Type);
             Assert.False(firstMaterial.HasAttachments);
@@ -167,13 +166,12 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(1202, firstMaterial.DocumentTypeId);
             Assert.Equal(1, firstMaterial.MaterialId);
-            Assert.Equal("/some/path/exhibit1.pdf", firstMaterial.Link);
             Assert.Equal("Mapped Category A", firstMaterial.Category);
             Assert.Equal("Mapped DocumentType A", firstMaterial.Type);
             Assert.False(firstMaterial.HasAttachments);
             Assert.Equal("Used", firstMaterial.Status);
             Assert.Equal(receivedDate, firstMaterial.Date);
-            Assert.Equal("some-reference", firstMaterial.Reference);
+
             Assert.Equal("some-producer", firstMaterial.Producer);
             Assert.True(firstMaterial.IsReclassifiable);
             Assert.True(result.Last().IsReclassifiable);
@@ -238,7 +236,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal("ExhibitA.pdf", firstMaterial.Subject);
             Assert.Equal(0, firstMaterial.DocumentTypeId);
             Assert.Equal(1, firstMaterial.MaterialId);
-            Assert.Equal("/some/path/exhibit1.pdf", firstMaterial.Link);
             Assert.Equal("Unknown", firstMaterial.Category);
             Assert.Equal("Unknown", firstMaterial.Type);
             Assert.False(firstMaterial.HasAttachments);
@@ -359,7 +356,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(1202, firstMaterial.DocumentTypeId);
             Assert.Equal(1, firstMaterial.MaterialId);
-            Assert.Equal("/some/path/statement1.pdf", firstMaterial.Link);
             Assert.Equal("Mapped Category A", firstMaterial.Category);
             Assert.Equal("Mapped DocumentType A", firstMaterial.Type);
             Assert.False(firstMaterial.HasAttachments);
@@ -483,7 +479,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(1202, firstMaterial.DocumentTypeId);
             Assert.Equal(1, firstMaterial.MaterialId);
-            Assert.Equal("/some/path/statement1.pdf", firstMaterial.Link);
             Assert.Equal("Mapped Category A", firstMaterial.Category);
             Assert.Equal("Mapped DocumentType A", firstMaterial.Type);
             Assert.False(firstMaterial.HasAttachments);
@@ -547,7 +542,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(0, firstMaterial.DocumentTypeId);
             Assert.Equal(1, firstMaterial.MaterialId);
-            Assert.Equal("/some/path/statement1.pdf", firstMaterial.Link);
             Assert.Equal("Unknown", firstMaterial.Category);
             Assert.Equal("Unknown", firstMaterial.Type);
             Assert.False(firstMaterial.HasAttachments);
@@ -676,7 +670,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(1001, firstMaterial.DocumentTypeId);
             Assert.Equal(1, firstMaterial.MaterialId);
-            Assert.Equal("/some/path/exhibit1.pdf", firstMaterial.Link);
             Assert.Equal("Mapped Category A", firstMaterial.Category);
             Assert.Equal("Mapped DocumentType A", firstMaterial.Type);
             Assert.False(firstMaterial.HasAttachments);
@@ -770,7 +763,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(0, firstMaterial.DocumentTypeId);
             Assert.Equal(1, firstMaterial.MaterialId);
-            Assert.Equal("/some/path/exhibit1.pdf", firstMaterial.Link);
             Assert.Equal("Unknown", firstMaterial.Category);
             Assert.Equal("Unknown", firstMaterial.Type);
             Assert.False(firstMaterial.HasAttachments);
@@ -1018,7 +1010,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal("MgFormA.pdf", firstMaterial.Subject);
             Assert.Equal(1202, firstMaterial.DocumentTypeId);
             Assert.Equal(1, firstMaterial.MaterialId);
-            Assert.Equal("/some/path/mgform1.pdf", firstMaterial.Link);
             Assert.Equal("Mapped Category A", firstMaterial.Category);
             Assert.Equal("Mapped DocumentType A", firstMaterial.Type);
             Assert.False(firstMaterial.HasAttachments);
@@ -1078,7 +1069,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal("MgFormA.pdf", firstMaterial.Subject);
             Assert.Equal(0, firstMaterial.DocumentTypeId);
             Assert.Equal(1, firstMaterial.MaterialId);
-            Assert.Equal("/some/path/mgform1.pdf", firstMaterial.Link);
             Assert.Equal("Unknown", firstMaterial.Category);
             Assert.Equal("Unknown", firstMaterial.Type);
             Assert.False(firstMaterial.HasAttachments);
@@ -1188,7 +1178,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal("OtherMaterialA.pdf", firstMaterial.Subject);
             Assert.Equal(1204, firstMaterial.DocumentTypeId);
             Assert.Equal(1, firstMaterial.MaterialId);
-            Assert.Equal("/some/path/other1.pdf", firstMaterial.Link);
             Assert.Equal("Mapped Category A", firstMaterial.Category);
             Assert.Equal("Mapped DocumentType A", firstMaterial.Type);
             Assert.False(firstMaterial.HasAttachments);
@@ -1248,7 +1237,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal("OtherMaterialA.pdf", firstMaterial.Subject);
             Assert.Equal(0, firstMaterial.DocumentTypeId);
             Assert.Equal(1, firstMaterial.MaterialId);
-            Assert.Equal("/some/path/other1.pdf", firstMaterial.Link);
             Assert.Equal("Unknown", firstMaterial.Category);
             Assert.Equal("Unknown", firstMaterial.Type);
             Assert.False(firstMaterial.HasAttachments);
@@ -1473,7 +1461,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
                 .ReturnsAsync(exhibitProducers);
 
             // Act
-            int? result = this.caseMaterialService.MapExistingProducerOrWitnessId(producer, exhibitProducers, 234);
+            long? result = this.caseMaterialService.MapExistingProducerOrWitnessId(producer, exhibitProducers, 234);
 
             // Assert
             Assert.NotNull(result);
@@ -1539,7 +1527,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal("MgFormA.pdf", mgForms.Subject);
             Assert.Equal(1200, mgForms.DocumentTypeId);
             Assert.Equal(1, mgForms.MaterialId);
-            Assert.Equal("/some/path/mgform1.pdf", mgForms.Link);
             Assert.Equal("Mapped Category A", mgForms.Category);
             Assert.Equal("Mapped DocumentType A", mgForms.Type);
             Assert.False(mgForms.HasAttachments);

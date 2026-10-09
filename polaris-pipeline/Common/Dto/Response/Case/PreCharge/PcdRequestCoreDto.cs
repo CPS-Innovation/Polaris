@@ -7,8 +7,8 @@ namespace Common.Dto.Response.Case.PreCharge
         public PcdRequestCoreDto()
         {
         }
-
-        public PcdRequestCoreDto(int id, string decisionRequiredBy, string decisionRequested, PresentationFlagsDto presentationFlags)
+            
+        public PcdRequestCoreDto(long id, string decisionRequiredBy, string decisionRequested, PresentationFlagsDto presentationFlags)
         {
             Id = id;
             DecisionRequiredBy = decisionRequiredBy;
@@ -16,7 +16,7 @@ namespace Common.Dto.Response.Case.PreCharge
             PresentationFlags = presentationFlags;
         }
 
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         public string DecisionRequiredBy { get; set; }
 

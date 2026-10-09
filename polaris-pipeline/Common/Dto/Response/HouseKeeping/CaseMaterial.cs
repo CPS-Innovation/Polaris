@@ -147,11 +147,6 @@ public record CaseMaterial
     public bool IsUnused { get; init; }
 
     /// <summary>
-    /// Gets the link to the case material.
-    /// </summary>
-    public string Link { get; init; }
-
-    /// <summary>
     /// Gets the exhibit reference producer associated with the case material.
     /// </summary>
     public string Reference { get; init; }
@@ -164,7 +159,6 @@ public record CaseMaterial
     /// <param name="subject">The subject of the case material.</param>
     /// <param name="documentTypeId">The document type identifier for the case material.</param>
     /// <param name="materialId">The material type identifier for the material.</param>
-    /// <param name="link">The link to the case material.</param>
     /// <param name="category">The category of the case material (e.g., "Exhibit", "Statement").</param>
     /// <param name="type">The type of the case material (e.g., "Used", "Unused").</param>
     /// <param name="hasAttachments">Indicates whether the case material has attachments.</param>
@@ -193,7 +187,6 @@ public record CaseMaterial
         string subject,
         int documentTypeId,
         int materialId,
-        string link,
         string category,
         string type,
         bool hasAttachments,
@@ -223,7 +216,6 @@ public record CaseMaterial
         Subject = subject;
         DocumentTypeId = documentTypeId;
         MaterialId = materialId;
-        Link = link;
         Category = category;
         Type = type;
         HasAttachments = hasAttachments;

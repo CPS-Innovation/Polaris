@@ -8,6 +8,7 @@ using Common.Configuration;
 using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Extensions;
+using Common.Mappers;
 using Common.Telemetry;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
@@ -21,6 +22,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using PolarisGateway.Helpers;
+using PolarisGateway.Services.MdsOrchestration.Mappers;
 using PolarisGateway.TelemetryEvents;
 using PolarisGateway.Validators;
 using System;
@@ -36,15 +38,21 @@ public class RenameDocument : BaseFunction
 
     private readonly ILogger<RenameDocument> logger;
     private readonly IMdsClient mdsClient;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
+    private readonly ICmsDocumentDtoMapper cmsDocumentDtoMapper;
     private readonly ICaseUrnResolver caseUrnResolver;
 
     public RenameDocument(
         ILogger<RenameDocument> logger,
         IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient,
+        ICmsDocumentDtoMapper cmsDocumentDtoMapper,
         ICaseUrnResolver caseUrnResolver)
     {
         this.logger = logger.ExceptionIfNull();
         this.mdsClient = mdsClient.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        this.cmsDocumentDtoMapper = cmsDocumentDtoMapper.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
@@ -93,7 +101,9 @@ public class RenameDocument : BaseFunction
                 Urn = caseUrn,
                 CaseId = caseId,
             };
-            var documents = await this.mdsClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto, cancellationToken);
+
+            var documentsResponse = await this.masterDataServiceClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto, new CmsAuthValues(cmsAuthValues.CmsAuthFullValue, correlationId), cancellationToken);
+            var documents = documentsResponse.Select(x => this.cmsDocumentDtoMapper.Map(x, null)).ToList();
             var documentIdNumber = DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document);
 
             var document = documents.SingleOrDefault(x => x.DocumentId == documentIdNumber);
