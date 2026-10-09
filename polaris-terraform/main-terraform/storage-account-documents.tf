@@ -188,4 +188,20 @@ resource "azurerm_storage_management_policy" "sa_polarispipeline_retention_polic
       }
     }
   }
+
+  rule {
+    name    = "DeletePreviousVersions (auto-created)"
+    enabled = true
+
+    filters {
+      blob_types   = ["blockBlob", "appendBlob"]
+      prefix_match = ["documents/"]
+    }
+
+    actions {
+      version {
+        delete_after_days_since_creation = 7
+      }
+    }
+  }
 }
