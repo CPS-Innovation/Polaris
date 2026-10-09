@@ -33,7 +33,6 @@ public class RedactDocument
     private readonly IPolarisBlobStorageService polarisBlobStorageService;
     private readonly IMdsArgFactory mdsArgFactory;
     private readonly IMdsClient mdsClient;
-    private readonly ICaseUrnResolver caseUrnResolver;
 
     public RedactDocument(
         IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
@@ -41,15 +40,13 @@ public class RedactDocument
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IMdsArgFactory mdsArgFactory,
         IConfiguration configuration,
-        IMdsClient mdsClient,
-        ICaseUrnResolver caseUrnResolver)
+        IMdsClient mdsClient)
     {
         this.requestValidator = requestValidator.ExceptionIfNull();
         this.redactionClient = redactionClient.ExceptionIfNull();
         this.polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         this.mdsClient = mdsClient.ExceptionIfNull();
-        this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
     [Function(nameof(RedactDocument))]
@@ -66,8 +63,6 @@ public class RedactDocument
     {
         var currentCorrelationId = req.Headers.GetCorrelationId();
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
-
-        var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         var redactPdfRequest = await req.ReadFromJsonAsync<RedactPdfRequestDto>(cancellationToken);
 
@@ -140,7 +135,7 @@ public class RedactDocument
         var arg = this.mdsArgFactory.CreateDocumentVersionArgDto(
             cmsAuthValues.CmsAuthFullValue,
             correlationId: currentCorrelationId,
-            caseUrn,
+            urn: null,
             caseId: caseId,
             DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document),
             documentId);
