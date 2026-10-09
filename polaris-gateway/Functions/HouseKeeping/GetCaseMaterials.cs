@@ -9,6 +9,7 @@ using Common.Constants;
 using Common.Dto.Request;
 using Common.Dto.Response.Documents;
 using Common.Dto.Response.HouseKeeping;
+using Common.Domain.Document;
 using Common.Enums;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
@@ -325,8 +326,8 @@ public class GetCaseMaterials(
         }
 
         var documentsByMaterialId = documents
-            .Where(d => int.TryParse(d.DocumentId, out _))
-            .ToLookup(d => int.Parse(d.DocumentId));
+            .Where(d => TryGetMaterialId(d.DocumentId, out _))
+            .ToLookup(d => TryGetMaterialId(d.DocumentId, out var materialId) ? materialId : 0);
 
         for (int i = 0; i < allCaseMaterials.Count; i++)
         {
@@ -340,12 +341,40 @@ public class GetCaseMaterials(
 
             allCaseMaterials[i] = caseMaterial with
             {
-                DocumentId = int.TryParse(matchingDocument.DocumentId, out var documentId) ? documentId : caseMaterial.DocumentId,
+                DocumentId = (int)matchingDocument.VersionId,
                 CmsDocType = matchingDocument.CmsDocType ?? caseMaterial.CmsDocType,
                 PresentationFlags = matchingDocument.PresentationFlags ?? caseMaterial.PresentationFlags,
                 HasNotes = matchingDocument.HasNotes,
                 IsUnused = matchingDocument.IsUnused,
             };
+        }
+    }
+
+    /// <summary>
+    /// Attempts to extract the numeric material id from a qualified document id (e.g. "CMS-12345").
+    /// </summary>
+    /// <param name="qualifiedDocumentId">The qualified document id string.</param>
+    /// <param name="materialId">The parsed numeric material id, if successful.</param>
+    /// <returns><see langword="true"/> if the material id was successfully parsed; otherwise, <see langword="false"/>.</returns>
+    private static bool TryGetMaterialId(string qualifiedDocumentId, out int materialId)
+    {
+        materialId = 0;
+
+        if (string.IsNullOrWhiteSpace(qualifiedDocumentId))
+        {
+            return false;
+        }
+
+        try
+        {
+            var type = DocumentNature.GetDocumentNatureType(qualifiedDocumentId);
+            var numericId = DocumentNature.ToNumericDocumentId(qualifiedDocumentId, type);
+            materialId = (int)numericId;
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
         }
     }
 

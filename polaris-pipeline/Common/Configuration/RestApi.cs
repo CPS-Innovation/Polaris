@@ -20,7 +20,6 @@ public static class RestApi
     public const string WitnessStatementsLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
     public const string WitnessStatements = "cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
     public const string DocumentsLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents";
-    public const string Documents = "cases/{caseId:min(1)}/documentsOld";
     public const string DocumentNotesLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/notes";
     public const string DocumentNotes = "cases/{caseId:min(1)}/materials/{materialId}/notes";
     public const string RedactDocumentLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/redact";
