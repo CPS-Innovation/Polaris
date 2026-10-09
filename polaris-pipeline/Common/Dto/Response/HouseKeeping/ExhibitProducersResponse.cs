@@ -25,6 +25,6 @@ public record ExhibitProducersResponse
 /// <param name="Name">The producer's name.</param>
 /// <param name="IsWitness">Flag to indicate if producer is also a witness.</param>
 public record ExhibitProducer(
-    [property: JsonPropertyName("id")] int Id,
+    [property: JsonPropertyName("id")] long Id,
     [property: JsonPropertyName("producer")] string Name,
     [property: JsonPropertyName("IsWitness")] bool IsWitness);

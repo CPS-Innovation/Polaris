@@ -83,7 +83,7 @@ namespace Common.Services.DocumentToggle
             };
         }
 
-        public PresentationFlagsDto GetPcdRequestPresentationFlags(PcdRequestCoreDto pcdRequest)
+        public PresentationFlagsDto GetPcdRequestPresentationFlags(Dto.Response.HouseKeeping.Pcd.PcdRequestDto pcdRequest)
         {
             return ReadOnly;
         }

@@ -1,12 +1,23 @@
+// <copyright file="GetCaseDocuments.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.Durable.Activity;
+
+using Common.Dto.Request;
+using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response.Case;
 using Common.Dto.Response.Case.PreCharge;
 using Common.Dto.Response.Document;
+using Common.Dto.Response.HouseKeeping.Pcd;
 using Common.Extensions;
+using Common.Mappers;
 using Common.Services.DocumentToggle;
 using coordinator.Domain;
 using coordinator.Durable.Payloads;
 using coordinator.Services;
 using Ddei.Factories;
+using Ddei.Mappers;
 using DdeiClient.Clients.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -14,30 +25,14 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace coordinator.Durable.Activity;
-
-public class GetCaseDocuments
+public class GetCaseDocuments(
+    IMasterDataServiceClient masterDataServiceClient,
+    IMdsArgFactory mdsArgFactory,
+    ICaseDetailsMapper caseDetailsMapper,
+    ICmsDocumentDtoMapper cmsDocumentDtoMapper,
+    IDocumentToggleService documentToggleService,
+    IStateStorageService stateStorageService)
 {
-    private readonly IMdsClient _mdsClient;
-    private readonly IMdsArgFactory _mdsArgFactory;
-    private readonly IDocumentToggleService _documentToggleService;
-    private readonly IStateStorageService _stateStorageService;
-    private readonly ILogger<GetCaseDocuments> _log;
-
-    public GetCaseDocuments(
-        IMdsClient mdsClient,
-        IMdsArgFactory mdsArgFactory,
-        IDocumentToggleService documentToggleService,
-        IStateStorageService stateStorageService,
-        ILogger<GetCaseDocuments> logger)
-    {
-        _mdsClient = mdsClient.ExceptionIfNull();
-        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        _documentToggleService = documentToggleService.ExceptionIfNull();
-        _stateStorageService = stateStorageService.ExceptionIfNull();
-        _log = logger.ExceptionIfNull();
-    }
-
     [Function(nameof(GetCaseDocuments))]
     public async Task<GetCaseDocumentsResponse> Run([ActivityTrigger] CasePayload payload)
     {
@@ -61,46 +56,59 @@ public class GetCaseDocuments
             throw new ArgumentException("CorrelationId must be valid GUID");
         }
 
-
-        var arg = _mdsArgFactory.CreateCaseIdentifiersArg(
+        var arg = mdsArgFactory.CreateCaseIdentifiersArg(
             payload.CmsAuthValues,
             payload.CorrelationId,
             payload.Urn,
             payload.CaseId);
 
-        var getDocumentsTask = _mdsClient.ListDocumentsAsync(arg);
-        var getPcdRequestsTask = _mdsClient.GetPcdRequestsCoreAsync(arg);
-        var getDefendantsAndChargesTask = _mdsClient.GetDefendantAndChargesAsync(arg);
+        var getDocumentsTask = masterDataServiceClient.ListDocumentsAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
+        var getPcdRequestsTask = masterDataServiceClient.GetCasePcdRequestsAsync(
+            arg,
+            new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
+        var getDefendantsAndChargesTask = masterDataServiceClient.GetCaseDefendantsAsync(
+            new ListCaseDefendantsRequest(arg.CaseId, arg.CorrelationId),
+            new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
 
         await Task.WhenAll(getDocumentsTask, getPcdRequestsTask, getDefendantsAndChargesTask);
 
-        var cmsDocuments = getDocumentsTask.Result
-            .Select(MapPresentationFlags)
+        var getDocumentsTaskMapped = getDocumentsTask.Result.Select(x => cmsDocumentDtoMapper.Map(x, null)).ToList();
+
+        var cmsDocuments = getDocumentsTaskMapped
+            .Select(this.MapPresentationFlags)
             .ToArray();
 
         var pcdRequests = getPcdRequestsTask.Result
-            .Select(MapPresentationFlags)
+            .Select(this.MapPresentationFlags)
             .ToArray();
 
         var defendantsAndCharges = getDefendantsAndChargesTask.Result;
-        MapPresentationFlags(defendantsAndCharges);
+        var defendandAndChargesMapped = caseDetailsMapper.MapDefendantsResponseToDefendantsAndChargesListDto(defendantsAndCharges, arg.CaseId);
+        this.MapPresentationFlags(defendandAndChargesMapped);
 
-        var documents = new GetCaseDocumentsResponse(cmsDocuments, pcdRequests, defendantsAndCharges);
-        await _stateStorageService.UpdateCaseDocumentsAsync(payload.CaseId, documents);
+        var documents = new GetCaseDocumentsResponse(cmsDocuments, pcdRequests, defendandAndChargesMapped);
+        await stateStorageService.UpdateCaseDocumentsAsync(payload.CaseId, documents);
 
         return documents;
     }
 
     private CmsDocumentDto MapPresentationFlags(CmsDocumentDto document)
     {
-        document.PresentationFlags = _documentToggleService.GetDocumentPresentationFlags(document);
+        document.PresentationFlags = documentToggleService.GetDocumentPresentationFlags(document);
         return document;
     }
 
-    private PcdRequestCoreDto MapPresentationFlags(PcdRequestCoreDto pcdRequest)
+    // need to refactor this if we add PresentationFlags to MDS response and HK PcdRequestDto
+    private PcdRequestCoreDto MapPresentationFlags(Common.Dto.Response.HouseKeeping.Pcd.PcdRequestDto pcdRequest)
     {
-        pcdRequest.PresentationFlags = _documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
-        return pcdRequest;
+        PcdRequestCoreDto pcdRequestCoreDto = new PcdRequestCoreDto
+        {
+            Id = pcdRequest.Id,
+            DecisionRequiredBy = pcdRequest.DecisionRequiredBy,
+            DecisionRequested = pcdRequest.DecisionRequested,
+        };
+        pcdRequestCoreDto.PresentationFlags = documentToggleService.GetPcdRequestPresentationFlags(pcdRequest);
+        return pcdRequestCoreDto;
     }
 
     private DefendantsAndChargesListDto MapPresentationFlags(DefendantsAndChargesListDto defendantsAndCharges)
@@ -110,7 +118,7 @@ public class GetCaseDocuments
             return null;
         }
 
-        defendantsAndCharges.PresentationFlags = _documentToggleService.GetDefendantAndChargesPresentationFlags(defendantsAndCharges);
+        defendantsAndCharges.PresentationFlags = documentToggleService.GetDefendantAndChargesPresentationFlags(defendantsAndCharges);
         return defendantsAndCharges;
     }
 }
