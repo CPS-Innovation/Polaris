@@ -170,7 +170,7 @@ resource "azurerm_private_endpoint" "pipeline_sa_queue_pe" {
   }
 }
 
-resource "azurerm_storage_management_policy" "sa_coordinator_retention_policy" {
+resource "azurerm_storage_management_policy" "sa_polarispipeline_retention_policy" {
   storage_account_id = azurerm_storage_account.sa.id
 
   rule {
