@@ -179,6 +179,7 @@ resource "azurerm_storage_management_policy" "sa_coordinator_retention_policy" {
 
     filters {
       blob_types = ["blockBlob"]
+      prefix_match = ["documents/"]
     }
 
     actions {
