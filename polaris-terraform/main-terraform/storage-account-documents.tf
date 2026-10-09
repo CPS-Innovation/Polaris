@@ -169,3 +169,39 @@ resource "azurerm_private_endpoint" "pipeline_sa_queue_pe" {
     subresource_names              = ["queue"]
   }
 }
+
+resource "azurerm_storage_management_policy" "sa_polarispipeline_retention_policy" {
+  storage_account_id = azurerm_storage_account.sa.id
+
+  rule {
+    name    = "purge-expired-case-data"
+    enabled = true
+
+    filters {
+      blob_types = ["blockBlob"]
+      prefix_match = ["documents/"]
+    }
+
+    actions {
+      base_blob {
+        delete_after_days_since_modification_greater_than = var.blob_storage_retention_days
+      }
+    }
+  }
+
+  rule {
+    name    = "DeletePreviousVersions (auto-created)"
+    enabled = true
+
+    filters {
+      blob_types   = ["blockBlob", "appendBlob"]
+      prefix_match = ["documents/"]
+    }
+
+    actions {
+      version {
+        delete_after_days_since_creation = 7
+      }
+    }
+  }
+}
