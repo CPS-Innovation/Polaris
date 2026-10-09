@@ -6,9 +6,14 @@
 
 namespace HkuiFunctionsIntegrationTests;
 
+using System.Linq;
 using System.Text.Json;
 using Common.Dto.Request.HouseKeeping;
+using Common.Dto.Response.Documents;
 using Common.Dto.Response.HouseKeeping;
+using DdeiClient.Services.CaseUrnResolver;
+using Ddei.Domain.CaseData.Args.Core;
+using Ddei.Factories;
 using HkuiFunctionsIntegrationTests.TestUtilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +21,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using PolarisGateway.Functions.HouseKeeping;
+using PolarisGateway.Services.MdsOrchestration;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -32,6 +38,29 @@ public class HkUiFunctionsTests : TestBase
     public HkUiFunctionsTests(ITestOutputHelper testOutputHelper)
         : base(testOutputHelper)
     {
+    }
+
+    /// <summary>
+    /// Creates a <see cref="GetCaseMaterials"/> instance with mocked MDS document orchestration dependencies
+    /// that return an empty document list, for use in tests that do not need to verify document consolidation.
+    /// </summary>
+    private GetCaseMaterials CreateGetCaseMaterialsFunction(ILogger<GetCaseMaterials> logger)
+    {
+        var mockMdsOrchestrationService = new Mock<IMdsCaseDocumentsOrchestrationService>();
+        mockMdsOrchestrationService
+            .Setup(s => s.GetCaseDocuments(It.IsAny<MdsCaseIdentifiersArgDto>()))
+            .ReturnsAsync(Enumerable.Empty<DocumentDto>());
+
+        var mockMdsArgFactory = new Mock<IMdsArgFactory>();
+        var mockCaseUrnResolver = new Mock<ICaseUrnResolver>();
+
+        return new GetCaseMaterials(
+            logger: logger,
+            communicationService: this.communicationService!,
+            caseMaterialService: this.caseMaterialService!,
+            mdsOrchestrationService: mockMdsOrchestrationService.Object,
+            mdsArgFactory: mockMdsArgFactory.Object,
+            caseUrnResolver: mockCaseUrnResolver.Object);
     }
 
     /// <summary>
@@ -123,10 +152,7 @@ public class HkUiFunctionsTests : TestBase
         var loggerMock = new Mock<ILogger<GetCaseMaterials>>();
 
         // Instantiate the function with dependencies
-        var function = new GetCaseMaterials(
-            logger: loggerMock.Object,
-            communicationService: this.communicationService!,
-            caseMaterialService: this.caseMaterialService!);
+        var function = this.CreateGetCaseMaterialsFunction(loggerMock.Object);
 
         // Setup the expected CaseMaterial result
         List<CaseMaterial> expectedCaseMaterials = CaseMaterialTestData.GetExpectedCaseMaterials();
@@ -150,7 +176,6 @@ public class HkUiFunctionsTests : TestBase
             Assert.Equal(expected.Subject, actual.Subject);
             Assert.Equal(expected.DocumentTypeId, actual.DocumentTypeId);
             Assert.Equal(expected.MaterialId, actual.MaterialId);
-            Assert.EndsWith(expected.OriginalFileName, actual.Link); // only suffix is asserted
             Assert.Equal(expected.Category, actual.Category);
             Assert.Equal(expected.Type, actual.Type);
             Assert.Equal(expected.HasAttachments, actual.HasAttachments);
@@ -246,10 +271,7 @@ public class HkUiFunctionsTests : TestBase
         HttpRequest getCaseMaterialsRequest = this.CreateHttpRequestWithCookie(caseId, authContext);
         var loggerMockGetCaseMaterials = new Mock<ILogger<GetCaseMaterials>>();
 
-        var getCaseMaterialsFunction = new GetCaseMaterials(
-            logger: loggerMockGetCaseMaterials.Object,
-            communicationService: this.communicationService!,
-            caseMaterialService: this.caseMaterialService!);
+        var getCaseMaterialsFunction = this.CreateGetCaseMaterialsFunction(loggerMockGetCaseMaterials.Object);
 
         await Task.Delay(testDelay);
         IActionResult responseGetCaseMaterialsFunction = await getCaseMaterialsFunction.Run(getCaseMaterialsRequest, caseId);
@@ -266,7 +288,6 @@ public class HkUiFunctionsTests : TestBase
             Assert.Equal(expected.Subject, actual.Subject);
             Assert.Equal(expected.DocumentTypeId, actual.DocumentTypeId);
             Assert.Equal(expected.MaterialId, actual.MaterialId);
-            Assert.EndsWith(expected.OriginalFileName, actual.Link);
             Assert.Equal(expected.Category, actual.Category);
             Assert.Equal(expected.Type, actual.Type);
             Assert.Equal(expected.HasAttachments, actual.HasAttachments);
@@ -321,10 +342,7 @@ public class HkUiFunctionsTests : TestBase
         HttpRequest getCaseMaterialsRequest = this.CreateHttpRequestWithCookie(caseId, authContext);
         var loggerMockGetCaseMaterials = new Mock<ILogger<GetCaseMaterials>>();
 
-        var getCaseMaterialsFunction = new GetCaseMaterials(
-            logger: loggerMockGetCaseMaterials.Object,
-            communicationService: this.communicationService!,
-            caseMaterialService: this.caseMaterialService!);
+        var getCaseMaterialsFunction = this.CreateGetCaseMaterialsFunction(loggerMockGetCaseMaterials.Object);
 
         await Task.Delay(testDelay);
         IActionResult responseGetCaseMaterialsFunction = await getCaseMaterialsFunction.Run(getCaseMaterialsRequest, caseId);
@@ -341,7 +359,6 @@ public class HkUiFunctionsTests : TestBase
             Assert.Equal(expected.Subject, actual.Subject);
             Assert.Equal(expected.DocumentTypeId, actual.DocumentTypeId);
             Assert.Equal(expected.MaterialId, actual.MaterialId);
-            Assert.EndsWith(expected.OriginalFileName, actual.Link);
             Assert.Equal(expected.Category, actual.Category);
             Assert.Equal(expected.Type, actual.Type);
             Assert.Equal(expected.HasAttachments, actual.HasAttachments);

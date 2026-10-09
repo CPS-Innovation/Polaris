@@ -7,11 +7,15 @@ namespace PolarisGateway.Functions.HouseKeeping;
 using Common.Configuration;
 using Common.Constants;
 using Common.Dto.Request;
+using Common.Dto.Response.Documents;
 using Common.Dto.Response.HouseKeeping;
+using Common.Domain.Document;
 using Common.Enums;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
 using Cps.Fct.Hk.Ui.Services.Constants;
+using Ddei.Factories;
+using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -21,6 +25,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using PolarisGateway.Functions;
 using PolarisGateway.Helpers;
+using PolarisGateway.Services.MdsOrchestration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -58,14 +63,23 @@ internal record RetrievedCaseMaterials(
 /// <param name="logger">The logger instance used to log information and errors.</param>
 /// <param name="communicationService">The service used to process the request and generate the result.</param>
 /// <param name="caseMaterialService">The service used to manage and retrieve case materials.</param>
+/// <param name="mdsOrchestrationService">The service used to retrieve the documents list for a case.</param>
+/// <param name="mdsArgFactory">The factory used to build MDS arguments.</param>
+/// <param name="caseUrnResolver">The resolver used to obtain the case URN.</param>
 public class GetCaseMaterials(
     ILogger<GetCaseMaterials> logger,
     ICommunicationService communicationService,
-    ICaseMaterialService caseMaterialService) : BaseFunction(logger)
+    ICaseMaterialService caseMaterialService,
+    IMdsCaseDocumentsOrchestrationService mdsOrchestrationService,
+    IMdsArgFactory mdsArgFactory,
+    ICaseUrnResolver caseUrnResolver) : BaseFunction(logger)
 {
     private readonly ILogger<GetCaseMaterials> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
     private readonly ICaseMaterialService caseMaterialService = caseMaterialService;
+    private readonly IMdsCaseDocumentsOrchestrationService mdsOrchestrationService = mdsOrchestrationService;
+    private readonly IMdsArgFactory mdsArgFactory = mdsArgFactory;
+    private readonly ICaseUrnResolver caseUrnResolver = caseUrnResolver;
 
     /// <summary>
     /// The Azure Function that processes an HTTP request for the 'case-materials' route.
@@ -110,6 +124,9 @@ public class GetCaseMaterials(
 
             this.ProcessUsedMaterials(allCaseMaterials, caseId, retrievedMaterials);
             this.ProcessUnusedMaterials(allCaseMaterials, communications, unusedMaterials);
+
+            var documents = await this.GetDocumentsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+            PopulateAdditionalFieldsFromDocuments(allCaseMaterials, documents);
 
             this.logger!.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetCaseMaterials function completed in [{stopwatch.Elapsed}]");
 
@@ -268,6 +285,96 @@ public class GetCaseMaterials(
         if (mappedUnusedMaterials != null && mappedUnusedMaterials.Any())
         {
             allCaseMaterials.AddRange(mappedUnusedMaterials);
+        }
+    }
+
+    /// <summary>
+    /// Retrieves the list of documents for the case via the MDS orchestration service.
+    /// </summary>
+    /// <param name="caseId">The ID of the case.</param>
+    /// <param name="cmsAuthValues">The CMS authorization values.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a collection of <see cref="DocumentDto"/> objects.</returns>
+    private async Task<IEnumerable<DocumentDto>> GetDocumentsAsync(int caseId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var correlationId = cmsAuthValues?.CorrelationId ?? Guid.NewGuid();
+            var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+            var arg = this.mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues?.CmsAuthFullValue, correlationId, caseUrn, caseId);
+
+            return await this.mdsOrchestrationService.GetCaseDocuments(arg).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterials function encountered an error fetching documents for caseId [{caseId}]: {ex.Message}");
+            return Enumerable.Empty<DocumentDto>();
+        }
+    }
+
+    /// <summary>
+    /// Populates additional fields on the case materials (DocumentId, CmsDocType, PresentationFlags, HasNotes, IsUnused)
+    /// from the matching documents retrieved via the MDS orchestration service.
+    /// </summary>
+    /// <param name="allCaseMaterials">The case materials to update.</param>
+    /// <param name="documents">The documents retrieved for the case.</param>
+    private static void PopulateAdditionalFieldsFromDocuments(List<CaseMaterial> allCaseMaterials, IEnumerable<DocumentDto> documents)
+    {
+        if (allCaseMaterials == null || documents == null)
+        {
+            return;
+        }
+
+        var documentsByMaterialId = documents
+            .Where(d => TryGetMaterialId(d.DocumentId, out _))
+            .ToLookup(d => TryGetMaterialId(d.DocumentId, out var materialId) ? materialId : 0);
+
+        for (int i = 0; i < allCaseMaterials.Count; i++)
+        {
+            var caseMaterial = allCaseMaterials[i];
+            var matchingDocument = documentsByMaterialId[caseMaterial.MaterialId].FirstOrDefault();
+
+            if (matchingDocument == null)
+            {
+                continue;
+            }
+
+            allCaseMaterials[i] = caseMaterial with
+            {
+                DocumentId = (int)matchingDocument.VersionId,
+                CmsDocType = matchingDocument.CmsDocType ?? caseMaterial.CmsDocType,
+                PresentationFlags = matchingDocument.PresentationFlags ?? caseMaterial.PresentationFlags,
+                HasNotes = matchingDocument.HasNotes,
+                IsUnused = matchingDocument.IsUnused,
+            };
+        }
+    }
+
+    /// <summary>
+    /// Attempts to extract the numeric material id from a qualified document id (e.g. "CMS-12345").
+    /// </summary>
+    /// <param name="qualifiedDocumentId">The qualified document id string.</param>
+    /// <param name="materialId">The parsed numeric material id, if successful.</param>
+    /// <returns><see langword="true"/> if the material id was successfully parsed; otherwise, <see langword="false"/>.</returns>
+    private static bool TryGetMaterialId(string qualifiedDocumentId, out int materialId)
+    {
+        materialId = 0;
+
+        if (string.IsNullOrWhiteSpace(qualifiedDocumentId))
+        {
+            return false;
+        }
+
+        try
+        {
+            var type = DocumentNature.GetDocumentNatureType(qualifiedDocumentId);
+            var numericId = DocumentNature.ToNumericDocumentId(qualifiedDocumentId, type);
+            materialId = (int)numericId;
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
         }
     }
 
