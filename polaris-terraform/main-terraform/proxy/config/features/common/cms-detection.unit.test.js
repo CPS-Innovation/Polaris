@@ -30,7 +30,10 @@ async function detection(common) {
     ["__CMSENV=cin4", "cin4", "cin4"],
     ["__CMSENV=cin5", "cin5", "cin5"],
     ["__CMSENV=cin3", "default", "cin3 IS the default environment"],
-    ["__CMSENV=cpt", "cpt", "cpt (FCT2-18732)"],
+    ["C-CPT-LBsessioncookie=x", "cpt", "the CPT LB cookie -> cpt (#2181 keys on '-cpt-lb')"],
+    // QUIRK (#2181): detection keys on the LB cookie, so the /cpt switch's __CMSENV=cpt
+    // marker ALONE no longer selects cpt — until the LB cookie arrives it routes default.
+    ["__CMSENV=cpt", "default", "QUIRK: the __CMSENV=cpt marker alone -> default (#2181)"],
     ["C-CMO-LBsessioncookie=x", "default", "the CMO LB cookie -> default (RMAT-242: cmo has no upstream)"],
     ["__CMSENV=default", "default", "explicit default"],
     ["", "default", "empty -> default"],

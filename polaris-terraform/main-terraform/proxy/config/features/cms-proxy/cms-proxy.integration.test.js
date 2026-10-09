@@ -32,6 +32,31 @@ const {
   summarise,
   isNext,
 } = require("../../../tests/integration/test-utils")
+const vm = require("vm")
+const zlib = require("zlib")
+
+/**
+ * Validate a PNG byte-for-byte without knowing the expected image: check the signature,
+ * then every chunk's CRC32 (PNG stores one per chunk). Any altered byte fails. Returns
+ * null if valid, else a reason.
+ */
+function pngProblem(buf) {
+  const SIG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+  if (buf.length < 8 || !buf.subarray(0, 8).equals(SIG)) return "bad PNG signature"
+  let off = 8
+  let sawEnd = false
+  while (off + 12 <= buf.length) {
+    const len = buf.readUInt32BE(off)
+    const typeAndData = buf.subarray(off + 4, off + 8 + len)
+    const type = typeAndData.subarray(0, 4).toString("latin1")
+    if (off + 12 + len > buf.length) return `chunk ${type} overruns the data`
+    const crc = buf.readUInt32BE(off + 8 + len)
+    if (zlib.crc32(typeAndData) !== crc) return `CRC mismatch in chunk ${type} at byte ${off}`
+    off += 12 + len
+    if (type === "IEND") { sawEnd = true; break }
+  }
+  return sawEnd ? null : "no IEND chunk"
+}
 
 const IE_UA = "Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko"
 const EDGE_UA = "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 Chrome/120 Safari/537.36"
@@ -60,6 +85,53 @@ async function servedAsset() {
     const res = await get("/polaris-script.js")
     assertEqual(res.headers.get("x-mock-echo"), null, "Should be served locally, not proxied")
     assert((await res.text()).length > 0, "Should have a body")
+  })
+
+  // BEHAVIOUR, not presence: run the script each config actually serves against a stub
+  // DOM and read the link it builds. Live and next each carry their own copy, so a
+  // change made to only one of them fails that config's run (#2189).
+  const runPolarisScript = async (win) => {
+    const src = await (await get("/polaris-script.js")).text()
+    let inserted = null
+    const el = () => ({ style: {}, appendChild() {} })
+    const document = {
+      getElementById: () => ({ children: [{}, {}], insertBefore: (td) => { inserted = td } }),
+      createElement: (tag) => {
+        const e = el()
+        if (tag === "td") e.appendChild = (child) => { e.link = child }
+        return e
+      },
+    }
+    vm.runInNewContext(src, { window: win, document })
+    return inserted && inserted.link
+  }
+
+  // #2189 (case URN removed from the materials handover) is HELD BACK in the next config (2026-10-06:
+  // not ready for QA) while the live monolith already has it — a DELIBERATE, temporary divergence, so
+  // these expectations are per config (isNext). See cwa-materials/QUIRKS.md D13. When #2189 is released
+  // to the next config, revert that hold-back commit and collapse these back to the live expectation.
+  if (isNext) {
+    await test("NEXT (pre-#2189): Manage Materials link = /materials-ui/{cleanUrn}/{caseId}/materials", async () => {
+      const link = await runPolarisScript({ iCaseId: 99, sURN: "URN1/2(abc)" })
+      assert(link, "Should insert the button")
+      assertEqual(link.href, "/polaris?polaris-ui-url=/materials-ui/URN1/99/materials", "URN cleaned at / or (")
+      assertEqual(link.target, "_blank", "opens in a new tab")
+    })
+    await test("NEXT (pre-#2189): a case id without a URN -> plain /polaris", async () => {
+      assertEqual((await runPolarisScript({ iCaseId: 99 })).href, "/polaris", "needs both")
+    })
+  } else {
+    await test("LIVE (#2189): builds the Manage Materials link from the case id (no URN)", async () => {
+      const link = await runPolarisScript({ iCaseId: 99, sURN: "URN1" })
+      assert(link, "Should insert the button")
+      assertEqual(link.href, "/polaris?polaris-ui-url=/materials-ui/99/materials", "caseId deep-link")
+      assertEqual(link.target, "_blank", "opens in a new tab")
+    })
+  }
+
+  await test("without a case id, links to plain /polaris", async () => {
+    const link = await runPolarisScript({})
+    assertEqual(link.href, "/polaris", "generic Polaris link")
   })
 }
 
@@ -175,6 +247,66 @@ async function menuBarInjection() {
     const body = await res.text()
     assertIncludes(body, "Launch Materials", "Materials button should be injected")
     assertIncludes(body, "openMaterials()", "Materials button should wire up openMaterials()")
+    // FCT2-15621: wrapped in an anchor so the button is keyboard-focusable.
+    assertIncludes(body, '<a href="#" onclick="openMaterials();return false;">', "Materials button should be a focusable anchor")
+  })
+
+  // The P logo and the Materials icon are inlined as base64 PNGs. Live and next each
+  // carry a copy; a single altered character once garbled the next config's P logo from
+  // ~65% down (7f41e2b59). Every injected image must be an intact PNG.
+  await test("injected button images are intact PNGs (every chunk CRC valid)", async () => {
+    const body = await (await cget("/CMS.Live/Noexpiry/Toolbar/uainMenuBar.js")).text()
+    const images = body.match(/data:image\/png;base64,[A-Za-z0-9+/=]+/g) || []
+    assertEqual(images.length, 2, "P logo + Materials icon")
+    for (const img of images) {
+      const problem = pngProblem(Buffer.from(img.slice("data:image/png;base64,".length), "base64"))
+      assertEqual(problem, null, `image of ${img.length} chars should be a valid PNG`)
+    }
+  })
+
+  // BEHAVIOUR: run the openMaterials() the sub_filter injects (before `function
+  // openPolaris() {`) and capture the URL it opens. Live and next each carry a copy.
+  const runOpenMaterials = async (globals) => {
+    const body = await (await cget("/CMS.Live/Noexpiry/Toolbar/uainMenuBar.js")).text()
+    let opened = null
+    const window = { open: (url) => { opened = url; return { focus() {} } } }
+    // The pre-#2189 copy falls back to scanning <td> text for a URN; stub just that.
+    const cells = globals.__cells || []
+    const document = { getElementsByTagName: () => cells }
+    const ctx = vm.createContext({ window, document, ...globals })
+    vm.runInContext(body, ctx)
+    assert(typeof ctx.openMaterials === "function", "openMaterials() should be injected")
+    ctx.openMaterials()
+    return opened
+  }
+
+  // #2189 (case URN removed from the materials handover) is HELD BACK in the next config (2026-10-06:
+  // not ready for QA) while the live monolith already has it — a DELIBERATE, temporary divergence, so
+  // these expectations are per config (isNext). See cwa-materials/QUIRKS.md D13. When #2189 is released
+  // to the next config, revert that hold-back commit and collapse these back to the live expectation.
+  if (isNext) {
+    await test("NEXT (pre-#2189): openMaterials() opens /materials?caseUrn=<urn>&caseId=<id>", async () => {
+      assertEqual(await runOpenMaterials({ iScreenCaseID: 99, sURN: "URN1" }), "/materials?caseUrn=URN1&caseId=99", "sURN")
+      assertEqual(await runOpenMaterials({ iCaseId: 42, caseUrn: "U2" }), "/materials?caseUrn=U2&caseId=42", "caseUrn fallback")
+      assertEqual(
+        await runOpenMaterials({ m_iScreenCaseID: 7, __cells: [{ innerText: "x 12AB3456789 y" }] }),
+        "/materials?caseUrn=12AB3456789&caseId=7",
+        "<td> URN scan fallback",
+      )
+    })
+    await test("NEXT (pre-#2189): a case id without any URN -> plain /materials", async () => {
+      assertEqual(await runOpenMaterials({ iScreenCaseID: 99 }), "/materials", "needs both")
+    })
+  } else {
+    await test("LIVE (#2189): openMaterials() opens /materials?caseId=<id> (no URN)", async () => {
+      assertEqual(await runOpenMaterials({ iScreenCaseID: 99, sURN: "URN1" }), "/materials?caseId=99", "iScreenCaseID")
+      assertEqual(await runOpenMaterials({ iCaseId: 42 }), "/materials?caseId=42", "iCaseId fallback")
+      assertEqual(await runOpenMaterials({ m_iScreenCaseID: 7 }), "/materials?caseId=7", "m_iScreenCaseID fallback")
+    })
+  }
+
+  await test("openMaterials() with no case id opens plain /materials", async () => {
+    assertEqual(await runOpenMaterials({}), "/materials", "generic Materials")
   })
 }
 
@@ -234,21 +366,17 @@ async function envSwitch() {
     assertIncludes(setCookie, "F-CPT-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "exact CPT LB cookie")
   })
 
-  // NEXT-ONLY: our next-gen cinSwitch fixes the /cpt cookie-clearing bug by construction.
-  // The LIVE monolith carries the original (buggy) FCT2-18732 /cpt block on this branch — the
-  // fix ships to live via a SEPARATE maintainer PR (FCT2-21518), so we don't assert the fixed
-  // behaviour against the live config here. Gated on isNext (PROXY_CONFIG_KIND from run-tests.sh).
-  if (isNext) {
-    await test("/cpt clears CIN3 and does NOT clear its own CPT cookie (next-gen fix; live via FCT2-21518)", async () => {
-      const res = await get("/cpt", { headers: ie })
-      const setCookie = res.headers.getSetCookie().join("\n")
-      // The live /cpt block regressed on both of these (missed CIN3, cleared its own CPT).
-      assertIncludes(setCookie, "BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "must clear cin3 pool")
-      assertIncludes(setCookie, "F-CIN3-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "must clear cin3 LB")
-      assertIncludes(setCookie, "C-MOD-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "must clear the other LB-only env (mod)")
-      if (setCookie.indexOf("CPT-LBsessioncookie") !== -1) throw new Error("must NOT clear its own env (cpt)")
-    })
-  }
+  // FCT2-21518: /cpt must clear CIN3 and not its own CPT cookie. The next config gets this
+  // by construction (cinSwitch clears "everything except the target"); live was hand-fixed.
+  await test("/cpt clears CIN3 and does NOT clear its own CPT cookie (FCT2-21518)", async () => {
+    const res = await get("/cpt", { headers: ie })
+    const setCookie = res.headers.getSetCookie().join("\n")
+    // The live /cpt block regressed on both of these (missed CIN3, cleared its own CPT).
+    assertIncludes(setCookie, "BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "must clear cin3 pool")
+    assertIncludes(setCookie, "F-CIN3-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "must clear cin3 LB")
+    assertIncludes(setCookie, "C-MOD-LBsessioncookie=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT", "must clear the other LB-only env (mod)")
+    if (setCookie.indexOf("CPT-LBsessioncookie") !== -1) throw new Error("must NOT clear its own env (cpt)")
+  })
 
   await test("non-IE + non-configurable -> 402 'requires Internet Explorer mode'", async () => {
     const res = await get("/cin2", { headers: { "User-Agent": EDGE_UA } })

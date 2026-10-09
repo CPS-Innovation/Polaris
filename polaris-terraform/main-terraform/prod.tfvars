@@ -82,6 +82,8 @@ cms_details = {
 
 auth_handover_whitelist = "/auth-refresh-inbound,https://cps.outsystemsenterprise.com/,https://oapps.int.cps.gov.uk/,https://housekeeping-fn.cps.gov.uk/,https://lcc-api.cps.gov.uk/,https://polaris.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui,https://register-a-case-api.cps.gov.uk/"
 
+non_ddei_init_enabled = false
+
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
 

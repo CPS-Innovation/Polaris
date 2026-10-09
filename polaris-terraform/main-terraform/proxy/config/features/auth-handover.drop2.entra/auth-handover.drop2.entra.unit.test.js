@@ -1,27 +1,30 @@
 #!/usr/bin/env node
 /**
  * Unit tests for the auth-handover.drop2.entra feature (store.js + the two handlers).
- * ISOLATED / NEW-GEN: this path is dormant unless ENTRA_STORE_ENABLED=true, so it is
- * outside the golden master. These tests pin the new Entra flow's own behaviour.
+ * ISOLATED / NEW-GEN: this path is dormant unless drop2 is armed (ENTRA_STORE_ENABLED=true or a
+ * per-user enrolment), so it is outside the golden master. These tests pin the Entra flow's own
+ * behaviour: ONE neutral sign-in (our app's scope), an on-behalf-of swap for the store backend
+ * (MDS), the MDS deposit, and — on the iframe terminal — the presence token cookies.
  *
- * FIRST njs unit test to drive `ngx.fetch` — so it also establishes the mock pattern:
- * a global `ngx` with a swappable `fetch` router (there is no such fixture in the
- * harness; the modules read the free `ngx` global, which in node resolves to `global`).
+ * Drives `ngx.fetch` through a global `ngx` with a swappable router (the modules read the free
+ * `ngx` global, which in node resolves to `global`).
  *
- * Loaded from the REAL config sources via njs-harness (which stages the whole config/
- * tree, so drop2's imports of drop1 and ./store.js resolve exactly as in production).
+ * Loaded from the REAL config sources via njs-harness (which stages the whole config/ tree, so
+ * drop2's imports of drop1 and ./store.js resolve exactly as in production).
  */
-const nodeCrypto = require("crypto")
 const { test, assertEqual, assert, summarise } = require("../../../tests/unit/test-utils")
 const { loadNjs, createMockRequest, applyEnv } = require("../../../tests/unit/njs-harness")
 
 // --- ngx.fetch mock -------------------------------------------------------
-// The modules call the free global `ngx`. Point fetch at a per-scenario router.
 let fetchImpl = async () => {
   throw new Error("no ngx.fetch stub set for this test")
 }
+let fetchLog = []
 global.ngx = {
-  fetch: (...args) => fetchImpl(...args),
+  fetch: (url, init) => {
+    fetchLog.push({ url, init: init || {} })
+    return fetchImpl(url, init || {})
+  },
   log: () => {},
   ERR: 4,
 }
@@ -39,19 +42,31 @@ function res({ status = 200, body = "", headers = {}, url = "" }) {
   }
 }
 
-// base64url a JSON object (for crafting id_tokens + state).
-function b64url(obj) {
-  return Buffer.from(JSON.stringify(obj))
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "")
-}
-function makeIdToken(claims) {
-  return b64url({ alg: "RS256", typ: "JWT" }) + "." + b64url(claims) + ".sig"
-}
 function findCookie(arr, prefix) {
   return (arr || []).find((c) => c.indexOf(prefix) === 0)
+}
+function form(body) {
+  const o = {}
+  String(body || "")
+    .split("&")
+    .forEach((kv) => {
+      const i = kv.indexOf("=")
+      if (i > 0) o[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1))
+    })
+  return o
+}
+
+const ENV = {
+  ENTRA_TENANT_ID: "00000000-0000-0000-0000-0000000000aa",
+  ENTRA_CLIENT_ID: "00000000-0000-0000-0000-0000000000cc",
+  ENTRA_CLIENT_SECRET: "test-secret",
+  ENTRA_STATE_HMAC_SECRET: "test-state-hmac-secret",
+  ENTRA_APP_SCOPE: "api://00000000-0000-0000-0000-0000000000cc/api.presence.user.readwrite",
+  ENTRA_MDS_SCOPE: "api://fa-wm-app-test/full_scope",
+  WM_MDS_BASE_URL: "https://fa-wm-app-test.azurewebsites.net/api/",
+  WM_MDS_ACCESS_KEY: "test-mds-key",
+  WEBSITE_SCHEME: "https",
+  ENDPOINT_HTTP_PROTOCOL: "https",
 }
 
 // A router that establishes a CMS session (drop1's mint + verify loopbacks).
@@ -59,8 +74,6 @@ function establishRouter() {
   return async (url) => {
     if (/\/CMS$/.test(url)) return res({ headers: { Location: "/CMS.24.0.01/x" } })
     if (url.indexOf("uainGeneratedScript") !== -1)
-      // Must be a real GUID: drop1's _mintModernToken now pins the 8-4-4-4-12 shape (it feeds
-      // the GraphQL `$guid: UUID!` verify). A non-GUID here would correctly fail extraction.
       return res({ body: "var SESS_MODERN_USER_SESSION_ID = '00000000-0000-0000-0000-000000000001';" })
     if (url.indexOf("/graphql/") !== -1)
       return res({ body: JSON.stringify({ data: { user: { partyId: 1 } } }) })
@@ -71,132 +84,104 @@ function establishRouter() {
 // ---------------------------------------------------------------------------
 
 async function storeTests(store) {
-  console.log("\nstore.js — SharedKeyLite signing + Table Storage deposit:")
+  console.log("\nstore.js — the MDS backend behind the deposit seam:")
 
-  await test("sharedKeyLite matches an independent HMAC of the documented string-to-sign", () => {
-    const account = "acct"
-    const key = "c2VjcmV0" // base64("secret")
-    const date = "Fri, 01 Jan 2021 00:00:00 GMT"
-    const resource = "cmsauth(PartitionKey='oid1',RowKey='cmsAuth')"
-    const stringToSign = date + "\n/" + account + "/" + resource
-    const expected =
-      "SharedKeyLite " +
-      account +
-      ":" +
-      nodeCrypto.createHmac("sha256", Buffer.from(key, "base64")).update(stringToSign).digest("base64")
-    assertEqual(store.__test.sharedKeyLite(account, key, date, resource), expected)
+  await test("scope comes from ENTRA_MDS_SCOPE; deposit === mdsDeposit (the seam binding)", () => {
+    assertEqual(store.scope, ENV.ENTRA_MDS_SCOPE, "scope")
+    assertEqual(store.deposit, store.mdsDeposit, "seam bound to MDS")
   })
 
-  await test("deposit() success -> {ok:true} and PUTs oid-keyed JSON with SharedKeyLite auth", async () => {
-    let captured = null
-    fetchImpl = async (url, opts) => {
-      captured = { url, opts }
-      return res({ status: 204 })
-    }
-    const r = await store.deposit(
-      "OID-1",
-      { cookies: "c=1", modernToken: "00000000-0000-0000-0000-000000000001", correlationId: "corr", email: "a@b.gov.uk" },
-      { idToken: "id", accessToken: "at" },
-    )
-    assertEqual(r.ok, true, "ok")
-    assert(captured.url.indexOf("PartitionKey='OID-1'") !== -1, "url keys by OID")
-    assertEqual(captured.opts.method, "PUT", "PUT")
-    assert(captured.opts.headers.Authorization.indexOf("SharedKeyLite ") === 0, "SharedKeyLite auth")
-    const sent = JSON.parse(captured.opts.body)
-    assertEqual(sent.PartitionKey, "OID-1", "PartitionKey")
-    assertEqual(sent.RowKey, "cmsAuth", "RowKey")
-    assertEqual(JSON.parse(sent.Value).modernToken, "00000000-0000-0000-0000-000000000001", "Value carries the modern token")
+  await test("deposit PUTs {cookies, token, expiryTime} to <WM_MDS_BASE_URL>cms-auth-store with bearer + function key", async () => {
+    fetchLog = []
+    fetchImpl = async () => res({ status: 204 })
+    const out = await store.deposit({ cookies: "a=1; b=2", token: "tok-guid" }, "MDS-TOKEN")
+    assertEqual(out.ok, true, "ok")
+    assertEqual(fetchLog.length, 1, "one call")
+    const { url, init } = fetchLog[0]
+    assertEqual(url, "https://fa-wm-app-test.azurewebsites.net/api/cms-auth-store", "url (no double slash)")
+    assertEqual(init.method, "PUT", "PUT")
+    assertEqual(init.headers.Authorization, "Bearer MDS-TOKEN", "bearer")
+    assertEqual(init.headers["x-functions-key"], "test-mds-key", "function key, as the gloco /api route sends")
+    assertEqual(init.headers.Host, "fa-wm-app-test.azurewebsites.net", "Host")
+    const body = JSON.parse(init.body)
+    assertEqual(body.cookies, "a=1; b=2", "cookies")
+    assertEqual(body.token, "tok-guid", "token")
+    assertEqual(body.expiryTime, "2100-01-01T00:00:00Z", "the agreed fixed expiryTime")
+    assert(Date.parse(body.expiryTime) > Date.now(), "MDS rejects a non-future expiryTime (400)")
+    assertEqual(Object.keys(body).sort().join(","), "cookies,expiryTime,token", "exactly the MDS contract")
   })
 
-  await test("deposit() propagates a store failure -> {ok:false}", async () => {
-    fetchImpl = async () => res({ status: 403, body: "denied" })
-    const r = await store.deposit("OID-1", { email: "" }, {})
-    assertEqual(r.ok, false, "not ok")
-    assert(r.diag.indexOf("403") !== -1, "diag carries the status")
+  await test("deposit propagates an MDS failure -> {ok:false} with the status", async () => {
+    fetchImpl = async () => res({ status: 401, body: "no oid" })
+    const out = await store.deposit({ cookies: "a=1", token: "t" }, "MDS-TOKEN")
+    assertEqual(out.ok, false, "not ok")
+    assert(out.diag.indexOf("HTTP 401") === 0, "diag carries the status")
   })
 
-  await test("deposit === tableStorageDeposit (the swap-out seam binding)", () => {
-    assertEqual(store.deposit, store.tableStorageDeposit)
+  await test("deposit without a bearer refuses (no call)", async () => {
+    fetchLog = []
+    const out = await store.deposit({ cookies: "a=1", token: "t" }, "")
+    assertEqual(out.ok, false, "not ok")
+    assertEqual(fetchLog.length, 0, "no MDS call")
   })
 }
 
 async function helperTests(entra) {
-  console.log("\ndrop2 helpers — state, claims, encoding:")
-  const T = entra.__test
+  console.log("\nhelpers — state packing, on-behalf-of, presence cookies:")
 
   await test("unpackState rejects a tampered payload (HMAC integrity)", () => {
-    const packed = T.packState({ s: "abc", cc: "x" })
-    const dot = packed.lastIndexOf(".")
-    const payload = packed.slice(0, dot)
-    const tampered = (payload[0] === "A" ? "B" : "A") + payload.slice(1) + packed.slice(dot)
+    const packed = entra.__test.packState({ s: "x" })
+    const [p, mac] = packed.split(".")
+    const tampered = entra.__test.b64urlEncode(JSON.stringify({ s: "evil" })) + "." + mac
     let threw = false
-    try { T.unpackState(tampered) } catch (e) { threw = true }
-    assert(threw, "a forged/tampered state cookie must be rejected")
-  })
-
-  await test("unpackState rejects a payload with no MAC", () => {
-    let threw = false
-    try { T.unpackState(T.packState({ s: "a" }).split(".")[0]) } catch (e) { threw = true }
-    assert(threw, "no MAC -> rejected")
-  })
-
-  await test("packState/unpackState round-trips (incl. non-Latin1)", () => {
-    const st = { s: "abc", n: "def", cc: "n�a=mé; b=2", tok: "T", term: "top-level" }
-    assertEqual(JSON.stringify(T.unpackState(T.packState(st))), JSON.stringify(st))
-  })
-
-  await test("b64url round-trips utf-8", () => {
-    assertEqual(T.b64urlDecode(T.b64urlEncode("héllo—world")), "héllo—world")
-  })
-
-  await test("decodeJwtPayload extracts claims; rejects malformed", () => {
-    const tok = makeIdToken({ oid: "X", nonce: "N" })
-    assertEqual(T.decodeJwtPayload(tok).oid, "X")
-    assertEqual(T.decodeJwtPayload("not.a"), null, "wrong segment count -> null")
+    try {
+      entra.__test.unpackState(tampered)
+    } catch (e) {
+      threw = true
+    }
+    assert(threw, "tampered state rejected")
+    assertEqual(entra.__test.unpackState(p + "." + mac).s, "x", "genuine state accepted")
   })
 
   await test("rand(n) -> 2n hex chars", () => {
-    assertEqual(T.rand(16).length, 32)
-    assert(/^[0-9a-f]+$/.test(T.rand(8)), "hex only")
+    assert(/^[0-9a-f]{32}$/.test(entra.__test.rand(16)), "32 hex chars")
   })
 
-  await test("validateClaims passes a good token, names each failure", () => {
-    const tid = T.constants.TENANT_ID
-    const good = {
-      nonce: "N",
-      tid: tid,
-      iss: "https://login.microsoftonline.com/" + tid + "/v2.0",
-      exp: Math.floor(Date.now() / 1000) + 3600,
-    }
-    assertEqual(T.validateClaims(good, "N"), "", "valid")
-    assertEqual(T.validateClaims({ ...good, nonce: "other" }, "N"), "nonce")
-    assertEqual(T.validateClaims({ ...good, tid: "wrong" }, "N"), "tid")
-    assertEqual(T.validateClaims({ ...good, iss: "https://evil/" }, "N"), "iss")
-    assertEqual(T.validateClaims({ ...good, exp: 1 }, "N"), "exp")
+  await test("obo: jwt-bearer grant, on_behalf_of, the user's token as assertion, the target scope", async () => {
+    fetchLog = []
+    fetchImpl = async () => res({ body: JSON.stringify({ access_token: "MDS-TOKEN", expires_in: 3599 }) })
+    const out = await entra.__test.obo("NEUTRAL-TOKEN", "api://fa-wm-app-test/full_scope")
+    assertEqual(out.accessToken, "MDS-TOKEN", "swapped token")
+    const f = form(fetchLog[0].init.body)
+    assertEqual(f.grant_type, "urn:ietf:params:oauth:grant-type:jwt-bearer", "grant")
+    assertEqual(f.requested_token_use, "on_behalf_of", "OBO")
+    assertEqual(f.assertion, "NEUTRAL-TOKEN", "assertion")
+    assertEqual(f.scope, "api://fa-wm-app-test/full_scope", "scope")
+    assertEqual(f.client_id, ENV.ENTRA_CLIENT_ID, "client id")
+    assert(fetchLog[0].url.indexOf("/" + ENV.ENTRA_TENANT_ID + "/oauth2/v2.0/token") !== -1, "tenant token endpoint")
   })
 
-  await test("validateClaims accepts the sts.windows.net issuer too", () => {
-    const tid = T.constants.TENANT_ID
-    assertEqual(
-      T.validateClaims(
-        {
-          nonce: "N",
-          tid: tid,
-          iss: "https://sts.windows.net/" + tid + "/",
-          exp: Math.floor(Date.now() / 1000) + 3600,
-        },
-        "N",
-      ),
-      "",
-    )
+  await test("obo surfaces AD's error code (e.g. consent missing) but never a token", async () => {
+    fetchImpl = async () =>
+      res({ status: 400, body: JSON.stringify({ error: "invalid_grant", error_codes: [65001] }) })
+    const out = await entra.__test.obo("NEUTRAL-TOKEN", "api://x/full_scope")
+    assertEqual(out.accessToken, "", "no token")
+    assert(out.diag.indexOf("invalid_grant") !== -1 && out.diag.indexOf("AADSTS65001") !== -1, "diag: " + out.diag)
+  })
+
+  await test("presenceCookies: one HttpOnly cookie per presence path, Max-Age = token lifetime", () => {
+    const cs = entra.__test.presenceCookies("NEUTRAL-TOKEN", 3599)
+    assertEqual(cs.length, 2, "two paths")
+    assert(cs[0].indexOf("cms-auth-presence-token=NEUTRAL-TOKEN; Path=/global-components/presence-jsonp;") === 0, cs[0])
+    assert(cs[1].indexOf("; Path=/global-components/case-locking;") !== -1, cs[1])
+    cs.forEach((c) => assert(/HttpOnly; Secure; SameSite=Lax; Max-Age=3599$/.test(c), c))
   })
 }
 
 async function beginTests(entra) {
-  console.log("\nhandleInitEntra — establish (drop1) then 302 to Entra /authorize:")
-  const restore = applyEnv({ WEBSITE_SCHEME: "https", ENDPOINT_HTTP_PROTOCOL: "https" })
+  console.log("\nhandleInitEntra — establish (drop1) then 302 to Entra /authorize for the NEUTRAL scope:")
 
-  await test("silent AD redirect: 302 authorize (prompt=none) + state cookie carrying the session", async () => {
+  await test("silent AD redirect: neutral scope, prompt=none, no nonce; state cookie carries the session", async () => {
     fetchImpl = establishRouter()
     const r = createMockRequest({
       args: { cc: "ASP.NET_SessionId=x; .CMSAUTHa=y", "polaris-ui-url": "/polaris-ui/case/1" },
@@ -204,47 +189,49 @@ async function beginTests(entra) {
     })
     await entra.handleInitEntra(r)
     assertEqual(r.returnCode, 302, "302")
-    const tid = entra.__test.constants.TENANT_ID
-    assert(
-      r.returnBody.indexOf("https://login.microsoftonline.com/" + tid + "/oauth2/v2.0/authorize?") === 0,
-      "-> AD authorize",
-    )
-    assert(r.returnBody.indexOf("prompt=none") !== -1, "prompt=none (silent)")
-    assert(r.returnBody.indexOf("response_type=code") !== -1, "code flow")
-    assert(/[?&]state=[0-9a-f]+/.test(r.returnBody), "random state handle")
+    assert(r.returnBody.indexOf("https://login.microsoftonline.com/" + ENV.ENTRA_TENANT_ID + "/oauth2/v2.0/authorize?") === 0, "-> AD authorize")
+    const q = form(r.returnBody.split("?")[1])
+    assertEqual(q.scope, ENV.ENTRA_APP_SCOPE, "neutral scope only (no openid/profile/email)")
+    assertEqual(q.prompt, "none", "silent")
+    assertEqual(q.response_type, "code", "code flow")
+    assertEqual(q.redirect_uri, "https://proxy.example/init-entra/callback", "callback on this host")
+    assertEqual(q.nonce, undefined, "no nonce (no id_token in this model)")
+    assert(/^[0-9a-f]{32}$/.test(q.state), "random state handle")
     const sc = findCookie(r.headersOut["Set-Cookie"], "entra_auth_state=")
-    assert(!!sc, "state cookie set")
-    assert(sc.indexOf("HttpOnly") !== -1 && sc.indexOf("Secure") !== -1, "state cookie is HttpOnly+Secure")
-    const packed = sc.slice("entra_auth_state=".length).split(";")[0]
-    const st = entra.__test.unpackState(packed)
+    assert(!!sc && sc.indexOf("HttpOnly") !== -1 && sc.indexOf("Secure") !== -1, "HttpOnly+Secure state cookie")
+    const st = entra.__test.unpackState(sc.slice("entra_auth_state=".length).split(";")[0])
     assertEqual(st.tok, "00000000-0000-0000-0000-000000000001", "state carries the minted modern token")
     assertEqual(st.term, "top-level", "defaults to top-level")
-    assert(st.cc.indexOf("WindowID=MASTER") !== -1, "state carries the whitelisted cookies")
+    assertEqual(st.n, undefined, "no nonce in state")
+    assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra", "marker: entra")
+  })
+
+  await test("terminal=iframe is carried into the state", async () => {
+    fetchImpl = establishRouter()
+    const r = createMockRequest({
+      args: { cc: "ASP.NET_SessionId=x; .CMSAUTHa=y", terminal: "iframe" },
+      headersIn: { Host: "proxy.example", "X-Forwarded-Proto": "https" },
+    })
+    await entra.handleInitEntra(r)
+    const sc = findCookie(r.headersOut["Set-Cookie"], "entra_auth_state=")
+    assertEqual(entra.__test.unpackState(sc.slice("entra_auth_state=".length).split(";")[0]).term, "iframe", "iframe")
   })
 
   await test("no cookies -> drop1 fail-redirect, no AD hop", async () => {
     fetchImpl = establishRouter()
-    const r = createMockRequest({
-      args: { "polaris-ui-url": "/polaris-ui/" },
-      headersIn: { Host: "proxy.example" },
-    })
+    const r = createMockRequest({ args: { "polaris-ui-url": "/polaris-ui/" }, headersIn: { Host: "proxy.example" } })
     await entra.handleInitEntra(r)
     assertEqual(r.returnCode, 302, "302")
     assert(r.returnBody.indexOf("auth-fail-reason=no-cookies") !== -1, "fail-redirect")
     assert(r.returnBody.indexOf("login.microsoftonline.com") === -1, "no AD hop")
   })
-
-  restore()
 }
 
-// Drive the callback with a valid state cookie + code, routing token + storage fetches.
-async function callbackScenario({ term, storeStatus = 204, adError = null }) {
+// Drive the callback with a valid state cookie + code, routing exchange / OBO / MDS.
+async function callbackScenario({ term, exchange = "ok", obo = "ok", mdsStatus = 204, adError = null }) {
   const entra = await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")
-  const T = entra.__test
-  const tid = T.constants.TENANT_ID
   const st = {
     s: "STATE-HANDLE",
-    n: "NONCE-1",
     cc: "ASP.NET_SessionId=x; WindowID=MASTER",
     tok: "00000000-0000-0000-0000-000000000001",
     ver: "CMS.24.0.01",
@@ -253,69 +240,104 @@ async function callbackScenario({ term, storeStatus = 204, adError = null }) {
     term: term,
     corr: "corr-1",
   }
-  const claims = {
-    oid: "OID-1",
-    email: "user@cps.gov.uk",
-    nonce: st.n,
-    tid: tid,
-    iss: "https://login.microsoftonline.com/" + tid + "/v2.0",
-    exp: Math.floor(Date.now() / 1000) + 3600,
-  }
-  fetchImpl = async (url) => {
-    if (url.indexOf("/oauth2/v2.0/token") !== -1)
-      return res({ body: JSON.stringify({ id_token: makeIdToken(claims), access_token: "AT" }) })
-    if (url.indexOf("table.core.windows.net") !== -1)
-      return res({ status: storeStatus, body: storeStatus >= 400 ? "err" : "" })
+  fetchLog = []
+  fetchImpl = async (url, init) => {
+    if (url.indexOf("/oauth2/v2.0/token") !== -1) {
+      const f = form(init.body)
+      if (f.grant_type === "authorization_code") {
+        return exchange === "ok"
+          ? res({ body: JSON.stringify({ access_token: "NEUTRAL-TOKEN", expires_in: 3599 }) })
+          : res({ status: 400, body: JSON.stringify({ error: "invalid_grant" }) })
+      }
+      return obo === "ok"
+        ? res({ body: JSON.stringify({ access_token: "MDS-TOKEN", expires_in: 3599 }) })
+        : res({ status: 400, body: JSON.stringify({ error: "invalid_grant", error_codes: [65001] }) })
+    }
+    if (url.indexOf("/cms-auth-store") !== -1) return res({ status: mdsStatus, body: mdsStatus >= 400 ? "err" : "" })
     throw new Error("callback: unexpected url " + url)
   }
-  const args = adError ? { error: adError } : { state: st.s, code: "CODE-1" }
   const r = createMockRequest({
-    args: args,
+    args: adError ? { error: adError } : { state: st.s, code: "CODE-1" },
     headersIn: {
       Host: "proxy.example",
       "X-Forwarded-Proto": "https",
-      Cookie: "entra_auth_state=" + T.packState(st),
+      Cookie: "entra_auth_state=" + entra.__test.packState(st),
     },
   })
   await entra.handleInitEntraCallback(r)
   return r
 }
 
-async function callbackTests() {
-  console.log("\nhandleInitEntraCallback — deposit + finalize / degrade:")
-  const entra = await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")
+const PRESENCE_PREFIX = "cms-auth-presence-token="
+const presenceCookies = (r) => (r.headersOut["Set-Cookie"] || []).filter((c) => c.indexOf(PRESENCE_PREFIX) === 0)
 
-  await test("top-level success: 302 landing + Cms-Auth-Values (additive), state cleared", async () => {
+async function callbackTests() {
+  console.log("\nhandleInitEntraCallback — neutral token -> OBO -> MDS deposit -> finalize / degrade:")
+
+  await test("top-level success: exchange(neutral) -> OBO(MDS) -> PUT; 302 landing + Cms-Auth-Values; no presence cookie", async () => {
     const r = await callbackScenario({ term: "top-level" })
     assertEqual(r.returnCode, 302, "302")
-    assertEqual(r.returnBody, "/polaris-ui/case/1", "-> landing")
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/case/1", "-> landing")
     const sc = r.headersOut["Set-Cookie"]
     assert(!!findCookie(sc, "Cms-Auth-Values="), "Cms-Auth-Values still set (additive)")
     assert(findCookie(sc, "entra_auth_state=deleted") !== undefined, "state cookie cleared")
-    // The presence id-token cookie was experimental (consumer removed) — drop2 no longer sets it.
-    assertEqual(findCookie(sc, "cms-auth-id-token="), undefined, "no presence id-token cookie")
+    assertEqual(presenceCookies(r).length, 0, "no presence cookie on top-level")
+    assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra", "marker: entra")
+    const calls = fetchLog.map((c) => (c.url.indexOf("cms-auth-store") !== -1 ? "mds" : form(c.init.body).grant_type))
+    assertEqual(calls.join(" > "), "authorization_code > urn:ietf:params:oauth:grant-type:jwt-bearer > mds", "call order")
+    assertEqual(form(fetchLog[0].init.body).scope, ENV.ENTRA_APP_SCOPE, "exchange asks for the SAME neutral scope")
+    assertEqual(form(fetchLog[1].init.body).assertion, "NEUTRAL-TOKEN", "OBO swaps the neutral token")
+    assertEqual(form(fetchLog[1].init.body).scope, ENV.ENTRA_MDS_SCOPE, "for the store's scope")
+    assertEqual(fetchLog[2].init.headers.Authorization, "Bearer MDS-TOKEN", "MDS gets the swapped token")
   })
 
-  await test("iframe success: 200 static terminal, NO Cms-Auth-Values", async () => {
+  await test("iframe success: 200 terminal, presence cookies (neutral token, token lifetime), NO Cms-Auth-Values", async () => {
     const r = await callbackScenario({ term: "iframe" })
     assertEqual(r.returnCode, 200, "200")
     assert(r.returnBody.indexOf('data-cms-auth="done"') !== -1, "renders the terminal page")
-    const sc = r.headersOut["Set-Cookie"]
-    assertEqual(findCookie(sc, "Cms-Auth-Values="), undefined, "pure side-channel: no Cms-Auth-Values")
+    assertEqual(findCookie(r.headersOut["Set-Cookie"], "Cms-Auth-Values="), undefined, "no Cms-Auth-Values")
+    const pc = presenceCookies(r)
+    assertEqual(pc.length, 2, "both presence paths")
+    pc.forEach((c) => assert(c.indexOf(PRESENCE_PREFIX + "NEUTRAL-TOKEN;") === 0 && /Max-Age=3599$/.test(c), c))
+    assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra", "marker: entra")
   })
 
-  await test("store failure degrades (top-level): still lands + Cms-Auth-Values", async () => {
-    const r = await callbackScenario({ term: "top-level", storeStatus: 403 })
+  await test("OBO failure (consent missing) degrades: top-level still lands + Cms-Auth-Values; no MDS call", async () => {
+    const r = await callbackScenario({ term: "top-level", obo: "fail" })
     assertEqual(r.returnCode, 302, "302")
-    assertEqual(r.returnBody, "/polaris-ui/case/1", "-> landing (login not blocked)")
-    const sc = r.headersOut["Set-Cookie"]
-    assert(!!findCookie(sc, "Cms-Auth-Values="), "Cms-Auth-Values set (degraded to drop1)")
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/case/1", "-> landing (login not blocked)")
+    assert(!!findCookie(r.headersOut["Set-Cookie"], "Cms-Auth-Values="), "Cms-Auth-Values set (degraded to drop1)")
+    assertEqual(fetchLog.filter((c) => c.url.indexOf("cms-auth-store") !== -1).length, 0, "no MDS call")
+    assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra-degraded", "marker: entra-degraded")
+  })
+
+  await test("OBO failure in the iframe still sets the presence cookies (presence is independent of the store)", async () => {
+    const r = await callbackScenario({ term: "iframe", obo: "fail" })
+    assertEqual(r.returnCode, 200, "terminal")
+    assertEqual(presenceCookies(r).length, 2, "presence cookies kept")
+    assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra-degraded", "marker: entra-degraded")
+  })
+
+  await test("MDS failure degrades: top-level lands + Cms-Auth-Values; iframe keeps presence cookies", async () => {
+    const top = await callbackScenario({ term: "top-level", mdsStatus: 401 })
+    assertEqual(top.returnBody, "https://proxy.example/polaris-ui/case/1", "-> landing")
+    assert(!!findCookie(top.headersOut["Set-Cookie"], "Cms-Auth-Values="), "Cms-Auth-Values set")
+    assertEqual(top.headersOut["X-Polaris-Auth-Init"], "entra-degraded", "marker")
+    const ifr = await callbackScenario({ term: "iframe", mdsStatus: 500 })
+    assertEqual(presenceCookies(ifr).length, 2, "presence cookies kept")
+  })
+
+  await test("code-exchange failure degrades with NO presence cookie and no OBO", async () => {
+    const r = await callbackScenario({ term: "iframe", exchange: "fail" })
+    assertEqual(r.returnCode, 200, "terminal")
+    assertEqual(presenceCookies(r).length, 0, "no token -> no presence cookie")
+    assertEqual(fetchLog.length, 1, "only the failed exchange")
   })
 
   await test("AD error (login_required) degrades: still lands via drop1", async () => {
     const r = await callbackScenario({ term: "top-level", adError: "login_required" })
     assertEqual(r.returnCode, 302, "302")
-    assertEqual(r.returnBody, "/polaris-ui/case/1", "-> landing")
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/case/1", "-> landing")
     assert(!!findCookie(r.headersOut["Set-Cookie"], "Cms-Auth-Values="), "Cms-Auth-Values set")
   })
 
@@ -327,19 +349,13 @@ async function callbackTests() {
     const r = createMockRequest({ args: { state: "x", code: "y" }, headersIn: { Host: "proxy.example" } })
     await entra.handleInitEntraCallback(r)
     assertEqual(r.returnCode, 302, "302")
-    assertEqual(r.returnBody, "/polaris-ui/", "fallback landing")
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/", "fallback landing, absolute https (no X-Forwarded-Proto -> https)")
   })
 }
 
 async function main() {
-  // store consts read env at load; set the account key so deposit() attempts the PUT.
-  const restore = applyEnv({
-    ENTRA_STORAGE_ACCOUNT: "acct",
-    ENTRA_STORAGE_KEY: "c2VjcmV0",
-    ENTRA_STORAGE_TABLE: "cmsauth",
-    ENTRA_CLIENT_SECRET: "test-secret",
-    ENTRA_STATE_HMAC_SECRET: "test-state-hmac-secret",
-  })
+  // Module consts read env at load; apply before loading.
+  const restore = applyEnv(ENV)
   const store = await loadNjs("features/auth-handover.drop2.entra/store.js")
   const entra = await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")
 

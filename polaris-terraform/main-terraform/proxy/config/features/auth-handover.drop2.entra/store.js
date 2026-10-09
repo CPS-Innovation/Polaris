@@ -1,110 +1,100 @@
 // ---------------------------------------------------------------------------
-// CMS-auth deposit store — the SWAP-OUT SEAM.
+// CMS-auth deposit store — the SWAP-OUT SEAM, now backed by MDS.
 //
-// One narrow, backend-agnostic entry point:
+// One narrow, backend-agnostic contract:
 //
-//   deposit(oid, payload, tokens) -> { ok, diag }
-//     payload: { cookies, modernToken, correlationId, email }  (CMS cookies + modern token)
-//     tokens:  { idToken, accessToken }                        (AD tokens in hand at callback)
+//   scope                            the Entra scope the backend's bearer token must carry
+//   deposit(payload, bearer) -> { ok, diag }
+//     payload: { cookies, token }    (the CMS cookie header + the CMS modern token)
+//     bearer:  an access token for `scope`, which the drop2 callback obtains by an
+//              on-behalf-of swap of the user's neutral token (see auth-handover.drop2.entra.js)
 //
-// The auth-handover.drop2.entra callback calls deposit() and never learns which
-// backend ran. THIS drop's backend is tableStorageDeposit (Azure Table Storage,
-// SharedKeyLite account-key auth). The planned MDS-API migration is a drop-in second
-// backend (apiEndpointDeposit: POST the payload with Authorization: Bearer <accessToken>,
-// the endpoint validates the token, extracts the OID, and stores) — selected by swapping
-// the single `deposit` binding at the bottom of this file, with ZERO change to the auth
-// flow. tableStorageDeposit ignores `tokens`; the future backend uses them — the callback
-// passes them regardless so the swap needs no signature change.
+// The callback asks the store which scope it needs, swaps for it, and calls deposit(); it never
+// learns which backend ran. This backend is MDS: PUT <WM_MDS_BASE_URL>cms-auth-store with the
+// bearer token, plus the same x-functions-key the global-components /global-components/api route
+// sends (we read the SAME two settings, WM_MDS_BASE_URL + WM_MDS_ACCESS_KEY, rather than calling
+// that route: it strips Authorization, and a loopback would leave and re-enter the proxy).
 //
-// ISOLATED / NEW-GEN: only ever reached when ENTRA_STORE_ENABLED=true. Self-contained
-// (the only import is njs's built-in crypto for the HMAC) so it swaps/deletes cleanly.
+// MDS identifies the user from the token (`oid`) — the store sends no identity of its own. MDS
+// validates the token in full (JwtBearer: signature, issuer, lifetime, aud = the MDS app reg), so
+// it must be the on-behalf-of token for ENTRA_MDS_SCOPE; our neutral token is rejected with 401.
+//
+// History: the previous backend was Azure Table Storage (SharedKeyLite, ENTRA_STORAGE_*), keyed
+// by an OID taken from a validated id_token. Replaced 2026-10 — see git history / QUIRKS E10.
+//
+// ISOLATED / NEW-GEN: only ever reached when drop2 is armed. No imports, so it swaps/deletes cleanly.
 // ---------------------------------------------------------------------------
 
-import cryptoModule from "crypto";
+// Config from app settings. WM_MDS_* are the proxy's existing MDS settings (terraform-managed, Key
+// Vault for the key). ENTRA_MDS_SCOPE has no baked default (the api:// prefix differs per env, e.g.
+// QA api://fa-wm-app-ddei-staging/full_scope). Missing => "" => the swap/deposit fails and drop2
+// degrades to drop1 behaviour; nothing can stop nginx booting (process.env, not envsubst).
+const SCOPE = process.env.ENTRA_MDS_SCOPE || "";
+const MDS_BASE_URL = process.env.WM_MDS_BASE_URL || "";
+const MDS_ACCESS_KEY = process.env.WM_MDS_ACCESS_KEY || "";
+const MDS_PATH = "cms-auth-store";
 
-// Config from app settings; NO baked account/key defaults (see TODO.APP-SETTINGS.md) — missing
-// => "" => the deposit fails and drop2 degrades. Account + KEY are both required to arm.
-// STORAGE_TABLE keeps a fixed default ("cmsauth" is a constant name, not per-env config).
-const STORAGE_ACCOUNT = process.env.ENTRA_STORAGE_ACCOUNT || "";
-const STORAGE_KEY = process.env.ENTRA_STORAGE_KEY || "";
-const STORAGE_TABLE = process.env.ENTRA_STORAGE_TABLE || "cmsauth";
+// The CMS session's real expiry is unknowable to us (.CMSAUTH is an encrypted forms ticket; the
+// modern token is a bare GUID), and MDS does not use expiryTime beyond validating it. A fixed,
+// obviously-artificial value — but MDS rejects any non-future time with 400 ("ExpiryTime must be a
+// future timestamp"), so it is far future (2026-10-08; was 2000-01-01). NB: if MDS ever starts
+// honouring expiryTime, records would never expire — change this to a policy value (e.g. now + N
+// hours) at that point.
+const EXPIRY_TIME = "2100-01-01T00:00:00Z";
 
-// SharedKeyLite signature for Table Storage: HMAC-SHA256 of "<date>\n/<account>/<resource>"
-// with the base64-decoded account key, base64-encoded. (Table Storage's lighter scheme —
-// no canonicalized headers, unlike SharedKey.)
-function _sharedKeyLite(account, key, dateStr, resource) {
-  const stringToSign = dateStr + "\n" + "/" + account + "/" + resource;
-  const keyBuffer = Buffer.from(key, "base64");
-  return (
-    "SharedKeyLite " +
-    account +
-    ":" +
-    cryptoModule
-      .createHmac("sha256", keyBuffer)
-      .update(stringToSign)
-      .digest("base64")
-  );
+// base (e.g. "https://fa-wm-app-ddei-staging.azurewebsites.net/api/") + path, tolerating either
+// trailing-slash convention.
+function _url() {
+  return MDS_BASE_URL.replace(/\/+$/, "") + "/" + MDS_PATH;
 }
 
-// PUT an entity keyed by OID (PartitionKey=<oid>, RowKey='cmsAuth'). PUT is an
-// insert-or-REPLACE (idempotent per OID), so a fresh login overwrites the row.
-async function tableStorageDeposit(oid, payload, tokens) {
-  if (!STORAGE_ACCOUNT || !STORAGE_KEY) {
-    return { ok: false, diag: "no-storage-creds" };
-  }
+function _host(url) {
+  const m = url.match(/^https?:\/\/([^/]+)/i);
+  return m ? m[1] : "";
+}
 
-  const resource =
-    STORAGE_TABLE + "(PartitionKey='" + oid + "',RowKey='cmsAuth')";
-  const url =
-    "https://" + STORAGE_ACCOUNT + ".table.core.windows.net/" + resource;
-  const dateStr = new Date().toUTCString();
-  const auth = _sharedKeyLite(STORAGE_ACCOUNT, STORAGE_KEY, dateStr, resource);
+async function mdsDeposit(payload, bearer) {
+  if (!MDS_BASE_URL) return { ok: false, diag: "no-mds-base-url" };
+  if (!bearer) return { ok: false, diag: "no-bearer" };
 
-  const body = JSON.stringify({
-    PartitionKey: oid,
-    RowKey: "cmsAuth",
-    Value: JSON.stringify(payload),
-    Email: payload.email || "",
-  });
+  const url = _url();
+  const headers = {
+    Authorization: "Bearer " + bearer,
+    "Content-Type": "application/json",
+    Host: _host(url),
+  };
+  if (MDS_ACCESS_KEY) headers["x-functions-key"] = MDS_ACCESS_KEY;
 
   try {
     const resp = await ngx.fetch(url, {
       method: "PUT",
-      headers: {
-        Authorization: auth,
-        "x-ms-date": dateStr,
-        "x-ms-version": "2019-02-02",
-        "Content-Type": "application/json",
-        Accept: "application/json;odata=nometadata",
-        Host: STORAGE_ACCOUNT + ".table.core.windows.net",
-      },
-      body: body,
+      headers: headers,
+      body: JSON.stringify({
+        cookies: payload.cookies,
+        token: payload.token,
+        expiryTime: EXPIRY_TIME,
+      }),
     });
     if (!resp.ok) {
       const errText = await resp.text();
-      ngx.log(
-        ngx.ERR,
-        "entra store PUT failed: " + resp.status + " " + errText,
-      );
-      return {
-        ok: false,
-        diag: "HTTP " + resp.status + " " + errText.substring(0, 120),
-      };
+      ngx.log(ngx.ERR, "mds cms-auth-store PUT failed: " + resp.status + " " + errText);
+      return { ok: false, diag: "HTTP " + resp.status + " " + errText.substring(0, 120) };
     }
     return { ok: true, diag: "ok" };
   } catch (e) {
-    ngx.log(ngx.ERR, "entra store PUT error: " + String(e));
+    ngx.log(ngx.ERR, "mds cms-auth-store PUT error: " + String(e));
     return { ok: false, diag: String(e) };
   }
 }
 
-// THE SEAM. Swap this one binding to migrate backends (e.g. `const deposit =
-// apiEndpointDeposit`). The callback imports `deposit`, not the concrete backend.
-const deposit = tableStorageDeposit;
+// THE SEAM. Swap this one binding (and `scope`) to migrate backends. The callback imports
+// `deposit` + `scope`, not the concrete backend.
+const deposit = mdsDeposit;
 
 export default {
+  scope: SCOPE,
   deposit,
-  tableStorageDeposit,
+  mdsDeposit,
   // exposed for the unit test (production only calls `deposit`):
-  __test: { sharedKeyLite: _sharedKeyLite },
+  __test: { url: _url, EXPIRY_TIME: EXPIRY_TIME },
 };

@@ -18,6 +18,7 @@ const {
   assertIncludes,
   get,
   summarise,
+  isNext,
 } = require("../../../tests/integration/test-utils")
 
 async function spa() {
@@ -34,7 +35,7 @@ async function spa() {
 async function materials() {
   console.log("\nlocation /materials — handover redirect:")
 
-  await test("generic (no caseUrn) -> 302 handover to /materials-ui", async () => {
+  await test("generic (no caseId) -> 302 handover to /materials-ui", async () => {
     const res = await get("/materials")
     assertEqual(res.status, 302, "Should 302")
     const loc = res.headers.get("location")
@@ -43,15 +44,35 @@ async function materials() {
     assertIncludes(loc, "polaris-ui-url=/materials-ui", "Should land on the generic Materials page")
   })
 
-  await test("case-specific -> 302 handover to the case deep-link", async () => {
-    const res = await get("/materials?caseUrn=URN1&caseId=99")
-    assertEqual(res.status, 302, "Should 302")
-    assertIncludes(
-      res.headers.get("location"),
-      "polaris-ui-url=/materials-ui/URN1/99/materials",
-      "Should build the {caseUrn}/{caseId}/materials deep-link (feeds nginx.conf:701)"
-    )
-  })
+  // #2189 (case URN removed from the materials handover) is HELD BACK in the next config (2026-10-06:
+  // not ready for QA) while the live monolith already has it — a DELIBERATE, temporary divergence, so
+  // these expectations are per config (isNext). See cwa-materials/QUIRKS.md D13. When #2189 is released
+  // to the next config, revert that hold-back commit and collapse these back to the live expectation.
+  if (isNext) {
+    await test("NEXT (pre-#2189): case-specific needs caseUrn -> {caseUrn}/{caseId}/materials deep-link", async () => {
+      const res = await get("/materials?caseUrn=URN1&caseId=99")
+      assertEqual(res.status, 302, "Should 302")
+      assertIncludes(res.headers.get("location"), "polaris-ui-url=/materials-ui/URN1/99/materials", "URN deep-link")
+    })
+    await test("NEXT (pre-#2189): caseId alone -> generic Materials page", async () => {
+      const loc = (await get("/materials?caseId=99")).headers.get("location")
+      assertIncludes(loc, "polaris-ui-url=/materials-ui", "generic page")
+      assertEqual(loc.indexOf("/99/"), -1, "no case deep-link without a URN")
+    })
+  } else {
+    await test("LIVE (#2189): case-specific -> 302 handover to the {caseId} deep-link", async () => {
+      const res = await get("/materials?caseId=99")
+      assertEqual(res.status, 302, "Should 302")
+      assertIncludes(res.headers.get("location"), "polaris-ui-url=/materials-ui/99/materials", "{caseId}/materials deep-link")
+    })
+    await test("LIVE (#2189): a legacy caseUrn param is ignored", async () => {
+      const urnOnly = await get("/materials?caseUrn=URN1")
+      assertIncludes(urnOnly.headers.get("location"), "polaris-ui-url=/materials-ui", "caseUrn alone -> generic page")
+      assertEqual(urnOnly.headers.get("location").indexOf("URN1"), -1, "URN not carried")
+      const both = await get("/materials?caseUrn=URN1&caseId=99")
+      assertIncludes(both.headers.get("location"), "polaris-ui-url=/materials-ui/99/materials", "caseId wins, URN dropped")
+    })
+  }
 
   console.log("\nlocation = /materials-ui — trailing-slash normaliser:")
 

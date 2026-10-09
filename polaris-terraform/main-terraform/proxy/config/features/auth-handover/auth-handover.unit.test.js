@@ -171,6 +171,39 @@ async function appAuthRedirect(authHandover) {
       assertNotIncludes(beforeCc, "is-proxy-session", "the synthetic flag must not leak into r")
     })
   })
+
+  // drop2 QUIRK E8: the hidden-iframe handover runs inside the CMS Classic shell (an IE-mode tab).
+  // An iframe cannot change mode, so /init must NOT apply its Edge gate when terminal=iframe —
+  // and terminal=iframe must survive into the synthesised r so drop2 sees it.
+  console.log("\nappAuthRedirect — Edge gate vs the hidden-iframe handover (terminal=iframe):")
+  const IE = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko" }
+
+  await test("without terminal=iframe, an IE (configurable) request is still coerced to Edge (unchanged)", async () => {
+    await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST, WEBSITE_SCHEME: "https" }, () => {
+      const r = req({ q: "Q", cookie: "c=1" }, { ...IE, "X-InternetExplorerModeConfigurable": "1" })
+      authHandover.appAuthRedirect(r)
+      assertEqual(r.headersOut["X-InternetExplorerMode"], "0", "asked to leave IE mode")
+    })
+  })
+
+  await test("with terminal=iframe, an IE (configurable) request is NOT coerced; terminal carried into r", async () => {
+    await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST, WEBSITE_SCHEME: "https" }, () => {
+      const r = req({ q: "Q", cookie: "c=1", terminal: "iframe" }, { ...IE, "X-InternetExplorerModeConfigurable": "1" })
+      authHandover.appAuthRedirect(r)
+      assertEqual(r.headersOut["X-InternetExplorerMode"], undefined, "no mode switch")
+      assertEqual(r.returnCode, 302, "proceeds to the handover")
+      assertIncludes(r.returnBody, "/auth-refresh-inbound?", "to the inbound gate")
+      assertIncludes(r.returnBody.split("cc=")[0], "terminal=iframe", "terminal survives into r")
+    })
+  })
+
+  await test("with terminal=iframe, an IE (NON-configurable) request is not 402'd", async () => {
+    await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST, WEBSITE_SCHEME: "https" }, () => {
+      const r = req({ q: "Q", cookie: "c=1", terminal: "iframe" }, IE)
+      authHandover.appAuthRedirect(r)
+      assertEqual(r.returnCode, 302, "302, not 402")
+    })
+  })
 }
 
 async function sessionHint(authHandover) {

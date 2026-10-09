@@ -39,7 +39,7 @@ when the secret is unset** — a forged/tampered cookie is rejected and the call
 
 The server sets `add_header X-Frame-Options "DENY" always`. The iframe **expansion**
 variant needs its terminal page to render inside the CMS shell, so the
-`/init-v2/callback` location sets its own `add_header` (a scoped
+`/init-entra/callback` location sets its own `add_header` (a scoped
 `Content-Security-Policy: frame-ancestors https://*.cps.gov.uk`). By QUIRK
 [B3](../../QUIRKS.md), a location with any `add_header` drops the inherited server set —
 which is exactly what removes the `DENY` here. Harmless on the top-level 302 (a redirect
@@ -51,15 +51,21 @@ drop2 used to set a browser-side `cms-auth-id-token` cookie (host-only, `HttpOnl
 `Path=/global-components/presence-jsonp`) carrying a DEV token, read by the case-locking
 `presence-jsonp` endpoint. That whole presence path was experimental and has been removed
 (both the cookie here and the case-locking consumer). The real id_token still goes to the
-store deposit (E10). Kept as a numbered stub so E-numbers stay stable.
+store deposit (E10). Kept as a numbered stub so E-numbers stay stable. **Superseded 2026-10:**
+drop2 sets the presence cookie again — now `cms-auth-presence-token` (global-components' existing
+contract), carrying the NEUTRAL **access** token, on the iframe terminal only, Max-Age = token
+lifetime. See PLAN-entra-unified-flow.
 
-### E4. 🟠 Callback path is dictated by the registered redirect URI
+### E4. 🟠 Callback path must be a registered redirect URI
 
-`/init-v2/callback` is not our naming preference — it is the path baked into the reused
-reference app registration's redirect URI (`ENTRA_REDIRECT_URI`). AD only redirects to a
-**registered** URI, so the location path and `ENTRA_REDIRECT_URI` must agree. To re-path
-(e.g. `/init-entra/callback`) you must register the new URI on the app reg (portal, no
-terraform) and change **both** the conf location and the env var together.
+The callback is `/init-entra/callback` (was `/init-v2/callback`, borrowed from
+global-components' cms-auth-v2 (since renamed cms-auth-presence) — renamed so the two can load in the same server; that
+flow is now `/init-presence/*`). AD only redirects to a **registered** URI, so
+`https://<host>/init-entra/callback` must be registered (web redirect URIs, portal, no
+terraform) on the reused app reg **for every host** drop2 runs on. The redirect_uri is
+derived per-request from the Host (`_redirectUri`), so the njs `CALLBACK_PATH` and the
+conf location are the only two places to keep in step; `ENTRA_REDIRECT_URI` in
+`cmsproxy.mock.env` is vestigial (nothing reads it).
 
 ---
 
@@ -72,19 +78,19 @@ njs 0.8.5) — the insecure `Math.random` fallback was removed (it is not a CSPR
 flagged by SonarQube). drop1's correlation-id `_uuid` was moved to the same source, so the
 config uses no `Math.random` anywhere.
 
-### E6. 🔴 `js_fetch_verify off` on the AD + storage fetches
+### E6. 🔴 `js_fetch_verify off` on the AD + MDS fetches
 
 The callback disables TLS verification for the `ngx.fetch` calls to
-`login.microsoftonline.com` and `*.table.core.windows.net` (mirrors drop1's loopback
+`login.microsoftonline.com` (code exchange + on-behalf-of) and MDS (mirrors drop1's loopback
 setup). For **external** endpoints this should be `on` with a trusted CA bundle
 (`js_fetch_trusted_certificate`). Fix before prod.
 
-### E7. ⚪ njs `crypto` + `Buffer` dependency (new in this repo's config)
+### E7. ✅ (resolved) njs `crypto` + `Buffer` dependency (new in this repo's config)
 
-`store.js` is the first config module to use njs's built-in `crypto` (`createHmac`) and
-`Buffer` (base64). No other feature does. Confirm the deployed njs build provides both
-(the reference relies on the same, so this is expected) — a smoke test of the SharedKeyLite
-signature against a known key/date is the cheapest check.
+`auth-handover.drop2.entra.js` is the only config module to use njs's built-in `crypto`
+(`createHmac`, for the state-cookie HMAC) and `Buffer` (base64url). No other feature does
+(`store.js` used both for the Table Storage SharedKeyLite signature; that backend is gone, E10).
+Proven on QA 2026-10-06: callbacks verified the signed state cookie and reached the MDS deposit.
 
 ---
 
@@ -93,9 +99,13 @@ signature against a known key/date is the cheapest check.
 ### E8. `terminal=iframe` harness wiring
 
 The core supports both modes; `handleInitEntra` reads `terminal=iframe` off the request.
-Threading that marker through `/polaris → /init → /auth-refresh-inbound`, and the small
-JS harness that opens/destroys the hidden iframe in CMS Classic, are **future** work —
-deliberately not built here (the top-level flow is the main event).
+**Threading (done 2026-10):** with no `r`, `/init`'s shim copies `terminal` into the synthesised
+`r=/auth-refresh-inbound?…` (an explicit `r` must include it itself), and the rewrite to
+`/init-entra` keeps the query. `/init` **skips its Edge gate** when `terminal=iframe`: the iframe
+lives in the CMS Classic IE-mode tab, cannot change mode (coercion would loop or 402), and must
+stay in IE mode so the presence cookie lands in the IE jar (`auth-handover.js` appAuthRedirect;
+unit-pinned). **Still future:** the small JS harness in CMS Classic that opens/destroys the
+hidden iframe at login (global-components' Classic client, step 2 of the plan).
 
 ### E9. Framed-cookie `SameSite`
 
@@ -105,10 +115,19 @@ need `SameSite=None; Secure`. Revisit if the iframe host changes.
 
 ### E10. Store backend migration (the seam)
 
-`store.js` deposits via a single `deposit(oid, payload, tokens)` binding
-(`tableStorageDeposit` today). The planned MDS-API endpoint is a drop-in `apiEndpointDeposit`
-(POST + `Authorization: Bearer <accessToken>`) — swap the one binding, no auth-flow change.
-The callback already passes the AD tokens through (Table Storage ignores them).
+**Done 2026-10: the backend is MDS.** `store.js` exports `scope` (`ENTRA_MDS_SCOPE`) and
+`deposit(payload, bearer)` = `mdsDeposit`: `PUT <WM_MDS_BASE_URL>cms-auth-store` with
+`Authorization: Bearer <OBO token>` + `x-functions-key` (the same two settings the
+global-components `/global-components/api` route uses — not that route itself, which strips
+Authorization) and body `{cookies, token, expiryTime: "2100-01-01T00:00:00Z"}` (fixed, far future — MDS 400s a non-future one; MDS ignores
+it today — revisit if it ever honours it). MDS takes the user from the token's `oid`, after full
+JwtBearer validation (signature, issuer, lifetime, aud = the MDS app reg) — so only the on-behalf-of
+token will do; the neutral token gets a 401. The Table Storage backend
+(SharedKeyLite, `ENTRA_STORAGE_*`, rows keyed by an id_token OID) is removed — git history has it.
+The swap needs the MDS permission on our app reg **plus consent**. CPS blocks user consent, so MDS
+**pre-authorises** our client on its app reg (MDS terraform `global_components_client_id`, PR
+2026-10-06); until that is applied the on-behalf-of call fails (AADSTS65001) and drop2 degrades — safe.
+(An interim switch that sent the neutral token instead was removed 2026-10-06: MDS rejects it.)
 
 ### E11. ⚪ (removed) presence id-token cookie IE/Edge jar handover
 
