@@ -5,16 +5,20 @@
 namespace PolarisGateway.Services.MdsOrchestration;
 
 using Common.Dto.Request;
+using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response;
 using Common.Dto.Response.Document;
+using Common.Dto.Response.HouseKeeping;
 using Common.Extensions;
 using Common.Mappers;
+using Cps.MasterDataService.Infrastructure.ApiClient;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.Response.Document;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -92,27 +96,59 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
 
     private async Task<MdsCommunicationReclassifiedResponse> ReclassifyDocument(IMdsClient mdsClient, MdsReclassifyDocumentArgDto arg, CmsDocumentDto document, MaterialTypeDto materialType)
     {
-        var reclassifyCommunicationRequest = new MdsReclassifyCommunicationArgDto
+        var statement = SetReclassifyDocumentStatement(materialType, document, arg);
+        ReclassifyStatementRequest statementRequest = null;
+        if (statement != null)
         {
-            CmsAuthValues = arg.CmsAuthValues,
-            CorrelationId = arg.CorrelationId,
-            Urn = arg.Urn,
-            CaseId = arg.CaseId,
-            MaterialId = arg.MaterialId,
-            Classification = arg.DocumentTypeId == DefenceStatementTypeId ? DefenceStatementClassification : materialType.Classification,
-            DocumentTypeId = arg.DocumentTypeId,
-            Subject = document.PresentationTitle,
-            Statement = SetReclassifyDocumentStatement(materialType, document, arg),
-            Exhibit = SetReclassifyDocumentExhibit(materialType, arg),
-            Used = SetReclassifyDocumentUsed(materialType, arg),
-        };
+            statementRequest = new ReclassifyStatementRequest
+            {
+                Witness = statement.WitnessId,
+                StatementNo = statement.StatementNo,
+                Date = DateOnly.ParseExact(
+                    statement.Date,
+                    "yyyy-MM-dd",
+                    CultureInfo.InvariantCulture),
+            };
+        }
 
-        return await mdsClient.ReclassifyCommunicationAsync(reclassifyCommunicationRequest);
+        var exhibit = SetReclassifyDocumentExhibit(materialType, arg);
+        ReclassifyExhibitRequest exhibitRequest = null;
+        if (exhibit != null)
+        {
+            exhibitRequest = new ReclassifyExhibitRequest
+            {
+                Item = exhibit.Item,
+                Reference = exhibit.Reference,
+                ExistingProducerOrWitnessId = exhibit.ExistingProducerOrWitnessId,
+                NewProducer = exhibit.NewProducer,
+            };
+        }
+
+        var request = new ReclassifyCommunicationRequest(
+            id: arg.CorrelationId,
+            classification: arg.DocumentTypeId == DefenceStatementTypeId ? DefenceStatementClassification : materialType.Classification,
+            materialId: (int)arg.MaterialId,
+            documentTypeId: arg.DocumentTypeId,
+            used: SetReclassifyDocumentUsed(materialType, arg) ?? false,
+            subject: document.PresentationTitle,
+            statementRequest: statementRequest,
+            exhibitRequest: exhibitRequest);
+
+        var reclassificationRespponse = await this.masterDataServiceClient.ReclassifyCommunicationAsync(request, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
+
+        return new MdsCommunicationReclassifiedResponse
+        {
+            ReclassifyCommunication = new Ddei.Domain.Response.Document.ReclassifyCommunication
+            {
+                Id = reclassificationRespponse.ReclassifyCommunication.Id,
+            },
+        };
     }
 
-    private async Task<DocumentRenamedResultDto> RenameDocument(MdsReclassifyDocumentArgDto arg, IMdsClient mdsClient, MaterialTypeDto materialType, string documentName)
+    private async Task<DocumentRenamedResultDto> RenameDocument(MdsReclassifyDocumentArgDto arg, IMdsClient mdsClient, MaterialTypeDto materialType, string documentName) 
     {
         var renameDocumentArg = this.mdsArgFactory.CreateRenameDocumentArgDto(arg.CmsAuthValues, arg.CorrelationId, arg.Urn, arg.CaseId, arg.MaterialId, documentName);
+        Common.Dto.Response.HouseKeeping.RenameMaterialResponse renameMaterialResponse;
         DocumentRenamedResultDto response = new ();
 
         if (materialType.Classification == ExhibitClassification)
@@ -122,8 +158,16 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
         }
         else if (materialType.Classification != StatementClassification)
         {
-            response = await mdsClient.RenameDocumentAsync(renameDocumentArg);
-            response.OperationName = nameof(mdsClient.RenameDocumentAsync);
+            //response = await mdsClient.RenameDocumentAsync(renameDocumentArg);
+            //response.OperationName = nameof(mdsClient.RenameDocumentAsync);
+
+            renameMaterialResponse = await this.masterDataServiceClient.RenameMaterialAsync(
+                    new Common.Dto.Request.HouseKeeping.RenameMaterialRequest(renameDocumentArg.CorrelationId, (int)renameDocumentArg.MaterialId, renameDocumentArg.DocumentName),
+                    new CmsAuthValues(renameDocumentArg.CmsAuthValues, renameDocumentArg.CorrelationId));
+
+            response.Id = renameMaterialResponse.RenameMaterialData?.Id ?? 0;
+            response.OperationName = nameof(this.masterDataServiceClient.RenameMaterialAsync);
+
         }
 
         return response;

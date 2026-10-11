@@ -8,10 +8,12 @@ using Azure.Core;
 using Common.Constants;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
+using Common.Dto.Response;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
 using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Response.HouseKeeping.Pcd;
+using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Diagnostics;
@@ -534,6 +536,103 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
+    public async Task<Common.Dto.Response.FileResult> GetDocumentByDocumentIdAsync(MdsMaterialIdAndDocumentIdArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "GetDocumentByDocumentId";
+        Common.Dto.Response.FileResult result = new ();
+
+
+        var streamTest = new ApiClient.Stream
+        { // testing purposes
+            CanRead = true,
+            CanWrite = true,
+            CanSeek = true,
+            CanTimeout = false,
+            Length = 1024,
+            Position = 0,
+            ReadTimeout = 30000,
+            WriteTimeout = 30000
+        };
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+            //await client.DocumentAsync(arg.CaseId, (int)arg.MaterialId, arg.DocumentId.ToString(), cancellationToken); // not working, 404
+            //await client.CancelCheckoutDocumentAsync(arg.CaseId, (int)arg.MaterialId, arg.DocumentId.ToString(), cancellationToken); // not working, 404
+            //await client.UploadDocumentToCaseAsyncPUTAsync(arg.CaseId, (int)arg.MaterialId, arg.DocumentId.ToString(), streamTest, cancellationToken); // not working, 404
+
+            var data = await client.GetDocumentByDocumentIdAsync(arg.CaseId, (int)arg.MaterialId, arg.DocumentId.ToString(), cancellationToken); // returns ApiClient.FileResponse, not working - Supposed to be here tahmeed1
+
+            if (data?.Stream is not null)
+            {
+                result.Stream = data.Stream;
+                result.FileName = data.Headers["Content-Disposition"].FirstOrDefault();
+            }
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
+            throw;
+        }
+
+        return result;
+    }
+
+    public async Task CreateDocumentNoteAsync(MdsAddDocumentNoteArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "CreateDocumentNote";
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+            ApiClient.CreateDocumentNoteRequest documentNoteRequest = new ()
+            {
+                Text = arg.Text,
+            };
+
+            await client.CreateDocumentNoteAsync(arg.CaseId, (int)arg.MaterialId, documentNoteRequest, cancellationToken); // returns void
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
+            throw;
+        }
+    }
+
+    public async Task<List<DocumentNoteDto>> ListDocumentNotesAsync(MdsDocumentArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "ListDocumentNotes";
+        List<DocumentNoteDto> results = new ();
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+            var data = await client.ListDocumentNotesAsync((int)arg.MaterialId, cancellationToken); // returns ApiClient.NoteEntity
+
+            if (data is not null)
+            {
+                results = data.Select(note => new DocumentNoteDto
+                {
+                    Id = (int)arg.MaterialId, // TODO: Map from note.Id when API starts returning it. Consider using ICaseDocumentNoteMapper.Map which does the same thing
+                    CreatedByName = note.CreatedByName,
+                    SortOrder = note.SequenceNumber,
+                    Date = note.Date,
+                    Text = note.Text,
+                    Type = note.NoteType?.ToString() ?? string.Empty,
+                }).ToList();
+            }
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
+            throw;
+        }
+
+        return results;
+    }
+
     /// <inheritdoc/>
     public async Task<FileStreamResult?> GetMaterialDocumentAsync(GetDocumentRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
@@ -837,6 +936,47 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
             }
 
             RenameMaterialResponse result = new (new RenameMaterialData { Id = data.UpdateCommunication.Id });
+
+            this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+
+            return result;
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+            throw;
+        }
+    }
+
+    // RenameExhibitMaterialAsync
+    public async Task<RenameMaterialResponse> RenameExhibitMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(request);
+        Requires.NotNull(request.materialId);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
+
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "RenameExhibitMaterial";
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+
+            var reanmeExhibitMAterialRequest = new ApiClient.RenameMaterialDescriptionRequest()
+            {
+                MaterialId = request.materialId,
+                Description = request.subject,
+            };
+
+            var data = await client.RenameExhibitMaterialAsync(reanmeExhibitMAterialRequest, cancellationToken); // NOT WORKING returning 404
+
+            if (data?.UpdateCommunication?.Id == null)
+            {
+                return default;
+            }
+
+            RenameMaterialResponse result = new (
+                new RenameMaterialData { Id = data.UpdateCommunication.Id });
 
             this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
 
