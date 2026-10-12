@@ -199,7 +199,7 @@ async function beginTests(entra) {
   await test("silent AD redirect: 302 authorize (prompt=none) + state cookie carrying the session", async () => {
     fetchImpl = establishRouter()
     const r = createMockRequest({
-      args: { cc: "ASP.NET_SessionId=x; .CMSAUTHa=y", "polaris-ui-url": "/polaris-ui/case/1" },
+      args: { cc: "ASP.NET_SessionId=x; .CMSAUTHa=y; WindowID=MASTER", "polaris-ui-url": "/polaris-ui/case/1" },
       headersIn: { Host: "proxy.example", "X-Forwarded-Proto": "https" },
     })
     await entra.handleInitEntra(r)
@@ -219,7 +219,11 @@ async function beginTests(entra) {
     const st = entra.__test.unpackState(packed)
     assertEqual(st.tok, "00000000-0000-0000-0000-000000000001", "state carries the minted modern token")
     assertEqual(st.term, "top-level", "defaults to top-level")
-    assert(st.cc.indexOf("WindowID=MASTER") !== -1, "state carries the whitelisted cookies")
+    assertEqual(
+      st.cc,
+      "ASP.NET_SessionId=x; .CMSAUTHa=y; WindowID=MASTER",
+      "state carries the cookies exactly as /init handed them over",
+    )
   })
 
   await test("no cookies -> drop1 fail-redirect, no AD hop", async () => {

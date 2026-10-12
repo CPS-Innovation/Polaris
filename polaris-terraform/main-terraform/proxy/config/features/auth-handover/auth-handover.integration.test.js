@@ -41,11 +41,11 @@ async function initTests() {
   console.log("\n/init — appAuthRedirect (whitelist + session hint):")
 
   await test("whitelisted r -> 302 with the cms cookie appended as cc", async () => {
-    const res = await get("/init?r=/auth-refresh-inbound&cookie=session%3Dabc123", { headers: H })
+    const res = await get("/init?r=/auth-refresh-inbound&cookie=.CMSAUTH%3Dabc123", { headers: H })
     assertEqual(res.status, 302, "Should 302")
     const loc = res.headers.get("location")
     assertIncludes(loc, "/auth-refresh-inbound", "Should redirect to the r target")
-    assertIncludes(loc, "cc=session%3Dabc123", "Should append the cookie as cc")
+    assertIncludes(loc, "cc=.CMSAUTH%3Dabc123", "Should append the cookie as cc")
   })
 
   await test("non-whitelisted r -> 403", async () => {
