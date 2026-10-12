@@ -389,12 +389,12 @@ public class CaseMaterialService(
     {
         try
         {
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Retrieving communications for caseId [{caseId}]...");
+            this.logger.LogInformation("{LogPrefix} Retrieving communications for caseId [{CaseId}]...", LoggingConstants.HskUiLogPrefix, caseId);
             return await this.communicationService.GetCommunicationsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} An error was encountered fetching communications for caseId [{caseId}]: {ex.Message}");
+            this.logger.LogError(ex, "{LogPrefix} An error was encountered fetching communications for caseId [{CaseId}]", LoggingConstants.HskUiLogPrefix, caseId);
             throw new UnprocessableEntityException($"An error was encountered fetching communications for caseId [{caseId}]");
         }
     }
@@ -409,12 +409,12 @@ public class CaseMaterialService(
     {
         try
         {
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Retrieving unused materials for caseId [{caseId}]...");
+            this.logger.LogInformation("{LogPrefix} Retrieving unused materials for caseId [{CaseId}]...", LoggingConstants.HskUiLogPrefix, caseId);
             return await this.communicationService.GetUnusedMaterialsAsync(caseId, cmsAuthValues).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} An error was encountered fetching unused materials for caseId [{caseId}]: {ex.Message}");
+            this.logger.LogError(ex, "{LogPrefix} An error was encountered fetching unused materials for caseId [{CaseId}]", LoggingConstants.HskUiLogPrefix, caseId);
             throw new UnprocessableEntityException($"An error was encountered fetching unused materials for caseId [{caseId}]");
         }
     }
@@ -430,12 +430,12 @@ public class CaseMaterialService(
     {
         try
         {
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Retrieving used statements for caseId [{caseId}]...");
+            this.logger.LogInformation("{LogPrefix} Retrieving used statements for caseId [{CaseId}]...", LoggingConstants.HskUiLogPrefix, caseId);
             return await this.communicationService.GetUsedStatementsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} An error was encountered fetching used statements for caseId [{caseId}]: {ex.Message}");
+            this.logger.LogError(ex, "{LogPrefix} An error was encountered fetching used statements for caseId [{CaseId}]", LoggingConstants.HskUiLogPrefix, caseId);
             throw new UnprocessableEntityException($"An error was encountered fetching used statements for caseId [{caseId}]");
         }
     }
@@ -451,12 +451,12 @@ public class CaseMaterialService(
     {
         try
         {
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Retrieving used exhibits for caseId [{caseId}]...");
+            this.logger.LogInformation("{LogPrefix} Retrieving used exhibits for caseId [{CaseId}]...", LoggingConstants.HskUiLogPrefix, caseId);
             return await this.communicationService.GetUsedExhibitsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} An error was encountered fetching used exhibits for caseId [{caseId}]: {ex.Message}");
+            this.logger.LogError(ex, "{LogPrefix} An error was encountered fetching used exhibits for caseId [{CaseId}]", LoggingConstants.HskUiLogPrefix, caseId);
             throw new UnprocessableEntityException($"An error was encountered fetching used exhibits for caseId [{caseId}]");
         }
     }
@@ -472,12 +472,12 @@ public class CaseMaterialService(
     {
         try
         {
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Retrieving used MG forms for caseId [{caseId}]...");
+            this.logger.LogInformation("{LogPrefix} Retrieving used MG forms for caseId [{CaseId}]...", LoggingConstants.HskUiLogPrefix, caseId);
             return await this.communicationService.GetUsedMgFormsAsync(caseId, cmsAuthValues).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} An error was encountered fetching used MG forms for caseId [{caseId}]: {ex.Message}");
+            this.logger.LogError(ex, "{LogPrefix} An error was encountered fetching used MG forms for caseId [{CaseId}]", LoggingConstants.HskUiLogPrefix, caseId);
             throw new UnprocessableEntityException($"An error was encountered fetching used MG forms for caseId [{caseId}]");
         }
     }
@@ -493,12 +493,12 @@ public class CaseMaterialService(
     {
         try
         {
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Retrieving used other materials for caseId [{caseId}]...");
+            this.logger.LogInformation("{LogPrefix} Retrieving used other materials for caseId [{CaseId}]...", LoggingConstants.HskUiLogPrefix, caseId);
             return await this.communicationService.GetUsedOtherMaterialsAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} An error was encountered fetching used other materials for caseId [{caseId}]: {ex.Message}");
+            this.logger.LogError(ex, "{LogPrefix} An error was encountered fetching used other materials for caseId [{CaseId}]", LoggingConstants.HskUiLogPrefix, caseId);
             throw new UnprocessableEntityException($"An error was encountered fetching used other materials for caseId [{caseId}]");
         }
     }
@@ -541,26 +541,26 @@ public class CaseMaterialService(
     public long? MapExistingProducerOrWitnessId(string? producer, ExhibitProducersResponse? exhibitProducers, int caseId)
     {
         try
-        {
-            long? existingProducerOrWitnessId = null;
-
-            if (string.IsNullOrWhiteSpace(producer) || exhibitProducers?.ExhibitProducers?.Count == 0)
             {
+                long? existingProducerOrWitnessId = null;
+
+                if (string.IsNullOrWhiteSpace(producer) || exhibitProducers?.ExhibitProducers?.Count == 0)
+                {
+                    return existingProducerOrWitnessId;
+                }
+
+                ExhibitProducer? exhibitProducer = exhibitProducers?.ExhibitProducers?
+                    .FirstOrDefault(x => x.Name.Equals(producer, StringComparison.InvariantCultureIgnoreCase));
+
+                existingProducerOrWitnessId ??= exhibitProducer?.Id;
+
                 return existingProducerOrWitnessId;
             }
-
-            ExhibitProducer? exhibitProducer = exhibitProducers?.ExhibitProducers?
-                .FirstOrDefault(x => x.Name.Equals(producer, StringComparison.InvariantCultureIgnoreCase));
-
-            existingProducerOrWitnessId ??= exhibitProducer?.Id;
-
-            return existingProducerOrWitnessId;
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} An error was encountered mapping existing exhibit producer or witnessId for caseId [{caseId}]: {ex.Message}");
-            throw new Exception($"An error was encountered mapping existing exhibit producer or witnessId for caseId [{caseId}]");
-        }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "{LogPrefix} An error was encountered mapping existing exhibit producer or witnessId for caseId [{CaseId}]", LoggingConstants.HskUiLogPrefix, caseId);
+                throw new Exception($"An error was encountered mapping existing exhibit producer or witnessId for caseId [{caseId}]");
+            }
     }
 
     /// <summary>
@@ -574,12 +574,12 @@ public class CaseMaterialService(
     {
         try
         {
-            this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Retrieving exhibit producers for caseId [{caseId}]...");
+            this.logger.LogInformation("{LogPrefix} Retrieving exhibit producers for caseId [{CaseId}]...", LoggingConstants.HskUiLogPrefix, caseId);
             return await this.communicationService.GetExhibitProducersAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} An error was encountered fetching exhibit producers for caseId [{caseId}]: {ex.Message}");
+            this.logger.LogError(ex, "{LogPrefix} An error was encountered fetching exhibit producers for caseId [{CaseId}]", LoggingConstants.HskUiLogPrefix, caseId);
             throw new UnprocessableEntityException($"An error was encountered fetching exhibit producers for caseId [{caseId}]");
         }
     }
