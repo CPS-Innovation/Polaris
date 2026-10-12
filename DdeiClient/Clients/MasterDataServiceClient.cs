@@ -542,27 +542,11 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         const string OperationName = "GetDocumentByDocumentId";
         Common.Dto.Response.FileResult result = new ();
 
-
-        var streamTest = new ApiClient.Stream
-        { // testing purposes
-            CanRead = true,
-            CanWrite = true,
-            CanSeek = true,
-            CanTimeout = false,
-            Length = 1024,
-            Position = 0,
-            ReadTimeout = 30000,
-            WriteTimeout = 30000
-        };
-
         try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
-            //await client.DocumentAsync(arg.CaseId, (int)arg.MaterialId, arg.DocumentId.ToString(), cancellationToken); // not working, 404
-            //await client.CancelCheckoutDocumentAsync(arg.CaseId, (int)arg.MaterialId, arg.DocumentId.ToString(), cancellationToken); // not working, 404
-            //await client.UploadDocumentToCaseAsyncPUTAsync(arg.CaseId, (int)arg.MaterialId, arg.DocumentId.ToString(), streamTest, cancellationToken); // not working, 404
 
-            var data = await client.GetDocumentByDocumentIdAsync(arg.CaseId, (int)arg.MaterialId, arg.DocumentId.ToString(), cancellationToken); // returns ApiClient.FileResponse, not working - Supposed to be here tahmeed1
+            var data = await client.GetDocumentByDocumentIdAsync(arg.CaseId, (int)arg.MaterialId, arg.DocumentId.ToString(), cancellationToken);
 
             if (data?.Stream is not null)
             {
@@ -592,7 +576,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                 Text = arg.Text,
             };
 
-            await client.CreateDocumentNoteAsync(arg.CaseId, (int)arg.MaterialId, documentNoteRequest, cancellationToken); // returns void
+            await client.CreateDocumentNoteAsync(arg.CaseId, (int)arg.MaterialId, documentNoteRequest, cancellationToken);
         }
         catch (Exception exception)
         {
@@ -609,7 +593,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
-            var data = await client.ListDocumentNotesAsync((int)arg.MaterialId, cancellationToken); // returns ApiClient.NoteEntity
+            var data = await client.ListDocumentNotesAsync((int)arg.MaterialId, cancellationToken);
 
             if (data is not null)
             {
@@ -948,7 +932,6 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
-    // RenameExhibitMaterialAsync
     public async Task<RenameMaterialResponse> RenameExhibitMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         Requires.NotNull(request);
@@ -968,7 +951,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
                 Description = request.subject,
             };
 
-            var data = await client.RenameExhibitMaterialAsync(reanmeExhibitMAterialRequest, cancellationToken); // NOT WORKING returning 404
+            var data = await client.RenameExhibitMaterialAsync(reanmeExhibitMAterialRequest, cancellationToken);
 
             if (data?.UpdateCommunication?.Id == null)
             {

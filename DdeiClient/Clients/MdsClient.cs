@@ -122,7 +122,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return mdsResults.Select(mdsResult => this.caseDocumentMapper.Map(mdsResult));
     }
 
-    // calls cases/{caseId}/documents/{materialId}/versions/{documentId} - unable to refactor, the apiclient returns 404 tahmeed1
+    // calls cases/{caseId}/documents/{materialId}/versions/{documentId}
     public async Task<FileResult> GetDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg, CancellationToken cancellationToken = default)
     {
         var response = await this.CallHttpClientAsync(this.mdsClientRequestFactory.CreateGetDocumentRequest(arg), arg.CmsAuthValues, cancellationToken);
@@ -135,7 +135,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         };
     }
 
-    // - unable to refactor, the apiclient returns 404
     public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg, CancellationToken cancellationToken = default)
     {
         await this.CallHttpClientAsync(
@@ -144,13 +143,13 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return new CheckoutDocumentDto { IsSuccess = true };
     }
 
-    // - unable to refactor, the apiclient returns 404
+    
     public async Task CancelCheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg, CancellationToken cancellationToken = default)
     {
         await this.CallHttpClientAsync(this.mdsClientRequestFactory.CreateCancelCheckoutDocumentRequest(arg), arg.CmsAuthValues, cancellationToken);
     }
 
-    // calls cases/{caseId}/documents/{materialId}/versions/{documentId} PUT        - unable to refactor, the apiclient returns 404
+    // calls cases/{caseId}/documents/{materialId}/versions/{documentId} PUT
     public async Task<HttpResponseMessage> UploadPdfAsync(MdsMaterialIdAndDocumentIdArgDto arg, Stream stream, CancellationToken cancellationToken = default)
     {
         return await this.CallHttpClientAsync(
@@ -187,7 +186,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return new DocumentRenamedResultDto { Id = response.UpdateCommunication.Id };
     }
 
-    // calls material/{materialId}/rename-exhibit        - unable to refactor, the apiclient returns 404
+    // calls material/{materialId}/rename-exhibit
     public async Task<DocumentRenamedResultDto> RenameExhibitAsync(MdsRenameDocumentArgDto arg, CancellationToken cancellationToken = default)
     {
         var response = await this.CallHttpClientAsync<RenameMaterialDescriptionResponse>(this.mdsClientRequestFactory.CreateRenameExhibitRequest(arg), arg.CmsAuthValues, cancellationToken);

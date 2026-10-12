@@ -158,16 +158,12 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
         }
         else if (materialType.Classification != StatementClassification)
         {
-            //response = await mdsClient.RenameDocumentAsync(renameDocumentArg);
-            //response.OperationName = nameof(mdsClient.RenameDocumentAsync);
-
             renameMaterialResponse = await this.masterDataServiceClient.RenameMaterialAsync(
                     new Common.Dto.Request.HouseKeeping.RenameMaterialRequest(renameDocumentArg.CorrelationId, (int)renameDocumentArg.MaterialId, renameDocumentArg.DocumentName),
                     new CmsAuthValues(renameDocumentArg.CmsAuthValues, renameDocumentArg.CorrelationId));
 
             response.Id = renameMaterialResponse.RenameMaterialData?.Id ?? 0;
             response.OperationName = nameof(this.masterDataServiceClient.RenameMaterialAsync);
-
         }
 
         return response;

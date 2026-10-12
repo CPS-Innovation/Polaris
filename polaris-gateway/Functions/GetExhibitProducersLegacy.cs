@@ -54,7 +54,8 @@ public class GetExhibitProducersLegacy : BaseFunction
 
         var exhibitProducersResponse = await this.masterDataServiceClient.GetExhibitProducersAsync(
             new GetExhibitProducersRequest(mdsCaseIdentifiersArgDto.CaseId, mdsCaseIdentifiersArgDto.CorrelationId),
-            new Common.Dto.Request.CmsAuthValues(cmsAuthValues, correlationId));
+            new Common.Dto.Request.CmsAuthValues(cmsAuthValues, correlationId),
+            cancellationToken);
 
         return new OkObjectResult(exhibitProducersResponse);
     }

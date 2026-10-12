@@ -119,15 +119,10 @@ public class RenameDocumentLegacy : BaseFunction
             };
             if (string.Equals(document.Classification, ExhibitClassification, StringComparison.InvariantCultureIgnoreCase))
             {
-                await this.mdsClient.RenameExhibitAsync(mdsRenameDocumentArgDto, cancellationToken);
-                //await this.masterDataServiceClient.RenameExhibitMaterialAsync(                                                // not working, apiclient retunring 404
-                //    new RenameMaterialRequest(mdsRenameDocumentArgDto.CorrelationId, (int)mdsRenameDocumentArgDto.MaterialId, mdsRenameDocumentArgDto.DocumentName),
-                //    new CmsAuthValues(cmsAuthValues, correlationId),
-                //    cancellationToken);
+                await this.mdsClient.RenameExhibitAsync(mdsRenameDocumentArgDto, cancellationToken); // TODO: refactor to masterDataServiceClient.RenameExhibitMaterialAsync when MDS endpoint is fixed
             }
             else if (!string.Equals(document.Classification, StatementClassification, StringComparison.InvariantCultureIgnoreCase))
             {
-                //await this.mdsClient.RenameDocumentAsync(mdsRenameDocumentArgDto, cancellationToken);
                 await this.masterDataServiceClient.RenameMaterialAsync(
                     new RenameMaterialRequest(mdsRenameDocumentArgDto.CorrelationId, (int)mdsRenameDocumentArgDto.MaterialId, mdsRenameDocumentArgDto.DocumentName),
                     new CmsAuthValues(cmsAuthValues, correlationId),
