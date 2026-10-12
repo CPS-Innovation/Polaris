@@ -153,6 +153,8 @@ thumbnail_generator_sliding_clear_down = {
   input_hours = 12
 }
 
+blob_storage_retention_days = 3
+
 hte_feature_flag = false
 
 image_conversion_redaction = {
