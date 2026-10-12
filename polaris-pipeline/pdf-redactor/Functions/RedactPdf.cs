@@ -42,7 +42,7 @@ public class RedactPdf(
 
     [Function(nameof(RedactPdf))]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactPdf)] HttpRequest request,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = RestApi.RedactDocument)] HttpRequest request,
         int caseId,
         string materialId)
     {
