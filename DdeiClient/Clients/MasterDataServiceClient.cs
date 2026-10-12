@@ -945,13 +945,13 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-            var reanmeExhibitMAterialRequest = new ApiClient.RenameMaterialDescriptionRequest()
+            var renameExhibitMaterialRequest = new ApiClient.RenameMaterialDescriptionRequest()
             {
                 MaterialId = request.materialId,
                 Description = request.subject,
             };
 
-            var data = await client.RenameExhibitMaterialAsync(reanmeExhibitMAterialRequest, cancellationToken);
+            var data = await client.RenameExhibitMaterialAsync(renameExhibitMaterialRequest, cancellationToken);
 
             if (data?.UpdateCommunication?.Id == null)
             {
