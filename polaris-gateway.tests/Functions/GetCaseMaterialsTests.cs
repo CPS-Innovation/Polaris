@@ -2,7 +2,7 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace PolarisGateway.Tests.Functions.HouseKeeping;
+namespace PolarisGateway.Tests.Functions;
 
 using Xunit;
 using Moq;
@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
-using PolarisGateway.Functions.HouseKeeping;
+using PolarisGateway.Functions;
 using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Response.Documents;
 using Common.Dto.Request;

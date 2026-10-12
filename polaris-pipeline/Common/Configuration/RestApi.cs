@@ -46,7 +46,6 @@ public static class RestApi
 
     // House keeping endpoints (legacy, URN-based - retained for existing system compatibility)
     public const string CaseInfoLegacy = "urns/{caseUrn}/case-info/{caseId:min(1)}";
-    public const string CaseMaterialsLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/case-materials";
     public const string CaseMaterialsPreviewLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/preview";
     public const string MaterialDocumentLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/document";
     public const string DocumentTypesLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/document-types";

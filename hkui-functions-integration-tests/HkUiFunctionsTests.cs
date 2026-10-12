@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
+using PolarisGateway.Functions;
 using PolarisGateway.Functions.HouseKeeping;
 using PolarisGateway.Services.MdsOrchestration;
 using Xunit;
