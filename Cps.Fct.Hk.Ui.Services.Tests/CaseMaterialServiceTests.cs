@@ -69,7 +69,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal(2, result.Count);
 
             CaseMaterial firstMaterial = result.First();
-            Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("FileA.pdf", firstMaterial.OriginalFileName);
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(1012, firstMaterial.DocumentTypeId);
@@ -161,7 +160,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal(2, result.Count);
 
             CaseMaterial firstMaterial = result.First();
-            Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("OriginalA.pdf", firstMaterial.OriginalFileName);
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(1202, firstMaterial.DocumentTypeId);
@@ -231,7 +229,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
                 .Verify(mapper => mapper.MapDocumentType(0), Times.Once());
 
             CaseMaterial firstMaterial = result.First();
-            Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("OriginalA.pdf", firstMaterial.OriginalFileName);
             Assert.Equal("ExhibitA.pdf", firstMaterial.Subject);
             Assert.Equal(0, firstMaterial.DocumentTypeId);
@@ -351,7 +348,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal(2, result.Count);
 
             CaseMaterial firstMaterial = result.First();
-            Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("OriginalA.pdf", firstMaterial.OriginalFileName);
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(1202, firstMaterial.DocumentTypeId);
@@ -415,20 +411,17 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
 
             // Test null OriginalFileName case
             CaseMaterial firstMaterial = result[0];
-            Assert.Equal(1, firstMaterial.Id);
             Assert.Null(firstMaterial.OriginalFileName);
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(1202, firstMaterial.DocumentTypeId);
 
             // Test empty OriginalFileName case
             CaseMaterial secondMaterial = result[1];
-            Assert.Equal(2, secondMaterial.Id);
             Assert.Equal(string.Empty, secondMaterial.OriginalFileName);
             Assert.Equal("Subject B", secondMaterial.Subject); // Should use Title, not PresentationTitle
 
             // Test whitespace OriginalFileName case
             CaseMaterial thirdMaterial = result[2];
-            Assert.Equal(3, thirdMaterial.Id);
             Assert.Equal("   ", thirdMaterial.OriginalFileName);
             Assert.Equal("Subject C", thirdMaterial.Subject); // Should use Title, not PresentationTitle
         }
@@ -474,7 +467,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal(2, result.Count);
 
             CaseMaterial firstMaterial = result.First();
-            Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("OriginalA.pdf", firstMaterial.OriginalFileName);
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(1202, firstMaterial.DocumentTypeId);
@@ -537,7 +529,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
                 .Verify(mapper => mapper.MapDocumentType(0), Times.Once());
 
             CaseMaterial firstMaterial = result.First();
-            Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("OriginalA.pdf", firstMaterial.OriginalFileName);
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(0, firstMaterial.DocumentTypeId);
@@ -665,7 +656,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
 
             // Validate first item
             CaseMaterial firstMaterial = result.First();
-            Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("OriginalA.pdf", firstMaterial.OriginalFileName);
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(1001, firstMaterial.DocumentTypeId);
@@ -680,7 +670,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
 
             // Validate statement
             CaseMaterial statementMaterial = result.Last();
-            Assert.Equal(5, statementMaterial.Id);
             Assert.Equal("OriginalE.pdf", statementMaterial.OriginalFileName);
             Assert.Equal("OriginalE", statementMaterial.Subject);
             Assert.Equal(1005, statementMaterial.DocumentTypeId);
@@ -758,7 +747,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
 
             // Validate first item
             CaseMaterial firstMaterial = result.First();
-            Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("OriginalA.pdf", firstMaterial.OriginalFileName);
             Assert.Equal("Subject A", firstMaterial.Subject);
             Assert.Equal(0, firstMaterial.DocumentTypeId);
@@ -1005,7 +993,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal(2, result.Count);
 
             CaseMaterial firstMaterial = result.First();
-            Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("OriginalA.pdf", firstMaterial.OriginalFileName);
             Assert.Equal("MgFormA.pdf", firstMaterial.Subject);
             Assert.Equal(1202, firstMaterial.DocumentTypeId);
@@ -1064,7 +1051,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
                 .Verify(mapper => mapper.MapMaterialType("0"), Times.Once());
 
             CaseMaterial firstMaterial = result.First();
-            Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("OriginalA.pdf", firstMaterial.OriginalFileName);
             Assert.Equal("MgFormA.pdf", firstMaterial.Subject);
             Assert.Equal(0, firstMaterial.DocumentTypeId);
@@ -1173,7 +1159,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
             Assert.Equal(2, result.Count);
 
             CaseMaterial firstMaterial = result.First();
-            Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("OriginalA.pdf", firstMaterial.OriginalFileName);
             Assert.Equal("OtherMaterialA.pdf", firstMaterial.Subject);
             Assert.Equal(1204, firstMaterial.DocumentTypeId);
@@ -1232,7 +1217,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
                 .Verify(mapper => mapper.MapMaterialType("0"), Times.Once());
 
             CaseMaterial firstMaterial = result.First();
-            Assert.Equal(1, firstMaterial.Id);
             Assert.Equal("OriginalA.pdf", firstMaterial.OriginalFileName);
             Assert.Equal("OtherMaterialA.pdf", firstMaterial.Subject);
             Assert.Equal(0, firstMaterial.DocumentTypeId);
@@ -1522,7 +1506,6 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
 
             // Validate first item
             CaseMaterial mgForms = result.First();
-            Assert.Equal(1, mgForms.Id);
             Assert.Equal("OriginalC.pdf", mgForms.OriginalFileName);
             Assert.Equal("MgFormA.pdf", mgForms.Subject);
             Assert.Equal(1200, mgForms.DocumentTypeId);

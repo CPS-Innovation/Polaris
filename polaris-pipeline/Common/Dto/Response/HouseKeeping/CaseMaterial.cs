@@ -17,11 +17,6 @@ namespace Common.Dto.Response.HouseKeeping;
 public record CaseMaterial
 {
     /// <summary>
-    /// Gets the unique identifier for the case material.
-    /// </summary>
-    public int Id { get; init; }
-
-    /// <summary>
     /// Gets the material type identifier for the material. Maps to the UI's parentId.
     /// </summary>
     public int MaterialId { get; init; }
@@ -154,7 +149,6 @@ public record CaseMaterial
     /// <summary>
     /// Initializes a new instance of the <see cref="CaseMaterial"/> class.
     /// </summary>
-    /// <param name="id">The unique identifier for the case material.</param>
     /// <param name="originalFileName">The original file name associated with the case material.</param>
     /// <param name="subject">The subject of the case material.</param>
     /// <param name="documentTypeId">The document type identifier for the case material.</param>
@@ -182,7 +176,6 @@ public record CaseMaterial
     /// <param name="hasNotes">A value indicating whether the case material has notes associated with it.</param>
     /// <param name="isUnused">A value indicating whether the case material is marked as unused.</param>
     public CaseMaterial(
-        int id,
         string originalFileName,
         string subject,
         int documentTypeId,
@@ -210,7 +203,6 @@ public record CaseMaterial
         bool hasNotes = false,
         bool isUnused = false)
     {
-        Id = id;
         DocumentId = documentId;
         OriginalFileName = originalFileName;
         Subject = subject;

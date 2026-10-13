@@ -43,7 +43,6 @@ public class CaseMaterialService(
             bool canReclassfy = this.IsCaseMaterialReclassifiable(c.DocumentTypeId, c.Direction);
 
             return new CaseMaterial(
-                 c.Id,
                  c.OriginalFileName,
                  c.Subject,
                  c.DocumentTypeId,
@@ -83,7 +82,6 @@ public class CaseMaterialService(
             string? exhibitName = communications?.FirstOrDefault(x => x.MaterialId == e.MaterialId)?.Subject ?? e.Title;
 
             return new CaseMaterial(
-                e.Id,
                 e.OriginalFileName,
                 subject: exhibitName,
                 e.DocumentType ?? 0,
@@ -124,7 +122,6 @@ public class CaseMaterialService(
             bool canReclassfy = this.IsCaseMaterialReclassifiable(s.DocumentType);
 
             return new CaseMaterial(
-                s.Id,
                 s.OriginalFileName,
                 subject,
                 s.DocumentType ?? 0,
@@ -162,7 +159,6 @@ public class CaseMaterialService(
             bool canReclassfy = this.IsCaseMaterialReclassifiable(documentTypeId);
 
             return new CaseMaterial(
-                e.Id,
                 e.OriginalFileName,
                 e.Title,
                 documentTypeId,
@@ -198,7 +194,6 @@ public class CaseMaterialService(
             bool canReclassfy = this.IsCaseMaterialReclassifiable(documentTypeId);
 
             return new CaseMaterial(
-                e.Id,
                 e.OriginalFileName,
                 e.Title,
                 e.DocumentType ?? documentTypeId,
@@ -237,7 +232,6 @@ public class CaseMaterialService(
                 string? subject = communications?.FirstOrDefault(x => x.MaterialId == e.MaterialId)?.Subject ?? e.Title;
 
                 return new CaseMaterial(
-                    e.Id,
                     e.OriginalFileName,
                     subject,
                     e.DocumentType ?? 0,
@@ -264,7 +258,6 @@ public class CaseMaterialService(
                 bool canReclassfy = this.IsCaseMaterialReclassifiable(documentTypeId);
 
                 return new CaseMaterial(
-                    m.Id,
                     m.OriginalFileName,
                     m.Title,
                     documentTypeId,
@@ -291,7 +284,6 @@ public class CaseMaterialService(
                 bool canReclassfy = this.IsCaseMaterialReclassifiable(documentTypeId);
 
                 return new CaseMaterial(
-                    om.Id,
                     om.OriginalFileName,
                     om.Title,
                     documentTypeId,
@@ -320,7 +312,6 @@ public class CaseMaterialService(
                 string subject = communications?.FirstOrDefault(x => x.MaterialId == s.MaterialId)?.Subject ?? s.PresentationTitle;
 
                 return new CaseMaterial(
-                    s.Id,
                     s.OriginalFileName,
                     subject,
                     s.DocumentType ?? 0,
