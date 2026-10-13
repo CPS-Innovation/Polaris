@@ -48,7 +48,9 @@ export const InboundHandoverHandler: React.FC<RouteComponentProps> = ({
       contextSearchParams: string
     ) =>
       history.push(
-        `/case-details/${urn}/${caseId}/CMS-${documentId}${contextSearchParams}#dcf`
+        `/case-details/${urn}/${caseId}/CMS-${documentId}${
+          contextSearchParams || "/"
+        }#dcf`
       ),
     [history]
   );
