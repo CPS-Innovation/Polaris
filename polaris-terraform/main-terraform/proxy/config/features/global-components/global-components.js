@@ -113,10 +113,18 @@ function _extractDomainFromSessionHint(r) {
 }
 
 function readCmsAuthValues(r) {
-  return _maybeDecodeURIComponent(
+  const value =
     _getHeaderValue(r, CMS_AUTH_VALUES_COOKIE_NAME) ||
-      _getCookieValue(r, CMS_AUTH_VALUES_COOKIE_NAME),
-  );
+    _getCookieValue(r, CMS_AUTH_VALUES_COOKIE_NAME);
+  // A value that already opens as JSON was never URL-encoded as a whole (the
+  // OS apps send the header raw), so any %XX inside it belongs to the CMS
+  // cookies it carries - e.g. Cms-Session-Hint, itself URL-encoded JSON.
+  // Decoding here would unwrap that inner encoding and leave raw quotes
+  // inside the Cookies string, handing upstream invalid JSON.
+  if (value.trim().startsWith("{")) {
+    return value;
+  }
+  return _maybeDecodeURIComponent(value);
 }
 
 // For nginx js_set - returns origin if allowed, empty string otherwise

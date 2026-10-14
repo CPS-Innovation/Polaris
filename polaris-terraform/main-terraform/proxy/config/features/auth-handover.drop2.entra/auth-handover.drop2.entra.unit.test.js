@@ -184,7 +184,7 @@ async function beginTests(entra) {
   await test("silent AD redirect: neutral scope, prompt=none, no nonce; state cookie carries the session", async () => {
     fetchImpl = establishRouter()
     const r = createMockRequest({
-      args: { cc: "ASP.NET_SessionId=x; .CMSAUTHa=y", "polaris-ui-url": "/polaris-ui/case/1" },
+      args: { cc: "ASP.NET_SessionId=x; .CMSAUTHa=y; WindowID=MASTER", "polaris-ui-url": "/polaris-ui/case/1" },
       headersIn: { Host: "proxy.example", "X-Forwarded-Proto": "https" },
     })
     await entra.handleInitEntra(r)
@@ -202,6 +202,11 @@ async function beginTests(entra) {
     const st = entra.__test.unpackState(sc.slice("entra_auth_state=".length).split(";")[0])
     assertEqual(st.tok, "00000000-0000-0000-0000-000000000001", "state carries the minted modern token")
     assertEqual(st.term, "top-level", "defaults to top-level")
+    assertEqual(
+      st.cc,
+      "ASP.NET_SessionId=x; .CMSAUTHa=y; WindowID=MASTER",
+      "state carries the cookies exactly as /init handed them over",
+    )
     assertEqual(st.n, undefined, "no nonce in state")
     assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra", "marker: entra")
   })

@@ -4,8 +4,12 @@
 // Reached ONLY when NON_DDEI_INIT_ENABLED=true, via an internal rewrite from
 // /auth-refresh-inbound (the switch lives in auth-handover.conf). It runs the DDEI
 // InitiateCookies pipeline in njs:
-//   whitelist the CMS cookies -> mint the CMS modern token -> verify it via GraphQL
+//   mint the CMS modern token -> verify it via GraphQL
 //   -> set the Cms-Auth-Values cookie -> redirect (polaris-ui-url, or /polaris-ui/go).
+//
+// DDEI's first step — whitelist the CMS cookies, top up WindowID=MASTER — is NOT
+// here: /init (auth-handover appAuthRedirect) does it once for every consumer, so
+// `cc` arrives already filtered.
 //
 // The token mint + GraphQL verify are $host loopback fetches that re-enter the
 // proxy's own ^/CMS.* routing (which picks the datacentre from the cookies), so this
@@ -21,18 +25,6 @@
 // Self-contained (no shared imports) so it deletes cleanly.
 // ---------------------------------------------------------------------------
 
-// Cookie-name roots kept from the incoming cookie blob (DDEI WhitelistedCookieNameRoots),
-// plus the new F5 form (C-CIN3-LBsessioncookie / F-CIN3-...) matched by suffix —
-// which folds in the production proxy's _shimBigIpCookies step.
-const WHITELIST_ROOTS = [
-  "ASP.NET_SessionId",
-  "UID",
-  "WindowID",
-  "CMSUSER",
-  ".CMSAUTH",
-  "BIGipServer",
-];
-
 // Fallback when version discovery can't read the /CMS redirect. A refined
 // production version must always discover (CMS bumps this on release).
 const DEFAULT_CMS_VERSION = "CMS.24.0.01";
@@ -47,7 +39,6 @@ const FALLBACK_LANDING = "/polaris-ui/";
 
 // DDEI Constants.AuthFailReason* values.
 const FAIL_NO_COOKIES = "no-cookies";
-const FAIL_NO_CMSAUTH = "no-cmsauth-cookie";
 const FAIL_CMS_AUTH = "cms-auth-not-valid";
 const FAIL_CMS_MODERN = "cms-modern-auth-not-valid";
 const FAIL_UNEXPECTED = "unexpected-error";
@@ -101,33 +92,6 @@ function _uuid() {
     "-" +
     h.slice(10, 16).join("")
   );
-}
-
-function _isWhitelisted(tok) {
-  const name = tok.split("=")[0];
-  if (/LBsessioncookie$/i.test(name)) {
-    return true;
-  }
-  return WHITELIST_ROOTS.some((root) => tok.indexOf(root) === 0);
-}
-
-// Faithful port of DDEI CookieHelpers.GetWhitelistedCookies: split on SPACE,
-// keep tokens whose name starts with a whitelisted root, rejoin with SPACE,
-// then append WindowID=MASTER if absent. Returns "" if nothing survives.
-function _whitelistCookies(cc) {
-  const kept = cc
-    .split(" ")
-    .filter((tok) => tok !== "" && _isWhitelisted(tok))
-    .join(" ")
-    .replace(/^\s+|\s+$/g, "");
-  if (kept === "") {
-    return "";
-  }
-  if (kept.indexOf("WindowID") === -1) {
-    const delim = kept.charAt(kept.length - 1) === ";" ? "" : ";";
-    return kept + delim + " WindowID=MASTER";
-  }
-  return kept;
 }
 
 // Best-effort CMS version discovery: GET /CMS via the proxy's own routing and
@@ -242,7 +206,7 @@ function _extractCaseId(q) {
 // insert its OIDC round-trip between "establish" and "finalize":
 //
 //   captureLanding      -> the post-auth redirect intent from the /init request
-//   establishCmsSession -> whitelist cookies -> mint -> verify (the CMS half)
+//   establishCmsSession -> mint -> verify (the CMS half)
 //   finalize            -> set Cms-Auth-Values + redirect to the landing
 //
 // handleInitNonDdei composes all three (drop1's own switch path). drop2 calls
@@ -259,23 +223,19 @@ function captureLanding(r) {
   return { polarisUiUrl: _arg(r, "polaris-ui-url"), q: _arg(r, "q") };
 }
 
-// Establish the CMS session: cookies present -> whitelist (+WindowID=MASTER) ->
-// mint the modern token -> verify against CMS Modern. On any handled failure it
-// performs the fail-redirect (using landing.polarisUiUrl) and returns null; on
-// success returns { cookieHeader, token, versionId }. The CMS cookie arrives as
-// `cc` (appAuthRedirect appended &cc=<cookie> on the 302 to /auth-refresh-inbound).
+// Establish the CMS session: cookies present -> mint the modern token -> verify
+// against CMS Modern. On any handled failure it performs the fail-redirect (using
+// landing.polarisUiUrl) and returns null; on success returns
+// { cookieHeader, token, versionId }. The CMS cookie arrives as `cc`
+// (appAuthRedirect appended &cc=<cookie> on the 302 to /auth-refresh-inbound),
+// already whitelisted and carrying WindowID=MASTER, so it is used as the Cookie
+// header as-is. A jar with no CMS cookies arrives as an empty `cc`.
 async function establishCmsSession(r, landing) {
   const host = _header(r, "Host");
 
-  const cc = _arg(r, "cc");
-  if (!cc) {
-    _failRedirect(r, landing.polarisUiUrl, FAIL_NO_COOKIES);
-    return null;
-  }
-
-  const cookieHeader = _whitelistCookies(cc);
+  const cookieHeader = _arg(r, "cc");
   if (!cookieHeader) {
-    _failRedirect(r, landing.polarisUiUrl, FAIL_NO_CMSAUTH);
+    _failRedirect(r, landing.polarisUiUrl, FAIL_NO_COOKIES);
     return null;
   }
 

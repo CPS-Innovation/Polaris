@@ -105,11 +105,35 @@ async function corsOrigins(gloco) {
   })
 }
 
+async function cmsAuthValues(gloco) {
+  console.log("\nreadCmsAuthValues (cms-auth-values sent upstream):")
+
+  await test("leaves a raw JSON header alone when a cookie inside it is URL-encoded", () => {
+    const hint = encodeURIComponent(JSON.stringify({ cmsDomains: ["cin5.cps.gov.uk"] }))
+    const header = JSON.stringify({
+      Cookies: `Cms-Session-Hint=${hint}; UID=123`,
+      Token: "some-token",
+    })
+    const r = createMockRequest({ headersIn: { "Cms-Auth-Values": header } })
+    assertEqual(gloco.readCmsAuthValues(r), header, "raw JSON passes through untouched")
+  })
+
+  await test("decodes a wholly URL-encoded JSON cookie", () => {
+    const json = JSON.stringify({ token: "some-token", cookies: "UID=123; WindowID=MASTER" })
+    assertEqual(
+      gloco.readCmsAuthValues(req(`Cms-Auth-Values=${encodeURIComponent(json)}`)),
+      json,
+      "cookie value decoded once"
+    )
+  })
+}
+
 async function main() {
   const gloco = await loadNjs("features/global-components/global-components.js")
   await domainFromCookie(gloco)
   await caseReviewRedirect(gloco)
   await corsOrigins(gloco)
+  await cmsAuthValues(gloco)
   process.exit(summarise("global-components.js (unit)"))
 }
 
