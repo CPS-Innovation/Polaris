@@ -62,12 +62,65 @@ async function appAuthRedirect(authHandover) {
 
   await test("whitelisted r -> 302 with the cookie appended as cc", async () => {
     await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST }, () => {
-      const r = req({ r: "/auth-refresh-inbound", cookie: "session=abc123" })
+      const r = req({ r: "/auth-refresh-inbound", cookie: ".CMSAUTH=abc123" })
       authHandover.appAuthRedirect(r)
       assertEqual(r.returnCode, 302, "302")
       assertIncludes(r.returnBody, "https://proxy.example.org/auth-refresh-inbound", "absolute URL")
-      assertIncludes(r.returnBody, "cc=session%3Dabc123", "cookie appended, URL-encoded")
+      assertIncludes(r.returnBody, "cc=.CMSAUTH%3Dabc123", "cookie appended, URL-encoded")
     })
+  })
+
+  const ccOf = (cookie) =>
+    withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST }, () => {
+      const r = req({ r: "/auth-refresh-inbound", cookie })
+      authHandover.appAuthRedirect(r)
+      return decodeURIComponent(r.returnBody.split("cc=")[1])
+    })
+
+  await test("cc carries only whitelisted CMS cookies", async () => {
+    const hint = encodeURIComponent(JSON.stringify({ cmsDomains: ["cin5.cps.gov.uk"] }))
+    const cc = await ccOf(
+      `Cms-Session-Hint=${hint}; CMSUSER103096=sess; __CMSENV=cin5; C-CIN5-LBsessioncookie=!lb+v=; ` +
+        "ASP.NET_SessionId=sess; WindowID=MASTER; UID=103096; .CMSAUTH=ABC; dtCookie=v_4; dtSa=-",
+    )
+    assertEqual(
+      cc,
+      "CMSUSER103096=sess; C-CIN5-LBsessioncookie=!lb+v=; ASP.NET_SessionId=sess; WindowID=MASTER; UID=103096; .CMSAUTH=ABC;",
+      "Should drop Cms-Session-Hint, __CMSENV and the Dynatrace cookies",
+    )
+    assertNotIncludes(cc, "%", "Nothing URL-encoded should survive into cc")
+  })
+
+  await test("a jar of only whitelisted cookies passes through byte-for-byte", async () => {
+    const jar =
+      "BIGipServer~ent~cin3.cps.gov.uk_POOL=1.2.3; F-FOO-LBsessioncookie=x; WindowID=MASTER; UID=1; .CMSAUTH=ABC"
+    assertEqual(await ccOf(jar), jar, "Should be unchanged")
+  })
+
+  await test("a jar with no CMS cookies yields an empty cc", async () => {
+    assertEqual(await ccOf("session=abc123; dtCookie=v_4"), "", "Should be empty")
+  })
+
+  console.log("\nappAuthRedirect — WindowID=MASTER top-up:")
+
+  await test("adds WindowID=MASTER when .CMSAUTH is present without it", async () => {
+    assertEqual(await ccOf("UID=1; .CMSAUTH=ABC"), "UID=1; .CMSAUTH=ABC; WindowID=MASTER", "Should append")
+  })
+
+  await test("adds WindowID=MASTER when only ASP.NET_SessionId is present", async () => {
+    assertEqual(await ccOf("ASP.NET_SessionId=sess"), "ASP.NET_SessionId=sess; WindowID=MASTER", "Should append")
+  })
+
+  await test("does not double the separator after a trailing semicolon", async () => {
+    assertEqual(await ccOf(".CMSAUTH=ABC; dtSa=-"), ".CMSAUTH=ABC; WindowID=MASTER", "Should reuse the ;")
+  })
+
+  await test("leaves an existing WindowID alone", async () => {
+    assertEqual(await ccOf("WindowID=OTHER; .CMSAUTH=ABC"), "WindowID=OTHER; .CMSAUTH=ABC", "Should not add a second")
+  })
+
+  await test("does not add WindowID to a jar with no CMS session", async () => {
+    assertEqual(await ccOf("UID=1; C-CIN3-LBsessioncookie=x"), "UID=1; C-CIN3-LBsessioncookie=x", "Should be unchanged")
   })
 
   await test("uses ? or & correctly when the target already has a query", async () => {
@@ -132,11 +185,11 @@ async function appAuthRedirect(authHandover) {
   // ---------------------------------------------------------------------------
   await test("QUIRK: an unset whitelist allows EVERYTHING (open redirect + cc leak)", async () => {
     await withEnv({ AUTH_HANDOVER_WHITELIST: undefined }, () => {
-      const r = req({ r: "https://evil.example.com/steal", cookie: "SESSION=secret" })
+      const r = req({ r: "https://evil.example.com/steal", cookie: ".CMSAUTH=secret" })
       authHandover.appAuthRedirect(r)
       assertEqual(r.returnCode, 302, "Today: allowed, because ''.split(',') === [''] and startsWith('') is true")
       assertIncludes(r.returnBody, "https://evil.example.com/steal", "redirects to the attacker target")
-      assertIncludes(r.returnBody, "cc=SESSION%3Dsecret", "...with the CMS cookie attached")
+      assertIncludes(r.returnBody, "cc=.CMSAUTH%3Dsecret", "...with the CMS cookie attached")
     })
   })
 

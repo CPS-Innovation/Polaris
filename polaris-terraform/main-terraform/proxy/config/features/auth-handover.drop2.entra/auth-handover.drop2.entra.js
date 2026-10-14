@@ -6,7 +6,7 @@
 // switch lives in auth-handover.conf, beside drop1's). Two njs handlers over one core:
 //
 //   handleInitEntra          (/init-entra, internal)
-//     drop1.establishCmsSession (whitelist cookies -> mint + verify modern token)
+//     drop1.establishCmsSession (mint + verify modern token)
 //     -> pack {cookies, token, version, landing, terminal} into a first-party state
 //        cookie + a random anti-CSRF handle in the OAuth `state` param
 //     -> 302 to Entra /authorize (prompt=none, silent).

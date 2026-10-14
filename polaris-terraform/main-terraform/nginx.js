@@ -111,6 +111,59 @@ function setSessionHintCookie(r) {
   }
 }
 
+// The CMS cookies a downstream app is handed as `cc`. The `cookie` arg is the
+// WHOLE jar as captured on the CMS domain, so without this anything any party
+// sets on that host rides along: Dynatrace cookies, __CMSENV, and (the case that
+// bit us) Cms-Session-Hint, whose URL-encoded JSON value broke the
+// Cms-Auth-Values header the OutSystems apps build from `cc`.
+//
+// Same roots as DDEI CookieHelpers.WhitelistedCookieNameRoots, plus the newer F5
+// form ([CF]-<TOKEN>-LBsessioncookie) matched by suffix. Keep in step with
+// proxy/config/features/auth-handover/auth-handover.js.
+const CC_WHITELIST_ROOTS = [
+  "ASP.NET_SessionId",
+  "UID",
+  "WindowID",
+  "CMSUSER",
+  ".CMSAUTH",
+  "BIGipServer",
+]
+
+function _isWhitelistedCookie(tok) {
+  if (/LBsessioncookie$/i.test(tok.split("=")[0])) {
+    return true
+  }
+  return CC_WHITELIST_ROOTS.some((root) => tok.indexOf(root) === 0)
+}
+
+// CMS will not accept calls without WindowID=MASTER, and it is not one of the
+// cookies shared from IE mode into Edge, so a jar gathered that way arrives
+// without it (DDEI CookieHelpers.GetWhitelistedCookies tops it up for the same
+// reason). Only a jar that carries a CMS session gets the top-up: one with
+// neither ASP.NET_SessionId nor .CMSAUTH is not a session, and must stay empty
+// so "no cookies" still reads as no cookies downstream.
+function _ensureWindowId(kept) {
+  const toks = kept.split(" ")
+  const has = (root) => toks.some((tok) => tok.indexOf(root) === 0)
+  if (has("WindowID") || !(has("ASP.NET_SessionId") || has(".CMSAUTH"))) {
+    return kept
+  }
+  const delim = kept.charAt(kept.length - 1) === ";" ? "" : ";"
+  return kept + delim + " WindowID=MASTER"
+}
+
+// Split on SPACE (as DDEI does) and keep each surviving token byte-for-byte, so a
+// jar holding only whitelisted cookies (WindowID among them) passes through
+// unchanged.
+function _whitelistCookies(cookie) {
+  return _ensureWindowId(
+    cookie
+      .split(" ")
+      .filter((tok) => tok !== "" && _isWhitelistedCookie(tok))
+      .join(" ")
+  )
+}
+
 function appAuthRedirect(r) {
   setSessionHintCookie(r)
 
@@ -126,7 +179,7 @@ function appAuthRedirect(r) {
     _redirectToAbsoluteUrl(
       r,
       `${redirectUrl}${redirectUrl.includes("?") ? "&" : "?"
-      }cc=${encodeURIComponent(args["cookie"] ?? "")}`
+      }cc=${encodeURIComponent(_whitelistCookies(args["cookie"] ?? ""))}`
     )
   } else {
     r.return(
