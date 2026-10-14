@@ -306,7 +306,7 @@ public class GetCaseMaterials(
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetCaseMaterials function encountered an error fetching documents for caseId [{caseId}]: {ex.Message}");
+            this.logger.LogError(ex, "{LogPrefix} GetCaseMaterials function encountered an error fetching documents for caseId [{CaseId}]", LoggingConstants.HskUiLogPrefix, caseId);
             return Enumerable.Empty<DocumentDto>();
         }
     }
