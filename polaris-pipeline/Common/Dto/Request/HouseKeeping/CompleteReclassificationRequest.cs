@@ -21,22 +21,6 @@ public record CompleteReclassificationRequest(
     public string ContentType { get; init; } = "application/json";
 
     /// <summary>
-    /// Indicates if a new witness should be added based on request data (reclassification to statement and existing witness id not in request).
-    /// </summary>
-    /// <returns>True or false, based on request data.</returns>
-    public bool AddWitness()
-    {
-        if (witness?.WitnessId <= 0 || witness?.WitnessId == null
-            && !string.IsNullOrWhiteSpace(witness?.Surname)
-            && HasStatement())
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    /// <summary>
     /// Flag to indicate if request has statement.
     /// </summary>
     /// <returns>True if request has statement object, otherwise false.</returns>
@@ -52,14 +36,5 @@ public record CompleteReclassificationRequest(
     public bool HasExhibit()
     {
         return reclassification?.Exhibit != null;
-    }
-
-    /// <summary>
-    /// Flag to indicate if request has action plan.
-    /// </summary>
-    /// <returns>True if request has action plan object, otherwise false.</returns>
-    public bool HasActionPlan()
-    {
-        return actionPlan != null && HasStatement();
     }
 }

@@ -281,4 +281,42 @@ public class DocumentServiceTests
         ArgumentException ex = Assert.Throws<ArgumentException>(() => this.documentService.UrlEncodeFilePath(filePath!));
         Assert.Equal($"{LoggingConstants.HskUiLogPrefix} File path cannot be null or empty (Parameter 'filePath')", ex.Message);
     }
+
+    /// <summary>
+    /// Tests <see cref="DocumentService.UrlEncodeFilePath(string)"/> with a file name containing non-ASCII characters.
+    /// Expects the non-ASCII characters to be percent-encoded while '/' separators remain intact.
+    /// </summary>
+    [Fact]
+    public void UrlEncodeFilePath_NonAsciiCharactersInFileName_EncodesFileNameCorrectly()
+    {
+        // Arrange
+        string filePath = "documents/café_résumé.txt";
+
+        // Act
+        string result = this.documentService.UrlEncodeFilePath(filePath);
+
+        // Assert
+        string expectedEncodedFileName = Uri.EscapeDataString("café_résumé.txt");
+        Assert.Equal($"%252Fdocuments/{expectedEncodedFileName}", result);
+        Assert.DoesNotContain("é", result);
+    }
+
+    /// <summary>
+    /// Tests <see cref="DocumentService.UrlEncodeFilePath(string)"/> with non-ASCII characters in multiple path segments.
+    /// Expects each segment to be independently percent-encoded while preserving the '/' separators.
+    /// </summary>
+    [Fact]
+    public void UrlEncodeFilePath_NonAsciiCharactersInMultipleSegments_EncodesEachSegment()
+    {
+        // Arrange
+        string filePath = "dossier_français/naïve_report.pdf";
+
+        // Act
+        string result = this.documentService.UrlEncodeFilePath(filePath);
+
+        // Assert
+        string expectedFirstSegment = Uri.EscapeDataString("dossier_français");
+        string expectedSecondSegment = Uri.EscapeDataString("naïve_report.pdf");
+        Assert.Equal($"%252F{expectedFirstSegment}/{expectedSecondSegment}", result);
+    }
 }

@@ -16,8 +16,6 @@ public record CompleteReclassificationResponse(
     [property: JsonPropertyName("transactionId")] string transactionId,
     [property: JsonPropertyName("reclassificationResult")] OperationResult reclassificationResult,
     [property: JsonPropertyName("renameMaterialResult")] OperationResult? renameMaterialResult,
-    [property: JsonPropertyName("actionPlanResult")] OperationResult? actionPlanResult,
-    [property: JsonPropertyName("witnessResult")] OperationResult? addWitnessResult,
     [property: JsonPropertyName("errors")] string[] errors,
     [property: JsonPropertyName("warnings")] string[] warnings = null)
 {

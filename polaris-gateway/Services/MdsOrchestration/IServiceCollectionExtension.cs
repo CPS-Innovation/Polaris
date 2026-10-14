@@ -1,17 +1,22 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿// <copyright file="IServiceCollectionExtension.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Services.MdsOrchestration;
+
+using Common.Mappers;
+using Microsoft.Extensions.DependencyInjection;
 using PolarisGateway.Services.MdsOrchestration.Mappers;
 
-namespace PolarisGateway.Services.MdsOrchestration
+public static class IServiceCollectionExtension
 {
-    public static class IServiceCollectionExtension
+    public static void AddMdsOrchestrationService(this IServiceCollection services)
     {
-        public static void AddMdsOrchestrationService(this IServiceCollection services)
-        {
-            services.AddSingleton<IMdsCaseDocumentsOrchestrationService, MdsCaseDocumentsOrchestrationService>();
-            services.AddSingleton<IMdsReclassifyDocumentOrchestrationService, MdsReclassifyDocumentOrchestrationService>();
-            services.AddSingleton<IMdsCaseOrchestrationService, MdsCaseOrchestrationService>();
-            services.AddSingleton<IMdsCaseOrchestrationService, MdsCaseOrchestrationService>();
-            services.AddSingleton<IDocumentDtoMapper, DocumentDtoMapper>();
-        }
+        services.AddSingleton<IMdsCaseDocumentsOrchestrationService, MdsCaseDocumentsOrchestrationService>();
+        services.AddSingleton<IMdsReclassifyDocumentOrchestrationService, MdsReclassifyDocumentOrchestrationService>();
+        services.AddSingleton<IMdsCaseOrchestrationService, MdsCaseOrchestrationService>();
+        services.AddSingleton<IMdsCaseOrchestrationService, MdsCaseOrchestrationService>();
+        services.AddSingleton<IDocumentDtoMapper, DocumentDtoMapper>();
+        services.AddSingleton<ICmsDocumentDtoMapper, CmsDocumentDtoMapper>();
     }
 }

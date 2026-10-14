@@ -77,7 +77,7 @@ public class CaseMaterialService(
         {
             DocumentTypeInfo documentTypeInfo = this.documentTypeMapper.MapDocumentType(e.DocumentType ?? 0);
 
-            int? existingProducerOrWitnessId = this.MapExistingProducerOrWitnessId(e.Producer, exhibitProducers, caseId);
+            long? existingProducerOrWitnessId = this.MapExistingProducerOrWitnessId(e.Producer, exhibitProducers, caseId);
 
             bool canReclassfy = this.IsCaseMaterialReclassifiable(e.DocumentType);
 
@@ -547,11 +547,11 @@ public class CaseMaterialService(
     /// <param name="exhibitProducers">Collection of exhibit producers associated with the case.</param>
     /// <param name="caseId">The case Id that the exhibit producers belong to.</param>
     /// <returns>ExistingProducerOrWitnessId, otherwise null if not found.</returns>
-    public int? MapExistingProducerOrWitnessId(string? producer, ExhibitProducersResponse? exhibitProducers, int caseId)
+    public long? MapExistingProducerOrWitnessId(string? producer, ExhibitProducersResponse? exhibitProducers, int caseId)
     {
         try
         {
-            int? existingProducerOrWitnessId = null;
+            long? existingProducerOrWitnessId = null;
 
             if (string.IsNullOrWhiteSpace(producer) || exhibitProducers?.ExhibitProducers?.Count == 0)
             {

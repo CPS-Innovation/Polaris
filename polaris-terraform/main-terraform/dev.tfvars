@@ -82,7 +82,7 @@ cms_details = {
   cin5_upstream_cms_services_domain_name     = "cin5.cps.gov.uk"
 }
 
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps-dev.outsystemsenterprise.com/,https://polaris-dev-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps-dev.outsystemsenterprise.com/,https://oapps-dev-notprod.int.cps.gov.uk/,https://polaris-dev-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
@@ -123,7 +123,7 @@ private_beta = {
   feature_user_group6 = "21c21011-b568-4ebb-b013-02d4cd15681a"
 }
 
-case_review_app_redirect_url = "https://polaris-qa-notprod.cps.gov.uk/case-review-redirect/cps-dev/dev"
+case_review_app_redirect_url = "https://polaris-dev-notprod.cps.gov.uk/case-review-redirect/cps-dev/dev"
 bulk_um_redirect_url         = "https://housekeeping-fn-staging.int.cps.gov.uk/api/init"
 
 polaris_ui_reauth = {
@@ -154,6 +154,8 @@ thumbnail_generator_sliding_clear_down = {
   input_hours = 12
 }
 
+blob_storage_retention_days = 1
+
 hte_feature_flag = true
 
 image_conversion_redaction = {
@@ -180,7 +182,7 @@ coordinator = {
 }
 
 cps_global_components = {
-  script_url          = "https://polaris-qa-notprod.cps.gov.uk/global-components/dev/global-components.js"
+  script_url          = "https://polaris-dev-notprod.cps.gov.uk/global-components/dev/global-components.js"
   blob_storage_domain = "sacpsglobalcomponents.blob.core.windows.net"
 }
 

@@ -1473,7 +1473,7 @@ namespace Cps.Fct.Hk.Ui.Services.Tests
                 .ReturnsAsync(exhibitProducers);
 
             // Act
-            int? result = this.caseMaterialService.MapExistingProducerOrWitnessId(producer, exhibitProducers, 234);
+            long? result = this.caseMaterialService.MapExistingProducerOrWitnessId(producer, exhibitProducers, 234);
 
             // Assert
             Assert.NotNull(result);

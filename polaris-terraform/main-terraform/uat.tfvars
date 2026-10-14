@@ -82,7 +82,7 @@ cms_details = {
   cin5_upstream_cms_services_domain_name     = "cin5.cps.gov.uk"
 }
 
-auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst1.outsystemsenterprise.com/,https://housekeeping-fn-staging.int.cps.gov.uk/,https://fa-lacc-api-staging.azurewebsites.net/,https://fa-cmrc-api-staging.azurewebsites.net/,https://polaris-uat-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
+auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst1.outsystemsenterprise.com/,https://oapps-uat-notprod.int.cps.gov.uk/,https://housekeeping-fn-staging.int.cps.gov.uk/,https://fa-lacc-api-staging.azurewebsites.net/,https://fa-cmrc-api-staging.azurewebsites.net/,https://polaris-uat-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
@@ -153,6 +153,8 @@ thumbnail_generator_sliding_clear_down = {
   schedule    = "0 * * * * *"
   input_hours = 12
 }
+
+blob_storage_retention_days = 1
 
 hte_feature_flag = true
 

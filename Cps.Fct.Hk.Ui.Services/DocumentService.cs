@@ -5,6 +5,7 @@
 namespace Cps.Fct.Hk.Ui.Services;
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Cps.Fct.Hk.Ui.Interfaces;
@@ -201,6 +202,10 @@ public class DocumentService(
         // The rest of the URL remains unchanged unless you need to double-encode other characters.
         string encodedFirstPart = "%252F";
 
-        return encodedFirstPart + filePath;
+        // Percent-encode each path segment individually so that non-ASCII characters (e.g. accented letters)
+        // in the file name are safely encoded, while preserving the '/' path separators unencoded.
+        string encodedRemainder = string.Join('/', filePath.Split('/').Select(Uri.EscapeDataString));
+
+        return encodedFirstPart + encodedRemainder;
     }
 }

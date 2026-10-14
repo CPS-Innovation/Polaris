@@ -336,11 +336,15 @@ variable "sliding_clear_down" {
 
 variable "thumbnail_generator_sliding_clear_down" {
   type = object({
-    disabled    = number
-    batch_size  = number
-    schedule    = string
-    input_hours = number
+    disabled        = number
+    batch_size      = number
+    schedule        = string
+    input_hours     = number
   })
+}
+
+variable "blob_storage_retention_days" {
+  type = number
 }
 
 variable "hte_feature_flag" {
