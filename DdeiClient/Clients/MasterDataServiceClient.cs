@@ -619,87 +619,6 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         return results;
     }
 
-    public async Task<Common.Dto.Response.FileResult> GetDocumentByDocumentIdAsync(MdsMaterialIdAndDocumentIdArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
-    {
-        var stopwatch = Stopwatch.StartNew();
-        const string OperationName = "GetDocumentByDocumentId";
-        Common.Dto.Response.FileResult result = new ();
-
-        try
-        {
-            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
-
-            var data = await client.GetDocumentByDocumentIdAsync(arg.CaseId, (int)arg.MaterialId, arg.DocumentId.ToString(), cancellationToken);
-
-            if (data?.Stream is not null)
-            {
-                result.Stream = data.Stream;
-                result.FileName = data.Headers["Content-Disposition"].FirstOrDefault();
-            }
-        }
-        catch (Exception exception)
-        {
-            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
-            throw;
-        }
-
-        return result;
-    }
-
-    public async Task CreateDocumentNoteAsync(MdsAddDocumentNoteArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
-    {
-        var stopwatch = Stopwatch.StartNew();
-        const string OperationName = "CreateDocumentNote";
-
-        try
-        {
-            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
-            ApiClient.CreateDocumentNoteRequest documentNoteRequest = new ()
-            {
-                Text = arg.Text,
-            };
-
-            await client.CreateDocumentNoteAsync(arg.CaseId, (int)arg.MaterialId, documentNoteRequest, cancellationToken);
-        }
-        catch (Exception exception)
-        {
-            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
-            throw;
-        }
-    }
-
-    public async Task<List<DocumentNoteDto>> ListDocumentNotesAsync(MdsDocumentArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
-    {
-        var stopwatch = Stopwatch.StartNew();
-        const string OperationName = "ListDocumentNotes";
-        List<DocumentNoteDto> results = new ();
-        try
-        {
-            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
-            var data = await client.ListDocumentNotesAsync((int)arg.MaterialId, cancellationToken);
-
-            if (data is not null)
-            {
-                results = data.Select(note => new DocumentNoteDto
-                {
-                    Id = (int)arg.MaterialId, // TODO: Map from note.Id when API starts returning it. Consider using ICaseDocumentNoteMapper.Map which does the same thing
-                    CreatedByName = note.CreatedByName,
-                    SortOrder = note.SequenceNumber,
-                    Date = note.Date,
-                    Text = note.Text,
-                    Type = note.NoteType?.ToString() ?? string.Empty,
-                }).ToList();
-            }
-        }
-        catch (Exception exception)
-        {
-            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
-            throw;
-        }
-
-        return results;
-    }
-
     /// <inheritdoc/>
     public async Task<FileStreamResult?> GetMaterialDocumentAsync(GetDocumentRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
@@ -1098,7 +1017,6 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
-    // CaseIdentifiersDto --> Common.Dto.Response.Case
     public async Task<IEnumerable<CaseIdentifiersDto>> ListCaseIdentifiersAsync(MdsUrnArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         var stopwatch = Stopwatch.StartNew();
