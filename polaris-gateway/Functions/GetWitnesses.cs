@@ -29,21 +29,18 @@ using System.Threading.Tasks;
 public class GetWitnesses : BaseFunction
 {
     private readonly IMdsArgFactory mdsArgFactory;
-    private readonly IMdsClient mdsClient;
     private readonly IMasterDataServiceClient masterDataServiceClient;
     private readonly ICaseWitnessMapper caseWitnessMapper;
     private readonly ICaseUrnResolver caseUrnResolver;
 
     public GetWitnesses(
         IMdsArgFactory mdsArgFactory,
-        IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient,
         ICaseWitnessMapper caseWitnessMapper,
         ICaseUrnResolver caseUrnResolver)
         : base()
     {
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        this.mdsClient = mdsClient.ExceptionIfNull();
         this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
         this.caseWitnessMapper = caseWitnessMapper.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
