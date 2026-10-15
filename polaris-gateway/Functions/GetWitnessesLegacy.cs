@@ -32,7 +32,6 @@ public class GetWitnessesLegacy : BaseFunction
     private readonly ICaseWitnessMapper caseWitnessMapper;
     public GetWitnessesLegacy(
         IMdsArgFactory mdsArgFactory,
-        IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient,
         ICaseWitnessMapper caseWitnessMapper)
         : base()
