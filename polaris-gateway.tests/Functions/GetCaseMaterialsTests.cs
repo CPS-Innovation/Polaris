@@ -1845,7 +1845,6 @@ public class GetCaseMaterialsTests
         var matchingDocument = new DocumentDto
         {
             DocumentId = "CMS-123",
-            ParentId = "CMS-456",
             VersionId = 789,
             HasNotes = true,
             IsUnused = true,
@@ -1864,7 +1863,7 @@ public class GetCaseMaterialsTests
 
         var updatedMaterial = Assert.Single(caseMaterials);
         Assert.Equal(123, updatedMaterial.MaterialId);
-        Assert.Equal("CMS-456", updatedMaterial.ParentId);
+        Assert.Equal("CMS-123", updatedMaterial.ParentId);
         Assert.Equal(789, updatedMaterial.DocumentId);
         Assert.True(updatedMaterial.HasNotes);
         Assert.True(updatedMaterial.IsUnused);
@@ -2088,7 +2087,6 @@ public class GetCaseMaterialsTests
         var matchingDocument = new DocumentDto
         {
             DocumentId = "CMS-123",
-            ParentId = null,
             VersionId = 789,
             CmsDocType = null,
             PresentationFlags = null,

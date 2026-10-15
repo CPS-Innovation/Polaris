@@ -326,9 +326,9 @@ public class GetCaseMaterials(
         }
 
         var documentsByMaterialId = documents
-            .Select(d => (MaterialId: TryGetMaterialId(d.DocumentId, out var materialId) ? materialId : (int?)null, Document: d))
-            .Where(x => x.MaterialId.HasValue)
-            .ToLookup(x => x.MaterialId!.Value, x => x.Document);
+            .Select(d => (Success: TryGetMaterialId(d.DocumentId, out var materialId), MaterialId: materialId, Document: d))
+            .Where(x => x.Success)
+            .ToLookup(x => x.MaterialId, x => x.Document);
 
         var matchedMaterialIds = new HashSet<int>();
 
@@ -362,7 +362,7 @@ public class GetCaseMaterials(
         caseMaterial with
         {
             DocumentId = (int)document.VersionId,
-            ParentId = !string.IsNullOrWhiteSpace(document.ParentId) ? document.ParentId : caseMaterial.ParentId,
+            ParentId = !string.IsNullOrWhiteSpace(document.DocumentId) ? document.DocumentId : caseMaterial.ParentId,
             CmsDocType = document.CmsDocType ?? caseMaterial.CmsDocType,
             PresentationFlags = document.PresentationFlags ?? caseMaterial.PresentationFlags,
             HasNotes = document.HasNotes,
@@ -393,8 +393,8 @@ public class GetCaseMaterials(
             hasNotes: document.HasNotes,
             isUnused: document.IsUnused)
         {
-            ParentId = !string.IsNullOrWhiteSpace(document.ParentId)
-                ? document.ParentId
+            ParentId = !string.IsNullOrWhiteSpace(document.DocumentId)
+                ? document.DocumentId
                 : DocumentNature.ToQualifiedStringDocumentId(materialId, GetDocumentNatureType(document.DocumentId)),
         };
     }
