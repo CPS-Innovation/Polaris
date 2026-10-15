@@ -312,7 +312,7 @@ public class GetCaseMaterials(
     }
 
     /// <summary>
-    /// Populates additional fields on the case materials (DocumentId, CmsDocType, PresentationFlags, HasNotes, IsUnused)
+    /// Populates additional fields on the case materials (DocumentId, ParentId, CmsDocType, PresentationFlags, HasNotes, IsUnused)
     /// from the matching documents retrieved via the MDS orchestration service.
     /// </summary>
     /// <param name="allCaseMaterials">The case materials to update.</param>
@@ -341,6 +341,7 @@ public class GetCaseMaterials(
             allCaseMaterials[i] = caseMaterial with
             {
                 DocumentId = (int)matchingDocument.VersionId,
+                ParentId = !string.IsNullOrWhiteSpace(matchingDocument.ParentId) ? matchingDocument.ParentId : caseMaterial.ParentId,
                 CmsDocType = matchingDocument.CmsDocType ?? caseMaterial.CmsDocType,
                 PresentationFlags = matchingDocument.PresentationFlags ?? caseMaterial.PresentationFlags,
                 HasNotes = matchingDocument.HasNotes,

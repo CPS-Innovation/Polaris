@@ -1806,6 +1806,120 @@ public class GetCaseMaterialsTests
             Times.Once);
     }
 
+    /// <summary>
+    /// Tests that document fields, including ParentId, are populated onto the matching case material from the retrieved documents.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Fact]
+    public async Task Run_PopulatesParentIdAndDocumentFields_FromMatchingDocument()
+    {
+        // Arrange
+        var mockRequest = SetUpMockRequest();
+
+        var mockCommunications = new List<Communication>
+        {
+            new Communication(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "None", "Administrative", "Type A", false),
+        };
+
+        var mockCaseMaterials = new List<CaseMaterial>
+        {
+            new CaseMaterial("FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
+        };
+
+        var unusedMaterials = new UnusedMaterialsResponse();
+        var usedStatements = new Common.Dto.Response.HouseKeeping.UsedStatementsResponse();
+        var usedExhibits = new UsedExhibitsResponse();
+        var usedMgForms = new UsedMgFormsResponse();
+        var usedOtherMaterials = new UsedOtherMaterialsResponse();
+        var exhibitProducers = new ExhibitProducersResponse();
+
+        mockCaseMaterialService
+            .Setup(x => x.RetrieveCaseMaterialsAsync(123, It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync((mockCommunications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials, exhibitProducers));
+
+        mockCaseMaterialService
+            .Setup(x => x.MapCommunicationsToCaseMaterials(mockCommunications))
+            .Returns(mockCaseMaterials);
+
+        var matchingDocument = new DocumentDto
+        {
+            DocumentId = "CMS-123",
+            ParentId = "CMS-456",
+            VersionId = 789,
+            HasNotes = true,
+            IsUnused = true,
+        };
+
+        mockMdsOrchestrationService
+            .Setup(s => s.GetCaseDocuments(It.IsAny<MdsCaseIdentifiersArgDto>()))
+            .ReturnsAsync(new List<DocumentDto> { matchingDocument });
+
+        // Act
+        IActionResult result = await getCaseMaterialsFunction.Run(mockRequest.Object, 123);
+
+        // Assert
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+        List<CaseMaterial> caseMaterials = Assert.IsType<List<CaseMaterial>>(okResult.Value);
+
+        var updatedMaterial = Assert.Single(caseMaterials);
+        Assert.Equal(123, updatedMaterial.MaterialId);
+        Assert.Equal("CMS-456", updatedMaterial.ParentId);
+        Assert.Equal(789, updatedMaterial.DocumentId);
+        Assert.True(updatedMaterial.HasNotes);
+        Assert.True(updatedMaterial.IsUnused);
+    }
+
+    /// <summary>
+    /// Tests that ParentId defaults to the material ID when there is no matching document.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Fact]
+    public async Task Run_DefaultsParentIdToMaterialId_WhenNoMatchingDocument()
+    {
+        // Arrange
+        var mockRequest = SetUpMockRequest();
+
+        var mockCommunications = new List<Communication>
+        {
+            new Communication(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "None", "Administrative", "Type A", false),
+        };
+
+        var mockCaseMaterials = new List<CaseMaterial>
+        {
+            new CaseMaterial("FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
+        };
+
+        var unusedMaterials = new UnusedMaterialsResponse();
+        var usedStatements = new Common.Dto.Response.HouseKeeping.UsedStatementsResponse();
+        var usedExhibits = new UsedExhibitsResponse();
+        var usedMgForms = new UsedMgFormsResponse();
+        var usedOtherMaterials = new UsedOtherMaterialsResponse();
+        var exhibitProducers = new ExhibitProducersResponse();
+
+        mockCaseMaterialService
+            .Setup(x => x.RetrieveCaseMaterialsAsync(123, It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync((mockCommunications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials, exhibitProducers));
+
+        mockCaseMaterialService
+            .Setup(x => x.MapCommunicationsToCaseMaterials(mockCommunications))
+            .Returns(mockCaseMaterials);
+
+        mockMdsOrchestrationService
+            .Setup(s => s.GetCaseDocuments(It.IsAny<MdsCaseIdentifiersArgDto>()))
+            .ReturnsAsync(Enumerable.Empty<DocumentDto>());
+
+        // Act
+        IActionResult result = await getCaseMaterialsFunction.Run(mockRequest.Object, 123);
+
+        // Assert
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+        List<CaseMaterial> caseMaterials = Assert.IsType<List<CaseMaterial>>(okResult.Value);
+
+        var material = Assert.Single(caseMaterials);
+        Assert.Equal(123, material.MaterialId);
+        Assert.Equal("CMS-123", material.ParentId);
+    }
+
     private static Mock<HttpRequest> SetUpMockRequest()
     {
         var mockRequest = new Mock<HttpRequest>();

@@ -3,6 +3,7 @@
 // </copyright>
 
 using System;
+using Common.Domain.Document;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Document.FeatureFlags;
 
@@ -20,6 +21,11 @@ public record CaseMaterial
     /// Gets the material type identifier for the material. Maps to the UI's parentId.
     /// </summary>
     public int MaterialId { get; init; }
+
+    /// <summary>
+    /// Gets the parent ID for the material, qualified with its document nature prefix (e.g. "CMS-123"). Populated from the matching document's ParentId, defaulting to the qualified material ID.
+    /// </summary>
+    public string ParentId { get; init; }
 
     /// <summary>
     /// Gets the document/version identifier for the material. Maps to the UI's childId/versionId.
@@ -208,6 +214,7 @@ public record CaseMaterial
         Subject = subject;
         DocumentTypeId = documentTypeId;
         MaterialId = materialId;
+        ParentId = DocumentNature.ToQualifiedStringDocumentId(materialId, DocumentNature.Types.Document);
         Category = category;
         Type = type;
         HasAttachments = hasAttachments;
