@@ -16,7 +16,7 @@ namespace Common.Dto.Response.Documents
         public string DocumentId { get; set; }
 
         [JsonPropertyName("parentId")]
-        public string ParentId { get; set; }
+        public string ParentId => DocumentId;
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
         [JsonPropertyName("status")]
