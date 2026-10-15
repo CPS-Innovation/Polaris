@@ -7,6 +7,7 @@ namespace PolarisGateway.Functions;
 using Common.Configuration;
 using Common.Constants;
 using Common.Dto.Request;
+using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
 using Common.Dto.Response.HouseKeeping;
 using Common.Domain.Document;
@@ -325,29 +326,77 @@ public class GetCaseMaterials(
         }
 
         var documentsByMaterialId = documents
-            .Where(d => TryGetMaterialId(d.DocumentId, out _))
-            .ToLookup(d => TryGetMaterialId(d.DocumentId, out var materialId) ? materialId : 0);
+            .Select(d => (MaterialId: TryGetMaterialId(d.DocumentId, out var materialId) ? materialId : (int?)null, Document: d))
+            .Where(x => x.MaterialId.HasValue)
+            .ToLookup(x => x.MaterialId!.Value, x => x.Document);
+
+        var matchedMaterialIds = new HashSet<int>();
 
         for (int i = 0; i < allCaseMaterials.Count; i++)
         {
-            var caseMaterial = allCaseMaterials[i];
-            var matchingDocument = documentsByMaterialId[caseMaterial.MaterialId].FirstOrDefault();
+            var matchingDocument = documentsByMaterialId[allCaseMaterials[i].MaterialId].FirstOrDefault();
 
             if (matchingDocument == null)
             {
                 continue;
             }
 
-            allCaseMaterials[i] = caseMaterial with
-            {
-                DocumentId = (int)matchingDocument.VersionId,
-                ParentId = !string.IsNullOrWhiteSpace(matchingDocument.ParentId) ? matchingDocument.ParentId : caseMaterial.ParentId,
-                CmsDocType = matchingDocument.CmsDocType ?? caseMaterial.CmsDocType,
-                PresentationFlags = matchingDocument.PresentationFlags ?? caseMaterial.PresentationFlags,
-                HasNotes = matchingDocument.HasNotes,
-                IsUnused = matchingDocument.IsUnused,
-            };
+            matchedMaterialIds.Add(allCaseMaterials[i].MaterialId);
+            allCaseMaterials[i] = MergeCaseMaterialWithDocument(allCaseMaterials[i], matchingDocument);
         }
+
+        var newCaseMaterials = documentsByMaterialId
+            .Where(group => !matchedMaterialIds.Contains(group.Key))
+            .Select(group => CreateCaseMaterialFromDocument(group.Key, group.First()));
+
+        allCaseMaterials.AddRange(newCaseMaterials);
+    }
+
+    /// <summary>
+    /// Merges a matching <see cref="DocumentDto"/> onto an existing <see cref="CaseMaterial"/>.
+    /// </summary>
+    /// <param name="caseMaterial">The case material to update.</param>
+    /// <param name="document">The matching document.</param>
+    /// <returns>A new <see cref="CaseMaterial"/> with fields populated from the document.</returns>
+    private static CaseMaterial MergeCaseMaterialWithDocument(CaseMaterial caseMaterial, DocumentDto document) =>
+        caseMaterial with
+        {
+            DocumentId = (int)document.VersionId,
+            ParentId = !string.IsNullOrWhiteSpace(document.ParentId) ? document.ParentId : caseMaterial.ParentId,
+            CmsDocType = document.CmsDocType ?? caseMaterial.CmsDocType,
+            PresentationFlags = document.PresentationFlags ?? caseMaterial.PresentationFlags,
+            HasNotes = document.HasNotes,
+            IsUnused = document.IsUnused,
+        };
+
+    /// <summary>
+    /// Creates a new <see cref="CaseMaterial"/> instance from a <see cref="DocumentDto"/> that has no matching
+    /// case material, so that documents not already represented in the case materials are still included in the response.
+    /// </summary>
+    /// <param name="materialId">The numeric material id parsed from the document's qualified document id.</param>
+    /// <param name="document">The document to create the case material from.</param>
+    /// <returns>A new <see cref="CaseMaterial"/> populated from the document.</returns>
+    private static CaseMaterial CreateCaseMaterialFromDocument(int materialId, DocumentDto document)
+    {
+        return new CaseMaterial(
+            originalFileName: document.CmsOriginalFileName,
+            subject: document.Subject,
+            documentTypeId: document.CmsDocType?.DocumentTypeId ?? DocumentTypeDto.UnknownDocumentType,
+            materialId: materialId,
+            category: document.CmsDocType?.DocumentCategory ?? string.Empty,
+            type: document.CmsDocType?.DocumentType ?? string.Empty,
+            hasAttachments: false,
+            readStatus: MaterialReadStatusType.Unread.ToString(),
+            documentId: (int)document.VersionId,
+            cmsDocType: document.CmsDocType,
+            presentationFlags: document.PresentationFlags,
+            hasNotes: document.HasNotes,
+            isUnused: document.IsUnused)
+        {
+            ParentId = !string.IsNullOrWhiteSpace(document.ParentId)
+                ? document.ParentId
+                : DocumentNature.ToQualifiedStringDocumentId(materialId, GetDocumentNatureType(document.DocumentId)),
+        };
     }
 
     /// <summary>
@@ -375,6 +424,24 @@ public class GetCaseMaterials(
         catch (Exception)
         {
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Determines the <see cref="DocumentNature.Types"/> of a qualified document id, defaulting to
+    /// <see cref="DocumentNature.Types.Document"/> if the id cannot be parsed.
+    /// </summary>
+    /// <param name="qualifiedDocumentId">The qualified document id string (e.g. "CMS-123", "PCD-456").</param>
+    /// <returns>The parsed <see cref="DocumentNature.Types"/>, or <see cref="DocumentNature.Types.Document"/> if parsing fails.</returns>
+    private static DocumentNature.Types GetDocumentNatureType(string qualifiedDocumentId)
+    {
+        try
+        {
+            return DocumentNature.GetDocumentNatureType(qualifiedDocumentId);
+        }
+        catch (Exception)
+        {
+            return DocumentNature.Types.Document;
         }
     }
 
