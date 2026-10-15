@@ -1,3 +1,9 @@
+// <copyright file="ServiceCollectionExtension.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace pdf_redactor.Services.Extensions;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using pdf_redactor.Services.DocumentManipulation;
@@ -6,20 +12,16 @@ using pdf_redactor.Services.DocumentRedaction;
 using pdf_redactor.Services.DocumentRedaction.Aspose;
 using pdf_redactor.Services.DocumentRedaction.Aspose.RedactionImplementations;
 
-namespace pdf_redactor.Services.Extensions
+public static class ServiceCollectionExtension
 {
-    public static class ServiceCollectionExtension
+    public static void AddRedactionServices(this IServiceCollection services, IConfiguration configuration)
     {
-        public static void AddRedactionServices(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddSingleton<IDocumentRedactionService, DocumentRedactionService>();
-            services.AddSingleton<IDocumentManipulationService, DocumentManipulationService>();
-            // Aspose-specific services
-            services.AddSingleton<IRedactionProvider, AsposeRedactionProvider>();
-            services.AddSingleton<ICoordinateCalculator, CoordinateCalculator>();
-            services.AddSingleton<IRedactionImplementation, ImageConversionImplementation>();
-            services.AddSingleton<IDocumentManipulationProvider, AsposeDocumentManipulationProvider>();
-            services.Configure<ImageConversionOptions>(configuration.GetSection(ImageConversionOptions.ConfigKey));
-        }
+        services.AddSingleton<IDocumentRedactionService, DocumentRedactionService>();
+        services.AddSingleton<IDocumentManipulationService, DocumentManipulationService>();
+        services.AddSingleton<IRedactionProvider, AsposeRedactionProvider>();
+        services.AddSingleton<ICoordinateCalculator, CoordinateCalculator>();
+        services.AddSingleton<IRedactionImplementation, DirectImplementation>();
+        services.AddSingleton<IDocumentManipulationProvider, AsposeDocumentManipulationProvider>();
+        services.Configure<ImageConversionOptions>(configuration.GetSection(ImageConversionOptions.ConfigKey));
     }
 }
