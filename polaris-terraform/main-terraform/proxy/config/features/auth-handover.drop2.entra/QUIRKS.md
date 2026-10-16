@@ -39,7 +39,7 @@ when the secret is unset** — a forged/tampered cookie is rejected and the call
 
 The server sets `add_header X-Frame-Options "DENY" always`. The iframe **expansion**
 variant needs its terminal page to render inside the CMS shell, so the
-`/init-entra/callback` location sets its own `add_header` (a scoped
+`/init/entra-callback` location sets its own `add_header` (a scoped
 `Content-Security-Policy: frame-ancestors https://*.cps.gov.uk`). By QUIRK
 [B3](../../QUIRKS.md), a location with any `add_header` drops the inherited server set —
 which is exactly what removes the `DENY` here. Harmless on the top-level 302 (a redirect
@@ -59,14 +59,42 @@ lifetime. See PLAN-entra-unified-flow.
 
 ### E4. 🟠 Callback path must be a registered redirect URI
 
-The callback is `/init-entra/callback` (was `/init-v2/callback`, borrowed from
-global-components' cms-auth-v2 (since renamed cms-auth-presence) — renamed so the two can load in the same server; that
-flow is now `/init-presence/*`). AD only redirects to a **registered** URI, so
-`https://<host>/init-entra/callback` must be registered (web redirect URIs, portal, no
-terraform) on the reused app reg **for every host** drop2 runs on. The redirect_uri is
-derived per-request from the Host (`_redirectUri`), so the njs `CALLBACK_PATH` and the
-conf location are the only two places to keep in step; `ENTRA_REDIRECT_URI` in
-`cmsproxy.mock.env` is vestigial (nothing reads it).
+The callback is `/init/entra-callback` (R0, 2026-10-16; was `/init-entra/callback`, and before
+that `/init-v2/callback`, borrowed from global-components' cms-auth-v2 — since renamed
+cms-auth-presence, whose flow is `/init-presence/*`). It is an **exact-match** location, so the
+prefix `location /init` never catches it (integration-pinned). AD only redirects to a
+**registered** URI, so `https://<host>/init/entra-callback` must be registered (web redirect URIs,
+portal, no terraform) on our app reg **for every host** drop2 runs on; an unregistered host is the
+one misconfiguration that strands users on a Microsoft error page. The redirect_uri is derived
+per-request from the Host (`_redirectUri`), so the njs `CALLBACK_PATH` and the conf location are
+the only two places to keep in step. The state cookie is `Path=/init/entra-callback`, so it never
+rides on other `/init` requests.
+
+### E12. 🟠 The Entra step lives in `/init`, for every destination (R0, 2026-10-16)
+
+`/init` is the one door every app's CMS handover passes through (Polaris, OutSystems, LCC,
+housekeeping, …), so drop2 runs there: after the whitelist check and the cookie filter,
+`appAuthRedirect` calls `beginFromInit`, which looks the CMS session up (drop1's non-redirecting
+`lookupCmsSession`) and starts the silent Entra round trip. The callback deposits to MDS and then
+**carries on exactly as `/init` would have**: 302 to `r` with `cc`. No destination's contract
+changes; each app can later stop reading `cc` and use bearer + MDS lookup on its own schedule.
+`/auth-refresh-inbound` is Polaris's landing only (drop1 or DDEI); `/init-entra` is gone.
+
+- **Failure carries on.** `beginFromInit` resolves false without responding on any failure (not
+  enabled, not fully configured, no CMS cookies, lookup failed, an exception) and `/init` does its
+  plain 302. Every callback failure with a recoverable state carries on to `r` too. The one
+  residual case: a lost or tampered state cookie has no `r`, so the user lands on the Polaris UI.
+- **Configured-or-nothing.** With the switch on but any of tenant / client id / client secret /
+  HMAC key missing, `/init` never starts the round trip (`isConfigured`, read per request).
+- **Token pass-through.** The CMS token looked up at `/init` is appended to the continuation for
+  destinations that can use it: our own `/auth-refresh-inbound` on this host (`cms-modern-token` +
+  `cms-version-id`; drop1 then skips discover/mint/verify) and OutSystems handover pages
+  (`…/auth-handover.html` with `stage=os-cookie-return`: `cms-modern-token`; global-components'
+  os-handover then skips its `/auth-refresh-cms-modern-token` bounce — shipped there first). All
+  other destinations get exactly today's `r` + `cc`. It is passed on degrades too: it was verified
+  at `/init`, independently of Entra.
+- **Cost.** Every app's handover gains the Entra round trip plus the CMS lookup and the MDS PUT
+  when the switch is on (measure: I3). A Polaris handover no longer looks the token up twice.
 
 ---
 
@@ -99,10 +127,10 @@ Proven on QA 2026-10-06: callbacks verified the signed state cookie and reached 
 
 ### E8. `terminal=iframe` harness wiring
 
-The core supports both modes; `handleInitEntra` reads `terminal=iframe` off the request.
-**Threading (done 2026-10):** with no `r`, `/init`'s shim copies `terminal` into the synthesised
-`r=/auth-refresh-inbound?…` (an explicit `r` must include it itself), and the rewrite to
-`/init-entra` keeps the query. `/init` **skips its Edge gate** when `terminal=iframe`: the iframe
+The core supports both modes; `/init` (appAuthRedirect) passes `terminal=iframe` to
+`beginFromInit`, which carries it in the state; the callback then renders the terminal page
+instead of carrying on to `r`. With no `r`, `/init`'s shim also copies `terminal` into the
+synthesised `r=/auth-refresh-inbound?…`. `/init` **skips its Edge gate** when `terminal=iframe`: the iframe
 lives in the CMS Classic IE-mode tab, cannot change mode (coercion would loop or 402), and must
 stay in IE mode so the presence cookie lands in the IE jar (`auth-handover.js` appAuthRedirect;
 unit-pinned). **Still future:** the small JS harness in CMS Classic that opens/destroys the

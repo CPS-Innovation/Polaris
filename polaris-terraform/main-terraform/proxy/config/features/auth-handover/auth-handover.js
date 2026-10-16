@@ -1,6 +1,7 @@
 import qs from "querystring";
 import common from "../common/cms-detection.js";
 import ieMode from "../common/ie-mode.js";
+import entra from "../auth-handover.drop2.entra/auth-handover.drop2.entra.js";
 
 const IS_PROXY_SESSION_PARAM_NAME = "is-proxy-session";
 const SESSION_HINT_COOKIE_NAME = "Cms-Session-Hint";
@@ -124,8 +125,8 @@ function setSessionHintCookie(r) {
 //
 // Same roots as DDEI CookieHelpers.WhitelistedCookieNameRoots, plus the newer F5
 // form ([CF]-<TOKEN>-LBsessioncookie) matched by suffix. This is the ONE place
-// the handover filters: every flow funnels through /init, so the init variants
-// behind /auth-refresh-inbound (drop1, drop2) take `cc` as already clean.
+// the handover filters: every flow funnels through /init, so drop2 (which runs from /init, after
+// this filter) and drop1 (behind /auth-refresh-inbound) take `cc` as already clean.
 const CC_WHITELIST_ROOTS = [
   "ASP.NET_SessionId",
   "UID",
@@ -188,12 +189,23 @@ function appAuthRedirect(r) {
     .some((url) => redirectUrl.startsWith(url));
 
   if (isWhitelisted) {
-    _redirectToAbsoluteUrl(
-      r,
-      `${redirectUrl}${
-        redirectUrl.includes("?") ? "&" : "?"
-      }cc=${encodeURIComponent(_whitelistCookies(args["cookie"] ?? ""))}`,
-    );
+    const cc = _whitelistCookies(args["cookie"] ?? "");
+    const carryOn = () =>
+      _redirectToAbsoluteUrl(
+        r,
+        `${redirectUrl}${redirectUrl.includes("?") ? "&" : "?"}cc=${encodeURIComponent(cc)}`,
+      );
+    // drop2 (R0): deposit this user's CMS auth to MDS for EVERY destination, via a silent Entra
+    // round trip that ends back on the same 302 (auth-handover.drop2.entra). Any failure there
+    // resolves false and we carry on exactly as below. Off: synchronous, unchanged.
+    if (_entraOn(r)) {
+      return entra
+        .beginFromInit(r, { redirectUrl, cookies: cc, terminal: r.args.terminal })
+        .then((began) => {
+          if (!began) carryOn();
+        });
+    }
+    carryOn();
   } else {
     r.return(
       403,
@@ -415,6 +427,15 @@ function enrol(r) {
   const current = _getCookieValue(r, ENROL_COOKIE);
   r.headersOut["Content-Type"] = "text/html; charset=utf-8";
   r.return(200, _enrolPage(current));
+}
+
+// drop2 at /init: the global switch, or this browser's enrolment (the same cookie the
+// /auth-refresh-inbound gate reads — enrolling in drop2 means "Entra at /init + drop1 behind").
+function _entraOn(r) {
+  return (
+    process.env.ENTRA_STORE_ENABLED === "true" ||
+    _getCookieValue(r, ENROL_COOKIE) === "drop2"
+  );
 }
 
 // Feature-switch getters for the /auth-refresh-inbound routing gate (js_set).

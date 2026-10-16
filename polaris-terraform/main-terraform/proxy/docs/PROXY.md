@@ -534,7 +534,7 @@ variable to different `module.function` strings. So these names are frozen: don'
 `common/cmsenv.unit.test.js`).
 
 **Location namespaces:** their routes must not duplicate ours. cms-auth-presence's flow is
-`/polaris-presence` + `/init-presence/*`; our drop2 is `/init-entra/*`. polaris-non-ddei's
+`/polaris-presence` + `/init-presence/*`; our drop2's only route is `/init/entra-callback` (it runs from `/init` itself). polaris-non-ddei's
 `/init-non-ddei` DOES duplicate drop1 — never deploy its `.conf` alongside the next config.
 
 ## 7. Testing the proxy — integration + unit (the refactor safety net)

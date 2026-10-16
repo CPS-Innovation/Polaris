@@ -13,7 +13,15 @@ const { loadNjs, createMockRequest, applyEnv } = require("../../../tests/unit/nj
 let fetchImpl = async () => {
   throw new Error("no ngx.fetch stub set for this test")
 }
-global.ngx = { fetch: (...args) => fetchImpl(...args), log: () => {}, ERR: 4 }
+let fetchCount = 0
+global.ngx = {
+  fetch: (...args) => {
+    fetchCount++
+    return fetchImpl(...args)
+  },
+  log: () => {},
+  ERR: 4,
+}
 
 function res({ status = 200, body = "", headers = {}, url = "" }) {
   return {
@@ -84,11 +92,122 @@ async function absoluteUrlTests(drop1) {
   })
 }
 
+
+// R0: /init already looked the CMS session up (for the Entra deposit) and passes the token +
+// version on, so /auth-refresh-inbound need not repeat discover/mint/verify.
+async function passedTokenTests(drop1) {
+  console.log("\nhandleInitNonDdei — token + version passed on from /init:")
+  const TOKEN = "11111111-2222-3333-4444-555555555555"
+  const cmsAuthValues = (r) => {
+    const c = (r.headersOut["Set-Cookie"] || []).find((x) => x.indexOf("Cms-Auth-Values=") === 0)
+    return JSON.parse(decodeURIComponent(c.slice("Cms-Auth-Values=".length).split(";")[0]))
+  }
+
+  await test("cms-modern-token + cms-version-id present -> no CMS calls; Cms-Auth-Values carries them", async () => {
+    fetchCount = 0
+    fetchImpl = async () => {
+      throw new Error("must not call CMS")
+    }
+    const r = createMockRequest({
+      args: { cc: "ASP.NET_SessionId=x", "polaris-ui-url": "/polaris-ui/case/1", "cms-modern-token": TOKEN, "cms-version-id": "CMS.25.1.02" },
+      headersIn: { Host: "proxy.example", "X-Forwarded-Proto": "https" },
+    })
+    await drop1.handleInitNonDdei(r)
+    assertEqual(fetchCount, 0, "no discover / mint / verify")
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/case/1", "-> landing")
+    const v = cmsAuthValues(r)
+    assertEqual(v.token, TOKEN, "token")
+    assertEqual(v.cmsVersionId, "CMS.25.1.02", "version")
+    assertEqual(v.cookies, "ASP.NET_SessionId=x", "cookies")
+  })
+
+  await test("token without a version -> looks up as before", async () => {
+    fetchCount = 0
+    fetchImpl = establishRouter()
+    const r = createMockRequest({
+      args: { cc: "ASP.NET_SessionId=x", "polaris-ui-url": "/polaris-ui/", "cms-modern-token": TOKEN },
+      headersIn: { Host: "proxy.example", "X-Forwarded-Proto": "https" },
+    })
+    await drop1.handleInitNonDdei(r)
+    assert(fetchCount > 0, "looked up")
+    assertEqual(cmsAuthValues(r).token, "00000000-0000-0000-0000-000000000001", "the minted token, not the half-passed one")
+  })
+
+  await test("malformed token or version -> ignored, looks up as before", async () => {
+    for (const bad of [
+      { "cms-modern-token": "not-a-guid", "cms-version-id": "CMS.25.1.02" },
+      { "cms-modern-token": TOKEN, "cms-version-id": "CMS.25\"},x" },
+    ]) {
+      fetchCount = 0
+      fetchImpl = establishRouter()
+      const r = createMockRequest({
+        args: { cc: "ASP.NET_SessionId=x", "polaris-ui-url": "/polaris-ui/", ...bad },
+        headersIn: { Host: "proxy.example", "X-Forwarded-Proto": "https" },
+      })
+      await drop1.handleInitNonDdei(r)
+      assert(fetchCount > 0, "looked up for " + JSON.stringify(bad))
+      assertEqual(cmsAuthValues(r).token, "00000000-0000-0000-0000-000000000001", "minted token")
+    }
+  })
+
+  await test("passed token but no cookies -> still the no-cookies fail-redirect", async () => {
+    const r = createMockRequest({
+      args: { "polaris-ui-url": "/polaris-ui/", "cms-modern-token": TOKEN, "cms-version-id": "CMS.25.1.02" },
+      headersIn: { Host: "proxy.example" },
+    })
+    await drop1.handleInitNonDdei(r)
+    assert(r.returnBody.indexOf("auth-fail-reason=no-cookies") !== -1, r.returnBody)
+  })
+}
+
+// /init's non-redirecting lookup: the CMS half, reporting instead of redirecting.
+async function lookupTests(drop1) {
+  console.log("\nlookupCmsSession — non-redirecting (for /init):")
+
+  await test("success -> {token, versionId}", async () => {
+    fetchImpl = establishRouter()
+    const out = await drop1.lookupCmsSession("proxy.example", "ASP.NET_SessionId=x")
+    assertEqual(out.token, "00000000-0000-0000-0000-000000000001", "token")
+    assertEqual(out.versionId, "CMS.24.0.01", "version")
+  })
+
+  await test("mint yields no token -> {token: '', reason}, never throws", async () => {
+    fetchImpl = async (url) => {
+      if (/\/CMS$/.test(url)) return res({ headers: { Location: "/CMS.24.0.01/x" } })
+      return res({ body: "no token here" })
+    }
+    const out = await drop1.lookupCmsSession("proxy.example", "ASP.NET_SessionId=x")
+    assertEqual(out.token, "", "no token")
+    assertEqual(out.reason, "cms-auth-not-valid", "reason")
+  })
+
+  await test("verify fails -> {token: '', reason}", async () => {
+    fetchImpl = async (url) => {
+      if (url.indexOf("/graphql/") !== -1) return res({ status: 401 })
+      return establishRouter()(url)
+    }
+    const out = await drop1.lookupCmsSession("proxy.example", "ASP.NET_SessionId=x")
+    assertEqual(out.token, "", "no token")
+    assertEqual(out.reason, "cms-modern-auth-not-valid", "reason")
+  })
+
+  await test("a network error -> {token: '', reason}, never throws", async () => {
+    fetchImpl = async () => {
+      throw new Error("boom")
+    }
+    const out = await drop1.lookupCmsSession("proxy.example", "ASP.NET_SessionId=x")
+    assertEqual(out.token, "", "no token")
+    assert(!!out.reason, "has a reason")
+  })
+}
+
 async function main() {
   const restore = applyEnv({ WEBSITE_SCHEME: "https", ENDPOINT_HTTP_PROTOCOL: "https" })
   const drop1 = await loadNjs("features/auth-handover.drop1.replace-ddei/auth-handover.drop1.replace-ddei.js")
   await markerTests(drop1)
   await absoluteUrlTests(drop1)
+  await passedTokenTests(drop1)
+  await lookupTests(drop1)
   restore()
   process.exit(summarise("auth-handover.drop1.replace-ddei (unit)"))
 }

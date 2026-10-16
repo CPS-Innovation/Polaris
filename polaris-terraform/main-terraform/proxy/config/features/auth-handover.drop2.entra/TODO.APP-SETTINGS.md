@@ -22,7 +22,8 @@ Removed with the Table Storage backend (stale values on an App Service are harml
 
 Prerequisites (not settings), per env where `store_enabled = true`:
 - the Key Vault secret `GlobalComponents-Entra-ClientSecret` in `kv_polaris` (the apply fails without it);
-- `/init-entra/callback` registered (web) on our app reg for the env's host;
+- `/init/entra-callback` registered (web) on our app reg for the env's host (an unregistered host
+  strands users on a Microsoft error page — the one blocking misconfiguration);
 - the MDS delegated permission on our app reg, with our client **pre-authorised** on the MDS app reg
   (MDS terraform `global_components_client_id`) for consent;
 - consent on our app reg for Graph `openid profile offline_access` (pre-prod `8d6133af` has it: the
