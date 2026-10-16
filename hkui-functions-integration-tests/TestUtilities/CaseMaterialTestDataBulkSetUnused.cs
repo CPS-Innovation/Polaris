@@ -19,12 +19,10 @@ public static class CaseMaterialTestDataBulkSetUnused
         return new List<CaseMaterial>
         {
             new CaseMaterial(
-                id: 8806651,
                 originalFileName: "MG6C - Items 24.pdf",
                 subject: "MG6C - Items 24.",
                 documentTypeId: 1029,
                 materialId: 8806651,
-                link: "some-string/MG6C - Items 24.pdf",
                 category: "Communication",
                 type: "Other Communication",
                 hasAttachments: false,
@@ -37,12 +35,10 @@ public static class CaseMaterialTestDataBulkSetUnused
                 recordedDate: null),
 
             new CaseMaterial(
-                id: 8806656,
                 originalFileName: "SDC ITEM 12.docx",
                 subject: "SDC 3 - Investigation Report - CR10221485",
                 documentTypeId: 1029,
                 materialId: 8806656,
-                link: "some-string/SDC ITEM 12.docx",
                 category: "Communication",
                 type: "Other Communication",
                 hasAttachments: false,
@@ -55,12 +51,10 @@ public static class CaseMaterialTestDataBulkSetUnused
                 recordedDate: null),
 
             new CaseMaterial(
-                id: 8806657,
                 originalFileName: "UM ITEM 6 Defence letter from solicitor.pdf",
                 subject: "UM ITEM 6 Defence Letter from solicitor",
                 documentTypeId: 1029,
                 materialId: 8806657,
-                link: "some-string/UM ITEM 6 Defence letter from solicitor.pdf",
                 category: "Communication",
                 type: "Other Communication",
                 hasAttachments: false,
@@ -73,12 +67,10 @@ public static class CaseMaterialTestDataBulkSetUnused
                 recordedDate: null),
 
             new CaseMaterial(
-                id: 8806658,
                 originalFileName: "UM8 - Officers report DC CAVENEY.docx",
                 subject: "UM8 - Officers report DC CAVENEY",
                 documentTypeId: 1029,
                 materialId: 8806658,
-                link: "some-string/UM8 - Officers report DC CAVENEY.docx",
                 category: "Communication",
                 type: "Other Communication",
                 hasAttachments: false,
@@ -91,12 +83,10 @@ public static class CaseMaterialTestDataBulkSetUnused
                 recordedDate: null),
 
             new CaseMaterial(
-                id: 8806646,
                 originalFileName: "MG6C - 25.pdf",
                 subject: "MG6C - 25",
                 documentTypeId: 1029,
                 materialId: 8806646,
-                link: "some-string/MG6C - 25.pdf",
                 category: "Communication",
                 type: "Other Communication",
                 hasAttachments: false,
@@ -109,12 +99,10 @@ public static class CaseMaterialTestDataBulkSetUnused
                 recordedDate: null),
 
             new CaseMaterial(
-                id: 8806661,
                 originalFileName: "MG6C Item2.pdf",
                 subject: "MG6C Item2",
                 documentTypeId: 1029,
                 materialId: 8806661,
-                link: "some-string/MG6C Item2.pdf",
                 category: "Communication",
                 type: "Other Communication",
                 hasAttachments: false,
@@ -127,12 +115,10 @@ public static class CaseMaterialTestDataBulkSetUnused
                 recordedDate: null),
 
             new CaseMaterial(
-                id: 8806628,
                 originalFileName: "Incident Report UM.docx",
                 subject: "Incident Report UM",
                 documentTypeId: 1029,
                 materialId: 8806628,
-                link: "some-string/Incident Report UM.docx",
                 category: "Communication",
                 type: "Other Communication",
                 hasAttachments: false,
@@ -145,12 +131,10 @@ public static class CaseMaterialTestDataBulkSetUnused
                 recordedDate: null),
 
             new CaseMaterial(
-                id: 8806659,
                 originalFileName: "Unused 11.pdf",
                 subject: "Unused 11",
                 documentTypeId: 1200,
                 materialId: 8806659,
-                link: "some-string/Unused 11.jpg",
                 category: "Other Material",
                 type: "Other Material",
                 hasAttachments: false,
@@ -163,12 +147,10 @@ public static class CaseMaterialTestDataBulkSetUnused
                 recordedDate: null),
 
             new CaseMaterial(
-                id: 8806662,
                 originalFileName: "MG6C Report 2.docx",
                 subject: "MG6C Item2",
                 documentTypeId: 1029,
                 materialId: 8806662,
-                link: "some-string/MG6C Report 2.docx",
                 category: "Communication",
                 type: "Other Communication",
                 hasAttachments: false,
@@ -181,12 +163,10 @@ public static class CaseMaterialTestDataBulkSetUnused
                 recordedDate: null),
 
             new CaseMaterial(
-                id: 8806663,
                 originalFileName: "Report fileUM.pdf",
                 subject: "Report fileUM",
                 documentTypeId: 1029,
                 materialId: 8806663,
-                link: "some-string/Report fileUM.pdf",
                 category: "Communication",
                 type: "Other Communication",
                 hasAttachments: false,
@@ -199,12 +179,10 @@ public static class CaseMaterialTestDataBulkSetUnused
                 recordedDate: null),
 
             new CaseMaterial(
-                id: 8806655,
                 originalFileName: "SDC 3 - Investigation Report - CRI00221485 (Redacted).docx",
                 subject: "SDC 3 - Investigation Report - CR10221485",
                 documentTypeId: 1029,
                 materialId: 8806655,
-                link: "some-string/SDC 3 - Investigation Report - CRI00221485 (Redacted).docx",
                 category: "Communication",
                 type: "Other Communication",
                 hasAttachments: false,
@@ -217,12 +195,10 @@ public static class CaseMaterialTestDataBulkSetUnused
                 recordedDate: null),
 
             new CaseMaterial(
-                id: 8806660,
                 originalFileName: "Unused12.pdf",
                 subject: "Unused12",
                 documentTypeId: 1200,
                 materialId: 8806660,
-                link: "some-string/Unused12.pdf",
                 category: "Other Material",
                 type: "Other Material",
                 hasAttachments: false,
