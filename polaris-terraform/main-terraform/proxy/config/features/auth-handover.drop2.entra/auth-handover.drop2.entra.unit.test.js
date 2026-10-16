@@ -588,6 +588,121 @@ async function callbackTests() {
   })
 }
 
+
+// D2 + D5: the state-cookie size guard, and one structured outcome line per handover.
+const outcomeLines = () => logLines.filter((l) => l.indexOf("drop2-outcome ") === 0)
+function outcomeOf(line) {
+  const o = {}
+  line
+    .slice("drop2-outcome ".length)
+    .split(" ")
+    .forEach((kv) => {
+      const i = kv.indexOf("=")
+      o[kv.slice(0, i)] = kv.slice(i + 1)
+    })
+  return o
+}
+
+async function guardAndOutcomeTests(authHandover) {
+  console.log("\nD2 state-cookie size guard + D5 drop2-outcome log line:")
+  const on = { ENTRA_STORE_ENABLED: "true" }
+
+  await test("D2: a state cookie that would exceed ~3.8 KB -> no Entra, carry on; logs the length only", async () => {
+    fetchImpl = establishRouter()
+    logLines = []
+    const restore = applyEnv(on)
+    const big = "ASP.NET_SessionId=x; .CMSAUTH=" + "A".repeat(3500)
+    const r = initRequest({ r: DEST_OS, cookie: big })
+    await authHandover.appAuthRedirect(r)
+    restore()
+    assert(r.returnBody.indexOf("https://cps.outsystemsenterprise.com/") === 0, "carry on: " + r.returnBody.slice(0, 80))
+    assertEqual(findCookie([].concat(r.headersOut["Set-Cookie"] || []), "entra_auth_state="), undefined, "no state cookie")
+    const o = outcomeOf(outcomeLines()[0])
+    assertEqual(o.result, "skipped", "skipped")
+    assertEqual(o.reason, "state-too-large", "reason")
+    assert(/^\d+$/.test(o.bytes) && Number(o.bytes) > 3800, "length logged: " + o.bytes)
+    logLines.forEach((l) => assert(l.indexOf("AAAA") === -1, "cookie content in a log line"))
+  })
+
+  await test("D2: an ordinary state cookie is well under the guard and Entra begins", async () => {
+    fetchImpl = establishRouter()
+    const restore = applyEnv(on)
+    const r = initRequest({ r: DEST_OS, cookie: "ASP.NET_SessionId=" + "x".repeat(200) + "; .CMSAUTH=" + "y".repeat(600) })
+    await authHandover.appAuthRedirect(r)
+    restore()
+    assert(r.returnBody.indexOf("https://login.microsoftonline.com/") === 0, "began")
+    const sc = findCookie([].concat(r.headersOut["Set-Cookie"] || []), "entra_auth_state=")
+    assert(sc.split(";")[0].length <= 3800, "under the guard: " + sc.split(";")[0].length)
+  })
+
+  await test("D5: begin -> no outcome line yet (the callback writes it)", async () => {
+    fetchImpl = establishRouter()
+    logLines = []
+    const restore = applyEnv(on)
+    await authHandover.appAuthRedirect(initRequest({ r: DEST_OS }))
+    restore()
+    assertEqual(outcomeLines().length, 0, "none at begin")
+  })
+
+  await test("D5: begin skipped (not configured / lookup failed) -> one skipped line with dest + term", async () => {
+    logLines = []
+    let restore = applyEnv({ ...on, ENTRA_CLIENT_SECRET: "" })
+    await authHandover.appAuthRedirect(initRequest({ r: DEST_OTHER }))
+    restore()
+    let o = outcomeOf(outcomeLines()[0])
+    assertEqual(outcomeLines().length, 1, "one line")
+    assertEqual([o.result, o.reason, o.dest, o.term].join(","), "skipped,not-configured,other,top-level", "fields")
+    logLines = []
+    fetchImpl = async (url) => (/\/CMS$/.test(url) ? res({ headers: { Location: "/CMS.24.0.01/x" } }) : res({ body: "x" }))
+    restore = applyEnv(on)
+    await authHandover.appAuthRedirect(initRequest({ r: DEST_POLARIS }))
+    restore()
+    o = outcomeOf(outcomeLines()[0])
+    assertEqual([o.result, o.reason, o.dest].join(","), "skipped,cms-lookup-failed,polaris", "fields")
+  })
+
+  await test("D5: Entra off -> no outcome line at all", async () => {
+    logLines = []
+    await authHandover.appAuthRedirect(initRequest({ r: DEST_OS }))
+    assertEqual(outcomeLines().length, 0, "silent when off")
+  })
+
+  await test("D5: callback success -> one ok line; degrade -> one degraded line with a bare reason code", async () => {
+    await callbackScenario({ term: "top-level", dest: DEST_OS })
+    let lines = outcomeLines()
+    assertEqual(lines.length, 1, "one line")
+    let o = outcomeOf(lines[0])
+    assertEqual([o.result, o.reason, o.dest, o.term].join(","), "ok,ok,os,top-level", "ok fields")
+
+    await callbackScenario({ term: "iframe", mdsSwap: "fail" })
+    lines = outcomeLines()
+    assertEqual(lines.length, 1, "one line")
+    o = outcomeOf(lines[0])
+    assertEqual([o.result, o.reason, o.dest, o.term].join(","), "degraded,swap-failed,polaris,iframe", "degraded fields")
+
+    await callbackScenario({ term: "top-level", adError: "login_required", dest: DEST_OTHER })
+    o = outcomeOf(outcomeLines()[0])
+    assertEqual([o.result, o.reason, o.dest].join(","), "degraded,ad-error,other", "ad-error is the code; the AD error name stays in the detail line")
+  })
+
+  await test("D5: the outcome line never carries a token, a cookie, the destination URL or an identity", async () => {
+    await callbackScenario({ term: "iframe" })
+    const line = outcomeLines()[0]
+    for (const bad of [TOKEN, "RT-SECRET-1", "MDS-TOKEN", "WATCHDOG-TOKEN", "ASP.NET", "polaris-ui", "proxy.example"])
+      assert(line.indexOf(bad) === -1, "outcome line leaks " + bad + ": " + line)
+    assertEqual(Object.keys(outcomeOf(line)).sort().join(","), "dest,reason,result,term", "exactly these fields")
+  })
+
+  await test("D5: unrecoverable state -> one degraded line with dest=unknown", async () => {
+    const entra = await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")
+    logLines = []
+    const r = createMockRequest({ args: { state: "x", code: "y" }, headersIn: { Host: "proxy.example" } })
+    await entra.handleInitEntraCallback(r)
+    const o = outcomeOf(outcomeLines()[0])
+    assertEqual([o.result, o.reason, o.dest, o.term].join(","), "degraded,missing-state,unknown,unknown", "fields")
+  })
+}
+
 async function main() {
   // Module consts read env at load; apply before loading.
   const restore = applyEnv(ENV)
@@ -599,6 +714,7 @@ async function main() {
   await helperTests(entra)
   await initTests(authHandover, entra)
   await callbackTests()
+  await guardAndOutcomeTests(authHandover)
 
   restore()
   process.exit(summarise("auth-handover.drop2.entra (unit)"))

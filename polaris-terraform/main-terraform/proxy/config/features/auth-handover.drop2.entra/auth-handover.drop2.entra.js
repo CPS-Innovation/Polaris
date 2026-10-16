@@ -84,6 +84,11 @@ const STATE_CLEAR_OPTS =
 // Where the callback lands when the state (and so the destination) is unrecoverable.
 const FALLBACK_LANDING = "/polaris-ui/";
 
+// D2: browsers silently DROP a cookie over ~4 KB (name + value), which would lose the state —
+// and with it the destination — at the callback. The state holds r + cc + token, and OS `r` URLs
+// are long, so /init checks the packed size and skips Entra (carrying on as today) above this.
+const MAX_STATE_COOKIE = 3800;
+
 // The iframe terminal: a bare page whose sole job is to fire `onload` so the harness
 // that opened the hidden iframe can destroy it. No script, no data.
 const TERMINAL_HTML =
@@ -348,14 +353,20 @@ function _presenceCookies(accessToken, expiresIn) {
 // WITHOUT responding on any failure — /init then carries on exactly as today. Any Set-Cookie
 // /init already queued (the session hint) is kept.
 async function beginFromInit(r, opts) {
+  const term = opts.terminal === "iframe" ? "iframe" : "top-level";
+  const skip = (reason, extra) => {
+    _outcome("skipped", reason, _destKind(r, opts.redirectUrl || ""), term, extra);
+    return false;
+  };
   try {
-    if (!isConfigured() || !opts.cookies) return false;
+    if (!isConfigured()) return skip("not-configured");
+    if (!opts.cookies) return skip("no-cookies");
 
     const found = await replaceDdei.lookupCmsSession(_header(r, "Host"), opts.cookies);
     if (!found.token) {
       replaceDdei.markAuthInit(r, "entra-degraded");
       _log("drop2 entra degrade — cms-lookup-failed: " + found.reason);
-      return false;
+      return skip("cms-lookup-failed");
     }
 
     const stateHandle = _rand(16);
@@ -365,13 +376,16 @@ async function beginFromInit(r, opts) {
       cc: opts.cookies,
       tok: found.token,
       ver: found.versionId,
-      term: opts.terminal === "iframe" ? "iframe" : "top-level",
+      term: term,
       corr: _rand(8),
     };
+    const stateCookie = STATE_COOKIE + "=" + _packState(payload);
+    if (stateCookie.length > MAX_STATE_COOKIE) {
+      // Length only — never the content (it holds the CMS cookies + token).
+      return skip("state-too-large", " bytes=" + stateCookie.length);
+    }
     const queued = [].concat(r.headersOut["Set-Cookie"] || []);
-    r.headersOut["Set-Cookie"] = queued.concat([
-      STATE_COOKIE + "=" + _packState(payload) + STATE_SET_OPTS,
-    ]);
+    r.headersOut["Set-Cookie"] = queued.concat([stateCookie + STATE_SET_OPTS]);
 
     const params = [
       "client_id=" + encodeURIComponent(CLIENT_ID),
@@ -393,7 +407,7 @@ async function beginFromInit(r, opts) {
   } catch (e) {
     replaceDdei.markAuthInit(r, "entra-degraded");
     _log("drop2 entra degrade — entra-begin-error: " + String(e));
-    return false;
+    return skip("entra-begin-error");
   }
 }
 
@@ -480,6 +494,7 @@ async function handleInitEntraCallback(r) {
 // Success terminal: clear state (+ any presence cookies), then branch on mode.
 function _succeed(r, st, extra) {
   replaceDdei.markAuthInit(r, "entra");
+  _outcome("ok", "ok", _destKind(r, st.r || ""), st.term);
   _finish(r, st, extra);
 }
 
@@ -491,10 +506,13 @@ function _degrade(r, st, reason, extra) {
   // Marker only — the reason goes to the error log below, never to the client.
   replaceDdei.markAuthInit(r, "entra-degraded");
   _log("drop2 entra degrade — " + reason);
+  const code = reason.split(":")[0].trim();
   if (st) {
+    _outcome("degraded", code, _destKind(r, st.r || ""), st.term);
     _finish(r, st, extra);
     return;
   }
+  _outcome("degraded", code, "unknown", "unknown");
   r.headersOut["Set-Cookie"] = [STATE_COOKIE + "=deleted" + STATE_CLEAR_OPTS];
   r.return(302, replaceDdei.absoluteUrl(r, FALLBACK_LANDING));
 }
@@ -509,6 +527,18 @@ function _finish(r, st, extra) {
     return;
   }
   r.return(302, _continuationUrl(r, st));
+}
+
+// D5: ONE structured line per handover that drop2 handled, for KQL over AppServiceConsoleLogs
+// (Polaris global_la) — the rate of each outcome, per destination kind:
+//   drop2-outcome result=ok|degraded|skipped reason=<code> term=top-level|iframe dest=polaris|os|other|unknown
+// skipped = /init never started Entra (begin); ok / degraded = the callback's end. Codes only:
+// never a token, a cookie, a URL or an identity (the free-text detail stays in the degrade line).
+// Written once per flow: begin writes it only when it skips; the callback writes the rest.
+function _outcome(result, reason, dest, term, extra) {
+  _log(
+    "drop2-outcome result=" + result + " reason=" + reason + " term=" + term + " dest=" + dest + (extra || ""),
+  );
 }
 
 // Best-effort error-log line. Callers never pass a token.

@@ -96,6 +96,38 @@ changes; each app can later stop reading `cc` and use bearer + MDS lookup on its
 - **Cost.** Every app's handover gains the Entra round trip plus the CMS lookup and the MDS PUT
   when the switch is on (measure: I3). A Polaris handover no longer looks the token up twice.
 
+### E13. 🟢 State-cookie size guard, and one `drop2-outcome` line per handover (D2 + D5)
+
+**Size guard.** Browsers silently drop a cookie over ~4 KB, and losing `entra_auth_state` loses
+the destination (E12's one residual case). The state holds `r` + `cc` + token, and OutSystems `r`
+URLs are long, so `/init` measures the packed cookie and, above 3800 bytes, skips Entra and
+carries on as today (`skipped` / `state-too-large`, with `bytes=` but never the content). Tune the
+threshold from real sizes (I1): the `bytes=` field gives them.
+
+**Outcome line.** Exactly one line per handover drop2 handled, to the error log, so it lands in
+`AppServiceConsoleLogs` (Polaris `global_la`, via the proxy's existing diagnostic setting):
+
+```
+drop2-outcome result=ok|degraded|skipped reason=<code> term=top-level|iframe dest=polaris|os|other|unknown
+```
+
+`skipped` is written by `/init` when it never starts Entra (`not-configured`, `no-cookies`,
+`cms-lookup-failed`, `state-too-large`, `entra-begin-error`); `ok` / `degraded` by the callback
+(`ad-error`, `missing-state`, `bad-state`, `state-mismatch`, `no-code`, `token-exchange-failed`,
+`no-refresh-token`, `swap-failed`, `store-deposit-failed`, `callback-error`). Codes only: no token,
+cookie, URL or identity; the free-text detail stays in the separate `drop2 entra degrade — …`
+line. Silent when drop2 is off. Rate by outcome, per destination kind:
+
+```kusto
+AppServiceConsoleLogs
+| where ResultDescription has "drop2-outcome"
+| parse ResultDescription with * "drop2-outcome result=" result " reason=" reason " term=" term " dest=" dest
+| summarize n = count() by bin(TimeGenerated, 1h), result, reason, dest
+```
+
+The alert on it (an Azure Monitor scheduled query) is a separate item: it needs an action group
+and a threshold agreed.
+
 ---
 
 ## Pre-production hardening (must fix before prod)
