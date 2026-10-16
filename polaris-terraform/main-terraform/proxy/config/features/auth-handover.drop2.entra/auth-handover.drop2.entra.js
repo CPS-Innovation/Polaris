@@ -9,22 +9,25 @@
 //     drop1.establishCmsSession (mint + verify modern token)
 //     -> pack {cookies, token, version, landing, terminal} into a first-party state
 //        cookie + a random anti-CSRF handle in the OAuth `state` param
-//     -> 302 to Entra /authorize (prompt=none, silent) for the NEUTRAL scope.
+//     -> 302 to Entra /authorize (prompt=none, silent): openid profile offline_access.
 //
 //   handleInitEntraCallback  (/init-entra/callback, public — AD 302s the browser here)
-//     validate state -> exchange code -> NEUTRAL access token (aud = our own app)
-//     -> IFRAME only: presence token cookie (the neutral token — our app IS the presence API's
-//        app reg, so it is used as-is), on the two presence paths, Max-Age = token lifetime
-//     -> on-behalf-of swap: neutral token -> MDS token (store.scope)
+//     validate state -> exchange code -> REFRESH TOKEN (the access token it comes with is a
+//        Microsoft Graph token, unused)
+//     -> IFRAME only: refresh swap -> watchdog token (ENTRA_WATCHDOG_SCOPE) -> presence token
+//        cookie on the two presence paths, Max-Age = that token's lifetime ("" scope = none)
+//     -> refresh swap -> MDS token (store.scope)
 //     -> store.deposit({cookies, token}, mdsToken)   (MDS PUT /cms-auth-store)
 //     -> finalize: TOP-LEVEL 302 to the landing (+ Cms-Auth-Values, ADDITIVE);
 //        IFRAME 200 static terminal page (harness tears the iframe down on its onload).
 //
-// TOKEN MODEL (PLAN-entra-unified-flow): ONE silent sign-in for a neutral token addressed to OUR
-// app (ENTRA_APP_SCOPE; client == resource, so no consent prompt), then an on-behalf-of swap per
-// backend on demand. The browser only ever holds a token for our app. No id_token is used: the
-// backends identify the user from their own token (oid), so there is no nonce/claims step here.
-// The swap itself is also a check on the neutral token — Entra refuses to swap a forged one.
+// TOKEN MODEL (PLAN-entra-unified-flow; decided 2026-10-15): ONE silent, NEUTRAL sign-in
+// (openid profile offline_access — no API scope, so our app reg exposes none), then a
+// refresh-token swap per service: a confidential client's refresh token buys an access token for
+// any API the app may call (consent = that API pre-authorising our client). No on-behalf-of: that
+// needs a token addressed to us, i.e. an exposed scope. The refresh token never leaves this
+// callback (no cookie, no log); the browser only ever holds the watchdog token (iframe). No
+// id_token is used: each backend identifies the user from its own token (oid).
 //
 // TRANSPARENT / ADDITIVE / BEST-EFFORT: any Entra or store failure degrades to plain
 // drop1 behaviour (top-level: still set Cms-Auth-Values + land the user; iframe: still
@@ -79,13 +82,17 @@ const TERMINAL_HTML =
   "<title>CMS auth captured</title></head>" +
   '<body data-cms-auth="done"><!-- entra store populated --></body></html>';
 
-// The NEUTRAL scope: one our own app registration exposes (QA: 8d6133af's
-// api://8d6133af-9593-47c6-94d0-5c65e9e310f1/api.presence.user.readwrite — which is also the presence
-// API's scope, since the presence API shares that app reg). Requested at BOTH /authorize and the
-// code exchange: a code is bound to the scopes consented at authorize (AADSTS70011 otherwise).
-const APP_SCOPE = process.env.ENTRA_APP_SCOPE || "";
+// The NEUTRAL sign-in scope: identity + a refresh token, no API. Requested at BOTH /authorize and
+// the code exchange: a code is bound to the scopes consented at authorize (AADSTS70011 otherwise).
+const SIGN_IN_SCOPE = "openid profile offline_access";
 
-// Presence: the neutral token, handed to global-components' presence transports in a cookie they
+// The watchdog (presence API) scope the refresh token is swapped for, for the presence cookie.
+// "" => no presence cookie. Interim pre-prod value: the scope 8d6133af itself exposes, which the
+// watchdog accepts today; becomes the watchdog's own app reg scope by config alone (terraform
+// proxy_entra.watchdog_scope).
+const WATCHDOG_SCOPE = process.env.ENTRA_WATCHDOG_SCOPE || "";
+
+// Presence: the watchdog token, handed to global-components' presence transports in a cookie they
 // already read (contract with global-components: name + paths). HttpOnly (no page JS), Secure,
 // path-scoped so it rides ONLY the two presence routes; the proxy lifts it into a Bearer upstream.
 // Max-Age = the token's own lifetime (expires_in), so the cookie never outlives the token.
@@ -213,9 +220,9 @@ function _unpackState(raw) {
   return JSON.parse(_b64urlDecode(payload));
 }
 
-// POST a form to the AD token endpoint; returns { accessToken, expiresIn, diag }. On an AD error
-// the diag carries AD's error code (e.g. invalid_grant / AADSTS65001 = consent missing) — never
-// the token. Shared by the code exchange and the on-behalf-of swap.
+// POST a form to the AD token endpoint; returns { accessToken, refreshToken, expiresIn, diag }. On
+// an AD error the diag carries AD's error code (e.g. invalid_grant / AADSTS65001 = consent missing)
+// — never a token. Shared by the code exchange and the refresh-token swaps.
 async function _tokenRequest(fields) {
   const body = fields.join("&");
   try {
@@ -236,19 +243,20 @@ async function _tokenRequest(fields) {
     }
     if (!resp.ok || !data.access_token) {
       const codes = Array.isArray(data.error_codes) ? " AADSTS" + data.error_codes.join(",AADSTS") : "";
-      return { accessToken: "", expiresIn: 0, diag: "HTTP " + resp.status + " " + (data.error || "") + codes };
+      return { accessToken: "", refreshToken: "", expiresIn: 0, diag: "HTTP " + resp.status + " " + (data.error || "") + codes };
     }
     return {
       accessToken: data.access_token,
+      refreshToken: data.refresh_token || "",
       expiresIn: Number(data.expires_in || 0),
       diag: "ok",
     };
   } catch (e) {
-    return { accessToken: "", expiresIn: 0, diag: String(e) };
+    return { accessToken: "", refreshToken: "", expiresIn: 0, diag: String(e) };
   }
 }
 
-// Exchange the authorization code for the NEUTRAL access token (APP_SCOPE).
+// Exchange the authorization code. What we keep is the refresh token (offline_access).
 function _exchangeCode(code, redirectUri) {
   return _tokenRequest([
     "client_id=" + encodeURIComponent(CLIENT_ID),
@@ -256,27 +264,28 @@ function _exchangeCode(code, redirectUri) {
     "code=" + encodeURIComponent(code),
     "redirect_uri=" + encodeURIComponent(redirectUri),
     "grant_type=authorization_code",
-    "scope=" + encodeURIComponent(APP_SCOPE),
+    "scope=" + encodeURIComponent(SIGN_IN_SCOPE),
   ]);
 }
 
-// On-behalf-of swap: the user's neutral token (aud = our app) for a token for another API's
-// scope, keeping the user's identity (oid). Needs: our app reg has the API permission for `scope`
-// + consent. The CPS tenant blocks user consent, so the API's app reg pre-authorises our client
-// (MDS: azuread_application_pre_authorized in MDS terraform) — otherwise AADSTS65001.
-function _obo(assertion, scope) {
-  if (!scope) return { accessToken: "", expiresIn: 0, diag: "no-scope" };
+// Refresh-token swap: the user's refresh token (+ our client secret — a confidential client's
+// refresh token is useless without it) for an access token for one API's scope, same user (oid).
+// Needs consent for `scope`: the CPS tenant blocks user consent, so the API's app reg pre-authorises
+// our client (MDS: azuread_application_pre_authorized in MDS terraform) — otherwise AADSTS65001.
+// One swap per API: Entra issues one resource per token.
+function _refresh(refreshToken, scope) {
+  if (!scope) return { accessToken: "", refreshToken: "", expiresIn: 0, diag: "no-scope" };
+  if (!refreshToken) return { accessToken: "", refreshToken: "", expiresIn: 0, diag: "no-refresh-token" };
   return _tokenRequest([
     "client_id=" + encodeURIComponent(CLIENT_ID),
     "client_secret=" + encodeURIComponent(CLIENT_SECRET),
-    "grant_type=" + encodeURIComponent("urn:ietf:params:oauth:grant-type:jwt-bearer"),
-    "requested_token_use=on_behalf_of",
-    "assertion=" + encodeURIComponent(assertion),
+    "grant_type=refresh_token",
+    "refresh_token=" + encodeURIComponent(refreshToken),
     "scope=" + encodeURIComponent(scope),
   ]);
 }
 
-// The presence cookies for a neutral token (one per presence path).
+// The presence cookies for a watchdog token (one per presence path).
 function _presenceCookies(accessToken, expiresIn) {
   const maxAge = expiresIn > 0 ? expiresIn : 3600;
   return PRESENCE_PATHS.map(function (p) {
@@ -322,7 +331,7 @@ async function handleInitEntra(r) {
       "client_id=" + encodeURIComponent(CLIENT_ID),
       "response_type=code",
       "redirect_uri=" + encodeURIComponent(_redirectUri(r)),
-      "scope=" + encodeURIComponent(APP_SCOPE),
+      "scope=" + encodeURIComponent(SIGN_IN_SCOPE),
       "state=" + stateHandle,
       "response_mode=query",
       // Silent auth: CMS users already have an AAD session (same tenant), so prompt=none
@@ -381,16 +390,29 @@ async function handleInitEntraCallback(r) {
       _degrade(r, st, null, "token-exchange-failed: " + tok.diag);
       return;
     }
+    const rt = tok.refreshToken;
+    if (!rt) {
+      // offline_access not granted: nothing to swap.
+      _degrade(r, st, null, "no-refresh-token");
+      return;
+    }
 
-    // Presence first (iframe only), so a later MDS failure cannot cost presence its token.
-    const extra =
-      st.term === "iframe" ? _presenceCookies(tok.accessToken, tok.expiresIn) : [];
+    // Presence first (iframe only), so a later MDS failure cannot cost presence its token. A
+    // presence failure is logged but is not a degrade: the store is what drop2 is for.
+    let extra = [];
+    if (st.term === "iframe" && WATCHDOG_SCOPE) {
+      const wd = await _refresh(rt, WATCHDOG_SCOPE);
+      if (wd.accessToken) {
+        extra = _presenceCookies(wd.accessToken, wd.expiresIn);
+      } else {
+        _log("drop2 entra presence swap failed — " + wd.diag);
+      }
+    }
 
-    // The auth store: swap the neutral token for the store backend's token, then deposit. (The
-    // neutral token itself won't do: MDS validates the audience.)
-    const mds = await _obo(tok.accessToken, store.scope);
+    // The auth store: swap for the store backend's token, then deposit.
+    const mds = await _refresh(rt, store.scope);
     if (!mds.accessToken) {
-      _degrade(r, st, null, "obo-failed: " + mds.diag, extra);
+      _degrade(r, st, null, "swap-failed: " + mds.diag, extra);
       return;
     }
     const dep = await store.deposit({ cookies: st.cc, token: st.tok }, mds.accessToken);
@@ -426,11 +448,7 @@ function _succeed(r, st, extra) {
 function _degrade(r, st, landingFallback, reason, extra) {
   // Marker only — the reason goes to the error log below, never to the client.
   replaceDdei.markAuthInit(r, "entra-degraded");
-  try {
-    ngx.log(ngx.ERR, "drop2 entra degrade — " + reason);
-  } catch (e) {
-    // logging is best-effort
-  }
+  _log("drop2 entra degrade — " + reason);
   const clear = [STATE_COOKIE + "=deleted" + STATE_CLEAR_OPTS].concat(extra || []);
 
   if (st && st.term === "iframe") {
@@ -447,6 +465,15 @@ function _degrade(r, st, landingFallback, reason, extra) {
   // No recoverable state. Prefer a captured landing (begin-time failure) if we have one.
   const ui = landingFallback && landingFallback.polarisUiUrl;
   r.return(302, replaceDdei.absoluteUrl(r, ui || "/polaris-ui/"));
+}
+
+// Best-effort error-log line. Callers never pass a token.
+function _log(msg) {
+  try {
+    ngx.log(ngx.ERR, msg);
+  } catch (e) {
+    // logging is best-effort
+  }
 }
 
 // Recover state without throwing (used on the AD-error branch).
@@ -469,7 +496,7 @@ export default {
     unpackState: _unpackState,
     b64urlEncode: _b64urlEncode,
     b64urlDecode: _b64urlDecode,
-    obo: _obo,
+    refresh: _refresh,
     presenceCookies: _presenceCookies,
     rand: _rand,
     authorizeUrl: _authorizeUrl,

@@ -6,8 +6,8 @@
 //   scope                            the Entra scope the backend's bearer token must carry
 //   deposit(payload, bearer) -> { ok, diag }
 //     payload: { cookies, token }    (the CMS cookie header + the CMS modern token)
-//     bearer:  an access token for `scope`, which the drop2 callback obtains by an
-//              on-behalf-of swap of the user's neutral token (see auth-handover.drop2.entra.js)
+//     bearer:  an access token for `scope`, which the drop2 callback obtains by swapping the
+//              user's refresh token (see auth-handover.drop2.entra.js)
 //
 // The callback asks the store which scope it needs, swaps for it, and calls deposit(); it never
 // learns which backend ran. This backend is MDS: PUT <WM_MDS_BASE_URL>cms-auth-store with the
@@ -17,7 +17,7 @@
 //
 // MDS identifies the user from the token (`oid`) — the store sends no identity of its own. MDS
 // validates the token in full (JwtBearer: signature, issuer, lifetime, aud = the MDS app reg), so
-// it must be the on-behalf-of token for ENTRA_MDS_SCOPE; our neutral token is rejected with 401.
+// it must be a token for ENTRA_MDS_SCOPE; any other audience is rejected with 401.
 //
 // History: the previous backend was Azure Table Storage (SharedKeyLite, ENTRA_STORAGE_*), keyed
 // by an OID taken from a validated id_token. Replaced 2026-10 — see git history / QUIRKS E10.

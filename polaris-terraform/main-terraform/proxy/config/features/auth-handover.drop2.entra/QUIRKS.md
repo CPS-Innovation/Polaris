@@ -53,7 +53,8 @@ drop2 used to set a browser-side `cms-auth-id-token` cookie (host-only, `HttpOnl
 (both the cookie here and the case-locking consumer). The real id_token still goes to the
 store deposit (E10). Kept as a numbered stub so E-numbers stay stable. **Superseded 2026-10:**
 drop2 sets the presence cookie again — now `cms-auth-presence-token` (global-components' existing
-contract), carrying the NEUTRAL **access** token, on the iframe terminal only, Max-Age = token
+contract), carrying a **watchdog-scope** access token (a refresh-token swap for
+`ENTRA_WATCHDOG_SCOPE`; none if that is empty), on the iframe terminal only, Max-Age = that token's
 lifetime. See PLAN-entra-unified-flow.
 
 ### E4. 🟠 Callback path must be a registered redirect URI
@@ -81,7 +82,7 @@ config uses no `Math.random` anywhere.
 ### E6. 🔴 `js_fetch_verify off` on the AD + MDS fetches
 
 The callback disables TLS verification for the `ngx.fetch` calls to
-`login.microsoftonline.com` (code exchange + on-behalf-of) and MDS (mirrors drop1's loopback
+`login.microsoftonline.com` (code exchange + refresh-token swaps) and MDS (mirrors drop1's loopback
 setup). For **external** endpoints this should be `on` with a trusted CA bundle
 (`js_fetch_trusted_certificate`). Fix before prod.
 
@@ -117,17 +118,23 @@ need `SameSite=None; Secure`. Revisit if the iframe host changes.
 
 **Done 2026-10: the backend is MDS.** `store.js` exports `scope` (`ENTRA_MDS_SCOPE`) and
 `deposit(payload, bearer)` = `mdsDeposit`: `PUT <WM_MDS_BASE_URL>cms-auth-store` with
-`Authorization: Bearer <OBO token>` + `x-functions-key` (the same two settings the
+`Authorization: Bearer <MDS token>` + `x-functions-key` (the same two settings the
 global-components `/global-components/api` route uses — not that route itself, which strips
-Authorization) and body `{cookies, token, expiryTime: "2100-01-01T00:00:00Z"}` (fixed, far future — MDS 400s a non-future one; MDS ignores
-it today — revisit if it ever honours it). MDS takes the user from the token's `oid`, after full
-JwtBearer validation (signature, issuer, lifetime, aud = the MDS app reg) — so only the on-behalf-of
-token will do; the neutral token gets a 401. The Table Storage backend
-(SharedKeyLite, `ENTRA_STORAGE_*`, rows keyed by an id_token OID) is removed — git history has it.
-The swap needs the MDS permission on our app reg **plus consent**. CPS blocks user consent, so MDS
-**pre-authorises** our client on its app reg (MDS terraform `global_components_client_id`, PR
-2026-10-06); until that is applied the on-behalf-of call fails (AADSTS65001) and drop2 degrades — safe.
-(An interim switch that sent the neutral token instead was removed 2026-10-06: MDS rejects it.)
+Authorization) and body `{cookies, token, expiryTime: "2100-01-01T00:00:00Z"}` (fixed, far future —
+MDS 400s a non-future one; MDS ignores it today — revisit if it ever honours it). MDS takes the user
+from the token's `oid`, after full JwtBearer validation (signature, issuer, lifetime, aud = the MDS
+app reg) — so only a token for the MDS scope will do. The Table Storage backend (SharedKeyLite,
+`ENTRA_STORAGE_*`, rows keyed by an id_token OID) is removed — git history has it.
+
+**How the MDS token is obtained (decided 2026-10-15): a refresh-token swap, not on-behalf-of.**
+The sign-in is neutral (`openid profile offline_access`); the code exchange yields a refresh token,
+which the callback swaps (`grant_type=refresh_token` + client secret) for one token per service:
+MDS, and on the iframe the watchdog. The refresh token never leaves the callback. On-behalf-of
+(used 2026-10-06 → 10-15) needed a token addressed to our own app, i.e. an exposed scope
+(`ENTRA_APP_SCOPE`); that coupling is gone and our app reg exposes no API. Consent for each swap is
+the API pre-authorising our client — CPS blocks user consent (MDS terraform
+`global_components_client_id`, PR 2026-10-06). Without it the swap fails (AADSTS65001) and drop2
+degrades — safe. A missing refresh token (no `offline_access` consent) degrades likewise.
 
 ### E11. ⚪ (removed) presence id-token cookie IE/Edge jar handover
 

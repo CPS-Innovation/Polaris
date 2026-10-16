@@ -12,7 +12,7 @@ All terraform-managed, on both the production slot (`app-service-proxy.tf`) and 
 | `ENTRA_CLIENT_ID`         | `var.proxy_entra.client_id`                                 | Our client app reg (pre-prod: `8d6133af-9593-47c6-94d0-5c65e9e310f1`).                     |
 | `ENTRA_CLIENT_SECRET`     | Key Vault `GlobalComponents-Entra-ClientSecret` (manual)    | Its client secret. Used for the code exchange AND every refresh-token swap.                   |
 | `ENTRA_STATE_HMAC_SECRET` | `random_password.proxy_entra_state_hmac`                    | HMAC key for the `entra_auth_state` cookie; sign/verify fails closed if empty.             |
-| `ENTRA_WATCHDOG_SCOPE`    | `var.proxy_entra.watchdog_scope`                            | The watchdog (presence API) scope the refresh token is swapped for, for the presence cookie. `""` everywhere until the watchdog has its own app reg. |
+| `ENTRA_WATCHDOG_SCOPE`    | `var.proxy_entra.watchdog_scope`                            | The watchdog (presence API) scope the refresh token is swapped for, for the presence cookie. Pre-prod (interim): `api://8d6133af-9593-47c6-94d0-5c65e9e310f1/api.presence.user.readwrite`; prod `""`. Becomes the watchdog's own app reg scope by config alone. |
 | `ENTRA_MDS_SCOPE`         | `var.proxy_entra.mds_scope`                                 | MDS's delegated scope for the refresh-token swap (dev `…ddei-dev/full_scope`, QA `…ddei-staging/full_scope`; none in UAT yet). |
 
 Reused, already present (terraform, Key Vault): `WM_MDS_BASE_URL`, `WM_MDS_ACCESS_KEY`.

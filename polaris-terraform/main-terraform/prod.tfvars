@@ -88,8 +88,8 @@ proxy_entra = {
   store_enabled = false
   client_id     = "295ecc3c-ae64-45c1-941d-b54b539b30aa" # "FCT Global Components (prod)"
   mds_scope     = "api://fa-wm-app-ddei/full_scope"
-  # "" until the watchdog (presence API) has its own app registration: nothing consumes
-  # drop2's presence cookie yet (no Classic iframe harness).
+  # "" until the watchdog (presence API) has its own prod app registration (295ecc3c exposes no
+  # scope, deliberately): no presence cookie in prod.
   watchdog_scope = ""
 }
 

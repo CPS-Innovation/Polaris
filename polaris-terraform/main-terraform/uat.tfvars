@@ -92,9 +92,10 @@ proxy_entra = {
   # no MDS scope in UAT yet: MDS's PCE app registration exposes none, so drop2
   # falls back to drop1 behaviour here until MDS adds one and pre-authorises client_id.
   mds_scope = ""
-  # "" until the watchdog (presence API) has its own app registration: nothing consumes
-  # drop2's presence cookie yet (no Classic iframe harness).
-  watchdog_scope = ""
+  # Interim, shared by all pre-prod: the scope our own app reg (8d6133af) exposes, which the
+  # watchdog (presence API) accepts today. Swap for the watchdog's own app reg scope when it
+  # exists (config only, no code change).
+  watchdog_scope = "api://8d6133af-9593-47c6-94d0-5c65e9e310f1/api.presence.user.readwrite"
 }
 
 app_service_log_retention       = 90
