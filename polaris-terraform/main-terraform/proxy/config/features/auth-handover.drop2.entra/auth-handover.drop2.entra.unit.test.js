@@ -703,6 +703,75 @@ async function guardAndOutcomeTests(authHandover) {
   })
 }
 
+
+// The iframe never falls through into Polaris: whenever drop2 does not start, /init sends the hidden
+// iframe to the frameable /init/terminal page (served by drop2's `terminal` handler).
+async function iframeTerminalTests(authHandover, entra) {
+  console.log("\nterminal=iframe when drop2 does not start -> /init/terminal (never Polaris in the hidden frame):")
+  const on = { ENTRA_STORE_ENABLED: "true" }
+  const TERMINAL = "https://proxy.example/init/terminal"
+
+  await test("Entra on, not configured -> /init/terminal", async () => {
+    const restore = applyEnv({ ...on, ENTRA_CLIENT_SECRET: "" })
+    const r = initRequest({ terminal: "iframe", q: "x" })
+    await authHandover.appAuthRedirect(r)
+    restore()
+    assertEqual(r.returnBody, TERMINAL, "terminal")
+  })
+
+  await test("Entra on, CMS lookup fails -> /init/terminal", async () => {
+    fetchImpl = async (url) => (/\/CMS$/.test(url) ? res({ headers: { Location: "/CMS.24.0.01/x" } }) : res({ body: "x" }))
+    const restore = applyEnv(on)
+    const r = initRequest({ terminal: "iframe", q: "x" })
+    await authHandover.appAuthRedirect(r)
+    restore()
+    assertEqual(r.returnBody, TERMINAL, "terminal")
+  })
+
+  await test("Entra on, no CMS cookies -> /init/terminal", async () => {
+    const restore = applyEnv(on)
+    const r = initRequest({ terminal: "iframe", q: "x", cookie: "Junk=1" })
+    await authHandover.appAuthRedirect(r)
+    restore()
+    assertEqual(r.returnBody, TERMINAL, "terminal")
+  })
+
+  await test("Entra on, state too large -> /init/terminal", async () => {
+    fetchImpl = establishRouter()
+    const restore = applyEnv(on)
+    const r = initRequest({ terminal: "iframe", q: "x", cookie: "ASP.NET_SessionId=x; .CMSAUTH=" + "A".repeat(3500) })
+    await authHandover.appAuthRedirect(r)
+    restore()
+    assertEqual(r.returnBody, TERMINAL, "terminal")
+  })
+
+  await test("Entra on and it starts -> still the Entra redirect (the callback ends on the terminal)", async () => {
+    fetchImpl = establishRouter()
+    const restore = applyEnv(on)
+    const r = initRequest({ terminal: "iframe", q: "x" })
+    await authHandover.appAuthRedirect(r)
+    restore()
+    assert(r.returnBody.indexOf("https://login.microsoftonline.com/") === 0, "-> Entra")
+  })
+
+  await test("top-level with drop2 not starting is unchanged: carry on to r", async () => {
+    const restore = applyEnv({ ...on, ENTRA_CLIENT_SECRET: "" })
+    const r = initRequest({ r: DEST_OS })
+    await authHandover.appAuthRedirect(r)
+    restore()
+    assertEqual(r.returnBody, continuation(DEST_OS), "carry on")
+  })
+
+  await test("the terminal handler: 200, the static page, no cookies set", async () => {
+    const r = createMockRequest({ headersIn: { Host: "proxy.example" } })
+    entra.terminal(r)
+    assertEqual(r.returnCode, 200, "200")
+    assertEqual(r.returnBody, entra.__test.constants.TERMINAL_HTML, "the terminal page")
+    assertEqual(r.headersOut["Content-Type"], "text/html; charset=utf-8", "html")
+    assertEqual(r.headersOut["Set-Cookie"], undefined, "sets nothing")
+  })
+}
+
 async function main() {
   // Module consts read env at load; apply before loading.
   const restore = applyEnv(ENV)
@@ -715,6 +784,7 @@ async function main() {
   await initTests(authHandover, entra)
   await callbackTests()
   await guardAndOutcomeTests(authHandover)
+  await iframeTerminalTests(authHandover, entra)
 
   restore()
   process.exit(summarise("auth-handover.drop2.entra (unit)"))

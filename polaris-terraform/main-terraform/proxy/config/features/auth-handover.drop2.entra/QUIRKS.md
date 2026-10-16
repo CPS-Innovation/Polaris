@@ -84,6 +84,8 @@ changes; each app can later stop reading `cc` and use bearer + MDS lookup on its
   enabled, not fully configured, no CMS cookies, lookup failed, an exception) and `/init` does its
   plain 302. Every callback failure with a recoverable state carries on to `r` too. The one
   residual case: a lost or tampered state cookie has no `r`, so the user lands on the Polaris UI.
+- **The hidden iframe never falls through.** With `terminal=iframe`, "carry on" means the static
+  `/init/terminal` page, not `r` (E8).
 - **Configured-or-nothing.** With the switch on but any of tenant / client id / client secret /
   HMAC key missing, `/init` never starts the round trip (`isConfigured`, read per request).
 - **Token pass-through.** The CMS token looked up at `/init` is appended to the continuation for
@@ -161,12 +163,24 @@ Proven on QA 2026-10-06: callbacks verified the signed state cookie and reached 
 
 The core supports both modes; `/init` (appAuthRedirect) passes `terminal=iframe` to
 `beginFromInit`, which carries it in the state; the callback then renders the terminal page
-instead of carrying on to `r`. With no `r`, `/init`'s shim also copies `terminal` into the
-synthesised `r=/auth-refresh-inbound?…`. `/init` **skips its Edge gate** when `terminal=iframe`: the iframe
+instead of carrying on to `r`. **If drop2 does not start** (off, unconfigured, no CMS session,
+lookup failed, state too large), `/init` 302s the iframe to the static, frameable
+`/init/terminal` page instead of carrying on: the hidden frame must never load the Polaris UI.
+(A page rendered by `/init` itself would carry the server's `X-Frame-Options: DENY`; the
+`/init/terminal` location sheds it like the callback, E2.) The one leftover: an iframe callback
+whose state cookie is lost has no record that it was an iframe, so it lands on the Polaris UI
+fallback (E12). `/init` **skips its Edge gate** when `terminal=iframe`: the iframe
 lives in the CMS Classic IE-mode tab, cannot change mode (coercion would loop or 402), and must
 stay in IE mode so the presence cookie lands in the IE jar (`auth-handover.js` appAuthRedirect;
-unit-pinned). **Still future:** the small JS harness in CMS Classic that opens/destroys the
-hidden iframe at login (global-components' Classic client, step 2 of the plan).
+unit-pinned). **Still future (step 2), and needed before global-components' Classic client switches from
+`/polaris-presence` to `/polaris?terminal=iframe`:**
+- the harness that opens/destroys the hidden iframe at login **and re-runs it every ~55 min**:
+  drop2's presence cookie lives as long as its token (~60–90 min), whereas global-components'
+  `/init-presence` cookie lasts 8 h (the watchdog doesn't check expiry yet);
+- framing in IE mode: IE ignores the CSP `frame-ancestors`, and the location sheds
+  `X-Frame-Options: DENY`, so in IE mode the terminal/callback pages are frameable by anyone
+  (static pages, low risk; global-components uses `X-Frame-Options: SAMEORIGIN`, which only suits
+  its same-host proxied-CMS model).
 
 ### E9. Framed-cookie `SameSite`
 

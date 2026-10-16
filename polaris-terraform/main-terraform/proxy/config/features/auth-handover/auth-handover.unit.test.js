@@ -239,14 +239,32 @@ async function appAuthRedirect(authHandover) {
     })
   })
 
-  await test("with terminal=iframe, an IE (configurable) request is NOT coerced; terminal carried into r", async () => {
+  await test("with terminal=iframe, an IE (configurable) request is NOT coerced", async () => {
     await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST, WEBSITE_SCHEME: "https" }, () => {
       const r = req({ q: "Q", cookie: "c=1", terminal: "iframe" }, { ...IE, "X-InternetExplorerModeConfigurable": "1" })
       authHandover.appAuthRedirect(r)
       assertEqual(r.headersOut["X-InternetExplorerMode"], undefined, "no mode switch")
-      assertEqual(r.returnCode, 302, "proceeds to the handover")
-      assertIncludes(r.returnBody, "/auth-refresh-inbound?", "to the inbound gate")
-      assertIncludes(r.returnBody.split("cc=")[0], "terminal=iframe", "terminal survives into r")
+      assertEqual(r.returnCode, 302, "proceeds")
+    })
+  })
+
+  // The hidden iframe exists only for drop2 (deposit + presence). When drop2 does not start
+  // (here: off), carrying on would load the whole Polaris UI inside the hidden frame. So it ends
+  // on the frameable terminal page instead — never on /auth-refresh-inbound.
+  await test("with terminal=iframe and drop2 not running: 302 to the /init/terminal page, NOT into Polaris", async () => {
+    await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST, WEBSITE_SCHEME: "https" }, () => {
+      const r = req({ q: "Q", cookie: "c=1", terminal: "iframe" })
+      authHandover.appAuthRedirect(r)
+      assertEqual(r.returnCode, 302, "302")
+      assertEqual(r.returnBody, "https://proxy.example.org/init/terminal", "the terminal page")
+    })
+  })
+
+  await test("terminal=iframe with a NON-whitelisted r is still a 403", async () => {
+    await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST, WEBSITE_SCHEME: "https" }, () => {
+      const r = req({ r: "https://evil.example/x", cookie: "c=1", terminal: "iframe" })
+      authHandover.appAuthRedirect(r)
+      assertEqual(r.returnCode, 403, "403")
     })
   })
 

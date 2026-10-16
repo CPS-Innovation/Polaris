@@ -273,6 +273,20 @@ async function entraRoutingTests() {
     assertEqual(res.headers.get("x-polaris-auth-init"), "entra-degraded", "answered by drop2")
   })
 
+  await test("/init/terminal: 200 static page, framing CSP instead of X-Frame-Options DENY", async () => {
+    const res = await get("/init/terminal", { headers: H })
+    assertEqual(res.status, 200, "200")
+    assertIncludes(await res.text(), 'data-cms-auth="done"', "the terminal page")
+    assertIncludes(res.headers.get("content-security-policy") || "", "frame-ancestors https://*.cps.gov.uk", "frameable by cps.gov.uk")
+    assertEqual(res.headers.get("x-frame-options"), null, "DENY shed (QUIRK B3)")
+  })
+
+  await test("/init?terminal=iframe with drop2 off -> 302 to /init/terminal, not into Polaris", async () => {
+    const res = await get("/init?q=Q&cookie=.CMSAUTH%3Dabc&terminal=iframe", { headers: H })
+    assertEqual(res.status, 302, "302")
+    assert(/\/init\/terminal$/.test(res.headers.get("location") || ""), "-> terminal: " + res.headers.get("location"))
+  })
+
   await test("/init-entra is gone (no longer a drop2 location)", async () => {
     const res = await get("/init-entra/callback?state=x&code=y", { headers: H })
     assert(res.headers.get("x-polaris-auth-init") !== "entra-degraded", "not answered by drop2")

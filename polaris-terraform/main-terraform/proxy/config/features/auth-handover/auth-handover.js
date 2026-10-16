@@ -6,6 +6,8 @@ import entra from "../auth-handover.drop2.entra/auth-handover.drop2.entra.js";
 const IS_PROXY_SESSION_PARAM_NAME = "is-proxy-session";
 const SESSION_HINT_COOKIE_NAME = "Cms-Session-Hint";
 const SESSION_HINT_COOKIE_LIFESPAN_MS = 30 * 24 * 60 * 60 * 1000;
+// drop2's static terminal page for the hidden iframe (`location = /init/terminal`).
+const IFRAME_TERMINAL_PATH = "/init/terminal";
 
 function _argsShim(args) {
   if (args["r"]) {
@@ -190,11 +192,18 @@ function appAuthRedirect(r) {
 
   if (isWhitelisted) {
     const cc = _whitelistCookies(args["cookie"] ?? "");
-    const carryOn = () =>
-      _redirectToAbsoluteUrl(
-        r,
-        `${redirectUrl}${redirectUrl.includes("?") ? "&" : "?"}cc=${encodeURIComponent(cc)}`,
-      );
+    // The hidden iframe (terminal=iframe) exists only for drop2's deposit + presence cookie. If
+    // drop2 does not start, carrying on would load the whole Polaris UI inside the hidden frame,
+    // so it ends on drop2's frameable terminal page instead (a 302: a page rendered here would
+    // carry the server's X-Frame-Options: DENY).
+    const carryOn =
+      r.args.terminal === "iframe"
+        ? () => _redirectToAbsoluteUrl(r, IFRAME_TERMINAL_PATH)
+        : () =>
+            _redirectToAbsoluteUrl(
+              r,
+              `${redirectUrl}${redirectUrl.includes("?") ? "&" : "?"}cc=${encodeURIComponent(cc)}`,
+            );
     // drop2 (R0): deposit this user's CMS auth to MDS for EVERY destination, via a silent Entra
     // round trip that ends back on the same 302 (auth-handover.drop2.entra). Any failure there
     // resolves false and we carry on exactly as below. Off: synchronous, unchanged.

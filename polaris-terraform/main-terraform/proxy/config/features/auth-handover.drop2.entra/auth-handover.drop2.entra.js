@@ -541,6 +541,15 @@ function _outcome(result, reason, dest, term, extra) {
   );
 }
 
+// /init/terminal — the hidden iframe's end page when drop2 did not start (appAuthRedirect 302s
+// here so the frame never falls through into the Polaris UI). Static, sets nothing; its location
+// carries the frame-ancestors CSP that sheds X-Frame-Options: DENY (QUIRKS E2), so it renders in
+// the CMS frame and fires the harness's onload.
+function terminal(r) {
+  r.headersOut["Content-Type"] = "text/html; charset=utf-8";
+  r.return(200, TERMINAL_HTML);
+}
+
 // Best-effort error-log line. Callers never pass a token.
 function _log(msg) {
   try {
@@ -564,6 +573,7 @@ function _recoverState(r) {
 export default {
   beginFromInit,
   handleInitEntraCallback,
+  terminal,
   isConfigured,
   // exposed for the unit test (production only calls the entries above):
   __test: {
