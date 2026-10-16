@@ -86,6 +86,15 @@ auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst.outsystemsenter
 
 non_ddei_init_enabled = true
 
+proxy_entra = {
+  store_enabled = true
+  client_id     = "8d6133af-9593-47c6-94d0-5c65e9e310f1" # "FCT Global Components (dev)"
+  mds_scope     = "api://fa-wm-app-ddei-staging/full_scope"
+  # "" until the watchdog (presence API) has its own app registration: nothing consumes
+  # drop2's presence cookie yet (no Classic iframe harness).
+  watchdog_scope = ""
+}
+
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
 

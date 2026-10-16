@@ -82,7 +82,16 @@ cms_details = {
 
 auth_handover_whitelist = "/auth-refresh-inbound,https://cps.outsystemsenterprise.com/,https://oapps.int.cps.gov.uk/,https://housekeeping-fn.cps.gov.uk/,https://lcc-api.cps.gov.uk/,https://polaris.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui,https://register-a-case-api.cps.gov.uk/"
 
-non_ddei_init_enabled = false
+non_ddei_init_enabled = true
+
+proxy_entra = {
+  store_enabled = false
+  client_id     = "295ecc3c-ae64-45c1-941d-b54b539b30aa" # "FCT Global Components (prod)"
+  mds_scope     = "api://fa-wm-app-ddei/full_scope"
+  # "" until the watchdog (presence API) has its own app registration: nothing consumes
+  # drop2's presence cookie yet (no Classic iframe harness).
+  watchdog_scope = ""
+}
 
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555

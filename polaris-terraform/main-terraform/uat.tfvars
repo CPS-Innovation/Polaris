@@ -86,6 +86,17 @@ auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst1.outsystemsente
 
 non_ddei_init_enabled = true
 
+proxy_entra = {
+  store_enabled = true
+  client_id     = "8d6133af-9593-47c6-94d0-5c65e9e310f1" # "FCT Global Components (dev)"
+  # no MDS scope in UAT yet: MDS's PCE app registration exposes none, so drop2
+  # falls back to drop1 behaviour here until MDS adds one and pre-authorises client_id.
+  mds_scope = ""
+  # "" until the watchdog (presence API) has its own app registration: nothing consumes
+  # drop2's presence cookie yet (no Classic iframe harness).
+  watchdog_scope = ""
+}
+
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
 

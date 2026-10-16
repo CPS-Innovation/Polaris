@@ -79,6 +79,14 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
+    "NON_DDEI_INIT_ENABLED"                           = var.non_ddei_init_enabled
+    "ENTRA_STORE_ENABLED"                             = var.proxy_entra.store_enabled
+    "ENTRA_TENANT_ID"                                 = data.azurerm_client_config.current.tenant_id
+    "ENTRA_CLIENT_ID"                                 = var.proxy_entra.client_id
+    "ENTRA_CLIENT_SECRET"                             = local.proxy_entra_client_secret
+    "ENTRA_WATCHDOG_SCOPE"                            = var.proxy_entra.watchdog_scope
+    "ENTRA_MDS_SCOPE"                                 = var.proxy_entra.mds_scope
+    "ENTRA_STATE_HMAC_SECRET"                         = random_password.proxy_entra_state_hmac.result
     "WM_MDS_BASE_URL"                                 = "https://fa-${local.wm_mds_resource_name}.azurewebsites.net/api/"
     "WM_MDS_ACCESS_KEY"                               = data.azurerm_key_vault_secret.kvs_fa_wm_mds_host_keys.value
     "CPS_GLOBAL_COMPONENTS_BLOB_STORAGE_DOMAIN"       = var.cps_global_components.blob_storage_domain
