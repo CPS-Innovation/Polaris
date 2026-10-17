@@ -79,16 +79,14 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
-    # auth-handover drop switches (next config only). Read at REQUEST time by njs via
-    # process.env (auth-handover.conf uses `js_set $x authHandover.<getter>` -> auth-handover.js
-    # entraStoreEnabled/nonDdeiInitEnabled), NOT conf-side `set $x "${VAR}"` envsubst — so a
-    # MISSING value simply reads "false" (feature off) and NEVER blocks boot. That is deliberate:
-    # the old `${VAR}` form left an unset var literal and `[emerg]`-crashed nginx ("unknown
-    # entra_store_enabled variable") — see the comment at auth-handover.js:362. Do NOT "restore"
-    # a `set $x "${VAR}"` to match this block; it reintroduces that boot failure. Kept here as the
-    # managed default and the knob to arm the features — flip to "true".
-    "NON_DDEI_INIT_ENABLED"                           = "false"
-    "ENTRA_STORE_ENABLED"                             = "false"
+    "NON_DDEI_INIT_ENABLED"                           = var.non_ddei_init_enabled
+    "ENTRA_STORE_ENABLED"                             = var.proxy_entra.store_enabled
+    "ENTRA_TENANT_ID"                                 = data.azurerm_client_config.current.tenant_id
+    "ENTRA_CLIENT_ID"                                 = var.proxy_entra.client_id
+    "ENTRA_CLIENT_SECRET"                             = local.proxy_entra_client_secret
+    "ENTRA_WATCHDOG_SCOPE"                            = var.proxy_entra.watchdog_scope
+    "ENTRA_MDS_SCOPE"                                 = var.proxy_entra.mds_scope
+    "ENTRA_STATE_HMAC_SECRET"                         = random_password.proxy_entra_state_hmac.result
     "WM_MDS_BASE_URL"                                 = "https://fa-${local.wm_mds_resource_name}.azurewebsites.net/api/"
     "WM_MDS_ACCESS_KEY"                               = data.azurerm_key_vault_secret.kvs_fa_wm_mds_host_keys.value
     "CPS_GLOBAL_COMPONENTS_BLOB_STORAGE_DOMAIN"       = var.cps_global_components.blob_storage_domain
@@ -372,6 +370,21 @@ locals {
     [filemd5("${local.proxy_next_dir}/nginx.conf")],
     [for f in sort(tolist(local.proxy_next_files)) : filemd5("${local.proxy_next_dir}/${f}")]
   )))
+}
+
+# drop2 (auth-handover.drop2.entra): the Entra sign-in + refresh-token swaps that deposit CMS auth
+# into MDS. Values for both slots' app settings. The client secret is only looked up where drop2 is
+# on, so an env with it off (prod) needs no Key Vault entry.
+locals {
+  proxy_entra_client_secret = var.proxy_entra.store_enabled ? data.azurerm_key_vault_secret.kvs_proxy_entra_client_secret[0].value : ""
+}
+
+# Signs drop2's entra_auth_state cookie, which lives only for the Entra round trip (max 5 minutes).
+# Generated once and kept in state; if it is ever regenerated, only handovers in flight at that
+# moment fail their signature check and fall back to drop1 behaviour.
+resource "random_password" "proxy_entra_state_hmac" {
+  length  = 48
+  special = false
 }
 
 resource "azurerm_storage_blob" "proxy_next_config" {

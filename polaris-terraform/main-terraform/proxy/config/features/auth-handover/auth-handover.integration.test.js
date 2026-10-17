@@ -24,6 +24,7 @@ const {
   assertIncludes,
   get,
   summarise,
+  isNext,
 } = require("../../../tests/integration/test-utils")
 
 // nginx.js builds absolute redirects from X-Forwarded-Proto + Host.
@@ -257,12 +258,62 @@ async function gateTests() {
   })
 }
 
+// NEXT config only: the drop2 (Entra) routing after R0. The callback is an exact-match location
+// under /init (so the prefix `location /init` must not catch it), and /auth-refresh-inbound no
+// longer hosts drop2 — a drop2 enrolment there means drop1.
+async function entraRoutingTests() {
+  if (!isNext) return
+  console.log("\n/init/entra-callback + /auth-refresh-inbound gate (next config, drop2 after R0):")
+
+  await test("/init/entra-callback is drop2's callback (not /init): no state -> 302 to the Polaris UI, framing CSP set", async () => {
+    const res = await get("/init/entra-callback?state=x&code=y", { headers: H })
+    assertEqual(res.status, 302, "302")
+    assert(/\/polaris-ui\/$/.test(res.headers.get("location") || ""), "fallback landing: " + res.headers.get("location"))
+    assertIncludes(res.headers.get("content-security-policy") || "", "frame-ancestors https://*.cps.gov.uk", "the callback's own CSP")
+    assertEqual(res.headers.get("x-polaris-auth-init"), "entra-degraded", "answered by drop2")
+  })
+
+  await test("/init/terminal: 200 static page, framing CSP instead of X-Frame-Options DENY", async () => {
+    const res = await get("/init/terminal", { headers: H })
+    assertEqual(res.status, 200, "200")
+    assertIncludes(await res.text(), 'data-cms-auth="done"', "the terminal page")
+    assertIncludes(res.headers.get("content-security-policy") || "", "frame-ancestors https://*.cps.gov.uk", "frameable by cps.gov.uk")
+    assertEqual(res.headers.get("x-frame-options"), null, "DENY shed (QUIRK B3)")
+  })
+
+  await test("/init?terminal=iframe with drop2 off -> 302 to /init/terminal, not into Polaris", async () => {
+    const res = await get("/init?q=Q&cookie=.CMSAUTH%3Dabc&terminal=iframe", { headers: H })
+    assertEqual(res.status, 302, "302")
+    assert(/\/init\/terminal$/.test(res.headers.get("location") || ""), "-> terminal: " + res.headers.get("location"))
+  })
+
+  await test("/init-entra is gone (no longer a drop2 location)", async () => {
+    const res = await get("/init-entra/callback?state=x&code=y", { headers: H })
+    assert(res.headers.get("x-polaris-auth-init") !== "entra-degraded", "not answered by drop2")
+  })
+
+  for (const mode of ["drop1", "drop2"]) {
+    await test(`/auth-refresh-inbound with enrolment ${mode} -> drop1 (non-ddei)`, async () => {
+      const res = await get("/auth-refresh-inbound?polaris-ui-url=/polaris-ui/", {
+        headers: { ...H, Cookie: `polaris_auth_handover=${mode}` },
+      })
+      assertEqual(res.headers.get("x-polaris-auth-init"), "non-ddei", "answered by drop1")
+    })
+  }
+
+  await test("/auth-refresh-inbound with no enrolment and the switches off -> DDEI, as today", async () => {
+    const res = await get("/auth-refresh-inbound?polaris-ui-url=/polaris-ui/", { headers: H })
+    assertEqual(res.headers.get("x-polaris-auth-init"), null, "no drop marker")
+  })
+}
+
 async function main() {
   await initTests()
   await polarisTests()
   await gateTests()
   await outboundTests()
   await ddeiTests()
+  await entraRoutingTests()
   process.exit(summarise("Auth handover (feature 2)"))
 }
 

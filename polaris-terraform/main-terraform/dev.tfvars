@@ -84,6 +84,18 @@ cms_details = {
 
 auth_handover_whitelist = "/auth-refresh-inbound,https://cps-dev.outsystemsenterprise.com/,https://oapps-dev-notprod.int.cps.gov.uk/,https://polaris-dev-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
 
+non_ddei_init_enabled = true
+
+proxy_entra = {
+  store_enabled = true
+  client_id     = "8d6133af-9593-47c6-94d0-5c65e9e310f1" # "FCT Global Components (dev)"
+  mds_scope     = "api://fa-wm-app-ddei-dev/full_scope"
+  # Interim, shared by all pre-prod: the scope our own app reg (8d6133af) exposes, which the
+  # watchdog (presence API) accepts today. Swap for the watchdog's own app reg scope when it
+  # exists (config only, no code change).
+  watchdog_scope = "api://8d6133af-9593-47c6-94d0-5c65e9e310f1/api.presence.user.readwrite"
+}
+
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
 

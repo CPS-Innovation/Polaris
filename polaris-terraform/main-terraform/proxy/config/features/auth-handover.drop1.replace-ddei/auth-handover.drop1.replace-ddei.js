@@ -58,6 +58,15 @@ function _header(r, name) {
   return v !== undefined ? v : "";
 }
 
+// njs turns a relative r.return(302, "/x") into an absolute Location using nginx's OWN scheme,
+// which behind the TLS-terminating front is http — an extra http->https hop on every redirect
+// (DDEI's relative Location never had it). Same fix as auth-handover.js _redirectToAbsoluteUrl:
+// resolve relative paths against the forwarded proto + Host; absolute URLs pass through.
+function absoluteUrl(r, url) {
+  if (url.lastIndexOf("http", 0) === 0) return url;
+  return (_header(r, "X-Forwarded-Proto") || "https") + "://" + _header(r, "Host") + url;
+}
+
 function _clientIp(r) {
   const xff = _header(r, "X-Forwarded-For");
   return xff ? xff.split(",")[0].trim() : "0.0.0.0";
@@ -184,7 +193,7 @@ function _buildCmsAuthValuesCookie(dto, secure) {
 function _failRedirect(r, polarisUiUrl, reason) {
   const base = polarisUiUrl || FALLBACK_LANDING;
   const delim = base.indexOf("?") !== -1 ? "&" : "?";
-  r.return(302, base + delim + "auth-fail-reason=" + reason);
+  r.return(302, absoluteUrl(r, base + delim + "auth-fail-reason=" + reason));
 }
 
 function _extractCaseId(q) {
@@ -193,18 +202,17 @@ function _extractCaseId(q) {
 }
 
 // ---------------------------------------------------------------------------
-// Pipeline, split into three reusable steps so the drop2 Entra-store feature can
-// insert its OIDC round-trip between "establish" and "finalize":
+// Pipeline, in three steps:
 //
-//   captureLanding      -> the post-auth redirect intent from the /init request
-//   establishCmsSession -> mint -> verify (the CMS half)
+//   captureLanding      -> the post-auth redirect intent from the request
+//   establishCmsSession -> the token + version /init passed on, or lookupCmsSession
+//                          (discover -> mint -> verify, the CMS half)
 //   finalize            -> set Cms-Auth-Values + redirect to the landing
 //
-// handleInitNonDdei composes all three (drop1's own switch path). drop2 calls
-// establishCmsSession, carries the result through Azure AD in its state cookie, then
-// calls cmsAuthValuesCookie/finalize in its callback — so the Cms-Auth-Values write
-// stays IDENTICAL across both drops (see auth-handover.drop2.entra). drop1 imports
-// nothing from drop2, so removing drop2 leaves this file working unchanged.
+// handleInitNonDdei composes all three. drop2 (which runs from /init, R0) calls only
+// lookupCmsSession — the non-redirecting lookup — and then passes the token on to
+// /auth-refresh-inbound, so this path skips its own lookup. drop1 imports nothing from drop2,
+// so removing drop2 leaves this file working unchanged.
 // ---------------------------------------------------------------------------
 
 // The post-auth redirect intent, captured from the /init request args. Carried by
@@ -214,8 +222,51 @@ function captureLanding(r) {
   return { polarisUiUrl: _arg(r, "polaris-ui-url"), q: _arg(r, "q") };
 }
 
-// Establish the CMS session: cookies present -> mint the modern token -> verify
-// against CMS Modern. On any handled failure it performs the fail-redirect (using
+// Look up the CMS session for a cookie jar: discover the version -> mint the modern token ->
+// verify it against CMS Modern. NON-REDIRECTING: returns { token, versionId } on success, or
+// { token: "", versionId: "", reason } (a DDEI auth-fail-reason) — never throws. Used by
+// establishCmsSession below and by /init (drop2), where a failure must carry on, not redirect.
+async function lookupCmsSession(host, cookieHeader) {
+  let mint;
+  try {
+    mint = await _mintModernToken(host, cookieHeader);
+  } catch (e) {
+    return { token: "", versionId: "", reason: FAIL_CMS_AUTH };
+  }
+  if (!mint.token) {
+    return { token: "", versionId: "", reason: FAIL_CMS_AUTH };
+  }
+
+  let verified = false;
+  try {
+    verified = await _verifyModernToken(host, mint.token, cookieHeader);
+  } catch (e) {
+    verified = false;
+  }
+  if (!verified) {
+    return { token: "", versionId: "", reason: FAIL_CMS_MODERN };
+  }
+  return { token: mint.token, versionId: mint.versionId, reason: "" };
+}
+
+// /init has usually already looked the session up (for the Entra deposit) and passes the token +
+// version on (R0), so this step need not repeat discover/mint/verify. Only well-formed values
+// are taken (a GUID token, a CMS.<n>... version — the version lands in the Cms-Auth-Values JSON);
+// anything else is ignored and the session is looked up as before. Trust: these arrive beside
+// `cc` in the same URL, which a caller could already hand-craft; a mismatched pair fails at the
+// gateway and triggers a reauth, as a bad `cc` does today.
+const TOKEN_ARG = "cms-modern-token";
+const VERSION_ARG = "cms-version-id";
+function _passedSession(r) {
+  const token = _arg(r, TOKEN_ARG);
+  const versionId = _arg(r, VERSION_ARG);
+  if (!/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(token)) return null;
+  if (!/^CMS\.[0-9A-Za-z._-]+$/.test(versionId)) return null;
+  return { token: token, versionId: versionId };
+}
+
+// Establish the CMS session: cookies present -> the token + version passed on from /init, or
+// look them up (lookupCmsSession). On any handled failure it performs the fail-redirect (using
 // landing.polarisUiUrl) and returns null; on success returns
 // { cookieHeader, token, versionId }. The CMS cookie arrives as `cc`
 // (appAuthRedirect appended &cc=<cookie> on the 302 to /auth-refresh-inbound),
@@ -230,33 +281,20 @@ async function establishCmsSession(r, landing) {
     return null;
   }
 
-  let mint;
-  try {
-    mint = await _mintModernToken(host, cookieHeader);
-  } catch (e) {
-    _failRedirect(r, landing.polarisUiUrl, FAIL_CMS_AUTH);
-    return null;
-  }
-  if (!mint.token) {
-    _failRedirect(r, landing.polarisUiUrl, FAIL_CMS_AUTH);
-    return null;
+  const passed = _passedSession(r);
+  if (passed) {
+    return { cookieHeader: cookieHeader, token: passed.token, versionId: passed.versionId };
   }
 
-  let verified = false;
-  try {
-    verified = await _verifyModernToken(host, mint.token, cookieHeader);
-  } catch (e) {
-    verified = false;
-  }
-  if (!verified) {
-    _failRedirect(r, landing.polarisUiUrl, FAIL_CMS_MODERN);
+  const found = await lookupCmsSession(host, cookieHeader);
+  if (!found.token) {
+    _failRedirect(r, landing.polarisUiUrl, found.reason);
     return null;
   }
-
   return {
     cookieHeader: cookieHeader,
-    token: mint.token,
-    versionId: mint.versionId,
+    token: found.token,
+    versionId: found.versionId,
   };
 }
 
@@ -286,7 +324,7 @@ function finalize(r, session, landing) {
     // PolarisAuthRedirect: UI passed the post-auth return URL.
     // NOTE: a production version must whitelist this (open-redirect surface) —
     // see docs/PLAN.md Phase 4 / the /auth-refresh-inbound switch discussion.
-    r.return(302, landing.polarisUiUrl);
+    r.return(302, absoluteUrl(r, landing.polarisUiUrl));
     return;
   }
   // CmsLaunch: q = {"caseId":n}. Let the UI resolve the URN via /polaris-ui/go.
@@ -294,18 +332,28 @@ function finalize(r, session, landing) {
   if (caseId) {
     r.return(
       302,
-      GO_ROUTE + "?ctx=" + encodeURIComponent('{"caseId":' + caseId + "}"),
+      absoluteUrl(r, GO_ROUTE + "?ctx=" + encodeURIComponent('{"caseId":' + caseId + "}")),
     );
     return;
   }
-  r.return(302, FALLBACK_LANDING);
+  r.return(302, absoluteUrl(r, FALLBACK_LANDING));
 }
 
 // ---------------------------------------------------------------------------
 // Handler — the DDEI /api/init/ pipeline in njs (drop1's own switch path).
 // ---------------------------------------------------------------------------
 
+// Observable marker: which auth-init path answered /auth-refresh-inbound. DDEI's
+// proxied answer carries none, so presence/absence in DevTools (or a curl -I) shows
+// whether a switch or enrolment took effect. Values: "non-ddei" (drop1), "entra" /
+// "entra-degraded" (drop2, set by that module). Deliberately carries no error detail.
+const AUTH_INIT_HEADER = "X-Polaris-Auth-Init";
+function markAuthInit(r, value) {
+  r.headersOut[AUTH_INIT_HEADER] = value;
+}
+
 async function handleInitNonDdei(r) {
+  markAuthInit(r, "non-ddei"); // on every answer from this path, success or fail-redirect
   const landing = captureLanding(r);
   try {
     const session = await establishCmsSession(r, landing);
@@ -322,6 +370,9 @@ export default {
   // reused by feature auth-handover.drop2.entra:
   captureLanding,
   establishCmsSession,
+  lookupCmsSession,
   cmsAuthValuesCookie,
   finalize,
+  markAuthInit,
+  absoluteUrl,
 };

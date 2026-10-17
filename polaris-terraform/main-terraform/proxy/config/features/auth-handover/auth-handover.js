@@ -1,10 +1,13 @@
 import qs from "querystring";
 import common from "../common/cms-detection.js";
 import ieMode from "../common/ie-mode.js";
+import entra from "../auth-handover.drop2.entra/auth-handover.drop2.entra.js";
 
 const IS_PROXY_SESSION_PARAM_NAME = "is-proxy-session";
 const SESSION_HINT_COOKIE_NAME = "Cms-Session-Hint";
 const SESSION_HINT_COOKIE_LIFESPAN_MS = 30 * 24 * 60 * 60 * 1000;
+// drop2's static terminal page for the hidden iframe (`location = /init/terminal`).
+const IFRAME_TERMINAL_PATH = "/init/terminal";
 
 function _argsShim(args) {
   if (args["r"]) {
@@ -124,8 +127,8 @@ function setSessionHintCookie(r) {
 //
 // Same roots as DDEI CookieHelpers.WhitelistedCookieNameRoots, plus the newer F5
 // form ([CF]-<TOKEN>-LBsessioncookie) matched by suffix. This is the ONE place
-// the handover filters: every flow funnels through /init, so the init variants
-// behind /auth-refresh-inbound (drop1, drop2) take `cc` as already clean.
+// the handover filters: every flow funnels through /init, so drop2 (which runs from /init, after
+// this filter) and drop1 (behind /auth-refresh-inbound) take `cc` as already clean.
 const CC_WHITELIST_ROOTS = [
   "ASP.NET_SessionId",
   "UID",
@@ -171,8 +174,12 @@ function _whitelistCookies(cookie) {
 }
 
 function appAuthRedirect(r) {
-  // Edge Mode Desired (was the two conf `if ($ieaction …)` gates on /init).
-  if (ieMode.coerce(r, "edge", true)) return;
+  // Edge Mode Desired (was the two conf `if ($ieaction …)` gates on /init) — EXCEPT for the
+  // hidden-iframe handover (terminal=iframe, drop2 QUIRK E8): that runs inside the CMS Classic
+  // shell, an IE-mode tab, and an iframe cannot change mode, so coercing would loop
+  // (X-InternetExplorerMode: 0 redirects) or 402. It also MUST stay in IE mode: the presence
+  // cookie it ends with belongs in the IE-mode jar. Absent terminal=iframe, behaviour is unchanged.
+  if (r.args.terminal !== "iframe" && ieMode.coerce(r, "edge", true)) return;
   setSessionHintCookie(r);
 
   const args = _argsShim(r.args);
@@ -184,12 +191,30 @@ function appAuthRedirect(r) {
     .some((url) => redirectUrl.startsWith(url));
 
   if (isWhitelisted) {
-    _redirectToAbsoluteUrl(
-      r,
-      `${redirectUrl}${
-        redirectUrl.includes("?") ? "&" : "?"
-      }cc=${encodeURIComponent(_whitelistCookies(args["cookie"] ?? ""))}`,
-    );
+    const cc = _whitelistCookies(args["cookie"] ?? "");
+    // The hidden iframe (terminal=iframe) exists only for drop2's deposit + presence cookie. If
+    // drop2 does not start, carrying on would load the whole Polaris UI inside the hidden frame,
+    // so it ends on drop2's frameable terminal page instead (a 302: a page rendered here would
+    // carry the server's X-Frame-Options: DENY).
+    const carryOn =
+      r.args.terminal === "iframe"
+        ? () => _redirectToAbsoluteUrl(r, IFRAME_TERMINAL_PATH)
+        : () =>
+            _redirectToAbsoluteUrl(
+              r,
+              `${redirectUrl}${redirectUrl.includes("?") ? "&" : "?"}cc=${encodeURIComponent(cc)}`,
+            );
+    // drop2 (R0): deposit this user's CMS auth to MDS for EVERY destination, via a silent Entra
+    // round trip that ends back on the same 302 (auth-handover.drop2.entra). Any failure there
+    // resolves false and we carry on exactly as below. Off: synchronous, unchanged.
+    if (_entraOn(r)) {
+      return entra
+        .beginFromInit(r, { redirectUrl, cookies: cc, terminal: r.args.terminal })
+        .then((began) => {
+          if (!began) carryOn();
+        });
+    }
+    carryOn();
   } else {
     r.return(
       403,
@@ -411,6 +436,15 @@ function enrol(r) {
   const current = _getCookieValue(r, ENROL_COOKIE);
   r.headersOut["Content-Type"] = "text/html; charset=utf-8";
   r.return(200, _enrolPage(current));
+}
+
+// drop2 at /init: the global switch, or this browser's enrolment (the same cookie the
+// /auth-refresh-inbound gate reads — enrolling in drop2 means "Entra at /init + drop1 behind").
+function _entraOn(r) {
+  return (
+    process.env.ENTRA_STORE_ENABLED === "true" ||
+    _getCookieValue(r, ENROL_COOKIE) === "drop2"
+  );
 }
 
 // Feature-switch getters for the /auth-refresh-inbound routing gate (js_set).

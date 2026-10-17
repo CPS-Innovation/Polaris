@@ -224,6 +224,57 @@ async function appAuthRedirect(authHandover) {
       assertNotIncludes(beforeCc, "is-proxy-session", "the synthetic flag must not leak into r")
     })
   })
+
+  // drop2 QUIRK E8: the hidden-iframe handover runs inside the CMS Classic shell (an IE-mode tab).
+  // An iframe cannot change mode, so /init must NOT apply its Edge gate when terminal=iframe —
+  // and terminal=iframe must survive into the synthesised r so drop2 sees it.
+  console.log("\nappAuthRedirect — Edge gate vs the hidden-iframe handover (terminal=iframe):")
+  const IE = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko" }
+
+  await test("without terminal=iframe, an IE (configurable) request is still coerced to Edge (unchanged)", async () => {
+    await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST, WEBSITE_SCHEME: "https" }, () => {
+      const r = req({ q: "Q", cookie: "c=1" }, { ...IE, "X-InternetExplorerModeConfigurable": "1" })
+      authHandover.appAuthRedirect(r)
+      assertEqual(r.headersOut["X-InternetExplorerMode"], "0", "asked to leave IE mode")
+    })
+  })
+
+  await test("with terminal=iframe, an IE (configurable) request is NOT coerced", async () => {
+    await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST, WEBSITE_SCHEME: "https" }, () => {
+      const r = req({ q: "Q", cookie: "c=1", terminal: "iframe" }, { ...IE, "X-InternetExplorerModeConfigurable": "1" })
+      authHandover.appAuthRedirect(r)
+      assertEqual(r.headersOut["X-InternetExplorerMode"], undefined, "no mode switch")
+      assertEqual(r.returnCode, 302, "proceeds")
+    })
+  })
+
+  // The hidden iframe exists only for drop2 (deposit + presence). When drop2 does not start
+  // (here: off), carrying on would load the whole Polaris UI inside the hidden frame. So it ends
+  // on the frameable terminal page instead — never on /auth-refresh-inbound.
+  await test("with terminal=iframe and drop2 not running: 302 to the /init/terminal page, NOT into Polaris", async () => {
+    await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST, WEBSITE_SCHEME: "https" }, () => {
+      const r = req({ q: "Q", cookie: "c=1", terminal: "iframe" })
+      authHandover.appAuthRedirect(r)
+      assertEqual(r.returnCode, 302, "302")
+      assertEqual(r.returnBody, "https://proxy.example.org/init/terminal", "the terminal page")
+    })
+  })
+
+  await test("terminal=iframe with a NON-whitelisted r is still a 403", async () => {
+    await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST, WEBSITE_SCHEME: "https" }, () => {
+      const r = req({ r: "https://evil.example/x", cookie: "c=1", terminal: "iframe" })
+      authHandover.appAuthRedirect(r)
+      assertEqual(r.returnCode, 403, "403")
+    })
+  })
+
+  await test("with terminal=iframe, an IE (NON-configurable) request is not 402'd", async () => {
+    await withEnv({ AUTH_HANDOVER_WHITELIST: WHITELIST, WEBSITE_SCHEME: "https" }, () => {
+      const r = req({ q: "Q", cookie: "c=1", terminal: "iframe" }, IE)
+      authHandover.appAuthRedirect(r)
+      assertEqual(r.returnCode, 302, "302, not 402")
+    })
+  })
 }
 
 async function sessionHint(authHandover) {

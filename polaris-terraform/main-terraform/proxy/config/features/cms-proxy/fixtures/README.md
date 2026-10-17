@@ -11,7 +11,7 @@ a whole realistic page:
 | Fixture                      | Exercises                                                       | Tokens it must contain                                                                        |
 | ---------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | `uainGeneratedScript.aspx.js` | `sub_filter` rewrite of the c-button URL + CMS domain → `$host` | `var CASEWORK_TOOLS_URL = 'https://polaris.cps.gov.uk/launch/cms';`, CMS domains, `https://`    |
-| `uainMenuBar.js`             | `cmsenv.cmsMenuBarFilters` (P + Materials button injection)      | `…frameServerJS.POLARIS_URL`, `MENU_BAR_POLARIS_LOGO`, `var sMenuBarRight`                      |
+| `uainMenuBar.js`             | `cmsenv.cmsMenuBarFilters` (P + Materials button injection) + the `openMaterials()` sub_filter | `…frameServerJS.POLARIS_URL`, `MENU_BAR_POLARIS_LOGO`, `var sMenuBarRight`, `function openPolaris() {` |
 | `uacdCDTabs.aspx.html`       | `polaris-script.js` injection + `cmsenv.replaceCmsDomains`       | `</html>`, CMS domains                                                                          |
 | `cms-page.html`              | generic CMS classic/modern proxying + domain rewrites            | CMS domains, `https://`                                                                         |
 

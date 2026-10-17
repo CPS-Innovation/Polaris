@@ -57,6 +57,7 @@ lives in under the refactored (`next`) config.
 | D10 | Root `/` catch-all proxies to CMS Modern                 | [`features/cms-proxy/QUIRKS.md`](./features/cms-proxy/QUIRKS.md)                 |
 | D11 | Every app setting is written three times                 | **this file**                                                                    |
 | D12 | `/launch/*`: one route env-driven, nine hardcoded        | [`features/app-launch/QUIRKS.md`](./features/app-launch/QUIRKS.md)               |
+| D13 | #2189 (materials URN removal) held back in the next config | [`features/cwa-materials/QUIRKS.md`](./features/cwa-materials/QUIRKS.md)           |
 
 ---
 

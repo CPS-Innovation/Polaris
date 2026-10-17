@@ -16,35 +16,30 @@ const TARGETS = {
     os: "cps",
     polaris: "polaris",
     stage: "prod",
-    casework: "casework_blocks/home",
   },
   cin2: {
     host: "cin2.cps.gov.uk",
     os: "cps-tst",
     polaris: "polaris-qa-notprod",
     stage: "test",
-    casework: "casework/home",
   },
   cin3: {
     host: "cin3.cps.gov.uk",
     os: "cps-tst",
     polaris: "polaris-qa-notprod",
     stage: "test",
-    casework: "casework/home",
   },
   cin4: {
     host: "cin4.cps.gov.uk",
     os: "cps-tst",
     polaris: "polaris-qa-notprod",
     stage: "test",
-    casework: "casework/home",
   },
   cin5: {
     host: "cin5.cps.gov.uk",
     os: "cps-tst",
     polaris: "polaris-qa-notprod",
     stage: "test",
-    casework: "casework/home",
   },
   // cpt/cmo brought across from the live config (FCT2-18732). UAT-tier: OutSystems cps-tst1,
   // polaris-uat-notprod, stage uat. cpt -> cmscpt host, cmo -> cmo host (live naming).
@@ -53,63 +48,54 @@ const TARGETS = {
     os: "cps-tst1",
     polaris: "polaris-uat-notprod",
     stage: "uat",
-    casework: "casework/home",
   },
   cmo: {
     host: "cmo.cps.gov.uk",
     os: "cps-tst1",
     polaris: "polaris-uat-notprod",
     stage: "uat",
-    casework: "casework/home",
   },
   "cms-proxy": {
     host: "polaris.cps.gov.uk",
     os: "cps",
     polaris: "polaris",
     stage: "prod",
-    casework: "casework_blocks/home",
   },
   "cin2-proxy": {
     host: "polaris-qa-notprod.cps.gov.uk",
     os: "cps-tst",
     polaris: "polaris-qa-notprod",
     stage: "test",
-    casework: "casework/home",
   },
   "cin3-proxy": {
     host: "polaris-qa-notprod.cps.gov.uk",
     os: "cps-tst",
     polaris: "polaris-qa-notprod",
     stage: "test",
-    casework: "casework/home",
   },
   "cin4-proxy": {
     host: "polaris-qa-notprod.cps.gov.uk",
     os: "cps-tst",
     polaris: "polaris-qa-notprod",
     stage: "test",
-    casework: "casework/home",
   },
   "cin5-proxy": {
     host: "polaris-qa-notprod.cps.gov.uk",
     os: "cps-tst",
     polaris: "polaris-qa-notprod",
     stage: "test",
-    casework: "casework/home",
   },
   "cpt-proxy": {
     host: "polaris-uat-notprod.cps.gov.uk",
     os: "cps-tst1",
     polaris: "polaris-uat-notprod",
     stage: "uat",
-    casework: "casework/home",
   },
   "cmo-proxy": {
     host: "polaris-uat-notprod.cps.gov.uk",
     os: "cps-tst1",
     polaris: "polaris-uat-notprod",
     stage: "uat",
-    casework: "casework/home",
   },
 };
 
@@ -121,7 +107,9 @@ function launch(r) {
   }
 
   const os = `${t.os}.outsystemsenterprise.com`;
-  const finalUrl = `https://${os}/${t.casework}?IsFromCMS=True`;
+  // Every tier lands on the same casework home page (FCT2-21520 moved prod off
+  // casework_blocks/home, the last per-target difference).
+  const finalUrl = `https://${os}/casework/home?IsFromCMS=True`;
   const hop =
     `https://${os}/Casework_Patterns/auth-handover.html` +
     `?src=https://${t.polaris}.cps.gov.uk/global-components/${t.stage}/auth-handover.js` +

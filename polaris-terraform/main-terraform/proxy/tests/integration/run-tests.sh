@@ -83,9 +83,11 @@ fi
 cd "$SCRIPT_DIR"
 CONFIG_DIR="$(cd "$SCRIPT_DIR/../../config" && pwd)"
 FAILED=0
+RAN=0
 for f in $(find "$CONFIG_DIR" -name '*.integration.test.js' | sort); do
   [ -e "$f" ] || continue
   if [ -n "$FILTER" ] && [[ "$f" != *"$FILTER"* ]]; then continue; fi
+  RAN=$((RAN + 1))
   echo ""
   echo -e "${YELLOW}==== $(basename "$f") ====${NC}"
   if ! PROXY_BASE="$PROXY_BASE" PROXY_CONFIG_KIND="$CONFIG_KIND" node "$f"; then
@@ -95,6 +97,12 @@ done
 
 echo ""
 echo "=========================="
+# A filter that matches nothing (e.g. a mistyped flag, which lands here as a filter)
+# must not report success.
+if [ $RAN -eq 0 ]; then
+  echo -e "${RED}No test files matched${FILTER:+ filter '$FILTER'} — nothing ran${NC}"
+  exit 1
+fi
 if [ $FAILED -gt 0 ]; then
   echo -e "${RED}$FAILED test file(s) failed${NC}"
   exit 1
