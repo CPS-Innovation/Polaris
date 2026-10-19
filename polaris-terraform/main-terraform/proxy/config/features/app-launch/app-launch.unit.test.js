@@ -16,7 +16,7 @@ const { loadNjs, createMockRequest, cmsEnvObject, applyEnv } = require("../../..
 // The two OutSystems hop `?r=` values, verbatim from the live static blocks
 // (PROD_R as amended by FCT2-21520: casework_blocks/home -> casework/home).
 const PROD_R = "https%3A%2F%2Fcps.outsystemsenterprise.com%2FCasework_Patterns%2Fauth-handover.html%3Fsrc%3Dhttps%3A%2F%2Fpolaris.cps.gov.uk%2Fglobal-components%2Fprod%2Fauth-handover.js%26stage%3Dos-cookie-return%26r%3Dhttps%253A%252F%252Fcps.outsystemsenterprise.com%252Fcasework%252Fhome%253FIsFromCMS%253DTrue"
-const TEST_R = "https%3A%2F%2Fcps-tst.outsystemsenterprise.com%2FCasework_Patterns%2Fauth-handover.html%3Fsrc%3Dhttps%3A%2F%2Fpolaris-qa-notprod.cps.gov.uk%2Fglobal-components%2Ftest%2Fauth-handover.js%26stage%3Dos-cookie-return%26r%3Dhttps%253A%252F%252Fcps-tst.outsystemsenterprise.com%252Fcasework%252Fhome%253FIsFromCMS%253DTrue"
+const TEST_R = "https%3A%2F%2Foapps-qa-notprod.int.cps.gov.uk%2FCasework_Patterns%2Fauth-handover.html%3Fsrc%3Dhttps%3A%2F%2Fpolaris-qa-notprod.cps.gov.uk%2Fglobal-components%2Ftest%2Fauth-handover.js%26stage%3Dos-cookie-return%26r%3Dhttps%253A%252F%252Foapps-qa-notprod.int.cps.gov.uk%252Fcasework%252Fhome%253FIsFromCMS%253DTrue"
 
 const expect = (host, rParam) => `https://${host}/polaris?r=${rParam}`
 
