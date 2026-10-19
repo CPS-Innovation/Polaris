@@ -1,8 +1,8 @@
 // Ten near-identical handover redirects collapsed into one js_content handler.
 // Each /launch/<key> 302s to https://<host>/polaris?r=<hop>, where <hop> is the
-// OutSystems auth-handover URL. TARGETS is a flat manifest — one self-contained
-// row per launch key; `os` is the full OutSystems host (the QA tier moved to the oapps
-// domain, RNAV-40 / #2217, so it is no longer always a .outsystemsenterprise.com
+// OutSystems auth-handover URL. TARGETS maps each launch key to its CMS host and its
+// environment tier (*_TIER below); `os` is the full OutSystems host (the QA tier moved to
+// the oapps domain, RNAV-40 / #2217, so it is no longer always a .outsystemsenterprise.com
 // subdomain); `polaris` holds just the distinctive subdomain and the builder appends
 // .cps.gov.uk.
 // The one env-driven host (DEFAULT_UPSTREAM_CMS_DOMAIN_NAME) is a fixed app setting,
@@ -12,107 +12,57 @@
 // as the inner r=, then the whole hop URL is encoded again as the outer r= — the
 // same double-encoding the static strings carried. Behaviour-preserving, proven
 // byte-for-byte by app-launch.unit.test.js + 01-app-launch.integration.test.js.
+// One row per environment tier. A tier moving (e.g. RNAV-40 / #2217: the QA tier to the oapps
+// OutSystems host) is a one-line change here. `os` is the full OutSystems host.
+const PROD_TIER = {
+  os: "cps.outsystemsenterprise.com",
+  polaris: "polaris",
+  stage: "prod",
+  casework: "casework_blocks/home",
+};
+const QA_TIER = {
+  os: "oapps-qa-notprod.int.cps.gov.uk",
+  polaris: "polaris-qa-notprod",
+  stage: "test",
+  casework: "casework/home",
+};
+// cpt/cmo brought across from the live config (FCT2-18732): the UAT tier.
+const UAT_TIER = {
+  os: "cps-tst1.outsystemsenterprise.com",
+  polaris: "polaris-uat-notprod",
+  stage: "uat",
+  casework: "casework/home",
+};
+
+// A launch target: the CMS host it hands over from, plus its tier's fields. (Explicit copy, not
+// object spread: njs rejects `...` — "Token ... not supported in this version".)
+function target(host, tier) {
+  return {
+    host: host,
+    os: tier.os,
+    polaris: tier.polaris,
+    stage: tier.stage,
+    casework: tier.casework,
+  };
+}
+
+// Launch key -> target. cpt -> cmscpt host, cmo -> cmo host (live naming); the -proxy keys
+// hand over from the proxied-CMS host.
 const TARGETS = {
-  cms: {
-    host: process.env.DEFAULT_UPSTREAM_CMS_DOMAIN_NAME,
-    os: "cps.outsystemsenterprise.com",
-    polaris: "polaris",
-    stage: "prod",
-    casework: "casework_blocks/home",
-  },
-  cin2: {
-    host: "cin2.cps.gov.uk",
-    os: "oapps-qa-notprod.int.cps.gov.uk",
-    polaris: "polaris-qa-notprod",
-    stage: "test",
-    casework: "casework/home",
-  },
-  cin3: {
-    host: "cin3.cps.gov.uk",
-    os: "oapps-qa-notprod.int.cps.gov.uk",
-    polaris: "polaris-qa-notprod",
-    stage: "test",
-    casework: "casework/home",
-  },
-  cin4: {
-    host: "cin4.cps.gov.uk",
-    os: "oapps-qa-notprod.int.cps.gov.uk",
-    polaris: "polaris-qa-notprod",
-    stage: "test",
-    casework: "casework/home",
-  },
-  cin5: {
-    host: "cin5.cps.gov.uk",
-    os: "oapps-qa-notprod.int.cps.gov.uk",
-    polaris: "polaris-qa-notprod",
-    stage: "test",
-    casework: "casework/home",
-  },
-  // cpt/cmo brought across from the live config (FCT2-18732). UAT-tier: OutSystems cps-tst1,
-  // polaris-uat-notprod, stage uat. cpt -> cmscpt host, cmo -> cmo host (live naming).
-  cpt: {
-    host: "cmscpt.cps.gov.uk",
-    os: "cps-tst1.outsystemsenterprise.com",
-    polaris: "polaris-uat-notprod",
-    stage: "uat",
-    casework: "casework/home",
-  },
-  cmo: {
-    host: "cmo.cps.gov.uk",
-    os: "cps-tst1.outsystemsenterprise.com",
-    polaris: "polaris-uat-notprod",
-    stage: "uat",
-    casework: "casework/home",
-  },
-  "cms-proxy": {
-    host: "polaris.cps.gov.uk",
-    os: "cps.outsystemsenterprise.com",
-    polaris: "polaris",
-    stage: "prod",
-    casework: "casework_blocks/home",
-  },
-  "cin2-proxy": {
-    host: "polaris-qa-notprod.cps.gov.uk",
-    os: "oapps-qa-notprod.int.cps.gov.uk",
-    polaris: "polaris-qa-notprod",
-    stage: "test",
-    casework: "casework/home",
-  },
-  "cin3-proxy": {
-    host: "polaris-qa-notprod.cps.gov.uk",
-    os: "oapps-qa-notprod.int.cps.gov.uk",
-    polaris: "polaris-qa-notprod",
-    stage: "test",
-    casework: "casework/home",
-  },
-  "cin4-proxy": {
-    host: "polaris-qa-notprod.cps.gov.uk",
-    os: "oapps-qa-notprod.int.cps.gov.uk",
-    polaris: "polaris-qa-notprod",
-    stage: "test",
-    casework: "casework/home",
-  },
-  "cin5-proxy": {
-    host: "polaris-qa-notprod.cps.gov.uk",
-    os: "oapps-qa-notprod.int.cps.gov.uk",
-    polaris: "polaris-qa-notprod",
-    stage: "test",
-    casework: "casework/home",
-  },
-  "cpt-proxy": {
-    host: "polaris-uat-notprod.cps.gov.uk",
-    os: "cps-tst1.outsystemsenterprise.com",
-    polaris: "polaris-uat-notprod",
-    stage: "uat",
-    casework: "casework/home",
-  },
-  "cmo-proxy": {
-    host: "polaris-uat-notprod.cps.gov.uk",
-    os: "cps-tst1.outsystemsenterprise.com",
-    polaris: "polaris-uat-notprod",
-    stage: "uat",
-    casework: "casework/home",
-  },
+  cms: target(process.env.DEFAULT_UPSTREAM_CMS_DOMAIN_NAME, PROD_TIER),
+  cin2: target("cin2.cps.gov.uk", QA_TIER),
+  cin3: target("cin3.cps.gov.uk", QA_TIER),
+  cin4: target("cin4.cps.gov.uk", QA_TIER),
+  cin5: target("cin5.cps.gov.uk", QA_TIER),
+  cpt: target("cmscpt.cps.gov.uk", UAT_TIER),
+  cmo: target("cmo.cps.gov.uk", UAT_TIER),
+  "cms-proxy": target("polaris.cps.gov.uk", PROD_TIER),
+  "cin2-proxy": target("polaris-qa-notprod.cps.gov.uk", QA_TIER),
+  "cin3-proxy": target("polaris-qa-notprod.cps.gov.uk", QA_TIER),
+  "cin4-proxy": target("polaris-qa-notprod.cps.gov.uk", QA_TIER),
+  "cin5-proxy": target("polaris-qa-notprod.cps.gov.uk", QA_TIER),
+  "cpt-proxy": target("polaris-uat-notprod.cps.gov.uk", UAT_TIER),
+  "cmo-proxy": target("polaris-uat-notprod.cps.gov.uk", UAT_TIER),
 };
 
 function launch(r) {
