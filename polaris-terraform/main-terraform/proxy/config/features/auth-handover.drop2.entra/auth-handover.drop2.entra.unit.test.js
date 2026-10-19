@@ -371,6 +371,7 @@ async function callbackScenario({
   watchdogSwap = "ok",
   mdsStatus = 204,
   adError = null,
+  adErrorDescription = null,
   env = null,
   dest = DEST_POLARIS,
   handle = H1,
@@ -422,7 +423,9 @@ async function callbackScenario({
     throw new Error("callback: unexpected url " + url)
   }
   const r = createMockRequest({
-    args: adError ? { error: adError, state: sp } : { state: sp, code: "CODE-1" },
+    args: adError
+      ? Object.assign({ error: adError, state: sp }, adErrorDescription === null ? {} : { error_description: adErrorDescription })
+      : { state: sp, code: "CODE-1" },
     headersIn: {
       Host: "proxy.example",
       "X-Forwarded-Proto": "https",
@@ -714,7 +717,41 @@ async function guardAndOutcomeTests(authHandover) {
 
     await callbackScenario({ term: "top-level", adError: "login_required", dest: DEST_OTHER })
     o = outcomeOf(outcomeLines()[0])
-    assertEqual([o.result, o.reason, o.dest].join(","), "degraded,ad-error,other", "ad-error is the code; the AD error name stays in the detail line")
+    assertEqual([o.result, o.reason, o.dest].join(","), "degraded,ad-error,other", "ad-error is the code")
+  })
+
+  await test("D5: an AD error adds ad=<error> aadsts=<number>: no session vs several accounts vs MFA", async () => {
+    const cases = [
+      ["login_required", "AADSTS50058: A silent sign-in request was sent but no user is signed in.", "login_required,50058"],
+      ["interaction_required", "AADSTS16000: SelectUserAccount", "interaction_required,16000"],
+      ["interaction_required", "AADSTS50076: Due to a configuration change", "interaction_required,50076"],
+      ["consent_required", null, "consent_required,none"],
+    ]
+    for (const [adError, adErrorDescription, want] of cases) {
+      await callbackScenario({ term: "top-level", adError, adErrorDescription })
+      const lines = outcomeLines()
+      assertEqual(lines.length, 1, "one line")
+      const o = outcomeOf(lines[0])
+      assertEqual([o.ad, o.aadsts].join(","), want, adError + " fields")
+      assertEqual(o.reason, "ad-error", "reason stays ad-error")
+    }
+    // Lost state (no cookie) still records the AD error.
+    await callbackScenario({ term: "iframe", adError: "login_required", adErrorDescription: "AADSTS50058: x", extraCookie: "", stateParam: "i." + H2 })
+    const o = outcomeOf(outcomeLines()[0])
+    assertEqual([o.result, o.reason, o.term, o.ad, o.aadsts].join(","), "degraded,ad-error,iframe,login_required,50058", "lost-state fields")
+  })
+
+  await test("D5: hostile error / error_description can't inject into the outcome line", async () => {
+    await callbackScenario({
+      term: "top-level",
+      adError: "x reason=ok result=ok",
+      adErrorDescription: "AADSTS1 dest=os token=SECRET",
+    })
+    const line = outcomeLines()[0]
+    assert(line.indexOf("SECRET") === -1 && line.indexOf("result=ok") === -1, line)
+    const o = outcomeOf(line)
+    assertEqual([o.result, o.reason, o.ad, o.aadsts].join(","), "degraded,ad-error,other,1", "sanitised")
+    assertEqual(line.split(" ").length, 7, "no extra fields: " + line)
   })
 
   await test("D5: the outcome line never carries a token, a cookie, the destination URL or an identity", async () => {

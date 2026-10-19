@@ -477,7 +477,8 @@ async function handleInitEntraCallback(r) {
     const adError = _arg(r, "error");
     if (adError) {
       // e.g. login_required (no silent AD session) — degrade, don't block anyone's handover.
-      _degrade(r, st, "ad-error: " + adError, null, lost);
+      // The outcome line records which AD error, and its AADSTS number (see _adFields).
+      _degrade(r, st, "ad-error: " + adError, null, lost, _adFields(adError, _arg(r, "error_description")));
       return;
     }
     if (!st) {
@@ -544,17 +545,17 @@ function _succeed(r, st, extra) {
 // iframe just renders the terminal. With no recoverable state there is no destination: the iframe
 // (known from the `state` param's mode) still gets the terminal page; top-level lands on the
 // Polaris UI, the only safe choice. `lost` = { mode, handle } from the `state` param, when known.
-function _degrade(r, st, reason, extra, lost) {
+function _degrade(r, st, reason, extra, lost, outcomeExtra) {
   // Marker only — the reason goes to the error log below, never to the client.
   replaceDdei.markAuthInit(r, "entra-degraded");
   _log("drop2 entra degrade — " + reason);
   const code = reason.split(":")[0].trim();
   if (st) {
-    _outcome("degraded", code, _stDestKind(r, st), st.term);
+    _outcome("degraded", code, _stDestKind(r, st), st.term, outcomeExtra);
     _finish(r, st, extra);
     return;
   }
-  _outcome("degraded", code, "unknown", lost ? lost.mode : "unknown");
+  _outcome("degraded", code, "unknown", lost ? lost.mode : "unknown", outcomeExtra);
   r.headersOut["Set-Cookie"] = lost ? [STATE_COOKIE_PREFIX + lost.handle + "=deleted" + STATE_CLEAR_OPTS] : [];
   if (lost && lost.mode === "iframe") {
     r.headersOut["Content-Type"] = "text/html; charset=utf-8";
@@ -581,9 +582,21 @@ function _stDestKind(r, st) {
   return st.dk || _destKind(r, st.r || "");
 }
 
+// The AD error fields for the outcome line: ` ad=<error> aadsts=<number>`. Both come off the
+// callback's query string, which anyone can craft, so each is reduced to a safe shape (else
+// `other` / `none`). The AADSTS number tells the cases `error` alone conflates, e.g.
+// interaction_required covers both 16000 (several signed-in accounts: pick one) and
+// 50076 (MFA needed); login_required is 50058 (no AD session at all).
+function _adFields(error, description) {
+  const ad = /^[a-z_]{1,40}$/.test(error) ? error : "other";
+  const m = /^AADSTS(\d{1,8})\b/.exec(description);
+  return " ad=" + ad + " aadsts=" + (m ? m[1] : "none");
+}
+
 // D5: ONE structured line per handover that drop2 handled, for KQL over AppServiceConsoleLogs
 // (Polaris global_la) — the rate of each outcome, per destination kind:
 //   drop2-outcome result=ok|degraded|skipped reason=<code> term=top-level|iframe dest=polaris|os|other|unknown
+// reason=ad-error adds ` ad=<AD error> aadsts=<number|none>` (_adFields).
 // skipped = /init never started Entra (begin); ok / degraded = the callback's end. Codes only:
 // never a token, a cookie, a URL or an identity (the free-text detail stays in the degrade line).
 // Written once per flow: begin writes it only when it skips; the callback writes the rest.

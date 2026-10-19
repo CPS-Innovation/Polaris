@@ -138,9 +138,35 @@ line. Silent when drop2 is off. Rate by outcome, per destination kind:
 ```kusto
 AppServiceConsoleLogs
 | where ResultDescription has "drop2-outcome"
-| parse ResultDescription with * "drop2-outcome result=" result " reason=" reason " term=" term " dest=" dest
+| parse kind=relaxed ResultDescription with * "drop2-outcome result=" result " reason=" reason " term=" term " dest=" dest " " *
 | summarize n = count() by bin(TimeGenerated, 1h), result, reason, dest
 ```
+
+**Why AD said no.** `reason=ad-error` lines add `ad=<error> aadsts=<number|none>`, from the
+callback's `error` and the `AADSTSnnnnn` prefix of `error_description`. Both are attacker-supplied
+query params, so they're reduced to `[a-z_]{1,40}` (else `other`) and digits (else `none`). The
+number is what separates the cases `error` alone lumps together:
+
+| `ad` | `aadsts` | Meaning |
+| --- | --- | --- |
+| `login_required` | 50058 | No Entra session in this browser (the "no Entra" case) |
+| `interaction_required` | 16000 | Several signed-in accounts, AD wants the user to pick one (the "multiple accounts" case) |
+| `interaction_required` | 50076 / 50079 | MFA (or MFA registration) needed |
+| `interaction_required` | 53000 / 53003 | Conditional Access: unmanaged device / blocked |
+| `consent_required` | 65001 | The app lacks consent for a requested scope |
+
+```kusto
+AppServiceConsoleLogs
+| where ResultDescription has "drop2-outcome" and ResultDescription has "reason=ad-error"
+| extend ad = extract(@" ad=(\S+)", 1, ResultDescription),
+         aadsts = extract(@" aadsts=(\S+)", 1, ResultDescription),
+         term = extract(@" term=(\S+)", 1, ResultDescription)
+| summarize n = count() by bin(TimeGenerated, 1d), ad, aadsts, term
+```
+
+Neither field says *which* user. For anecdata, match a time and a CMS user from support reports;
+the line deliberately carries no identity. Also invisible: the wrong account silently winning
+(`result=ok`; seen in the dev proof with an admin account).
 
 The alert on it (an Azure Monitor scheduled query) is a separate item: it needs an action group
 and a threshold agreed.
