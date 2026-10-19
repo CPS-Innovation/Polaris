@@ -1,8 +1,10 @@
 // Ten near-identical handover redirects collapsed into one js_content handler.
 // Each /launch/<key> 302s to https://<host>/polaris?r=<hop>, where <hop> is the
 // OutSystems auth-handover URL. TARGETS is a flat manifest — one self-contained
-// row per launch key; `os`/`polaris` hold just the distinctive subdomains and the
-// builder appends the shared parent domains (.outsystemsenterprise.com / .cps.gov.uk).
+// row per launch key; `os` is the full OutSystems host (the QA tier moved to the oapps
+// domain, RNAV-40 / #2217, so it is no longer always a .outsystemsenterprise.com
+// subdomain); `polaris` holds just the distinctive subdomain and the builder appends
+// .cps.gov.uk.
 // The one env-driven host (DEFAULT_UPSTREAM_CMS_DOMAIN_NAME) is a fixed app setting,
 // read once at module load — the container env is populated before nginx loads this.
 //
@@ -13,35 +15,35 @@
 const TARGETS = {
   cms: {
     host: process.env.DEFAULT_UPSTREAM_CMS_DOMAIN_NAME,
-    os: "cps",
+    os: "cps.outsystemsenterprise.com",
     polaris: "polaris",
     stage: "prod",
     casework: "casework_blocks/home",
   },
   cin2: {
     host: "cin2.cps.gov.uk",
-    os: "cps-tst",
+    os: "oapps-qa-notprod.int.cps.gov.uk",
     polaris: "polaris-qa-notprod",
     stage: "test",
     casework: "casework/home",
   },
   cin3: {
     host: "cin3.cps.gov.uk",
-    os: "cps-tst",
+    os: "oapps-qa-notprod.int.cps.gov.uk",
     polaris: "polaris-qa-notprod",
     stage: "test",
     casework: "casework/home",
   },
   cin4: {
     host: "cin4.cps.gov.uk",
-    os: "cps-tst",
+    os: "oapps-qa-notprod.int.cps.gov.uk",
     polaris: "polaris-qa-notprod",
     stage: "test",
     casework: "casework/home",
   },
   cin5: {
     host: "cin5.cps.gov.uk",
-    os: "cps-tst",
+    os: "oapps-qa-notprod.int.cps.gov.uk",
     polaris: "polaris-qa-notprod",
     stage: "test",
     casework: "casework/home",
@@ -50,63 +52,63 @@ const TARGETS = {
   // polaris-uat-notprod, stage uat. cpt -> cmscpt host, cmo -> cmo host (live naming).
   cpt: {
     host: "cmscpt.cps.gov.uk",
-    os: "cps-tst1",
+    os: "cps-tst1.outsystemsenterprise.com",
     polaris: "polaris-uat-notprod",
     stage: "uat",
     casework: "casework/home",
   },
   cmo: {
     host: "cmo.cps.gov.uk",
-    os: "cps-tst1",
+    os: "cps-tst1.outsystemsenterprise.com",
     polaris: "polaris-uat-notprod",
     stage: "uat",
     casework: "casework/home",
   },
   "cms-proxy": {
     host: "polaris.cps.gov.uk",
-    os: "cps",
+    os: "cps.outsystemsenterprise.com",
     polaris: "polaris",
     stage: "prod",
     casework: "casework_blocks/home",
   },
   "cin2-proxy": {
     host: "polaris-qa-notprod.cps.gov.uk",
-    os: "cps-tst",
+    os: "oapps-qa-notprod.int.cps.gov.uk",
     polaris: "polaris-qa-notprod",
     stage: "test",
     casework: "casework/home",
   },
   "cin3-proxy": {
     host: "polaris-qa-notprod.cps.gov.uk",
-    os: "cps-tst",
+    os: "oapps-qa-notprod.int.cps.gov.uk",
     polaris: "polaris-qa-notprod",
     stage: "test",
     casework: "casework/home",
   },
   "cin4-proxy": {
     host: "polaris-qa-notprod.cps.gov.uk",
-    os: "cps-tst",
+    os: "oapps-qa-notprod.int.cps.gov.uk",
     polaris: "polaris-qa-notprod",
     stage: "test",
     casework: "casework/home",
   },
   "cin5-proxy": {
     host: "polaris-qa-notprod.cps.gov.uk",
-    os: "cps-tst",
+    os: "oapps-qa-notprod.int.cps.gov.uk",
     polaris: "polaris-qa-notprod",
     stage: "test",
     casework: "casework/home",
   },
   "cpt-proxy": {
     host: "polaris-uat-notprod.cps.gov.uk",
-    os: "cps-tst1",
+    os: "cps-tst1.outsystemsenterprise.com",
     polaris: "polaris-uat-notprod",
     stage: "uat",
     casework: "casework/home",
   },
   "cmo-proxy": {
     host: "polaris-uat-notprod.cps.gov.uk",
-    os: "cps-tst1",
+    os: "cps-tst1.outsystemsenterprise.com",
     polaris: "polaris-uat-notprod",
     stage: "uat",
     casework: "casework/home",
@@ -120,7 +122,7 @@ function launch(r) {
     return;
   }
 
-  const os = `${t.os}.outsystemsenterprise.com`;
+  const os = t.os;
   const finalUrl = `https://${os}/${t.casework}?IsFromCMS=True`;
   const hop =
     `https://${os}/Casework_Patterns/auth-handover.html` +
