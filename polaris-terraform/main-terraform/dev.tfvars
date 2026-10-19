@@ -84,6 +84,8 @@ cms_details = {
 
 auth_handover_whitelist = "/auth-refresh-inbound,https://cps-dev.outsystemsenterprise.com/,https://oapps-dev-notprod.int.cps.gov.uk/,https://polaris-dev-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
 
+proxy_next_config_enabled = true
+
 non_ddei_init_enabled = true
 
 proxy_entra = {

@@ -112,6 +112,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       docker_registry_password = data.azurerm_container_registry.polaris_container_registry.admin_username
     }
     always_on                               = true
+    app_command_line                        = local.proxy_app_command_line
     vnet_route_all_enabled                  = true
     container_registry_use_managed_identity = true
     health_check_path                       = "/"
@@ -368,8 +369,15 @@ locals {
 
   proxy_next_config_hash = md5(join(":", concat(
     [filemd5("${local.proxy_next_dir}/nginx.conf")],
+    [filemd5("${local.proxy_next_dir}/start-next.sh")],
     [for f in sort(tolist(local.proxy_next_files)) : filemd5("${local.proxy_next_dir}/${f}")]
   )))
+}
+
+# The cutover switch, for both slots (identical, so a swap never changes which config runs).
+# Whitespace-free on purpose: the Startup Command field splits on spaces and strips quotes.
+locals {
+  proxy_app_command_line = var.proxy_next_config_enabled ? "sh /etc/nginx/templates/start-next.sh" : ""
 }
 
 # drop2 (auth-handover.drop2.entra): the Entra sign-in + refresh-token swaps that deposit CMS auth
@@ -405,6 +413,18 @@ resource "azurerm_storage_blob" "proxy_next_nginx_conf" {
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "${local.proxy_next_dir}/nginx.conf"
+  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
+}
+
+# The cutover script the Startup Command runs when var.proxy_next_config_enabled (see start-next.sh).
+# Always deployed, like the rest of the next config, so flipping the switch needs no new blob.
+resource "azurerm_storage_blob" "proxy_next_start" {
+  name                   = "start-next.sh"
+  content_md5            = filemd5("${local.proxy_next_dir}/start-next.sh")
+  storage_account_name   = azurerm_storage_account.sacpspolaris.name
+  storage_container_name = azurerm_storage_container.polaris_proxy_content.name
+  type                   = "Block"
+  source                 = "${local.proxy_next_dir}/start-next.sh"
   depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
 }
 

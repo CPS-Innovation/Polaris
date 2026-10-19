@@ -108,6 +108,7 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
       docker_registry_password = data.azurerm_container_registry.polaris_container_registry.admin_username
     }
     always_on                               = true
+    app_command_line                        = local.proxy_app_command_line
     vnet_route_all_enabled                  = true
     container_registry_use_managed_identity = true
     health_check_path                       = "/"

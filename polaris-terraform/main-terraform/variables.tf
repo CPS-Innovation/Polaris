@@ -146,6 +146,15 @@ variable "auth_handover_whitelist" {
   type = string
 }
 
+variable "proxy_next_config_enabled" {
+  # THE cutover switch: which nginx config the proxy runs. true = the refactored "next" config
+  #  (proxy/config), booted by the App Service Startup Command `sh /etc/nginx/templates/start-next.sh`
+  #  on both slots; false = empty Startup Command = the image default = the live monolith
+  #  (main-terraform/nginx.conf). Rollback is false + apply. Terraform owns the Startup Command, so
+  #  a hand-set one is reverted on the next apply. No default: set per env in *.tfvars.
+  type = bool
+}
+
 variable "non_ddei_init_enabled" {
   # drop1 (auth-handover.drop1.replace-ddei) global switch -> app setting NON_DDEI_INIT_ENABLED.
   #  true routes every /auth-refresh-inbound through the njs DDEI-/api/init/ replacement instead
