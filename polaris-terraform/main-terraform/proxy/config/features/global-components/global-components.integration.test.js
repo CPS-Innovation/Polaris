@@ -29,6 +29,7 @@ const {
   assertIncludes,
   get,
   summarise,
+  isNext,
 } = require("../../../tests/integration/test-utils")
 
 const notServerError = (res, label) =>
@@ -129,21 +130,24 @@ async function blobAndAnalytics() {
 
   // gzip on the blob route (ported from global-components #1056). The echo body
   // must clear gzip_min_length (1024) and blob forwards no request headers, so a
-  // long path is the only way to pad it.
+  // long path is the only way to pad it. NEXT config only: the live monolith is
+  // left as on development (it is the rollback once every env runs the next config).
   const BIG_BLOB = `/global-components/test/${"x".repeat(1100)}.js`
 
-  await test("/global-components/{env}/* gzips when the client accepts it", async () => {
-    const res = await get(BIG_BLOB, { headers: { "Accept-Encoding": "gzip" } })
-    assertEqual(res.status, 200, "Should proxy to the blob mock")
-    assertEqual(res.headers.get("content-encoding"), "gzip", "Compressed")
-    assertIncludes(res.headers.get("vary") || "", "Accept-Encoding", "gzip_vary on")
-  })
+  if (isNext) {
+    await test("NEXT: /global-components/{env}/* gzips when the client accepts it", async () => {
+      const res = await get(BIG_BLOB, { headers: { "Accept-Encoding": "gzip" } })
+      assertEqual(res.status, 200, "Should proxy to the blob mock")
+      assertEqual(res.headers.get("content-encoding"), "gzip", "Compressed")
+      assertIncludes(res.headers.get("vary") || "", "Accept-Encoding", "gzip_vary on")
+    })
 
-  await test("/global-components/{env}/* stays identity when the client does not accept gzip", async () => {
-    const res = await get(BIG_BLOB, { headers: { "Accept-Encoding": "identity" } })
-    assertEqual(res.status, 200, "Should proxy to the blob mock")
-    assertEqual(res.headers.get("content-encoding"), null, "Not compressed")
-  })
+    await test("NEXT: /global-components/{env}/* stays identity when the client does not accept gzip", async () => {
+      const res = await get(BIG_BLOB, { headers: { "Accept-Encoding": "identity" } })
+      assertEqual(res.status, 200, "Should proxy to the blob mock")
+      assertEqual(res.headers.get("content-encoding"), null, "Not compressed")
+    })
+  }
 
   // The page carries no CSP of its own, so this header is what restricts its ?src=.
   await test("/global-components/{env}/auth-handover.html is proxied with a CSP restricting scripts to this host", async () => {
