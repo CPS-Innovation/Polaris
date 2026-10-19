@@ -172,12 +172,16 @@ variable "proxy_entra" {
   #                 ("" = no MDS scope in this env; drop2 then falls back to drop1 behaviour).
   #  watchdog_scope the watchdog (presence API) scope drop2 swaps the refresh token for, to set
   #                 the presence cookie on the hidden-iframe flow ("" = no presence cookie).
+  #  interactive_enabled  -> ENTRA_INTERACTIVE_ENABLED. true: a top-level handover whose silent
+  #                 sign-in fails in a way a person can fix (several accounts, no session, MFA)
+  #                 retries once with Entra's account picker. false: silent only (prompt=none).
   #  Only the "next" proxy config acts on these; the live monolith ignores them.
   type = object({
-    store_enabled  = bool
-    client_id      = string
-    mds_scope      = string
-    watchdog_scope = string
+    store_enabled       = bool
+    client_id           = string
+    mds_scope           = string
+    watchdog_scope      = string
+    interactive_enabled = bool
   })
 }
 

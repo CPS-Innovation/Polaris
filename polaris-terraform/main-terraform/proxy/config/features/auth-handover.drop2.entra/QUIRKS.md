@@ -263,3 +263,62 @@ the case-locking consumer) has been removed as experimental — see E3. Kept as 
 so E-numbers stay stable. If presence is revived, this IE/Edge-jar reality (WinINet vs Chromium
 jars are separate; a top-level `/polaris` flow coerced to Edge lands the cookie invisibly to an
 IE-mode reader) is the first thing to re-solve.
+
+### E14. 🟠 Login hint + one interactive retry (D7): no / several Entra accounts
+
+**Why.** `prompt=none` can't sign in a browser with several Entra accounts (AADSTS16000) or none
+(50058): it falls back silently, every time, with no deposit. In pre-prod that is the normal case
+(developers on Workspaces / Linux, admin + user accounts), and any app whose own MSAL sign-in picks
+a different account from ours can't find the deposit (it is filed under the account `/init` used).
+
+**What.**
+- **The hint:** every successful sign-in (silent or interactive, even if the deposit then fails)
+  records the account it used in `cps-entra-login-hint`: `Path=/`, `HttpOnly`, `Secure`,
+  `SameSite=None`, 30 days, HMAC-signed with the state secret (kind `hint`, so it can't be planted
+  from a sibling subdomain or swapped with a state cookie). Value from the id_token: the
+  `login_hint` optional claim (opaque; add it to the app reg), else `preferred_username`; plus
+  `oid`, `tid`, `at`, and `via`. Each sign-in overwrites it, so it always names the account that last won.
+- **`via`, how the account was chosen:** `silent` (no picker), or the reason the silent leg needed
+  the picker, from its AADSTS number: `several-accounts` (16000), `no-session` (50058), `mfa`
+  (50076/50079), `other`. A hinted sign-in can't tell whether other accounts exist (the hint picks
+  one), so **a `several-accounts` hint is re-checked on every handover**: `/init` first signs in
+  silently WITHOUT it (the probe, state `p=1`, outcome `hint=0`).
+  - 16000, or another account wins: several are still signed in → `retried reason=several-accounts`
+    / `other-account`, and the same flow signs in again silently WITH the hint (`m=1`), keeping the
+    user's choice → `several-accounts`. The probe's code is discarded (no swap, no deposit).
+  - The hint's own account wins: the others have signed out → `silent`.
+  - Anything else (e.g. no session) takes the normal path. The hinted leg is never a probe, so it
+    can't loop. Cost: one extra silent round trip, only for several-accounts browsers.
+
+  A browser whose ambient account wins silently with no hint (Edge profile / PRT) is `silent` even
+  with others signed in: Entra never offered a choice, so nobody is stuck.
+- **`/init` sends it** as `login_hint` (still `prompt=none`), so a browser with several accounts
+  signs in silently as the hinted one. Iframe too (it never prompts).
+- **One interactive retry** (`ENTRA_INTERACTIVE_ENABLED=true`, pre-prod): a TOP-LEVEL callback with
+  `login_required` / `interaction_required` / `account_selection_required` — except AADSTS53xxx
+  (Conditional Access device blocks: a prompt would strand the user on Microsoft's block page) —
+  goes back to `/authorize` with `prompt=select_account` and NO hint (the user chooses; that is also
+  how they escape a stale hint). Same flow: same handle and destination, state re-signed with `n=1`
+  (never retried twice) and a fresh `iat` with a 900 s lifetime (people are slow). A second failure
+  degrades as before. Prod (`false`) stays a pure `prompt=none` probe.
+- **The endpoint** `/global-components/entra-login-hint` (exact match; CORS = global-components'
+  `$cors_origin` + `@gloco_preflight`): `GET` → `{loginHint, username, oid, tid, setAt, via}` or `null` (`via: "unknown"` for a
+  hint set before `via` existed)
+  (`no-store`); `DELETE` forgets it (the next handover then lets the user choose).
+
+**For app teams (the contract).** If a hint is present, pass it as MSAL `loginHint`
+(`ssoSilent({ scopes, loginHint })`, or `getAccount({ loginHint })` then `acquireTokenSilent`) or
+as the OIDC `login_hint` parameter; check the token's `oid`/`tid` against the hint's. Show
+"you are pinned to this account" UI (with a way to `DELETE`) only when `via === "several-accounts"`. Fetch with
+`credentials: "include"`. From a `*.cps.gov.uk` origin the cookie is same-site; from another site
+(prod `cps.outsystemsenterprise.com`) it is a third-party cookie, like the existing
+`state` / `cms-session-hint` calls. Later: the hint on the handover redirect (needs the claim), so
+CMS-launched apps get it without a fetch.
+
+**Outcome line.** Callback lines with a known flow add `hint=0|1 int=0|1`; a silent leg handing over
+to the interactive leg logs `result=retried` (with its `ad=`/`aadsts=`), and that flow then ends with
+its own `ok`/`degraded` line with `int=1`. The probe's hand-over to the hinted leg is also
+`retried`, with `reason=several-accounts` or `other-account`. Count handovers by excluding `retried`.
+
+**Not covered.** UAT (`mds_scope = ""`) skips Entra for top-level handovers, so no hint or retry
+there until MDS has a scope. The wrong account silently winning with no hint is still invisible.

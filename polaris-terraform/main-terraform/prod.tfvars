@@ -93,6 +93,8 @@ proxy_entra = {
   # "" until the watchdog (presence API) has its own prod app registration (295ecc3c exposes no
   # scope, deliberately): no presence cookie in prod.
   watchdog_scope = ""
+  # Silent only (prompt=none) until the drop2-outcome ad=/aadsts= counts say prod needs the picker.
+  interactive_enabled = false
 }
 
 app_service_log_retention       = 90

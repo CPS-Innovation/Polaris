@@ -301,6 +301,41 @@ async function entraRoutingTests() {
     })
   }
 
+  // D7: the login-hint endpoint. Drop2 is unconfigured here (no HMAC secret), so no hint ever
+  // verifies — these pin routing, CORS, preflight and DELETE on real nginx; the hint's contents are
+  // unit-tested.
+  const ORIGIN = "https://oapps-qa-notprod.int.cps.gov.uk"
+  await test("GET /global-components/entra-login-hint: JSON null, CORS for a cps.gov.uk origin, no-store", async () => {
+    const res = await get("/global-components/entra-login-hint", { headers: { ...H, Origin: ORIGIN, Cookie: "cps-entra-login-hint=x.y" } })
+    assertEqual(res.status, 200, "200")
+    assertEqual(await res.text(), "null", "no verifiable hint -> null")
+    assertIncludes(res.headers.get("content-type") || "", "application/json", "json")
+    assertEqual(res.headers.get("cache-control"), "no-store", "no-store")
+    assertEqual(res.headers.get("access-control-allow-origin"), ORIGIN, "CORS origin echoed")
+    assertEqual(res.headers.get("access-control-allow-credentials"), "true", "credentials")
+  })
+
+  await test("OPTIONS /global-components/entra-login-hint: 204 preflight allowing DELETE with credentials", async () => {
+    const res = await get("/global-components/entra-login-hint", { method: "OPTIONS", headers: { ...H, Origin: ORIGIN } })
+    assertEqual(res.status, 204, "204")
+    assertIncludes(res.headers.get("access-control-allow-methods") || "", "DELETE", "DELETE allowed")
+    assertEqual(res.headers.get("access-control-allow-origin"), ORIGIN, "origin")
+  })
+
+  await test("DELETE /global-components/entra-login-hint clears the cookie (Path=/, Max-Age=0)", async () => {
+    const res = await get("/global-components/entra-login-hint", { method: "DELETE", headers: { ...H, Origin: ORIGIN } })
+    assertEqual(res.status, 200, "200")
+    const sc = res.headers.get("set-cookie") || ""
+    assertIncludes(sc, "cps-entra-login-hint=deleted", "cleared")
+    assertIncludes(sc, "Path=/;", "host-wide")
+    assertIncludes(sc, "Max-Age=0", "expired")
+  })
+
+  await test("a non-cps.gov.uk origin gets no CORS grant", async () => {
+    const res = await get("/global-components/entra-login-hint", { headers: { ...H, Origin: "https://evil.example" } })
+    assert(!res.headers.get("access-control-allow-origin"), "no ACAO: " + res.headers.get("access-control-allow-origin"))
+  })
+
   await test("/auth-refresh-inbound with no enrolment and the switches off -> DDEI, as today", async () => {
     const res = await get("/auth-refresh-inbound?polaris-ui-url=/polaris-ui/", { headers: H })
     assertEqual(res.headers.get("x-polaris-auth-init"), null, "no drop marker")

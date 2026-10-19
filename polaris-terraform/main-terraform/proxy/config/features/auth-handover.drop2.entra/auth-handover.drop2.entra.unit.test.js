@@ -378,10 +378,11 @@ async function callbackScenario({
   stPatch = null,
   stateParam = null,
   extraCookie = "",
+  idClaims = null,
 }) {
+  // Applied for the load (module consts) AND the call (per-request switches).
   const restore = env ? applyEnv(env) : () => {}
   const entra = await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")
-  restore()
   const st = {
     s: handle,
     cc: CC,
@@ -403,7 +404,7 @@ async function callbackScenario({
       const f = form(init.body)
       if (f.grant_type === "authorization_code") {
         if (exchange !== "ok") return res({ status: 400, body: JSON.stringify({ error: "invalid_grant" }) })
-        const body = { access_token: "GRAPH-TOKEN", expires_in: 3599, id_token: "ID-TOKEN" }
+        const body = { access_token: "GRAPH-TOKEN", expires_in: 3599, id_token: idClaims ? jwt(idClaims) : "ID-TOKEN" }
         if (rt) body.refresh_token = "RT-SECRET-1"
         return res({ body: JSON.stringify(body) })
       }
@@ -433,7 +434,14 @@ async function callbackScenario({
     },
   })
   await entra.handleInitEntraCallback(r)
+  restore()
   return r
+}
+
+// An unsigned JWT carrying `claims` (the callback reads, never verifies, the id_token's claims).
+function jwt(claims) {
+  const b = (o) => Buffer.from(JSON.stringify(o)).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
+  return b({ alg: "none" }) + "." + b(claims) + ".sig"
 }
 
 // The sequence of outbound calls, e.g. "authorization_code > refresh_token:mds > mds".
@@ -751,7 +759,7 @@ async function guardAndOutcomeTests(authHandover) {
     assert(line.indexOf("SECRET") === -1 && line.indexOf("result=ok") === -1, line)
     const o = outcomeOf(line)
     assertEqual([o.result, o.reason, o.ad, o.aadsts].join(","), "degraded,ad-error,other,1", "sanitised")
-    assertEqual(line.split(" ").length, 7, "no extra fields: " + line)
+    assertEqual(line.split(" ").length, 9, "no extra fields: " + line)
   })
 
   await test("D5: the outcome line never carries a token, a cookie, the destination URL or an identity", async () => {
@@ -759,7 +767,7 @@ async function guardAndOutcomeTests(authHandover) {
     const line = outcomeLines()[0]
     for (const bad of [TOKEN, "RT-SECRET-1", "MDS-TOKEN", "WATCHDOG-TOKEN", "ASP.NET", "polaris-ui", "proxy.example"])
       assert(line.indexOf(bad) === -1, "outcome line leaks " + bad + ": " + line)
-    assertEqual(Object.keys(outcomeOf(line)).sort().join(","), "dest,reason,result,term", "exactly these fields")
+    assertEqual(Object.keys(outcomeOf(line)).sort().join(","), "dest,hint,int,reason,result,term", "exactly these fields")
   })
 
   await test("D5: unrecoverable state -> one degraded line with dest=unknown", async () => {
@@ -961,6 +969,234 @@ async function reviewFixTests(authHandover, entra) {
   })
 }
 
+// D7: the login hint, its endpoint, and the one interactive retry.
+const HINT_PREFIX = "cps-entra-login-hint="
+const CLAIMS = { login_hint: "O.opaque-hint-1", preferred_username: "user@cps.gov.uk", oid: "oid-1", tid: "tid-1" }
+
+async function d7Tests(authHandover, entra) {
+  console.log("\nD7 — login hint (cookie + endpoint) and the interactive retry:")
+  const on = { ENTRA_STORE_ENABLED: "true" }
+  const interactive = { ENTRA_INTERACTIVE_ENABLED: "true" }
+  const hintValue = (r) => cookieValue(findCookie(r.headersOut["Set-Cookie"], HINT_PREFIX))
+
+  await test("a successful sign-in sets the hint: signed, host-wide, HttpOnly, SameSite=None, 30 days", async () => {
+    const r = await callbackScenario({ term: "top-level", idClaims: CLAIMS })
+    const sc = findCookie(r.headersOut["Set-Cookie"], HINT_PREFIX)
+    assert(!!sc, "hint cookie set")
+    for (const a of ["; Path=/;", "HttpOnly", "Secure", "SameSite=None", "Max-Age=2592000"]) assertIncludes(sc, a, a)
+    const h = entra.__test.unpackState(cookieValue(sc))
+    assertEqual([h.k, h.lh, h.u, h.oid, h.tid].join(","), "hint,O.opaque-hint-1,user@cps.gov.uk,oid-1,tid-1", "payload")
+    assertEqual(r.returnBody, continuation(DEST_POLARIS, POLARIS_TOKEN_PARAMS), "still carries on as before")
+  })
+
+  await test("no login_hint claim: preferred_username is the hint; neither: no hint cookie", async () => {
+    let r = await callbackScenario({ term: "top-level", idClaims: { preferred_username: "u2@cps.gov.uk", oid: "o" } })
+    assertEqual(entra.__test.unpackState(hintValue(r)).lh, "u2@cps.gov.uk", "UPN fallback")
+    r = await callbackScenario({ term: "top-level", idClaims: { oid: "o" } })
+    assertEqual(findCookie(r.headersOut["Set-Cookie"], HINT_PREFIX), undefined, "no hint")
+    r = await callbackScenario({ term: "top-level" })
+    assertEqual(findCookie(r.headersOut["Set-Cookie"], HINT_PREFIX), undefined, "garbage id_token: no hint, no crash")
+  })
+
+  await test("the hint is recorded even when the deposit later fails (the account choice still stands)", async () => {
+    const r = await callbackScenario({ term: "top-level", idClaims: CLAIMS, mdsSwap: "fail" })
+    assert(!!findCookie(r.headersOut["Set-Cookie"], HINT_PREFIX), "hint set on degrade after sign-in")
+    const r2 = await callbackScenario({ term: "iframe", idClaims: CLAIMS })
+    assert(!!findCookie(r2.headersOut["Set-Cookie"], HINT_PREFIX), "and from the iframe")
+    assertEqual(presenceCookies(r2).length, 2, "presence cookies kept alongside")
+  })
+
+  await test("/init sends the hint as login_hint (still prompt=none); outcome lines say hint=1", async () => {
+    const hint = entra.__test.hintCookie(jwt(CLAIMS)).split(";")[0]
+    fetchImpl = establishRouter()
+    const restore = applyEnv(on)
+    const r = initRequest({ r: DEST_OS }, { Cookie: hint })
+    await authHandover.appAuthRedirect(r)
+    restore()
+    const q = form(r.returnBody.split("?")[1])
+    assertEqual([q.prompt, q.login_hint].join(","), "none,O.opaque-hint-1", "silent, hinted")
+    const st = entra.__test.unpackState(cookieValue(findCookie([].concat(r.headersOut["Set-Cookie"]), STATE_PREFIX)))
+    assertEqual(st.lh, 1, "state records that a hint was sent")
+    await callbackScenario({ term: "top-level", stPatch: { lh: 1 } })
+    assertEqual(outcomeOf(outcomeLines()[0]).hint, "1", "hint=1")
+  })
+
+  await test("a forged / unsigned / state-cookie-as-hint is ignored (no login_hint sent)", async () => {
+    const st = entra.__test.packState({ s: H1, iat: nowSec() })
+    for (const bad of ["cps-entra-login-hint=xyz", "cps-entra-login-hint=" + entra.__test.b64urlEncode('{"k":"hint","lh":"evil"}') + ".bad", "cps-entra-login-hint=" + st]) {
+      fetchImpl = establishRouter()
+      const restore = applyEnv(on)
+      const r = initRequest({ r: DEST_OS }, { Cookie: bad })
+      await authHandover.appAuthRedirect(r)
+      restore()
+      assertEqual(form(r.returnBody.split("?")[1]).login_hint, undefined, "ignored: " + bad.slice(0, 40))
+    }
+  })
+
+  await test("interactive ON, top-level, several accounts (16000): ONE retry with the account picker, same flow", async () => {
+    const r = await callbackScenario({ term: "top-level", env: interactive, adError: "interaction_required", adErrorDescription: "AADSTS16000: pick", stPatch: { iat: nowSec() - 200 } })
+    assertEqual(r.returnCode, 302, "302")
+    assert(r.returnBody.indexOf("https://login.microsoftonline.com/") === 0, "back to AD: " + r.returnBody)
+    const q = form(r.returnBody.split("?")[1])
+    assertEqual([q.prompt, q.login_hint, q.state].join(","), "select_account,," + "t." + H1, "picker, no hint, same handle")
+    const sc = findCookie(r.headersOut["Set-Cookie"], STATE_PREFIX + H1 + "=")
+    assertIncludes(sc, "Max-Age=900", "longer state for the interactive leg")
+    const st = entra.__test.unpackState(cookieValue(sc))
+    assertEqual([st.n, st.ra, st.r, st.cc].join("|"), ["1", "16000", DEST_POLARIS, CC].join("|"), "re-signed with n=1 + why (ra), same destination + cookies")
+    assert(Math.abs(st.iat - nowSec()) <= 2, "fresh iat for the interactive leg (the 900s runs from the retry): " + st.iat)
+    const o = outcomeOf(outcomeLines()[0])
+    assertEqual([o.result, o.reason, o.ad, o.aadsts, o.int].join(","), "retried,ad-error,interaction_required,16000,0", "retried line")
+  })
+
+  await test("interactive ON: login_required (no session) and MFA retry too; a CA device block (53003) does not", async () => {
+    for (const [e, d, retried] of [["login_required", "AADSTS50058: x", true], ["interaction_required", "AADSTS50076: x", true], ["interaction_required", "AADSTS53003: x", false], ["consent_required", "AADSTS65001: x", false], ["access_denied", "", false]]) {
+      const r = await callbackScenario({ term: "top-level", env: interactive, adError: e, adErrorDescription: d })
+      assertEqual(form((r.returnBody || "").split("?")[1] || "").prompt === "select_account", retried, e + " " + d)
+    }
+  })
+
+  await test("the interactive leg is never retried again: a second AD error degrades (carry on), logged int=1", async () => {
+    const r = await callbackScenario({ term: "top-level", env: interactive, adError: "interaction_required", adErrorDescription: "AADSTS16000: x", stPatch: { n: 1 } })
+    assertEqual(r.returnBody, continuation(DEST_POLARIS, POLARIS_TOKEN_PARAMS), "carry on")
+    const o = outcomeOf(outcomeLines()[0])
+    assertEqual([o.result, o.int].join(","), "degraded,1", "int=1")
+  })
+
+  await test("the interactive leg's success sets the hint and logs ok int=1", async () => {
+    const r = await callbackScenario({ term: "top-level", env: interactive, idClaims: CLAIMS, stPatch: { n: 1 } })
+    assert(!!findCookie(r.headersOut["Set-Cookie"], HINT_PREFIX), "hint")
+    const o = outcomeOf(outcomeLines()[0])
+    assertEqual([o.result, o.int].join(","), "ok,1", "ok int=1")
+  })
+
+  const hintVia = (r) => entra.__test.unpackState(hintValue(r)).via
+  const prevHint = (via, oid) =>
+    "cps-entra-login-hint=" + entra.__test.packState({ k: "hint", lh: "O.prev", u: "prev@cps.gov.uk", oid: oid, tid: "tid-1", at: nowSec() - 60, via: via })
+
+  await test("via: silent without the picker; after it, why it was needed (16000 / 50058 / 50076 / 50079 / other)", async () => {
+    let r = await callbackScenario({ term: "top-level", idClaims: CLAIMS })
+    assertEqual(hintVia(r), "silent", "silent leg")
+    for (const [ra, via] of [["16000", "several-accounts"], ["50058", "no-session"], ["50076", "mfa"], ["50079", "mfa"], ["50000", "other"], ["", "other"], [undefined, "other"]]) {
+      r = await callbackScenario({ term: "top-level", env: interactive, idClaims: CLAIMS, stPatch: { n: 1, ra: ra } })
+      assertEqual(hintVia(r), via, "picker after " + ra)
+    }
+  })
+
+  await test("/init re-checks a several-accounts hint: signs in WITHOUT it (probe, p=1); any other hint is sent as before", async () => {
+    for (const [via, sent, p] of [["several-accounts", undefined, 1], ["silent", "O.prev", 0], ["no-session", "O.prev", 0]]) {
+      fetchImpl = establishRouter()
+      const restore = applyEnv(on)
+      const r = initRequest({ r: DEST_OS }, { Cookie: prevHint(via, "oid-1") })
+      await authHandover.appAuthRedirect(r)
+      restore()
+      const q = form(r.returnBody.split("?")[1])
+      assertEqual([q.prompt, q.login_hint].join(","), "none," + (sent || ""), via + ": silent, hint " + (sent ? "sent" : "withheld"))
+      const st = entra.__test.unpackState(cookieValue(findCookie([].concat(r.headersOut["Set-Cookie"]), STATE_PREFIX)))
+      assertEqual([st.p, st.lh].join(","), [p, 1 - p].join(","), via + ": p / lh")
+    }
+  })
+
+  await test("probe meets several accounts (16000): the same flow again, silently WITH the hint; that leg ends via=several-accounts", async () => {
+    let r = await callbackScenario({ term: "top-level", adError: "interaction_required", adErrorDescription: "AADSTS16000: pick", stPatch: { p: 1, iat: nowSec() - 200 }, extraCookie: prevHint("several-accounts", "oid-1") })
+    const q = form(r.returnBody.split("?")[1])
+    assertEqual([q.prompt, q.login_hint, q.state].join(","), "none,O.prev,t." + H1, "silent, hinted, same handle (interactive off: no picker needed)")
+    const sc = findCookie(r.headersOut["Set-Cookie"], STATE_PREFIX + H1 + "=")
+    assertIncludes(sc, "Max-Age=300", "a silent leg's lifetime")
+    const st = entra.__test.unpackState(cookieValue(sc))
+    assertEqual([st.p, st.m, st.lh, st.n, st.r].join("|"), ["0", "1", "1", "", DEST_POLARIS].join("|"), "p=0 (no loop), m=1, lh=1, not interactive")
+    assert(Math.abs(st.iat - nowSec()) <= 2, "fresh iat")
+    const o = outcomeOf(outcomeLines()[0])
+    assertEqual([o.result, o.reason, o.aadsts, o.hint].join(","), "retried,several-accounts,16000,0", "retried line")
+    r = await callbackScenario({ term: "top-level", idClaims: CLAIMS, stPatch: { m: 1, lh: 1 } })
+    assertEqual(hintVia(r), "several-accounts", "the hinted leg records it")
+    assertEqual(r.returnBody, continuation(DEST_POLARIS, POLARIS_TOKEN_PARAMS), "and carries on")
+  })
+
+  await test("probe signs in as the hint's account: only one account left -> via=silent, no extra leg", async () => {
+    const r = await callbackScenario({ term: "top-level", idClaims: CLAIMS, stPatch: { p: 1 }, extraCookie: prevHint("several-accounts", "oid-1") })
+    assertEqual(hintVia(r), "silent", "silent now")
+    assertEqual(r.returnBody, continuation(DEST_POLARIS, POLARIS_TOKEN_PARAMS), "carries on")
+    assertEqual(outcomeOf(outcomeLines()[0]).result, "ok", "ok")
+  })
+
+  await test("probe signs in as ANOTHER account (an ambient one won): hinted leg, the user's choice kept, nothing deposited", async () => {
+    const r = await callbackScenario({ term: "top-level", idClaims: CLAIMS, stPatch: { p: 1 }, extraCookie: prevHint("several-accounts", "oid-2") })
+    const q = form(r.returnBody.split("?")[1])
+    assertEqual([q.prompt, q.login_hint].join(","), "none,O.prev", "hinted silent leg")
+    assertEqual(findCookie(r.headersOut["Set-Cookie"], HINT_PREFIX), undefined, "hint not overwritten")
+    assertEqual(callOrder(), "authorization_code", "no swap, no deposit")
+    const st = entra.__test.unpackState(cookieValue(findCookie(r.headersOut["Set-Cookie"], STATE_PREFIX + H1 + "=")))
+    assertEqual([st.p, st.m].join(","), "0,1", "p=0, m=1")
+    assertEqual(outcomeOf(outcomeLines()[0]).reason, "other-account", "retried other-account")
+  })
+
+  await test("no probe loop / normal paths: the hinted leg's 16000 takes the picker; a probe's 50058 too; no hint cookie: normal", async () => {
+    let r = await callbackScenario({ term: "top-level", env: interactive, adError: "interaction_required", adErrorDescription: "AADSTS16000: x", stPatch: { m: 1, lh: 1 }, extraCookie: prevHint("several-accounts", "oid-1") })
+    assertEqual(form(r.returnBody.split("?")[1]).prompt, "select_account", "hinted leg -> picker")
+    r = await callbackScenario({ term: "top-level", env: interactive, adError: "login_required", adErrorDescription: "AADSTS50058: x", stPatch: { p: 1 }, extraCookie: prevHint("several-accounts", "oid-1") })
+    assertEqual(form(r.returnBody.split("?")[1]).prompt, "select_account", "probe, no session -> picker")
+    r = await callbackScenario({ term: "top-level", adError: "interaction_required", adErrorDescription: "AADSTS16000: x", stPatch: { p: 1 } })
+    assertEqual(r.returnBody, continuation(DEST_POLARIS, POLARIS_TOKEN_PARAMS), "hint gone mid-flow, interactive off: carry on")
+    r = await callbackScenario({ term: "top-level", idClaims: CLAIMS, stPatch: { p: 1 } })
+    assertEqual(hintVia(r), "silent", "hint gone mid-flow, probe signs in: silent")
+  })
+
+  await test("iframe: the probe and the hinted leg work there too (all silent)", async () => {
+    const r = await callbackScenario({ term: "iframe", adError: "interaction_required", adErrorDescription: "AADSTS16000: x", stPatch: { p: 1 }, extraCookie: prevHint("several-accounts", "oid-1") })
+    const q = form(r.returnBody.split("?")[1])
+    assertEqual([q.prompt, q.login_hint, q.state].join(","), "none,O.prev,i." + H1, "hinted, iframe state")
+  })
+
+  await test("interactive state lives 900s; the silent leg's 300s still applies without n", async () => {
+    let r = await callbackScenario({ term: "top-level", stPatch: { n: 1, iat: nowSec() - 600 } })
+    assertEqual(outcomeOf(outcomeLines()[0]).result, "ok", "interactive leg at 600s ok")
+    r = await callbackScenario({ term: "top-level", stPatch: { n: 1, iat: nowSec() - 1000 } })
+    assertEqual(outcomeOf(outcomeLines()[0]).reason, "expired-state", "interactive leg at 1000s expired")
+    r = await callbackScenario({ term: "top-level", stPatch: { iat: nowSec() - 600 } })
+    assertEqual(outcomeOf(outcomeLines()[0]).reason, "expired-state", "silent leg at 600s expired")
+  })
+
+  await test("interactive OFF (prod), or the iframe: no retry, degrade as before", async () => {
+    let r = await callbackScenario({ term: "top-level", adError: "interaction_required", adErrorDescription: "AADSTS16000: x" })
+    assertEqual(r.returnBody, continuation(DEST_POLARIS, POLARIS_TOKEN_PARAMS), "off: carry on")
+    r = await callbackScenario({ term: "iframe", env: interactive, adError: "interaction_required", adErrorDescription: "AADSTS16000: x" })
+    assertEqual(r.returnBody, ENTRA_TERMINAL(entra), "iframe: terminal page, never a prompt")
+  })
+
+  await test("endpoint GET: the hint as JSON (no-store); no / forged cookie -> null", async () => {
+    const hint = entra.__test.hintCookie(jwt(CLAIMS)).split(";")[0]
+    let r = createMockRequest({ method: "GET", headersIn: { Cookie: "a=1; " + hint } })
+    entra.loginHint(r)
+    assertEqual(r.returnCode, 200, "200")
+    assertEqual(r.headersOut["Cache-Control"], "no-store", "no-store")
+    const j = JSON.parse(r.returnBody)
+    assertEqual([j.loginHint, j.username, j.oid, j.tid, j.via].join(","), "O.opaque-hint-1,user@cps.gov.uk,oid-1,tid-1,silent", "fields")
+    assert(Math.abs(j.setAt - nowSec()) <= 2, "setAt")
+    const old = "cps-entra-login-hint=" + entra.__test.packState({ k: "hint", lh: "O.old", at: nowSec() })
+    r = createMockRequest({ method: "GET", headersIn: { Cookie: old } })
+    entra.loginHint(r)
+    assertEqual(JSON.parse(r.returnBody).via, "unknown", "a hint from before via: unknown")
+    for (const c of ["", "cps-entra-login-hint=xyz"]) {
+      r = createMockRequest({ method: "GET", headersIn: { Cookie: c } })
+      entra.loginHint(r)
+      assertEqual(r.returnBody, "null", "null for: " + c)
+    }
+  })
+
+  await test("endpoint DELETE clears the hint (same name/path/attributes, Max-Age=0); other methods 405", async () => {
+    let r = createMockRequest({ method: "DELETE" })
+    entra.loginHint(r)
+    const sc = findCookie(r.headersOut["Set-Cookie"], HINT_PREFIX)
+    for (const a of ["; Path=/;", "SameSite=None", "Max-Age=0"]) assertIncludes(sc, a, a)
+    assertEqual(JSON.parse(r.returnBody).cleared, true, "cleared")
+    r = createMockRequest({ method: "PUT" })
+    entra.loginHint(r)
+    assertEqual(r.returnCode, 405, "405")
+  })
+}
+
+const ENTRA_TERMINAL = (entra) => entra.__test.constants.TERMINAL_HTML
+
 async function main() {
   // Module consts read env at load; apply before loading.
   const restore = applyEnv(ENV)
@@ -975,6 +1211,7 @@ async function main() {
   await guardAndOutcomeTests(authHandover)
   await iframeTerminalTests(authHandover, entra)
   await reviewFixTests(authHandover, entra)
+  await d7Tests(authHandover, entra)
 
   restore()
   process.exit(summarise("auth-handover.drop2.entra (unit)"))

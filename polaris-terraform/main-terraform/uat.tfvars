@@ -98,6 +98,9 @@ proxy_entra = {
   # watchdog (presence API) accepts today. Swap for the watchdog's own app reg scope when it
   # exists (config only, no code change).
   watchdog_scope = "api://8d6133af-9593-47c6-94d0-5c65e9e310f1/api.presence.user.readwrite"
+  # Pre-prod: a silent sign-in that fails for several accounts / no session / MFA retries once
+  # with the account picker (developers on Workspaces / Linux, several accounts).
+  interactive_enabled = true
 }
 
 app_service_log_retention       = 90

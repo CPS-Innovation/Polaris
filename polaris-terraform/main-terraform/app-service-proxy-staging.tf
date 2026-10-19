@@ -81,6 +81,7 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
     "NON_DDEI_INIT_ENABLED"                           = var.non_ddei_init_enabled
     "ENTRA_STORE_ENABLED"                             = var.proxy_entra.store_enabled
+    "ENTRA_INTERACTIVE_ENABLED"                       = var.proxy_entra.interactive_enabled
     "ENTRA_TENANT_ID"                                 = data.azurerm_client_config.current.tenant_id
     "ENTRA_CLIENT_ID"                                 = var.proxy_entra.client_id
     "ENTRA_CLIENT_SECRET"                             = local.proxy_entra_client_secret

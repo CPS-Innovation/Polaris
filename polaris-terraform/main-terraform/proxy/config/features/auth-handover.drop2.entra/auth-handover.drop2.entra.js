@@ -11,7 +11,8 @@
 //     drop1.lookupCmsSession (discover + mint + verify the modern token, non-redirecting)
 //     -> pack {r, cc, token, version, terminal} into a signed first-party state cookie + a
 //        random anti-CSRF handle in the OAuth `state` param
-//     -> 302 to Entra /authorize (prompt=none, silent): openid profile offline_access.
+//     -> 302 to Entra /authorize (prompt=none, silent): openid profile offline_access, plus
+//        login_hint when the browser has a login hint (D7, below).
 //     Returns false WITHOUT responding on any failure, so /init carries on exactly as today.
 //
 //   handleInitEntraCallback  (/init/entra-callback, public — AD 302s the browser here)
@@ -30,8 +31,22 @@
 // refresh-token swap per service: a confidential client's refresh token buys an access token for
 // any API the app may call (consent = that API pre-authorising our client). No on-behalf-of: that
 // needs a token addressed to us, i.e. an exposed scope. The refresh token never leaves this
-// callback (no cookie, no log); the browser only ever holds the watchdog token (iframe). No
-// id_token is used: each backend identifies the user from its own token (oid).
+// callback (no cookie, no log); the browser only ever holds the watchdog token (iframe). The
+// id_token is used only to record the login hint (which account signed in); each backend still
+// identifies the user from its own token (oid).
+//
+// LOGIN HINT + INTERACTIVE RETRY (D7, QUIRKS E14): every successful sign-in records WHICH account
+// signed in, in a signed, host-wide cookie (cps-entra-login-hint, 30 days), served to apps at
+// GET /global-components/entra-login-hint (DELETE forgets it) so their own sign-ins (MSAL loginHint)
+// land on the SAME account the MDS deposit is filed under. /init sends it as login_hint, so a
+// browser with several accounts signs in silently as the hinted one. When the silent sign-in fails
+// in a way a user can fix (several accounts / no session / MFA), a TOP-LEVEL handover retries ONCE
+// interactively (prompt=select_account), if ENTRA_INTERACTIVE_ENABLED=true (pre-prod); the choice
+// becomes the new hint, with `via` saying why the picker was needed (apps show their "you have
+// several accounts" UI only for several-accounts). A several-accounts hint is RE-CHECKED on each
+// handover: /init first signs in silently WITHOUT it (the probe); still several (AADSTS16000, or
+// another account wins) -> a second silent leg WITH it; else via becomes silent. Prod (off) stays a
+// pure prompt=none probe. The iframe never prompts.
 //
 // TRANSPARENT / ADDITIVE / BEST-EFFORT: any Entra or store failure carries on exactly as /init
 // would have (top-level: 302 to r with cc; iframe: still render the terminal, keeping any presence
@@ -96,6 +111,29 @@ const STATE_SKEW_S = 60;
 // handle names the flow's cookie; the mode is not secret, and Entra echoes `state` on errors too,
 // so a callback whose cookie is gone still knows to end the iframe on the terminal page.
 const STATE_PARAM_RE = /^([ti])\.([0-9a-f]{32})$/;
+
+// The interactive leg (D7) can wait on a person (account picker, MFA), so its state lives longer.
+const INTERACTIVE_MAX_AGE_S = 900;
+const STATE_SET_OPTS_INTERACTIVE =
+  "; Path=" + CALLBACK_PATH + "; HttpOnly; Secure; SameSite=Lax; Max-Age=" + INTERACTIVE_MAX_AGE_S;
+
+// D7: the login hint — which Entra account the last successful sign-in on this host used. Host-wide
+// (Path=/) so /init sends it and the hint endpoint serves it; HttpOnly (only those two read it);
+// SameSite=None so an app on another site can fetch the endpoint with credentials. HMAC-signed like
+// the state (with a kind marker, so neither can stand in for the other), so a sibling subdomain
+// can't plant a hint. Every successful sign-in overwrites it; DELETE on the endpoint forgets it.
+const HINT_COOKIE = "cps-entra-login-hint";
+const HINT_MAX_AGE_S = 30 * 24 * 3600;
+const HINT_OPTS = "; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=";
+
+// AD errors a person can resolve at an interactive sign-in: several accounts (AADSTS16000), no
+// session (50058), MFA (50076/50079). Conditional Access device blocks (AADSTS53xxx) are excluded:
+// an interactive attempt would only strand the user on Microsoft's block page.
+const RETRYABLE_AD_ERRORS = ["login_required", "interaction_required", "account_selection_required"];
+
+// How the hint's account was chosen (the hint's `via`, QUIRKS E14), from the AADSTS number that sent
+// the silent leg to the picker; any other number is "other". A sign-in without the picker is "silent".
+const VIA_BY_AADSTS = { "16000": "several-accounts", "50058": "no-session", "50076": "mfa", "50079": "mfa" };
 
 // D2: browsers silently DROP a cookie over ~4 KB (name + value), which would lose the state —
 // and with it the destination — at the callback. The state holds r + cc + token, and OS `r` URLs
@@ -215,6 +253,66 @@ function isConfigured() {
   );
 }
 
+// Interactive retry switch (D7). Read per request, like isConfigured.
+function _interactiveEnabled() {
+  return process.env.ENTRA_INTERACTIVE_ENABLED === "true";
+}
+
+// The browser's login hint, signature-checked; null if absent, unsigned, forged or not a hint.
+function _readHint(r) {
+  const raw = _cookie(r, HINT_COOKIE);
+  if (!raw) return null;
+  try {
+    const h = _unpackState(raw);
+    return h && h.k === "hint" && typeof h.lh === "string" && h.lh ? h : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// The id_token's claims. No signature check: it came straight from the token endpoint in the code
+// exchange (our own back-channel call), and only names the account for the hint, never authorises.
+function _idClaims(idToken) {
+  try {
+    return JSON.parse(_b64urlDecode(String(idToken).split(".")[1]));
+  } catch (e) {
+    return null;
+  }
+}
+
+// The Set-Cookie for the hint from a sign-in's id_token, or null. login_hint is the optional claim
+// Microsoft provides for exactly this (an opaque value); until the app reg emits it,
+// preferred_username (the UPN) does the same job. `st` = the flow (absent: a silent sign-in).
+function _hintCookie(idToken, st) {
+  const c = _idClaims(idToken);
+  const lh = c && (c.login_hint || c.preferred_username);
+  if (!lh) return null;
+  const h = {
+    k: "hint",
+    lh: String(lh),
+    u: String(c.preferred_username || ""),
+    oid: String(c.oid || ""),
+    tid: String(c.tid || ""),
+    at: Math.floor(Date.now() / 1000),
+    via: _hintVia(st || {}),
+  };
+  return HINT_COOKIE + "=" + _packState(h) + HINT_OPTS + HINT_MAX_AGE_S;
+}
+
+// The hint's `via`: m = the probe found several accounts this flow; the picker leg (n) names why
+// it was needed (ra = the silent leg's AADSTS); otherwise "silent". A hinted silent sign-in can't
+// tell whether other accounts exist (the hint picks one), which is why /init probes first (_probe).
+function _hintVia(st) {
+  if (st.m) return "several-accounts";
+  return st.n ? VIA_BY_AADSTS[st.ra] || "other" : "silent";
+}
+
+// Probe (begin): a several-accounts hint is re-checked by signing in WITHOUT it first, so via
+// follows the browser (the other account signed out -> silent) instead of sticking forever.
+function _probe(hint) {
+  return !!(hint && hint.via === "several-accounts");
+}
+
 // Which kind of destination `r` is, for passing the CMS token on (decided 2026-10-15):
 //   "polaris" — our own /auth-refresh-inbound on THIS host (relative, or absolute to this Host):
 //               it gets token + version, so drop1 skips discover/mint/verify;
@@ -296,7 +394,8 @@ function _loadState(r, handle) {
   }
   if (st.s !== handle) return { st: null, reason: "bad-state" };
   const now = Math.floor(Date.now() / 1000);
-  if (typeof st.iat !== "number" || now - st.iat > STATE_MAX_AGE_S || st.iat - now > STATE_SKEW_S) {
+  const maxAge = st.n ? INTERACTIVE_MAX_AGE_S : STATE_MAX_AGE_S;
+  if (typeof st.iat !== "number" || now - st.iat > maxAge || st.iat - now > STATE_SKEW_S) {
     return { st: null, reason: "expired-state" };
   }
   if (st.h !== _header(r, "Host")) return { st: null, reason: "wrong-host" };
@@ -331,6 +430,7 @@ async function _tokenRequest(fields) {
     return {
       accessToken: data.access_token,
       refreshToken: data.refresh_token || "",
+      idToken: data.id_token || "",
       expiresIn: Number(data.expires_in || 0),
       diag: "ok",
     };
@@ -412,6 +512,8 @@ async function beginFromInit(r, opts) {
     }
 
     const stateHandle = _rand(16);
+    const hint = _readHint(r);
+    const probe = _probe(hint);
     const payload = {
       s: stateHandle,
       // The iframe always ends on the terminal page and never reads r, so it isn't carried (keeps
@@ -425,6 +527,8 @@ async function beginFromInit(r, opts) {
       iat: Math.floor(Date.now() / 1000),
       h: _header(r, "Host"),
       corr: _rand(8),
+      lh: hint && !probe ? 1 : 0,
+      p: probe ? 1 : 0,
     };
     const stateCookie = STATE_COOKIE_PREFIX + stateHandle + "=" + _packState(payload);
     if (stateCookie.length > MAX_STATE_COOKIE) {
@@ -434,28 +538,68 @@ async function beginFromInit(r, opts) {
     const queued = [].concat(r.headersOut["Set-Cookie"] || []);
     r.headersOut["Set-Cookie"] = queued.concat([stateCookie + STATE_SET_OPTS]);
 
-    const params = [
-      "client_id=" + encodeURIComponent(CLIENT_ID),
-      "response_type=code",
-      "redirect_uri=" + encodeURIComponent(_redirectUri(r)),
-      "scope=" + encodeURIComponent(SIGN_IN_SCOPE),
-      "state=" + (term === "iframe" ? "i." : "t.") + stateHandle,
-      "response_mode=query",
-      // Silent auth: CMS users already have an AAD session (same tenant), so prompt=none
-      // yields a bare 302 (code, or error=login_required) with no UI to render — which is
-      // also what lets it run framed (AD sets X-Frame-Options: DENY on any RENDERED
-      // /authorize response). See the reference's notes.
-      "prompt=none",
-    ].join("&");
-
     replaceDdei.markAuthInit(r, "entra");
-    r.return(302, _authorizeUrl() + "?" + params);
+    // Silent auth: CMS users already have an AAD session (same tenant), so prompt=none yields a
+    // bare 302 (code, or error=login_required) with no UI to render — which is also what lets it
+    // run framed (AD sets X-Frame-Options: DENY on any RENDERED /authorize response).
+    r.return(302, _authorizeRedirect(r, stateHandle, term, "none", hint && !probe ? hint.lh : ""));
     return true;
   } catch (e) {
     replaceDdei.markAuthInit(r, "entra-degraded");
     _log("drop2 entra degrade — entra-begin-error: " + String(e));
     return skip("entra-begin-error");
   }
+}
+
+// The /authorize URL for a flow: `prompt` "none" (silent) or "select_account" (D7's interactive
+// retry); `loginHint` "" = none.
+function _authorizeRedirect(r, handle, term, prompt, loginHint) {
+  const params = [
+    "client_id=" + encodeURIComponent(CLIENT_ID),
+    "response_type=code",
+    "redirect_uri=" + encodeURIComponent(_redirectUri(r)),
+    "scope=" + encodeURIComponent(SIGN_IN_SCOPE),
+    "state=" + (term === "iframe" ? "i." : "t.") + handle,
+    "response_mode=query",
+    "prompt=" + prompt,
+  ];
+  if (loginHint) params.push("login_hint=" + encodeURIComponent(loginHint));
+  return _authorizeUrl() + "?" + params.join("&");
+}
+
+// D7: retry a failed silent sign-in ONCE, interactively? Top-level only (an iframe can't show
+// Microsoft's pages), with the switch on, for an AD error a person can resolve.
+function _canRetry(st, adError, aadsts) {
+  return (
+    st.term === "top-level" &&
+    !st.n &&
+    _interactiveEnabled() &&
+    RETRYABLE_AD_ERRORS.indexOf(adError) !== -1 &&
+    aadsts.indexOf("53") !== 0
+  );
+}
+
+// D7: the same flow (same handle, same destination) again, now with the account picker. No
+// login_hint: the user is choosing (that is also how they escape a stale hint); whatever they pick
+// becomes the new hint. The state is re-signed with n=1 (never retried twice) and a fresh iat with
+// the longer interactive lifetime.
+function _retryInteractive(r, st, outcomeExtra, aadsts) {
+  const again = Object.assign({}, st, { n: 1, ra: aadsts, iat: Math.floor(Date.now() / 1000) });
+  r.headersOut["Set-Cookie"] = [STATE_COOKIE_PREFIX + st.s + "=" + _packState(again) + STATE_SET_OPTS_INTERACTIVE];
+  replaceDdei.markAuthInit(r, "entra");
+  _outcome("retried", "ad-error", _stDestKind(r, st), st.term, outcomeExtra + _legFields(st));
+  r.return(302, _authorizeRedirect(r, st.s, st.term, "select_account", ""));
+}
+
+// The probe found several accounts: the same flow again, silently, WITH the hint (m=1 records
+// the finding for via). Not the probe any more (p=0), so it can't loop; a failure there takes the
+// normal path (interactive retry or degrade). Fresh iat: the silent leg's 300s runs from here.
+function _retryHinted(r, st, hint, reason, outcomeExtra) {
+  const again = Object.assign({}, st, { p: 0, m: 1, lh: 1, iat: Math.floor(Date.now() / 1000) });
+  r.headersOut["Set-Cookie"] = [STATE_COOKIE_PREFIX + st.s + "=" + _packState(again) + STATE_SET_OPTS];
+  replaceDdei.markAuthInit(r, "entra");
+  _outcome("retried", reason, _stDestKind(r, st), st.term, outcomeExtra + _legFields(st));
+  r.return(302, _authorizeRedirect(r, st.s, st.term, "none", hint.lh));
 }
 
 // ---------------------------------------------------------------------------
@@ -476,9 +620,21 @@ async function handleInitEntraCallback(r) {
 
     const adError = _arg(r, "error");
     if (adError) {
-      // e.g. login_required (no silent AD session) — degrade, don't block anyone's handover.
-      // The outcome line records which AD error, and its AADSTS number (see _adFields).
-      _degrade(r, st, "ad-error: " + adError, null, lost, _adFields(adError, _arg(r, "error_description")));
+      // e.g. login_required (no silent AD session). The outcome line records which AD error, and
+      // its AADSTS number (see _adFields). Resolvable by a person -> one interactive retry (D7);
+      // otherwise degrade, never blocking anyone's handover.
+      const fields = _adFields(adError, _arg(r, "error_description"));
+      const aadsts = _aadsts(_arg(r, "error_description"));
+      const hint = st && st.p ? _readHint(r) : null;
+      if (hint && aadsts === "16000") {
+        _retryHinted(r, st, hint, "several-accounts", fields);
+        return;
+      }
+      if (st && _canRetry(st, adError, aadsts)) {
+        _retryInteractive(r, st, fields, aadsts);
+        return;
+      }
+      _degrade(r, st, "ad-error: " + adError, null, lost, fields);
       return;
     }
     if (!st) {
@@ -496,20 +652,36 @@ async function handleInitEntraCallback(r) {
       _degrade(r, st, "token-exchange-failed: " + tok.diag);
       return;
     }
+    // D7 probe: another account won the unhinted sign-in, so several are still signed in — sign in
+    // again WITH the hint, so the account the user chose stays the one used (this code is unused).
+    if (st.p) {
+      const hint = _readHint(r);
+      const c = _idClaims(tok.idToken);
+      if (hint && hint.oid && c && String(c.oid || "") !== hint.oid) {
+        _retryHinted(r, st, hint, "other-account", "");
+        return;
+      }
+    }
+
+    // D7: the sign-in worked, so we know which account it chose — record it as the login hint,
+    // whatever happens next (later failures don't change which account this browser uses).
+    let extra = [];
+    const hc = _hintCookie(tok.idToken, st);
+    if (hc) extra.push(hc);
+
     const rt = tok.refreshToken;
     if (!rt) {
       // offline_access not granted: nothing to swap.
-      _degrade(r, st, "no-refresh-token");
+      _degrade(r, st, "no-refresh-token", extra);
       return;
     }
 
     // Presence first (iframe only), so a later MDS failure cannot cost presence its token. A
     // presence failure is logged but is not a degrade: the store is what drop2 is for.
-    let extra = [];
     if (st.term === "iframe" && WATCHDOG_SCOPE) {
       const wd = await _refresh(rt, WATCHDOG_SCOPE);
       if (wd.accessToken) {
-        extra = _presenceCookies(wd.accessToken, wd.expiresIn);
+        extra = extra.concat(_presenceCookies(wd.accessToken, wd.expiresIn));
       } else {
         _log("drop2 entra presence swap failed — " + wd.diag);
       }
@@ -536,7 +708,7 @@ async function handleInitEntraCallback(r) {
 // Success terminal: clear state (+ any presence cookies), then branch on mode.
 function _succeed(r, st, extra) {
   replaceDdei.markAuthInit(r, "entra");
-  _outcome("ok", "ok", _stDestKind(r, st), st.term);
+  _outcome("ok", "ok", _stDestKind(r, st), st.term, _legFields(st));
   _finish(r, st, extra);
 }
 
@@ -551,7 +723,7 @@ function _degrade(r, st, reason, extra, lost, outcomeExtra) {
   _log("drop2 entra degrade — " + reason);
   const code = reason.split(":")[0].trim();
   if (st) {
-    _outcome("degraded", code, _stDestKind(r, st), st.term, outcomeExtra);
+    _outcome("degraded", code, _stDestKind(r, st), st.term, (outcomeExtra || "") + _legFields(st));
     _finish(r, st, extra);
     return;
   }
@@ -589,14 +761,29 @@ function _stDestKind(r, st) {
 // 50076 (MFA needed); login_required is 50058 (no AD session at all).
 function _adFields(error, description) {
   const ad = /^[a-z_]{1,40}$/.test(error) ? error : "other";
-  const m = /^AADSTS(\d{1,8})\b/.exec(description);
-  return " ad=" + ad + " aadsts=" + (m ? m[1] : "none");
+  return " ad=" + ad + " aadsts=" + (_aadsts(description) || "none");
+}
+
+// The AADSTS number at the start of an error_description, digits only; "" if none.
+function _aadsts(description) {
+  const m = /^AADSTS(\d{1,8})\b/.exec(String(description || ""));
+  return m ? m[1] : "";
+}
+
+// D7, on every callback line with a known flow: was a login hint sent (hint=1), and is this the
+// interactive leg (int=1)?
+function _legFields(st) {
+  return " hint=" + (st.lh ? 1 : 0) + " int=" + (st.n ? 1 : 0);
 }
 
 // D5: ONE structured line per handover that drop2 handled, for KQL over AppServiceConsoleLogs
 // (Polaris global_la) — the rate of each outcome, per destination kind:
-//   drop2-outcome result=ok|degraded|skipped reason=<code> term=top-level|iframe dest=polaris|os|other|unknown
-// reason=ad-error adds ` ad=<AD error> aadsts=<number|none>` (_adFields).
+//   drop2-outcome result=ok|degraded|skipped|retried reason=<code> term=top-level|iframe dest=polaris|os|other|unknown
+// reason=ad-error adds ` ad=<AD error> aadsts=<number|none>` (_adFields); callback lines with a
+// known flow add ` hint=0|1 int=0|1` (_legFields). `retried` (D7) is a leg's line when it hands
+// over to another leg of the same flow: reason=ad-error -> the interactive leg (which ends int=1);
+// reason=several-accounts / other-account -> the probe found several accounts, so a hinted silent
+// leg follows. Either way the flow then ends with its own ok/degraded line.
 // skipped = /init never started Entra (begin); ok / degraded = the callback's end. Codes only:
 // never a token, a cookie, a URL or an identity (the free-text detail stays in the degrade line).
 // Written once per flow: begin writes it only when it skips; the callback writes the rest.
@@ -615,6 +802,25 @@ function terminal(r) {
   r.return(200, TERMINAL_HTML);
 }
 
+// GET /global-components/entra-login-hint — the login hint for apps (D7): JSON
+// {loginHint, username, oid, tid, setAt} or null. DELETE forgets it (the next handover then lets the
+// user choose again). The CORS headers and OPTIONS preflight are in the .conf.
+function loginHint(r) {
+  r.headersOut["Content-Type"] = "application/json";
+  r.headersOut["Cache-Control"] = "no-store";
+  if (r.method === "DELETE") {
+    r.headersOut["Set-Cookie"] = [HINT_COOKIE + "=deleted" + HINT_OPTS + "0"];
+    r.return(200, JSON.stringify({ cleared: true }));
+    return;
+  }
+  if (r.method !== "GET") {
+    r.return(405, JSON.stringify({ error: "Method not allowed" }));
+    return;
+  }
+  const h = _readHint(r);
+  r.return(200, h ? JSON.stringify({ loginHint: h.lh, username: h.u, oid: h.oid, tid: h.tid, setAt: h.at, via: h.via || "unknown" }) : "null");
+}
+
 // Best-effort error-log line. Callers never pass a token.
 function _log(msg) {
   try {
@@ -628,6 +834,7 @@ export default {
   beginFromInit,
   handleInitEntraCallback,
   terminal,
+  loginHint,
   isConfigured,
   // exposed for the unit test (production only calls the entries above):
   __test: {
@@ -640,12 +847,14 @@ export default {
     presenceCookies: _presenceCookies,
     rand: _rand,
     authorizeUrl: _authorizeUrl,
+    hintCookie: _hintCookie,
     tokenUrl: _tokenUrl,
     constants: {
       STATE_COOKIE_PREFIX: STATE_COOKIE_PREFIX,
       TENANT_ID: TENANT_ID,
       TERMINAL_HTML: TERMINAL_HTML,
       PRESENCE_COOKIE: PRESENCE_COOKIE,
+      HINT_COOKIE: HINT_COOKIE,
     },
   },
 };
