@@ -182,9 +182,9 @@ The live `/cpt` block (copy-pasted from the CIN blocks) regressed: it **missed C
 handler clears "every env EXCEPT the target", so it's correct by construction — it
 emits CIN2–CIN5 (pool + LB) + MOD and leaves CPT alone. The live block has since been
 fixed to match (FCT2-21518; the integration test now runs against both configs). Also
-note two deliberate parity carries from the live config, NOT bugs we introduced: `cmo`
-has **no upstream config**, so its `-cmo-lb` cookie routes to `default` (RMAT-242; see
-[`../common/cms-detection.js`]) — yet the switches still clear the `MOD`-named LB
-cookies, and the
-`cpt`/`cmo` `CASEWORK_TOOLS_URL` sub_filters hard-code the UAT host (qa→uat) — both to
-be addressed wholesale later.
+note two deliberate parity carries from the live config, NOT bugs we introduced, both to
+be addressed wholesale later:
+- `cmo` has **no upstream config**, so its `-cmo-lb` cookie routes to `default` (RMAT-242;
+  see [`../common/cms-detection.js`]), yet the switches still clear the `MOD`-named LB
+  cookies;
+- the `cpt`/`cmo` `CASEWORK_TOOLS_URL` sub_filters hard-code the UAT host (qa→uat).

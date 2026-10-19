@@ -28,12 +28,23 @@ first-party, `HttpOnly`, `Secure`, path-scoped `entra_auth_state` cookie
 reference's model and the OIDC-correct one.
 
 **Integrity (not just confidentiality):** `HttpOnly` stops script *reads* but not cross-subdomain
-*writes* — a sibling `*.cps.gov.uk` origin can cookie-toss a `Domain=cps.gov.uk` `entra_auth_state`.
+*writes* — a sibling `*.cps.gov.uk` origin can cookie-toss a `Domain=cps.gov.uk` state cookie.
 Since the `state`-param check compares the query param against `st.s` read from that same cookie, a
 forged cookie satisfies it (attacker controls both sides) and then injects `cc`/`tok`/`ui` →
 session fixation + open redirect. So the cookie is **HMAC-SHA256-signed** with a server-side secret
 (`ENTRA_STATE_HMAC_SECRET`); `_unpackState` verifies (constant-time) before use and **fails closed
-when the secret is unset** — a forged/tampered cookie is rejected and the callback degrades to drop1.
+when the secret is unset** — a forged/tampered cookie is rejected and the flow carries on as plain
+`/init` (or ends the iframe on the terminal page).
+
+**Replay and parallel flows (2026-10-19):** the HMAC stops forging, not replaying a real cookie. The
+signed payload therefore also carries its issue time (`iat`) and host (`h`); `_loadState` rejects a
+cookie older than 300 s (60 s forward skew allowed) or minted for another host
+(`expired-state` / `wrong-host`). And the cookie is **one per flow**, named by its random handle
+(`entra_auth_state_<handle>`): the OAuth `state` is `<t|i>.<handle>`, the callback reads only the
+cookie that handle names and clears only that one. Before this, one shared cookie meant two
+handovers in flight in one browser (an OS link and the P button in two tabs) overwrote each other:
+the first callback then finished on the second's destination and cleared it, sending the second to
+the Polaris UI fallback.
 
 ### E2. 🟠 Callback location sheds `X-Frame-Options: DENY` on purpose (QUIRK B3)
 
@@ -50,8 +61,9 @@ renders nothing). The CSP keeps framing limited to `*.cps.gov.uk`.
 drop2 used to set a browser-side `cms-auth-id-token` cookie (host-only, `HttpOnly`,
 `Path=/global-components/presence-jsonp`) carrying a DEV token, read by the case-locking
 `presence-jsonp` endpoint. That whole presence path was experimental and has been removed
-(both the cookie here and the case-locking consumer). The real id_token still goes to the
-store deposit (E10). Kept as a numbered stub so E-numbers stay stable. **Superseded 2026-10:**
+(both the cookie here and the case-locking consumer). No id_token is used anywhere now: each
+backend identifies the user from its own token (E10). Kept as a numbered stub so E-numbers stay
+stable. **Superseded 2026-10:**
 drop2 sets the presence cookie again — now `cms-auth-presence-token` (global-components' existing
 contract), carrying a **watchdog-scope** access token (a refresh-token swap for
 `ENTRA_WATCHDOG_SCOPE`; none if that is empty), on the iframe terminal only, Max-Age = that token's
@@ -81,9 +93,11 @@ changes; each app can later stop reading `cc` and use bearer + MDS lookup on its
 `/auth-refresh-inbound` is Polaris's landing only (drop1 or DDEI); `/init-entra` is gone.
 
 - **Failure carries on.** `beginFromInit` resolves false without responding on any failure (not
-  enabled, not fully configured, no CMS cookies, lookup failed, an exception) and `/init` does its
-  plain 302. Every callback failure with a recoverable state carries on to `r` too. The one
-  residual case: a lost or tampered state cookie has no `r`, so the user lands on the Polaris UI.
+  enabled, not fully configured, no service scope to swap for, no CMS cookies, lookup failed, state
+  too large, an exception) and `/init` does its plain 302. Every callback failure with a
+  recoverable state carries on to `r` too. The one residual case: a top-level callback whose state
+  cookie is lost, tampered, expired or from another host has no `r`, so the user lands on the
+  Polaris UI. (The iframe, known from the `i.` state prefix, still gets the terminal page.)
 - **The hidden iframe never falls through.** With `terminal=iframe`, "carry on" means the static
   `/init/terminal` page, not `r` (E8).
 - **Configured-or-nothing.** With the switch on but any of tenant / client id / client secret /
@@ -100,9 +114,9 @@ changes; each app can later stop reading `cc` and use bearer + MDS lookup on its
 
 ### E13. 🟢 State-cookie size guard, and one `drop2-outcome` line per handover (D2 + D5)
 
-**Size guard.** Browsers silently drop a cookie over ~4 KB, and losing `entra_auth_state` loses
-the destination (E12's one residual case). The state holds `r` + `cc` + token, and OutSystems `r`
-URLs are long, so `/init` measures the packed cookie and, above 3800 bytes, skips Entra and
+**Size guard.** Browsers silently drop a cookie over ~4 KB, and losing the state cookie loses
+the destination (E12's one residual case). The top-level state holds `r` + `cc` + token (the
+iframe's carries no `r`), and OutSystems `r` URLs are long, so `/init` measures the packed cookie and, above 3800 bytes, skips Entra and
 carries on as today (`skipped` / `state-too-large`, with `bytes=` but never the content). Tune the
 threshold from real sizes (I1): the `bytes=` field gives them.
 
@@ -113,9 +127,10 @@ threshold from real sizes (I1): the `bytes=` field gives them.
 drop2-outcome result=ok|degraded|skipped reason=<code> term=top-level|iframe dest=polaris|os|other|unknown
 ```
 
-`skipped` is written by `/init` when it never starts Entra (`not-configured`, `no-cookies`,
-`cms-lookup-failed`, `state-too-large`, `entra-begin-error`); `ok` / `degraded` by the callback
-(`ad-error`, `missing-state`, `bad-state`, `state-mismatch`, `no-code`, `token-exchange-failed`,
+`skipped` is written by `/init` when it never starts Entra (`not-configured`, `no-mds-scope`,
+`no-service-scope`, `no-cookies`, `cms-lookup-failed`, `state-too-large`, `entra-begin-error`);
+`ok` / `degraded` by the callback (`bad-state-param`, `ad-error`, `missing-state`, `bad-state`,
+`expired-state`, `wrong-host`, `no-code`, `token-exchange-failed`,
 `no-refresh-token`, `swap-failed`, `store-deposit-failed`, `callback-error`). Codes only: no token,
 cookie, URL or identity; the free-text detail stays in the separate `drop2 entra degrade — …`
 line. Silent when drop2 is off. Rate by outcome, per destination kind:
@@ -167,9 +182,9 @@ instead of carrying on to `r`. **If drop2 does not start** (off, unconfigured, n
 lookup failed, state too large), `/init` 302s the iframe to the static, frameable
 `/init/terminal` page instead of carrying on: the hidden frame must never load the Polaris UI.
 (A page rendered by `/init` itself would carry the server's `X-Frame-Options: DENY`; the
-`/init/terminal` location sheds it like the callback, E2.) The one leftover: an iframe callback
-whose state cookie is lost has no record that it was an iframe, so it lands on the Polaris UI
-fallback (E12). `/init` **skips its Edge gate** when `terminal=iframe`: the iframe
+`/init/terminal` location sheds it like the callback, E2.) An iframe callback whose state cookie
+is lost still knows it is the iframe from the OAuth `state` prefix (`i.<handle>`, echoed by Entra
+even on errors) and renders the terminal page (E1). `/init` **skips its Edge gate** when `terminal=iframe`: the iframe
 lives in the CMS Classic IE-mode tab, cannot change mode (coercion would loop or 402), and must
 stay in IE mode so the presence cookie lands in the IE jar (`auth-handover.js` appAuthRedirect;
 unit-pinned). **Still future (step 2), and needed before global-components' Classic client switches from
@@ -205,10 +220,14 @@ The sign-in is neutral (`openid profile offline_access`); the code exchange yiel
 which the callback swaps (`grant_type=refresh_token` + client secret) for one token per service:
 MDS, and on the iframe the watchdog. The refresh token never leaves the callback. On-behalf-of
 (used 2026-10-06 → 10-15) needed a token addressed to our own app, i.e. an exposed scope
-(`ENTRA_APP_SCOPE`); that coupling is gone and our app reg exposes no API. Consent for each swap is
+(`ENTRA_APP_SCOPE`); that coupling is gone: drop2 needs our app reg to expose no API (pre-prod
+`8d6133af` happens to expose `api.presence.user.readwrite`, used only as the interim watchdog
+scope). Consent for each swap is
 the API pre-authorising our client — CPS blocks user consent (MDS terraform
 `global_components_client_id`, PR 2026-10-06). Without it the swap fails (AADSTS65001) and drop2
-degrades — safe. A missing refresh token (no `offline_access` consent) degrades likewise.
+degrades — safe. A missing refresh token (no `offline_access` consent) degrades likewise. With no
+MDS scope configured at all (UAT today) a top-level handover doesn't start the round trip
+(`skipped` / `no-mds-scope`); the iframe still runs while there is a watchdog scope.
 
 ### E11. ⚪ (removed) presence id-token cookie IE/Edge jar handover
 

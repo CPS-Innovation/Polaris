@@ -28,7 +28,7 @@
 // Config from app settings. WM_MDS_* are the proxy's existing MDS settings (terraform-managed, Key
 // Vault for the key). ENTRA_MDS_SCOPE has no baked default (the api:// prefix differs per env, e.g.
 // QA api://fa-wm-app-ddei-staging/full_scope). Missing => "" => the swap/deposit fails and drop2
-// degrades to drop1 behaviour; nothing can stop nginx booting (process.env, not envsubst).
+// the flow carries on as plain /init; nothing can stop nginx booting (process.env, not envsubst).
 const SCOPE = process.env.ENTRA_MDS_SCOPE || "";
 const MDS_BASE_URL = process.env.WM_MDS_BASE_URL || "";
 const MDS_ACCESS_KEY = process.env.WM_MDS_ACCESS_KEY || "";
@@ -77,12 +77,11 @@ async function mdsDeposit(payload, bearer) {
     });
     if (!resp.ok) {
       const errText = await resp.text();
-      ngx.log(ngx.ERR, "mds cms-auth-store PUT failed: " + resp.status + " " + errText);
+      // No log here: the caller logs the diag once (drop2's degrade line), truncated.
       return { ok: false, diag: "HTTP " + resp.status + " " + errText.substring(0, 120) };
     }
     return { ok: true, diag: "ok" };
   } catch (e) {
-    ngx.log(ngx.ERR, "mds cms-auth-store PUT error: " + String(e));
     return { ok: false, diag: String(e) };
   }
 }

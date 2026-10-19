@@ -1,8 +1,9 @@
 // ---------------------------------------------------------------------------
 // Non-DDEI init — DDEI's /api/init/ reimplemented entirely in njs (switch-gated).
 //
-// Reached ONLY when NON_DDEI_INIT_ENABLED=true, via an internal rewrite from
-// /auth-refresh-inbound (the switch lives in auth-handover.conf). It runs the DDEI
+// Reached via an internal rewrite from /auth-refresh-inbound when NON_DDEI_INIT_ENABLED or
+// ENTRA_STORE_ENABLED is on, or the browser is enrolled (drop1 or drop2) — the gate lives in
+// auth-handover.conf. It runs the DDEI
 // InitiateCookies pipeline in njs:
 //   mint the CMS modern token -> verify it via GraphQL
 //   -> set the Cms-Auth-Values cookie -> redirect (polaris-ui-url, or /polaris-ui/go).
@@ -215,9 +216,7 @@ function _extractCaseId(q) {
 // so removing drop2 leaves this file working unchanged.
 // ---------------------------------------------------------------------------
 
-// The post-auth redirect intent, captured from the /init request args. Carried by
-// value so drop2 can stash it in its state cookie and finalize on the AD callback
-// (a different request that no longer has these args).
+// The post-auth redirect intent, captured from the request args.
 function captureLanding(r) {
   return { polarisUiUrl: _arg(r, "polaris-ui-url"), q: _arg(r, "q") };
 }
@@ -299,8 +298,7 @@ async function establishCmsSession(r, landing) {
 }
 
 // Build the Cms-Auth-Values Set-Cookie string for an established session (the
-// gateway reads this). Session shape matches establishCmsSession's return. Kept
-// separate from finalize so drop2's iframe path can set the cookie WITHOUT a redirect.
+// gateway reads this). Session shape matches establishCmsSession's return.
 function cmsAuthValuesCookie(r, session) {
   const secure = (_header(r, "X-Forwarded-Proto") || "https") === "https";
   const dto = {
@@ -315,7 +313,7 @@ function cmsAuthValuesCookie(r, session) {
 }
 
 // Finalize: set Cms-Auth-Values (appended to any cookies already queued on the
-// response — drop2 queues its id-token cookie first) + redirect by auth-flow mode.
+// response) + redirect by auth-flow mode.
 function finalize(r, session, landing) {
   const queued = r.headersOut["Set-Cookie"] || [];
   r.headersOut["Set-Cookie"] = queued.concat([cmsAuthValuesCookie(r, session)]);
@@ -343,10 +341,11 @@ function finalize(r, session, landing) {
 // Handler — the DDEI /api/init/ pipeline in njs (drop1's own switch path).
 // ---------------------------------------------------------------------------
 
-// Observable marker: which auth-init path answered /auth-refresh-inbound. DDEI's
-// proxied answer carries none, so presence/absence in DevTools (or a curl -I) shows
-// whether a switch or enrolment took effect. Values: "non-ddei" (drop1), "entra" /
-// "entra-degraded" (drop2, set by that module). Deliberately carries no error detail.
+// Observable marker: which auth-init path answered. DDEI's proxied answer carries none,
+// so presence/absence in DevTools (or a curl -I) shows whether a switch or enrolment took
+// effect. Values: "non-ddei" (drop1, on /auth-refresh-inbound), "entra" / "entra-degraded"
+// (drop2, set by that module on /init and /init/entra-callback). Deliberately carries no
+// error detail.
 const AUTH_INIT_HEADER = "X-Polaris-Auth-Init";
 function markAuthInit(r, value) {
   r.headersOut[AUTH_INIT_HEADER] = value;
@@ -368,11 +367,7 @@ async function handleInitNonDdei(r) {
 export default {
   handleInitNonDdei,
   // reused by feature auth-handover.drop2.entra:
-  captureLanding,
-  establishCmsSession,
   lookupCmsSession,
-  cmsAuthValuesCookie,
-  finalize,
   markAuthInit,
   absoluteUrl,
 };

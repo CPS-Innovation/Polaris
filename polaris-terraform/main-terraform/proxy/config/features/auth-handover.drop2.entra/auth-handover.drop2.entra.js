@@ -26,7 +26,7 @@
 //        IFRAME 200 static terminal page (harness tears the iframe down on its onload).
 //
 // TOKEN MODEL (PLAN-entra-unified-flow; decided 2026-10-15): ONE silent, NEUTRAL sign-in
-// (openid profile offline_access — no API scope, so our app reg exposes none), then a
+// (openid profile offline_access — no API scope, so drop2 needs our app reg to expose none), then a
 // refresh-token swap per service: a confidential client's refresh token buys an access token for
 // any API the app may call (consent = that API pre-authorising our client). No on-behalf-of: that
 // needs a token addressed to us, i.e. an exposed scope. The refresh token never leaves this
@@ -56,7 +56,7 @@ import store from "./store.js";
 import cryptoModule from "crypto"; // njs built-in — for the state-cookie HMAC
 
 // Azure AD app registration — config comes ONLY from app settings; NO baked defaults (see
-// TODO.APP-SETTINGS.md). Missing => "" => the flow fails the exchange/swap and degrades to drop1.
+// APP-SETTINGS.md). Missing => "" => isConfigured() is false and /init never starts the flow.
 // tenant/client are non-secret ids; the client SECRET is a secret. There is NO ENTRA_REDIRECT_URI
 // setting: the redirect_uri is derived per-request from the incoming Host (see _redirectUri) — the
 // flow always returns to the same host, which must be a redirect URI registered on the app reg.
@@ -68,14 +68,16 @@ const CLIENT_SECRET = process.env.ENTRA_CLIENT_SECRET || "";
 const CALLBACK_PATH = "/init/entra-callback";
 
 // Server-side secret that signs the state cookie (integrity). EMPTY => fail closed: _unpackState
-// rejects every cookie, so the callback degrades to drop1 — drop2 will not run without it. See
-// TODO.APP-SETTINGS.md and QUIRKS E1.
+// rejects every cookie (and isConfigured() stops /init from starting a flow at all). See
+// APP-SETTINGS.md and QUIRKS E1.
 const STATE_HMAC_SECRET = process.env.ENTRA_STATE_HMAC_SECRET || "";
 
-// First-party state cookie: holds the (secret) session payload across the AD hop.
-// Path scopes it to the callback (never every /init request); short-lived; HttpOnly so no script
-// can read it.
-const STATE_COOKIE = "entra_auth_state";
+// First-party state cookie: holds the (secret) session payload across the AD hop. ONE PER FLOW,
+// named by the flow's random handle (entra_auth_state_<handle>), so two handovers in flight in one
+// browser (an OS link and the P button in two tabs) never read or clear each other's state. Path
+// scopes it to the callback (never every /init request); short-lived; HttpOnly so no script can
+// read it. (Several at once are small: nginx allows 4 x 32k request-header buffers.)
+const STATE_COOKIE_PREFIX = "entra_auth_state_";
 const STATE_SET_OPTS =
   "; Path=" + CALLBACK_PATH + "; HttpOnly; Secure; SameSite=Lax; Max-Age=300";
 const STATE_CLEAR_OPTS =
@@ -83,6 +85,17 @@ const STATE_CLEAR_OPTS =
 
 // Where the callback lands when the state (and so the destination) is unrecoverable.
 const FALLBACK_LANDING = "/polaris-ui/";
+
+// Server-side lifetime of a state cookie. The browser's Max-Age=300 alone would let a captured,
+// validly signed cookie be replayed (cookie-tossed) indefinitely, so the signed payload carries its
+// issue time (iat, seconds) and host (h), checked on the callback. Small forward skew allowed.
+const STATE_MAX_AGE_S = 300;
+const STATE_SKEW_S = 60;
+
+// The OAuth `state` param: "<mode>.<handle>", mode "t" (top-level) or "i" (hidden iframe). The
+// handle names the flow's cookie; the mode is not secret, and Entra echoes `state` on errors too,
+// so a callback whose cookie is gone still knows to end the iframe on the terminal page.
+const STATE_PARAM_RE = /^([ti])\.([0-9a-f]{32})$/;
 
 // D2: browsers silently DROP a cookie over ~4 KB (name + value), which would lose the state —
 // and with it the destination — at the callback. The state holds r + cc + token, and OS `r` URLs
@@ -101,7 +114,8 @@ const TERMINAL_HTML =
 const SIGN_IN_SCOPE = "openid profile offline_access";
 
 // The watchdog (presence API) scope the refresh token is swapped for, for the presence cookie.
-// "" => no presence cookie. Interim pre-prod value: the scope 8d6133af itself exposes, which the
+// "" => no presence cookie. Interim pre-prod value: a scope 8d6133af happens to expose (unused by
+// drop2's own sign-in), which the
 // watchdog accepts today; becomes the watchdog's own app reg scope by config alone (terraform
 // proxy_entra.watchdog_scope).
 const WATCHDOG_SCOPE = process.env.ENTRA_WATCHDOG_SCOPE || "";
@@ -249,9 +263,10 @@ function _constEq(a, b) {
 }
 
 // Pack / unpack the state payload as `base64url(JSON) . HMAC`. The MAC makes the cookie
-// tamper-evident: an attacker who can SET entra_auth_state (e.g. a Domain=cps.gov.uk cookie-toss
-// from a sibling subdomain) cannot forge a valid one without STATE_HMAC_SECRET, so the circular
-// `state`-param check can no longer be satisfied with a self-supplied cookie. See QUIRKS E1.
+// tamper-evident: an attacker who can SET a state cookie (e.g. a Domain=cps.gov.uk cookie-toss
+// from a sibling subdomain) cannot forge a valid one without STATE_HMAC_SECRET, so the `state`-
+// param check can't be satisfied with a self-supplied cookie; iat + h (checked in _loadState) stop
+// a REAL one being replayed later or on another host. See QUIRKS E1.
 function _packState(st) {
   const payload = _b64urlEncode(JSON.stringify(st));
   return payload + "." + _stateMac(payload);
@@ -266,6 +281,26 @@ function _unpackState(raw) {
     throw new Error("state: bad MAC");
   }
   return JSON.parse(_b64urlDecode(payload));
+}
+
+// The callback's view of its flow: the cookie named by the `state` handle, signature-checked, then
+// bound to that handle, this host, and its 300s lifetime. { st } or { st: null, reason }.
+function _loadState(r, handle) {
+  const raw = _cookie(r, STATE_COOKIE_PREFIX + handle);
+  if (!raw) return { st: null, reason: "missing-state" };
+  let st;
+  try {
+    st = _unpackState(raw);
+  } catch (e) {
+    return { st: null, reason: "bad-state" };
+  }
+  if (st.s !== handle) return { st: null, reason: "bad-state" };
+  const now = Math.floor(Date.now() / 1000);
+  if (typeof st.iat !== "number" || now - st.iat > STATE_MAX_AGE_S || st.iat - now > STATE_SKEW_S) {
+    return { st: null, reason: "expired-state" };
+  }
+  if (st.h !== _header(r, "Host")) return { st: null, reason: "wrong-host" };
+  return { st: st, reason: "" };
 }
 
 // POST a form to the AD token endpoint; returns { accessToken, refreshToken, expiresIn, diag }. On
@@ -360,6 +395,13 @@ async function beginFromInit(r, opts) {
   };
   try {
     if (!isConfigured()) return skip("not-configured");
+    // Nothing to gain without a service to swap for: top-level only deposits to MDS; the iframe
+    // also sets the presence cookie. (Read per request, like isConfigured; e.g. UAT has no MDS
+    // scope yet, so its top-level handovers skip the round trip instead of degrading after it.)
+    const mdsScope = process.env.ENTRA_MDS_SCOPE || "";
+    const watchdogScope = process.env.ENTRA_WATCHDOG_SCOPE || "";
+    if (term === "top-level" && !mdsScope) return skip("no-mds-scope");
+    if (term === "iframe" && !mdsScope && !watchdogScope) return skip("no-service-scope");
     if (!opts.cookies) return skip("no-cookies");
 
     const found = await replaceDdei.lookupCmsSession(_header(r, "Host"), opts.cookies);
@@ -372,14 +414,19 @@ async function beginFromInit(r, opts) {
     const stateHandle = _rand(16);
     const payload = {
       s: stateHandle,
-      r: opts.redirectUrl,
+      // The iframe always ends on the terminal page and never reads r, so it isn't carried (keeps
+      // the cookie small); the destination KIND is, for the outcome line.
+      r: term === "iframe" ? undefined : opts.redirectUrl,
+      dk: _destKind(r, opts.redirectUrl || ""),
       cc: opts.cookies,
       tok: found.token,
       ver: found.versionId,
       term: term,
+      iat: Math.floor(Date.now() / 1000),
+      h: _header(r, "Host"),
       corr: _rand(8),
     };
-    const stateCookie = STATE_COOKIE + "=" + _packState(payload);
+    const stateCookie = STATE_COOKIE_PREFIX + stateHandle + "=" + _packState(payload);
     if (stateCookie.length > MAX_STATE_COOKIE) {
       // Length only — never the content (it holds the CMS cookies + token).
       return skip("state-too-large", " bytes=" + stateCookie.length);
@@ -392,7 +439,7 @@ async function beginFromInit(r, opts) {
       "response_type=code",
       "redirect_uri=" + encodeURIComponent(_redirectUri(r)),
       "scope=" + encodeURIComponent(SIGN_IN_SCOPE),
-      "state=" + stateHandle,
+      "state=" + (term === "iframe" ? "i." : "t.") + stateHandle,
       "response_mode=query",
       // Silent auth: CMS users already have an AAD session (same tenant), so prompt=none
       // yields a bare 302 (code, or error=login_required) with no UI to render — which is
@@ -418,29 +465,23 @@ async function beginFromInit(r, opts) {
 async function handleInitEntraCallback(r) {
   let st = null;
   try {
+    const m = _arg(r, "state").match(STATE_PARAM_RE);
+    if (!m) {
+      _degrade(r, null, "bad-state-param");
+      return;
+    }
+    const lost = { mode: m[1] === "i" ? "iframe" : "top-level", handle: m[2] };
+    const loaded = _loadState(r, lost.handle);
+    st = loaded.st;
+
     const adError = _arg(r, "error");
     if (adError) {
-      // e.g. login_required (no silent AD session) — degrade, don't block login.
-      st = _recoverState(r);
-      _degrade(r, st, "ad-error: " + adError);
+      // e.g. login_required (no silent AD session) — degrade, don't block anyone's handover.
+      _degrade(r, st, "ad-error: " + adError, null, lost);
       return;
     }
-
-    const raw = _cookie(r, STATE_COOKIE);
-    if (!raw) {
-      // No recoverable session data — best we can do is land on the fallback.
-      _degrade(r, null, "missing-state");
-      return;
-    }
-    try {
-      st = _unpackState(raw);
-    } catch (e) {
-      _degrade(r, null, "bad-state");
-      return;
-    }
-
-    if (_arg(r, "state") !== st.s) {
-      _degrade(r, st, "state-mismatch");
+    if (!st) {
+      _degrade(r, null, loaded.reason, null, lost);
       return;
     }
     const code = _arg(r, "code");
@@ -494,32 +535,38 @@ async function handleInitEntraCallback(r) {
 // Success terminal: clear state (+ any presence cookies), then branch on mode.
 function _succeed(r, st, extra) {
   replaceDdei.markAuthInit(r, "entra");
-  _outcome("ok", "ok", _destKind(r, st.r || ""), st.term);
+  _outcome("ok", "ok", _stDestKind(r, st), st.term);
   _finish(r, st, extra);
 }
 
 // Best-effort degrade path. Never blocks anyone's handover: top-level carries on to r exactly as
 // /init would (the CMS token is still passed on: it was verified at /init, independent of Entra);
-// iframe just renders the terminal. With no recoverable state there is no destination, so the
-// Polaris UI is the only safe landing (D2 keeps that rare).
-function _degrade(r, st, reason, extra) {
+// iframe just renders the terminal. With no recoverable state there is no destination: the iframe
+// (known from the `state` param's mode) still gets the terminal page; top-level lands on the
+// Polaris UI, the only safe choice. `lost` = { mode, handle } from the `state` param, when known.
+function _degrade(r, st, reason, extra, lost) {
   // Marker only — the reason goes to the error log below, never to the client.
   replaceDdei.markAuthInit(r, "entra-degraded");
   _log("drop2 entra degrade — " + reason);
   const code = reason.split(":")[0].trim();
   if (st) {
-    _outcome("degraded", code, _destKind(r, st.r || ""), st.term);
+    _outcome("degraded", code, _stDestKind(r, st), st.term);
     _finish(r, st, extra);
     return;
   }
-  _outcome("degraded", code, "unknown", "unknown");
-  r.headersOut["Set-Cookie"] = [STATE_COOKIE + "=deleted" + STATE_CLEAR_OPTS];
+  _outcome("degraded", code, "unknown", lost ? lost.mode : "unknown");
+  r.headersOut["Set-Cookie"] = lost ? [STATE_COOKIE_PREFIX + lost.handle + "=deleted" + STATE_CLEAR_OPTS] : [];
+  if (lost && lost.mode === "iframe") {
+    r.headersOut["Content-Type"] = "text/html; charset=utf-8";
+    r.return(200, TERMINAL_HTML);
+    return;
+  }
   r.return(302, replaceDdei.absoluteUrl(r, FALLBACK_LANDING));
 }
 
-// Clear the state cookie (+ queue any presence cookies), then iframe terminal or carry on to r.
+// Clear THIS flow's state cookie (+ queue any presence cookies), then iframe terminal or carry on.
 function _finish(r, st, extra) {
-  r.headersOut["Set-Cookie"] = [STATE_COOKIE + "=deleted" + STATE_CLEAR_OPTS].concat(extra || []);
+  r.headersOut["Set-Cookie"] = [STATE_COOKIE_PREFIX + st.s + "=deleted" + STATE_CLEAR_OPTS].concat(extra || []);
   if (st.term === "iframe") {
     // Pure side-channel: store (+ presence) only, static page.
     r.headersOut["Content-Type"] = "text/html; charset=utf-8";
@@ -527,6 +574,11 @@ function _finish(r, st, extra) {
     return;
   }
   r.return(302, _continuationUrl(r, st));
+}
+
+// The destination kind for the outcome line: recorded at /init (dk); else derived from r.
+function _stDestKind(r, st) {
+  return st.dk || _destKind(r, st.r || "");
 }
 
 // D5: ONE structured line per handover that drop2 handled, for KQL over AppServiceConsoleLogs
@@ -559,17 +611,6 @@ function _log(msg) {
   }
 }
 
-// Recover state without throwing (used on the AD-error branch).
-function _recoverState(r) {
-  const raw = _cookie(r, STATE_COOKIE);
-  if (!raw) return null;
-  try {
-    return _unpackState(raw);
-  } catch (e) {
-    return null;
-  }
-}
-
 export default {
   beginFromInit,
   handleInitEntraCallback,
@@ -582,12 +623,13 @@ export default {
     b64urlEncode: _b64urlEncode,
     b64urlDecode: _b64urlDecode,
     refresh: _refresh,
+    destKind: _destKind,
     presenceCookies: _presenceCookies,
     rand: _rand,
     authorizeUrl: _authorizeUrl,
     tokenUrl: _tokenUrl,
     constants: {
-      STATE_COOKIE: STATE_COOKIE,
+      STATE_COOKIE_PREFIX: STATE_COOKIE_PREFIX,
       TENANT_ID: TENANT_ID,
       TERMINAL_HTML: TERMINAL_HTML,
       PRESENCE_COOKIE: PRESENCE_COOKIE,

@@ -49,6 +49,13 @@ function res({ status = 200, body = "", headers = {}, url = "" }) {
 function findCookie(arr, prefix) {
   return (arr || []).find((c) => c.indexOf(prefix) === 0)
 }
+// The per-flow state cookie: entra_auth_state_<handle>=<payload>; …
+const STATE_PREFIX = "entra_auth_state_"
+const cookieValue = (sc) => sc.split(";")[0].split("=").slice(1).join("=")
+const cookieName = (sc) => sc.split("=")[0]
+const nowSec = () => Math.floor(Date.now() / 1000)
+const H1 = "a".repeat(32)
+const H2 = "b".repeat(32)
 function form(body) {
   const o = {}
   String(body || "")
@@ -245,19 +252,24 @@ async function initTests(authHandover, entra) {
     assertEqual(q.scope, "openid profile offline_access", "neutral sign-in")
     assertEqual(q.prompt, "none", "silent")
     assertEqual(q.redirect_uri, "https://proxy.example/init/entra-callback", "callback under /init on this host")
-    assert(/^[0-9a-f]{32}$/.test(q.state), "random state handle")
+    assert(/^t\.[0-9a-f]{32}$/.test(q.state), "state = t.<random handle> (top-level): " + q.state)
     const cookies = [].concat(r.headersOut["Set-Cookie"] || [])
     assert(cookies.some((c) => c.indexOf("Cms-Session-Hint=") === 0), "the session hint is still set (appended to, not replaced)")
-    const sc = findCookie(cookies, "entra_auth_state=")
+    const sc = findCookie(cookies, STATE_PREFIX)
     assert(!!sc, "state cookie")
     assertIncludes(sc, "; Path=/init/entra-callback;", "state cookie rides only to the callback")
     assertIncludes(sc, "HttpOnly", "HttpOnly")
-    const st = entra.__test.unpackState(sc.slice("entra_auth_state=".length).split(";")[0])
+    const st = entra.__test.unpackState(cookieValue(sc))
     assertEqual(st.r, DEST_OS, "destination")
     assertEqual(st.cc, CC, "the FILTERED cookies, exactly as /init would pass them")
     assertEqual(st.tok, TOKEN, "token")
     assertEqual(st.ver, VERSION, "version")
     assertEqual(st.term, "top-level", "top-level")
+    assertEqual(cookieName(sc), STATE_PREFIX + q.state.slice(2), "the cookie is named by this flow's handle")
+    assertEqual(st.s, q.state.slice(2), "payload carries the handle")
+    assert(Math.abs(st.iat - nowSec()) <= 2, "issued-at stamped: " + st.iat)
+    assertEqual(st.h, "proxy.example", "bound to the host")
+    assertEqual(st.dk, "os", "destination kind recorded")
     assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra", "marker")
   })
 
@@ -274,7 +286,7 @@ async function initTests(authHandover, entra) {
     await authHandover.appAuthRedirect(r)
     assertEqual(fetchLog.length, 0, "no fetch")
     assertEqual(r.returnBody, continuation(DEST_OS), "plain 302 to r with cc")
-    assertEqual(findCookie([].concat(r.headersOut["Set-Cookie"] || []), "entra_auth_state="), undefined, "no state cookie")
+    assertEqual(findCookie([].concat(r.headersOut["Set-Cookie"] || []), STATE_PREFIX), undefined, "no state cookie")
   })
 
   await test("Entra on but NOT fully configured (no client id / secret / HMAC key / tenant): never sign in, carry on", async () => {
@@ -339,10 +351,13 @@ async function initTests(authHandover, entra) {
     const r = initRequest({ terminal: "iframe", q: "x" })
     await authHandover.appAuthRedirect(r)
     restore()
-    const sc = findCookie([].concat(r.headersOut["Set-Cookie"] || []), "entra_auth_state=")
-    const st = entra.__test.unpackState(sc.slice("entra_auth_state=".length).split(";")[0])
+    const sc = findCookie([].concat(r.headersOut["Set-Cookie"] || []), STATE_PREFIX)
+    const st = entra.__test.unpackState(cookieValue(sc))
     assertEqual(st.term, "iframe", "iframe")
-    assert(st.r.indexOf("/auth-refresh-inbound?") === 0, "legacy shim's synthesised r: " + st.r)
+    assertEqual(st.r, undefined, "no destination carried: the iframe always ends on the terminal page")
+    assertEqual(st.dk, "polaris", "destination kind still recorded (for the outcome line)")
+    const q = form(r.returnBody.split("?")[1])
+    assert(/^i\.[0-9a-f]{32}$/.test(q.state), "state = i.<handle> (iframe): " + q.state)
   })
 }
 
@@ -358,11 +373,28 @@ async function callbackScenario({
   adError = null,
   env = null,
   dest = DEST_POLARIS,
+  handle = H1,
+  stPatch = null,
+  stateParam = null,
+  extraCookie = "",
 }) {
   const restore = env ? applyEnv(env) : () => {}
   const entra = await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")
   restore()
-  const st = { s: "STATE-HANDLE", cc: CC, tok: TOKEN, ver: VERSION, r: dest, term: term, corr: "corr-1" }
+  const st = {
+    s: handle,
+    cc: CC,
+    tok: TOKEN,
+    ver: VERSION,
+    r: term === "iframe" ? undefined : dest,
+    dk: entra.__test.destKind(createMockRequest({ headersIn: { Host: "proxy.example" } }), dest),
+    term: term,
+    iat: nowSec(),
+    h: "proxy.example",
+    corr: "corr-1",
+    ...(stPatch || {}),
+  }
+  const sp = stateParam !== null ? stateParam : (term === "iframe" ? "i." : "t.") + handle
   fetchLog = []
   logLines = []
   fetchImpl = async (url, init) => {
@@ -390,11 +422,11 @@ async function callbackScenario({
     throw new Error("callback: unexpected url " + url)
   }
   const r = createMockRequest({
-    args: adError ? { error: adError } : { state: st.s, code: "CODE-1" },
+    args: adError ? { error: adError, state: sp } : { state: sp, code: "CODE-1" },
     headersIn: {
       Host: "proxy.example",
       "X-Forwarded-Proto": "https",
-      Cookie: "entra_auth_state=" + entra.__test.packState(st),
+      Cookie: [STATE_PREFIX + handle + "=" + entra.__test.packState(st), extraCookie].filter(Boolean).join("; "),
     },
   })
   await entra.handleInitEntraCallback(r)
@@ -432,8 +464,8 @@ async function callbackTests() {
     assertEqual(r.returnBody, continuation(DEST_POLARIS, POLARIS_TOKEN_PARAMS), "-> /auth-refresh-inbound, with the token passed on")
     const sc = r.headersOut["Set-Cookie"]
     assertEqual(findCookie(sc, "Cms-Auth-Values="), undefined, "Cms-Auth-Values is /auth-refresh-inbound's job now")
-    assert(findCookie(sc, "entra_auth_state=deleted") !== undefined, "state cookie cleared")
-    assertIncludes(findCookie(sc, "entra_auth_state=deleted"), "Path=/init/entra-callback", "cleared on its own path")
+    assert(findCookie(sc, STATE_PREFIX + H1 + "=deleted") !== undefined, "this flow's state cookie cleared")
+    assertIncludes(findCookie(sc, STATE_PREFIX + H1 + "=deleted"), "Path=/init/entra-callback", "cleared on its own path")
     assertEqual(presenceCookies(r).length, 0, "no presence cookie on top-level")
     assertEqual(r.headersOut["X-Polaris-Auth-Init"], "entra", "marker: entra")
     assertEqual(callOrder(), "authorization_code > refresh_token:mds > mds", "call order (no watchdog swap at top level)")
@@ -569,8 +601,8 @@ async function callbackTests() {
   await test("bad state cookie (tampered): no recoverable destination -> fallback landing", async () => {
     const entra = await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")
     const r = createMockRequest({
-      args: { state: "x", code: "y" },
-      headersIn: { Host: "proxy.example", Cookie: "entra_auth_state=eyJ9.bad" },
+      args: { state: "t." + H1, code: "y" },
+      headersIn: { Host: "proxy.example", Cookie: STATE_PREFIX + H1 + "=eyJ9.bad" },
     })
     await entra.handleInitEntraCallback(r)
     assertEqual(r.returnBody, "https://proxy.example/polaris-ui/", "fallback landing")
@@ -616,7 +648,7 @@ async function guardAndOutcomeTests(authHandover) {
     await authHandover.appAuthRedirect(r)
     restore()
     assert(r.returnBody.indexOf("https://cps.outsystemsenterprise.com/") === 0, "carry on: " + r.returnBody.slice(0, 80))
-    assertEqual(findCookie([].concat(r.headersOut["Set-Cookie"] || []), "entra_auth_state="), undefined, "no state cookie")
+    assertEqual(findCookie([].concat(r.headersOut["Set-Cookie"] || []), STATE_PREFIX), undefined, "no state cookie")
     const o = outcomeOf(outcomeLines()[0])
     assertEqual(o.result, "skipped", "skipped")
     assertEqual(o.reason, "state-too-large", "reason")
@@ -631,7 +663,7 @@ async function guardAndOutcomeTests(authHandover) {
     await authHandover.appAuthRedirect(r)
     restore()
     assert(r.returnBody.indexOf("https://login.microsoftonline.com/") === 0, "began")
-    const sc = findCookie([].concat(r.headersOut["Set-Cookie"] || []), "entra_auth_state=")
+    const sc = findCookie([].concat(r.headersOut["Set-Cookie"] || []), STATE_PREFIX)
     assert(sc.split(";")[0].length <= 3800, "under the guard: " + sc.split(";")[0].length)
   })
 
@@ -696,10 +728,15 @@ async function guardAndOutcomeTests(authHandover) {
   await test("D5: unrecoverable state -> one degraded line with dest=unknown", async () => {
     const entra = await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")
     logLines = []
-    const r = createMockRequest({ args: { state: "x", code: "y" }, headersIn: { Host: "proxy.example" } })
+    let r = createMockRequest({ args: { state: "t." + H1, code: "y" }, headersIn: { Host: "proxy.example" } })
     await entra.handleInitEntraCallback(r)
-    const o = outcomeOf(outcomeLines()[0])
-    assertEqual([o.result, o.reason, o.dest, o.term].join(","), "degraded,missing-state,unknown,unknown", "fields")
+    let o = outcomeOf(outcomeLines()[0])
+    assertEqual([o.result, o.reason, o.dest, o.term].join(","), "degraded,missing-state,unknown,top-level", "mode known from the state param")
+    logLines = []
+    r = createMockRequest({ args: { state: "x", code: "y" }, headersIn: { Host: "proxy.example" } })
+    await entra.handleInitEntraCallback(r)
+    o = outcomeOf(outcomeLines()[0])
+    assertEqual([o.result, o.reason, o.dest, o.term].join(","), "degraded,bad-state-param,unknown,unknown", "malformed state param")
   })
 }
 
@@ -772,6 +809,121 @@ async function iframeTerminalTests(authHandover, entra) {
   })
 }
 
+
+// Review fixes (2026-10-19): per-flow state cookie, replay bounds, iframe flag in `state`, the
+// pointless-round-trip skip, and the iframe state without `r`.
+async function reviewFixTests(authHandover, entra) {
+  console.log("\nper-flow state, replay bounds, iframe flag, no-service-scope skip:")
+  const on = { ENTRA_STORE_ENABLED: "true" }
+
+  await test("two overlapping flows: each callback finds ITS OWN state and clears only its own cookie", async () => {
+    const other = (await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")).__test.packState({
+      s: H2, cc: CC, tok: TOKEN, ver: VERSION, r: DEST_OTHER, dk: "other", term: "top-level", iat: nowSec(), h: "proxy.example",
+    })
+    const r = await callbackScenario({ term: "top-level", dest: DEST_OS, extraCookie: STATE_PREFIX + H2 + "=" + other })
+    assertEqual(r.returnBody, continuation(DEST_OS, OS_TOKEN_PARAMS), "flow A lands on A's destination, not B's")
+    const sc = [].concat(r.headersOut["Set-Cookie"] || [])
+    assert(!!findCookie(sc, STATE_PREFIX + H1 + "=deleted"), "A's cookie cleared")
+    assertEqual(findCookie(sc, STATE_PREFIX + H2 + "="), undefined, "B's cookie untouched")
+  })
+
+  await test("an Entra error is matched to its own flow too (by the echoed state)", async () => {
+    const other = (await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")).__test.packState({
+      s: H2, cc: CC, tok: TOKEN, ver: VERSION, r: DEST_OTHER, dk: "other", term: "top-level", iat: nowSec(), h: "proxy.example",
+    })
+    const r = await callbackScenario({
+      term: "top-level", dest: DEST_OS, adError: "login_required", extraCookie: STATE_PREFIX + H2 + "=" + other,
+    })
+    assertEqual(r.returnBody, continuation(DEST_OS, OS_TOKEN_PARAMS), "A's destination")
+  })
+
+  await test("a state param for a flow whose cookie is absent -> unrecoverable (never another flow's state)", async () => {
+    const r = await callbackScenario({ term: "top-level", dest: DEST_OS, stateParam: "t." + H2 })
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/", "fallback landing")
+    assertEqual(fetchLog.length, 0, "no exchange")
+  })
+
+  await test("a payload whose handle differs from its cookie name is rejected", async () => {
+    const r = await callbackScenario({ term: "top-level", stPatch: { s: H2 } })
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/", "fallback landing")
+    assertEqual(fetchLog.length, 0, "no exchange")
+  })
+
+  await test("replay: a state cookie older than 300s is rejected (server-side, not just the browser's Max-Age)", async () => {
+    const r = await callbackScenario({ term: "top-level", stPatch: { iat: nowSec() - 301 } })
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/", "fallback landing")
+    assertEqual(fetchLog.length, 0, "no exchange")
+    assert(logLines.some((l) => l.indexOf("drop2-outcome result=degraded reason=expired-state") === 0), logLines.join(" | "))
+  })
+
+  await test("replay: a state cookie from the future (beyond 60s skew) is rejected; within skew accepted", async () => {
+    let r = await callbackScenario({ term: "top-level", stPatch: { iat: nowSec() + 120 } })
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/", "rejected")
+    r = await callbackScenario({ term: "top-level", stPatch: { iat: nowSec() + 30 } })
+    assertEqual(r.returnBody, continuation(DEST_POLARIS, POLARIS_TOKEN_PARAMS), "accepted within skew")
+  })
+
+  await test("replay: a state cookie minted for another host is rejected", async () => {
+    const r = await callbackScenario({ term: "top-level", stPatch: { h: "other.example" } })
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/", "fallback landing")
+    assertEqual(fetchLog.length, 0, "no exchange")
+    assert(logLines.some((l) => l.indexOf("reason=wrong-host") !== -1), logLines.join(" | "))
+  })
+
+  await test("replay: a state cookie with no iat is rejected", async () => {
+    const r = await callbackScenario({ term: "top-level", stPatch: { iat: undefined } })
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/", "rejected")
+  })
+
+  await test("iframe flow with its state lost -> the terminal page (from the i. flag), never the Polaris UI", async () => {
+    const entra2 = await loadNjs("features/auth-handover.drop2.entra/auth-handover.drop2.entra.js")
+    for (const args of [{ state: "i." + H1, code: "y" }, { state: "i." + H1, error: "login_required" }]) {
+      const r = createMockRequest({ args, headersIn: { Host: "proxy.example" } })
+      await entra2.handleInitEntraCallback(r)
+      assertEqual(r.returnCode, 200, "200 for " + JSON.stringify(args))
+      assertEqual(r.returnBody, entra.__test.constants.TERMINAL_HTML, "terminal page")
+    }
+  })
+
+  await test("iframe success/degrade never needs r", async () => {
+    let r = await callbackScenario({ term: "iframe" })
+    assertEqual(r.returnCode, 200, "success -> terminal")
+    r = await callbackScenario({ term: "iframe", mdsSwap: "fail" })
+    assertEqual(r.returnCode, 200, "degrade -> terminal")
+    assertEqual(outcomeOf(outcomeLines()[0]).dest, "polaris", "dest kind from the state")
+  })
+
+  await test("no MDS scope: top-level skips Entra (nothing to deposit) and carries on; logged skipped/no-mds-scope", async () => {
+    fetchLog = []
+    logLines = []
+    const restore = applyEnv({ ...on, ENTRA_MDS_SCOPE: "" })
+    const r = initRequest({ r: DEST_OS })
+    await authHandover.appAuthRedirect(r)
+    restore()
+    assertEqual(r.returnBody, continuation(DEST_OS), "carry on")
+    assertEqual(fetchLog.length, 0, "no CMS lookup either")
+    const o = outcomeOf(outcomeLines()[0])
+    assertEqual([o.result, o.reason].join(","), "skipped,no-mds-scope", "logged")
+  })
+
+  await test("no MDS scope: the iframe still runs when there is a watchdog scope (presence)", async () => {
+    fetchImpl = establishRouter()
+    const restore = applyEnv({ ...on, ENTRA_MDS_SCOPE: "" })
+    const r = initRequest({ terminal: "iframe", q: "x" })
+    await authHandover.appAuthRedirect(r)
+    restore()
+    assert(r.returnBody.indexOf("https://login.microsoftonline.com/") === 0, "-> Entra")
+  })
+
+  await test("no MDS scope and no watchdog scope: the iframe skips -> /init/terminal", async () => {
+    const restore = applyEnv({ ...on, ENTRA_MDS_SCOPE: "", ENTRA_WATCHDOG_SCOPE: "" })
+    const r = initRequest({ terminal: "iframe", q: "x" })
+    await authHandover.appAuthRedirect(r)
+    restore()
+    assertEqual(r.returnBody, "https://proxy.example/init/terminal", "terminal")
+  })
+}
+
 async function main() {
   // Module consts read env at load; apply before loading.
   const restore = applyEnv(ENV)
@@ -785,6 +937,7 @@ async function main() {
   await callbackTests()
   await guardAndOutcomeTests(authHandover)
   await iframeTerminalTests(authHandover, entra)
+  await reviewFixTests(authHandover, entra)
 
   restore()
   process.exit(summarise("auth-handover.drop2.entra (unit)"))

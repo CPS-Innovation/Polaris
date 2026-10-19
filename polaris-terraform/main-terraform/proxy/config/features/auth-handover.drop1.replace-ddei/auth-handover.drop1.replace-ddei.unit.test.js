@@ -2,7 +2,7 @@
 /**
  * Unit tests for auth-handover.drop1.replace-ddei — the njs DDEI /api/init/ replacement.
  * ISOLATED / NEW-GEN: dormant unless NON_DDEI_INIT_ENABLED=true (or a per-user enrolment),
- * so it is outside the golden master. Its establish/finalize core is also exercised via
+ * so it is outside the golden master. Its non-redirecting lookup is also exercised via
  * drop2's suite (which reuses it); this file pins drop1's own handler.
  *
  * Uses the same global `ngx.fetch` mock pattern as the drop2 suite.

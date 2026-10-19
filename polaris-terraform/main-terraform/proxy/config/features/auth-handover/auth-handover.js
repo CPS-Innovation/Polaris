@@ -43,6 +43,9 @@ function _redirectToAbsoluteUrl(r, redirectUrl) {
   // Note: this almost is not a problem.  When the client comes back with the http://... request nginx will do another
   //  redirect to https as part of the "upgrade http to https" thing.  However the CWA cypress e2e test framework fails
   //  because tests running on https are redirected to an http address
+  // NB: kept byte-identical to the live monolith's nginx.js (parity), so with NO X-Forwarded-Proto it
+  //  builds "undefined://host/…". App Service's front end always sets the header, so that only shows
+  //  on a direct local request. drop1's absoluteUrl does the same job with an https fallback.
   r.return(
     302,
     redirectUrl.lastIndexOf("http", 0) === 0

@@ -38,8 +38,9 @@ URI normalisation).
 single-segment `/materials-ui/{caseId}/materials`. That no longer matches this
 two-segment regex, so it falls to the `/materials-ui/` prefix block — the regex is now
 reachable only by a hand-built two-segment URL. Even stronger drop candidate (live
-still carries it; left in place for parity). **Note (D13):** while #2189 is held back in the next config, the next
-config still builds the two-segment `{caseUrn}/{caseId}` URL, so this regex is reachable there.
+still carries it; left in place for parity). **Note (D13):** while #2189 is held back in
+the next config, the next config still builds the two-segment `{caseUrn}/{caseId}` URL,
+so this regex is reachable there.
 
 ### D13. 🟠 #2189 (materials URN removal) is HELD BACK in the next config — deliberate divergence
 
