@@ -6,6 +6,7 @@ namespace PolarisGateway.Functions;
 
 using Common.Configuration;
 using Common.Dto.Request;
+using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response.Case;
 using Common.Extensions;
 using Ddei.Factories;
@@ -26,17 +27,17 @@ using System.Threading.Tasks;
 
 public class GetExhibitProducers : BaseFunction
 {
-    private readonly IMdsClient mdsClient;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
     private readonly IMdsArgFactory mdsArgFactory;
     private readonly ICaseUrnResolver caseUrnResolver;
 
     public GetExhibitProducers(
-        IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient,
         IMdsArgFactory mdsArgFactory,
         ICaseUrnResolver caseUrnResolver)
         : base()
     {
-        this.mdsClient = mdsClient.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
@@ -57,8 +58,11 @@ public class GetExhibitProducers : BaseFunction
 
         var mdsCaseIdentifiersArgDto = this.mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues.CmsAuthFullValue, correlationId, caseUrn, caseId);
 
-        var exhibitProducerDtos = await this.mdsClient.GetExhibitProducersAsync(mdsCaseIdentifiersArgDto, cancellationToken: cancellationToken);
+        var exhibitProducersResponse = await this.masterDataServiceClient.GetExhibitProducersAsync(
+            new GetExhibitProducersRequest(mdsCaseIdentifiersArgDto.CaseId, mdsCaseIdentifiersArgDto.CorrelationId),
+            cmsAuthValues,
+            cancellationToken);
 
-        return new OkObjectResult(exhibitProducerDtos);
+        return new OkObjectResult(exhibitProducersResponse);
     }
 }

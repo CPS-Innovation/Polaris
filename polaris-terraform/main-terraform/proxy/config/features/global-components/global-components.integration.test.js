@@ -96,6 +96,22 @@ async function blobAndAnalytics() {
     assertIncludes(echo.url, "/test/global-components.js", "Path preserved to blob")
   })
 
+  // The page carries no CSP of its own, so this header is what restricts its ?src=.
+  await test("/global-components/{env}/auth-handover.html is proxied with a CSP restricting scripts to this host", async () => {
+    const res = await get("/global-components/test/auth-handover.html")
+    assertEqual(res.status, 200, "Should proxy to the blob mock")
+    const echo = await res.json()
+    assertIncludes(echo.url, "/test/auth-handover.html", "Path preserved to blob")
+    const csp = res.headers.get("content-security-policy") || ""
+    assertIncludes(csp, "script-src 'self' 'unsafe-inline';", "script-src limited to this host and the inline bootstrap")
+    assertIncludes(csp, "https://graph.microsoft.com", "connect-src allows the Graph /me call")
+  })
+
+  await test("other /global-components/{env}/* assets carry no CSP", async () => {
+    const res = await get("/global-components/test/global-components.js")
+    assertEqual(res.headers.get("content-security-policy"), null, "Only the handover page gets a CSP")
+  })
+
   await test("/global-components/analytics/* proxies to App Insights", async () => {
     const res = await get("/global-components/analytics/v2/track")
     assertEqual(res.status, 200, "Should proxy to the (mocked) App Insights host")

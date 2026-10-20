@@ -1,6 +1,13 @@
+// <copyright file="GetWitnessesLegacy.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
 using Common.Configuration;
 using Common.Dto.Response.Case;
 using Common.Extensions;
+using Common.Dto.Request.HouseKeeping;
 using Ddei.Factories;
 using Ddei.Mappers;
 using DdeiClient.Clients.Interfaces;
@@ -16,26 +23,22 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-
-namespace PolarisGateway.Functions;
+using Common.Dto.Request;
 
 public class GetWitnessesLegacy : BaseFunction
 {
-    private readonly ILogger<GetWitnessesLegacy> _logger;
-    private readonly IMdsArgFactory _mdsArgFactory;
-    private readonly IMdsClient _mdsClient;
-    private readonly ICaseWitnessMapper _caseWitnessMapper;
+    private readonly IMdsArgFactory mdsArgFactory;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
+    private readonly ICaseWitnessMapper caseWitnessMapper;
     public GetWitnessesLegacy(
-        ILogger<GetWitnessesLegacy> logger,
         IMdsArgFactory mdsArgFactory,
-        IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient,
         ICaseWitnessMapper caseWitnessMapper)
         : base()
     {
-        _logger = logger.ExceptionIfNull();
-        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        _mdsClient = mdsClient.ExceptionIfNull();
-        _caseWitnessMapper = caseWitnessMapper.ExceptionIfNull();
+        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        this.caseWitnessMapper = caseWitnessMapper.ExceptionIfNull();
     }
 
     [Function(nameof(GetWitnessesLegacy))]
@@ -52,11 +55,15 @@ public class GetWitnessesLegacy : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var arg = _mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
+        var arg = this.mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
 
-        var caseWitnessResponses = await _mdsClient.GetWitnessesAsync(arg, cancellationToken: cancellationToken);
-        var caseWitnesses = caseWitnessResponses.Select(_caseWitnessMapper.Map);
+        var witnessesResponse = await this.masterDataServiceClient.GetCaseWitnessesAsync(
+            new GetCaseWitnessesRequest(arg.CaseId, arg.CorrelationId),
+            new CmsAuthValues(cmsAuthValues, correlationId),
+            cancellationToken);
 
-        return new OkObjectResult(caseWitnesses);
+        var witnesses = witnessesResponse.Witnesses.Select(this.caseWitnessMapper.Map);
+
+        return new OkObjectResult(witnesses);
     }
 }

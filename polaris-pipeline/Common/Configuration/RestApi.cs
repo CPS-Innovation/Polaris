@@ -25,7 +25,6 @@ public static class RestApi
     public const string DocumentNotes = "cases/{caseId:min(1)}/materials/{materialId}/notes";
     public const string RedactDocumentLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/redact";
     public const string RedactDocument = "cases/{caseId:min(1)}/materials/{materialId}/documents/{documentId:min(1)}/redact";
-    public const string RedactPdf = "cases/{caseId:min(1)}/materials/{materialId}/redact";
     public const string ModifyDocumentLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/modify";
     public const string ModifyDocument = "cases/{caseId:min(1)}/materials/{materialId}/documents/{documentId:min(1)}/modify";
     public const string RenameDocumentLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/rename";

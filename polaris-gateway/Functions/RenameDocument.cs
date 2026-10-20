@@ -7,6 +7,7 @@ namespace PolarisGateway.Functions;
 using Common.Configuration;
 using Common.Domain.Document;
 using Common.Dto.Request;
+using Common.Dto.Request.HouseKeeping;
 using Common.Extensions;
 using Common.Mappers;
 using Common.Telemetry;
@@ -124,11 +125,14 @@ public class RenameDocument : BaseFunction
             };
             if (string.Equals(document.Classification, ExhibitClassification, StringComparison.InvariantCultureIgnoreCase))
             {
-                await this.mdsClient.RenameExhibitAsync(mdsRenameDocumentArgDto, cancellationToken);
+                await this.mdsClient.RenameExhibitAsync(mdsRenameDocumentArgDto, cancellationToken); // TODO: refactor to masterDataServiceClient.RenameExhibitMaterialAsync when MDS endpoint is fixed
             }
             else if (!string.Equals(document.Classification, StatementClassification, StringComparison.InvariantCultureIgnoreCase))
             {
-                await this.mdsClient.RenameDocumentAsync(mdsRenameDocumentArgDto, cancellationToken);
+                await this.masterDataServiceClient.RenameMaterialAsync(
+                    new RenameMaterialRequest(mdsRenameDocumentArgDto.CorrelationId, (int)mdsRenameDocumentArgDto.MaterialId, mdsRenameDocumentArgDto.DocumentName),
+                    cmsAuthValues,
+                    cancellationToken);
             }
 
             telemetryEvent.IsSuccess = true;

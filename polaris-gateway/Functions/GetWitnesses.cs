@@ -6,6 +6,7 @@ namespace PolarisGateway.Functions;
 
 using Common.Configuration;
 using Common.Dto.Request;
+using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response.Case;
 using Common.Extensions;
 using Ddei.Factories;
@@ -28,19 +29,19 @@ using System.Threading.Tasks;
 public class GetWitnesses : BaseFunction
 {
     private readonly IMdsArgFactory mdsArgFactory;
-    private readonly IMdsClient mdsClient;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
     private readonly ICaseWitnessMapper caseWitnessMapper;
     private readonly ICaseUrnResolver caseUrnResolver;
 
     public GetWitnesses(
         IMdsArgFactory mdsArgFactory,
-        IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient,
         ICaseWitnessMapper caseWitnessMapper,
         ICaseUrnResolver caseUrnResolver)
         : base()
     {
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        this.mdsClient = mdsClient.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
         this.caseWitnessMapper = caseWitnessMapper.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
@@ -62,10 +63,13 @@ public class GetWitnesses : BaseFunction
 
         var arg = this.mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues.CmsAuthFullValue, correlationId, caseUrn, caseId);
 
-        var caseWitnessResponses = await this.mdsClient.GetWitnessesAsync(arg, cancellationToken: cancellationToken);
+        var witnessesResponse = await this.masterDataServiceClient.GetCaseWitnessesAsync(
+            new GetCaseWitnessesRequest(arg.CaseId, arg.CorrelationId),
+            cmsAuthValues,
+            cancellationToken);
 
-        var caseWitnesses = caseWitnessResponses.Select(this.caseWitnessMapper.Map);
+        var witnesses = witnessesResponse.Witnesses.Select(this.caseWitnessMapper.Map);
 
-        return new OkObjectResult(caseWitnesses);
+        return new OkObjectResult(witnesses);
     }
 }
