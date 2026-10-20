@@ -1,17 +1,17 @@
 // This feature is self-contained (it is slated for deletion — QUIRKS.md A4
 // / PLAN.md Phase 3), so it owns EVERY CMS-upstream getter its conf js_sets,
-// built from its own getter factories over common.setting. Some compute the same
+// built from its own getter factories over cmsenv.setting. Some compute the same
 // value as getters in cms-proxy.js (the Corsham dests + domain getters) — that
 // duplication is deliberate: it keeps this a clean, independently-deletable unit
 // and lets its conf js_set its own *Internal-suffixed nginx variables with no
 // server-global collision against cms-proxy's. Deleting the feature = delete this
 // file + its conf, touching nothing else.
-import common from "../common/cms-detection.js";
+import cmsenv from "../common/cmsenv.js";
 
-// Getter factories, built on common.setting (kept feature-local — see common/cms-detection.js).
-const upstream = (name) => (r) => common.setting(r, name);
+// Getter factories, built on cmsenv.setting (kept feature-local: its own *Internal getters).
+const upstream = (name) => (r) => cmsenv.setting(r, name);
 const dest = (name) => (r) =>
-  process.env.ENDPOINT_HTTP_PROTOCOL + "://" + common.setting(r, name);
+  process.env.ENDPOINT_HTTP_PROTOCOL + "://" + cmsenv.setting(r, name);
 
 export default {
   // shared-value getters (own copies; also in cms-proxy.js)

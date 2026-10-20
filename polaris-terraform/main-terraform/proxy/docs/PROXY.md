@@ -334,13 +334,13 @@ exception** (the shared CMS-env module, below) that the code genuinely forces.
 > | --- | --- |
 > | §6.5 terraform genericisation (blob/`md5`) | ✅ done (`proxy_next_*` in `app-service-proxy.tf`) |
 > | §6.6 feature slicing (locations → `features/`) | ✅ done — `--next` green |
-> | njs split into per-feature modules | 🟡 mostly done — modules + shared `common/cms-detection.js`; remaining: the `replaceCmsDomains` decision (QUIRKS B1) |
+> | njs split into per-feature modules | 🟡 mostly done — modules + shared `common/cmsenv.js`; remaining: the `replaceCmsDomains` decision (QUIRKS B1) |
 > | Cutover (swap `nginx-next.conf.template` → live) | ⬜ to do |
 >
 > Note the built layout differs from the original sketch below in two ways, kept here for
 > the reasoning: features are **folders** (`features/<name>/<name>.{conf,js}`), not flat
-> numbered files; and the shared module is **`common/cms-detection.js`** (there is no file
-> called `common.js`), with `getDomainFromCookie` living in `global-components.js` rather
+> numbered files; and the shared module is **`common/cmsenv.js`** (there is no file
+> called `common.js`; a separate `cms-detection.js` was tried and folded back in), with `getDomainFromCookie` living in `global-components.js` rather
 > than a separate `navigate-cms.js`.
 
 ### 6.1 Where today's njs files landed
@@ -349,20 +349,24 @@ exception** (the shared CMS-env module, below) that the code genuinely forces.
 | ----------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | `nginx.js`                          | auth handover (feat **2**) — already single-concern                                                 | `auth-handover/auth-handover.js`                                                     |
 | `cmsenv.js` → `getDomainFromCookie` | navigate-cms (feat **3**), self-contained (own regex, no shared core)                               | `global-components/global-components.js` (the `/api/navigate-cms` route's home)      |
-| `cmsenv.js` → CMS-env resolution    | resolution + upstream rewrite, shared by feat **5**, **6**, and the dev-login part of **2**         | **`common/cms-detection.js`** (the one shared module — see §6.2)                     |
+| `cmsenv.js` → CMS-env resolution    | resolution + upstream rewrite, shared by feat **5**, **6**, and the dev-login part of **2**         | **`common/cmsenv.js`** (the one shared module — see §6.2)                            |
 | `cmsenv.js` → internal getters      | the `*Internal` upstream getters for the DC-internal routes                                          | `polaris-ddei/polaris-ddei.js` (self-contained; own getter copies — see QUIRKS D7)  |
 | `polaris-script.js`                 | client-side button script, served/injected under feat **5** (buttons drive **1** & **4**)           | `cms-proxy/polaris-script.js` — static asset beside its feature (browser JS, not njs) |
 
 There is also an `app-launch/app-launch.js` (feat **1**) that emerged during the slice.
 
-### 6.2 The one shared module — `common/cms-detection.js`
+### 6.2 The one shared module — `common/cmsenv.js`
 
 Every CMS-proxy / internal / dev-login path funnels through the CMS-env detection
 (cookie → `default/cin2/cin4/cin5`) and the `r.variables[cmsEnv + 'UpstreamCms…']`
 lookup convention. Splitting that detection per-feature would force copies of the cin
 logic (drift risk — recall cin5 was added later), so it stays one module:
-**`common/cms-detection.js`**, kept as a single-responsibility primitive ("resolve the
-CMS upstream for the current environment"), _not_ a utils junk-drawer.
+**`common/cmsenv.js`**, single-responsibility ("resolve the CMS upstream for the current
+environment"), _not_ a utils junk-drawer. It holds the two primitives (`detect`, `setting`)
+our feature modules `import`, and the five getters that are the global-components contract
+(§6.8). The primitives briefly lived in their own `cms-detection.js` to keep that contract
+surface minimal; folded back (2026-10-20) because nothing outside this config imported it,
+and extra exports on a `js_import`ed module bind nothing (only `js_set` names do).
 
 Two deliberate departures from the original "one shared module holds everything" sketch,
 both landed and worth knowing:
@@ -401,7 +405,7 @@ config/
     auth-handover/     auth-handover.conf + auth-handover.js        (was nginx.js)
     cms-proxy/         cms-proxy.conf     + cms-proxy.js + polaris-script.js
                        (holds ALL CMS regexes — the ordering contract; + fixtures/)
-    common/            cms-detection.js                              (the SHARED primitive)
+    common/            cmsenv.js + ie-mode.js                        (SHARED: CMS env + contract; IE mode)
     cwa-materials/     cwa-materials.conf
     global-components/ global-components.conf + global-components.js (getDomainFromCookie)
     polaris-ddei/      polaris-ddei.conf  + polaris-ddei.js          (own getter copies)
@@ -410,7 +414,7 @@ config/
 
 `global-components.conf` remains on its own track (existing, separate). Cross-feature
 references are fine and expected: the `/polaris` location (cms-proxy conf) calls
-`auth-handover.js`; features that need CMS-env resolution import `common/cms-detection.js`.
+`auth-handover.js`; features that need CMS-env resolution import `common/cmsenv.js`.
 Redundant routes (e.g. `/sas-url/`, §4) were **pruned**, not sliced — there is no
 `redundant` feature.
 

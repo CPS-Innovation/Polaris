@@ -7,7 +7,7 @@
  *     {...}`) living in config/ and config/features/, directories with no
  *     package.json — so node would treat a bare `.js` as CommonJS and refuse the
  *     export syntax. They also import the shared primitive from a subdir
- *     (`import common from "./common/cms-detection.js"`), so a lone temp copy
+ *     (`import cmsenv from "../common/cmsenv.js"`), so a lone temp copy
  *     wouldn't resolve that. Rather than pull in a bundler (the sibling
  *     global-components harness uses esbuild only because it authors njs in
  *     TypeScript), we stage the .js sources into a temp dir that MIRRORS the real
@@ -21,7 +21,7 @@
  *   - `qs` (querystring)  auth-handover.js imports it; node has it built in.
  *   - process.env         the modules read every CMS app setting this way
  *                         (AUTH_HANDOVER_WHITELIST, DEFAULT_UPSTREAM_CMS_DOMAIN_NAME,
- *                         and common.cms-detection's <ENV>_UPSTREAM_CMS_* lookups).
+ *                         and cmsenv.setting's <ENV>_UPSTREAM_CMS_* lookups).
  *   - r.variables         carries only the per-request built-in $host.
  */
 const fs = require("fs")
@@ -35,7 +35,7 @@ const TMP_DIR = path.join(__dirname, ".tmp")
 
 /**
  * Load an njs module by path relative to CONFIG_DIR, e.g.
- * loadNjs("features/common/cms-detection.js") or loadNjs("features/cms-proxy.js").
+ * loadNjs("features/common/cmsenv.js") or loadNjs("features/cms-proxy.js").
  *
  * Recursively stages every .js under config/ into a temp dir, preserving the
  * directory structure (features/, features/common/, ...), alongside a
@@ -102,7 +102,7 @@ function createMockRequest(options = {}) {
 }
 
 /**
- * The CMS app settings as common.cms-detection consumes them: straight from process.env
+ * The CMS app settings as cmsenv.setting consumes them: straight from process.env
  * (there is no js_var bridge). Keys are the env var names. Mirrors
  * docker/cmsproxy.mock.env so unit and integration agree. `host` is NOT here —
  * it's the per-request nginx built-in $host, set via createMockRequest variables.

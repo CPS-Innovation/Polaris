@@ -1,5 +1,5 @@
 import qs from "querystring";
-import common from "../common/cms-detection.js";
+import cmsenv from "../common/cmsenv.js";
 import ieMode from "../common/ie-mode.js";
 import entra from "../auth-handover.drop2.entra/auth-handover.drop2.entra.js";
 
@@ -325,7 +325,7 @@ function devLogin(r) {
     const cookies = r.headersOut["Set-Cookie"] || [];
     r.headersOut["Set-Cookie"] = cookies.concat(DEV_LOGIN_CLEARED);
   } else if (r.method === "POST") {
-    const cmsEnv = common.detect((r.headersOut["Set-Cookie"] || [""])[0]);
+    const cmsEnv = cmsenv.detect((r.headersOut["Set-Cookie"] || [""])[0]);
     const cookies = r.headersOut["Set-Cookie"] || [];
     cookies.push("__CMSENV=" + cmsEnv + "; path=/");
     r.headersOut["Set-Cookie"] = cookies;

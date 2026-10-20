@@ -5,7 +5,7 @@
  * cms-proxy.js holds the feature-exclusive response-body filters (the only njs
  * that rewrites the CMS body): domain replacement and the P + Materials menu-bar
  * button injection. Environment detection and app-setting reads are delegated to
- * the shared common.cms-detection module (imported via `import common from "../common/cms-detection.js"`), so these
+ * the shared common/cmsenv.js module (imported via `import cmsenv from "../common/cmsenv.js"`), so these
  * tests also exercise that inter-module wiring.
  *
  * Loaded from the REAL config/features/cms-proxy.js — see njs-harness.js.

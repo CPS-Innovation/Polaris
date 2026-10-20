@@ -4,7 +4,7 @@ Quirks owned by this feature. See [`../../QUIRKS.md`](../../QUIRKS.md) for the s
 key, the full index, the decisions log and the cross-cutting/terraform quirks.
 
 Live line numbers are the live `main-terraform/cmsenv.js` (the golden master); the
-code now lives in `cms-detection.js` in this folder.
+code now lives in `cmsenv.js` in this folder (`detect`).
 
 ---
 
@@ -13,8 +13,8 @@ code now lives in `cms-detection.js` in this folder.
 ### C2. 🔴 CMS environment detection is a loose substring match over the whole `Cookie` header
 
 **Where (live):** `cmsenv.js:163-170` (`__getCmsEnvInternal`)
-**Where (next):** `cms-detection.js` (CMS-env detection)
-**Test:** `cms-detection.unit.test.js` → "QUIRK: any cookie containing 'cin2' selects cin2, even unrelated ones"
+**Where (next):** `cmsenv.js` (`detect`)
+**Test:** `cmsenv.unit.test.js` → "QUIRK: any cookie containing 'cin2' selects cin2, even unrelated ones"
 
 ```js
 cookie = cookie.toLowerCase();
@@ -32,8 +32,8 @@ naming a domain, or an unrelated `somethingcin2something=1`.
 ### C3. 🔴 Fixed check order means `cin3` beats `cin2` beats `cin4`/`cin5`
 
 **Where (live):** `cmsenv.js:165-168`
-**Where (next):** `cms-detection.js` (CMS-env detection)
-**Test:** `cms-detection.unit.test.js` → "QUIRK: cin3 wins over cin2 when both appear (fixed check order)", "QUIRK: cin2 wins over cin4/cin5 when several appear"
+**Where (next):** `cmsenv.js` (`detect`)
+**Test:** `cmsenv.unit.test.js` → "QUIRK: cin3 wins over cin2 when both appear (fixed check order)", "QUIRK: cin2 wins over cin4/cin5 when several appear"
 
 The checks return on the first hit in the order cin3 → cin2 → cin4 → cin5. With
 C2, a header mentioning several environments resolves by that fixed order rather
@@ -55,7 +55,7 @@ exactly what the `/cinN` switch blocks exist to clear.
 ### D9. ⚪ "DEFAULT" means CIN3
 
 **Where (live):** `var.cms_details.default_*`, `cmsenv.js:165`
-**Where (next):** `cms-detection.js` (CMS-env detection)
+**Where (next):** `cmsenv.js` (`detect`)
 
 `if (cookie.includes("cin3")) return "default"`. The naming misleads every reader —
 worth renaming, or at least a prominent comment, during §6.

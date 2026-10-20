@@ -9,7 +9,7 @@
 // header (value "1" => configurable). Absent headers => nonie / nonconfigurable,
 // exactly as the ladder's `!= 1` / `!~ Trident` branches produced.
 //
-// Kept as its own common module (not folded into cms-detection.js) — different
+// Kept as its own common module (not folded into cmsenv.js) — different
 // concern (browser mode, not CMS environment). Cross-cutting: consumed by
 // auth-handover, cms-proxy and global-components.
 function ieAction(r) {

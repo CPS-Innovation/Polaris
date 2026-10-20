@@ -185,6 +185,6 @@ fixed to match (FCT2-21518; the integration test now runs against both configs).
 note two deliberate parity carries from the live config, NOT bugs we introduced, both to
 be addressed wholesale later:
 - `cmo` has **no upstream config**, so its `-cmo-lb` cookie routes to `default` (RMAT-242;
-  see [`../common/cms-detection.js`]), yet the switches still clear the `MOD`-named LB
+  see [`../common/cmsenv.js`]), yet the switches still clear the `MOD`-named LB
   cookies;
 - the `cpt`/`cmo` `CASEWORK_TOOLS_URL` sub_filters hard-code the UAT host (qa→uat).

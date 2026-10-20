@@ -83,7 +83,7 @@ KEEP_UP=1 ./run-tests.sh       # leave the stack up on http://localhost:8080
 # njs unit tests (fast, no Docker)
 cd ../unit
 ./run-tests.sh                 # every *.unit.test.js (features + deploy-safety)
-./run-tests.sh cms-detection   # substring filter
+./run-tests.sh cmsenv          # substring filter
 ```
 
 Requires Docker and Node for integration; unit needs only Node. No `npm install` —
@@ -120,7 +120,7 @@ refactored **in place** here, while the live config keeps running untouched.
 - 🟡 **njs split — mostly done.** The monolithic `nginx.js` / `cmsenv.js` are gone;
   their logic lives in per-feature modules (`auth-handover.js`, `cms-proxy.js`,
   `global-components.js`, `polaris-ddei.js`, `app-launch.js`) plus the shared
-  `common/cms-detection.js`. Remaining: the `replaceCmsDomains` delete/repair decision
+  `common/cmsenv.js` (CMS-env detection + the global-components getter contract). Remaining: the `replaceCmsDomains` delete/repair decision
   ([`features/cms-proxy/QUIRKS.md` B1](./config/features/cms-proxy/QUIRKS.md)).
 - ⬜ **Cutover — TODO.** See below.
 

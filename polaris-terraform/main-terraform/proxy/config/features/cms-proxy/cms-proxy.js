@@ -1,8 +1,8 @@
 // The only feature-exclusive njs: it rewrites the CMS response body — swapping
 // upstream domains/IPs back to the proxy host and injecting the Polaris/Materials
 // launch buttons into the CMS menu bar. Per-environment app-setting reads come
-// from the shared common.cms-detection module.
-import common from "../common/cms-detection.js";
+// from the shared common/cmsenv.js module.
+import cmsenv from "../common/cmsenv.js";
 import ieMode from "../common/ie-mode.js";
 
 function replaceCmsDomains(r, data, flags) {
@@ -46,13 +46,13 @@ function __replaceCmsDomainsGeneric(r, data, flags, host) {
   }
 
   let replacements = [
-    { old: common.setting(r, "UPSTREAM_CMS_MODERN_DOMAIN_NAME"), new: host },
-    { old: common.setting(r, "UPSTREAM_CMS_SERVICES_DOMAIN_NAME"), new: host },
-    { old: common.setting(r, "UPSTREAM_CMS_DOMAIN_NAME"), new: host },
-    { old: common.setting(r, "UPSTREAM_CMS_IP_CORSHAM"), new: host },
-    { old: common.setting(r, "UPSTREAM_CMS_MODERN_IP_CORSHAM"), new: host },
-    { old: common.setting(r, "UPSTREAM_CMS_IP_FARNBOROUGH"), new: host },
-    { old: common.setting(r, "UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"), new: host },
+    { old: cmsenv.setting(r, "UPSTREAM_CMS_MODERN_DOMAIN_NAME"), new: host },
+    { old: cmsenv.setting(r, "UPSTREAM_CMS_SERVICES_DOMAIN_NAME"), new: host },
+    { old: cmsenv.setting(r, "UPSTREAM_CMS_DOMAIN_NAME"), new: host },
+    { old: cmsenv.setting(r, "UPSTREAM_CMS_IP_CORSHAM"), new: host },
+    { old: cmsenv.setting(r, "UPSTREAM_CMS_MODERN_IP_CORSHAM"), new: host },
+    { old: cmsenv.setting(r, "UPSTREAM_CMS_IP_FARNBOROUGH"), new: host },
+    { old: cmsenv.setting(r, "UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"), new: host },
   ];
 
   r.sendBuffer(__replaceContent(data, replacements), flags);
@@ -72,9 +72,9 @@ function __replaceContent(content, replacements) {
 // ---------------------------------------------------------------------------
 // Env-switch endpoints /cin2../cin5 + /cpt (pre-prod only) — collapsed from the
 // near-identical conf blocks into one handler. Sets the __CMSENV hint cookie for the
-// chosen environment (cin3 IS "default" — see cms-detection.js / QUIRK D9), clears the
+// chosen environment (cin3 IS "default" — see common/cmsenv.js / QUIRK D9), clears the
 // OTHER environments' BIG-IP pool + LB session cookies (they can carry the env token
-// cms-detection scans for), then 302s to /CMS. The IE-desired gate reads $ieaction
+// cmsenv.detect scans for), then 302s to /CMS. The IE-desired gate reads $ieaction
 // (features/common/ie-mode.js). As a js_content location it now inherits the server
 // security headers on the 302 — harmless for a cookie-set + redirect; the old conf
 // blocks dropped them (QUIRK B3). Pre-prod only.
@@ -88,7 +88,7 @@ const CIN_EXPIRE = "=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 // Switchable CMS environments whose confounding cookies a switch clears. CIN envs sit
 // behind the F5 BIG-IP pool (ACP+AFP pool cookies) AND carry C-/F- LB session cookies;
 // cpt/cmo carry only the C-/F- LB session cookies (no BIG-IP pool). NOTE (RMAT-242):
-// cmo has no upstream config, so cms-detection.js routes "mod"/"cmo" cookies to
+// cmo has no upstream config, so cmsenv.detect routes "mod"/"cmo" cookies to
 // default rather than "cmo" — mirrors the live fix; wholesale env support later.
 const CIN_ENVS = ["cin2", "cin3", "cin4", "cin5"]; // BIG-IP pool + LB session cookies
 const LB_ONLY_ENVS = ["mod", "cpt"]; // LB session cookies only
