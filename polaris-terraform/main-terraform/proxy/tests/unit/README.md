@@ -1,43 +1,58 @@
 # unit — njs unit tests
 
-Fast, dependency-free unit tests for the njs modules. Background: `docs/PROXY.md` §7.
+Fast, dependency-free unit tests for the njs modules of the **next** config
+(`proxy/config/`). Background: `docs/PROXY.md` §7. The live monolith is covered by the
+integration suite only.
 
 ```bash
 cd polaris-terraform/main-terraform/proxy/tests/unit
 ./run-tests.sh          # everything
-./run-tests.sh cmsenv   # one file (substring match)
+./run-tests.sh cmsenv   # files whose path contains the substring
 ```
 
-No Docker, no npm install, runs in ~1s.
+No Docker, no npm install, runs in seconds.
 
-## Files
+## Where the tests live
 
-| File                  | Covers                                                                 |
-| --------------------- | ---------------------------------------------------------------------- |
-| `cmsenv.unit.test.js` | environment detection, all upstream getters × 4 envs, body filters, menu-bar injection, dev-login cookie |
-| `nginx.unit.test.js`  | `/init` whitelist, `Cms-Session-Hint` payload, `/polaris`, `/auth-refresh-outbound` |
-| `njs-harness.js`      | loads the real njs modules + the mock `r`                              |
-| `test-utils.js`       | `test` / `assert*` / `summarise`                                        |
+`run-tests.sh` discovers and runs **every** `*.unit.test.js` under `config/` and this
+folder (skipping `.tmp/`). Feature tests sit **beside the code they pin**, in
+`config/features/<name>/<name>.unit.test.js` (plus `common/cmsenv.unit.test.js` and
+`common/ie-mode.unit.test.js`) — a new feature folder needs no wiring here.
+
+This folder holds only shared machinery and the two tripwires:
+
+| File                         | Role                                                                                         |
+| ---------------------------- | -------------------------------------------------------------------------------------------- |
+| `run-tests.sh`               | discovers + runs every `*.unit.test.js`; removes `.tmp/` afterwards                          |
+| `njs-harness.js`             | loads the real njs modules + the mock `r`; `cmsEnvObject` / `applyEnv` for `process.env`     |
+| `test-utils.js`              | `test` / `assert*` / `summarise`                                                             |
+| `deploy-safety.unit.test.js` | tripwire: `*.test.js` / `fixtures/` are excluded from the terraform fileset and the staging  |
+| `cutover.unit.test.js`       | tripwire: Startup Command, `start-next.sh` blob, both slots and the `--next` stack agree      |
 
 ## How the njs modules are loaded
 
-`nginx.js` / `cmsenv.js` are plain ESM (`export default {...}`) living in
-`main-terraform/`, a directory with no `package.json` — so node would treat a bare
-`.js` as CommonJS and reject the export syntax.
+The feature modules are plain ESM (`export default {...}`) in `config/features/`, a tree
+with no `package.json` — so node would treat a bare `.js` as CommonJS and reject the
+export syntax. They also import each other across folders (e.g.
+`import cmsenv from "../common/cmsenv.js"`).
 
-`njs-harness.js` sidesteps that by copying the source to a temp `.mjs` and
-`import()`ing it. **No bundler needed** — the sibling `global-components` harness
-uses esbuild only because it authors njs in TypeScript. We import the REAL files,
-so no copy of the logic can drift.
+`njs-harness.js` `loadNjs()` therefore stages every non-test `.js` under `config/`
+(skipping `fixtures/`) into `tests/unit/.tmp`, **mirroring** the `config/` layout, with a
+`package.json` marking it ESM, then `import()`s the target from there — so every
+relative import resolves exactly as deployed. **No bundler needed** — the sibling
+`global-components` harness uses esbuild only because it authors njs in TypeScript. We
+import the REAL files, so no copy of the logic can drift.
 
 The njs globals our modules touch are all satisfiable from plain node:
 
-- `qs` — `nginx.js` imports `querystring`, a node built-in.
-- `process.env` — `nginx.js` reads `AUTH_HANDOVER_WHITELIST` and
-  `DEFAULT_UPSTREAM_CMS_DOMAIN_NAME` this way; tests set/restore them via `withEnv`.
-- `r.variables` — `cmsenv.js` reads the CMS settings that `nginx.conf` bridges in
-  with `js_var $x ${VAR};`. `cmsVariables()` mirrors `docker/cmsproxy.mock.env`, so
-  unit and integration agree on the values.
+- `qs` — `auth-handover.js` imports `querystring`, a node built-in.
+- `process.env` — the modules read their app settings this way (there is no `js_var`
+  bridge in the next config): `cmsenv.setting`'s `<ENV>_UPSTREAM_CMS_*` lookups,
+  `AUTH_HANDOVER_WHITELIST`, `DEFAULT_UPSTREAM_CMS_DOMAIN_NAME`, `ENDPOINT_HTTP_PROTOCOL`,
+  the drop switches, … Tests set/restore them with `applyEnv`; `cmsEnvObject()` supplies
+  the CMS settings, mirroring `docker/cmsproxy.mock.env` for DEFAULT, CIN2, CIN4 and CIN5
+  (the mock env also has CPT; `cmsEnvObject` does not, so the CPT settings are exercised by integration only).
+- `r.variables` — carries only the per-request built-in `$host`.
 - `r.return()` / `r.sendBuffer()` — captured by the mock as `returnCode` /
   `returnBody` / `sentBuffer`.
 
@@ -50,8 +65,10 @@ Integration proves the wiring; unit reaches what it cannot:
   has the env var set);
 - the exact `Cms-Session-Hint` payload and its error path;
 - `replaceCmsDomains` — integration cannot distinguish it from the `sub_filter`
-  directives that sit in the same location blocks (see the finding below);
-- the full 4-environment × Corsham/Farnborough getter matrix, cheaply.
+  directives that sit in the same location blocks (QUIRKS **B1**,
+  `config/features/cms-proxy/QUIRKS.md`);
+- the per-environment × Corsham/Farnborough getter matrix, cheaply;
+- the new-gen drops (drop1 / drop2), which the parity suite runs switched off.
 
 ## Conventions
 

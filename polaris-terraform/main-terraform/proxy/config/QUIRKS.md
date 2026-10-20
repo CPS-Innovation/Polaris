@@ -55,9 +55,13 @@ lives in under the refactored (`next`) config.
 | D8  | `/materials-ui/{a}/{b}/materials` looks redundant        | [`features/cwa-materials/QUIRKS.md`](./features/cwa-materials/QUIRKS.md)         |
 | D9  | "DEFAULT" means CIN3                                     | [`features/common/QUIRKS.md`](./features/common/QUIRKS.md)                       |
 | D10 | Root `/` catch-all proxies to CMS Modern                 | [`features/cms-proxy/QUIRKS.md`](./features/cms-proxy/QUIRKS.md)                 |
-| D11 | Every app setting is written three times                 | **this file**                                                                    |
-| D12 | `/launch/*`: one route env-driven, nine hardcoded        | [`features/app-launch/QUIRKS.md`](./features/app-launch/QUIRKS.md)               |
+| D11 | Most app settings are written three times                | **this file**                                                                    |
+| D11 | `/cpt` switch: next fixes live (number clash — cms-proxy's) | [`features/cms-proxy/QUIRKS.md`](./features/cms-proxy/QUIRKS.md)                 |
+| D12 | `/launch/*`: one route env-driven, thirteen hardcoded    | [`features/app-launch/QUIRKS.md`](./features/app-launch/QUIRKS.md)               |
 | D13 | #2189 materials-URN removal held back (next config)      | [`features/cwa-materials/QUIRKS.md`](./features/cwa-materials/QUIRKS.md)         |
+| N1  | Per-user enrolment page is open (canary)                 | [`features/auth-handover/QUIRKS.md`](./features/auth-handover/QUIRKS.md)         |
+| N2  | No explicit "force DDEI" opt-out value                   | [`features/auth-handover/QUIRKS.md`](./features/auth-handover/QUIRKS.md)         |
+| E1–E14 | drop2 (Entra) design decisions + hardening (new-gen) | [`features/auth-handover.drop2.entra/QUIRKS.md`](./features/auth-handover.drop2.entra/QUIRKS.md) |
 
 ---
 
@@ -77,7 +81,7 @@ per-environment control is wanted.
 
 ### B2. 🔴 `add_header Content-Disposition: inline` — stray colon breaks it
 
-**Where (live):** `nginx.conf:736` (in `/sas-url/`)
+**Where (live):** `nginx.conf:785` (in `/sas-url/`)
 **Where (next):** _n/a — `/sas-url/` was pruned from the refactored config_ (§4
 marked it for deletion; there is no `sas-url` feature). Recorded here as history:
 if the route is ever reinstated, do not reintroduce the bug.
@@ -119,7 +123,7 @@ is when each block gets touched anyway. **(See Open questions.)**
 
 ### B4. 🟠 `ENVIRONMENT` / `$environment` is declared but never read
 
-**Where (live):** `nginx.conf:119` — `js_var $environment "${ENVIRONMENT}";`
+**Where (live):** `nginx.conf:126` — `js_var $environment "${ENVIRONMENT}";`
 **Evidence:** the only occurrence of `$environment` is the declaration itself; no
 njs module reads `r.variables.environment`.
 
@@ -131,7 +135,7 @@ Already reflected in `../docs/PROXY.md` §2 as "— declared, unused".
 
 ### D1. 🟠 The rate limiter can never fire (burst is 10¹⁷)
 
-**Where:** `nginx.conf:29-30`, `app-service-proxy.tf:72-73`
+**Where:** `nginx.conf:29-30`, `app-service-proxy.tf:79-80`
 
 ```nginx
 limit_req_zone cmsproxy   zone=cmsproxy:1m   rate=${CMS_RATE_LIMIT};     # 128r/s
@@ -153,7 +157,7 @@ that the constant key is intentional, since it reads like a mistake.
 
 ### D5. 🟠 `FORCE_REFRESH_CONFIG` has a stray `::` and is hand-maintained
 
-**Where:** `app-service-proxy.tf:71`
+**Where:** `app-service-proxy.tf:78`
 
 ```
 "${md5(file("nginx.conf"))}:${md5(file("nginx.js"))}:${md5(file("cmsenv.js"))}::${md5(file("polaris-script.js"))}:..."
@@ -169,19 +173,22 @@ stray `::` and the hand-listed live files remain — clean those up at cutover.
 
 ### D6. 🟠 `WEBSITE_SCHEME` and `ENDPOINT_HTTP_PROTOCOL` are the same value
 
-**Where:** `app-service-proxy.tf:18` and `:69` — both `"https"`
+**Where:** `app-service-proxy.tf:18` and `:76` — both `"https"`
 
 Two settings, one value, different uses (redirect/`sub_filter` scheme vs
 `proxy_pass` protocol). Harmless but confusing; a candidate to merge in §6.
 
-### D11. ⚪ Every app setting is written three times
+### D11. ⚪ Most app settings are written three times
 
 **Where:** `app-service-proxy.tf` (`app_settings` + `lifecycle.ignore_changes`) and
 `app-service-proxy-staging.tf`
 
-71 settings in the block, 71 more in `ignore_changes`, and the staging twin repeats
-both. (Checked: prod and staging currently agree at 71 each — no drift _today_.)
-Adding a setting means four edits. See `../docs/PROXY.md` §6.5.
+87 settings in the prod block, 78 of them again in `ignore_changes` — the 9 drop1/drop2
+settings (`NON_DDEI_INIT_ENABLED` + 8 `ENTRA_*`) are deliberately left out so terraform
+manages them — and the staging twin repeats the 87 (it has **no** `ignore_changes`).
+(Checked 2026-10-20: prod and staging agree at 87 keys — no drift _today_.) Adding a
+setting means three edits (two if terraform should own its value). See
+`../docs/PROXY.md` §5 / §6.5.
 
 ---
 

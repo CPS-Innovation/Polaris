@@ -4,7 +4,8 @@ Quirks owned by this feature. See [`../../QUIRKS.md`](../../QUIRKS.md) for the s
 key and the whole-set index.
 
 **NEW-GEN, outside the golden master.** Like drop1, this feature is dormant unless its
-switch (`ENTRA_STORE_ENABLED`) is on, so it changes nothing in the before/after parity
+switch (`ENTRA_STORE_ENABLED`) is on — on in dev, QA and UAT (`proxy_entra.store_enabled`),
+off in prod and in the parity suite — so it changes nothing in the before/after parity
 suite. The entries below are therefore not `QUIRK:`-pinned against the live monolith;
 they are **design decisions and pre-production hardening items** for the new Entra flow.
 The `E`-series numbering is local to this feature.
@@ -67,7 +68,7 @@ stable. **Superseded 2026-10:**
 drop2 sets the presence cookie again — now `cms-auth-presence-token` (global-components' existing
 contract), carrying a **watchdog-scope** access token (a refresh-token swap for
 `ENTRA_WATCHDOG_SCOPE`; none if that is empty), on the iframe terminal only, Max-Age = that token's
-lifetime. See PLAN-entra-unified-flow.
+lifetime. Decided 2026-10-15 (the token model in `auth-handover.drop2.entra.js`).
 
 ### E4. 🟠 Callback path must be a registered redirect URI
 
@@ -110,15 +111,15 @@ changes; each app can later stop reading `cc` and use bearer + MDS lookup on its
   other destinations get exactly today's `r` + `cc`. It is passed on degrades too: it was verified
   at `/init`, independently of Entra.
 - **Cost.** Every app's handover gains the Entra round trip plus the CMS lookup and the MDS PUT
-  when the switch is on (measure: I3). A Polaris handover no longer looks the token up twice.
+  when the switch is on (not yet measured). A Polaris handover no longer looks the token up twice.
 
-### E13. 🟢 State-cookie size guard, and one `drop2-outcome` line per handover (D2 + D5)
+### E13. 🟢 State-cookie size guard, and one `drop2-outcome` line per handover (2026-10-16)
 
 **Size guard.** Browsers silently drop a cookie over ~4 KB, and losing the state cookie loses
 the destination (E12's one residual case). The top-level state holds `r` + `cc` + token (the
 iframe's carries no `r`), and OutSystems `r` URLs are long, so `/init` measures the packed cookie and, above 3800 bytes, skips Entra and
 carries on as today (`skipped` / `state-too-large`, with `bytes=` but never the content). Tune the
-threshold from real sizes (I1): the `bytes=` field gives them.
+threshold from real sizes: the `bytes=` field gives them.
 
 **Outcome line.** Exactly one line per handover drop2 handled, to the error log, so it lands in
 `AppServiceConsoleLogs` (Polaris `global_la`, via the proxy's existing diagnostic setting):
@@ -182,12 +183,15 @@ njs 0.8.5) — the insecure `Math.random` fallback was removed (it is not a CSPR
 flagged by SonarQube). drop1's correlation-id `_uuid` was moved to the same source, so the
 config uses no `Math.random` anywhere.
 
-### E6. 🔴 `js_fetch_verify off` on the AD + MDS fetches
+### E6. ✅ (resolved 2026-10-20) TLS verification on the AD + MDS fetches
 
-The callback disables TLS verification for the `ngx.fetch` calls to
-`login.microsoftonline.com` (code exchange + refresh-token swaps) and MDS (mirrors drop1's loopback
-setup). For **external** endpoints this should be `on` with a trusted CA bundle
-(`js_fetch_trusted_certificate`). Fix before prod.
+The callback's `ngx.fetch` calls to `login.microsoftonline.com` (code exchange + refresh-token
+swaps) and MDS used to run with `js_fetch_verify off` (copied from drop1's `$host` loopback). Now
+verified: `js_fetch_trusted_certificate /etc/ssl/certs/ca-certificates.crt` (the image's own CA
+bundle; present in prod's `nginx:latest` and the alpine test image). Proven in both images: AD and
+the MDS host verify, a self-signed host is refused. `js_fetch_timeout 10s` on the callback and on
+`/init` (its CMS lookups) bounds each call; njs's default is 60s. `/init`'s CMS loopbacks keep
+`js_fetch_verify off` (the `$host` loopback, as drop1).
 
 ### E7. ✅ (resolved) njs `crypto` + `Buffer` dependency (new in this repo's config)
 
@@ -302,7 +306,7 @@ a different account from ours can't find the deposit (it is filed under the acco
   (never retried twice) and a fresh `iat` with a 900 s lifetime (people are slow). A second failure
   degrades as before. Prod (`false`) stays a pure `prompt=none` probe.
 - **The endpoint** `/global-components/entra-login-hint` (exact match; CORS = global-components'
-  `$cors_origin` + `@gloco_preflight`): `GET` → `{loginHint, username, oid, tid, setAt, via}` or `null` (`via: "unknown"` for a
+  `$cors_origin`, **https origins only**, with its own preflight): `GET` → `{loginHint, username, oid, tid, setAt, via}` or `null` (`via: "unknown"` for a
   hint set before `via` existed)
   (`no-store`); `DELETE` forgets it (the next handover then lets the user choose).
 

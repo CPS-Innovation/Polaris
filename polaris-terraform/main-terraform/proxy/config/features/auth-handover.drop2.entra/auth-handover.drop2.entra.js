@@ -26,7 +26,7 @@
 //        /auth-refresh-inbound and OS handover pages, so they skip their own lookup);
 //        IFRAME 200 static terminal page (harness tears the iframe down on its onload).
 //
-// TOKEN MODEL (PLAN-entra-unified-flow; decided 2026-10-15): ONE silent, NEUTRAL sign-in
+// TOKEN MODEL (decided 2026-10-15): ONE silent, NEUTRAL sign-in
 // (openid profile offline_access — no API scope, so drop2 needs our app reg to expose none), then a
 // refresh-token swap per service: a confidential client's refresh token buys an access token for
 // any API the app may call (consent = that API pre-authorising our client). No on-behalf-of: that
@@ -826,6 +826,13 @@ function terminal(r) {
 // GET /global-components/entra-login-hint — the login hint for apps (D7): JSON
 // {loginHint, username, oid, tid, setAt} or null. DELETE forgets it (the next handover then lets the
 // user choose again). The CORS headers and OPTIONS preflight are in the .conf.
+// js_set $entra_hint_cors_origin: global-components' $cors_origin, but only an https origin —
+// the hint endpoint returns who the user is, so no plain-http page gets a credentialed read.
+function hintCorsOrigin(r) {
+  const o = r.variables.cors_origin || "";
+  return o.startsWith("https://") ? o : "";
+}
+
 function loginHint(r) {
   r.headersOut["Content-Type"] = "application/json";
   r.headersOut["Cache-Control"] = "no-store";
@@ -856,6 +863,7 @@ export default {
   handleInitEntraCallback,
   terminal,
   loginHint,
+  hintCorsOrigin,
   isConfigured,
   // exposed for the unit test (production only calls the entries above):
   __test: {

@@ -12,7 +12,7 @@ code now lives in `cmsenv.js` in this folder (`detect`).
 
 ### C2. 🔴 CMS environment detection is a loose substring match over the whole `Cookie` header
 
-**Where (live):** `cmsenv.js:163-170` (`__getCmsEnvInternal`)
+**Where (live):** `cmsenv.js:163-173` (`__getCmsEnvInternal`)
 **Where (next):** `cmsenv.js` (`detect`)
 **Test:** `cmsenv.unit.test.js` → "QUIRK: any cookie containing 'cin2' selects cin2, even unrelated ones"
 
@@ -31,11 +31,12 @@ naming a domain, or an unrelated `somethingcin2something=1`.
 
 ### C3. 🔴 Fixed check order means `cin3` beats `cin2` beats `cin4`/`cin5`
 
-**Where (live):** `cmsenv.js:165-168`
+**Where (live):** `cmsenv.js:165-171`
 **Where (next):** `cmsenv.js` (`detect`)
 **Test:** `cmsenv.unit.test.js` → "QUIRK: cin3 wins over cin2 when both appear (fixed check order)", "QUIRK: cin2 wins over cin4/cin5 when several appear"
 
-The checks return on the first hit in the order cin3 → cin2 → cin4 → cin5. With
+The checks return on the first hit in the order cin3 → cin2 → cin4 → cin5 →
+`-cpt-lb` (→ cpt) → `-cmo-lb` (→ default). With
 C2, a header mentioning several environments resolves by that fixed order rather
 than by which cookie is authoritative:
 

@@ -14,7 +14,7 @@ const dest = (name) => (r) =>
   process.env.ENDPOINT_HTTP_PROTOCOL + "://" + cmsenv.setting(r, name);
 
 export default {
-  // shared-value getters (own copies; also in cms-proxy.js)
+  // shared-value getters (own copies; the shared ones are in common/cmsenv.js)
   proxyDestinationCorsham: dest("UPSTREAM_CMS_IP_CORSHAM"),
   proxyDestinationModernCorsham: dest("UPSTREAM_CMS_MODERN_IP_CORSHAM"),
   upstreamCmsDomainName: upstream("UPSTREAM_CMS_DOMAIN_NAME"),

@@ -9,8 +9,9 @@ This folder holds two halves of one job on the nginx **CMS proxy**:
 
 The **live** config still lives one level up in `polaris-terraform/main-terraform/`
 (`nginx.conf`, `nginx.js`, `cmsenv.js`, `polaris-script.js`, `global-components.*`)
-and is what deploys today. `config/` is **not** wired into terraform and is **not**
-deployed — see [Cutover](#cutover-later).
+and is the default boot. `config/` **is** deployed (terraform uploads it beside the live
+blobs) and **runs** wherever `var.proxy_next_config_enabled` is true — see
+[Cutover](#cutover-terraform-controlled).
 
 Pointers:
 - Deep-dive + repo navigation: **[`docs/PROXY.md`](./docs/PROXY.md)** (settings grid §2,
@@ -26,10 +27,15 @@ proxy/
   docs/
     PROXY.md            deep-dive + repo navigation (§1–§7) + appendices
     PLAN.md             phased roadmap
-  config/               the "next" (to-be, refactored) config — NOT deployed yet
-    nginx.conf          parent: server preamble + `include features/*.conf;`
+  config/               the "next" (to-be, refactored) config — deployed; booted when
+                        var.proxy_next_config_enabled (see Cutover)
+    nginx.conf          parent: server preamble + `include features/*/*.conf;`
+                        (deployed as nginx-next.conf.template)
+    start-next.sh       the cutover script the App Service Startup Command runs
     nginx.integration.test.js   suite for the parent config
     QUIRKS.md           cross-cutting quirks + the whole-set index
+    features/common/    the shared njs: cmsenv.js (CMS-env detect/setting + the
+                        global-components getter contract) + ie-mode.js
     features/<name>/    one self-contained folder per feature:
       <name>.conf         the location block(s)
       <name>.js           its njs module (where the feature needs request-time JS)
@@ -48,12 +54,16 @@ proxy/
       njs-harness.js      loads the real njs modules with a mock `r`
       test-utils.js
       deploy-safety.unit.test.js   tripwire: test files/fixtures must never deploy
+      cutover.unit.test.js         tripwire: Startup Command, start-next.sh blob, both
+                                   slots and the --next stack agree
+      README.md           how the unit harness works
 ```
 
 Test **files** are discovered at run time from `config/` — the parent suite sits
 beside `config/nginx.conf`, and each feature ships its own `*.unit.test.js` /
 `*.integration.test.js`. The `tests/` tree holds only shared machinery (Docker, the
-mock upstream, `test-utils.js`, the njs harness) plus the deploy-safety tripwire.
+mock upstream, `test-utils.js`, the njs harness) plus the deploy-safety and cutover
+tripwires.
 
 ## Live vs. next config
 
@@ -62,13 +72,17 @@ files are identical, so **green on both proves the refactor changed no behaviour
 
 ```bash
 cd tests/integration
-./run-tests.sh          # LIVE config (main-terraform/*) — what deploys today
-./run-tests.sh --next   # NEXT config (config/*)         — the refactor target
+./run-tests.sh          # LIVE config (main-terraform/*) — the image-default boot
+./run-tests.sh --next   # NEXT config (config/*)         — what start-next.sh boots
+                        #   TWICE: switches off (parity with live), then on as deployed
+                        #   (NON_DDEI_INIT_ENABLED=true; --next-off / --next-on for one pass)
 ```
 
 Mechanism: `tests/integration/docker/docker-compose.next.yml` repoints the config
-mounts from `main-terraform/` to `config/`. Docker Compose merges volumes by target,
-so it lists only the sources it changes.
+mounts from `main-terraform/` to `config/` and boots the container through
+`config/start-next.sh` — the same script the App Service Startup Command runs, so a green
+`--next` also proves the cutover boot. Docker Compose merges volumes by target, so it
+lists only the sources it changes.
 
 ## Running the tests
 
@@ -82,7 +96,7 @@ KEEP_UP=1 ./run-tests.sh       # leave the stack up on http://localhost:8080
 
 # njs unit tests (fast, no Docker)
 cd ../unit
-./run-tests.sh                 # every *.unit.test.js (features + deploy-safety)
+./run-tests.sh                 # every *.unit.test.js (features + deploy-safety + cutover)
 ./run-tests.sh cmsenv          # substring filter
 ```
 
@@ -93,13 +107,14 @@ the tests use built-in `fetch` and a tiny local `test-utils.js`.
 
 It is the **golden master** for the refactor in [`docs/PROXY.md` §6](./docs/PROXY.md):
 these tests pin today's behaviour so that slicing `nginx.conf` into per-feature
-includes and condensing `cmsenv.js` → `common.js` can be proven **not** to change it.
+includes and condensing `cmsenv.js` → `features/common/cmsenv.js` can be proven **not**
+to change it.
 Write the test first, then refactor, and keep it green.
 
 ## The refactor (`config/`)
 
 The target shape from [`docs/PROXY.md` §6](./docs/PROXY.md): `nginx.conf` sliced into
-one `include` per feature, `cmsenv.js`'s shared core pulled into `common.js`, one njs
+one `include` per feature, `cmsenv.js`'s shared core pulled into `features/common/cmsenv.js`, one njs
 module per feature. It started as a **verbatim copy** of the live config and is
 refactored **in place** here, while the live config keeps running untouched.
 
@@ -107,22 +122,26 @@ refactored **in place** here, while the live config keeps running untouched.
 
 - ✅ **Location slicing — DONE.** Every `location` block moved out of `config/nginx.conf`
   into `features/<name>/<name>.conf`. The parent `nginx.conf` is now just the server
-  preamble (`js_import` / `js_var` / `limit_req_zone` / `resolver` / security headers /
-  `$ieaction`, plus the `cmsenv` contract import) and `include features/*/*.conf;` — which
+  preamble (`js_import` / `limit_req_zone` / `resolver` / security headers / `$ieaction`,
+  plus the `cmsenv` contract import — no `js_var` bridge: njs reads the CMS settings from
+  `process.env` via `cmsenv.setting`) and `include features/*/*.conf;` — which
   also loads configs the global-components repo deploys as `features/global-components.<x>/`
   (see [`docs/PROXY.md` §6.8](./docs/PROXY.md)).
   `./run-tests.sh --next` is green — identical behaviour to the live monolith.
-- ✅ **Deploy plumbing (parked) — DONE.** `app-service-proxy.tf` uploads the `config/`
-  tree to the proxy's blob container as **inert** blobs (feature `.conf`s get a
-  `.template` suffix for envsubst; `.js` stay as-is; `*.test.js`/`fixtures/` excluded —
-  guarded by `deploy-safety.unit.test.js`). The refactored root is parked as
-  `nginx-next.conf.template`, so nothing loads it yet. Cutover is a one-blob swap.
+- ✅ **Deploy plumbing — DONE.** `app-service-proxy.tf` uploads the `config/` tree to
+  the proxy's blob container beside the live blobs (the `proxy_next_*` fileset: feature
+  `.conf`s get a `.template` suffix for envsubst; `.js` stay as-is; `*.test.js`/`fixtures/`
+  excluded — guarded by `deploy-safety.unit.test.js`), plus the refactored root as
+  `nginx-next.conf.template` and the `start-next.sh` blob. Nothing loads them unless the
+  Startup Command runs `start-next.sh` (below).
 - 🟡 **njs split — mostly done.** The monolithic `nginx.js` / `cmsenv.js` are gone;
   their logic lives in per-feature modules (`auth-handover.js`, `cms-proxy.js`,
   `global-components.js`, `polaris-ddei.js`, `app-launch.js`) plus the shared
   `common/cmsenv.js` (CMS-env detection + the global-components getter contract). Remaining: the `replaceCmsDomains` delete/repair decision
   ([`features/cms-proxy/QUIRKS.md` B1](./config/features/cms-proxy/QUIRKS.md)).
-- ⬜ **Cutover — TODO.** See below.
+- 🟡 **Cutover — terraform-controlled** (#2190). `proxy_next_config_enabled` is true in
+  dev, QA, UAT **and prod**; done when #2190 is applied everywhere, then the live monolith
+  is deleted. See below.
 
 ### Migrating (the loop)
 
@@ -132,12 +151,21 @@ refactored **in place** here, while the live config keeps running untouched.
 3. Repeat. Keep all CMS regexes together in `features/cms-proxy/cms-proxy.conf` (the
    first-match-wins ordering contract, [`docs/PROXY.md` §5](./docs/PROXY.md)).
 
-### Cutover (later)
+### Cutover (terraform-controlled)
 
-When `--next` is green with the fully sliced config, swap the parked
-`nginx-next.conf.template` blob to `nginx.conf.template`
-([`docs/PROXY.md` §6.5](./docs/PROXY.md)) and delete the live copies. One terraform
-change; the tests have already proved parity.
+`var.proxy_next_config_enabled` sets the App Service **Startup Command** on both slots
+(identical, so a swap never changes which config runs) to
+`sh /etc/nginx/templates/start-next.sh`. That script execs the image's own entrypoint
+with `nginx -c /etc/nginx/nginx-next.conf` — the stock envsubst startup, pointed at the
+next entry file. The command is whitespace-free on purpose: the Startup Command field
+splits on spaces and strips quotes, so the quoting lives in the script. Empty Startup
+Command (`false`) = the image default = the live monolith.
+
+- **Rollback:** set `proxy_next_config_enabled = false` and apply.
+- **Remaining:** apply #2190 in every environment, then delete the live monolith
+  (`nginx.conf`, `nginx.js`, `cmsenv.js`, … and their blobs).
+- **Tripwire:** `tests/unit/cutover.unit.test.js` checks the command, the blob, both slots
+  and the `--next` stack agree.
 
 ## How the harness works
 
@@ -151,8 +179,10 @@ change; the tests have already proved parity.
   request back as JSON** — so tests assert what nginx forwarded, most importantly the
   `Host` header (which reveals the CMS environment `cmsenv.js` picked). Body-rewrite
   paths get fixtures instead: see `config/features/cms-proxy/fixtures/`.
-- Unit tests load the **real** njs modules via `tests/unit/njs-harness.js` (copies the
-  source to a temp `.mjs` and `import()`s it) — no bundler, no drift from source.
+- Unit tests load the **real** njs modules via `tests/unit/njs-harness.js` (stages a
+  mirrored `config/` tree with an ESM `package.json` into `tests/unit/.tmp` and
+  `import()`s from it, so relative imports resolve as deployed) — no bundler, no drift
+  from source.
 
 ## Conventions
 

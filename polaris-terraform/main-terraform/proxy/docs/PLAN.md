@@ -23,5 +23,3 @@
 | 5                         | Hidden iframe on unmanaged Windows / CMS Classic (IE5 mode)                                        |   ⏸   | Parked: no PRT → always `login_required`; no `postMessage` in IE5 mode. Options: a JSONP status endpoint the Classic script can poll, then a top-level sign-in.                            |
 | **Backlog**               | Feed global-components logic back to repo                                                          |   ⬜   |                                                                                                                                         |
 | Backlog                   | Remove `SAS_URL_DOMAIN_NAME` from terraform variables                                              |   ⬜   | Follows the `/sas-url/` prune (Phase 1).                                                                                                |
-
-# New MDS endpoint

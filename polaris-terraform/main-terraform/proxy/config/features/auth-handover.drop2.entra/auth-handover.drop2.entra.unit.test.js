@@ -1163,6 +1163,13 @@ async function d7Tests(authHandover, entra) {
     assertEqual(r.returnBody, ENTRA_TERMINAL(entra), "iframe: terminal page, never a prompt")
   })
 
+  await test("hintCorsOrigin: global-components' $cors_origin, https only", async () => {
+    for (const [o, want] of [["https://app.cps.gov.uk", "https://app.cps.gov.uk"], ["http://app.cps.gov.uk", ""], ["http://localhost:3000", ""], ["", ""]]) {
+      const r = createMockRequest({ variables: { cors_origin: o } })
+      assertEqual(entra.hintCorsOrigin(r), want, o || "(none)")
+    }
+  })
+
   await test("endpoint GET: the hint as JSON (no-store); no / forged cookie -> null", async () => {
     const hint = entra.__test.hintCookie(jwt(CLAIMS)).split(";")[0]
     let r = createMockRequest({ method: "GET", headersIn: { Cookie: "a=1; " + hint } })

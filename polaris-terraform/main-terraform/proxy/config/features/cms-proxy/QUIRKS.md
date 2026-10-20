@@ -62,11 +62,11 @@ no location uses both**:
 
 | Rewrites domains via `sub_filter` ✅                              | Relies **solely** on the njs filter ❌              |
 | ----------------------------------------------------------------- | --------------------------------------------------- |
-| `164` uainGeneratedScript.aspx                                    | `203` uainMenuBar.js — `cmsMenuBarFilters`          |
-| `309` /CMSModern/Files                                            | `279` uacdCDTabs.aspx — `replaceCmsDomains`         |
-| `354` ^/CMS.\*                                                    | `556` /ajax/viewer/ — `replaceCmsDomainsAjaxViewer` |
-| `520` / (Modern root)                                             |                                                     |
-| `803`, `872` internal-implementation (x5 — also rewrites the IPs) |                                                     |
+| `171` uainGeneratedScript.aspx                                    | `212` uainMenuBar.js — `cmsMenuBarFilters`          |
+| `294` /CMSModern/Files                                            | `264` uacdCDTabs.aspx — `replaceCmsDomains`         |
+| `339` ^/CMS.\*                                                    | `593` /ajax/viewer/ — `replaceCmsDomainsAjaxViewer` |
+| `557` / (Modern root)                                             |                                                     |
+| `852`, `921` internal-implementation (x5 — also rewrites the IPs) |                                                     |
 
 **So this is not redundant dead code.** On those three routes it is the _only_
 domain-rewrite mechanism, and it does nothing — meaning **those three routes do no
@@ -115,8 +115,8 @@ further or be "fixed" by accident during the refactor.
 When it is picked up, the options are:
 
 1. **Delete** — behaviourally a **no-op today**, so zero risk, and it drops
-   `replaceCmsDomains` / `__replaceCmsDomainsGeneric` / `__replaceContent` from the
-   future `common.js` ([`../../../docs/PROXY.md` §6.2](../../../docs/PROXY.md)). But
+   `replaceCmsDomains` / `__replaceCmsDomainsGeneric` / `__replaceContent` from
+   `cms-proxy.js` ([`../../../docs/PROXY.md` §6.2](../../../docs/PROXY.md)). But
    it makes the gap permanent.
 2. **Repair** (`.` → `\.`) — restores the intent, but _starts_ rewriting three
    routes that currently don't. A real behaviour change.
@@ -138,7 +138,7 @@ on those three routes.
 
 ### D2. 🟠 `/CMSModern/Files` dials a **domain**, unlike every other CMS block
 
-**Where (live):** `nginx.conf:349` — `proxy_pass https://$upstreamCmsServicesDomainName;`
+**Where (live):** `nginx.conf:333` — `proxy_pass https://$upstreamCmsServicesDomainName;`
 **Where (next):** `cms-proxy.conf` (`location ~ ^/CMSModern/Files.*`)
 
 Every other CMS route proxies to a Corsham/Farnborough **IP** from
@@ -155,7 +155,7 @@ docker network alias, so any accidental change will show up as a red test.
 
 ### D4. 🟠 `/ajax//viewer/` — double slash in `proxy_pass`
 
-**Where (live):** `nginx.conf:586` — `proxy_pass $proxyDestinationModern/ajax//viewer/$1$is_args$args;`
+**Where (live):** `nginx.conf:623` — `proxy_pass $proxyDestinationModern/ajax//viewer/$1$is_args$args;`
 **Where (next):** `cms-proxy.conf` (`location /ajax/viewer/`)
 
 With `merge_slashes off` set globally (`nginx.conf:50`), that literal `//` is sent
@@ -164,7 +164,7 @@ comment either way.
 
 ### D10. ⚪ The root `/` catch-all proxies to CMS Modern
 
-**Where (live):** `nginx.conf:520`
+**Where (live):** `nginx.conf:557`
 **Where (next):** `cms-proxy.conf` (`location /`)
 
 Any unmatched path falls through to CMS Modern. Flagged in §4 as "has always been

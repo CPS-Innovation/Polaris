@@ -388,9 +388,12 @@ locals {
   proxy_entra_client_secret = var.proxy_entra.store_enabled ? data.azurerm_key_vault_secret.kvs_proxy_entra_client_secret[0].value : ""
 }
 
-# Signs drop2's entra_auth_state cookie, which lives only for the Entra round trip (max 5 minutes).
-# Generated once and kept in state; if it is ever regenerated, only handovers in flight at that
-# moment fail their signature check and fall back to drop1 behaviour.
+# Signs drop2's cookies: the per-flow entra_auth_state cookie (lives for the Entra round trip, max
+# 5 minutes; 15 for the interactive leg) and the 30-day cps-entra-login-hint cookie (D7).
+# Generated ONCE and kept in state: an apply does not rotate it (no keepers). It changes only if
+# the resource is replaced (e.g. its arguments change) or state is lost. Then handovers in flight
+# fail their signature check and carry on as plain /init, and every browser's login hint stops
+# verifying — ignored, so /init sends no login_hint and the next sign-in sets a new one.
 resource "random_password" "proxy_entra_state_hmac" {
   length  = 48
   special = false

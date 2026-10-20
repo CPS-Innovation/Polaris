@@ -12,7 +12,7 @@ routes now live in `cwa-materials.conf` in this folder.
 
 ### D3. 🟠 `/v2/` hardcodes the App Insights hostname
 
-**Where (live):** `nginx.conf:940` — `proxy_pass https://uksouth-1.in.applicationinsights.azure.com/v2/;`
+**Where (live):** `nginx.conf:990` — `proxy_pass https://uksouth-1.in.applicationinsights.azure.com/v2/;`
 **Where (next):** `cwa-materials.conf` (the `/v2/` App Insights route)
 **Test:** `cwa-materials.integration.test.js` → "proxies to the App Insights host"
 
@@ -23,7 +23,7 @@ appears as a `sub_filter` target in the SPA/Materials blocks.
 
 ### D8. ⚪ `/materials-ui/{a}/{b}/materials` looks redundant with `/materials-ui/`
 
-**Where (live):** `nginx.conf:701` vs `:709`
+**Where (live):** `nginx.conf:750` vs `:758`
 **Where (next):** `cwa-materials.conf` (`location ~ ^/materials-ui/[^/]+/[^/]+/materials$` vs `location /materials-ui/`)
 **Test:** `cwa-materials.integration.test.js` → "deep-link regex (nginx.conf:701) wins over the /materials-ui/ prefix", "deep-link regex only matches exactly two segments + /materials"
 
