@@ -4,22 +4,23 @@
 
 namespace pdf_redactor.Services.DocumentRedaction.Aspose;
 
-using global::Aspose.Pdf;
-using global::Aspose.Pdf.Facades;
 using Common.Dto.Request;
 using Common.Streaming;
 using Common.Telemetry;
+using global::Aspose.Pdf;
+using global::Aspose.Pdf.Facades;
 using Microsoft.Extensions.Logging;
 using pdf_redactor.Functions;
 using pdf_redactor.TelemetryEvents;
 
 public class AsposeRedactionProvider(
-    IRedactionImplementation redactionImplementation,
+    IEnumerable<IRedactionImplementation> redactionImplementations,
     ICoordinateCalculator coordinateCalculator,
     ILogger<AsposeRedactionProvider> logger)
     : IRedactionProvider
 {
     private const double DirectRedactionInsetPoints = 0.5;
+    private static readonly byte[] ToUnicodeMarker = "/ToUnicode"u8.ToArray();
 
     public static void SanitiseDocument(Document document)
     {
@@ -44,7 +45,7 @@ public class AsposeRedactionProvider(
         try
         {
             var inputStream = await stream.EnsureSeekableAsync();
-            var (providerType, providerDetails) = redactionImplementation.GetProviderType();
+            var (redactionImplementation, providerType, providerDetails) = this.ResolveImplementation(inputStream);
             telemetryEvent = new RedactedDocumentEvent(
                 correlationId,
                 caseId,
@@ -64,11 +65,11 @@ public class AsposeRedactionProvider(
             telemetryEvent.PageCount = document.Pages.Count;
 
             telemetryEvent.AddAnnotationsStartTime = DateTime.UtcNow;
-            this.AddAnnotations(document, redactPdfRequest, providerType, correlationId);
+            this.AddAnnotations(document, redactPdfRequest, providerType, correlationId, redactionImplementation);
             telemetryEvent.AddAnnotationsEndTime = DateTime.UtcNow;
 
             telemetryEvent.FinaliseAnnotationsStartTime = DateTime.UtcNow;
-            this.FinaliseAnnotations(document, correlationId);
+            FinaliseAnnotations(document, correlationId, redactionImplementation);
             telemetryEvent.FinaliseAnnotationsEndTime = DateTime.UtcNow;
 
             telemetryEvent.SanitiseStartTime = DateTime.UtcNow;
@@ -111,7 +112,71 @@ public class AsposeRedactionProvider(
                     PdfFormat.v_1_7);
     }
 
-    private void AddAnnotations(Document document, RedactPdfRequestDto redactPdfRequest, ProviderType providerType, Guid correlationId)
+    private static void FinaliseAnnotations(Document document, Guid correlationId, IRedactionImplementation redactionImplementation) =>
+        redactionImplementation.FinaliseAnnotations(ref document, correlationId);
+
+    private static bool HasUnicodeMapping(Stream inputStream)
+    {
+        if (!inputStream.CanSeek)
+        {
+            return true;
+        }
+
+        var originalPosition = inputStream.Position;
+        try
+        {
+            inputStream.Position = 0;
+            var markerIndex = 0;
+
+            while (inputStream.ReadByte() is var value && value >= 0)
+            {
+                if ((byte)value == ToUnicodeMarker[markerIndex])
+                {
+                    markerIndex++;
+
+                    if (markerIndex == ToUnicodeMarker.Length)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    markerIndex = (byte)value == ToUnicodeMarker[0] ? 1 : 0;
+                }
+            }
+
+            return false;
+        }
+        finally
+        {
+            inputStream.Position = originalPosition;
+        }
+    }
+
+    private (IRedactionImplementation Implementation, ProviderType ProviderType, string? ProviderDetails) ResolveImplementation(Stream inputStream)
+    {
+        var fallbackToImageConversion = !HasUnicodeMapping(inputStream);
+        var selectedProviderType = fallbackToImageConversion
+            ? ProviderType.ImageConversion
+            : ProviderType.DirectRedaction;
+
+        var selectedImplementation = redactionImplementations
+            .SingleOrDefault(implementation => implementation.GetProviderType().Item1 == selectedProviderType)
+            ?? throw new InvalidOperationException($"No redaction implementation registered for provider type '{selectedProviderType}'.");
+
+        var providerDetails = fallbackToImageConversion
+            ? "Fallback to ImageConversion because no /ToUnicode mapping was detected in the PDF."
+            : null;
+
+        return (selectedImplementation, selectedProviderType, providerDetails);
+    }
+
+    private void AddAnnotations(
+        Document document,
+        RedactPdfRequestDto redactPdfRequest,
+        ProviderType providerType,
+        Guid correlationId,
+        IRedactionImplementation redactionImplementation)
     {
         var pdfInfo = new PdfFileInfo(document);
         var shouldInsetDirectRedaction = providerType == ProviderType.DirectRedaction;
@@ -162,7 +227,4 @@ public class AsposeRedactionProvider(
             }
         }
     }
-
-    private void FinaliseAnnotations(Document document, Guid correlationId) =>
-        redactionImplementation.FinaliseAnnotations(ref document, correlationId);
 }
