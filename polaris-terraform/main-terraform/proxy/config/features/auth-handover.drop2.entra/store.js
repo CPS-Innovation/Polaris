@@ -45,7 +45,7 @@ const EXPIRY_TIME = "2100-01-01T00:00:00Z";
 // base (e.g. "https://fa-wm-app-ddei-staging.azurewebsites.net/api/") + path, tolerating either
 // trailing-slash convention.
 function _url() {
-  return MDS_BASE_URL.replace(/\/+$/, "") + "/" + MDS_PATH;
+  return MDS_BASE_URL.replace(/\/$/, "") + "/" + MDS_PATH;
 }
 
 function _host(url) {

@@ -313,7 +313,7 @@ function handleCaseReviewRedirect(r) {
   }
   // A full host is only accepted inside our own estate — this segment ends up
   // as a redirect target, and must not make us an open redirector.
-  const isFullHost = osHost.indexOf(".") !== -1;
+  const isFullHost = osHost.includes(".");
   if (isFullHost && !CASE_REVIEW_OS_HOST_PATTERN.test(osHost)) {
     r.return(400, "case-review: unexpected OS host " + osHost);
     return;

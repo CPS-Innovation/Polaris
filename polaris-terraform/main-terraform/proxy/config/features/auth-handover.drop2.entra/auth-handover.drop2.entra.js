@@ -331,7 +331,7 @@ function _destKind(r, dest) {
 // Carry on exactly as /init would have: r + "?"/"&" + cc=<cookies> (appAuthRedirect's own
 // formula), plus the CMS token for the destinations that can use it.
 function _continuationUrl(r, st) {
-  let url = st.r + (st.r.indexOf("?") !== -1 ? "&" : "?") + "cc=" + encodeURIComponent(st.cc);
+  let url = st.r + (st.r.includes("?") ? "&" : "?") + "cc=" + encodeURIComponent(st.cc);
   const kind = _destKind(r, st.r);
   if (st.tok && (kind === "polaris" || kind === "os")) {
     url += "&cms-modern-token=" + encodeURIComponent(st.tok);
@@ -483,6 +483,20 @@ function _presenceCookies(accessToken, expiresIn) {
 // /init — look up the CMS session, then begin the AD round-trip.
 // ---------------------------------------------------------------------------
 
+// Why /init must not start Entra for this handover ("" = go ahead). The scopes are read per
+// request, like isConfigured: nothing to gain without a service to swap for — top-level only
+// deposits to MDS; the iframe also sets the presence cookie (e.g. UAT has no MDS scope yet, so its
+// top-level handovers skip the round trip instead of degrading after it).
+function _skipReason(term, opts) {
+  if (!isConfigured()) return "not-configured";
+  const mdsScope = process.env.ENTRA_MDS_SCOPE || "";
+  const watchdogScope = process.env.ENTRA_WATCHDOG_SCOPE || "";
+  if (term === "top-level" && !mdsScope) return "no-mds-scope";
+  if (term === "iframe" && !mdsScope && !watchdogScope) return "no-service-scope";
+  if (!opts.cookies) return "no-cookies";
+  return "";
+}
+
 // Called by appAuthRedirect after its whitelist check, with the destination and the FILTERED
 // cookies it would otherwise 302 to. Resolves true once it has responded (302 to Entra); false
 // WITHOUT responding on any failure — /init then carries on exactly as today. Any Set-Cookie
@@ -494,15 +508,8 @@ async function beginFromInit(r, opts) {
     return false;
   };
   try {
-    if (!isConfigured()) return skip("not-configured");
-    // Nothing to gain without a service to swap for: top-level only deposits to MDS; the iframe
-    // also sets the presence cookie. (Read per request, like isConfigured; e.g. UAT has no MDS
-    // scope yet, so its top-level handovers skip the round trip instead of degrading after it.)
-    const mdsScope = process.env.ENTRA_MDS_SCOPE || "";
-    const watchdogScope = process.env.ENTRA_WATCHDOG_SCOPE || "";
-    if (term === "top-level" && !mdsScope) return skip("no-mds-scope");
-    if (term === "iframe" && !mdsScope && !watchdogScope) return skip("no-service-scope");
-    if (!opts.cookies) return skip("no-cookies");
+    const why = _skipReason(term, opts);
+    if (why) return skip(why);
 
     const found = await replaceDdei.lookupCmsSession(_header(r, "Host"), opts.cookies);
     if (!found.token) {
@@ -514,6 +521,7 @@ async function beginFromInit(r, opts) {
     const stateHandle = _rand(16);
     const hint = _readHint(r);
     const probe = _probe(hint);
+    const sent = probe ? null : hint; // the hint /authorize gets (withheld by the probe)
     const payload = {
       s: stateHandle,
       // The iframe always ends on the terminal page and never reads r, so it isn't carried (keeps
@@ -527,7 +535,7 @@ async function beginFromInit(r, opts) {
       iat: Math.floor(Date.now() / 1000),
       h: _header(r, "Host"),
       corr: _rand(8),
-      lh: hint && !probe ? 1 : 0,
+      lh: sent ? 1 : 0,
       p: probe ? 1 : 0,
     };
     const stateCookie = STATE_COOKIE_PREFIX + stateHandle + "=" + _packState(payload);
@@ -542,7 +550,7 @@ async function beginFromInit(r, opts) {
     // Silent auth: CMS users already have an AAD session (same tenant), so prompt=none yields a
     // bare 302 (code, or error=login_required) with no UI to render — which is also what lets it
     // run framed (AD sets X-Frame-Options: DENY on any RENDERED /authorize response).
-    r.return(302, _authorizeRedirect(r, stateHandle, term, "none", hint && !probe ? hint.lh : ""));
+    r.return(302, _authorizeRedirect(r, stateHandle, term, "none", sent ? sent.lh : ""));
     return true;
   } catch (e) {
     replaceDdei.markAuthInit(r, "entra-degraded");
@@ -574,7 +582,7 @@ function _canRetry(st, adError, aadsts) {
     st.term === "top-level" &&
     !st.n &&
     _interactiveEnabled() &&
-    RETRYABLE_AD_ERRORS.indexOf(adError) !== -1 &&
+    RETRYABLE_AD_ERRORS.includes(adError) &&
     aadsts.indexOf("53") !== 0
   );
 }
@@ -620,21 +628,7 @@ async function handleInitEntraCallback(r) {
 
     const adError = _arg(r, "error");
     if (adError) {
-      // e.g. login_required (no silent AD session). The outcome line records which AD error, and
-      // its AADSTS number (see _adFields). Resolvable by a person -> one interactive retry (D7);
-      // otherwise degrade, never blocking anyone's handover.
-      const fields = _adFields(adError, _arg(r, "error_description"));
-      const aadsts = _aadsts(_arg(r, "error_description"));
-      const hint = st && st.p ? _readHint(r) : null;
-      if (hint && aadsts === "16000") {
-        _retryHinted(r, st, hint, "several-accounts", fields);
-        return;
-      }
-      if (st && _canRetry(st, adError, aadsts)) {
-        _retryInteractive(r, st, fields, aadsts);
-        return;
-      }
-      _degrade(r, st, "ad-error: " + adError, null, lost, fields);
+      _onAdError(r, st, adError, lost);
       return;
     }
     if (!st) {
@@ -652,57 +646,84 @@ async function handleInitEntraCallback(r) {
       _degrade(r, st, "token-exchange-failed: " + tok.diag);
       return;
     }
-    // D7 probe: another account won the unhinted sign-in, so several are still signed in — sign in
-    // again WITH the hint, so the account the user chose stays the one used (this code is unused).
-    if (st.p) {
-      const hint = _readHint(r);
-      const c = _idClaims(tok.idToken);
-      if (hint && hint.oid && c && String(c.oid || "") !== hint.oid) {
-        _retryHinted(r, st, hint, "other-account", "");
-        return;
-      }
-    }
-
-    // D7: the sign-in worked, so we know which account it chose — record it as the login hint,
-    // whatever happens next (later failures don't change which account this browser uses).
-    let extra = [];
-    const hc = _hintCookie(tok.idToken, st);
-    if (hc) extra.push(hc);
-
-    const rt = tok.refreshToken;
-    if (!rt) {
-      // offline_access not granted: nothing to swap.
-      _degrade(r, st, "no-refresh-token", extra);
-      return;
-    }
-
-    // Presence first (iframe only), so a later MDS failure cannot cost presence its token. A
-    // presence failure is logged but is not a degrade: the store is what drop2 is for.
-    if (st.term === "iframe" && WATCHDOG_SCOPE) {
-      const wd = await _refresh(rt, WATCHDOG_SCOPE);
-      if (wd.accessToken) {
-        extra = extra.concat(_presenceCookies(wd.accessToken, wd.expiresIn));
-      } else {
-        _log("drop2 entra presence swap failed — " + wd.diag);
-      }
-    }
-
-    // The auth store: swap for the store backend's token, then deposit.
-    const mds = await _refresh(rt, store.scope);
-    if (!mds.accessToken) {
-      _degrade(r, st, "swap-failed: " + mds.diag, extra);
-      return;
-    }
-    const dep = await store.deposit({ cookies: st.cc, token: st.tok }, mds.accessToken);
-    if (!dep.ok) {
-      _degrade(r, st, "store-deposit-failed: " + dep.diag, extra);
-      return;
-    }
-
-    _succeed(r, st, extra);
+    if (_probeMetOtherAccount(r, st, tok.idToken)) return;
+    await _swapAndDeposit(r, st, tok);
   } catch (e) {
     _degrade(r, st, "callback-error: " + String(e));
   }
+}
+
+// The callback's AD error, e.g. login_required (no silent AD session). The outcome line records
+// which AD error, and its AADSTS number (see _adFields). The probe meeting several accounts -> the
+// hinted silent leg; resolvable by a person -> one interactive retry (D7); otherwise degrade,
+// never blocking anyone's handover.
+function _onAdError(r, st, adError, lost) {
+  const fields = _adFields(adError, _arg(r, "error_description"));
+  const aadsts = _aadsts(_arg(r, "error_description"));
+  const hint = st && st.p ? _readHint(r) : null;
+  if (hint && aadsts === "16000") {
+    _retryHinted(r, st, hint, "several-accounts", fields);
+    return;
+  }
+  if (st && _canRetry(st, adError, aadsts)) {
+    _retryInteractive(r, st, fields, aadsts);
+    return;
+  }
+  _degrade(r, st, "ad-error: " + adError, null, lost, fields);
+}
+
+// D7 probe: another account won the unhinted sign-in, so several are still signed in — sign in
+// again WITH the hint, so the account the user chose stays the one used (this code is unused).
+// True once it has responded.
+function _probeMetOtherAccount(r, st, idToken) {
+  if (!st.p) return false;
+  const hint = _readHint(r);
+  const c = _idClaims(idToken);
+  if (!hint || !hint.oid || !c || String(c.oid || "") === hint.oid) return false;
+  _retryHinted(r, st, hint, "other-account", "");
+  return true;
+}
+
+// Signed in (`tok` from the code exchange): record the hint, swap, deposit, then succeed or
+// degrade. Throws go to the callback's catch.
+async function _swapAndDeposit(r, st, tok) {
+  // D7: the sign-in worked, so we know which account it chose — record it as the login hint,
+  // whatever happens next (later failures don't change which account this browser uses).
+  let extra = [];
+  const hc = _hintCookie(tok.idToken, st);
+  if (hc) extra.push(hc);
+
+  const rt = tok.refreshToken;
+  if (!rt) {
+    // offline_access not granted: nothing to swap.
+    _degrade(r, st, "no-refresh-token", extra);
+    return;
+  }
+
+  // Presence first (iframe only), so a later MDS failure cannot cost presence its token. A
+  // presence failure is logged but is not a degrade: the store is what drop2 is for.
+  if (st.term === "iframe" && WATCHDOG_SCOPE) {
+    const wd = await _refresh(rt, WATCHDOG_SCOPE);
+    if (wd.accessToken) {
+      extra = extra.concat(_presenceCookies(wd.accessToken, wd.expiresIn));
+    } else {
+      _log("drop2 entra presence swap failed — " + wd.diag);
+    }
+  }
+
+  // The auth store: swap for the store backend's token, then deposit.
+  const mds = await _refresh(rt, store.scope);
+  if (!mds.accessToken) {
+    _degrade(r, st, "swap-failed: " + mds.diag, extra);
+    return;
+  }
+  const dep = await store.deposit({ cookies: st.cc, token: st.tok }, mds.accessToken);
+  if (!dep.ok) {
+    _degrade(r, st, "store-deposit-failed: " + dep.diag, extra);
+    return;
+  }
+
+  _succeed(r, st, extra);
 }
 
 // Success terminal: clear state (+ any presence cookies), then branch on mode.

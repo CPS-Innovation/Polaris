@@ -33,7 +33,7 @@ function ieAction(r) {
 function coerce(r, want, reject) {
   const state = ieAction(r);
   const inIe = state.indexOf("nonie") !== 0; // starts "ie+" (not "nonie+")
-  const configurable = state.indexOf("nonconfigurable") === -1;
+  const configurable = !state.includes("nonconfigurable");
   const wrongMode = want === "ie" ? !inIe : inIe;
   if (!wrongMode) {
     return false; // already in the wanted mode — proceed

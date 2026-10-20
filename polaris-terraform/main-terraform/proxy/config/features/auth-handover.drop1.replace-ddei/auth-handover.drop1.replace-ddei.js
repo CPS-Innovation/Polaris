@@ -193,7 +193,7 @@ function _buildCmsAuthValuesCookie(dto, secure) {
 // (fallback landing when there's no ui url, e.g. a CMS launch).
 function _failRedirect(r, polarisUiUrl, reason) {
   const base = polarisUiUrl || FALLBACK_LANDING;
-  const delim = base.indexOf("?") !== -1 ? "&" : "?";
+  const delim = base.includes("?") ? "&" : "?";
   r.return(302, absoluteUrl(r, base + delim + "auth-fail-reason=" + reason));
 }
 

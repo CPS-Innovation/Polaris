@@ -37,7 +37,7 @@ echo "config under test: $CONFIG_LABEL"
 echo "=========================="
 
 cleanup() {
-  if [ "${KEEP_UP:-}" = "1" ]; then
+  if [[ "${KEEP_UP:-}" = "1" ]]; then
     echo -e "${YELLOW}KEEP_UP=1 — leaving stack running (${PROXY_BASE})${NC}"
     return
   fi
@@ -49,7 +49,7 @@ trap cleanup EXIT
 wait_for_proxy() {
   local attempt=1 max=40
   echo -n "Waiting for proxy..."
-  while [ $attempt -le $max ]; do
+  while [[ $attempt -le $max ]]; do
     if curl -sf "$PROXY_BASE/" >/dev/null 2>&1; then
       echo -e " ${GREEN}ready${NC}"
       return 0
@@ -85,8 +85,8 @@ CONFIG_DIR="$(cd "$SCRIPT_DIR/../../config" && pwd)"
 FAILED=0
 RAN=0
 for f in $(find "$CONFIG_DIR" -name '*.integration.test.js' | sort); do
-  [ -e "$f" ] || continue
-  if [ -n "$FILTER" ] && [[ "$f" != *"$FILTER"* ]]; then continue; fi
+  [[ -e "$f" ]] || continue
+  if [[ -n "$FILTER" ]] && [[ "$f" != *"$FILTER"* ]]; then continue; fi
   RAN=$((RAN + 1))
   echo ""
   echo -e "${YELLOW}==== $(basename "$f") ====${NC}"
@@ -99,11 +99,11 @@ echo ""
 echo "=========================="
 # A filter that matches nothing (e.g. a mistyped flag, which lands here as a filter)
 # must not report success.
-if [ $RAN -eq 0 ]; then
+if [[ $RAN -eq 0 ]]; then
   echo -e "${RED}No test files matched${FILTER:+ filter '$FILTER'} — nothing ran${NC}"
   exit 1
 fi
-if [ $FAILED -gt 0 ]; then
+if [[ $FAILED -gt 0 ]]; then
   echo -e "${RED}$FAILED test file(s) failed${NC}"
   exit 1
 fi

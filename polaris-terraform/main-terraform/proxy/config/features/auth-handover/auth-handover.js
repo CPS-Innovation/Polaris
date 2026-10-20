@@ -423,7 +423,7 @@ function enrol(r) {
   };
 
   // Enrol: only the known modes are accepted (never write an arbitrary cookie value).
-  if (set !== undefined && ENROL_MODES.indexOf(set) !== -1) {
+  if (set !== undefined && ENROL_MODES.includes(set)) {
     r.headersOut["Set-Cookie"] = [_enrolSetCookie(set)];
     backToPage();
     return;
