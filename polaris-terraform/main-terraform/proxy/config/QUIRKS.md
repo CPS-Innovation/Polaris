@@ -58,7 +58,7 @@ lives in under the refactored (`next`) config.
 | D11 | Most app settings are written three times                | **this file**                                                                    |
 | D11 | `/cpt` switch: next fixes live (number clash — cms-proxy's) | [`features/cms-proxy/QUIRKS.md`](./features/cms-proxy/QUIRKS.md)                 |
 | D12 | `/launch/*`: one route env-driven, thirteen hardcoded    | [`features/app-launch/QUIRKS.md`](./features/app-launch/QUIRKS.md)               |
-| D13 | #2189 materials-URN removal held back (next config)      | [`features/cwa-materials/QUIRKS.md`](./features/cwa-materials/QUIRKS.md)         |
+| D13 | ✅ #2189 materials-URN removal — hold-back released      | [`features/cwa-materials/QUIRKS.md`](./features/cwa-materials/QUIRKS.md)         |
 | N1  | Per-user enrolment page is open (canary)                 | [`features/auth-handover/QUIRKS.md`](./features/auth-handover/QUIRKS.md)         |
 | N2  | No explicit "force DDEI" opt-out value                   | [`features/auth-handover/QUIRKS.md`](./features/auth-handover/QUIRKS.md)         |
 | E1–E14 | drop2 (Entra) design decisions + hardening (new-gen) | [`features/auth-handover.drop2.entra/QUIRKS.md`](./features/auth-handover.drop2.entra/QUIRKS.md) |
