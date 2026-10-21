@@ -2,7 +2,7 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace PolarisGateway.Functions.HouseKeeping;
+namespace PolarisGateway.Functions;
 
 using System;
 using System.Diagnostics;
@@ -20,7 +20,6 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using PolarisGateway.Functions;
 using PolarisGateway.Helpers;
 
 /// <summary>
@@ -49,7 +48,7 @@ public class GetCaseWitnesses(ILogger<GetCaseWitnesses> logger,
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.UnprocessableEntity)]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.Unauthorized)]
     [Function(nameof(GetCaseWitnesses))]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseWitnessesHk)] HttpRequest request, int caseId, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.CaseWitnesses)] HttpRequest request, int caseId, CancellationToken cancellationToken = default)
     {
         try
         {

@@ -15,8 +15,8 @@ public static class RestApi
     public const string CaseSearchCount = "cases/{caseId:min(1)}/search/count";
     public const string CaseExhibitProducersLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/exhibit-producers";
     public const string CaseExhibitProducers = "cases/{caseId:min(1)}/exhibit-producers";
-    public const string CaseWitnessesLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses";
     public const string CaseWitnesses = "cases/{caseId:min(1)}/witnesses";
+    public const string CaseWitnessesLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses";
     public const string WitnessStatementsLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
     public const string WitnessStatements = "cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
     public const string DocumentsLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents";
@@ -53,7 +53,6 @@ public static class RestApi
     public const string ExhibitProducersLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/case-exhibit-producers";
     public const string CaseWitnessStatementsLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/witness-statements";
     public const string CompleteReclassificationLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/reclassify-complete";
-    public const string CaseWitnessesHkLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/case-witnesses";
     public const string CaseLockInfoLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/case-lock-info";
     public const string RenameMaterialLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/rename";
     public const string DiscardMaterialLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/discard";
@@ -84,7 +83,6 @@ public static class RestApi
     public const string ExhibitProducers = "cases/{caseId:min(1)}/case-exhibit-producers";
     public const string CaseWitnessStatements = "cases/{caseId:min(1)}/witnesses/{witnessId}/witness-statements";
     public const string CompleteReclassification = "cases/{caseId:min(1)}/materials/{materialId}/reclassify-complete";
-    public const string CaseWitnessesHk = "cases/{caseId:min(1)}/case-witnesses";
     public const string CaseLockInfo = "cases/{caseId:min(1)}/case-lock-info";
     public const string RenameMaterial = "cases/{caseId:min(1)}/materials/{materialId}/rename";
     public const string DiscardMaterial = "cases/{caseId:min(1)}/materials/{materialId}/discard";
