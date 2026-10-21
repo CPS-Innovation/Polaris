@@ -485,8 +485,8 @@ function _presenceCookies(accessToken, expiresIn) {
 
 // Why /init must not start Entra for this handover ("" = go ahead). The scopes are read per
 // request, like isConfigured: nothing to gain without a service to swap for — top-level only
-// deposits to MDS; the iframe also sets the presence cookie (e.g. UAT has no MDS scope yet, so its
-// top-level handovers skip the round trip instead of degrading after it).
+// deposits to MDS; the iframe also sets the presence cookie (an env with no MDS scope skips the
+// round trip on top-level handovers instead of degrading after it).
 function _skipReason(term, opts) {
   if (!isConfigured()) return "not-configured";
   const mdsScope = process.env.ENTRA_MDS_SCOPE || "";

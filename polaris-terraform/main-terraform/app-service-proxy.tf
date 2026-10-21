@@ -382,10 +382,11 @@ locals {
 }
 
 # drop2 (auth-handover.drop2.entra): the Entra sign-in + refresh-token swaps that deposit CMS auth
-# into MDS. Values for both slots' app settings. The client secret is only looked up where drop2 is
-# on, so an env with it off (prod) needs no Key Vault entry.
+# into MDS. Values for both slots' app settings. The client secret is set even where drop2 is off
+# (prod), so a browser enrolled with polaris_auth_handover=drop2 can run it there; the global
+# switch is store_enabled alone.
 locals {
-  proxy_entra_client_secret = var.proxy_entra.store_enabled ? data.azurerm_key_vault_secret.kvs_proxy_entra_client_secret[0].value : ""
+  proxy_entra_client_secret = data.azurerm_key_vault_secret.kvs_proxy_entra_client_secret.value
 }
 
 # Signs drop2's cookies: the per-flow entra_auth_state cookie (lives for the Entra round trip, max

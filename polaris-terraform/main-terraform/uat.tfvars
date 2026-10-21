@@ -91,9 +91,9 @@ non_ddei_init_enabled = true
 proxy_entra = {
   store_enabled = true
   client_id     = "8d6133af-9593-47c6-94d0-5c65e9e310f1" # "FCT Global Components (dev)"
-  # no MDS scope in UAT yet: MDS's PCE app registration exposes none, so drop2
-  # falls back to drop1 behaviour here until MDS adds one and pre-authorises client_id.
-  mds_scope = ""
+  # MDS's PCE app registration (main.tf maps uat -> wm-app-ddei-staging-pce). Until MDS exposes
+  # full_scope there and pre-authorises client_id, the swap fails and drop2 degrades to plain /init.
+  mds_scope = "api://fa-wm-app-ddei-staging-pce/full_scope"
   # Interim, shared by all pre-prod: the scope our own app reg (8d6133af) exposes, which the
   # watchdog (presence API) accepts today. Swap for the watchdog's own app reg scope when it
   # exists (config only, no code change).

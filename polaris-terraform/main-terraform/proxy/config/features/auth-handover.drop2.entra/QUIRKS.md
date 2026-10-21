@@ -324,5 +324,5 @@ to the interactive leg logs `result=retried` (with its `ad=`/`aadsts=`), and tha
 its own `ok`/`degraded` line with `int=1`. The probe's hand-over to the hinted leg is also
 `retried`, with `reason=several-accounts` or `other-account`. Count handovers by excluding `retried`.
 
-**Not covered.** UAT (`mds_scope = ""`) skips Entra for top-level handovers, so no hint or retry
-there until MDS has a scope. The wrong account silently winning with no hint is still invisible.
+**Not covered.** An env with `mds_scope = ""` skips Entra for top-level handovers, so no hint or
+retry there. The wrong account silently winning with no hint is still invisible.

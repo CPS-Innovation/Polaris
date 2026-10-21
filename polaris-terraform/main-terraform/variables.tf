@@ -165,8 +165,8 @@ variable "non_ddei_init_enabled" {
 
 variable "proxy_entra" {
   # drop2 (auth-handover.drop2.entra) -> the proxy's ENTRA_* app settings.
-  #  store_enabled  global switch -> ENTRA_STORE_ENABLED. Needs the Key Vault secret
-  #                 GlobalComponents-Entra-ClientSecret in this env.
+  #  store_enabled  global switch -> ENTRA_STORE_ENABLED. Every env needs the Key Vault secret
+  #                 GlobalComponents-Entra-ClientSecret, whatever this is (enrolment runs drop2 too).
   #  client_id      the app registration drop2 signs in with (may be set ahead of store_enabled).
   #  mds_scope      the MDS scope drop2 swaps the user's refresh token for, to deposit to MDS
   #                 ("" = no MDS scope in this env; drop2 then falls back to drop1 behaviour).
