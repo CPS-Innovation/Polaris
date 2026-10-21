@@ -21,6 +21,7 @@ public static class ServiceCollectionExtension
         services.AddSingleton<IRedactionProvider, AsposeRedactionProvider>();
         services.AddSingleton<ICoordinateCalculator, CoordinateCalculator>();
         services.AddSingleton<IRedactionImplementation, DirectImplementation>();
+        services.AddSingleton<IRedactionImplementation, ImageConversionImplementation>();
         services.AddSingleton<IDocumentManipulationProvider, AsposeDocumentManipulationProvider>();
         services.Configure<ImageConversionOptions>(configuration.GetSection(ImageConversionOptions.ConfigKey));
     }
