@@ -1141,6 +1141,21 @@ async function d7Tests(authHandover, entra) {
     assertEqual(hintVia(r), "silent", "hint gone mid-flow, probe signs in: silent")
   })
 
+  await test("probe -> picker: the user's pick stands (not probed again): new hint, deposit, logged hint=0", async () => {
+    // Hint is account A (oid-2, several accounts); A's session has gone, so the probe gets 50058.
+    let r = await callbackScenario({ term: "top-level", env: interactive, adError: "login_required", adErrorDescription: "AADSTS50058: x", stPatch: { p: 1, lh: 0 }, extraCookie: prevHint("several-accounts", "oid-2") })
+    const st = entra.__test.unpackState(cookieValue(findCookie(r.headersOut["Set-Cookie"], STATE_PREFIX + H1 + "=")))
+    assertEqual([st.n, st.p, st.lh].join(","), "1,0,0", "picker leg: n=1, no longer the probe, no hint sent")
+    // The user picks B (oid-1) in the picker.
+    r = await callbackScenario({ term: "top-level", env: interactive, idClaims: CLAIMS, stPatch: st, extraCookie: prevHint("several-accounts", "oid-2") })
+    const h = entra.__test.unpackState(hintValue(r))
+    assertEqual([h.oid, h.via].join(","), "oid-1,no-session", "B is the new hint")
+    assertEqual(callOrder(), "authorization_code > refresh_token:mds > mds", "swapped + deposited, no hinted leg back to A")
+    assertEqual(r.returnBody, continuation(DEST_POLARIS, POLARIS_TOKEN_PARAMS), "carries on")
+    const o = outcomeOf(outcomeLines()[0])
+    assertEqual([o.result, o.int, o.hint].join(","), "ok,1,0", "ok int=1 hint=0")
+  })
+
   await test("iframe: the probe and the hinted leg work there too (all silent)", async () => {
     const r = await callbackScenario({ term: "iframe", adError: "interaction_required", adErrorDescription: "AADSTS16000: x", stPatch: { p: 1 }, extraCookie: prevHint("several-accounts", "oid-1") })
     const q = form(r.returnBody.split("?")[1])

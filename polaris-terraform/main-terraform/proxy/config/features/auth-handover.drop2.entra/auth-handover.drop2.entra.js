@@ -590,9 +590,10 @@ function _canRetry(st, adError, aadsts) {
 // D7: the same flow (same handle, same destination) again, now with the account picker. No
 // login_hint: the user is choosing (that is also how they escape a stale hint); whatever they pick
 // becomes the new hint. The state is re-signed with n=1 (never retried twice) and a fresh iat with
-// the longer interactive lifetime.
+// the longer interactive lifetime. p=0: the user's pick is the answer the probe was after, so it is
+// not re-checked against the old hint (that would sign them back in as it); lh=0: no hint is sent.
 function _retryInteractive(r, st, outcomeExtra, aadsts) {
-  const again = Object.assign({}, st, { n: 1, ra: aadsts, iat: Math.floor(Date.now() / 1000) });
+  const again = Object.assign({}, st, { n: 1, p: 0, lh: 0, ra: aadsts, iat: Math.floor(Date.now() / 1000) });
   r.headersOut["Set-Cookie"] = [STATE_COOKIE_PREFIX + st.s + "=" + _packState(again) + STATE_SET_OPTS_INTERACTIVE];
   replaceDdei.markAuthInit(r, "entra");
   _outcome("retried", "ad-error", _stDestKind(r, st), st.term, outcomeExtra + _legFields(st));
