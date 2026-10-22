@@ -164,6 +164,15 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
 
   https_only = true
 
+  # The Startup Command (start-next.sh) boots the next config from these blobs, so they must be in
+  # place before an apply restarts the app. (The blobs therefore can't depend on the role assignment,
+  # which needs this app's identity: that would be a cycle. Terraform uploads with its own access.)
+  depends_on = [
+    azurerm_storage_blob.proxy_next_config,
+    azurerm_storage_blob.proxy_next_nginx_conf,
+    azurerm_storage_blob.proxy_next_start,
+  ]
+
   lifecycle {
     ignore_changes = [
       app_settings["HostType"],
@@ -408,7 +417,6 @@ resource "azurerm_storage_blob" "proxy_next_config" {
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "${local.proxy_next_dir}/${each.value}"
-  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
 }
 
 resource "azurerm_storage_blob" "proxy_next_nginx_conf" {
@@ -418,7 +426,6 @@ resource "azurerm_storage_blob" "proxy_next_nginx_conf" {
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "${local.proxy_next_dir}/nginx.conf"
-  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
 }
 
 # The cutover script the Startup Command runs when var.proxy_next_config_enabled (see start-next.sh).
@@ -430,7 +437,6 @@ resource "azurerm_storage_blob" "proxy_next_start" {
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "${local.proxy_next_dir}/start-next.sh"
-  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
 }
 
 # Create Private Endpoint

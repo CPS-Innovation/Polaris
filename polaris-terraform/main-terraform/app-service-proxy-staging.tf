@@ -157,6 +157,15 @@ resource "azurerm_linux_web_app_slot" "polaris_proxy_staging1" {
   identity {
     type = "SystemAssigned"
   }
+
+  # The Startup Command (start-next.sh) boots the next config from these blobs, so they must be in
+  # place before an apply restarts the slot. (The blobs therefore can't depend on the role assignment,
+  # which needs the app's identity: that would be a cycle. Terraform uploads with its own access.)
+  depends_on = [
+    azurerm_storage_blob.proxy_next_config,
+    azurerm_storage_blob.proxy_next_nginx_conf,
+    azurerm_storage_blob.proxy_next_start,
+  ]
 }
 
 resource "azurerm_role_assignment" "ra_blob_data_contributor_polaris_proxy_staging1" {
