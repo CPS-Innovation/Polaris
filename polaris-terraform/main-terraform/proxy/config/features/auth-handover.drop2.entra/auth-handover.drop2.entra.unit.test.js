@@ -379,6 +379,7 @@ async function callbackScenario({
   stateParam = null,
   extraCookie = "",
   idClaims = null,
+  watchdogToken = "WATCHDOG-TOKEN",
 }) {
   // Applied for the load (module consts) AND the call (per-request switches).
   const restore = env ? applyEnv(env) : () => {}
@@ -414,7 +415,7 @@ async function callbackScenario({
         if (!ok) return res({ status: 400, body: JSON.stringify({ error: "invalid_grant", error_codes: [65001] }) })
         return res({
           body: JSON.stringify(
-            isMds ? { access_token: "MDS-TOKEN", expires_in: 3599 } : { access_token: "WATCHDOG-TOKEN", expires_in: 3000 },
+            isMds ? { access_token: "MDS-TOKEN", expires_in: 3599 } : { access_token: watchdogToken, expires_in: 3000 },
           ),
         })
       }
@@ -894,11 +895,37 @@ async function reviewFixTests(authHandover, entra) {
     assertEqual(fetchLog.length, 0, "no exchange")
   })
 
-  await test("replay: a state cookie older than 300s is rejected (server-side, not just the browser's Max-Age)", async () => {
+  await test("replay: a state cookie older than 300s is never redeemed (server-side, not just the browser's Max-Age)", async () => {
     const r = await callbackScenario({ term: "top-level", stPatch: { iat: nowSec() - 301 } })
-    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/", "fallback landing")
     assertEqual(fetchLog.length, 0, "no exchange")
     assert(logLines.some((l) => l.indexOf("drop2-outcome result=degraded reason=expired-state") === 0), logLines.join(" | "))
+  })
+
+  await test("expired but ours: carries on to its r (with cc) as /init would, not the fallback; no exchange, no deposit", async () => {
+    for (const [dest, extra, kind] of [[DEST_OS, OS_TOKEN_PARAMS, "os"], [DEST_OTHER, "", "other"], [DEST_POLARIS, POLARIS_TOKEN_PARAMS, "polaris"]]) {
+      const r = await callbackScenario({ term: "top-level", dest, stPatch: { iat: nowSec() - 301 } })
+      assertEqual(r.returnBody, continuation(dest, extra), kind + ": carries on to r")
+      assertEqual(fetchLog.length, 0, kind + ": no exchange, no swap, no deposit")
+      const o = outcomeOf(outcomeLines()[0])
+      assertEqual([o.result, o.reason, o.dest].join(","), "degraded,expired-state," + kind, kind + ": outcome names the real destination")
+      assertIncludes(findCookie(r.headersOut["Set-Cookie"], STATE_PREFIX + H1 + "="), "=deleted", kind + ": state cleared")
+    }
+    // The interactive leg (900s) too, and an AD error on an expired flow isn't acted on (no picker).
+    let r = await callbackScenario({ term: "top-level", dest: DEST_OS, env: { ENTRA_INTERACTIVE_ENABLED: "true" }, adError: "login_required", adErrorDescription: "AADSTS50058: x", stPatch: { iat: nowSec() - 301, lh: 1 } })
+    assertEqual(r.returnBody, continuation(DEST_OS, OS_TOKEN_PARAMS), "expired + AD error: carries on, no retry")
+    assertEqual(findCookie(r.headersOut["Set-Cookie"], HINT_PREFIX), undefined, "and no hint change")
+    r = await callbackScenario({ term: "top-level", dest: DEST_OS, stPatch: { n: 1, iat: nowSec() - 1000 } })
+    assertEqual(r.returnBody, continuation(DEST_OS, OS_TOKEN_PARAMS), "expired picker leg: carries on")
+    r = await callbackScenario({ term: "iframe", stPatch: { iat: nowSec() - 301 } })
+    assertEqual(r.returnBody, ENTRA_TERMINAL(entra), "iframe: the terminal page")
+  })
+
+  await test("unrecoverable states still land on the fallback: future-dated, from another host", async () => {
+    let r = await callbackScenario({ term: "top-level", dest: DEST_OS, stPatch: { iat: nowSec() + 120 } })
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/", "future-dated")
+    r = await callbackScenario({ term: "top-level", dest: DEST_OS, stPatch: { iat: nowSec() - 301, h: "other.example" } })
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/", "expired + other host")
+    assertEqual(fetchLog.length, 0, "no exchange")
   })
 
   await test("replay: a state cookie from the future (beyond 60s skew) is rejected; within skew accepted", async () => {
@@ -1154,6 +1181,94 @@ async function d7Tests(authHandover, entra) {
     assertEqual(r.returnBody, continuation(DEST_POLARIS, POLARIS_TOKEN_PARAMS), "carries on")
     const o = outcomeOf(outcomeLines()[0])
     assertEqual([o.result, o.int, o.hint].join(","), "ok,1,0", "ok int=1 hint=0")
+  })
+
+  await test("stale hint: a hinted leg's 50058 (hinted account gone) with no retry forgets the hint, carries on, logs hint-cleared=1", async () => {
+    for (const term of ["top-level", "iframe"]) {
+      const r = await callbackScenario({ term, adError: "login_required", adErrorDescription: "AADSTS50058: no match for hint", stPatch: { lh: 1 }, extraCookie: prevHint("silent", "oid-2") })
+      const sc = findCookie(r.headersOut["Set-Cookie"], HINT_PREFIX)
+      assert(!!sc, term + ": hint cookie cleared")
+      for (const a of ["=deleted", "; Path=/;", "Secure", "SameSite=None", "Max-Age=0"]) assertIncludes(sc, a, term + " " + a)
+      assertEqual(r.returnBody, term === "iframe" ? ENTRA_TERMINAL(entra) : continuation(DEST_POLARIS, POLARIS_TOKEN_PARAMS), term + ": carries on")
+      const o = outcomeOf(outcomeLines()[0])
+      assertEqual([o.result, o.aadsts, o["hint-cleared"], o.hint].join(","), "degraded,50058,1,1", term + ": outcome")
+    }
+  })
+
+  await test("stale hint: kept when unhinted (lh=0), on other errors (MFA, CA block), or when the picker retries instead", async () => {
+    const kept = (r, why) => assertEqual(findCookie(r.headersOut["Set-Cookie"] || [], HINT_PREFIX), undefined, why)
+    kept(await callbackScenario({ term: "top-level", adError: "login_required", adErrorDescription: "AADSTS50058: x", stPatch: { lh: 0 } }), "unhinted 50058")
+    kept(await callbackScenario({ term: "top-level", adError: "interaction_required", adErrorDescription: "AADSTS50076: x", stPatch: { lh: 1 } }), "hinted MFA")
+    kept(await callbackScenario({ term: "top-level", adError: "interaction_required", adErrorDescription: "AADSTS53003: x", stPatch: { lh: 1 } }), "hinted CA block")
+    const r = await callbackScenario({ term: "top-level", env: interactive, adError: "login_required", adErrorDescription: "AADSTS50058: x", stPatch: { lh: 1 } })
+    assertEqual(form(r.returnBody.split("?")[1]).prompt, "select_account", "interactive on: picker (its pick overwrites the hint)")
+    kept(r, "not cleared on the picker hand-over")
+  })
+
+  await test("a repeated query arg (?state=a&state=b) reads as missing: bad-state-param, never a throw", async () => {
+    const r = await callbackScenario({ term: "top-level", stateParam: ["t." + H1, "t." + H2] })
+    assertEqual(outcomeOf(outcomeLines()[0]).reason, "bad-state-param", "bad-state-param, not callback-error")
+    assertEqual(fetchLog.length, 0, "no exchange")
+    assertEqual(r.returnBody, "https://proxy.example/polaris-ui/", "unrecoverable: fallback landing")
+  })
+
+  await test("iframe, watchdog scope but no MDS scope: presence-only is ok (not degraded swap-failed)", async () => {
+    const r = await callbackScenario({ term: "iframe", env: { ENTRA_MDS_SCOPE: "" } })
+    assertEqual(presenceCookies(r).length, 2, "presence cookies set")
+    assertEqual(callOrder(), "authorization_code > refresh_token:watchdog", "no MDS swap or deposit")
+    const o = outcomeOf(outcomeLines()[0])
+    assertEqual([o.result, o.reason].join(","), "ok,presence-only", "ok presence-only")
+    assertEqual(r.returnBody, ENTRA_TERMINAL(entra), "terminal page")
+  })
+
+  await test("presence token too large for a cookie: not set, logged with its size; the deposit still runs", async () => {
+    const r = await callbackScenario({ term: "iframe", watchdogToken: "x".repeat(3901) })
+    assertEqual(presenceCookies(r).length, 0, "no presence cookie a browser would drop")
+    assert(logLines.some((l) => l.indexOf("presence token too large — bytes=3901") !== -1), logLines.join(" | "))
+    assertEqual(outcomeOf(outcomeLines()[0]).result, "ok", "deposit ok")
+    const ok = await callbackScenario({ term: "iframe", watchdogToken: "x".repeat(3900) })
+    assertEqual(presenceCookies(ok).length, 2, "at the limit: set")
+  })
+
+  await test("PKCE: S256 challenge = base64url(SHA-256(verifier)), checked against Node's crypto", () => {
+    const v = "dBjftJeZ4CVP-mJ92K1ifu-5j1RMn2O3QNlmNKyIqTk"
+    assertEqual(entra.__test.pkceChallenge(v), require("crypto").createHash("sha256").update(v).digest("base64url"), "S256")
+  })
+
+  await test("PKCE: /init keeps a fresh verifier in the signed state and sends only its S256 challenge", async () => {
+    const vs = []
+    for (let i = 0; i < 2; i++) {
+      fetchImpl = establishRouter()
+      const restore = applyEnv(on)
+      const r = initRequest({ r: DEST_OS })
+      await authHandover.appAuthRedirect(r)
+      restore()
+      const st = entra.__test.unpackState(cookieValue(findCookie([].concat(r.headersOut["Set-Cookie"]), STATE_PREFIX)))
+      assert(/^[0-9a-f]{64}$/.test(st.v || ""), "verifier: 64 hex chars: " + st.v)
+      const q = form(r.returnBody.split("?")[1])
+      assertEqual([q.code_challenge, q.code_challenge_method].join(","), entra.__test.pkceChallenge(st.v) + ",S256", "challenge of the verifier")
+      assert(r.returnBody.indexOf(st.v) === -1, "the verifier itself never goes to /authorize")
+      vs.push(st.v)
+    }
+    assert(vs[0] !== vs[1], "fresh per flow")
+  })
+
+  await test("PKCE: the exchange sends the state's verifier; a pre-PKCE state (no v) exchanges without one", async () => {
+    const V = "c".repeat(64)
+    await callbackScenario({ term: "top-level", stPatch: { v: V } })
+    assertEqual(form(fetchLog[0].init.body).code_verifier, V, "code_verifier")
+    await callbackScenario({ term: "top-level" })
+    assertEqual(form(fetchLog[0].init.body).code_verifier, undefined, "none without v")
+    assertEqual(outcomeOf(outcomeLines()[0]).result, "ok", "and still works")
+  })
+
+  await test("PKCE: the picker and the hinted legs reuse the flow's verifier (same challenge)", async () => {
+    const V = "d".repeat(64)
+    const want = entra.__test.pkceChallenge(V)
+    let r = await callbackScenario({ term: "top-level", env: interactive, adError: "login_required", adErrorDescription: "AADSTS50058: x", stPatch: { v: V } })
+    assertEqual(form(r.returnBody.split("?")[1]).code_challenge, want, "picker leg")
+    r = await callbackScenario({ term: "top-level", adError: "interaction_required", adErrorDescription: "AADSTS16000: x", stPatch: { p: 1, v: V }, extraCookie: prevHint("several-accounts", "oid-1") })
+    assertEqual(form(r.returnBody.split("?")[1]).code_challenge, want, "hinted leg")
   })
 
   await test("iframe: the probe and the hinted leg work there too (all silent)", async () => {

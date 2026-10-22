@@ -47,6 +47,17 @@ handovers in flight in one browser (an OS link and the P button in two tabs) ove
 the first callback then finished on the second's destination and cleared it, sending the second to
 the Polaris UI fallback.
 
+**Code injection: PKCE (2026-10-22).** `state` binds the callback to *a* flow, not to the code: a
+code stolen from another user's flow could be replayed to the callback alongside the attacker's own
+state cookie and param, and we'd redeem it (we hold the client secret), depositing the attacker's
+`cc`/token under the victim's oid. So each flow also carries a PKCE verifier (`v`, 64 hex chars,
+fresh per flow) in its signed state; `/authorize` gets only its S256 challenge (every leg of the
+flow: silent, hinted, picker), and the exchange sends the verifier, which Entra checks against the
+challenge the code was issued with. A replayed code meets the wrong verifier and the exchange fails
+(`token-exchange-failed`, carries on). No nonce: the id_token is only read for the hint, never
+trusted for identity, and PKCE already binds the code to this browser's flow. A state from before
+PKCE (no `v`) exchanges without a verifier. Adds ~90 bytes to the state cookie (E13's size guard).
+
 ### E2. 🟠 Callback location sheds `X-Frame-Options: DENY` on purpose (QUIRK B3)
 
 The server sets `add_header X-Frame-Options "DENY" always`. The iframe **expansion**
@@ -96,9 +107,13 @@ changes; each app can later stop reading `cc` and use bearer + MDS lookup on its
 - **Failure carries on.** `beginFromInit` resolves false without responding on any failure (not
   enabled, not fully configured, no service scope to swap for, no CMS cookies, lookup failed, state
   too large, an exception) and `/init` does its plain 302. Every callback failure with a
-  recoverable state carries on to `r` too. The one residual case: a top-level callback whose state
-  cookie is lost, tampered, expired or from another host has no `r`, so the user lands on the
-  Polaris UI. (The iframe, known from the `i.` state prefix, still gets the terminal page.)
+  recoverable state carries on to `r` too, including one that is ours but too old (slow on the
+  picker or MFA): it is never redeemed (no exchange, no deposit, no retry), but the user carries on
+  to its `r` with `cc`, exactly as `/init` did before drop2 (`degraded expired-state`, real `dest`).
+  The one residual case: a top-level callback whose state cookie is lost (typically the back button
+  after the flow finished), tampered, future-dated or from another host has no `r`, so the user
+  lands on the Polaris UI (`dest=unknown`). (The iframe, known from the `i.` state prefix, still
+  gets the terminal page.)
 - **The hidden iframe never falls through.** With `terminal=iframe`, "carry on" means the static
   `/init/terminal` page, not `r` (E8).
 - **Configured-or-nothing.** With the switch on but any of tenant / client id / client secret /
@@ -130,7 +145,8 @@ drop2-outcome result=ok|degraded|skipped reason=<code> term=top-level|iframe des
 
 `skipped` is written by `/init` when it never starts Entra (`not-configured`, `no-mds-scope`,
 `no-service-scope`, `no-cookies`, `cms-lookup-failed`, `state-too-large`, `entra-begin-error`);
-`ok` / `degraded` by the callback (`bad-state-param`, `ad-error`, `missing-state`, `bad-state`,
+`ok` / `degraded` by the callback (`ok`, or `presence-only` for an iframe flow in an env with a
+watchdog scope but no MDS scope; degraded: `bad-state-param`, `ad-error`, `missing-state`, `bad-state`,
 `expired-state`, `wrong-host`, `no-code`, `token-exchange-failed`,
 `no-refresh-token`, `swap-failed`, `store-deposit-failed`, `callback-error`). Codes only: no token,
 cookie, URL or identity; the free-text detail stays in the separate `drop2 entra degrade — …`
@@ -178,7 +194,7 @@ and a threshold agreed.
 
 ### E5. ✅ (resolved) `_rand` no longer uses `Math.random`
 
-State/nonce generation now uses **only** Web Crypto `crypto.getRandomValues` (present in
+State-handle / PKCE-verifier generation now uses **only** Web Crypto `crypto.getRandomValues` (present in
 njs 0.8.5) — the insecure `Math.random` fallback was removed (it is not a CSPRNG; also
 flagged by SonarQube). drop1's correlation-id `_uuid` was moved to the same source, so the
 config uses no `Math.random` anywhere.
@@ -278,8 +294,11 @@ a different account from ours can't find the deposit (it is filed under the acco
 **What.**
 - **The hint:** every successful sign-in (silent or interactive, even if the deposit then fails)
   records the account it used in `cps-entra-login-hint`: `Path=/`, `HttpOnly`, `Secure`,
-  `SameSite=None`, 30 days, HMAC-signed with the state secret (kind `hint`, so it can't be planted
-  from a sibling subdomain or swapped with a state cookie). Value from the id_token: the
+  `SameSite=None`, 30 days, HMAC-signed with the state secret (kind `hint`, so it can't be forged
+  by a sibling subdomain or swapped with a state cookie). Not bound to a host or an age, so a
+  genuine hint can be replayed or planted from a sibling: harmless, since a hint grants nothing
+  (Entra still needs that account's session), and one naming an account not signed in here gets
+  50058, which forgets it (below). Value from the id_token: the
   `login_hint` optional claim (opaque; add it to the app reg), else `preferred_username`; plus
   `oid`, `tid`, `at`, and `via`. Each sign-in overwrites it, so it always names the account that last won.
 - **`via`, how the account was chosen:** `silent` (no picker), or the reason the silent leg needed
@@ -305,6 +324,11 @@ a different account from ours can't find the deposit (it is filed under the acco
   how they escape a stale hint). Same flow: same handle and destination, state re-signed with `n=1`
   (never retried twice) and a fresh `iat` with a 900 s lifetime (people are slow). A second failure
   degrades as before. Prod (`false`) stays a pure `prompt=none` probe.
+- **A stale hint is forgotten:** a hinted leg (`hint=1`) that gets 50058 (none of the signed-in
+  accounts is the hinted one: it signed out, or the browser changed hands) and isn't retried clears
+  the hint as it carries on (outcome adds `hint-cleared=1`). Without that, every handover would send
+  the dead hint and fail the same way for up to 30 days; the next one signs in unhinted and records
+  whoever is there. Other errors (MFA, Conditional Access) keep the hint.
 - **The endpoint** `/global-components/entra-login-hint` (exact match; CORS = global-components'
   `$cors_origin`, **https origins only**, with its own preflight): `GET` → `{loginHint, username, oid, tid, setAt, via}` or `null` (`via: "unknown"` for a
   hint set before `via` existed)
@@ -321,7 +345,7 @@ CMS-launched apps get it without a fetch.
 
 **Outcome line.** Callback lines with a known flow add `hint=0|1 int=0|1`; a silent leg handing over
 to the interactive leg logs `result=retried` (with its `ad=`/`aadsts=`), and that flow then ends with
-its own `ok`/`degraded` line with `int=1`. The probe's hand-over to the hinted leg is also
+its own `ok`/`degraded` line with `int=1`. A stale hint's degrade adds `hint-cleared=1`. The probe's hand-over to the hinted leg is also
 `retried`, with `reason=several-accounts` or `other-account`. Count handovers by excluding `retried`.
 
 **Not covered.** An env with `mds_scope = ""` skips Entra for top-level handovers, so no hint or

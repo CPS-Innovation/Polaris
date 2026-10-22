@@ -270,12 +270,24 @@ async function entraRoutingTests() {
   if (!isNext) return
   console.log("\n/init/entra-callback + /auth-refresh-inbound gate (next config, drop2 after R0):")
 
+  // drop2's locations declare their own add_header, so (QUIRK B3) they re-declare the server's
+  // security set; X-Frame-Options only where the response isn't meant to be framed.
+  const assertSecurityHeaders = (res, { framed, noStore = true }) => {
+    assertEqual(res.headers.get("x-content-type-options"), "nosniff", "nosniff")
+    assertEqual(res.headers.get("x-permitted-cross-domain-policies"), "none", "cross-domain policies")
+    assertIncludes(res.headers.get("strict-transport-security") || "", "max-age=31536000", "HSTS")
+    assertEqual(res.headers.get("pragma"), "no-cache", "pragma")
+    if (noStore) assertEqual(res.headers.get("cache-control"), "no-store", "no-store (once)")
+    assertEqual(res.headers.get("x-frame-options"), framed ? null : "DENY", framed ? "frameable: no X-Frame-Options" : "X-Frame-Options DENY")
+  }
+
   await test("/init/entra-callback is drop2's callback (not /init): no state -> 302 to the Polaris UI, framing CSP set", async () => {
     const res = await get("/init/entra-callback?state=x&code=y", { headers: H })
     assertEqual(res.status, 302, "302")
     assert(/\/polaris-ui\/$/.test(res.headers.get("location") || ""), "fallback landing: " + res.headers.get("location"))
     assertIncludes(res.headers.get("content-security-policy") || "", "frame-ancestors https://*.cps.gov.uk", "the callback's own CSP")
     assertEqual(res.headers.get("x-polaris-auth-init"), "entra-degraded", "answered by drop2")
+    assertSecurityHeaders(res, { framed: true })
   })
 
   await test("/init/terminal: 200 static page, framing CSP instead of X-Frame-Options DENY", async () => {
@@ -284,6 +296,7 @@ async function entraRoutingTests() {
     assertIncludes(await res.text(), 'data-cms-auth="done"', "the terminal page")
     assertIncludes(res.headers.get("content-security-policy") || "", "frame-ancestors https://*.cps.gov.uk", "frameable by cps.gov.uk")
     assertEqual(res.headers.get("x-frame-options"), null, "DENY shed (QUIRK B3)")
+    assertSecurityHeaders(res, { framed: true })
   })
 
   await test("/init?terminal=iframe with drop2 off -> 302 to /init/terminal, not into Polaris", async () => {
@@ -318,12 +331,14 @@ async function entraRoutingTests() {
     assertEqual(res.headers.get("cache-control"), "no-store", "no-store")
     assertEqual(res.headers.get("access-control-allow-origin"), ORIGIN, "CORS origin echoed")
     assertEqual(res.headers.get("access-control-allow-credentials"), "true", "credentials")
+    assertSecurityHeaders(res, { framed: false })
   })
 
   await test("OPTIONS /global-components/entra-login-hint: 204 preflight allowing DELETE with credentials", async () => {
     const res = await get("/global-components/entra-login-hint", { method: "OPTIONS", headers: { ...H, Origin: ORIGIN } })
     assertEqual(res.status, 204, "204")
     assertIncludes(res.headers.get("access-control-allow-methods") || "", "DELETE", "DELETE allowed")
+    for (const h of ["Content-Type", "Correlation-Id"]) assertIncludes(res.headers.get("access-control-allow-headers") || "", h, h + " allowed (as gloco's preflight)")
     assertEqual(res.headers.get("access-control-allow-origin"), ORIGIN, "origin")
   })
 

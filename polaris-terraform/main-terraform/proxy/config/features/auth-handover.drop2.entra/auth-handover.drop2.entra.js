@@ -121,10 +121,14 @@ const STATE_SET_OPTS_INTERACTIVE =
 // (Path=/) so /init sends it and the hint endpoint serves it; HttpOnly (only those two read it);
 // SameSite=None so an app on another site can fetch the endpoint with credentials. HMAC-signed like
 // the state (with a kind marker, so neither can stand in for the other), so a sibling subdomain
-// can't plant a hint. Every successful sign-in overwrites it; DELETE on the endpoint forgets it.
+// can't FORGE one. It is not bound to a host or an age, so a genuine hint can be replayed or planted
+// from a sibling: harmless, as a hint grants nothing (Entra still needs that account's session), and
+// one naming an account not signed in here gets 50058, which forgets it (_onAdError). Every
+// successful sign-in overwrites it; DELETE on the endpoint forgets it.
 const HINT_COOKIE = "cps-entra-login-hint";
 const HINT_MAX_AGE_S = 30 * 24 * 3600;
 const HINT_OPTS = "; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=";
+const HINT_CLEAR = HINT_COOKIE + "=deleted" + HINT_OPTS + "0";
 
 // AD errors a person can resolve at an interactive sign-in: several accounts (AADSTS16000), no
 // session (50058), MFA (50076/50079). Conditional Access device blocks (AADSTS53xxx) are excluded:
@@ -169,14 +173,19 @@ const PRESENCE_PATHS = [
   "/global-components/presence-jsonp",
   "/global-components/case-locking",
 ];
+// The largest watchdog token the presence cookie can carry: a browser drops a whole cookie over
+// ~4 KB (name + value + attributes), silently.
+const MAX_PRESENCE_TOKEN = 3900;
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
+// A query arg, or "" if absent or REPEATED (njs gives an array for ?a=1&a=2: ambiguous, and every
+// caller wants one string, so it reads as missing rather than throwing on .match).
 function _arg(r, name) {
   const v = r.args[name];
-  return v !== undefined ? v : "";
+  return typeof v === "string" ? v : "";
 }
 
 function _header(r, name) {
@@ -351,6 +360,20 @@ function _stateMac(payload) {
     .replace(/=+$/, "");
 }
 
+// PKCE (RFC 7636, S256): the challenge /authorize gets for a flow's verifier. The verifier lives
+// only in the signed state cookie, so a code redeemed here must come from an /authorize this browser
+// started: a code stolen from another user's flow and replayed with the attacker's own state fails
+// the exchange (Entra checks the verifier against the challenge it was issued with).
+function _pkceChallenge(verifier) {
+  return cryptoModule
+    .createHash("sha256")
+    .update(verifier)
+    .digest("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
 // Constant-time string compare (njs has no crypto.timingSafeEqual). MAC length is fixed and not
 // secret, so the early length check is fine.
 function _constEq(a, b) {
@@ -382,7 +405,9 @@ function _unpackState(raw) {
 }
 
 // The callback's view of its flow: the cookie named by the `state` handle, signature-checked, then
-// bound to that handle, this host, and its 300s lifetime. { st } or { st: null, reason }.
+// bound to that handle, this host, and its 300s lifetime. { st } or { st: null, reason }. A state
+// that is ours (signed, this handle, this host) but too OLD also comes back as `stale`: never
+// redeemed, but its destination is still known, so the callback can carry on to it (E12).
 function _loadState(r, handle) {
   const raw = _cookie(r, STATE_COOKIE_PREFIX + handle);
   if (!raw) return { st: null, reason: "missing-state" };
@@ -396,7 +421,9 @@ function _loadState(r, handle) {
   const now = Math.floor(Date.now() / 1000);
   const maxAge = st.n ? INTERACTIVE_MAX_AGE_S : STATE_MAX_AGE_S;
   if (typeof st.iat !== "number" || now - st.iat > maxAge || st.iat - now > STATE_SKEW_S) {
-    return { st: null, reason: "expired-state" };
+    const tooOld = typeof st.iat === "number" && now - st.iat > maxAge;
+    const stale = tooOld && st.h === _header(r, "Host") ? st : null;
+    return { st: null, reason: "expired-state", stale: stale };
   }
   if (st.h !== _header(r, "Host")) return { st: null, reason: "wrong-host" };
   return { st: st, reason: "" };
@@ -440,15 +467,17 @@ async function _tokenRequest(fields) {
 }
 
 // Exchange the authorization code. What we keep is the refresh token (offline_access).
-function _exchangeCode(code, redirectUri) {
-  return _tokenRequest([
+function _exchangeCode(code, redirectUri, verifier) {
+  const fields = [
     "client_id=" + encodeURIComponent(CLIENT_ID),
     "client_secret=" + encodeURIComponent(CLIENT_SECRET),
     "code=" + encodeURIComponent(code),
     "redirect_uri=" + encodeURIComponent(redirectUri),
     "grant_type=authorization_code",
     "scope=" + encodeURIComponent(SIGN_IN_SCOPE),
-  ]);
+  ];
+  if (verifier) fields.push("code_verifier=" + verifier);
+  return _tokenRequest(fields);
 }
 
 // Refresh-token swap: the user's refresh token (+ our client secret — a confidential client's
@@ -535,6 +564,7 @@ async function beginFromInit(r, opts) {
       iat: Math.floor(Date.now() / 1000),
       h: _header(r, "Host"),
       corr: _rand(8),
+      v: _rand(32), // PKCE verifier: 64 hex chars (RFC 7636 allows 43-128 unreserved)
       lh: sent ? 1 : 0,
       p: probe ? 1 : 0,
     };
@@ -550,7 +580,7 @@ async function beginFromInit(r, opts) {
     // Silent auth: CMS users already have an AAD session (same tenant), so prompt=none yields a
     // bare 302 (code, or error=login_required) with no UI to render — which is also what lets it
     // run framed (AD sets X-Frame-Options: DENY on any RENDERED /authorize response).
-    r.return(302, _authorizeRedirect(r, stateHandle, term, "none", sent ? sent.lh : ""));
+    r.return(302, _authorizeRedirect(r, stateHandle, term, "none", sent ? sent.lh : "", payload.v));
     return true;
   } catch (e) {
     replaceDdei.markAuthInit(r, "entra-degraded");
@@ -560,8 +590,8 @@ async function beginFromInit(r, opts) {
 }
 
 // The /authorize URL for a flow: `prompt` "none" (silent) or "select_account" (D7's interactive
-// retry); `loginHint` "" = none.
-function _authorizeRedirect(r, handle, term, prompt, loginHint) {
+// retry); `loginHint` "" = none; `verifier` the flow's PKCE verifier (every leg of a flow reuses it).
+function _authorizeRedirect(r, handle, term, prompt, loginHint, verifier) {
   const params = [
     "client_id=" + encodeURIComponent(CLIENT_ID),
     "response_type=code",
@@ -572,6 +602,8 @@ function _authorizeRedirect(r, handle, term, prompt, loginHint) {
     "prompt=" + prompt,
   ];
   if (loginHint) params.push("login_hint=" + encodeURIComponent(loginHint));
+  // A state from before PKCE (no v, in flight across a deploy) gets none, and exchanges without.
+  if (verifier) params.push("code_challenge=" + _pkceChallenge(verifier), "code_challenge_method=S256");
   return _authorizeUrl() + "?" + params.join("&");
 }
 
@@ -597,7 +629,7 @@ function _retryInteractive(r, st, outcomeExtra, aadsts) {
   r.headersOut["Set-Cookie"] = [STATE_COOKIE_PREFIX + st.s + "=" + _packState(again) + STATE_SET_OPTS_INTERACTIVE];
   replaceDdei.markAuthInit(r, "entra");
   _outcome("retried", "ad-error", _stDestKind(r, st), st.term, outcomeExtra + _legFields(st));
-  r.return(302, _authorizeRedirect(r, st.s, st.term, "select_account", ""));
+  r.return(302, _authorizeRedirect(r, st.s, st.term, "select_account", "", st.v));
 }
 
 // The probe found several accounts: the same flow again, silently, WITH the hint (m=1 records
@@ -608,7 +640,7 @@ function _retryHinted(r, st, hint, reason, outcomeExtra) {
   r.headersOut["Set-Cookie"] = [STATE_COOKIE_PREFIX + st.s + "=" + _packState(again) + STATE_SET_OPTS];
   replaceDdei.markAuthInit(r, "entra");
   _outcome("retried", reason, _stDestKind(r, st), st.term, outcomeExtra + _legFields(st));
-  r.return(302, _authorizeRedirect(r, st.s, st.term, "none", hint.lh));
+  r.return(302, _authorizeRedirect(r, st.s, st.term, "none", hint.lh, st.v));
 }
 
 // ---------------------------------------------------------------------------
@@ -625,6 +657,12 @@ async function handleInitEntraCallback(r) {
     }
     const lost = { mode: m[1] === "i" ? "iframe" : "top-level", handle: m[2] };
     const loaded = _loadState(r, lost.handle);
+    if (loaded.stale) {
+      // Too slow (e.g. on the picker or MFA): don't redeem the code (or act on an AD error) for an
+      // expired flow, but carry on to its destination as /init would have, not the fallback landing.
+      _degrade(r, loaded.stale, loaded.reason);
+      return;
+    }
     st = loaded.st;
 
     const adError = _arg(r, "error");
@@ -642,7 +680,7 @@ async function handleInitEntraCallback(r) {
       return;
     }
 
-    const tok = await _exchangeCode(code, _redirectUri(r));
+    const tok = await _exchangeCode(code, _redirectUri(r), st.v);
     if (!tok.accessToken) {
       _degrade(r, st, "token-exchange-failed: " + tok.diag);
       return;
@@ -657,7 +695,9 @@ async function handleInitEntraCallback(r) {
 // The callback's AD error, e.g. login_required (no silent AD session). The outcome line records
 // which AD error, and its AADSTS number (see _adFields). The probe meeting several accounts -> the
 // hinted silent leg; resolvable by a person -> one interactive retry (D7); otherwise degrade,
-// never blocking anyone's handover.
+// never blocking anyone's handover. A hinted leg that got 50058 (none of the signed-in accounts is
+// the hinted one: it signed out, or the browser changed hands) also forgets the hint, else every
+// handover would send it and fail the same way until it expired; the next one signs in unhinted.
 function _onAdError(r, st, adError, lost) {
   const fields = _adFields(adError, _arg(r, "error_description"));
   const aadsts = _aadsts(_arg(r, "error_description"));
@@ -670,7 +710,8 @@ function _onAdError(r, st, adError, lost) {
     _retryInteractive(r, st, fields, aadsts);
     return;
   }
-  _degrade(r, st, "ad-error: " + adError, null, lost, fields);
+  const stale = !!(st && st.lh && aadsts === "50058");
+  _degrade(r, st, "ad-error: " + adError, stale ? [HINT_CLEAR] : null, lost, fields + (stale ? " hint-cleared=1" : ""));
 }
 
 // D7 probe: another account won the unhinted sign-in, so several are still signed in — sign in
@@ -705,11 +746,23 @@ async function _swapAndDeposit(r, st, tok) {
   // presence failure is logged but is not a degrade: the store is what drop2 is for.
   if (st.term === "iframe" && WATCHDOG_SCOPE) {
     const wd = await _refresh(rt, WATCHDOG_SCOPE);
-    if (wd.accessToken) {
+    if (wd.accessToken && wd.accessToken.length > MAX_PRESENCE_TOKEN) {
+      // A browser silently drops a cookie over ~4 KB: say so, rather than log ok with no presence.
+      _log("drop2 entra presence token too large — bytes=" + wd.accessToken.length);
+    } else if (wd.accessToken) {
       extra = extra.concat(_presenceCookies(wd.accessToken, wd.expiresIn));
     } else {
       _log("drop2 entra presence swap failed — " + wd.diag);
     }
+  }
+
+  // An iframe flow in an env with a watchdog scope but no MDS scope is presence-only: done. (Read
+  // per request, like _skipReason, which let this flow start for the watchdog scope alone.)
+  if (st.term === "iframe" && !(process.env.ENTRA_MDS_SCOPE || "")) {
+    replaceDdei.markAuthInit(r, "entra");
+    _outcome("ok", "presence-only", _stDestKind(r, st), st.term, _legFields(st));
+    _finish(r, st, extra);
+    return;
   }
 
   // The auth store: swap for the store backend's token, then deposit.
@@ -838,7 +891,7 @@ function loginHint(r) {
   r.headersOut["Content-Type"] = "application/json";
   r.headersOut["Cache-Control"] = "no-store";
   if (r.method === "DELETE") {
-    r.headersOut["Set-Cookie"] = [HINT_COOKIE + "=deleted" + HINT_OPTS + "0"];
+    r.headersOut["Set-Cookie"] = [HINT_CLEAR];
     r.return(200, JSON.stringify({ cleared: true }));
     return;
   }
@@ -877,6 +930,7 @@ export default {
     presenceCookies: _presenceCookies,
     rand: _rand,
     authorizeUrl: _authorizeUrl,
+    pkceChallenge: _pkceChallenge,
     hintCookie: _hintCookie,
     tokenUrl: _tokenUrl,
     constants: {
