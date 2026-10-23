@@ -1,0 +1,3 @@
+[
+  { "re": "^/graphql/", "file": "graphql-user.json", "type": "application/json" }
+]

@@ -12,7 +12,7 @@ routes now live in `cwa-materials.conf` in this folder.
 
 ### D3. 🟠 `/v2/` hardcodes the App Insights hostname
 
-**Where (live):** `nginx.conf:940` — `proxy_pass https://uksouth-1.in.applicationinsights.azure.com/v2/;`
+**Where (live):** `nginx.conf:990` — `proxy_pass https://uksouth-1.in.applicationinsights.azure.com/v2/;`
 **Where (next):** `cwa-materials.conf` (the `/v2/` App Insights route)
 **Test:** `cwa-materials.integration.test.js` → "proxies to the App Insights host"
 
@@ -23,7 +23,7 @@ appears as a `sub_filter` target in the SPA/Materials blocks.
 
 ### D8. ⚪ `/materials-ui/{a}/{b}/materials` looks redundant with `/materials-ui/`
 
-**Where (live):** `nginx.conf:701` vs `:709`
+**Where (live):** `nginx.conf:750` vs `:758`
 **Where (next):** `cwa-materials.conf` (`location ~ ^/materials-ui/[^/]+/[^/]+/materials$` vs `location /materials-ui/`)
 **Test:** `cwa-materials.integration.test.js` → "deep-link regex (nginx.conf:701) wins over the /materials-ui/ prefix", "deep-link regex only matches exactly two segments + /materials"
 
@@ -32,3 +32,20 @@ upstream; the only differences are `proxy_pass` with vs without a URI, and the
 regex block having _fewer_ `sub_filter_types`. Strong drop candidate — but verify
 against a real deep link first (the URI-vs-bare `proxy_pass` distinction affects
 URI normalisation).
+
+**Update (#2189, 2026-10-01):** the case URN was removed from the entry points
+(`/materials`, `openMaterials()`, `polaris-script.js`), which now build the
+single-segment `/materials-ui/{caseId}/materials`. That no longer matches this
+two-segment regex, so it falls to the `/materials-ui/` prefix block — the regex is now
+reachable only by a hand-built two-segment URL. Even stronger drop candidate (live
+still carries it; left in place for parity).
+
+### D13. ✅ (resolved 2026-10-20) #2189 (materials URN removal) no longer held back in the next config
+
+#2189 (`4e74401eb`, "Remove case URN from proxy entry point") was held back in the next-config copies
+from 2026-10-06 (`670b34b40`) while QA ran the next config by hand and #2189 was not yet cleared for QA.
+It has since reached `main` (release candidate 14.10.2026), and #2190 makes terraform cut every env over
+to the next config — so keeping the hold-back would have put the URN form back as each env cut over.
+Reverted: `cwa-materials.conf`, `openMaterials()` in `cms-proxy.conf` and `cms-proxy/polaris-script.js`
+match the live monolith again, and the tests assert one (#2189) expectation for both configs.
+

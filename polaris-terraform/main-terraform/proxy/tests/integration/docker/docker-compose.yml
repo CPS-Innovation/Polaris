@@ -71,6 +71,11 @@ services:
           # so the *_UPSTREAM_CMS_SERVICES_DOMAIN_NAME values must resolve here.
           # (https => port 443, which the mock also listens on.)
           - cms-services.cps.gov.uk
+          # drop1 (auth-handover.drop1.replace-ddei) dials CMS through the proxy's OWN host
+          # (https://$host/CMS, …/uainGeneratedScript.aspx, /graphql/). A test that sends this
+          # Host gets those loopbacks answered here, from fixtures, so drop1's whole success
+          # path runs in real njs (auth-handover.integration.test.js).
+          - polaris-loopback.test
           - not-used-in-cin2.cps.gov.uk
           - not-used-in-cin4.cps.gov.uk
           - not-used-in-cin5.cps.gov.uk

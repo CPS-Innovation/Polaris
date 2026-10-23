@@ -17,13 +17,17 @@
  * its handler lives in nginx.js alongside the rest of the handover flow, so it is
  * tested here. Its file ownership is a decision for the §6 slicing.
  */
+const http = require("http")
 const {
+  PROXY_BASE,
   test,
   assert,
   assertEqual,
   assertIncludes,
   get,
   summarise,
+  isNext,
+  switchesOn,
 } = require("../../../tests/integration/test-utils")
 
 // nginx.js builds absolute redirects from X-Forwarded-Proto + Host.
@@ -192,6 +196,8 @@ async function ddeiTests() {
     ["/auth-refresh-cms-modern-token", "/api/cms-modern-token/"],
   ]
   for (const [path, upstreamPath] of cases) {
+    // As deployed (switches on), drop1 answers /auth-refresh-inbound instead: drop1Tests.
+    if (switchesOn && path === "/auth-refresh-inbound") continue
     await test(`${path} -> DDEI ${upstreamPath}`, async () => {
       const res = await get(path, { headers: H })
       assertEqual(res.status, 200, "Should proxy to the mock DDEI")
@@ -257,12 +263,227 @@ async function gateTests() {
   })
 }
 
+// NEXT config only: the drop2 (Entra) routing after R0. The callback is an exact-match location
+// under /init (so the prefix `location /init` must not catch it), and /auth-refresh-inbound no
+// longer hosts drop2 — a drop2 enrolment there means drop1.
+async function entraRoutingTests() {
+  if (!isNext) return
+  console.log("\n/init/entra-callback + /auth-refresh-inbound gate (next config, drop2 after R0):")
+
+  // drop2's locations declare their own add_header, so (QUIRK B3) they re-declare the server's
+  // security set; X-Frame-Options only where the response isn't meant to be framed.
+  const assertSecurityHeaders = (res, { framed, noStore = true }) => {
+    assertEqual(res.headers.get("x-content-type-options"), "nosniff", "nosniff")
+    assertEqual(res.headers.get("x-permitted-cross-domain-policies"), "none", "cross-domain policies")
+    assertIncludes(res.headers.get("strict-transport-security") || "", "max-age=31536000", "HSTS")
+    assertEqual(res.headers.get("pragma"), "no-cache", "pragma")
+    if (noStore) assertEqual(res.headers.get("cache-control"), "no-store", "no-store (once)")
+    assertEqual(res.headers.get("x-frame-options"), framed ? null : "DENY", framed ? "frameable: no X-Frame-Options" : "X-Frame-Options DENY")
+  }
+
+  await test("/init/entra-callback is drop2's callback (not /init): no state -> 302 to the Polaris UI, framing CSP set", async () => {
+    const res = await get("/init/entra-callback?state=x&code=y", { headers: H })
+    assertEqual(res.status, 302, "302")
+    assert(/\/polaris-ui\/$/.test(res.headers.get("location") || ""), "fallback landing: " + res.headers.get("location"))
+    assertIncludes(res.headers.get("content-security-policy") || "", "frame-ancestors https://*.cps.gov.uk", "the callback's own CSP")
+    assertEqual(res.headers.get("x-polaris-auth-init"), "entra-degraded", "answered by drop2")
+    assertSecurityHeaders(res, { framed: true })
+  })
+
+  await test("/init/terminal: 200 static page, framing CSP instead of X-Frame-Options DENY", async () => {
+    const res = await get("/init/terminal", { headers: H })
+    assertEqual(res.status, 200, "200")
+    assertIncludes(await res.text(), 'data-cms-auth="done"', "the terminal page")
+    assertIncludes(res.headers.get("content-security-policy") || "", "frame-ancestors https://*.cps.gov.uk", "frameable by cps.gov.uk")
+    assertEqual(res.headers.get("x-frame-options"), null, "DENY shed (QUIRK B3)")
+    assertSecurityHeaders(res, { framed: true })
+  })
+
+  await test("/init?terminal=iframe with drop2 off -> 302 to /init/terminal, not into Polaris", async () => {
+    const res = await get("/init?q=Q&cookie=.CMSAUTH%3Dabc&terminal=iframe", { headers: H })
+    assertEqual(res.status, 302, "302")
+    assert(/\/init\/terminal$/.test(res.headers.get("location") || ""), "-> terminal: " + res.headers.get("location"))
+  })
+
+  await test("/init-entra is gone (no longer a drop2 location)", async () => {
+    const res = await get("/init-entra/callback?state=x&code=y", { headers: H })
+    assert(res.headers.get("x-polaris-auth-init") !== "entra-degraded", "not answered by drop2")
+  })
+
+  for (const mode of ["drop1", "drop2"]) {
+    await test(`/auth-refresh-inbound with enrolment ${mode} -> drop1 (non-ddei)`, async () => {
+      const res = await get("/auth-refresh-inbound?polaris-ui-url=/polaris-ui/", {
+        headers: { ...H, Cookie: `polaris_auth_handover=${mode}` },
+      })
+      assertEqual(res.headers.get("x-polaris-auth-init"), "non-ddei", "answered by drop1")
+    })
+  }
+
+  // D7: the login-hint endpoint. Drop2 is unconfigured here (no HMAC secret), so no hint ever
+  // verifies — these pin routing, CORS, preflight and DELETE on real nginx; the hint's contents are
+  // unit-tested.
+  const ORIGIN = "https://oapps-qa-notprod.int.cps.gov.uk"
+  await test("GET /global-components/entra-login-hint: JSON null, CORS for a cps.gov.uk origin, no-store", async () => {
+    const res = await get("/global-components/entra-login-hint", { headers: { ...H, Origin: ORIGIN, Cookie: "cps-entra-login-hint=x.y" } })
+    assertEqual(res.status, 200, "200")
+    assertEqual(await res.text(), "null", "no verifiable hint -> null")
+    assertIncludes(res.headers.get("content-type") || "", "application/json", "json")
+    assertEqual(res.headers.get("cache-control"), "no-store", "no-store")
+    assertEqual(res.headers.get("access-control-allow-origin"), ORIGIN, "CORS origin echoed")
+    assertEqual(res.headers.get("access-control-allow-credentials"), "true", "credentials")
+    assertSecurityHeaders(res, { framed: false })
+  })
+
+  await test("OPTIONS /global-components/entra-login-hint: 204 preflight allowing DELETE with credentials", async () => {
+    const res = await get("/global-components/entra-login-hint", { method: "OPTIONS", headers: { ...H, Origin: ORIGIN } })
+    assertEqual(res.status, 204, "204")
+    assertIncludes(res.headers.get("access-control-allow-methods") || "", "DELETE", "DELETE allowed")
+    for (const h of ["Content-Type", "Correlation-Id"]) assertIncludes(res.headers.get("access-control-allow-headers") || "", h, h + " allowed (as gloco's preflight)")
+    assertEqual(res.headers.get("access-control-allow-origin"), ORIGIN, "origin")
+  })
+
+  await test("DELETE /global-components/entra-login-hint clears the cookie (Path=/, Max-Age=0)", async () => {
+    const res = await get("/global-components/entra-login-hint", { method: "DELETE", headers: { ...H, Origin: ORIGIN } })
+    assertEqual(res.status, 200, "200")
+    const sc = res.headers.get("set-cookie") || ""
+    assertIncludes(sc, "cps-entra-login-hint=deleted", "cleared")
+    assertIncludes(sc, "Path=/;", "host-wide")
+    assertIncludes(sc, "Max-Age=0", "expired")
+  })
+
+  await test("a non-cps.gov.uk origin gets no CORS grant", async () => {
+    const res = await get("/global-components/entra-login-hint", { headers: { ...H, Origin: "https://evil.example" } })
+    assert(!res.headers.get("access-control-allow-origin"), "no ACAO: " + res.headers.get("access-control-allow-origin"))
+  })
+
+  await test("a plain-http cps.gov.uk origin gets no CORS grant, on GET or preflight (https only: it returns who the user is)", async () => {
+    const o = "http://app.cps.gov.uk"
+    let res = await get("/global-components/entra-login-hint", { headers: { ...H, Origin: o } })
+    assert(!res.headers.get("access-control-allow-origin"), "GET: no ACAO: " + res.headers.get("access-control-allow-origin"))
+    res = await get("/global-components/entra-login-hint", { method: "OPTIONS", headers: { ...H, Origin: o } })
+    assertEqual(res.status, 204, "preflight still answers")
+    assert(!res.headers.get("access-control-allow-origin"), "preflight: no ACAO: " + res.headers.get("access-control-allow-origin"))
+  })
+
+  if (switchesOn) {
+    await test("/auth-refresh-inbound with no enrolment, switches ON (as deployed) -> drop1 (non-ddei)", async () => {
+      const res = await get("/auth-refresh-inbound?polaris-ui-url=/polaris-ui/", { headers: H })
+      assertEqual(res.headers.get("x-polaris-auth-init"), "non-ddei", "answered by drop1")
+    })
+  } else {
+    await test("/auth-refresh-inbound with no enrolment and the switches off -> DDEI, as today", async () => {
+      const res = await get("/auth-refresh-inbound?polaris-ui-url=/polaris-ui/", { headers: H })
+      assertEqual(res.headers.get("x-polaris-auth-init"), null, "no drop marker")
+    })
+  }
+}
+
+// drop1's whole pipeline in real njs (next config only): discover the CMS version, mint the
+// Modern token from uainGeneratedScript.aspx, verify it against /graphql/, set Cms-Auth-Values and
+// land. Its CMS calls dial the request's own Host; the mock answers polaris-loopback.test (a network
+// alias) from fixtures. Reached by the switch in the switches-on pass, by the drop1 enrolment
+// cookie in the switches-off pass.
+// The per-browser enrolment page (next config only): sets / clears the polaris_auth_handover
+// cookie the /auth-refresh-inbound and /init gates read.
+async function enrolTests() {
+  if (!isNext) return
+  console.log("\n/auth-refresh-enrol — per-browser enrolment:")
+
+  await test("GET renders the page (links for each mode), with the server security headers", async () => {
+    const res = await get("/auth-refresh-enrol", { headers: H })
+    assertEqual(res.status, 200, "200")
+    const body = await res.text()
+    assertIncludes(body, "set=drop1", "drop1 link")
+    assertIncludes(body, "set=drop2", "drop2 link")
+    assertEqual(res.headers.get("x-frame-options"), "DENY", "inherits the security set (no add_header here)")
+  })
+
+  await test("?set=drop1 -> enrolment cookie (30 days) + 302 back to the page", async () => {
+    const res = await get("/auth-refresh-enrol?set=drop1", { headers: H })
+    assertEqual(res.status, 302, "302")
+    assertEqual(res.headers.get("location"), "https://localhost:8080/auth-refresh-enrol", "PRG back to the page")
+    const sc = res.headers.getSetCookie().join("\n")
+    assertIncludes(sc, "polaris_auth_handover=drop1", "enrolled")
+    assertIncludes(sc, "Max-Age=2592000", "30 days")
+  })
+
+  await test("?set=<unknown> writes no cookie; ?clear expires it", async () => {
+    let res = await get("/auth-refresh-enrol?set=evil", { headers: H })
+    assertEqual(res.headers.getSetCookie().length, 0, "never an arbitrary value")
+    res = await get("/auth-refresh-enrol?clear", { headers: H })
+    assertIncludes(res.headers.getSetCookie().join("\n"), "Max-Age=0", "cleared")
+  })
+}
+
+// A GET that really sends `headers.Host` (fetch silently replaces Host with the URL's), so drop1's
+// $host loopbacks dial the alias. Returns { status, headers: { get }, setCookies }.
+function hostGet(path, headers) {
+  const base = new URL(PROXY_BASE)
+  return new Promise((resolve, reject) => {
+    const req = http.request({ host: base.hostname, port: base.port, path, method: "GET", headers }, (res) => {
+      res.resume()
+      res.on("end", () =>
+        resolve({
+          status: res.statusCode,
+          headers: { get: (n) => (res.headers[n.toLowerCase()] === undefined ? null : String(res.headers[n.toLowerCase()])) },
+          setCookies: [].concat(res.headers["set-cookie"] || []),
+        }),
+      )
+    })
+    req.on("error", reject)
+    req.end()
+  })
+}
+
+async function drop1Tests() {
+  if (!isNext) return
+  console.log("\ndrop1 (non-DDEI init) end to end — " + (switchesOn ? "switch on" : "enrolment cookie") + ":")
+  const LOOP = "polaris-loopback.test"
+  const FIXTURE_SESSION_ID = "00000000-0000-0000-0000-000000000001" // cms-proxy/fixtures/uainGeneratedScript.aspx.js
+  const CMS_COOKIES = ".CMSAUTH=abc; ASP.NET_SessionId=s1; BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN3-cin3.cps.gov.uk_POOL=1"
+  const headers = Object.assign({ Host: LOOP }, H, switchesOn ? {} : { Cookie: "polaris_auth_handover=drop1" })
+  const inbound = (query) => hostGet("/auth-refresh-inbound?" + query + "&cc=" + encodeURIComponent(CMS_COOKIES), headers)
+  const authValues = (res) => {
+    const c = res.setCookies.find((x) => x.indexOf("Cms-Auth-Values=") === 0) || ""
+    return { raw: c, dto: c ? JSON.parse(decodeURIComponent(c.split(";")[0].slice("Cms-Auth-Values=".length))) : null }
+  }
+
+  await test("polaris-ui-url: 302 back to the UI with no auth-fail-reason, Cms-Auth-Values set from the minted token", async () => {
+    const res = await inbound("polaris-ui-url=" + encodeURIComponent("/polaris-ui/case/1"))
+    assertEqual(res.headers.get("x-polaris-auth-init"), "non-ddei", "drop1 answered")
+    assertEqual(res.status, 302, "302")
+    assertEqual(res.headers.get("location"), "https://" + LOOP + "/polaris-ui/case/1", "back to the UI, absolute https, no fail reason")
+    const av = authValues(res)
+    assert(!!av.dto, "Cms-Auth-Values set: " + av.raw.slice(0, 80))
+    assertIncludes(av.raw, "Path=/api/", "scoped to the gateway")
+    assertEqual(av.dto.token, FIXTURE_SESSION_ID, "the token minted from uainGeneratedScript.aspx")
+    assertIncludes(av.dto.cookies, ".CMSAUTH=abc", "the CMS cookies carried")
+  })
+
+  await test("CMS launch (q = caseId): 302 to /polaris-ui/go with the case context", async () => {
+    const res = await inbound("q=" + encodeURIComponent('{"caseId":2149310}'))
+    assertEqual(res.status, 302, "302")
+    assertIncludes(res.headers.get("location") || "", "/polaris-ui/go?ctx=", "the go route")
+    assertIncludes(decodeURIComponent(res.headers.get("location") || ""), '{"caseId":2149310}', "case context")
+    assert(!!authValues(res).dto, "Cms-Auth-Values set")
+  })
+
+  await test("no CMS cookies: the DDEI no-cookies fail-redirect", async () => {
+    const res = await hostGet("/auth-refresh-inbound?polaris-ui-url=" + encodeURIComponent("/polaris-ui/"), headers)
+    assertEqual(res.status, 302, "302")
+    assertIncludes(res.headers.get("location") || "", "auth-fail-reason=", "fail reason")
+  })
+}
+
 async function main() {
   await initTests()
   await polarisTests()
   await gateTests()
   await outboundTests()
   await ddeiTests()
+  await entraRoutingTests()
+  await enrolTests()
+  await drop1Tests()
   process.exit(summarise("Auth handover (feature 2)"))
 }
 

@@ -79,16 +79,15 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
     "CMS_RATE_LIMIT_QUEUE"                            = "100000000000000000"
     "CMS_RATE_LIMIT"                                  = "128r/s"
     "AUTH_HANDOVER_WHITELIST"                         = var.auth_handover_whitelist
-    # auth-handover drop switches (next config only). Read at REQUEST time by njs via
-    # process.env (auth-handover.conf uses `js_set $x authHandover.<getter>` -> auth-handover.js
-    # entraStoreEnabled/nonDdeiInitEnabled), NOT conf-side `set $x "${VAR}"` envsubst — so a
-    # MISSING value simply reads "false" (feature off) and NEVER blocks boot. That is deliberate:
-    # the old `${VAR}` form left an unset var literal and `[emerg]`-crashed nginx ("unknown
-    # entra_store_enabled variable") — see the comment at auth-handover.js:362. Do NOT "restore"
-    # a `set $x "${VAR}"` to match this block; it reintroduces that boot failure. Kept here as the
-    # managed default and the knob to arm the features — flip to "true".
-    "NON_DDEI_INIT_ENABLED"                           = "false"
-    "ENTRA_STORE_ENABLED"                             = "false"
+    "NON_DDEI_INIT_ENABLED"                           = var.non_ddei_init_enabled
+    "ENTRA_STORE_ENABLED"                             = var.proxy_entra.store_enabled
+    "ENTRA_INTERACTIVE_ENABLED"                       = var.proxy_entra.interactive_enabled
+    "ENTRA_TENANT_ID"                                 = data.azurerm_client_config.current.tenant_id
+    "ENTRA_CLIENT_ID"                                 = var.proxy_entra.client_id
+    "ENTRA_CLIENT_SECRET"                             = local.proxy_entra_client_secret
+    "ENTRA_WATCHDOG_SCOPE"                            = var.proxy_entra.watchdog_scope
+    "ENTRA_MDS_SCOPE"                                 = var.proxy_entra.mds_scope
+    "ENTRA_STATE_HMAC_SECRET"                         = random_password.proxy_entra_state_hmac.result
     "WM_MDS_BASE_URL"                                 = "https://fa-${local.wm_mds_resource_name}.azurewebsites.net/api/"
     "WM_MDS_ACCESS_KEY"                               = data.azurerm_key_vault_secret.kvs_fa_wm_mds_host_keys.value
     "CPS_GLOBAL_COMPONENTS_BLOB_STORAGE_DOMAIN"       = var.cps_global_components.blob_storage_domain
@@ -114,6 +113,7 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
       docker_registry_password = data.azurerm_container_registry.polaris_container_registry.admin_username
     }
     always_on                               = true
+    app_command_line                        = local.proxy_app_command_line
     vnet_route_all_enabled                  = true
     container_registry_use_managed_identity = true
     health_check_path                       = "/"
@@ -163,6 +163,15 @@ resource "azurerm_linux_web_app" "polaris_proxy" {
   }
 
   https_only = true
+
+  # The Startup Command (start-next.sh) boots the next config from these blobs, so they must be in
+  # place before an apply restarts the app. (The blobs therefore can't depend on the role assignment,
+  # which needs this app's identity: that would be a cycle. Terraform uploads with its own access.)
+  depends_on = [
+    azurerm_storage_blob.proxy_next_config,
+    azurerm_storage_blob.proxy_next_nginx_conf,
+    azurerm_storage_blob.proxy_next_start,
+  ]
 
   lifecycle {
     ignore_changes = [
@@ -370,8 +379,34 @@ locals {
 
   proxy_next_config_hash = md5(join(":", concat(
     [filemd5("${local.proxy_next_dir}/nginx.conf")],
+    [filemd5("${local.proxy_next_dir}/start-next.sh")],
     [for f in sort(tolist(local.proxy_next_files)) : filemd5("${local.proxy_next_dir}/${f}")]
   )))
+}
+
+# The cutover switch, for both slots (identical, so a swap never changes which config runs).
+# Whitespace-free on purpose: the Startup Command field splits on spaces and strips quotes.
+locals {
+  proxy_app_command_line = var.proxy_next_config_enabled ? "sh /etc/nginx/templates/start-next.sh" : ""
+}
+
+# drop2 (auth-handover.drop2.entra): the Entra sign-in + refresh-token swaps that deposit CMS auth
+# into MDS. Values for both slots' app settings. The client secret is set even where drop2 is off
+# (prod), so a browser enrolled with polaris_auth_handover=drop2 can run it there; the global
+# switch is store_enabled alone.
+locals {
+  proxy_entra_client_secret = data.azurerm_key_vault_secret.kvs_proxy_entra_client_secret.value
+}
+
+# Signs drop2's cookies: the per-flow entra_auth_state cookie (lives for the Entra round trip, max
+# 5 minutes; 15 for the interactive leg) and the 30-day cps-entra-login-hint cookie (D7).
+# Generated ONCE and kept in state: an apply does not rotate it (no keepers). It changes only if
+# the resource is replaced (e.g. its arguments change) or state is lost. Then handovers in flight
+# fail their signature check and carry on as plain /init, and every browser's login hint stops
+# verifying — ignored, so /init sends no login_hint and the next sign-in sets a new one.
+resource "random_password" "proxy_entra_state_hmac" {
+  length  = 48
+  special = false
 }
 
 resource "azurerm_storage_blob" "proxy_next_config" {
@@ -382,7 +417,6 @@ resource "azurerm_storage_blob" "proxy_next_config" {
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "${local.proxy_next_dir}/${each.value}"
-  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
 }
 
 resource "azurerm_storage_blob" "proxy_next_nginx_conf" {
@@ -392,7 +426,17 @@ resource "azurerm_storage_blob" "proxy_next_nginx_conf" {
   storage_container_name = azurerm_storage_container.polaris_proxy_content.name
   type                   = "Block"
   source                 = "${local.proxy_next_dir}/nginx.conf"
-  depends_on             = [azurerm_role_assignment.ra_blob_data_contributor_polaris_proxy]
+}
+
+# The cutover script the Startup Command runs when var.proxy_next_config_enabled (see start-next.sh).
+# Always deployed, like the rest of the next config, so flipping the switch needs no new blob.
+resource "azurerm_storage_blob" "proxy_next_start" {
+  name                   = "start-next.sh"
+  content_md5            = filemd5("${local.proxy_next_dir}/start-next.sh")
+  storage_account_name   = azurerm_storage_account.sacpspolaris.name
+  storage_container_name = azurerm_storage_container.polaris_proxy_content.name
+  type                   = "Block"
+  source                 = "${local.proxy_next_dir}/start-next.sh"
 }
 
 # Create Private Endpoint

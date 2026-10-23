@@ -28,6 +28,13 @@ data "azurerm_key_vault_secret" "kvs_fa_wm_mds_host_keys" {
   key_vault_id = azurerm_key_vault.kv_polaris.id
 }
 
+# drop2's Entra client secret (the global components app registration's). Secret is a manual entry,
+# needed in every env (even with proxy_entra.store_enabled off, so an enrolled browser can run drop2).
+data "azurerm_key_vault_secret" "kvs_proxy_entra_client_secret" {
+  name         = "GlobalComponents-Entra-ClientSecret"
+  key_vault_id = azurerm_key_vault.kv_polaris.id
+}
+
 # begin: vnet lookup
 data "azurerm_virtual_network" "polaris_vnet" {
   name                = "vnet-innovation-${var.environment_tag}"

@@ -82,6 +82,21 @@ cms_details = {
 
 auth_handover_whitelist = "/auth-refresh-inbound,https://cps.outsystemsenterprise.com/,https://oapps.int.cps.gov.uk/,https://housekeeping-fn.cps.gov.uk/,https://lcc-api.cps.gov.uk/,https://polaris.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui,https://register-a-case-api.cps.gov.uk/"
 
+proxy_next_config_enabled = true
+
+non_ddei_init_enabled = true
+
+proxy_entra = {
+  store_enabled = false
+  client_id     = "295ecc3c-ae64-45c1-941d-b54b539b30aa" # "FCT Global Components (prod)"
+  mds_scope     = "api://fa-wm-app-ddei/full_scope"
+  # "" until the watchdog (presence API) has its own prod app registration (295ecc3c exposes no
+  # scope, deliberately): no presence cookie in prod.
+  watchdog_scope = ""
+  # Silent only (prompt=none) until the drop2-outcome ad=/aadsts= counts say prod needs the picker.
+  interactive_enabled = false
+}
+
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
 
