@@ -6,14 +6,12 @@ namespace DdeiClient.Clients.Interfaces
 {
     using Common.Dto.Request;
     using Common.Dto.Request.HouseKeeping;
-    using Common.Dto.Response.Case;
     using Common.Dto.Response.Document;
     using Common.Dto.Response.Documents;
     using Common.Dto.Response.HouseKeeping;
     using Common.Dto.Response.HouseKeeping.Pcd;
     using Ddei.Domain.CaseData.Args;
     using Ddei.Domain.CaseData.Args.Core;
-    using DdeiClient.Domain.Args;
     using Microsoft.AspNetCore.Mvc;
     using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
 
@@ -328,9 +326,5 @@ namespace DdeiClient.Clients.Interfaces
         Task<List<DocumentNoteDto>> ListDocumentNotesAsync(MdsDocumentArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         Task CreateDocumentNoteAsync(MdsAddDocumentNoteArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
-
-        Task<IEnumerable<CaseIdentifiersDto>> ListCaseIdentifiersAsync(MdsUrnArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
-
-        Task ToggleIsUnusedDocumentAsync(MdsToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
     }
 }

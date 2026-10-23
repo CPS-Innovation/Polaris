@@ -1,13 +1,5 @@
-﻿// <copyright file="GetWitnessStatementsLegacyTests.cs" company="TheCrownProsecutionService">
-// Copyright (c) The Crown Prosecution Service. All rights reserved.
-// </copyright>
-
-namespace PolarisGateway.Tests.Functions;
-
-using Common.Dto.Request;
-using Common.Dto.Request.HouseKeeping;
+﻿using Common.Dto.Response;
 using Common.Dto.Response;
-using Common.Dto.Response.HouseKeeping;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
@@ -19,21 +11,23 @@ using PolarisGateway.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
+namespace PolarisGateway.Tests.Functions;
+
 public class GetWitnessStatementsLegacyTests
 {
+    private readonly Mock<ILogger<GetWitnessStatementsLegacy>> _loggerMock;
     private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
-    private readonly Mock<IMasterDataServiceClient> _masterDataServiceClientMock;
+    private readonly Mock<IMdsClient> _mdsClientMock;
     private readonly GetWitnessStatementsLegacy _getWitnessStatements;
-
     public GetWitnessStatementsLegacyTests()
     {
+        _loggerMock = new Mock<ILogger<GetWitnessStatementsLegacy>>();
         _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
-        _masterDataServiceClientMock = new Mock<IMasterDataServiceClient>();
-        _getWitnessStatements = new GetWitnessStatementsLegacy(_mdsArgFactoryMock.Object, _masterDataServiceClientMock.Object);
+        _mdsClientMock = new Mock<IMdsClient>();
+        _getWitnessStatements = new GetWitnessStatementsLegacy(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsClientMock.Object);
     }
 
     [Fact]
@@ -44,18 +38,10 @@ public class GetWitnessStatementsLegacyTests
         var caseUrn = "caseUrn";
         var caseId = 1;
         var witnessId = 2;
-        var witnessStatementsArgDto = new MdsWitnessStatementsArgDto
-        {
-            WitnessId = witnessId,
-        };
-        var witnessStatementsResponse = new WitnessStatementsResponse();
+        var witnessStatementsArgDto = new MdsWitnessStatementsArgDto();
+        var witnessStatementDtos = new List<WitnessStatementDto>();
         _mdsArgFactoryMock.Setup(s => s.CreateWitnessStatementsArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, witnessId)).Returns(witnessStatementsArgDto);
-        _masterDataServiceClientMock
-        .Setup(s => s.GetWitnessStatementsAsync(
-            It.IsAny<GetWitnessStatementsRequest>(),
-            It.IsAny<CmsAuthValues>(),
-            It.IsAny<CancellationToken>()))
-        .ReturnsAsync(witnessStatementsResponse);
+        _mdsClientMock.Setup(s => s.GetWitnessStatementsAsync(witnessStatementsArgDto)).ReturnsAsync(witnessStatementDtos);
         //act
         var result = await _getWitnessStatements.Run(req, caseUrn, caseId, witnessId);
 
@@ -71,43 +57,28 @@ public class GetWitnessStatementsLegacyTests
         var caseUrn = "caseUrn";
         var caseId = 1;
         var witnessId = 2;
-        var witnessStatementsArgDto = new MdsWitnessStatementsArgDto
+        var witnessStatementsArgDto = new MdsWitnessStatementsArgDto();
+        var witnessStatementDtos = new List<WitnessStatementDto>
         {
-            WitnessId = witnessId,
+            new WitnessStatementDto { DocumentId = 100, StatementNumber = 1 },
+            new WitnessStatementDto { DocumentId = 200, StatementNumber = 2 },
+            new WitnessStatementDto { DocumentId = null, StatementNumber = 3 }
         };
-
-        var witnessStatementsResponse = new WitnessStatementsResponse
-        {
-            WitnessStatements =
-            [
-                new WitnessStatement(100, 1),
-                new WitnessStatement(200, 2),
-                new WitnessStatement(0, 3),
-            ],
-        };
-
         _mdsArgFactoryMock.Setup(s => s.CreateWitnessStatementsArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, witnessId)).Returns(witnessStatementsArgDto);
-        _masterDataServiceClientMock
-        .Setup(s => s.GetWitnessStatementsAsync(
-            It.IsAny<GetWitnessStatementsRequest>(),
-            It.IsAny<CmsAuthValues>(),
-            It.IsAny<CancellationToken>()))
-        .ReturnsAsync(witnessStatementsResponse);
+        _mdsClientMock.Setup(s => s.GetWitnessStatementsAsync(witnessStatementsArgDto)).ReturnsAsync(witnessStatementDtos);
 
         //act
         var result = await _getWitnessStatements.Run(req, caseUrn, caseId, witnessId);
 
         //assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var response = Assert.IsType<WitnessStatementsResponse>(okResult.Value);
-        Assert.Equal(3, response.WitnessStatements.Count);
-        Assert.Equal(100, response.WitnessStatements[0].Id);
-        Assert.Equal(1, response.WitnessStatements[0].StatementNumber);
-
-        Assert.Equal(200, response.WitnessStatements[1].Id);
-        Assert.Equal(2, response.WitnessStatements[1].StatementNumber);
-
-        Assert.Equal(0, response.WitnessStatements[2].Id);
-        Assert.Equal(3, response.WitnessStatements[2].StatementNumber);
+        var statements = Assert.IsAssignableFrom<List<WitnessStatementDto>>(okResult.Value);
+        Assert.Equal(3, statements.Count);
+        Assert.Equal(100, statements[0].ParentId);
+        Assert.Equal(100, statements[0].DocumentId);
+        Assert.Equal(200, statements[1].ParentId);
+        Assert.Equal(200, statements[1].DocumentId);
+        Assert.Null(statements[2].ParentId);
+        Assert.Null(statements[2].DocumentId);
     }
 }

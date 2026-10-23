@@ -216,7 +216,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return mdsResults;
     }
 
-    // calls reference/reclassification
     public async Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(CmsBaseArgDto arg, CancellationToken cancellationToken = default)
     {
         var mdsResults = await this.CallHttpClientAsync<List<MdsMaterialTypeListResponse>>(this.mdsClientRequestFactory.CreateGetMaterialTypeListRequest(arg), arg.CmsAuthValues, cancellationToken);
@@ -224,7 +223,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return mdsResults.Select(mdsResult => this.cmsMaterialTypeMapper.Map(mdsResult)).ToArray();
     }
 
-    // calls witnesses/{witnessId}/statements
     public async Task<IEnumerable<WitnessStatementDto>> GetWitnessStatementsAsync(MdsWitnessStatementsArgDto arg, CancellationToken cancellationToken = default)
     {
         var mdsResults = await this.CallHttpClientAsync<StatementsForWitnessResponse>(this.mdsClientRequestFactory.CreateGetWitnessStatementsRequest(arg), arg.CmsAuthValues, cancellationToken);
@@ -232,12 +230,10 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return mdsResults.StatementsForWitness.Select(this.caseWitnessStatementMapper.Map).ToArray();
     }
 
-    // calls cases/{caseId}/documents/{documentId}/toggle/{isUnused}
     public async Task<bool> ToggleIsUnusedDocumentAsync(MdsToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto, CancellationToken cancellationToken = default) =>
         (await this.CallHttpClientAsync(this.mdsClientRequestFactory.CreateToggleIsUnusedDocumentRequest(toggleIsUnusedDocumentDto), toggleIsUnusedDocumentDto.CmsAuthValues, cancellationToken))
         .IsSuccessStatusCode;
 
-    // calls urns/{urn}/case-identifiers
     public async Task<IEnumerable<MdsCaseIdentifiersDto>> ListCaseIdsAsync(MdsUrnArgDto arg, CancellationToken cancellationToken = default) =>
         await this.CallHttpClientAsync<IEnumerable<MdsCaseIdentifiersDto>>(this.mdsClientRequestFactory.CreateListCasesRequest(arg), arg.CmsAuthValues, cancellationToken);
 

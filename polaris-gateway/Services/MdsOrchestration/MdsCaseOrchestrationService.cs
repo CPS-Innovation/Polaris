@@ -42,7 +42,7 @@ public class MdsCaseOrchestrationService(IMdsClient mdsClient,
 
     public async Task<IEnumerable<CaseDto>> GetCases(MdsUrnArgDto arg, CancellationToken cancellationToken = default)
     {
-        var caseIdentifiers = await this.masterDataServiceClient.ListCaseIdentifiersAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId), cancellationToken);
+        var caseIdentifiers = await this.mdsClient.ListCaseIdsAsync(arg, cancellationToken);
 
         var calls = caseIdentifiers.Select(async caseIdentifier =>
             await this.GetCaseDetails(this.mdsArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id), cancellationToken));

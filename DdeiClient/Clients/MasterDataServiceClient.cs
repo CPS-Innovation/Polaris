@@ -9,7 +9,6 @@ using Common.Constants;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response;
-using Common.Dto.Response.Case;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
 using Common.Dto.Response.HouseKeeping;
@@ -18,7 +17,6 @@ using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Diagnostics;
-using DdeiClient.Domain.Args;
 using DdeiClient.Utils;
 using Microsoft;
 using Microsoft.AspNetCore.Mvc;
@@ -1013,55 +1011,6 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         catch (Exception exception)
         {
             this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
-            throw;
-        }
-    }
-
-    public async Task<IEnumerable<CaseIdentifiersDto>> ListCaseIdentifiersAsync(MdsUrnArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
-    {
-        var stopwatch = Stopwatch.StartNew();
-        const string OperationName = "ListCaseIdentifiers";
-
-        List<CaseIdentifiersDto> results = new List<CaseIdentifiersDto>();
-
-        try
-        {
-            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
-
-            var data = await client.ListCaseIdentifiersAsync(arg.Urn, cancellationToken);
-
-            if (data is not null)
-            {
-                results = data.Select(caseIdentifier => new CaseIdentifiersDto
-                {
-                    Id = caseIdentifier.Id,
-                    Urn = caseIdentifier.Urn,
-                    UrnRoot = caseIdentifier.UrnRoot,
-                }).ToList();
-            }
-        }
-        catch (Exception exception)
-        {
-            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
-            throw;
-        }
-
-        return results;
-    }
-
-    public async Task ToggleIsUnusedDocumentAsync(MdsToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
-    {
-        var stopwatch = Stopwatch.StartNew();
-        const string OperationName = "ToggleIsUnusedDocument";
-
-        try
-        {
-            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
-            await client.ToggleIsUnusedDocumentAsync(toggleIsUnusedDocumentDto.CaseId, (int)toggleIsUnusedDocumentDto.MaterialId, toggleIsUnusedDocumentDto.IsUnused, cancellationToken);
-        }
-        catch (Exception exception)
-        {
-            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
             throw;
         }
     }

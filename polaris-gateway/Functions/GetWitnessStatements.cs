@@ -6,7 +6,6 @@ namespace PolarisGateway.Functions;
 
 using Common.Configuration;
 using Common.Dto.Request;
-using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response;
 using Common.Extensions;
 using Ddei.Factories;
@@ -27,16 +26,16 @@ using System.Threading.Tasks;
 public class GetWitnessStatements : BaseFunction
 {
     private readonly IMdsArgFactory mdsArgFactory;
-    private readonly IMasterDataServiceClient masterDataServiceClient;
+    private readonly IMdsClient mdsClient;
     private readonly ICaseUrnResolver caseUrnResolver;
 
     public GetWitnessStatements(
         IMdsArgFactory mdsArgFactory,
-        IMasterDataServiceClient masterDataServiceClient,
+        IMdsClient mdsClient,
         ICaseUrnResolver caseUrnResolver)
     {
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        this.mdsClient = mdsClient.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
@@ -57,12 +56,8 @@ public class GetWitnessStatements : BaseFunction
         var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         var witnessStatementsArgDto = this.mdsArgFactory.CreateWitnessStatementsArgDto(cmsAuthValues.CmsAuthFullValue, correlationId, caseUrn, caseId, witnessId);
+        var witnessStatementDtos = await this.mdsClient.GetWitnessStatementsAsync(witnessStatementsArgDto, cancellationToken: cancellationToken);
 
-        var witnessStatementsResponse = await this.masterDataServiceClient.GetWitnessStatementsAsync(
-            new GetWitnessStatementsRequest(witnessStatementsArgDto.WitnessId, correlationId),
-            cmsAuthValues,
-            cancellationToken);
-
-        return new OkObjectResult(witnessStatementsResponse);
+        return new OkObjectResult(witnessStatementDtos);
     }
 }
