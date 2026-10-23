@@ -1,5 +1,3 @@
-namespace PolarisGateway.Functions;
-
 using Common.Configuration;
 using Common.Dto.Request;
 using Common.Extensions;
@@ -20,21 +18,22 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
+namespace PolarisGateway.Functions;
+
 public class AddDocumentNoteLegacy : BaseFunction
 {
-    private readonly ILogger<AddDocumentNoteLegacy> logger;
-    private readonly IMdsArgFactory mdsArgFactory;
-    private readonly IMasterDataServiceClient masterDataServiceClient;
+    private readonly ILogger<AddDocumentNoteLegacy> _logger;
+    private readonly IMdsArgFactory _mdsArgFactory;
+    private readonly IMdsClient _mdsClient;
 
     public AddDocumentNoteLegacy(
         ILogger<AddDocumentNoteLegacy> logger,
         IMdsArgFactory mdsArgFactory,
-        IMdsClient mdsClient,
-        IMasterDataServiceClient masterDataServiceClient)
+        IMdsClient mdsClient)
     {
-        this.logger = logger.ExceptionIfNull();
-        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        _logger = logger.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
     }
 
     [Function(nameof(AddDocumentNoteLegacy))]
@@ -47,8 +46,7 @@ public class AddDocumentNoteLegacy : BaseFunction
     [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(AddDocumentNoteRequestDto), Summary = "Case found", Description = "Returns case details")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
-    public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentNotesLegacy)] HttpRequest req,
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = RestApi.DocumentNotesLegacy)] HttpRequest req,
         string caseUrn,
         int caseId,
         string materialId,
@@ -72,22 +70,21 @@ public class AddDocumentNoteLegacy : BaseFunction
 
             if (!body.IsValid)
             {
-                this.logger.TrackEvent(telemetryEvent);
+                _logger.TrackEvent(telemetryEvent);
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
-            var arg = this.mdsArgFactory.CreateAddDocumentNoteArgDto(cmsAuthValues, correlationId, caseUrn, caseId, materialId, body.Value.Text);
-
-            await this.masterDataServiceClient.CreateDocumentNoteAsync(arg, new CmsAuthValues(cmsAuthValues, correlationId), cancellationToken);
+            var arg = _mdsArgFactory.CreateAddDocumentNoteArgDto(cmsAuthValues, correlationId, caseUrn, caseId, materialId, body.Value.Text);
+            await _mdsClient.AddDocumentNoteAsync(arg);
 
             telemetryEvent.IsSuccess = true;
-            this.logger.TrackEvent(telemetryEvent);
+            _logger.TrackEvent(telemetryEvent);
 
             return new OkResult();
         }
         catch
         {
-            this.logger.TrackEventFailure(telemetryEvent);
+            _logger.TrackEventFailure(telemetryEvent);
             throw;
         }
     }

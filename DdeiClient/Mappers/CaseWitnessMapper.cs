@@ -1,22 +1,18 @@
-// <copyright file="CaseWitnessMapper.cs" company="TheCrownProsecutionService">
-// Copyright (c) The Crown Prosecution Service. All rights reserved.
-// </copyright>
-
-namespace Ddei.Mappers;
-
 using Common.Dto.Response.Case;
 using Common.Dto.Response;
 using DdeiClient.Domain.Response;
-using Common.Dto.Response.HouseKeeping;
 
-public class CaseWitnessMapper : ICaseWitnessMapper
+namespace Ddei.Mappers
 {
-    public CaseWitnessDto Map(Witness witness)
+    public class CaseWitnessMapper : ICaseWitnessMapper
     {
-        return new CaseWitnessDto
+        public CaseWitnessDto Map(BaseCaseWitnessResponse ddeiResponse)
         {
-            Id = (int)witness.WitnessId,
-            Name = $"{witness.FirstName} {witness.Surname}",
-        };
+            return new CaseWitnessDto
+            {
+                Id = ddeiResponse.Id,
+                Name = ddeiResponse.Name
+            };
+        }
     }
 }

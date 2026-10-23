@@ -6,11 +6,9 @@ namespace DdeiClient.Clients.Interfaces
 {
     using Common.Dto.Request;
     using Common.Dto.Request.HouseKeeping;
-    using Common.Dto.Response.Document;
     using Common.Dto.Response.Documents;
     using Common.Dto.Response.HouseKeeping;
     using Common.Dto.Response.HouseKeeping.Pcd;
-    using Ddei.Domain.CaseData.Args;
     using Ddei.Domain.CaseData.Args.Core;
     using Microsoft.AspNetCore.Mvc;
     using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
@@ -167,8 +165,6 @@ namespace DdeiClient.Clients.Interfaces
         /// <returns>RenameMaterialResponse object.</returns>
         Task<RenameMaterialResponse> RenameMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
-        Task<RenameMaterialResponse> RenameExhibitMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
-
         /// <summary>
         /// Reclassifies a communication for a material identifier.
         /// </summary>
@@ -320,11 +316,5 @@ namespace DdeiClient.Clients.Interfaces
         Task<IEnumerable<PcdRequestDto>> GetCasePcdRequestsAsync(MdsCaseIdentifiersArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         Task<IEnumerable<DocumentDto>> ListDocumentsAsync(MdsCaseIdentifiersArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
-
-        Task<Common.Dto.Response.FileResult> GetDocumentByDocumentIdAsync(MdsMaterialIdAndDocumentIdArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
-
-        Task<List<DocumentNoteDto>> ListDocumentNotesAsync(MdsDocumentArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
-
-        Task CreateDocumentNoteAsync(MdsAddDocumentNoteArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
     }
 }
