@@ -2,7 +2,7 @@
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace PolarisGateway.Tests.Functions.HouseKeeping;
+namespace PolarisGateway.Tests.Functions;
 
 using Xunit;
 using Moq;
@@ -14,10 +14,17 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
-using PolarisGateway.Functions.HouseKeeping;
+using PolarisGateway.Functions;
 using Common.Dto.Response.HouseKeeping;
+using Common.Dto.Response.Document;
+using Common.Dto.Response.Documents;
 using Common.Dto.Request;
 using Common.Constants;
+using PolarisGateway.Services.MdsOrchestration;
+using Ddei.Factories;
+using DdeiClient.Services.CaseUrnResolver;
+using Ddei.Domain.CaseData.Args.Core;
+using System.Linq;
 
 /// <summary>
 /// Unit tests for the <see cref="GetCaseMaterials"/> class.
@@ -27,6 +34,9 @@ public class GetCaseMaterialsTests
     private readonly TestLogger<GetCaseMaterials> mockLogger;
     private readonly Mock<ICommunicationService> mockCommunicationService;
     private readonly Mock<ICaseMaterialService> mockCaseMaterialService;
+    private readonly Mock<IMdsCaseDocumentsOrchestrationService> mockMdsOrchestrationService;
+    private readonly Mock<IMdsArgFactory> mockMdsArgFactory;
+    private readonly Mock<ICaseUrnResolver> mockCaseUrnResolver;
     private readonly GetCaseMaterials getCaseMaterialsFunction;
     private readonly DateTime receivedDate = new DateTime(2025, 04, 01);
     private readonly DateTime statementTakenDate = new DateTime(2025, 03, 02);
@@ -40,12 +50,22 @@ public class GetCaseMaterialsTests
         mockLogger = new TestLogger<GetCaseMaterials>();
         mockCommunicationService = new Mock<ICommunicationService>();
         mockCaseMaterialService = new Mock<ICaseMaterialService>();
+        mockMdsOrchestrationService = new Mock<IMdsCaseDocumentsOrchestrationService>();
+        mockMdsArgFactory = new Mock<IMdsArgFactory>();
+        mockCaseUrnResolver = new Mock<ICaseUrnResolver>();
+
+        mockMdsOrchestrationService
+            .Setup(s => s.GetCaseDocuments(It.IsAny<MdsCaseIdentifiersArgDto>()))
+            .ReturnsAsync(Enumerable.Empty<DocumentDto>());
 
         // Initialize the function class
         getCaseMaterialsFunction = new GetCaseMaterials(
             mockLogger,
             mockCommunicationService.Object,
-            mockCaseMaterialService.Object);
+            mockCaseMaterialService.Object,
+            mockMdsOrchestrationService.Object,
+            mockMdsArgFactory.Object,
+            mockCaseUrnResolver.Object);
     }
 
 
@@ -61,8 +81,8 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "None"),
-            new CaseMaterial(2, "FileB.pdf", "Subject B", 1034, 456, "/some/path/doc2.pdf", "Evidential", "Type B", false, "None"),
+            new CaseMaterial("FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
+            new CaseMaterial("FileB.pdf", "Subject B", 1034, 456, "Evidential", "Type B", false, "None"),
         };
 
         var mockCommunications = new List<Communication>
@@ -1095,10 +1115,10 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "Pending"),
-            new CaseMaterial(2, "FileB.pdf", "Subject B", 1034, 456, "/some/path/doc2.pdf", "Evidential", "Type B", false, "Pending"),
-            new CaseMaterial(3, "AttachmentA.pdf", "Attachment A", 5, 101, "/path/to/attachmentA", "Administrative", "Type A", false, "Pending"),
-            new CaseMaterial(4, "AttachmentB.pdf", "Attachment B", 10, 102, "/path/to/attachmentB", "Administrative", "Type B", false, "Pending"),
+            new CaseMaterial("FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "Pending"),
+            new CaseMaterial("FileB.pdf", "Subject B", 1034, 456, "Evidential", "Type B", false, "Pending"),
+            new CaseMaterial("AttachmentA.pdf", "Attachment A", 5, 101, "Administrative", "Type A", false, "Pending"),
+            new CaseMaterial("AttachmentB.pdf", "Attachment B", 10, 102, "Administrative", "Type B", false, "Pending"),
         };
 
         mockCaseMaterialService
@@ -1244,10 +1264,10 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "Pending"),
-            new CaseMaterial(2, "FileB.pdf", "Subject B", 1034, 456, "/some/path/doc2.pdf", "Evidential", "Type B", false, "Complete"),
-            new CaseMaterial(3, "AttachmentA.pdf", "Attachment A", 5, 101, "/path/to/attachmentA", "Administrative", "Type A", false, "Pending"),
-            new CaseMaterial(4, "AttachmentB.pdf", "Attachment B", 10, 102, "/path/to/attachmentB", "Administrative", "Type B", false, "Complete"),
+            new CaseMaterial("FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "Pending"),
+            new CaseMaterial("FileB.pdf", "Subject B", 1034, 456, "Evidential", "Type B", false, "Complete"),
+            new CaseMaterial("AttachmentA.pdf", "Attachment A", 5, 101, "Administrative", "Type A", false, "Pending"),
+            new CaseMaterial("AttachmentB.pdf", "Attachment B", 10, 102, "Administrative", "Type B", false, "Complete"),
         };
 
         mockCaseMaterialService
@@ -1326,7 +1346,7 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "None"),
+            new CaseMaterial("FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
         };
 
         // Create Used MG Forms data
@@ -1357,8 +1377,8 @@ public class GetCaseMaterialsTests
 
         var mappedUsedMgFormsCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "usedMgForm1.pdf", "Used MG Form One", 1202, 1, "http://example1.com", "MG Form", "MG Form", false, "Used"),
-            new CaseMaterial(2, "usedMgForm2.pdf", "Used MG Form Two", 1203, 2, "http://example2.com", "MG Form", "MG Form", false, "Used"),
+            new CaseMaterial("usedMgForm1.pdf", "Used MG Form One", 1202, 1, "MG Form", "MG Form", false, "Used"),
+            new CaseMaterial("usedMgForm2.pdf", "Used MG Form Two", 1203, 2, "MG Form", "MG Form", false, "Used"),
         };
 
         // Mock empty responses for other materials
@@ -1418,7 +1438,7 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "None"),
+            new CaseMaterial("FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
         };
 
         // Create Used Other Materials data
@@ -1449,8 +1469,8 @@ public class GetCaseMaterialsTests
 
         var mappedUsedOtherMaterialsCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "usedOtherMaterial1.pdf", "Used Other Material One", 1204, 1, "http://example1.com", "Other Material", "Other Material", false, "Used"),
-            new CaseMaterial(2, "usedOtherMaterial2.pdf", "Used Other Material Two", 1205, 2, "http://example2.com", "Other Material", "Other Material", false, "Used"),
+            new CaseMaterial("usedOtherMaterial1.pdf", "Used Other Material One", 1204, 1, "Other Material", "Other Material", false, "Used"),
+            new CaseMaterial("usedOtherMaterial2.pdf", "Used Other Material Two", 1205, 2, "Other Material", "Other Material", false, "Used"),
         };
 
         // Mock empty responses for other materials
@@ -1510,7 +1530,7 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "None"),
+            new CaseMaterial("FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
         };
 
         // Create Used MG Forms data
@@ -1547,12 +1567,12 @@ public class GetCaseMaterialsTests
 
         var mappedUsedMgFormsCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "usedMgForm.pdf", "Used MG Form", 1202, 1, "http://example1.com", "MG Form", "MG Form", false, "Used"),
+            new CaseMaterial("usedMgForm.pdf", "Used MG Form", 1202, 1, "MG Form", "MG Form", false, "Used"),
         };
 
         var mappedUsedOtherMaterialsCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(2, "usedOtherMaterial.pdf", "Used Other Material", 1204, 2, "http://example2.com", "Other Material", "Other Material", false, "Used"),
+            new CaseMaterial("usedOtherMaterial.pdf", "Used Other Material", 1204, 2, "Other Material", "Other Material", false, "Used"),
         };
 
         // Mock empty responses for other materials
@@ -1619,7 +1639,7 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "None"),
+            new CaseMaterial("FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
         };
 
         // Create empty Used MG Forms
@@ -1678,7 +1698,7 @@ public class GetCaseMaterialsTests
 
         var mockCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "Administrative", "Type A", false, "None"),
+            new CaseMaterial("FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
         };
 
         // Create Used MG Forms with both excluded and included material types
@@ -1730,7 +1750,7 @@ public class GetCaseMaterialsTests
         // Only the valid MG form should be mapped (PE3, PE4, DREP excluded)
         var mappedUsedMgFormsCaseMaterials = new List<CaseMaterial>
         {
-            new CaseMaterial(4, "valid.pdf", "Valid MG Form", 1202, 4, "http://example4.com", "MG Form", "MG Form", false, "Used"),
+            new CaseMaterial("valid.pdf", "Valid MG Form", 1202, 4, "MG Form", "MG Form", false, "Used"),
         };
 
         // Mock empty responses for other materials
@@ -1773,8 +1793,8 @@ public class GetCaseMaterialsTests
 
         // Verify the result contains communications + the valid MG form (PE3, PE4, DREP excluded)
         Assert.Equal(2, caseMaterials.Count);
-        Assert.Contains(caseMaterials, cm => cm.Id == 1 && cm.Subject == "Subject A");
-        Assert.Contains(caseMaterials, cm => cm.Id == 4 && cm.Subject == "Valid MG Form");
+        Assert.Contains(caseMaterials, cm => cm.Subject == "Subject A");
+        Assert.Contains(caseMaterials, cm => cm.Subject == "Valid MG Form");
 
         // Verify PE3, PE4, and DREP are NOT in the result
         Assert.DoesNotContain(caseMaterials, cm => cm.Subject == "PE3 Form");
@@ -1785,6 +1805,310 @@ public class GetCaseMaterialsTests
         mockCaseMaterialService.Verify(
             x => x.MapUsedMgFormsToCaseMaterials(It.IsAny<UsedMgFormsResponse>()),
             Times.Once);
+    }
+
+    /// <summary>
+    /// Tests that document fields, including ParentId, are populated onto the matching case material from the retrieved documents.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Fact]
+    public async Task Run_PopulatesParentIdAndDocumentFields_FromMatchingDocument()
+    {
+        // Arrange
+        var mockRequest = SetUpMockRequest();
+
+        var mockCommunications = new List<Communication>
+        {
+            new Communication(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "None", "Administrative", "Type A", false),
+        };
+
+        var mockCaseMaterials = new List<CaseMaterial>
+        {
+            new CaseMaterial("FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
+        };
+
+        var unusedMaterials = new UnusedMaterialsResponse();
+        var usedStatements = new Common.Dto.Response.HouseKeeping.UsedStatementsResponse();
+        var usedExhibits = new UsedExhibitsResponse();
+        var usedMgForms = new UsedMgFormsResponse();
+        var usedOtherMaterials = new UsedOtherMaterialsResponse();
+        var exhibitProducers = new ExhibitProducersResponse();
+
+        mockCaseMaterialService
+            .Setup(x => x.RetrieveCaseMaterialsAsync(123, It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync((mockCommunications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials, exhibitProducers));
+
+        mockCaseMaterialService
+            .Setup(x => x.MapCommunicationsToCaseMaterials(mockCommunications))
+            .Returns(mockCaseMaterials);
+
+        var matchingDocument = new DocumentDto
+        {
+            DocumentId = "CMS-123",
+            VersionId = 789,
+            HasNotes = true,
+            IsUnused = true,
+        };
+
+        mockMdsOrchestrationService
+            .Setup(s => s.GetCaseDocuments(It.IsAny<MdsCaseIdentifiersArgDto>()))
+            .ReturnsAsync(new List<DocumentDto> { matchingDocument });
+
+        // Act
+        IActionResult result = await getCaseMaterialsFunction.Run(mockRequest.Object, 123);
+
+        // Assert
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+        List<CaseMaterial> caseMaterials = Assert.IsType<List<CaseMaterial>>(okResult.Value);
+
+        var updatedMaterial = Assert.Single(caseMaterials);
+        Assert.Equal(123, updatedMaterial.MaterialId);
+        Assert.Equal("CMS-123", updatedMaterial.ParentId);
+        Assert.Equal(789, updatedMaterial.DocumentId);
+        Assert.True(updatedMaterial.HasNotes);
+        Assert.True(updatedMaterial.IsUnused);
+    }
+
+    /// <summary>
+    /// Tests that ParentId defaults to the material ID when there is no matching document.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Fact]
+    public async Task Run_DefaultsParentIdToMaterialId_WhenNoMatchingDocument()
+    {
+        // Arrange
+        var mockRequest = SetUpMockRequest();
+
+        var mockCommunications = new List<Communication>
+        {
+            new Communication(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "None", "Administrative", "Type A", false),
+        };
+
+        var mockCaseMaterials = new List<CaseMaterial>
+        {
+            new CaseMaterial("FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
+        };
+
+        var unusedMaterials = new UnusedMaterialsResponse();
+        var usedStatements = new Common.Dto.Response.HouseKeeping.UsedStatementsResponse();
+        var usedExhibits = new UsedExhibitsResponse();
+        var usedMgForms = new UsedMgFormsResponse();
+        var usedOtherMaterials = new UsedOtherMaterialsResponse();
+        var exhibitProducers = new ExhibitProducersResponse();
+
+        mockCaseMaterialService
+            .Setup(x => x.RetrieveCaseMaterialsAsync(123, It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync((mockCommunications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials, exhibitProducers));
+
+        mockCaseMaterialService
+            .Setup(x => x.MapCommunicationsToCaseMaterials(mockCommunications))
+            .Returns(mockCaseMaterials);
+
+        mockMdsOrchestrationService
+            .Setup(s => s.GetCaseDocuments(It.IsAny<MdsCaseIdentifiersArgDto>()))
+            .ReturnsAsync(Enumerable.Empty<DocumentDto>());
+
+        // Act
+        IActionResult result = await getCaseMaterialsFunction.Run(mockRequest.Object, 123);
+
+        // Assert
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+        List<CaseMaterial> caseMaterials = Assert.IsType<List<CaseMaterial>>(okResult.Value);
+
+        var material = Assert.Single(caseMaterials);
+        Assert.Equal(123, material.MaterialId);
+        Assert.Equal("CMS-123", material.ParentId);
+    }
+
+    /// <summary>
+    /// Tests that a document with no matching case material is still included in the response as a new case material.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Fact]
+    public async Task Run_AddsNewCaseMaterial_ForUnmatchedDocument()
+    {
+        // Arrange
+        var mockRequest = SetUpMockRequest();
+
+        var mockCommunications = new List<Communication>
+        {
+            new Communication(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "None", "Administrative", "Type A", false),
+        };
+
+        var mockCaseMaterials = new List<CaseMaterial>
+        {
+            new CaseMaterial("FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
+        };
+
+        var unusedMaterials = new UnusedMaterialsResponse();
+        var usedStatements = new Common.Dto.Response.HouseKeeping.UsedStatementsResponse();
+        var usedExhibits = new UsedExhibitsResponse();
+        var usedMgForms = new UsedMgFormsResponse();
+        var usedOtherMaterials = new UsedOtherMaterialsResponse();
+        var exhibitProducers = new ExhibitProducersResponse();
+
+        mockCaseMaterialService
+            .Setup(x => x.RetrieveCaseMaterialsAsync(123, It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync((mockCommunications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials, exhibitProducers));
+
+        mockCaseMaterialService
+            .Setup(x => x.MapCommunicationsToCaseMaterials(mockCommunications))
+            .Returns(mockCaseMaterials);
+
+        var unmatchedDocument = new DocumentDto
+        {
+            DocumentId = "CMS-999",
+            CmsOriginalFileName = "unmatched.pdf",
+            PresentationTitle = "Unmatched Subject",
+            VersionId = 111,
+            HasNotes = true,
+            IsUnused = false,
+            CmsDocType = new DocumentTypeDto("Statement", 1055, "Statements"),
+        };
+
+        mockMdsOrchestrationService
+            .Setup(s => s.GetCaseDocuments(It.IsAny<MdsCaseIdentifiersArgDto>()))
+            .ReturnsAsync(new List<DocumentDto> { unmatchedDocument });
+
+        // Act
+        IActionResult result = await getCaseMaterialsFunction.Run(mockRequest.Object, 123);
+
+        // Assert
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+        List<CaseMaterial> caseMaterials = Assert.IsType<List<CaseMaterial>>(okResult.Value);
+
+        Assert.Equal(2, caseMaterials.Count);
+
+        var newMaterial = Assert.Single(caseMaterials, cm => cm.MaterialId == 999);
+        Assert.Equal("CMS-999", newMaterial.ParentId);
+        Assert.Equal(111, newMaterial.DocumentId);
+        Assert.Equal("unmatched.pdf", newMaterial.OriginalFileName);
+        Assert.Equal("Unmatched Subject", newMaterial.Subject);
+        Assert.Equal(1055, newMaterial.DocumentTypeId);
+        Assert.Equal("Statements", newMaterial.Category);
+        Assert.Equal("Statement", newMaterial.Type);
+        Assert.True(newMaterial.HasNotes);
+        Assert.False(newMaterial.IsUnused);
+
+        // The originally matched material should be untouched.
+        Assert.Contains(caseMaterials, cm => cm.MaterialId == 123);
+    }
+
+    /// <summary>
+    /// Tests that an unmatched document's ParentId prefix is derived from the document's own document nature (e.g. "PCD"),
+    /// rather than always defaulting to the "CMS" prefix.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Fact]
+    public async Task Run_AddsNewCaseMaterial_WithCorrectNaturePrefix_ForUnmatchedPcdDocument()
+    {
+        // Arrange
+        var mockRequest = SetUpMockRequest();
+
+        var mockCommunications = new List<Communication>();
+        var mockCaseMaterials = new List<CaseMaterial>();
+
+        var unusedMaterials = new UnusedMaterialsResponse();
+        var usedStatements = new Common.Dto.Response.HouseKeeping.UsedStatementsResponse();
+        var usedExhibits = new UsedExhibitsResponse();
+        var usedMgForms = new UsedMgFormsResponse();
+        var usedOtherMaterials = new UsedOtherMaterialsResponse();
+        var exhibitProducers = new ExhibitProducersResponse();
+
+        mockCaseMaterialService
+            .Setup(x => x.RetrieveCaseMaterialsAsync(123, It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync((mockCommunications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials, exhibitProducers));
+
+        mockCaseMaterialService
+            .Setup(x => x.MapCommunicationsToCaseMaterials(mockCommunications))
+            .Returns(mockCaseMaterials);
+
+        var unmatchedPcdDocument = new DocumentDto
+        {
+            DocumentId = "PCD-555",
+            CmsOriginalFileName = "pcd.pdf",
+            PresentationTitle = "Pre Charge Decision",
+            VersionId = 222,
+        };
+
+        mockMdsOrchestrationService
+            .Setup(s => s.GetCaseDocuments(It.IsAny<MdsCaseIdentifiersArgDto>()))
+            .ReturnsAsync(new List<DocumentDto> { unmatchedPcdDocument });
+
+        // Act
+        IActionResult result = await getCaseMaterialsFunction.Run(mockRequest.Object, 123);
+
+        // Assert
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+        List<CaseMaterial> caseMaterials = Assert.IsType<List<CaseMaterial>>(okResult.Value);
+
+        var newMaterial = Assert.Single(caseMaterials);
+        Assert.Equal(555, newMaterial.MaterialId);
+        Assert.Equal("PCD-555", newMaterial.ParentId);
+        Assert.Equal(222, newMaterial.DocumentId);
+    }
+
+    /// <summary>
+    /// Tests that when a matching document has no CmsDocType, the existing case material's CmsDocType, PresentationFlags
+    /// and ParentId are preserved rather than being overwritten with null/default values.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Fact]
+    public async Task Run_PreservesExistingFields_WhenMatchingDocumentHasNoOverridingValues()
+    {
+        // Arrange
+        var mockRequest = SetUpMockRequest();
+
+        var mockCommunications = new List<Communication>
+        {
+            new Communication(1, "FileA.pdf", "Subject A", 1012, 123, "/some/path/doc1.pdf", "None", "Administrative", "Type A", false),
+        };
+
+        var mockCaseMaterials = new List<CaseMaterial>
+        {
+            new CaseMaterial("FileA.pdf", "Subject A", 1012, 123, "Administrative", "Type A", false, "None"),
+        };
+
+        var unusedMaterials = new UnusedMaterialsResponse();
+        var usedStatements = new Common.Dto.Response.HouseKeeping.UsedStatementsResponse();
+        var usedExhibits = new UsedExhibitsResponse();
+        var usedMgForms = new UsedMgFormsResponse();
+        var usedOtherMaterials = new UsedOtherMaterialsResponse();
+        var exhibitProducers = new ExhibitProducersResponse();
+
+        mockCaseMaterialService
+            .Setup(x => x.RetrieveCaseMaterialsAsync(123, It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync((mockCommunications, unusedMaterials, usedStatements, usedExhibits, usedMgForms, usedOtherMaterials, exhibitProducers));
+
+        mockCaseMaterialService
+            .Setup(x => x.MapCommunicationsToCaseMaterials(mockCommunications))
+            .Returns(mockCaseMaterials);
+
+        var matchingDocument = new DocumentDto
+        {
+            DocumentId = "CMS-123",
+            VersionId = 789,
+            CmsDocType = null,
+            PresentationFlags = null,
+        };
+
+        mockMdsOrchestrationService
+            .Setup(s => s.GetCaseDocuments(It.IsAny<MdsCaseIdentifiersArgDto>()))
+            .ReturnsAsync(new List<DocumentDto> { matchingDocument });
+
+        // Act
+        IActionResult result = await getCaseMaterialsFunction.Run(mockRequest.Object, 123);
+
+        // Assert
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+        List<CaseMaterial> caseMaterials = Assert.IsType<List<CaseMaterial>>(okResult.Value);
+
+        var updatedMaterial = Assert.Single(caseMaterials);
+        Assert.Equal(123, updatedMaterial.MaterialId);
+        Assert.Equal("CMS-123", updatedMaterial.ParentId);
+        Assert.Equal(789, updatedMaterial.DocumentId);
+        Assert.Null(updatedMaterial.CmsDocType);
+        Assert.Null(updatedMaterial.PresentationFlags);
     }
 
     private static Mock<HttpRequest> SetUpMockRequest()
