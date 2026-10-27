@@ -76,7 +76,7 @@ public class PolarisGatewayApiClient : BaseApiClient
 
     public async Task<ApiClientResponse<IEnumerable<CaseMaterial>>> GetCaseMaterialsAsync(string urn, int caseId, CancellationToken cancellationToken)
     {
-        var route = $"urns/{urn}/cases/{caseId}/case-materials";
+        var route = $"cases/{caseId}/documents";
         return await this.SendAsync<IEnumerable<CaseMaterial>>(route, HttpMethod.Get, cancellationToken);
     }
 

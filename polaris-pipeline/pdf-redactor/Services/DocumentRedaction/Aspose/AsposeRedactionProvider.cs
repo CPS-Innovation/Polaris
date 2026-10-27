@@ -4,17 +4,18 @@
 
 namespace pdf_redactor.Services.DocumentRedaction.Aspose;
 
-using global::Aspose.Pdf;
-using global::Aspose.Pdf.Facades;
 using Common.Dto.Request;
 using Common.Streaming;
 using Common.Telemetry;
+using global::Aspose.Pdf;
+using global::Aspose.Pdf.Facades;
+using global::Aspose.Pdf.Text;
 using Microsoft.Extensions.Logging;
 using pdf_redactor.Functions;
 using pdf_redactor.TelemetryEvents;
 
 public class AsposeRedactionProvider(
-    IRedactionImplementation redactionImplementation,
+    IEnumerable<IRedactionImplementation> redactionImplementations,
     ICoordinateCalculator coordinateCalculator,
     ILogger<AsposeRedactionProvider> logger)
     : IRedactionProvider
@@ -44,7 +45,12 @@ public class AsposeRedactionProvider(
         try
         {
             var inputStream = await stream.EnsureSeekableAsync();
-            var (providerType, providerDetails) = redactionImplementation.GetProviderType();
+            inputStream.Position = 0;
+
+            using var document = new Document(inputStream);
+
+            var (redactionImplementation, providerType, providerDetails) = this.ResolveImplementation(document, redactPdfRequest);
+
             telemetryEvent = new RedactedDocumentEvent(
                 correlationId,
                 caseId,
@@ -56,19 +62,16 @@ public class AsposeRedactionProvider(
                 inputStream.Length)
             {
                 OperationName = nameof(RedactPdf),
+                PdfFormat = document.PdfFormat.ToString(),
+                PageCount = document.Pages.Count,
+                AddAnnotationsStartTime = DateTime.UtcNow,
             };
 
-            var document = new Document(inputStream);
-
-            telemetryEvent.PdfFormat = document.PdfFormat.ToString();
-            telemetryEvent.PageCount = document.Pages.Count;
-
-            telemetryEvent.AddAnnotationsStartTime = DateTime.UtcNow;
-            this.AddAnnotations(document, redactPdfRequest, providerType, correlationId);
+            this.AddAnnotations(document, redactPdfRequest, providerType, correlationId, redactionImplementation);
             telemetryEvent.AddAnnotationsEndTime = DateTime.UtcNow;
 
             telemetryEvent.FinaliseAnnotationsStartTime = DateTime.UtcNow;
-            this.FinaliseAnnotations(document, correlationId);
+            FinaliseAnnotations(document, correlationId, redactionImplementation);
             telemetryEvent.FinaliseAnnotationsEndTime = DateTime.UtcNow;
 
             telemetryEvent.SanitiseStartTime = DateTime.UtcNow;
@@ -78,7 +81,6 @@ public class AsposeRedactionProvider(
             var outputStream = new MemoryStream();
             await document.SaveAsync(outputStream, CancellationToken.None);
             outputStream.Position = 0;
-            document.Dispose();
 
             telemetryEvent.Bytes = outputStream.Length;
             telemetryEvent.EndTime = DateTime.UtcNow;
@@ -106,12 +108,142 @@ public class AsposeRedactionProvider(
                     or PdfFormat.v_1_4
                     or PdfFormat.v_1_5
                     or PdfFormat.v_1_6)
-                && document.Validate(
-                    new MemoryStream(),
-                    PdfFormat.v_1_7);
+               && document.Validate(
+                   new MemoryStream(),
+                   PdfFormat.v_1_7);
     }
 
-    private void AddAnnotations(Document document, RedactPdfRequestDto redactPdfRequest, ProviderType providerType, Guid correlationId)
+    private static void FinaliseAnnotations(Document document, Guid correlationId, IRedactionImplementation redactionImplementation) =>
+        redactionImplementation.FinaliseAnnotations(ref document, correlationId);
+
+    private static bool HasValidTextLayer(
+        Document document,
+        RedactPdfRequestDto redactPdfRequest,
+        out string? failureReason)
+    {
+        failureReason = null;
+
+        if (document.Pages.Count == 0)
+        {
+            failureReason = "The PDF does not contain any pages.";
+            return false;
+        }
+
+        var annotatedPageNumbers = redactPdfRequest
+            .RedactionDefinitions
+            .Select(redactionDefinition => redactionDefinition.PageIndex)
+            .Distinct()
+            .ToList();
+
+        if (annotatedPageNumbers.Count == 0)
+        {
+            return true;
+        }
+
+        foreach (var pageNumber in annotatedPageNumbers)
+        {
+            if (pageNumber < 1 || pageNumber > document.Pages.Count)
+            {
+                failureReason = $"Annotation page {pageNumber} is outside the PDF page range of 1 to {document.Pages.Count}.";
+
+                return false;
+            }
+
+            var page = document.Pages[pageNumber];
+
+            var searchOptions = new TextSearchOptions(false)
+            {
+                /*
+                 * Report errors caused by missing or invalid character
+                 * mappings instead of silently accepting the extracted text.
+                 */
+                LogTextExtractionErrors = true,
+
+                /*
+                 * A missing or invalid font resource makes direct text
+                 * redaction unsafe.
+                 */
+                IgnoreResourceFontErrors = false,
+
+                /*
+                 * Annotation text is not part of the underlying page text
+                 * layer that will be redacted.
+                 */
+                SearchInAnnotations = false,
+
+                /*
+                 * Text-related graphics are not required for validating
+                 * whether the page has extractable text.
+                 */
+                SearchForTextRelatedGraphics = false,
+            };
+
+            var extractionOptions = new TextExtractionOptions(
+                TextExtractionOptions.TextFormattingMode.Pure);
+
+            var textAbsorber = new TextAbsorber(
+                extractionOptions,
+                searchOptions);
+
+            try
+            {
+                page.Accept(textAbsorber);
+            }
+            catch (Exception exception)
+            {
+                failureReason = $"Text extraction failed on annotation page {pageNumber}. {exception.GetType().Name}: {exception.Message}";
+
+                return false;
+            }
+
+            if (textAbsorber.HasErrors)
+            {
+                failureReason = $"Aspose reported {textAbsorber.Errors.Count} text extraction or decoding error(s) on annotation page {pageNumber}.";
+
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(textAbsorber.Text))
+            {
+                failureReason = $"No extractable text was found on annotation page {pageNumber}.";
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private (IRedactionImplementation Implementation, ProviderType ProviderType, string? ProviderDetails) ResolveImplementation(Document document, RedactPdfRequestDto redactPdfRequest)
+    {
+        var hasValidTextLayer = HasValidTextLayer(document, redactPdfRequest, out var failureReason);
+
+        var selectedProviderType = hasValidTextLayer
+            ? ProviderType.DirectRedaction
+            : ProviderType.ImageConversion;
+
+        var selectedImplementation = redactionImplementations
+            .SingleOrDefault(
+                implementation =>
+                    implementation.GetProviderType().Item1 ==
+                    selectedProviderType)
+            ?? throw new InvalidOperationException(
+                $"No redaction implementation registered for provider " +
+                $"type '{selectedProviderType}'.");
+
+        var providerDetails = hasValidTextLayer
+            ? null
+            : $"Fallback to ImageConversion. Reason: {failureReason}";
+
+        return (selectedImplementation, selectedProviderType, providerDetails);
+    }
+
+    private void AddAnnotations(
+        Document document,
+        RedactPdfRequestDto redactPdfRequest,
+        ProviderType providerType,
+        Guid correlationId,
+        IRedactionImplementation redactionImplementation)
     {
         var pdfInfo = new PdfFileInfo(document);
         var shouldInsetDirectRedaction = providerType == ProviderType.DirectRedaction;
@@ -124,8 +256,7 @@ public class AsposeRedactionProvider(
 
             foreach (var boxToDraw in redactionPage.RedactionCoordinates)
             {
-                var translatedCoordinates = coordinateCalculator.CalculateRelativeCoordinates(
-                    redactionPage.Width, redactionPage.Height, currentPage, boxToDraw, pdfInfo, correlationId);
+                var translatedCoordinates = coordinateCalculator.CalculateRelativeCoordinates(redactionPage.Width, redactionPage.Height, currentPage, boxToDraw, pdfInfo, correlationId);
 
                 var x1 = Math.Min(translatedCoordinates.X1, translatedCoordinates.X2);
                 var x2 = Math.Max(translatedCoordinates.X1, translatedCoordinates.X2);
@@ -152,17 +283,10 @@ public class AsposeRedactionProvider(
                     continue;
                 }
 
-                var annotationRectangle = new Rectangle(
-                    x1,
-                    y1,
-                    x2,
-                    y2);
+                var annotationRectangle = new Rectangle(x1, y1, x2, y2);
 
                 redactionImplementation.AttachAnnotation(annotationPage, annotationRectangle);
             }
         }
     }
-
-    private void FinaliseAnnotations(Document document, Guid correlationId) =>
-        redactionImplementation.FinaliseAnnotations(ref document, correlationId);
 }
