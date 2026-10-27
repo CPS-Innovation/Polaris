@@ -84,7 +84,9 @@ auth_handover_whitelist = "/auth-refresh-inbound,https://cps.outsystemsenterpris
 
 proxy_next_config_enabled = true
 
-non_ddei_init_enabled = true
+# false in prod for the first release: /auth-refresh-inbound still proxies to polaris-ddei (as
+# today) while the next config beds in. A drop1 enrolment cookie still opts one browser in.
+non_ddei_init_enabled = false
 
 proxy_entra = {
   store_enabled = false

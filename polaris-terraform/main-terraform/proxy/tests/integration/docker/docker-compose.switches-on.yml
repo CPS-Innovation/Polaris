@@ -4,7 +4,7 @@
 #   ../run-tests.sh --next            (runs the next config twice: switches off, then on)
 #
 # cmsproxy.mock.env keeps every switch OFF, so the --next pass proves the next config behaves
-# exactly as the live monolith. But what ships has NON_DDEI_INIT_ENABLED=true in every env
+# exactly as the live monolith. But what ships has NON_DDEI_INIT_ENABLED=true in pre-prod
 # (terraform var.non_ddei_init_enabled), so /auth-refresh-inbound is answered by drop1 (njs)
 # instead of the DDEI mock. This second pass runs the same suite that way. drop2 stays off: it
 # needs Entra, which the mock does not play (its callback is covered by unit tests).

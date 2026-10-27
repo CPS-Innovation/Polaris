@@ -30,7 +30,8 @@ with `polaris_auth_handover=drop2`):
   strands users on a Microsoft error page — the one blocking misconfiguration);
 - the MDS delegated permission on our app reg, with our client **pre-authorised** on the MDS app reg
   (MDS terraform `global_components_client_id`) for consent;
-- consent on our app reg for Graph `openid profile offline_access` (pre-prod `8d6133af` has it: the
-  global-components SPA uses it). drop2 needs our app reg to expose **no** API (there is no
+- Graph `openid profile offline_access` usable without a prompt. Neither `8d6133af` nor `295ecc3c`
+  has a tenant-wide grant for them (2026-10-27), yet silent sign-in works on pre-prod, so the tenant
+  allows them; confirm on prod's first enrolled-browser run. drop2 needs our app reg to expose **no** API (there is no
   on-behalf-of); pre-prod `8d6133af` happens to expose `api.presence.user.readwrite`, used only as the
   interim watchdog scope.
