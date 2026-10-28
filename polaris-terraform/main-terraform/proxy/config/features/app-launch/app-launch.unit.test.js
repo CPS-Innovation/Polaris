@@ -46,11 +46,32 @@ async function launches(appLaunch) {
     })
   }
 
+  await test("/launch/dev-proxy (new, no live block) -> the dev proxy + dev OutSystems + gc stage dev", () => {
+    const r = createMockRequest({ uri: "/launch/dev-proxy" })
+    appLaunch.launch(r)
+    const hop = "https://cps-dev.outsystemsenterprise.com/Casework_Patterns/auth-handover.html?src=https://polaris-dev-notprod.cps.gov.uk/global-components/dev/auth-handover.js&stage=os-cookie-return&r=" + encodeURIComponent("https://cps-dev.outsystemsenterprise.com/casework/home?IsFromCMS=True")
+    assertEqual(r.returnBody, "https://polaris-dev-notprod.cps.gov.uk/polaris?r=" + encodeURIComponent(hop), "Location")
+  })
+
   await test("unknown /launch/<key> -> 404", () => {
     const r = createMockRequest({ uri: "/launch/nope" })
     appLaunch.launch(r)
     assertEqual(r.returnCode, 404, "unknown target 404s")
   })
+}
+
+async function proxyKeys(appLaunch) {
+  console.log("\nproxyLaunchKey — the -proxy key that hands over from a proxy host:")
+  for (const [host, key] of [
+    ["polaris.cps.gov.uk", "cms-proxy"],
+    ["polaris-qa-notprod.cps.gov.uk", "cin2-proxy"],
+    ["polaris-uat-notprod.cps.gov.uk", "cpt-proxy"],
+    ["polaris-dev-notprod.cps.gov.uk", "dev-proxy"],
+    ["cin3.cps.gov.uk", ""],
+    ["", ""],
+  ]) {
+    await test(`${host || "(none)"} -> ${key || '""'}`, () => assertEqual(appLaunch.proxyLaunchKey(host), key, "key"))
+  }
 }
 
 async function main() {
@@ -59,6 +80,7 @@ async function main() {
   const restoreEnv = applyEnv(cmsEnvObject())
   const appLaunch = await loadNjs("features/app-launch/app-launch.js")
   await launches(appLaunch)
+  await proxyKeys(appLaunch)
   restoreEnv()
   process.exit(summarise("app-launch.js (unit)"))
 }

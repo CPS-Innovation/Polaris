@@ -31,6 +31,14 @@ const UAT_TIER = {
   stage: "uat",
 };
 
+// Dev: proxied-session launch only. Dev shares QA's CMS environments, whose own C buttons
+// launch to QA, so there is no CMS-side dev key.
+const DEV_TIER = {
+  os: "cps-dev.outsystemsenterprise.com",
+  polaris: "polaris-dev-notprod",
+  stage: "dev",
+};
+
 // A launch target: the CMS host it hands over from, plus its tier's fields. (Explicit copy, not
 // object spread: njs rejects `...` — "Token ... not supported in this version".)
 function target(host, tier) {
@@ -59,7 +67,19 @@ const TARGETS = {
   "cin5-proxy": target("polaris-qa-notprod.cps.gov.uk", QA_TIER),
   "cpt-proxy": target("polaris-uat-notprod.cps.gov.uk", UAT_TIER),
   "cmo-proxy": target("polaris-uat-notprod.cps.gov.uk", UAT_TIER),
+  "dev-proxy": target("polaris-dev-notprod.cps.gov.uk", DEV_TIER),
 };
+
+// The launch key that hands over from THIS proxy host (a -proxy key whose host is `host`), or
+// "" if none. For pages served by the proxy itself (dev-login's casework home link): every
+// -proxy key of one host builds the same hop, so the first match will do.
+function proxyLaunchKey(host) {
+  const keys = Object.keys(TARGETS);
+  for (let i = 0; i < keys.length; i++) {
+    if (/-proxy$/.test(keys[i]) && TARGETS[keys[i]].host === host) return keys[i];
+  }
+  return "";
+}
 
 function launch(r) {
   const t = TARGETS[r.uri.substring("/launch/".length)];
@@ -81,4 +101,4 @@ function launch(r) {
   r.return(302, `https://${t.host}/polaris?r=${encodeURIComponent(hop)}`);
 }
 
-export default { launch };
+export default { launch, proxyLaunchKey };

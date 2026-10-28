@@ -193,7 +193,7 @@ used only inside the proxy, or not?**
 | `CMS_RATE_LIMIT_QUEUE`                            | literal                     | 🟢 **Proxy-only**      | 5 🔀, 6 🔌                                   |
 | `CMS_RATE_LIMIT`                                  | literal                     | 🟢 **Proxy-only**      | 5 🔀, 6 🔌                                   |
 | `AUTH_HANDOVER_WHITELIST`                         | var.auth_handover_whitelist | 🟢 **Proxy-only**      | 2 🤝                                         |
-| `NON_DDEI_INIT_ENABLED`                           | var.non_ddei_init_enabled   | 🟢 **Proxy-only**      | 2 🤝 — drop1 switch (`process.env`)          |
+| `NON_DDEI_INIT_ENABLED`                           | var.non_ddei_init_enabled   | 🟢 **Proxy-only**      | 2 🤝 — drop1 switch: all auth handover off DDEI (`process.env`) |
 | `ENTRA_STORE_ENABLED`                             | var.proxy_entra             | 🟢 **Proxy-only**      | 2 🤝 — drop2 switch (`process.env`)          |
 | `ENTRA_INTERACTIVE_ENABLED`                       | var.proxy_entra             | 🟢 **Proxy-only**      | 2 🤝 — drop2 interactive retry               |
 | `ENTRA_TENANT_ID`                                 | client config               | 🟢 **Proxy-only**      | 2 🤝 — drop2                                 |
@@ -438,13 +438,15 @@ config/
     app-launch/        app-launch.conf   + app-launch.js
     auth-handover/     auth-handover.conf + auth-handover.js        (was nginx.js)
     auth-handover.drop1.replace-ddei/
-                       …drop1.replace-ddei.conf + .js               (NON_DDEI_INIT_ENABLED; njs /api/init/)
+                       …drop1.replace-ddei.conf + .js               (NON_DDEI_INIT_ENABLED: the $non_ddei gate;
+                                                                     njs /api/init/, termination, cms-modern-token)
     auth-handover.drop2.entra/
                        …drop2.entra.conf + .js + store.js            (ENTRA_STORE_ENABLED; Entra + MDS deposit)
     cms-proxy/         cms-proxy.conf     + cms-proxy.js + polaris-script.js
                        (holds ALL CMS regexes — the ordering contract; + fixtures/)
     common/            cmsenv.js + ie-mode.js                        (SHARED: CMS env + contract; IE mode)
     cwa-materials/     cwa-materials.conf
+    dev-login/         dev-login.conf     + dev-login.js             (DDEI's dev login in njs, behind $non_ddei)
     global-components/ global-components.conf + global-components.js (getDomainFromCookie)
     polaris-ddei/      polaris-ddei.conf  + polaris-ddei.js          (own getter copies)
     # each folder also carries <name>.unit.test.js / <name>.integration.test.js / QUIRKS.md

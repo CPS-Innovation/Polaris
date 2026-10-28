@@ -2,6 +2,7 @@ import qs from "querystring";
 import cmsenv from "../common/cmsenv.js";
 import ieMode from "../common/ie-mode.js";
 import entra from "../auth-handover.drop2.entra/auth-handover.drop2.entra.js";
+import devLoginNonDdei from "../dev-login/dev-login.js";
 
 const IS_PROXY_SESSION_PARAM_NAME = "is-proxy-session";
 const SESSION_HINT_COOKIE_NAME = "Cms-Session-Hint";
@@ -286,33 +287,9 @@ function handleAuthRefreshOutbound(r) {
   r.return(302, redirectUrl);
 }
 
-// The cookies the dev-login GET clears: the CMS-env marker plus, per CMS env,
-// both BIG-IP pool cookies (ACP/AFP) and both load-balancer session cookies
-// (C/F). Generated to a flat "<name>=deleted; ...expired" list — the old config
-// hand-wrote all seventeen add_header lines twice.
-const EXPIRE = "=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-const DEV_LOGIN_CLEARED = (function () {
-  const names = ["__CMSENV"];
-  const envs = ["CIN2", "CIN3", "CIN4", "CIN5"];
-  for (let i = 0; i < envs.length; i++) {
-    const E = envs[i],
-      e = E.toLowerCase();
-    names.push(
-      `BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-${E}-${e}.cps.gov.uk_POOL`,
-    );
-    names.push(
-      `BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-${E}-${e}.cps.gov.uk_POOL`,
-    );
-  }
-  for (let i = 0; i < envs.length; i++) {
-    names.push(`C-${envs[i]}-LBsessioncookie`);
-    names.push(`F-${envs[i]}-LBsessioncookie`);
-  }
-  return names.map((n) => n + EXPIRE);
-})();
-
 // Dev-login cookie handling for BOTH /dev-login/ and /api/dev-login-full-cookie/
-// (they differ only in their proxy_pass target). A single js_header_filter,
+// (they differ only in their proxy_pass target), on their DDEI path (switch off; switch on,
+// feature dev-login answers them and clears the same cookies). A single js_header_filter,
 // branching on the request method — replaces the two identical if-blocks of
 // add_header directives the two locations used to each carry:
 //   GET  — clear the CMS-env marker + BIG-IP/LB cookies (a reset), appended to
@@ -323,7 +300,7 @@ const DEV_LOGIN_CLEARED = (function () {
 function devLogin(r) {
   if (r.method === "GET") {
     const cookies = r.headersOut["Set-Cookie"] || [];
-    r.headersOut["Set-Cookie"] = cookies.concat(DEV_LOGIN_CLEARED);
+    r.headersOut["Set-Cookie"] = cookies.concat(devLoginNonDdei.CLEARED_COOKIES);
   } else if (r.method === "POST") {
     const cmsEnv = cmsenv.detect((r.headersOut["Set-Cookie"] || [""])[0]);
     const cookies = r.headersOut["Set-Cookie"] || [];
@@ -337,9 +314,9 @@ function devLogin(r) {
 //
 // A tiny page that sets/clears the `polaris_auth_handover` cookie so an INDIVIDUAL
 // user can opt into drop1/drop2 ahead of the org-wide switch. The routing gate in
-// auth-handover.conf (/auth-refresh-inbound) reads $cookie_polaris_auth_handover and
-// gives it PRECEDENCE over the global ENTRA_STORE_ENABLED / NON_DDEI_INIT_ENABLED
-// switches. Removing the cookie falls back to those globals (DDEI while they're off).
+// auth-handover.conf ($non_ddei = drop1's `enabled`) turns drop1 on for either cookie value
+// as well as for the global ENTRA_STORE_ENABLED / NON_DDEI_INIT_ENABLED switches. Removing
+// the cookie falls back to those globals (DDEI while they're off).
 //
 // Lives in the base auth-handover feature (not a drop folder) because it arbitrates
 // BETWEEN the drops and DDEI, so it must outlive any single drop. Server-side only:
@@ -450,27 +427,10 @@ function _entraOn(r) {
   );
 }
 
-// Feature-switch getters for the /auth-refresh-inbound routing gate (js_set).
-// Read at REQUEST time from process.env, so a MISSING app setting reads as "off"
-// rather than wedging nginx at boot — which is what `set $x "${ENTRA_STORE_ENABLED}"`
-// (conf-side envsubst) did when the app setting was absent: envsubst left the token
-// literal and nginx died with `[emerg] unknown "entra_store_enabled" variable`.
-// js_set carries no `${...}` token, so envsubst never touches it and the config always
-// boots. Returns the string "true"/"false" the conf's `if (... = "true")` compares.
-// Parity with the old exact `= "true"` test: only the literal "true" enables.
-function entraStoreEnabled(r) {
-  return process.env.ENTRA_STORE_ENABLED === "true" ? "true" : "false";
-}
-function nonDdeiInitEnabled(r) {
-  return process.env.NON_DDEI_INIT_ENABLED === "true" ? "true" : "false";
-}
-
 export default {
   polarisAuthRedirect,
   appAuthRedirect,
   handleAuthRefreshOutbound,
   devLogin,
   enrol,
-  entraStoreEnabled,
-  nonDdeiInitEnabled,
 };

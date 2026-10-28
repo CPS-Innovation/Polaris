@@ -7,7 +7,7 @@
  *
  * Uses the same global `ngx.fetch` mock pattern as the drop2 suite.
  */
-const { test, assertEqual, assert, summarise } = require("../../../tests/unit/test-utils")
+const { test, assertEqual, assert, assertIncludes, summarise } = require("../../../tests/unit/test-utils")
 const { loadNjs, createMockRequest, applyEnv } = require("../../../tests/unit/njs-harness")
 
 let fetchImpl = async () => {
@@ -201,6 +201,115 @@ async function lookupTests(drop1) {
   })
 }
 
+// The one switch every DDEI-backed location reads (js_set $non_ddei).
+async function enabledTests(drop1) {
+  console.log("\nenabled — the drop1 switch ($non_ddei):")
+  const SW = ["NON_DDEI_INIT_ENABLED", "ENTRA_STORE_ENABLED"]
+  const withEnv = (env, fn) => {
+    const restore = applyEnv(Object.fromEntries(SW.map((k) => [k, env[k] || ""])))
+    try {
+      return fn()
+    } finally {
+      restore()
+    }
+  }
+  const on = (cookie) => drop1.enabled(createMockRequest({ headersIn: cookie ? { Cookie: cookie } : {} }))
+
+  await test("off with neither switch nor enrolment", async () => {
+    withEnv({}, () => assertEqual(on(""), "false", "off"))
+    withEnv({}, () => assertEqual(on("a=1; polaris_auth_handover=drop9"), "false", "unknown mode is off"))
+    withEnv({ NON_DDEI_INIT_ENABLED: "TRUE" }, () => assertEqual(on(""), "false", 'only the literal "true"'))
+  })
+
+  await test("on for either switch", async () => {
+    withEnv({ NON_DDEI_INIT_ENABLED: "true" }, () => assertEqual(on(""), "true", "drop1 switch"))
+    withEnv({ ENTRA_STORE_ENABLED: "true" }, () => assertEqual(on(""), "true", "Entra switch"))
+  })
+
+  await test("on for a drop1 or drop2 enrolment cookie, wherever it sits in the header", async () => {
+    withEnv({}, () => {
+      assertEqual(on("polaris_auth_handover=drop1"), "true", "drop1")
+      assertEqual(on("a=1; polaris_auth_handover=drop2; b=2"), "true", "drop2, mid-header")
+      assertEqual(on("xpolaris_auth_handover=drop1"), "false", "not a suffix match")
+    })
+  })
+}
+
+// DDEI InSituReauthTermination: the JSONP end of the UI's in-situ reauth.
+async function terminationTests(drop1) {
+  console.log("\nhandleTerminationNonDdei — /auth-refresh-termination:")
+  const call = (args) => {
+    const r = createMockRequest({ args })
+    drop1.handleTerminationNonDdei(r)
+    return r
+  }
+
+  await test("no auth-fail-reason -> cb({isSuccess: true, failReason: \"\" }), DDEI's exact shape", async () => {
+    const r = call({ cb: "jsonp_1730000000000_4242" })
+    assertEqual(r.returnCode, 200, "200")
+    assertEqual(r.returnBody, 'jsonp_1730000000000_4242({isSuccess: true, failReason: "" })', "body")
+    assertEqual(r.headersOut["Content-Type"], "text/javascript; charset=utf-8", "script")
+    assertEqual(r.headersOut["X-Polaris-Auth-Init"], "non-ddei", "marker")
+  })
+
+  await test("an auth-fail-reason -> isSuccess false + the reason", async () => {
+    const r = call({ cb: "cb", "auth-fail-reason": "cms-auth-not-valid" })
+    assertEqual(r.returnBody, 'cb({isSuccess: false, failReason: "cms-auth-not-valid" })', "body")
+  })
+
+  await test("a whitespace-only reason is success (DDEI IsNullOrWhiteSpace)", async () => {
+    assertEqual(call({ cb: "cb", "auth-fail-reason": "  " }).returnBody, 'cb({isSuccess: true, failReason: "  " })', "body")
+  })
+
+  await test("hardened: the reason is a JSON string, a non-identifier cb is refused", async () => {
+    assertEqual(call({ cb: "cb", "auth-fail-reason": 'x"});alert(1)//' }).returnBody, 'cb({isSuccess: false, failReason: "x\\"});alert(1)//" })', "escaped")
+    for (const cb of ["", "alert(1);cb", "1abc", "a b"]) {
+      assertEqual(call({ cb }).returnCode, 400, "400 for " + JSON.stringify(cb))
+    }
+  })
+}
+
+// DDEI GetModernToken: r + cc -> 302 to r with the incoming args (minus r) + cms-modern-token.
+async function cmsModernTokenTests(drop1) {
+  console.log("\nhandleCmsModernTokenNonDdei — /auth-refresh-cms-modern-token:")
+  const TOKEN = "00000000-0000-0000-0000-000000000001"
+  const call = async (args) => {
+    const r = createMockRequest({ args, headersIn: { Host: "proxy.example", "X-Forwarded-Proto": "https" } })
+    await drop1.handleCmsModernTokenNonDdei(r)
+    return r
+  }
+  const OS = "https://os.example/Casework_Patterns/auth-handover.html?src=x&stage=os-token-return"
+
+  await test("302 to r + every other arg + cms-modern-token (looked up), marked non-ddei", async () => {
+    fetchImpl = establishRouter()
+    const r = await call({ r: OS, cc: "a=1; b=2", extra: "y z" })
+    assertEqual(r.returnCode, 302, "302")
+    assertEqual(r.returnBody, OS + "&cc=a%3D1%3B%20b%3D2&extra=y%20z&cms-modern-token=" + TOKEN, "Location")
+    assertEqual(r.headersOut["X-Polaris-Auth-Init"], "non-ddei", "marker")
+  })
+
+  await test("r without a query gets ?; a #fragment stays last", async () => {
+    fetchImpl = establishRouter()
+    assertEqual((await call({ r: "https://os.example/p#frag", cc: "a=1" })).returnBody, "https://os.example/p?cc=a%3D1&cms-modern-token=" + TOKEN + "#frag", "Location")
+  })
+
+  await test("DDEI's 400s: no r, no cc, an incoming cms-modern-token (a loop)", async () => {
+    fetchImpl = async () => {
+      throw new Error("must not call CMS")
+    }
+    assertEqual((await call({ cc: "a=1" })).returnCode, 400, "no r")
+    assertEqual((await call({ r: OS })).returnCode, 400, "no cc")
+    assertEqual((await call({ r: OS, cc: "a=1", "cms-modern-token": TOKEN })).returnCode, 400, "loop")
+  })
+
+  await test("lookup fails -> 500 with the reason, no redirect", async () => {
+    fetchImpl = async (url) => (url.indexOf("/graphql/") !== -1 ? res({ status: 401 }) : establishRouter()(url))
+    const r = await call({ r: OS, cc: "a=1" })
+    assertEqual(r.returnCode, 500, "500")
+    assertIncludes(r.returnBody, "cms-modern-auth-not-valid", "reason")
+  })
+}
+
 async function main() {
   const restore = applyEnv({ WEBSITE_SCHEME: "https", ENDPOINT_HTTP_PROTOCOL: "https" })
   const drop1 = await loadNjs("features/auth-handover.drop1.replace-ddei/auth-handover.drop1.replace-ddei.js")
@@ -208,6 +317,9 @@ async function main() {
   await absoluteUrlTests(drop1)
   await passedTokenTests(drop1)
   await lookupTests(drop1)
+  await enabledTests(drop1)
+  await terminationTests(drop1)
+  await cmsModernTokenTests(drop1)
   restore()
   process.exit(summarise("auth-handover.drop1.replace-ddei (unit)"))
 }

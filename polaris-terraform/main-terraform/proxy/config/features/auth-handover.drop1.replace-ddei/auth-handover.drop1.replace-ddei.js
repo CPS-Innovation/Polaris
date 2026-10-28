@@ -1,5 +1,7 @@
 // ---------------------------------------------------------------------------
-// Non-DDEI init — DDEI's /api/init/ reimplemented entirely in njs (switch-gated).
+// Non-DDEI init — DDEI's /api/init/ reimplemented entirely in njs (switch-gated), plus the
+// rest of the auth handover DDEI answered (termination, cms-modern-token; dev-login reuses
+// this module) — see `enabled` at the bottom.
 //
 // Reached via an internal rewrite from /auth-refresh-inbound when NON_DDEI_INIT_ENABLED or
 // ENTRA_STORE_ENABLED is on, or the browser is enrolled (drop1 or drop2) — the gate lives in
@@ -48,10 +50,11 @@ const FAIL_UNEXPECTED = "unexpected-error";
 // Helpers
 // ---------------------------------------------------------------------------
 
-// Read an already-decoded query arg (njs r.args handles the percent/+ decoding).
+// Read an already-decoded query arg (njs r.args handles the percent/+ decoding); "" if absent
+// or REPEATED (njs gives an array for ?a=1&a=2: ambiguous, so it reads as missing — as drop2's).
 function _arg(r, name) {
   const v = r.args[name];
-  return v !== undefined ? v : "";
+  return typeof v === "string" ? v : "";
 }
 
 function _header(r, name) {
@@ -364,10 +367,106 @@ async function handleInitNonDdei(r) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// The switch, and the rest of the auth handover DDEI answered. With drop1 on, the proxy
+// makes no auth-handover call to DDEI: /auth-refresh-inbound (above), /auth-refresh-termination,
+// /auth-refresh-cms-modern-token and dev-login (feature dev-login, which reuses this module)
+// all answer here. Every gate in the confs reads `enabled` (js_set $non_ddei).
+// ---------------------------------------------------------------------------
+
+// The global switches, or this browser's enrolment (auth-handover's /auth-refresh-enrol;
+// enrolling in drop2 means "Entra at /init + drop1 behind"). Read at REQUEST time from
+// process.env, so a MISSING app setting reads as "off" rather than wedging nginx at boot
+// (a conf-side `${...}` token envsubst left literal did). Only the literal "true" enables.
+// Returns the string "true"/"false" the confs' `if ($non_ddei = "true")` compares.
+const ENROL_COOKIE_RE = /(?:^|;\s*)polaris_auth_handover=(drop1|drop2)(?:;|$)/;
+function enabled(r) {
+  const on =
+    process.env.NON_DDEI_INIT_ENABLED === "true" ||
+    process.env.ENTRA_STORE_ENABLED === "true" ||
+    ENROL_COOKIE_RE.test(_header(r, "Cookie"));
+  return on ? "true" : "false";
+}
+
+// /auth-refresh-termination — DDEI InSituReauthTermination. The last hop of the Polaris UI's
+// in-situ reauth (its polaris-ui-url): JSONP telling the waiting page how it went,
+//   <cb>({isSuccess: <no auth-fail-reason>, failReason: "<reason>" })
+// byte-for-byte DDEI's shape. Hardened where DDEI echoed its input into script: the callback
+// must be a plain identifier (the UI sends jsonp_<n>_<n>) and the reason is a JSON string.
+const JSONP_CALLBACK_RE = /^[A-Za-z_$][A-Za-z0-9_$.]{0,99}$/;
+function handleTerminationNonDdei(r) {
+  markAuthInit(r, "non-ddei");
+  const cb = _arg(r, "cb");
+  if (!JSONP_CALLBACK_RE.test(cb)) {
+    r.headersOut["Content-Type"] = "text/plain; charset=utf-8";
+    r.return(400, "cb must be a JavaScript identifier");
+    return;
+  }
+  const failReason = _arg(r, "auth-fail-reason");
+  r.headersOut["Content-Type"] = "text/javascript; charset=utf-8";
+  r.return(
+    200,
+    cb + "({isSuccess: " + !failReason.trim() + ", failReason: " + JSON.stringify(failReason) + " })",
+  );
+}
+
+// /auth-refresh-cms-modern-token — DDEI GetModernToken. global-components' OutSystems handover
+// bounces here when /init passed no token on (drop2 off or skipped; with drop2 the token rides
+// the handover URL and this is never called). Takes r + cc, looks the CMS session up, and 302s
+// to r with every incoming arg except r, plus cms-modern-token (DDEI's QueryHelpers.AddQueryString:
+// appended before any #fragment). Like DDEI, r is not whitelisted: the caller supplies both the
+// destination and the cookies, so nothing of anyone else's is handed on.
+function _addQuery(url, pairs) {
+  const hash = url.indexOf("#");
+  const base = hash === -1 ? url : url.substring(0, hash);
+  const frag = hash === -1 ? "" : url.substring(hash);
+  const query = pairs
+    .map((p) => encodeURIComponent(p[0]) + "=" + encodeURIComponent(p[1]))
+    .join("&");
+  return base + (base.includes("?") ? "&" : "?") + query + frag;
+}
+
+async function handleCmsModernTokenNonDdei(r) {
+  markAuthInit(r, "non-ddei");
+  const bad = (msg) => {
+    r.headersOut["Content-Type"] = "text/plain; charset=utf-8";
+    r.return(400, msg);
+  };
+  const dest = _arg(r, "r");
+  const cc = _arg(r, "cc");
+  if (!dest) return bad("Missing required 'r' parameter");
+  if (!cc) return bad("Missing required 'cc' parameter");
+  if (_arg(r, TOKEN_ARG)) {
+    return bad("The 'cms-modern-token' parameter should not be in the request.  Do you have an unintended loop?");
+  }
+
+  const found = await lookupCmsSession(_header(r, "Host"), cc);
+  if (!found.token) {
+    // DDEI answered 500 with the exception; the reason alone is enough to act on.
+    r.headersOut["Content-Type"] = "text/plain; charset=utf-8";
+    r.return(500, "Could not get the CMS modern token: " + found.reason);
+    return;
+  }
+
+  const pairs = [];
+  Object.keys(r.args).forEach((k) => {
+    if (k === "r") return;
+    [].concat(r.args[k]).forEach((v) => pairs.push([k, v]));
+  });
+  pairs.push([TOKEN_ARG, found.token]);
+  r.return(302, absoluteUrl(r, _addQuery(dest, pairs)));
+}
+
 export default {
   handleInitNonDdei,
-  // reused by feature auth-handover.drop2.entra:
+  handleTerminationNonDdei,
+  handleCmsModernTokenNonDdei,
+  enabled,
+  // reused by feature auth-handover.drop2.entra and feature dev-login:
+  DEFAULT_CMS_VERSION,
+  MSIE_UA,
   lookupCmsSession,
+  cmsAuthValuesCookie,
   markAuthInit,
   absoluteUrl,
 };

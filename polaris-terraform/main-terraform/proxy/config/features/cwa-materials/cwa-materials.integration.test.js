@@ -18,6 +18,7 @@ const {
   assertIncludes,
   get,
   summarise,
+  switchesOn,
 } = require("../../../tests/integration/test-utils")
 
 async function spa() {
@@ -129,6 +130,11 @@ async function api() {
 
   await test("longest-prefix: /api/dev-login-full-cookie/ is NOT served by /api/", async () => {
     const res = await get("/api/dev-login-full-cookie/")
+    if (switchesOn) {
+      // As deployed, the dev-login block answers in njs (feature dev-login): its form.
+      assertIncludes(await res.text(), 'name="username"', "Should be the dev-login form, not the gateway")
+      return
+    }
     const echo = await res.json()
     assertIncludes(echo.url, "/api/login-full-cookie", "Should hit the DDEI dev-login block instead")
   })
