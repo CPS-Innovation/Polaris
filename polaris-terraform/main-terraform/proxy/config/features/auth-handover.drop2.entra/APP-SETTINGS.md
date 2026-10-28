@@ -6,7 +6,7 @@ All terraform-managed, on both the production slot (`app-service-proxy.tf`) and 
 
 | Setting                   | Source in terraform                                         | Reason                                                                                     |
 | ------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `NON_DDEI_INIT_ENABLED`   | `var.non_ddei_init_enabled`                                 | Arm drop1 (`"true"`) behind `/auth-refresh-inbound` (the Entra switch also selects drop1 there). |
+| `NON_DDEI_INIT_ENABLED`   | `var.non_ddei_init_enabled`                                 | Arm drop1 (`"true"`): `/auth-refresh-inbound`, `/auth-refresh-termination`, `/auth-refresh-cms-modern-token` and dev-login answered in njs, no DDEI call (the Entra switch also selects drop1). |
 | `ENTRA_STORE_ENABLED`     | `var.proxy_entra.store_enabled`                             | Arm drop2 (`"true"`).                                                                      |
 | `ENTRA_TENANT_ID`         | `data.azurerm_client_config.current.tenant_id`              | Entra tenant id.                                                                           |
 | `ENTRA_CLIENT_ID`         | `var.proxy_entra.client_id`                                 | Our client app reg (pre-prod: `8d6133af-9593-47c6-94d0-5c65e9e310f1`).                     |

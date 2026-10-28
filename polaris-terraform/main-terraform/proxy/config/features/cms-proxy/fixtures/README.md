@@ -14,6 +14,7 @@ a whole realistic page:
 | `uainMenuBar.js`             | `cmsProxy.cmsMenuBarFilters` (P + Materials button injection) + the `openMaterials()` sub_filter | `…frameServerJS.POLARIS_URL`, `MENU_BAR_POLARIS_LOGO`, `var sMenuBarRight`, `function openPolaris() {` |
 | `uacdCDTabs.aspx.html`       | `polaris-script.js` injection + `cmsProxy.replaceCmsDomains`       | `</html>`, CMS domains                                                                          |
 | `cms-page.html`              | generic CMS classic/modern proxying + domain rewrites            | CMS domains, `https://`                                                                         |
+| `uaulLogin.aspx.html`        | dev-login's CMS login POST (feature dev-login), answered with its `Set-Cookie`s by the routes.json `headers` | none: the `.CMSAUTH` / session cookies ride the `headers` entry                                  |
 
 ## Replacing these with real captures
 

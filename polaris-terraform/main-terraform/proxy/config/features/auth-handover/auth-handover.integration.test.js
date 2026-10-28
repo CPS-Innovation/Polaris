@@ -13,6 +13,9 @@
  *   nginx.conf:741  /dev-login/                     -> DDEI /api/login
  *   nginx.conf:772  /api/dev-login-full-cookie/     -> DDEI /api/login-full-cookie
  *
+ * The DDEI-backed ones are answered in njs instead when the drop1 switch is on (or the browser
+ * is enrolled): nonDdeiTests runs them end to end, with no DDEI call.
+ *
  * NOTE /polaris is tagged "5 - CMS proxy" in §4 (with an "and auth 2" note), but
  * its handler lives in nginx.js alongside the rest of the handover flow, so it is
  * tested here. Its file ownership is a decision for the §6 slicing.
@@ -196,8 +199,8 @@ async function ddeiTests() {
     ["/auth-refresh-cms-modern-token", "/api/cms-modern-token/"],
   ]
   for (const [path, upstreamPath] of cases) {
-    // As deployed (switches on), drop1 answers /auth-refresh-inbound instead: drop1Tests.
-    if (switchesOn && path === "/auth-refresh-inbound") continue
+    // As deployed (switches on), njs answers these instead: drop1Tests, nonDdeiTests.
+    if (switchesOn) continue
     await test(`${path} -> DDEI ${upstreamPath}`, async () => {
       const res = await get(path, { headers: H })
       assertEqual(res.status, 200, "Should proxy to the mock DDEI")
@@ -206,7 +209,9 @@ async function ddeiTests() {
     })
   }
 
-  await test("/dev-login/ -> DDEI /api/login with the function key", async () => {
+  // As deployed (switches on), dev-login is answered in njs too (nonDdeiTests); its GET still
+  // clears the same cookies (asserted below on both passes).
+  if (!switchesOn) await test("/dev-login/ -> DDEI /api/login with the function key", async () => {
     const res = await get("/dev-login/", { headers: H })
     assertEqual(res.status, 200, "Should proxy")
     const echo = await res.json()
@@ -222,7 +227,7 @@ async function ddeiTests() {
     assertIncludes(cookies, "F-CIN5-LBsessioncookie=deleted", "clears an LB session cookie")
   })
 
-  await test("/api/dev-login-full-cookie/ -> DDEI /api/login-full-cookie", async () => {
+  if (!switchesOn) await test("/api/dev-login-full-cookie/ -> DDEI /api/login-full-cookie", async () => {
     const res = await get("/api/dev-login-full-cookie/", { headers: H })
     assertEqual(res.status, 200, "Should proxy")
     const echo = await res.json()
@@ -415,25 +420,30 @@ async function enrolTests() {
   })
 }
 
-// A GET that really sends `headers.Host` (fetch silently replaces Host with the URL's), so drop1's
-// $host loopbacks dial the alias. Returns { status, headers: { get }, setCookies }.
-function hostGet(path, headers) {
+// A request that really sends `headers.Host` (fetch silently replaces Host with the URL's), so
+// drop1's $host loopbacks dial the alias. Returns { status, headers: { get }, setCookies, body }.
+function hostRequest(method, path, headers, body) {
   const base = new URL(PROXY_BASE)
   return new Promise((resolve, reject) => {
-    const req = http.request({ host: base.hostname, port: base.port, path, method: "GET", headers }, (res) => {
-      res.resume()
+    const req = http.request({ host: base.hostname, port: base.port, path, method, headers }, (res) => {
+      let text = ""
+      res.setEncoding("utf8")
+      res.on("data", (d) => (text += d))
       res.on("end", () =>
         resolve({
           status: res.statusCode,
           headers: { get: (n) => (res.headers[n.toLowerCase()] === undefined ? null : String(res.headers[n.toLowerCase()])) },
           setCookies: [].concat(res.headers["set-cookie"] || []),
+          body: text,
         }),
       )
     })
     req.on("error", reject)
+    if (body !== undefined) req.write(body)
     req.end()
   })
 }
+const hostGet = (path, headers) => hostRequest("GET", path, headers)
 
 async function drop1Tests() {
   if (!isNext) return
@@ -475,6 +485,63 @@ async function drop1Tests() {
   })
 }
 
+// The rest of the auth handover DDEI answered, in njs (switch on, or a drop1 enrolment): no DDEI
+// call. The CMS loopbacks dial the polaris-loopback.test alias -> the mock's fixtures (cms-proxy's
+// uaulLogin.aspx sets the login cookies; uainGeneratedScript + graphql give the modern token).
+async function nonDdeiTests() {
+  if (!isNext) return
+  console.log("\nDDEI-backed routes in njs (no DDEI) — " + (switchesOn ? "switch on" : "enrolment cookie") + ":")
+  const LOOP = "polaris-loopback.test"
+  const FIXTURE_SESSION_ID = "00000000-0000-0000-0000-000000000001"
+  const headers = Object.assign({ Host: LOOP }, H, switchesOn ? {} : { Cookie: "polaris_auth_handover=drop1" })
+  const form = Object.assign({ "Content-Type": "application/x-www-form-urlencoded" }, headers)
+
+  await test("/auth-refresh-termination: DDEI's JSONP, from njs", async () => {
+    let res = await hostGet("/auth-refresh-termination?cb=jsonp_1_2", headers)
+    assertEqual(res.status, 200, "200")
+    assertEqual(res.headers.get("x-polaris-auth-init"), "non-ddei", "njs answered")
+    assertEqual(res.body, 'jsonp_1_2({isSuccess: true, failReason: "" })', "success")
+    res = await hostGet("/auth-refresh-termination?cb=jsonp_1_2&auth-fail-reason=no-cookies", headers)
+    assertEqual(res.body, 'jsonp_1_2({isSuccess: false, failReason: "no-cookies" })', "fail")
+  })
+
+  await test("/auth-refresh-cms-modern-token: 302 to r with cc + the minted token", async () => {
+    const r = "https://os.example/Casework_Patterns/auth-handover.html?stage=os-token-return"
+    const res = await hostGet("/auth-refresh-cms-modern-token?r=" + encodeURIComponent(r) + "&cc=" + encodeURIComponent(".CMSAUTH=abc"), headers)
+    assertEqual(res.headers.get("x-polaris-auth-init"), "non-ddei", "njs answered")
+    assertEqual(res.status, 302, "302")
+    assertEqual(res.headers.get("location"), r + "&cc=.CMSAUTH%3Dabc&cms-modern-token=" + FIXTURE_SESSION_ID, "Location")
+  })
+
+  await test("GET /dev-login/: our form (e2e's field names), cookie reset", async () => {
+    const res = await hostGet("/dev-login/", headers)
+    assertEqual(res.status, 200, "200")
+    assertIncludes(res.body, 'name="username"', "username")
+    assertIncludes(res.body, 'type="submit"', "submit")
+    assertIncludes(res.setCookies.join("\n"), "__CMSENV=deleted", "reset")
+  })
+
+  await test("POST /dev-login/: CMS login through the proxy's own routing -> CMS cookies + __CMSENV, login-ok, P/M links", async () => {
+    const res = await hostRequest("POST", "/dev-login/", form, "username=jo&password=x&selected-environment=cin2")
+    assertEqual(res.status, 200, "200: " + res.body.slice(0, 200))
+    const sc = res.setCookies.join("\n")
+    assertIncludes(sc, ".CMSAUTH=dev-login-auth", "the login fixture's cookie")
+    assertIncludes(sc, "__CMSENV=cin2", "env marker")
+    assertIncludes(res.body, 'data-testid="login-ok"', "e2e's locator")
+    assertIncludes(res.body, 'href="/polaris?polaris-ui-url=/materials-ui"', "M link")
+  })
+
+  await test("POST /api/dev-login-full-cookie/: Cms-Auth-Values first, with the minted token", async () => {
+    const res = await hostRequest("POST", "/api/dev-login-full-cookie/", form, "username=jo&password=x")
+    assertEqual(res.status, 200, "200: " + res.body.slice(0, 200))
+    const first = res.setCookies[0] || ""
+    assert(first.indexOf("Cms-Auth-Values=") === 0, "first Set-Cookie: " + first.slice(0, 40))
+    const dto = JSON.parse(decodeURIComponent(first.split(";")[0].slice("Cms-Auth-Values=".length)))
+    assertEqual(dto.token, FIXTURE_SESSION_ID, "token")
+    assertIncludes(dto.cookies, ".CMSAUTH=dev-login-auth", "the CMS session")
+  })
+}
+
 async function main() {
   await initTests()
   await polarisTests()
@@ -484,6 +551,7 @@ async function main() {
   await entraRoutingTests()
   await enrolTests()
   await drop1Tests()
+  await nonDdeiTests()
   process.exit(summarise("Auth handover (feature 2)"))
 }
 
