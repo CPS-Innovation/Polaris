@@ -10,7 +10,7 @@
  *  1. FIXTURE routes — DISCOVERED from the feature folders at startup. A feature
  *     that needs canned upstream bodies ships them itself:
  *
- *       config/features/<name>/fixtures/routes.json   [{ re, file, type }, ...]
+ *       config/features/<name>/fixtures/routes.json   [{ re, file, type, headers? }, ...]
  *       config/features/<name>/fixtures/<file>
  *
  *     so this mock holds NO per-feature knowledge and a feature stays complete in
@@ -66,6 +66,8 @@ function discoverFixtureRoutes() {
         re: new RegExp(r.re, "i"),
         type: r.type,
         file: r.file,
+        // Extra response headers (e.g. a CMS login's Set-Cookie array), optional.
+        headers: r.headers || {},
         path: path.join(FEATURES_DIR, feature, "fixtures", r.file),
         feature,
       })
@@ -98,6 +100,7 @@ function handler(req, res) {
           // Echo the Host back in a header too, so body-fixture routes can still
           // assert which CMS environment was selected.
           "X-Mock-Host": req.headers.host || "",
+          ...route.headers,
         })
         return res.end(fs.readFileSync(file, "utf8"))
       }

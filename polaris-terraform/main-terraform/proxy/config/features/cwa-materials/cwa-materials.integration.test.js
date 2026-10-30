@@ -18,6 +18,7 @@ const {
   assertIncludes,
   get,
   summarise,
+  switchesOn,
 } = require("../../../tests/integration/test-utils")
 
 async function spa() {
@@ -34,7 +35,7 @@ async function spa() {
 async function materials() {
   console.log("\nlocation /materials — handover redirect:")
 
-  await test("generic (no caseUrn) -> 302 handover to /materials-ui", async () => {
+  await test("generic (no caseId) -> 302 handover to /materials-ui", async () => {
     const res = await get("/materials")
     assertEqual(res.status, 302, "Should 302")
     const loc = res.headers.get("location")
@@ -43,14 +44,24 @@ async function materials() {
     assertIncludes(loc, "polaris-ui-url=/materials-ui", "Should land on the generic Materials page")
   })
 
-  await test("case-specific -> 302 handover to the case deep-link", async () => {
-    const res = await get("/materials?caseUrn=URN1&caseId=99")
+  // #2189 removed the case URN from this entry point: keyed on caseId alone, deep-link
+  // /materials-ui/{caseId}/materials.
+  await test("case-specific -> 302 handover to the {caseId} deep-link", async () => {
+    const res = await get("/materials?caseId=99")
     assertEqual(res.status, 302, "Should 302")
     assertIncludes(
       res.headers.get("location"),
-      "polaris-ui-url=/materials-ui/URN1/99/materials",
-      "Should build the {caseUrn}/{caseId}/materials deep-link (feeds nginx.conf:701)"
+      "polaris-ui-url=/materials-ui/99/materials",
+      "Should build the {caseId}/materials deep-link"
     )
+  })
+
+  await test("a legacy caseUrn param is ignored (#2189)", async () => {
+    const urnOnly = await get("/materials?caseUrn=URN1")
+    assertIncludes(urnOnly.headers.get("location"), "polaris-ui-url=/materials-ui", "caseUrn alone -> generic page")
+    assertEqual(urnOnly.headers.get("location").indexOf("URN1"), -1, "URN not carried")
+    const both = await get("/materials?caseUrn=URN1&caseId=99")
+    assertIncludes(both.headers.get("location"), "polaris-ui-url=/materials-ui/99/materials", "caseId wins, URN dropped")
   })
 
   console.log("\nlocation = /materials-ui — trailing-slash normaliser:")
@@ -119,6 +130,11 @@ async function api() {
 
   await test("longest-prefix: /api/dev-login-full-cookie/ is NOT served by /api/", async () => {
     const res = await get("/api/dev-login-full-cookie/")
+    if (switchesOn) {
+      // As deployed, the dev-login block answers in njs (feature dev-login): its form.
+      assertIncludes(await res.text(), 'name="username"', "Should be the dev-login form, not the gateway")
+      return
+    }
     const echo = await res.json()
     assertIncludes(echo.url, "/api/login-full-cookie", "Should hit the DDEI dev-login block instead")
   })
