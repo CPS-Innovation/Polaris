@@ -797,7 +797,33 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
     }
 
     /// <inheritdoc/>
-    public async Task<WitnessStatementsResponse> GetWitnessStatementsAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    public async Task<ApiClient.WitnessStatementResponseDto> GetWitnessStatementsAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(request);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
+
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "GetStatementsForWitness";
+
+        ApiClient.WitnessStatementResponseDto results = new ();
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+
+            var data = await client.GetStatementsForWitnessAsync(request.WitnessId, cancellationToken);
+            results = data;
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+            throw;
+        }
+
+        return results;
+    }
+
+    public async Task<WitnessStatementsResponse> GetWitnessStatementsLegacyAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         Requires.NotNull(request);
         Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
