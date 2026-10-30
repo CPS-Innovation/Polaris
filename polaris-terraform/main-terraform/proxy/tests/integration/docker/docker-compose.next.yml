@@ -17,17 +17,23 @@
 # So adding a feature is just creating features/<name>/<name>.{conf,js,unit.test.js}
 # — no mount lines here, and both test runners discover it at run time.
 #
-# (The base stack still mounts the LIVE nginx.js/cmsenv.js/global-components.* at
-# the templates root. The next config references none of them — it includes only
-# features/*/*.conf — so they sit there unused until cutover.)
+# BOOTS THE WAY AZURE DOES: the live monolith (base stack) and the next config sit side
+# by side at the templates root, exactly as in the blob container — the next entry as
+# nginx-next.conf.template — and the container starts through start-next.sh, the script
+# terraform sets as the App Service Startup Command (var.proxy_next_config_enabled). So
+# a green --next run also proves the cutover script boots the next config. The next
+# config includes only features/*/*.conf, so the parked live files are never loaded.
 
 services:
   nginx:
+    # = App Service Startup Command `sh /etc/nginx/templates/start-next.sh`.
+    command: ["sh", "/etc/nginx/templates/start-next.sh"]
     volumes:
       # ../../../config == polaris-terraform/main-terraform/proxy/config/
       #
       # The root config is a single stable file; everything else is DISCOVERED.
-      - ../../../config/nginx.conf:/etc/nginx/templates/nginx.conf.template:ro
+      - ../../../config/nginx.conf:/etc/nginx/templates/nginx-next.conf.template:ro
+      - ../../../config/start-next.sh:/etc/nginx/templates/start-next.sh:ro
       #
       # The whole features tree is mounted as ONE directory and staged into
       # /etc/nginx/templates/features by stage-config.sh (which maps .conf ->

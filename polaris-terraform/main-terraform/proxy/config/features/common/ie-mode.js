@@ -9,7 +9,7 @@
 // header (value "1" => configurable). Absent headers => nonie / nonconfigurable,
 // exactly as the ladder's `!= 1` / `!~ Trident` branches produced.
 //
-// Kept as its own common module (not folded into cms-detection.js) — different
+// Kept as its own common module (not folded into cmsenv.js) — different
 // concern (browser mode, not CMS environment). Cross-cutting: consumed by
 // auth-handover, cms-proxy and global-components.
 function ieAction(r) {
@@ -33,7 +33,7 @@ function ieAction(r) {
 function coerce(r, want, reject) {
   const state = ieAction(r);
   const inIe = state.indexOf("nonie") !== 0; // starts "ie+" (not "nonie+")
-  const configurable = state.indexOf("nonconfigurable") === -1;
+  const configurable = !state.includes("nonconfigurable");
   const wrongMode = want === "ie" ? !inIe : inIe;
   if (!wrongMode) {
     return false; // already in the wanted mode — proceed

@@ -15,7 +15,7 @@ master); the code now lives in `polaris-ddei.{conf,js}` in this folder.
 
 ### A4. ⚪ `/internal-implementation/*` is "internal-only" by convention only
 
-**Where (live):** `nginx.conf:803, 838, 872, 907` — 0 `allow`/`deny` directives in any of them
+**Where (live):** `nginx.conf:852, 887, 921, 956` — 0 `allow`/`deny` directives in any of them
 **Where (next):** `polaris-ddei.conf` (`/internal-implementation/{corsham,farnborough}[/modern]/`)
 **Test:** `polaris-ddei.integration.test.js` (they are freely reachable in the harness)
 
@@ -41,8 +41,11 @@ anyway.
 self-contained and owns its own getter copies (a deliberate duplication so the
 feature can be deleted as one unit) — so collapsing the delegate layer happens
 naturally when this feature is dropped.
-**Test:** `cms-proxy.unit.test.js` → the delegates are proven identical to their
-public twins (the public getters live in `cms-proxy.js`).
+**Test:** `polaris-ddei.unit.test.js` → "All getters this feature owns, every
+environment" — its own copies give the same per-env values that
+`common/cmsenv.unit.test.js` pins for the public getters (which live in
+`common/cmsenv.js`). The next config has no `*Internal` functions: `polaris-ddei.conf`
+js_sets its `*Internal`-named variables straight from those copies.
 
 `proxyDestinationCorshamInternal(r)` is literally `return proxyDestinationCorsham(r)`.
 They exist only to give the internal routes a distinct `js_set` name. Free to

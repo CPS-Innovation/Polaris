@@ -1,16 +1,9 @@
 // The only feature-exclusive njs: it rewrites the CMS response body — swapping
 // upstream domains/IPs back to the proxy host and injecting the Polaris/Materials
 // launch buttons into the CMS menu bar. Per-environment app-setting reads come
-// from the shared common.cms-detection module.
-import common from "../common/cms-detection.js";
+// from the shared common/cmsenv.js module.
+import cmsenv from "../common/cmsenv.js";
 import ieMode from "../common/ie-mode.js";
-
-// Getter factories, built on common.setting: a getter for a raw upstream value, and
-// one that prefixes the protocol to build a proxy_pass target. `name` is the
-// setting's env-var name. (Kept feature-local rather than central — see common/cms-detection.js.)
-const upstream = (name) => (r) => common.setting(r, name);
-const dest = (name) => (r) =>
-  process.env.ENDPOINT_HTTP_PROTOCOL + "://" + common.setting(r, name);
 
 function replaceCmsDomains(r, data, flags) {
   __replaceCmsDomainsGeneric(r, data, flags, r.variables.host);
@@ -35,12 +28,12 @@ function __addAppLaunchButtonsToMenuBar(r, data, flags) {
   );
   data = data.replace(
     new RegExp("MENU_BAR_POLARIS_LOGO", "g"),
-    '"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAJKSURBVEhLtZXPS9tgGMe/6Q9r01Y7pyiWlWFRmTpXNybOy2AIO6gTBwpWYV4Ezz3sH1AP/gPuphdF1It49bLD8FAnMoa0MBXGJrYeiiFNbU2b+OTHac2yRNYPNHngffJ++zzfJ28YmUAVcej3qmFawfr6d8iyBIYBampcKJeBqaluiGIZbrdTzzLHVIBlP+LmpqjGLpcPXq8DR0dxrK5+xcDAQ4yNvVDXzDBtUTAYoGu9EqGhoQ7NzUESOMfgYAjb2yns75/h5CSt5v4Nyx4wjIxi0UFVsNjZSSIWe47Fxc9oa2tEMnmlZ1Vi2qLW1gVcXooUMQgEnJidjSKXKyGd5mktiJ6eehwe/sTGxgftAQMsV8DzBczPv6L+v8fISCdt/Fv999FohPz4pGdVYmtMeV4zfG7uJdrbH2Bv7weamnxYWnqL21saMQPu9R44nQxKJRkcJ9KUichkBEiScadtCfj9HvW+ubmNNs1hZqYb2WweKytfUFvrUtf+xKbJz5DPSzg9zaKjoxGRiB+pVAZrazHtAQMsV8CybuzunmF0tBPhcB36+0M4OEhjefkdEolfelYllgWUOj0eiXqex/j4E9r8HJOTT3FxwZHYIz2rEssCDB1IHCfQWD7G8fEVhobCmJ7uRV9fSM8wxrIHXi8Qj7+mt/cNBKEIn08z/F9YrkAZx4mJLjW2urmCrTEtFEp6ZB1bAsp3wS6mAtfXAl15/Zej09T4ODDD1OStrQQZqn3RJEnC8HAvWlr8+qo1TAX+B7Y8uA9VFgDuAGLN1z00rPbxAAAAAElFTkSuQmCC"',
+    '"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAJKSURBVEhLtZXPS9tgGMe/6Q9r01Y7pyiWlWFRmTpXNybOy2AIO6gTBwpWYV4Ezz3sH1AP/gPuphdF1It49bLD8FAnMoa0MBXGJrYeiiFNbU2b+OTHac2yRNYPNHngffJ++zzfJ28YmUAVcej3qmFawfr6d8iyBIYBampcKJeBqaluiGIZbrdTzzLHVIBlP+LmpqjGLpcPXq8DR0dxrK5+xcDAQ4yNvVDXzDBtUTAYoGu9EqGhoQ7NzUESOMfgYAjb2yns75/h5CSt5v4Nyx4wjIxi0UFVsNjZSSIWe47Fxc9oa2tEMnmlZ1Vi2qLW1gVcXooUMQgEnJidjSKXKyGd5mktiJ6eehwe/sTGxgftAQMsV8DzBczPv6L+v8fISCdt/Fv999FohPz4pGdVYmtMeV4zfG7uJdrbH2Bv7weamnxYWnqL21saMQPu9R44nQxKJRkcJ9KUichkBEiScadtCfj9HvW+ufmNNs1hZqYb2WweKytfUFvrUtf+xKbJz5DPSzg9zaKjoxGRiB+pVAZrazHtAQMsV8CybuzunmF0tBPhcB36+0M4OEhjefkdEolfelYllgWUOj0eiXqex/j4E9r8HJOTT3FxwZHYIz2rEssCDB1IHCfQWD7G8fEVhobCmJ7uRV9fSM8wxrIHXi8Qj7+mt/cNBKEIn08z/F9YrkAZx4mJLjW2urmCrTEtFEp6ZB1bAsp3wS6mAtfXAl15/Zej09T4ODDD1OStrQQZqn3RJEnC8HAvWlr8+qo1TAX+B7Y8uA9VFgDuAGLN1z00rPbxAAAAAElFTkSuQmCC"',
   );
   // Add the Materials button
   data = data.replace(
     "var sMenuBarRight",
-    'sMenuBarLeft += \'<td class="menu"><img alt="Launch Materials" border="0" class="clickable" onclick="openMaterials()" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAASBJREFUeNpidEjcykANwMRAJUA1g1gglIGGcH+ZOVy0c+6lHUefYNWAprKw6+SFG29xuig7UlNChBNTnIeLtTxJjwSvATU05xhjipcn62G1AF8YqcjxJfirIot4WMvYGIqTE9jx/qrAEIGwgQ4B+pf8WAOGCNCbQAbQpxAGgVhDBncefQLaD9EGZADD5e6jT0CfQmS/fPv94s13OBefi758/wOMfjgXGC7xSIFVO+UcUAGxXjty/uWa3Q8wxYGCkFRDQhhNXX4N6Ec0LwMFyQns2ilngSECDxogl8xYAwYqPLCmLr8O5JIWa2iBBcl0uLIesQZBMvDQLI8Gn0GMkMIfmLOQcxNaUsQsYeAZGKgSktZY4JpxpX2suZqGXgMIMACZaHaNNm2JEgAAAABJRU5ErkJggg=="></td>\';\n\tvar sMenuBarRight',
+    'sMenuBarLeft += \'<td class="menu"><a href="#" onclick="openMaterials();return false;"><img alt="Launch Materials" border="0" class="clickable" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAASBJREFUeNpidEjcykANwMRAJUA1g1gglIGGcH+ZOVy0c+6lHUefYNWAprKw6+SFG29xuig7UlNChBNTnIeLtTxJjwSvATU05xhjipcn62G1AF8YqcjxJfirIot4WMvYGIqTE9jx/qrAEIGwgQ4B+pf8WAOGCNCbQAbQpxAGgVhDBncefQLaD9EGZADD5e6jT0CfQmS/fPv94s13OBefi758/wOMfjgXGC7xSIFVO+UcUAGxXjty/uWa3Q8wxYGCkFRDQhhNXX4N6Ec0LwMFyQns2ilngSECDxogl8xYAwYqPLCmLr8O5JIWa2iBBcl0uLIesQZBMvDQLI8Gn0GMkMIfmLOQcxNaUsQsYeAZGKgSktZY4JpxpX2suZqGXgMIMACZaHaNNm2JEgAAAABJRU5ErkJggg=="></a></td>\';\n\tvar sMenuBarRight',
   );
   return data;
 }
@@ -53,13 +46,13 @@ function __replaceCmsDomainsGeneric(r, data, flags, host) {
   }
 
   let replacements = [
-    { old: common.setting(r, "UPSTREAM_CMS_MODERN_DOMAIN_NAME"), new: host },
-    { old: common.setting(r, "UPSTREAM_CMS_SERVICES_DOMAIN_NAME"), new: host },
-    { old: common.setting(r, "UPSTREAM_CMS_DOMAIN_NAME"), new: host },
-    { old: common.setting(r, "UPSTREAM_CMS_IP_CORSHAM"), new: host },
-    { old: common.setting(r, "UPSTREAM_CMS_MODERN_IP_CORSHAM"), new: host },
-    { old: common.setting(r, "UPSTREAM_CMS_IP_FARNBOROUGH"), new: host },
-    { old: common.setting(r, "UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"), new: host },
+    { old: cmsenv.setting(r, "UPSTREAM_CMS_MODERN_DOMAIN_NAME"), new: host },
+    { old: cmsenv.setting(r, "UPSTREAM_CMS_SERVICES_DOMAIN_NAME"), new: host },
+    { old: cmsenv.setting(r, "UPSTREAM_CMS_DOMAIN_NAME"), new: host },
+    { old: cmsenv.setting(r, "UPSTREAM_CMS_IP_CORSHAM"), new: host },
+    { old: cmsenv.setting(r, "UPSTREAM_CMS_MODERN_IP_CORSHAM"), new: host },
+    { old: cmsenv.setting(r, "UPSTREAM_CMS_IP_FARNBOROUGH"), new: host },
+    { old: cmsenv.setting(r, "UPSTREAM_CMS_MODERN_IP_FARNBOROUGH"), new: host },
   ];
 
   r.sendBuffer(__replaceContent(data, replacements), flags);
@@ -79,9 +72,9 @@ function __replaceContent(content, replacements) {
 // ---------------------------------------------------------------------------
 // Env-switch endpoints /cin2../cin5 + /cpt (pre-prod only) — collapsed from the
 // near-identical conf blocks into one handler. Sets the __CMSENV hint cookie for the
-// chosen environment (cin3 IS "default" — see cms-detection.js / QUIRK D9), clears the
+// chosen environment (cin3 IS "default" — see common/cmsenv.js / QUIRK D9), clears the
 // OTHER environments' BIG-IP pool + LB session cookies (they can carry the env token
-// cms-detection scans for), then 302s to /CMS. The IE-desired gate reads $ieaction
+// cmsenv.detect scans for), then 302s to /CMS. The IE-desired gate reads $ieaction
 // (features/common/ie-mode.js). As a js_content location it now inherits the server
 // security headers on the 302 — harmless for a cookie-set + redirect; the old conf
 // blocks dropped them (QUIRK B3). Pre-prod only.
@@ -95,7 +88,7 @@ const CIN_EXPIRE = "=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 // Switchable CMS environments whose confounding cookies a switch clears. CIN envs sit
 // behind the F5 BIG-IP pool (ACP+AFP pool cookies) AND carry C-/F- LB session cookies;
 // cpt/cmo carry only the C-/F- LB session cookies (no BIG-IP pool). NOTE (RMAT-242):
-// cmo has no upstream config, so cms-detection.js routes "mod"/"cmo" cookies to
+// cmo has no upstream config, so cmsenv.detect routes "mod"/"cmo" cookies to
 // default rather than "cmo" — mirrors the live fix; wholesale env support later.
 const CIN_ENVS = ["cin2", "cin3", "cin4", "cin5"]; // BIG-IP pool + LB session cookies
 const LB_ONLY_ENVS = ["mod", "cpt"]; // LB session cookies only
@@ -166,14 +159,8 @@ function cinSwitch(r) {
 }
 
 export default {
-  // CMS-upstream getters this feature js_sets (Corsham dests + the domain
-  // getters). Built from this feature's own factories (over common.setting);
-  // used by no other feature, so they live here rather than centrally.
-  proxyDestinationCorsham: dest("UPSTREAM_CMS_IP_CORSHAM"),
-  proxyDestinationModernCorsham: dest("UPSTREAM_CMS_MODERN_IP_CORSHAM"),
-  upstreamCmsDomainName: upstream("UPSTREAM_CMS_DOMAIN_NAME"),
-  upstreamCmsModernDomainName: upstream("UPSTREAM_CMS_MODERN_DOMAIN_NAME"),
-  upstreamCmsServicesDomainName: upstream("UPSTREAM_CMS_SERVICES_DOMAIN_NAME"),
+  // (The CMS-upstream getters this feature's conf js_sets live in the shared,
+  // contract-bound common/cmsenv.js — see there for why.)
   // response-body filters
   replaceCmsDomains,
   replaceCmsDomainsAjaxViewer,

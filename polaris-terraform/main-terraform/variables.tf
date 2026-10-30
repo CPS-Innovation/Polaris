@@ -146,6 +146,45 @@ variable "auth_handover_whitelist" {
   type = string
 }
 
+variable "proxy_next_config_enabled" {
+  # THE cutover switch: which nginx config the proxy runs. true = the refactored "next" config
+  #  (proxy/config), booted by the App Service Startup Command `sh /etc/nginx/templates/start-next.sh`
+  #  on both slots; false = empty Startup Command = the image default = the live monolith
+  #  (main-terraform/nginx.conf). Rollback is false + apply. Terraform owns the Startup Command, so
+  #  a hand-set one is reverted on the next apply. No default: set per env in *.tfvars.
+  type = bool
+}
+
+variable "non_ddei_init_enabled" {
+  # drop1 (auth-handover.drop1.replace-ddei) global switch -> app setting NON_DDEI_INIT_ENABLED.
+  #  true routes every /auth-refresh-inbound through the njs DDEI-/api/init/ replacement instead
+  #  of proxying to DDEI. Read by njs at request time; only the refactored "next" proxy config
+  #  (proxy/config) acts on it — the live monolith ignores it. No default: set per env in *.tfvars.
+  type = bool
+}
+
+variable "proxy_entra" {
+  # drop2 (auth-handover.drop2.entra) -> the proxy's ENTRA_* app settings.
+  #  store_enabled  global switch -> ENTRA_STORE_ENABLED. Every env needs the Key Vault secret
+  #                 GlobalComponents-Entra-ClientSecret, whatever this is (enrolment runs drop2 too).
+  #  client_id      the app registration drop2 signs in with (may be set ahead of store_enabled).
+  #  mds_scope      the MDS scope drop2 swaps the user's refresh token for, to deposit to MDS
+  #                 ("" = no MDS scope in this env; drop2 then falls back to drop1 behaviour).
+  #  watchdog_scope the watchdog (presence API) scope drop2 swaps the refresh token for, to set
+  #                 the presence cookie on the hidden-iframe flow ("" = no presence cookie).
+  #  interactive_enabled  -> ENTRA_INTERACTIVE_ENABLED. true: a top-level handover whose silent
+  #                 sign-in fails in a way a person can fix (several accounts, no session, MFA)
+  #                 retries once with Entra's account picker. false: silent only (prompt=none).
+  #  Only the "next" proxy config acts on these; the live monolith ignores them.
+  type = object({
+    store_enabled       = bool
+    client_id           = string
+    mds_scope           = string
+    watchdog_scope      = string
+    interactive_enabled = bool
+  })
+}
+
 variable "app_service_log_retention" {
   type = number
 }

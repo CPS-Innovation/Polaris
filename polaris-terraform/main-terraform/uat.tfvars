@@ -84,6 +84,25 @@ cms_details = {
 
 auth_handover_whitelist = "/auth-refresh-inbound,https://cps-tst1.outsystemsenterprise.com/,https://oapps-uat-notprod.int.cps.gov.uk/,https://housekeeping-fn-staging.int.cps.gov.uk/,https://fa-lacc-api-staging.azurewebsites.net/,https://fa-cmrc-api-staging.azurewebsites.net/,https://polaris-uat-notprod.cps.gov.uk/auth-refresh-inbound?polaris-ui-url=/materials-ui"
 
+proxy_next_config_enabled = true
+
+non_ddei_init_enabled = true
+
+proxy_entra = {
+  store_enabled = true
+  client_id     = "8d6133af-9593-47c6-94d0-5c65e9e310f1" # "FCT Global Components (dev)"
+  # MDS's PCE app registration (main.tf maps uat -> wm-app-ddei-staging-pce). Until MDS exposes
+  # full_scope there and pre-authorises client_id, the swap fails and drop2 degrades to plain /init.
+  mds_scope = "api://fa-wm-app-ddei-staging-pce/full_scope"
+  # Interim, shared by all pre-prod: the scope our own app reg (8d6133af) exposes, which the
+  # watchdog (presence API) accepts today. Swap for the watchdog's own app reg scope when it
+  # exists (config only, no code change).
+  watchdog_scope = "api://8d6133af-9593-47c6-94d0-5c65e9e310f1/api.presence.user.readwrite"
+  # Pre-prod: a silent sign-in that fails for several accounts / no session / MFA retries once
+  # with the account picker (developers on Workspaces / Linux, several accounts).
+  interactive_enabled = true
+}
+
 app_service_log_retention       = 90
 app_service_log_total_retention = 2555
 
