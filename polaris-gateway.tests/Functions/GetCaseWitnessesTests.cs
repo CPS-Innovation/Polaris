@@ -1,8 +1,8 @@
-// <copyright file="GeCaseWitnesses.cs" company="TheCrownProsecutionService">
+// <copyright file="GetCaseWitnessesTests.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace PolarisGateway.Tests.Functions.HouseKeeping;
+namespace PolarisGateway.Tests.Functions;
 
 using System;
 using System.Collections.Generic;
@@ -16,13 +16,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using PolarisGateway.Functions.HouseKeeping;
+using PolarisGateway.Functions;
 using Xunit;
 
 /// <summary>
 /// Unit tests for GetCaseWitnesses.
 /// </summary>
-public class GeCaseWitnessesTests
+public class GetCaseWitnessesTests
 {
     private readonly TestLogger<GetCaseWitnesses> mockLogger;
     private readonly Mock<IWitnessService> mockWitnessService;
@@ -30,9 +30,9 @@ public class GeCaseWitnessesTests
     private readonly GetCaseWitnesses sutGetCaseWitnesses;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GeCaseWitnessesTests"/> class.
+    /// Initializes a new instance of the <see cref="GetCaseWitnessesTests"/> class.
     /// </summary>
-    public GeCaseWitnessesTests()
+    public GetCaseWitnessesTests()
     {
         this.mockLogger = new TestLogger<GetCaseWitnesses>();
         this.mockWitnessService = new Mock<IWitnessService>();
