@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Global components auth termination</title>
+</head>
+<!-- 
+  This file is part of an experimental feature (see #FCT2-8790). The file exists so that silent 
+  MSAL flows initiated by global components have a predictable URL to terminate at.  
+  
+  When the global header is present in an app, the header will initiate a silent MSAL flow to
+  attempt to obtain the logged-in user's account information. It is necessary that the termination 
+  point is within the same origin as the point where the flow was initiated - hence the existence 
+  of this file within this folder.
+
+  This file doesn't interfere with the operation of the host app.
+-->
+
+</html>
