@@ -103,6 +103,26 @@ async function passedTokenTests(drop1) {
     return JSON.parse(decodeURIComponent(c.slice("Cms-Auth-Values=".length).split(";")[0]))
   }
 
+  const attrsFor = async (uiUrl, host, proto = "https") => {
+    const r = createMockRequest({
+      args: { cc: "ASP.NET_SessionId=x", "polaris-ui-url": uiUrl, "cms-modern-token": TOKEN, "cms-version-id": "CMS.25.1.02" },
+      headersIn: { Host: host, "X-Forwarded-Proto": proto },
+    })
+    await drop1.handleInitNonDdei(r)
+    const c = r.headersOut["Set-Cookie"].find((x) => x.indexOf("Cms-Auth-Values=") === 0)
+    return c.split("; ").slice(1).join("; ")
+  }
+
+  await test("DDEI's SameSite: a localhost UI against a deployed proxy -> None", async () => {
+    assertEqual(await attrsFor("http://localhost:3000/polaris-ui/", "proxy.example"), "Path=/api/; HttpOnly; Secure; SameSite=None", "attributes")
+  })
+
+  await test("DDEI's SameSite: otherwise Lax (a deployed UI; a localhost proxy; https localhost is not the rule)", async () => {
+    assertEqual(await attrsFor("/polaris-ui/", "proxy.example"), "Path=/api/; HttpOnly; Secure; SameSite=Lax", "deployed")
+    assertEqual(await attrsFor("http://localhost:3000/", "localhost:8080", "http"), "Path=/api/; HttpOnly; SameSite=Lax", "local proxy")
+    assertEqual(await attrsFor("https://localhost:3000/", "proxy.example"), "Path=/api/; HttpOnly; Secure; SameSite=Lax", "https localhost")
+  })
+
   await test("cms-modern-token + cms-version-id present -> no CMS calls; Cms-Auth-Values carries them", async () => {
     fetchCount = 0
     fetchImpl = async () => {

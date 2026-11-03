@@ -539,6 +539,8 @@ async function nonDdeiTests() {
     const dto = JSON.parse(decodeURIComponent(first.split(";")[0].slice("Cms-Auth-Values=".length)))
     assertEqual(dto.token, FIXTURE_SESSION_ID, "token")
     assertIncludes(dto.cookies, ".CMSAUTH=dev-login-auth", "the CMS session")
+    assertIncludes(first, "Path=/api/", "gateway path")
+    assert(/SameSite=None/.test(first) === /; Secure/.test(first), "None only with Secure: " + first.split(";").slice(1).join(";"))
   })
 }
 

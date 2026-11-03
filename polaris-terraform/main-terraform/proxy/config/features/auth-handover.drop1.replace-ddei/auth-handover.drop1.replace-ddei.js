@@ -181,14 +181,15 @@ async function _verifyModernToken(host, token, cookieHeader) {
 // DDEI's CmsAuthValuesDto (preferredLoadBalancerTarget omitted — no retry here).
 // ASP.NET Core percent-encodes cookie values; encodeURIComponent mirrors that
 // (the JSON's cookies field contains ';', which must not break cookie parsing).
-function _buildCmsAuthValuesCookie(dto, secure) {
+// sameSite: the attribute's value, or "" for none (see the callers).
+function _buildCmsAuthValuesCookie(dto, secure, sameSite) {
   const value = encodeURIComponent(JSON.stringify(dto));
   return (
     "Cms-Auth-Values=" +
     value +
     "; Path=/api/; HttpOnly" +
     (secure ? "; Secure" : "") +
-    "; SameSite=Lax"
+    (sameSite ? "; SameSite=" + sameSite : "")
   );
 }
 
@@ -300,10 +301,14 @@ async function establishCmsSession(r, landing) {
   };
 }
 
+function isHttps(r) {
+  return (_header(r, "X-Forwarded-Proto") || "https") === "https";
+}
+
 // Build the Cms-Auth-Values Set-Cookie string for an established session (the
-// gateway reads this). Session shape matches establishCmsSession's return.
-function cmsAuthValuesCookie(r, session) {
-  const secure = (_header(r, "X-Forwarded-Proto") || "https") === "https";
+// gateway reads this). Session shape matches establishCmsSession's return. SameSite is the
+// caller's: DDEI's two paths differ.
+function cmsAuthValuesCookie(r, session, sameSite) {
   const dto = {
     cookies: session.cookieHeader,
     userIpAddress: _clientIp(r),
@@ -312,14 +317,24 @@ function cmsAuthValuesCookie(r, session) {
     sessionCreatedTime: new Date().toISOString(),
     cmsVersionId: session.versionId,
   };
-  return _buildCmsAuthValuesCookie(dto, secure);
+  return _buildCmsAuthValuesCookie(dto, isHttps(r), sameSite);
+}
+
+// DDEI CookieHelpers.AppendPolarisAuthCookie: a UI running on localhost against this deployed
+// proxy makes the API third-party to it, so a Lax cookie would not be sent on its API calls.
+function _handoverSameSite(r, polarisUiUrl) {
+  const remoteDebug =
+    polarisUiUrl.startsWith("http://localhost") && !_header(r, "Host").startsWith("localhost");
+  return remoteDebug ? "None" : "Lax";
 }
 
 // Finalize: set Cms-Auth-Values (appended to any cookies already queued on the
 // response) + redirect by auth-flow mode.
 function finalize(r, session, landing) {
   const queued = r.headersOut["Set-Cookie"] || [];
-  r.headersOut["Set-Cookie"] = queued.concat([cmsAuthValuesCookie(r, session)]);
+  r.headersOut["Set-Cookie"] = queued.concat([
+    cmsAuthValuesCookie(r, session, _handoverSameSite(r, landing.polarisUiUrl)),
+  ]);
 
   if (landing.polarisUiUrl) {
     // PolarisAuthRedirect: UI passed the post-auth return URL.
@@ -468,6 +483,7 @@ export default {
   DEFAULT_CMS_VERSION,
   MSIE_UA,
   lookupCmsSession,
+  isHttps,
   cmsAuthValuesCookie,
   markAuthInit,
   absoluteUrl,

@@ -116,7 +116,7 @@ async function loginTests(dev) {
     assertIncludes(r.returnBody, 'href="/polaris"', "P")
     assertIncludes(r.returnBody, 'href="/polaris?polaris-ui-url=/materials-ui"', "M")
     assertIncludes(r.returnBody, 'href="/launch/dev-proxy"', "C, dev")
-    assertIncludes(r.returnBody, "<pre>.CMSAUTH=auth; ASP.NET_SessionId=s; BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN2-cin2.cps.gov.uk_POOL=123; WindowID=MASTER</pre>", "the full Cookie header")
+    assertIncludes(r.returnBody, "<pre>.CMSAUTH=auth; ASP.NET_SessionId=s; BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN2-cin2.cps.gov.uk_POOL=123</pre>", "the full Cookie header")
     assertIncludes(r.returnBody, ".CMSAUTH=auth; path=/; HttpOnly\nASP.NET_SessionId=s; path=/; HttpOnly", "each Set-Cookie in full")
     assertIncludes(r.returnBody, '<li><a href="/viewer/landing#/dashboard/' + TOKEN + '"', "Open Modern, a bullet")
   })
@@ -224,24 +224,30 @@ async function fullCookieTests(dev) {
     assertIncludes(r.returnBody, ".CMSAUTH=auth; path=/; HttpOnly\nASP.NET_SessionId=s; path=/; HttpOnly", "each Set-Cookie")
   })
 
-  await test("WindowID=MASTER (CMS refuses calls without it) on the token lookup and in Cms-Auth-Values", async () => {
-    calls = []
+  await test("DDEI's attributes: https -> Secure; SameSite=None", async () => {
     fetchImpl = cmsRouter()
     const r = post("username=jo&password=x")
     await dev.devLoginFullCookie(r)
-    const lookups = calls.filter((c) => /uainGeneratedScript|\/graphql\//.test(c.url))
-    assertEqual(lookups.length, 2, "mint + verify")
-    lookups.forEach((c) => assertIncludes(c.opts.headers.Cookie, "WindowID=MASTER", c.url))
-    assertIncludes(authValues(r.headersOut["Set-Cookie"][0]).cookies, "WindowID=MASTER", "for the gateway's CMS calls")
+    const attrs = r.headersOut["Set-Cookie"][0].split("; ").slice(1)
+    assertEqual(attrs.join("; "), "Path=/api/; HttpOnly; Secure; SameSite=None", "attributes")
   })
 
-  await test("a WindowID CMS set itself is kept, not topped up", async () => {
-    fetchImpl = cmsRouter({ loginCookies: [".CMSAUTH=auth; path=/", "WindowID=OTHER; path=/"] })
+  await test("DDEI's attributes: http -> neither Secure nor SameSite", async () => {
+    fetchImpl = cmsRouter()
     const r = post("username=jo&password=x")
+    r.headersIn["X-Forwarded-Proto"] = "http"
     await dev.devLoginFullCookie(r)
-    const cookies = authValues(r.headersOut["Set-Cookie"][0]).cookies
-    assertIncludes(cookies, "WindowID=OTHER", "kept")
-    assertNotIncludes(cookies, "WindowID=MASTER", "not added")
+    const attrs = r.headersOut["Set-Cookie"][0].split("; ").slice(1)
+    assertEqual(attrs.join("; "), "Path=/api/; HttpOnly", "attributes")
+  })
+
+  await test("the page shows exactly what this response sets", async () => {
+    for (const h of [dev.devLoginFullCookie, dev.devLogin]) {
+      fetchImpl = cmsRouter()
+      const r = post("username=jo&password=x")
+      await h(r)
+      assertIncludes(r.returnBody, "<p>Set-Cookie on this response:</p><pre>" + r.headersOut["Set-Cookie"].join("\n") + "</pre>", "the response's own")
+    }
   })
 
   await test("login failed -> 401, no cookies", async () => {
@@ -250,6 +256,7 @@ async function fullCookieTests(dev) {
     await dev.devLoginFullCookie(r)
     assertEqual(r.returnCode, 401, "401")
     assertEqual(r.headersOut["Set-Cookie"], undefined, "no cookies")
+    assertIncludes(r.returnBody, "<p>Set-Cookie on this response:</p><pre>(none)</pre>", "says so")
   })
 
   await test("no modern token -> 502 with the reason", async () => {
