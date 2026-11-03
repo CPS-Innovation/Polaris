@@ -1,10 +1,14 @@
 import qs from "querystring";
-import common from "../common/cms-detection.js";
+import cmsenv from "../common/cmsenv.js";
 import ieMode from "../common/ie-mode.js";
+import entra from "../auth-handover.drop2.entra/auth-handover.drop2.entra.js";
+import devLoginNonDdei from "../dev-login/dev-login.js";
 
 const IS_PROXY_SESSION_PARAM_NAME = "is-proxy-session";
 const SESSION_HINT_COOKIE_NAME = "Cms-Session-Hint";
 const SESSION_HINT_COOKIE_LIFESPAN_MS = 30 * 24 * 60 * 60 * 1000;
+// drop2's static terminal page for the hidden iframe (`location = /init/terminal`).
+const IFRAME_TERMINAL_PATH = "/init/terminal";
 
 function _argsShim(args) {
   if (args["r"]) {
@@ -40,6 +44,9 @@ function _redirectToAbsoluteUrl(r, redirectUrl) {
   // Note: this almost is not a problem.  When the client comes back with the http://... request nginx will do another
   //  redirect to https as part of the "upgrade http to https" thing.  However the CWA cypress e2e test framework fails
   //  because tests running on https are redirected to an http address
+  // NB: kept byte-identical to the live monolith's nginx.js (parity), so with NO X-Forwarded-Proto it
+  //  builds "undefined://host/…". App Service's front end always sets the header, so that only shows
+  //  on a direct local request. drop1's absoluteUrl does the same job with an https fallback.
   r.return(
     302,
     redirectUrl.lastIndexOf("http", 0) === 0
@@ -124,8 +131,8 @@ function setSessionHintCookie(r) {
 //
 // Same roots as DDEI CookieHelpers.WhitelistedCookieNameRoots, plus the newer F5
 // form ([CF]-<TOKEN>-LBsessioncookie) matched by suffix. This is the ONE place
-// the handover filters: every flow funnels through /init, so the init variants
-// behind /auth-refresh-inbound (drop1, drop2) take `cc` as already clean.
+// the handover filters: every flow funnels through /init, so drop2 (which runs from /init, after
+// this filter) and drop1 (behind /auth-refresh-inbound) take `cc` as already clean.
 const CC_WHITELIST_ROOTS = [
   "ASP.NET_SessionId",
   "UID",
@@ -171,8 +178,12 @@ function _whitelistCookies(cookie) {
 }
 
 function appAuthRedirect(r) {
-  // Edge Mode Desired (was the two conf `if ($ieaction …)` gates on /init).
-  if (ieMode.coerce(r, "edge", true)) return;
+  // Edge Mode Desired (was the two conf `if ($ieaction …)` gates on /init) — EXCEPT for the
+  // hidden-iframe handover (terminal=iframe, drop2 QUIRK E8): that runs inside the CMS Classic
+  // shell, an IE-mode tab, and an iframe cannot change mode, so coercing would loop
+  // (X-InternetExplorerMode: 0 redirects) or 402. It also MUST stay in IE mode: the presence
+  // cookie it ends with belongs in the IE-mode jar. Absent terminal=iframe, behaviour is unchanged.
+  if (r.args.terminal !== "iframe" && ieMode.coerce(r, "edge", true)) return;
   setSessionHintCookie(r);
 
   const args = _argsShim(r.args);
@@ -184,12 +195,30 @@ function appAuthRedirect(r) {
     .some((url) => redirectUrl.startsWith(url));
 
   if (isWhitelisted) {
-    _redirectToAbsoluteUrl(
-      r,
-      `${redirectUrl}${
-        redirectUrl.includes("?") ? "&" : "?"
-      }cc=${encodeURIComponent(_whitelistCookies(args["cookie"] ?? ""))}`,
-    );
+    const cc = _whitelistCookies(args["cookie"] ?? "");
+    // The hidden iframe (terminal=iframe) exists only for drop2's deposit + presence cookie. If
+    // drop2 does not start, carrying on would load the whole Polaris UI inside the hidden frame,
+    // so it ends on drop2's frameable terminal page instead (a 302: a page rendered here would
+    // carry the server's X-Frame-Options: DENY).
+    const carryOn =
+      r.args.terminal === "iframe"
+        ? () => _redirectToAbsoluteUrl(r, IFRAME_TERMINAL_PATH)
+        : () =>
+            _redirectToAbsoluteUrl(
+              r,
+              `${redirectUrl}${redirectUrl.includes("?") ? "&" : "?"}cc=${encodeURIComponent(cc)}`,
+            );
+    // drop2 (R0): deposit this user's CMS auth to MDS for EVERY destination, via a silent Entra
+    // round trip that ends back on the same 302 (auth-handover.drop2.entra). Any failure there
+    // resolves false and we carry on exactly as below. Off: synchronous, unchanged.
+    if (_entraOn(r)) {
+      return entra
+        .beginFromInit(r, { redirectUrl, cookies: cc, terminal: r.args.terminal })
+        .then((began) => {
+          if (!began) carryOn();
+        });
+    }
+    carryOn();
   } else {
     r.return(
       403,
@@ -258,33 +287,9 @@ function handleAuthRefreshOutbound(r) {
   r.return(302, redirectUrl);
 }
 
-// The cookies the dev-login GET clears: the CMS-env marker plus, per CMS env,
-// both BIG-IP pool cookies (ACP/AFP) and both load-balancer session cookies
-// (C/F). Generated to a flat "<name>=deleted; ...expired" list — the old config
-// hand-wrote all seventeen add_header lines twice.
-const EXPIRE = "=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-const DEV_LOGIN_CLEARED = (function () {
-  const names = ["__CMSENV"];
-  const envs = ["CIN2", "CIN3", "CIN4", "CIN5"];
-  for (let i = 0; i < envs.length; i++) {
-    const E = envs[i],
-      e = E.toLowerCase();
-    names.push(
-      `BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-${E}-${e}.cps.gov.uk_POOL`,
-    );
-    names.push(
-      `BIGipServer~ent-s221~CPSAFP-LTM-CM-WAN-${E}-${e}.cps.gov.uk_POOL`,
-    );
-  }
-  for (let i = 0; i < envs.length; i++) {
-    names.push(`C-${envs[i]}-LBsessioncookie`);
-    names.push(`F-${envs[i]}-LBsessioncookie`);
-  }
-  return names.map((n) => n + EXPIRE);
-})();
-
 // Dev-login cookie handling for BOTH /dev-login/ and /api/dev-login-full-cookie/
-// (they differ only in their proxy_pass target). A single js_header_filter,
+// (they differ only in their proxy_pass target), on their DDEI path (switch off; switch on,
+// feature dev-login answers them and clears the same cookies). A single js_header_filter,
 // branching on the request method — replaces the two identical if-blocks of
 // add_header directives the two locations used to each carry:
 //   GET  — clear the CMS-env marker + BIG-IP/LB cookies (a reset), appended to
@@ -295,9 +300,9 @@ const DEV_LOGIN_CLEARED = (function () {
 function devLogin(r) {
   if (r.method === "GET") {
     const cookies = r.headersOut["Set-Cookie"] || [];
-    r.headersOut["Set-Cookie"] = cookies.concat(DEV_LOGIN_CLEARED);
+    r.headersOut["Set-Cookie"] = cookies.concat(devLoginNonDdei.CLEARED_COOKIES);
   } else if (r.method === "POST") {
-    const cmsEnv = common.detect((r.headersOut["Set-Cookie"] || [""])[0]);
+    const cmsEnv = cmsenv.detect((r.headersOut["Set-Cookie"] || [""])[0]);
     const cookies = r.headersOut["Set-Cookie"] || [];
     cookies.push("__CMSENV=" + cmsEnv + "; path=/");
     r.headersOut["Set-Cookie"] = cookies;
@@ -309,9 +314,9 @@ function devLogin(r) {
 //
 // A tiny page that sets/clears the `polaris_auth_handover` cookie so an INDIVIDUAL
 // user can opt into drop1/drop2 ahead of the org-wide switch. The routing gate in
-// auth-handover.conf (/auth-refresh-inbound) reads $cookie_polaris_auth_handover and
-// gives it PRECEDENCE over the global ENTRA_STORE_ENABLED / NON_DDEI_INIT_ENABLED
-// switches. Removing the cookie falls back to those globals (DDEI while they're off).
+// auth-handover.conf ($non_ddei = drop1's `enabled`) turns drop1 on for either cookie value
+// as well as for the global ENTRA_STORE_ENABLED / NON_DDEI_INIT_ENABLED switches. Removing
+// the cookie falls back to those globals (DDEI while they're off).
 //
 // Lives in the base auth-handover feature (not a drop folder) because it arbitrates
 // BETWEEN the drops and DDEI, so it must outlive any single drop. Server-side only:
@@ -395,7 +400,7 @@ function enrol(r) {
   };
 
   // Enrol: only the known modes are accepted (never write an arbitrary cookie value).
-  if (set !== undefined && ENROL_MODES.indexOf(set) !== -1) {
+  if (set !== undefined && ENROL_MODES.includes(set)) {
     r.headersOut["Set-Cookie"] = [_enrolSetCookie(set)];
     backToPage();
     return;
@@ -413,19 +418,13 @@ function enrol(r) {
   r.return(200, _enrolPage(current));
 }
 
-// Feature-switch getters for the /auth-refresh-inbound routing gate (js_set).
-// Read at REQUEST time from process.env, so a MISSING app setting reads as "off"
-// rather than wedging nginx at boot — which is what `set $x "${ENTRA_STORE_ENABLED}"`
-// (conf-side envsubst) did when the app setting was absent: envsubst left the token
-// literal and nginx died with `[emerg] unknown "entra_store_enabled" variable`.
-// js_set carries no `${...}` token, so envsubst never touches it and the config always
-// boots. Returns the string "true"/"false" the conf's `if (... = "true")` compares.
-// Parity with the old exact `= "true"` test: only the literal "true" enables.
-function entraStoreEnabled(r) {
-  return process.env.ENTRA_STORE_ENABLED === "true" ? "true" : "false";
-}
-function nonDdeiInitEnabled(r) {
-  return process.env.NON_DDEI_INIT_ENABLED === "true" ? "true" : "false";
+// drop2 at /init: the global switch, or this browser's enrolment (the same cookie the
+// /auth-refresh-inbound gate reads — enrolling in drop2 means "Entra at /init + drop1 behind").
+function _entraOn(r) {
+  return (
+    process.env.ENTRA_STORE_ENABLED === "true" ||
+    _getCookieValue(r, ENROL_COOKIE) === "drop2"
+  );
 }
 
 export default {
@@ -434,6 +433,4 @@ export default {
   handleAuthRefreshOutbound,
   devLogin,
   enrol,
-  entraStoreEnabled,
-  nonDdeiInitEnabled,
 };

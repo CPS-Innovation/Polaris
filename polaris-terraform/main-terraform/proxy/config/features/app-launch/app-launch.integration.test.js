@@ -20,7 +20,7 @@ const { test, assertEqual, assertIncludes, get, summarise } = require("../../../
 
 // The OutSystems auth-handover hop every launch redirect routes through.
 const OS_PROD = "cps.outsystemsenterprise.com%2FCasework_Patterns%2Fauth-handover.html"
-const OS_TEST = "cps-tst.outsystemsenterprise.com%2FCasework_Patterns%2Fauth-handover.html"
+const OS_TEST = "oapps-qa-notprod.int.cps.gov.uk%2FCasework_Patterns%2Fauth-handover.html" // RNAV-40 (#2217)
 const OS_TEST1 = "cps-tst1.outsystemsenterprise.com%2FCasework_Patterns%2Fauth-handover.html" // cpt/cmo (FCT2-18732)
 
 async function launches() {

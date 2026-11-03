@@ -14,6 +14,17 @@
     "file": "uacdCDTabs.aspx.html",
     "type": "text/html"
   },
+  {
+    "re": "^/CMS\\..*/User/uaulLogin\\.aspx",
+    "file": "uaulLogin.aspx.html",
+    "type": "text/html",
+    "headers": {
+      "Set-Cookie": [
+        ".CMSAUTH=dev-login-auth; path=/; HttpOnly",
+        "ASP.NET_SessionId=dev-login-session; path=/; HttpOnly"
+      ]
+    }
+  },
   { "re": "^/CMSModern/Files", "file": "cms-page.html", "type": "text/html" },
   { "re": "^/CMS", "file": "cms-page.html", "type": "text/html" }
 ]
