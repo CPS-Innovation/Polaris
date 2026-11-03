@@ -3,8 +3,8 @@
 // rest of the auth handover DDEI answered (termination, cms-modern-token; dev-login reuses
 // this module) — see `enabled` at the bottom.
 //
-// Reached via an internal rewrite from /auth-refresh-inbound when NON_DDEI_INIT_ENABLED or
-// ENTRA_STORE_ENABLED is on, or the browser is enrolled (drop1 or drop2) — the gate lives in
+// Reached via an internal rewrite from /auth-refresh-inbound when NON_DDEI_INIT_ENABLED is on,
+// or the browser is enrolled (drop1 or drop2) — the gate lives in
 // auth-handover.conf. It runs the DDEI
 // InitiateCookies pipeline in njs:
 //   mint the CMS modern token -> verify it via GraphQL
@@ -181,14 +181,15 @@ async function _verifyModernToken(host, token, cookieHeader) {
 // DDEI's CmsAuthValuesDto (preferredLoadBalancerTarget omitted — no retry here).
 // ASP.NET Core percent-encodes cookie values; encodeURIComponent mirrors that
 // (the JSON's cookies field contains ';', which must not break cookie parsing).
-function _buildCmsAuthValuesCookie(dto, secure) {
+// sameSite: the attribute's value, or "" for none (see the callers).
+function _buildCmsAuthValuesCookie(dto, secure, sameSite) {
   const value = encodeURIComponent(JSON.stringify(dto));
   return (
     "Cms-Auth-Values=" +
     value +
     "; Path=/api/; HttpOnly" +
     (secure ? "; Secure" : "") +
-    "; SameSite=Lax"
+    (sameSite ? "; SameSite=" + sameSite : "")
   );
 }
 
@@ -300,10 +301,14 @@ async function establishCmsSession(r, landing) {
   };
 }
 
+function isHttps(r) {
+  return (_header(r, "X-Forwarded-Proto") || "https") === "https";
+}
+
 // Build the Cms-Auth-Values Set-Cookie string for an established session (the
-// gateway reads this). Session shape matches establishCmsSession's return.
-function cmsAuthValuesCookie(r, session) {
-  const secure = (_header(r, "X-Forwarded-Proto") || "https") === "https";
+// gateway reads this). Session shape matches establishCmsSession's return. SameSite is the
+// caller's: DDEI's two paths differ.
+function cmsAuthValuesCookie(r, session, sameSite) {
   const dto = {
     cookies: session.cookieHeader,
     userIpAddress: _clientIp(r),
@@ -312,14 +317,27 @@ function cmsAuthValuesCookie(r, session) {
     sessionCreatedTime: new Date().toISOString(),
     cmsVersionId: session.versionId,
   };
-  return _buildCmsAuthValuesCookie(dto, secure);
+  return _buildCmsAuthValuesCookie(dto, isHttps(r), sameSite);
+}
+
+// DDEI CookieHelpers.AppendPolarisAuthCookie: a UI running on localhost against this deployed
+// proxy makes the API third-party to it, so a Lax cookie would not be sent on its API calls.
+// Tighter than DDEI's StartsWith("http://localhost"), which also accepts a host like
+// localhost.example.com: the host must be exactly localhost. A regex as njs 0.8.5 has no URL.
+const LOCALHOST_URL_RE = /^http:\/\/localhost(?::\d+)?(?:[/?#]|$)/;
+function _handoverSameSite(r, polarisUiUrl) {
+  const remoteDebug =
+    LOCALHOST_URL_RE.test(polarisUiUrl) && !_header(r, "Host").startsWith("localhost");
+  return remoteDebug ? "None" : "Lax";
 }
 
 // Finalize: set Cms-Auth-Values (appended to any cookies already queued on the
 // response) + redirect by auth-flow mode.
 function finalize(r, session, landing) {
   const queued = r.headersOut["Set-Cookie"] || [];
-  r.headersOut["Set-Cookie"] = queued.concat([cmsAuthValuesCookie(r, session)]);
+  r.headersOut["Set-Cookie"] = queued.concat([
+    cmsAuthValuesCookie(r, session, _handoverSameSite(r, landing.polarisUiUrl)),
+  ]);
 
   if (landing.polarisUiUrl) {
     // PolarisAuthRedirect: UI passed the post-auth return URL.
@@ -374,8 +392,9 @@ async function handleInitNonDdei(r) {
 // all answer here. Every gate in the confs reads `enabled` (js_set $non_ddei).
 // ---------------------------------------------------------------------------
 
-// The global switches, or this browser's enrolment (auth-handover's /auth-refresh-enrol;
-// enrolling in drop2 means "Entra at /init + drop1 behind"). Read at REQUEST time from
+// The global switch, or this browser's enrolment (auth-handover's /auth-refresh-enrol;
+// enrolling in drop2 means "Entra at /init + drop1 behind"). ENTRA_STORE_ENABLED plays no part:
+// drop2 runs in /init whichever of drop1 or DDEI answers behind it. Read at REQUEST time from
 // process.env, so a MISSING app setting reads as "off" rather than wedging nginx at boot
 // (a conf-side `${...}` token envsubst left literal did). Only the literal "true" enables.
 // Returns the string "true"/"false" the confs' `if ($non_ddei = "true")` compares.
@@ -383,7 +402,6 @@ const ENROL_COOKIE_RE = /(?:^|;\s*)polaris_auth_handover=(drop1|drop2)(?:;|$)/;
 function enabled(r) {
   const on =
     process.env.NON_DDEI_INIT_ENABLED === "true" ||
-    process.env.ENTRA_STORE_ENABLED === "true" ||
     ENROL_COOKIE_RE.test(_header(r, "Cookie"));
   return on ? "true" : "false";
 }
@@ -468,6 +486,7 @@ export default {
   DEFAULT_CMS_VERSION,
   MSIE_UA,
   lookupCmsSession,
+  isHttps,
   cmsAuthValuesCookie,
   markAuthInit,
   absoluteUrl,
