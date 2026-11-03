@@ -93,7 +93,7 @@ async function loginTests(dev) {
     const user = ["fake", "user"]
     const pw = ["fake", "pw"]
     await dev.devLogin(post("username=" + user.join("+") + "&" + "password=" + pw.join("%26") + "&selected-environment=cin2"))
-    assertEqual(calls.length, 2, "two loopbacks")
+    assertEqual(calls.length, 5, "the two login loopbacks, then drop1's lookup (discover, mint, verify)")
     assertEqual(calls[0].url, "https://polaris-dev-notprod.cps.gov.uk/CMS", "home route on this host")
     assertEqual(calls[0].opts.headers.Cookie, "DEVLOGIN=cin2", "env cookie")
     assertEqual(calls[1].url, "https://polaris-dev-notprod.cps.gov.uk/CMS.25.1.02/User/uaulLogin.aspx", "login at the version")
@@ -116,8 +116,21 @@ async function loginTests(dev) {
     assertIncludes(r.returnBody, 'href="/polaris"', "P")
     assertIncludes(r.returnBody, 'href="/polaris?polaris-ui-url=/materials-ui"', "M")
     assertIncludes(r.returnBody, 'href="/launch/dev-proxy"', "C, dev")
-    assertIncludes(r.returnBody, "<pre>.CMSAUTH=auth; ASP.NET_SessionId=s; BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN2-cin2.cps.gov.uk_POOL=123</pre>", "the full Cookie header")
+    assertIncludes(r.returnBody, "<pre>.CMSAUTH=auth; ASP.NET_SessionId=s; BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN2-cin2.cps.gov.uk_POOL=123; WindowID=MASTER</pre>", "the full Cookie header")
     assertIncludes(r.returnBody, ".CMSAUTH=auth; path=/; HttpOnly\nASP.NET_SessionId=s; path=/; HttpOnly", "each Set-Cookie in full")
+    assertIncludes(r.returnBody, '<li><a href="/viewer/landing#/dashboard/' + TOKEN + '"', "Open Modern, a bullet")
+  })
+
+  await test("no modern token -> still 200 with the CMS cookies and links; no Open Modern, and the reason", async () => {
+    const base = cmsRouter()
+    fetchImpl = async (url, o) => (url.indexOf("/graphql/") !== -1 ? res({ status: 401 }) : base(url, o))
+    const r = post("username=jo&password=x")
+    await dev.devLogin(r)
+    assertEqual(r.returnCode, 200, "200")
+    assert(r.headersOut["Set-Cookie"].indexOf(".CMSAUTH=auth; path=/; HttpOnly") !== -1, "CMS cookies")
+    assertIncludes(r.returnBody, 'href="/polaris"', "P")
+    assertNotIncludes(r.returnBody, "/viewer/landing", "no Open Modern")
+    assertIncludes(r.returnBody, "cms-modern-auth-not-valid", "reason")
   })
 
   await test("C follows the host: QA -> a QA -proxy key; an unknown host -> no C link", async () => {
@@ -156,6 +169,7 @@ async function loginTests(dev) {
     assertIncludes(r.returnBody, "ARE NOT", "not logged in")
     assertNotIncludes(r.returnBody, "login-ok", "no ok marker")
     assertNotIncludes(r.returnBody, 'href="/polaris"', "no links")
+    assertNotIncludes(r.returnBody, "Logged in, but", "no lookup attempted, so no lookup failure")
   })
 
   await test("400 without a user name, or for an env not offered (DEVLOGIN never arbitrary); no CMS call", async () => {
@@ -197,7 +211,37 @@ async function fullCookieTests(dev) {
     assertIncludes(v.cookies, "BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN2", "LB cookie, so the gateway routes to cin2")
     assertEqual(sc[1], "__CMSENV=cin2; path=/", "env marker")
     assertEqual(sc.length, 2, "the CMS cookies themselves are not handed to the browser (as DDEI)")
-    assertIncludes(r.returnBody, 'href="/viewer/landing#/dashboard/' + TOKEN + '"', "Open Modern")
+    assertIncludes(r.returnBody, '<li><a href="/viewer/landing#/dashboard/' + TOKEN + '"', "Open Modern, a bullet")
+  })
+
+  await test("the result page: Open Modern and the cookies in full, but none of /dev-login/'s app links", async () => {
+    fetchImpl = cmsRouter()
+    const r = post("username=jo&password=x&selected-environment=cin2")
+    await dev.devLoginFullCookie(r)
+    assertNotIncludes(r.returnBody, 'href="/polaris', "no P / M")
+    assertNotIncludes(r.returnBody, "/launch/", "no C")
+    assertIncludes(r.returnBody, "<pre>.CMSAUTH=auth; ASP.NET_SessionId=s;", "the Cookie header")
+    assertIncludes(r.returnBody, ".CMSAUTH=auth; path=/; HttpOnly\nASP.NET_SessionId=s; path=/; HttpOnly", "each Set-Cookie")
+  })
+
+  await test("WindowID=MASTER (CMS refuses calls without it) on the token lookup and in Cms-Auth-Values", async () => {
+    calls = []
+    fetchImpl = cmsRouter()
+    const r = post("username=jo&password=x")
+    await dev.devLoginFullCookie(r)
+    const lookups = calls.filter((c) => /uainGeneratedScript|\/graphql\//.test(c.url))
+    assertEqual(lookups.length, 2, "mint + verify")
+    lookups.forEach((c) => assertIncludes(c.opts.headers.Cookie, "WindowID=MASTER", c.url))
+    assertIncludes(authValues(r.headersOut["Set-Cookie"][0]).cookies, "WindowID=MASTER", "for the gateway's CMS calls")
+  })
+
+  await test("a WindowID CMS set itself is kept, not topped up", async () => {
+    fetchImpl = cmsRouter({ loginCookies: [".CMSAUTH=auth; path=/", "WindowID=OTHER; path=/"] })
+    const r = post("username=jo&password=x")
+    await dev.devLoginFullCookie(r)
+    const cookies = authValues(r.headersOut["Set-Cookie"][0]).cookies
+    assertIncludes(cookies, "WindowID=OTHER", "kept")
+    assertNotIncludes(cookies, "WindowID=MASTER", "not added")
   })
 
   await test("login failed -> 401, no cookies", async () => {
@@ -215,6 +259,7 @@ async function fullCookieTests(dev) {
     await dev.devLoginFullCookie(r)
     assertEqual(r.returnCode, 502, "502")
     assertIncludes(r.returnBody, "cms-modern-auth-not-valid", "reason")
+    assertNotIncludes(r.returnBody, "<ul>", "no links, so no empty list")
   })
 }
 
