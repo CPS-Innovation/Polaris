@@ -253,9 +253,9 @@ async function enabledTests(drop1) {
     withEnv({ NON_DDEI_INIT_ENABLED: "TRUE" }, () => assertEqual(on(""), "false", 'only the literal "true"'))
   })
 
-  await test("on for either switch", async () => {
+  await test("on for the drop1 switch; the Entra switch does not turn it on", async () => {
     withEnv({ NON_DDEI_INIT_ENABLED: "true" }, () => assertEqual(on(""), "true", "drop1 switch"))
-    withEnv({ ENTRA_STORE_ENABLED: "true" }, () => assertEqual(on(""), "true", "Entra switch"))
+    withEnv({ ENTRA_STORE_ENABLED: "true" }, () => assertEqual(on(""), "false", "Entra switch alone"))
   })
 
   await test("on for a drop1 or drop2 enrolment cookie, wherever it sits in the header", async () => {

@@ -120,7 +120,8 @@ changes; each app can later stop reading `cc` and use bearer + MDS lookup on its
   HMAC key missing, `/init` never starts the round trip (`isConfigured`, read per request).
 - **Token pass-through.** The CMS token looked up at `/init` is appended to the continuation for
   destinations that can use it: our own `/auth-refresh-inbound` on this host (`cms-modern-token` +
-  `cms-version-id`; drop1 then skips discover/mint/verify) and OutSystems handover pages
+  `cms-version-id`; drop1 then skips discover/mint/verify; only when drop1 answers it, as DDEI
+  does its own lookup and would log the token with its query) and OutSystems handover pages
   (`…/auth-handover.html` with `stage=os-cookie-return`: `cms-modern-token`; global-components'
   os-handover then skips its `/auth-refresh-cms-modern-token` bounce — shipped there first). All
   other destinations get exactly today's `r` + `cc`. It is passed on degrades too: it was verified

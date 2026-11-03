@@ -3,8 +3,8 @@
 // rest of the auth handover DDEI answered (termination, cms-modern-token; dev-login reuses
 // this module) — see `enabled` at the bottom.
 //
-// Reached via an internal rewrite from /auth-refresh-inbound when NON_DDEI_INIT_ENABLED or
-// ENTRA_STORE_ENABLED is on, or the browser is enrolled (drop1 or drop2) — the gate lives in
+// Reached via an internal rewrite from /auth-refresh-inbound when NON_DDEI_INIT_ENABLED is on,
+// or the browser is enrolled (drop1 or drop2) — the gate lives in
 // auth-handover.conf. It runs the DDEI
 // InitiateCookies pipeline in njs:
 //   mint the CMS modern token -> verify it via GraphQL
@@ -392,8 +392,9 @@ async function handleInitNonDdei(r) {
 // all answer here. Every gate in the confs reads `enabled` (js_set $non_ddei).
 // ---------------------------------------------------------------------------
 
-// The global switches, or this browser's enrolment (auth-handover's /auth-refresh-enrol;
-// enrolling in drop2 means "Entra at /init + drop1 behind"). Read at REQUEST time from
+// The global switch, or this browser's enrolment (auth-handover's /auth-refresh-enrol;
+// enrolling in drop2 means "Entra at /init + drop1 behind"). ENTRA_STORE_ENABLED plays no part:
+// drop2 runs in /init whichever of drop1 or DDEI answers behind it. Read at REQUEST time from
 // process.env, so a MISSING app setting reads as "off" rather than wedging nginx at boot
 // (a conf-side `${...}` token envsubst left literal did). Only the literal "true" enables.
 // Returns the string "true"/"false" the confs' `if ($non_ddei = "true")` compares.
@@ -401,7 +402,6 @@ const ENROL_COOKIE_RE = /(?:^|;\s*)polaris_auth_handover=(drop1|drop2)(?:;|$)/;
 function enabled(r) {
   const on =
     process.env.NON_DDEI_INIT_ENABLED === "true" ||
-    process.env.ENTRA_STORE_ENABLED === "true" ||
     ENROL_COOKIE_RE.test(_header(r, "Cookie"));
   return on ? "true" : "false";
 }
