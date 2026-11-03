@@ -322,9 +322,12 @@ function cmsAuthValuesCookie(r, session, sameSite) {
 
 // DDEI CookieHelpers.AppendPolarisAuthCookie: a UI running on localhost against this deployed
 // proxy makes the API third-party to it, so a Lax cookie would not be sent on its API calls.
+// Tighter than DDEI's StartsWith("http://localhost"), which also accepts a host like
+// localhost.example.com: the host must be exactly localhost. A regex as njs 0.8.5 has no URL.
+const LOCALHOST_URL_RE = /^http:\/\/localhost(?::\d+)?(?:[/?#]|$)/;
 function _handoverSameSite(r, polarisUiUrl) {
   const remoteDebug =
-    polarisUiUrl.startsWith("http://localhost") && !_header(r, "Host").startsWith("localhost");
+    LOCALHOST_URL_RE.test(polarisUiUrl) && !_header(r, "Host").startsWith("localhost");
   return remoteDebug ? "None" : "Lax";
 }
 

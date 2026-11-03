@@ -117,6 +117,18 @@ async function passedTokenTests(drop1) {
     assertEqual(await attrsFor("http://localhost:3000/polaris-ui/", "proxy.example"), "Path=/api/; HttpOnly; Secure; SameSite=None", "attributes")
   })
 
+  await test("DDEI's SameSite: None for every form of a localhost url", async () => {
+    for (const uiUrl of ["http://localhost", "http://localhost/", "http://localhost:3000", "http://localhost?a=1", "http://localhost#a"]) {
+      assertIncludes(await attrsFor(uiUrl, "proxy.example"), "SameSite=None", uiUrl)
+    }
+  })
+
+  await test("SameSite: a host that only starts with localhost -> Lax", async () => {
+    for (const uiUrl of ["http://localhost.hacker.example/", "http://localhost-hacker.example/", "http://localhost@hacker.example/", "http://localhost:3000@hacker.example/", "http://localhost:x/", "http://localhost\\@hacker.example/"]) {
+      assertIncludes(await attrsFor(uiUrl, "proxy.example"), "SameSite=Lax", uiUrl)
+    }
+  })
+
   await test("DDEI's SameSite: otherwise Lax (a deployed UI; a localhost proxy; https localhost is not the rule)", async () => {
     assertEqual(await attrsFor("/polaris-ui/", "proxy.example"), "Path=/api/; HttpOnly; Secure; SameSite=Lax", "deployed")
     assertEqual(await attrsFor("http://localhost:3000/", "localhost:8080", "http"), "Path=/api/; HttpOnly; SameSite=Lax", "local proxy")
