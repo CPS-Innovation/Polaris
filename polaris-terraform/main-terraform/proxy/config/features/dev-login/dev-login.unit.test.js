@@ -183,6 +183,59 @@ async function loginTests(dev) {
     assertEqual(calls.length, 0, "no CMS call")
   })
 
+  const loginForm = () => calls.find((c) => c.url.indexOf("uaulLogin") !== -1).opts.body.split("&hid")[0]
+  // Built, not literal (keeps secret scanners quiet), as above.
+  const cmsForm = (user, pw) => "txtYLoginName=" + user + "&txtNPassword=" + pw.join("%")
+
+  await test("multipart (curl --form): the same login as a urlencoded form", async () => {
+    for (const ct of ["multipart/form-data; boundary=----x", 'multipart/form-data; boundary="----x"; charset=utf-8', "MULTIPART/FORM-DATA; boundary=----x"]) {
+      calls = []
+      fetchImpl = cmsRouter()
+      const part = (name, value) => '------x\r\nContent-Disposition: form-data; name="' + name + '"\r\n\r\n' + value + "\r\n"
+      const r = post(part("username", "jo.CIN3") + part("password", "a&b=c d") + part("selected-environment", "cin2") + "------x--\r\n")
+      r.headersIn["Content-Type"] = ct
+      await dev.devLoginFullCookie(r)
+      assertEqual(r.returnCode, 200, "200 for " + ct)
+      assertEqual(loginForm(), cmsForm("jo.CIN3", ["a", "26b", "3Dc", "20d"]), "credentials")
+      assertEqual(calls[0].opts.headers.Cookie, "DEVLOGIN=cin2", "env")
+    }
+  })
+
+  await test("multipart: a filename= attribute is not taken for the field's name", async () => {
+    fetchImpl = cmsRouter()
+    const r = post('--b\r\nContent-Disposition: form-data; name="other"; filename="username"\r\n\r\nno\r\n--b--\r\n')
+    r.headersIn["Content-Type"] = "multipart/form-data; boundary=b"
+    await dev.devLoginFullCookie(r)
+    assertEqual(r.returnCode, 400, "no username field")
+  })
+
+  await test("a % that is not an escape stays as typed; the valid escapes around it still decode", async () => {
+    calls = []
+    fetchImpl = cmsRouter()
+    await dev.devLogin(post("username=jo&" + "password=" + ["a", "20b", "zz", "26"].join("%")))
+    assertEqual(loginForm(), cmsForm("jo", ["a", "20b", "25zz", "26"]), "reaches CMS")
+  })
+
+  await test("selected-environment: any case; cin3 is the default", async () => {
+    calls = []
+    fetchImpl = cmsRouter()
+    await dev.devLogin(post("username=jo&password=x&selected-environment=CIN2"))
+    assertEqual(calls[0].opts.headers.Cookie, "DEVLOGIN=cin2", "CIN2")
+    calls = []
+    const r = post("username=jo&password=x&selected-environment=cin3")
+    await dev.devLogin(r)
+    assertEqual(calls[0].opts.headers.Cookie, "DEVLOGIN=", "cin3")
+    assertEqual(r.headersOut["Set-Cookie"].slice(-1)[0], "__CMSENV=default; path=/", "default")
+  })
+
+  await test("the 400 says what to send", async () => {
+    const r = post('{"username":"jo"}')
+    await dev.devLogin(r)
+    assertEqual(r.returnCode, 400, "400")
+    assertIncludes(r.returnBody, "multipart", "both formats")
+    assertIncludes(r.returnBody, "cin2", "the envs")
+  })
+
   await test("CMS unreachable -> 502", async () => {
     fetchImpl = async () => {
       throw new Error("boom")
