@@ -1,8 +1,8 @@
-// <copyright file="GetExhibitProducersTests.cs" company="TheCrownProsecutionService">
+// <copyright file="GetCaseExhibitProducersTests.cs" company="TheCrownProsecutionService">
 // Copyright (c) The Crown Prosecution Service. All rights reserved.
 // </copyright>
 
-namespace PolarisGateway.Tests.Functions.HouseKeeping;
+namespace PolarisGateway.Tests.Functions;
 
 using System;
 using System.Collections.Generic;
@@ -17,13 +17,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
-using PolarisGateway.Functions.HouseKeeping;
+using PolarisGateway.Functions;
 using Xunit;
 
 /// <summary>
-/// Unit tests for GetExhibitProducers function.
+/// Unit tests for GetCaseExhibitProducers function.
 /// </summary>
-public class GetExhibitProducersTests
+public class GetCaseExhibitProducersTests
 {
     private readonly TestLogger<GetCaseExhibitProducers> mockLogger;
     private readonly Mock<ICommunicationService> mockCommunicationService;
@@ -31,9 +31,9 @@ public class GetExhibitProducersTests
     private readonly GetCaseExhibitProducers sutGetExhibitProducers;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GetExhibitProducersTests"/> class.
+    /// Initializes a new instance of the <see cref="GetCaseExhibitProducersTests"/> class.
     /// </summary>
-    public GetExhibitProducersTests()
+    public GetCaseExhibitProducersTests()
     {
         mockLogger = new TestLogger<GetCaseExhibitProducers>();
         mockCommunicationService = new Mock<ICommunicationService>();
