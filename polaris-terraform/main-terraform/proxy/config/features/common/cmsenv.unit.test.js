@@ -65,20 +65,64 @@ async function detection(cmsenv) {
     assertEqual(cmsenv.detect("__CMSENV=CIN2"), "cin2", "toLowerCase()")
   })
 
-  // QUIRK: loose SUBSTRING match over the whole cookie text, not a parse of the
-  // __CMSENV value — any cookie containing "cin2" anywhere selects cin2.
-  await test("QUIRK: any cookie containing 'cin2' selects cin2, even unrelated ones", () => {
-    assertEqual(cmsenv.detect("BIGipServer~x~cin2.cps.gov.uk_POOL=1"), "cin2", "substring match")
-    assertEqual(cmsenv.detect("somethingcin2something=1"), "cin2", "not anchored to __CMSENV")
+  // A browser's jar can hold cookies that mention environments and must choose nothing.
+  const SESSION_HINT =
+    "Cms-Session-Hint=%7B%22cmsDomains%22%3A%5B%22cin3.cps.gov.uk%22%5D%2C%22isProxySession%22%3Atrue%7D"
+
+  await test("unrelated cookies never choose, whatever they contain", () => {
+    assertEqual(cmsenv.detect("__CMSENV=cin5; " + SESSION_HINT), "cin5", "the hint's cin3 domain, with a marker")
+    assertEqual(cmsenv.detect(SESSION_HINT.replace("cin3", "cin5")), "default", "the hint alone, without one")
+    assertEqual(cmsenv.detect("somethingcin2something=1"), "default", "in a name")
+    assertEqual(cmsenv.detect("user=jo.CIN2"), "default", "in a value")
+    assertEqual(cmsenv.detect("x=__CMSENV=cin2"), "default", "__CMSENV inside another cookie's value")
+    assertEqual(cmsenv.detect("x=C-CIN2-LBsessioncookie"), "default", "an LB name inside a value")
+    assertEqual(cmsenv.detect("C-CIN5-LBsessioncookie=cin2"), "cin5", "an LB cookie's value")
   })
 
-  // QUIRK: checks run cin3, cin2, cin4, cin5 and return on the FIRST hit.
-  await test("QUIRK: cin3 wins over cin2 when both appear (fixed check order)", () => {
-    assertEqual(cmsenv.detect("__CMSENV=cin2; other=cin3"), "default", "cin3 checked first -> default")
+  await test("__CMSENV beats the load-balancer cookies, in both directions", () => {
+    assertEqual(cmsenv.detect("C-CIN3-LBsessioncookie=x; __CMSENV=cin5"), "cin5", "stale cin3 LB cookie")
+    assertEqual(cmsenv.detect("__CMSENV=default; C-CIN5-LBsessioncookie=x"), "default", "the /cin3 switch's marker")
+    assertEqual(cmsenv.detect("__CMSENV=cin3; F-CIN2-LBsessioncookie=x"), "default", "cin3 names the default")
   })
 
-  await test("QUIRK: cin2 wins over cin4/cin5 when several appear", () => {
-    assertEqual(cmsenv.detect("__CMSENV=cin5; stale=cin2"), "cin2", "cin2 checked before cin4/cin5")
+  await test("__CMSENV is parsed: spacing and case don't matter, and the first one counts", () => {
+    assertEqual(cmsenv.detect("a=b;__cmsenv = CIN4 ;c=d"), "cin4", "trimmed, any case")
+    assertEqual(cmsenv.detect("__CMSENV=cin2; __CMSENV=cin5"), "cin2", "first wins")
+  })
+
+  // DDEI's CmsRequestFactory sends DEVLOGIN=<env>, and nothing else, on its dev-login GET /CMS.
+  await test("DEVLOGIN chooses like __CMSENV (DDEI's and our dev logins)", () => {
+    assertEqual(cmsenv.detect("DEVLOGIN=cin5;"), "cin5", "DDEI's exact form")
+    assertEqual(cmsenv.detect("DEVLOGIN=cin3"), "default", "cin3 names the default")
+    assertEqual(cmsenv.detect("DEVLOGIN="), "default", "blank = default")
+    assertEqual(cmsenv.detect("DEVLOGIN=; C-CIN2-LBsessioncookie=x"), "cin2", "blank falls through")
+    assertEqual(cmsenv.detect("C-CIN3-LBsessioncookie=x; DEVLOGIN=cin4"), "cin4", "beats an LB cookie")
+  })
+
+  await test("a __CMSENV that names no environment falls through to the LB cookies", () => {
+    assertEqual(cmsenv.detect("__CMSENV=; C-CIN5-LBsessioncookie=x"), "cin5", "blank")
+    assertEqual(cmsenv.detect("__CMSENV=deleted; C-CIN5-LBsessioncookie=x"), "cin5", "deleted")
+    assertEqual(cmsenv.detect("__CMSENV=constructor"), "default", "not an env, nor a lookup key")
+    assertEqual(cmsenv.detect("__CMSENV=cpt; C-CPT-LBsessioncookie=x"), "cpt", "cpt by its LB cookie (#2181)")
+  })
+
+  await test("without __CMSENV, the load-balancer cookies' names choose", () => {
+    assertEqual(cmsenv.detect("F-CIN5-LBsessioncookie=x"), "cin5", "the F- form")
+    assertEqual(cmsenv.detect("C-CIN3-LBsessioncookie=x"), "default", "cin3 IS the default")
+    assertEqual(cmsenv.detect("C-CMO-LBsessioncookie=x; C-MOD-LBsessioncookie=y"), "default", "no upstream")
+    assertEqual(cmsenv.detect("BIGipServer~ent-s221~CPSACP-LTM-CM-WAN-CIN2-cin2.cps.gov.uk_POOL=1"), "cin2", "BIG-IP")
+    assertEqual(cmsenv.detect("BIGipServer~x~cin4.cps.gov.uk_POOL=1"), "cin4", "BIG-IP, short form")
+  })
+
+  // Several env's LB cookies only linger when nothing has cleared them: the old fixed order stands.
+  await test("several environments' LB cookies resolve in fixed order: cin3, cin2, cin4, cin5", () => {
+    assertEqual(cmsenv.detect("C-CIN2-LBsessioncookie=x; C-CIN3-LBsessioncookie=y"), "default", "cin3 first")
+    assertEqual(cmsenv.detect("C-CIN5-LBsessioncookie=x; C-CIN2-LBsessioncookie=y"), "cin2", "cin2 before cin5")
+  })
+
+  await test("a Set-Cookie line (dev-login, DDEI path): the attributes choose nothing", () => {
+    assertEqual(cmsenv.detect("C-CIN4-LBsessioncookie=x; path=/; domain=cin2.cps.gov.uk"), "cin4", "name, not domain")
+    assertEqual(cmsenv.detect(".CMSAUTH=x; path=/; domain=cin2.cps.gov.uk"), "default", "no env in the name")
   })
 
   // RMAT-242: cmo has no configured upstream, so "cmo" cookies route to default
