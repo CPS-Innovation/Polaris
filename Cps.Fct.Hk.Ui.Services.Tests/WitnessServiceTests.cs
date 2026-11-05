@@ -133,23 +133,13 @@ public class WitnessServiceTests
         int witnessId = 789;
         var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
-        // Statements
-        var statement1 = new WitnessStatement(
-                Id: 7,
-                StatementNumber: 4);
-
-        var statement2 = new WitnessStatement(
-                Id: 8,
-                StatementNumber: 6);
-
-        var statements = new List<WitnessStatement>
+        var expectedstatements = new MasterDataService.Infrastructure.ApiClient.WitnessStatementResponseDto
         {
-            statement1,
-            statement2,
-        };
-        var expectedstatements = new WitnessStatementsResponse
-        {
-            WitnessStatements = statements,
+            StatementsForWitness =
+            [
+                new () { Id = 7 },
+                new () { Id = 8 },
+            ],
         };
 
         this.apiClientMock
@@ -161,10 +151,9 @@ public class WitnessServiceTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.IsType<WitnessStatementsResponse>(result);
-        Assert.Equal(2, result.WitnessStatements?.Count);
-        Assert.Equal(expectedstatements.WitnessStatements.First().Id, result.WitnessStatements?.First().Id);
-        Assert.Equal(expectedstatements.WitnessStatements.First().StatementNumber, result.WitnessStatements?.First().StatementNumber);
+        Assert.IsType<MasterDataService.Infrastructure.ApiClient.WitnessStatementResponseDto>(result);
+        Assert.Equal(2, result.StatementsForWitness?.Count);
+        Assert.Equal(expectedstatements.StatementsForWitness?.First().Id, result.StatementsForWitness?.First().Id);
 
         Assert.Contains(this.mockLogger.Logs, log =>
            log.LogLevel == LogLevel.Information &&

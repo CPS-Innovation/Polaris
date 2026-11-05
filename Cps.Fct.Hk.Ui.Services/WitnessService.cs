@@ -14,6 +14,7 @@ using Cps.Fct.Hk.Ui.Interfaces;
 using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
 using DdeiClient.Clients.Interfaces;
 using Microsoft.Extensions.Logging;
+using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
 
 /// <summary>
 /// Provides witness related services to a case.
@@ -29,7 +30,7 @@ public class WitnessService(
     private readonly ICaseLockService caseLockService = caseLockService;
 
     /// <inheritdoc/>
-    public async Task<WitnessStatementsResponse> GetWitnessStatementsAsync(int witnessId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    public async Task<WitnessStatementsResponse> GetWitnessStatementsLegacyAsync(int witnessId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         string witnessIdString = witnessId.ToString(CultureInfo.InvariantCulture);
 
@@ -39,7 +40,34 @@ public class WitnessService(
 
             var request = new GetWitnessStatementsRequest(witnessId, Guid.NewGuid());
 
-            WitnessStatementsResponse? statements = await this.apiClient.GetWitnessStatementsAsync(request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+            WitnessStatementsResponse? statements = await this.apiClient.GetWitnessStatementsLegacyAsync(request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+
+            return statements;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(
+                ex,
+                "{LogPrefix} Error occurred while fetching statements for witnessId {WitnessId}",
+                LoggingConstants.HskUiLogPrefix,
+                witnessIdString);
+
+            throw;
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task<ApiClient.WitnessStatementResponseDto> GetWitnessStatementsAsync(int witnessId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        string witnessIdString = witnessId.ToString(CultureInfo.InvariantCulture);
+
+        try
+        {
+            this.logger.LogInformation("{LogPrefix} Getting statements for witnessId [{WitnessId}]", LoggingConstants.HskUiLogPrefix, witnessIdString);
+
+            var request = new GetWitnessStatementsRequest(witnessId, Guid.NewGuid());
+
+            ApiClient.WitnessStatementResponseDto? statements = await this.apiClient.GetWitnessStatementsAsync(request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
             return statements;
         }
