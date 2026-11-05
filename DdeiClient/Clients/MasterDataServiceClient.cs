@@ -835,7 +835,6 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
     }
 
     /// <inheritdoc/>
-    public async Task<WitnessStatementsResponse> GetWitnessStatementsAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     public async Task<ApiClient.WitnessStatementResponseDto> GetWitnessStatementsAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         Requires.NotNull(request);
@@ -861,44 +860,6 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
         return results;
     }
-
-    public async Task<WitnessStatementsResponse> GetWitnessStatementsLegacyAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
-    {
-        Requires.NotNull(request);
-        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
-
-        var stopwatch = Stopwatch.StartNew();
-        const string OperationName = "GetStatementsForWitness";
-        string additionalInfo = "received #0 statements";
-
-        WitnessStatementsResponse results = new ();
-
-        try
-        {
-            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
-
-            var data = await client.GetStatementsForWitnessAsync(request.WitnessId, cancellationToken);
-
-            if (data?.StatementsForWitness is not null)
-            {
-                results.WitnessStatements = data.StatementsForWitness.Select(statement =>
-                    new WitnessStatement(statement.Id, statement.Title)).ToList();
-            }
-
-            if (results.WitnessStatements?.Count > 0)
-            {
-                additionalInfo = $"retrieved #{results.WitnessStatements.Count} statements";
-            }
-        }
-        catch (Exception exception)
-        {
-            this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
-            throw;
-        }
-
-        return results;
-    }
-
     /// <inheritdoc/>
     public async Task<NoContentResult> AddCaseActionPlanAsync(int caseId, AddActionPlanRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
