@@ -227,6 +227,13 @@ async function ddeiTests() {
     assertIncludes(cookies, "F-CIN5-LBsessioncookie=deleted", "clears an LB session cookie")
   })
 
+  // The fixture orders them as DDEI does: its load-balancer cookie last (CmsService.GetCmsCookiesAsync).
+  if (!switchesOn) await test("POST /dev-login/ via DDEI: __CMSENV from any Set-Cookie, not just the first", async () => {
+    const res = await hostRequest("POST", "/dev-login/", { ...H, "Content-Type": "application/x-www-form-urlencoded" }, "username=jo&password=x&selected-environment=cin5")
+    assertEqual(res.status, 200, "200")
+    assertIncludes(res.setCookies.join("\n"), "__CMSENV=cin5; path=/", "the env of the load-balancer cookie")
+  })
+
   if (!switchesOn) await test("/api/dev-login-full-cookie/ -> DDEI /api/login-full-cookie", async () => {
     const res = await get("/api/dev-login-full-cookie/", { headers: H })
     assertEqual(res.status, 200, "Should proxy")

@@ -302,8 +302,9 @@ function devLogin(r) {
     const cookies = r.headersOut["Set-Cookie"] || [];
     r.headersOut["Set-Cookie"] = cookies.concat(devLoginNonDdei.CLEARED_COOKIES);
   } else if (r.method === "POST") {
-    const cmsEnv = cmsenv.detect((r.headersOut["Set-Cookie"] || [""])[0]);
     const cookies = r.headersOut["Set-Cookie"] || [];
+    // All of them: DDEI's login puts the load-balancer cookie last when the login set no newer one.
+    const cmsEnv = cmsenv.detect(cookies.join("; "));
     cookies.push("__CMSENV=" + cmsEnv + "; path=/");
     r.headersOut["Set-Cookie"] = cookies;
   }

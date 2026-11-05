@@ -1,0 +1,15 @@
+[
+  {
+    "re": "^/api/login\\?",
+    "method": "POST",
+    "file": "ddei-login.html",
+    "type": "text/html",
+    "headers": {
+      "Set-Cookie": [
+        ".CMSAUTH=ddei-login-auth; path=/; HttpOnly",
+        "ASP.NET_SessionId=ddei-login-session; path=/; HttpOnly",
+        "C-CIN5-LBsessioncookie=ddei-login-lb; path=/; HttpOnly"
+      ]
+    }
+  }
+]
