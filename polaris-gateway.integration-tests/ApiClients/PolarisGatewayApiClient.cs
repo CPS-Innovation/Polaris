@@ -64,7 +64,7 @@ public class PolarisGatewayApiClient : BaseApiClient
 
     public async Task<ApiClientResponse<ExhibitProducersResponse>> GetCaseExhibitProducersAsync(string urn, int caseId, CancellationToken cancellationToken)
     {
-        var route = $"urns/{urn}/cases/{caseId}/case-exhibit-producers";
+        var route = $"urns/{urn}/cases/{caseId}/exhibit-producers";
         return await this.SendAsync<ExhibitProducersResponse>(route, HttpMethod.Get, cancellationToken);
     }
 
