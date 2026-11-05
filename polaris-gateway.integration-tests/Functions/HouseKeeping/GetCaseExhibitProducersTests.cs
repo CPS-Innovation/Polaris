@@ -15,34 +15,14 @@ public class GetCaseExhibitProducersTests : BaseFunctionIntegrationTest
     public async Task GetCaseExhibitProducers_CaseIdIs0_ShouldReturnNotFound()
     {
         // arrange
-        var urn = "54KR7689125";
         var caseId = 0;
 
         // act
         var result = await PolarisGatewayApiClient.GetCaseExhibitProducersAsync(
-            urn,
             caseId,
             TestContext.CurrentContext.CancellationToken);
 
         // assert
-        Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.NotFound));
-    }
-
-    [Test]
-    public async Task GetCaseExhibitProducers_CaseUrnIsMissing_ShouldReturnNotFound()
-    {
-        // arrange
-        var urn = "";
-        var caseId = 2179140;
-
-        // act
-        var result = await PolarisGatewayApiClient.GetCaseExhibitProducersAsync(
-            urn,
-            caseId,
-            TestContext.CurrentContext.CancellationToken);
-
-        // assert
-        // missing urn fails routing => NotFound
         Assert.That(result.HttpStatusCode, Is.EqualTo(HttpStatusCode.NotFound));
     }
 
@@ -50,12 +30,10 @@ public class GetCaseExhibitProducersTests : BaseFunctionIntegrationTest
     public async Task GetCaseExhibitProducers_ShouldReturnOkWithResponseDto()
     {
         // arrange
-        var urn = "16XL8836126";
         var caseId = 2179140;
 
         // act
         var result = await PolarisGatewayApiClient.GetCaseExhibitProducersAsync(
-            urn,
             caseId,
             TestContext.CurrentContext.CancellationToken);
 
@@ -69,12 +47,10 @@ public class GetCaseExhibitProducersTests : BaseFunctionIntegrationTest
     public async Task GetCaseExhibitProducers_ShouldReturnOK_AndValidateNoDuplicateProducerIds()
     {
         // arrange
-        var urn = "16XL8836126";
         var caseId = 2179140;
 
         // act
         var result = await PolarisGatewayApiClient.GetCaseExhibitProducersAsync(
-            urn,
             caseId,
             TestContext.CurrentContext.CancellationToken);
 
@@ -100,12 +76,10 @@ public class GetCaseExhibitProducersTests : BaseFunctionIntegrationTest
     public async Task GetCaseExhibitProducers_ShouldReturnOK_AndValidateWitnessProducersHaveNames_WhenPresent()
     {
         // arrange
-        var urn = "16XL8836126";
         var caseId = 2179140;
 
         // act
         var result = await PolarisGatewayApiClient.GetCaseExhibitProducersAsync(
-            urn,
             caseId,
             TestContext.CurrentContext.CancellationToken);
 
