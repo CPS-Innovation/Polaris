@@ -15,7 +15,7 @@ public class PolarisPipelineBulkRedactionSearchTests : BaseFunctionIntegrationTe
     public async Task PolarisPipelineBulkRedactionSearch_CaseIdIs0_ShouldReturnNotFound()
     {
         // arrange
-        // Route: urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/search
+        // Route: cases/{caseId:min(1)}/materials/{materialId}/documents/{documentId:min(1)}/search
         // caseId=0 fails route constraint => NotFound
         var urn = "54KR7689125";
         var caseId = 0;

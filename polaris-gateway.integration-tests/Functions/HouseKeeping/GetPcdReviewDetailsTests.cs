@@ -15,7 +15,7 @@ public class GetPcdReviewDetailsTests : BaseFunctionIntegrationTest
     public async Task GetPcdReviewDetails_CaseIdIs0_ShouldReturnNotFound()
     {
         // arrange
-        // Route: urns/{caseUrn}/cases/{caseId:min(1)}/history/{historyId}/pcd-review-details
+        // Route: cases/{caseId:min(1)}/history/{historyId}/pcd-review-details
         // caseId=0 fails route constraint => NotFound
         var urn = "54KR7689125";
         var caseId = 0;
@@ -55,7 +55,7 @@ public class GetPcdReviewDetailsTests : BaseFunctionIntegrationTest
     public async Task GetPcdReviewDetails_ShouldReturnOk_WithPcdReviewDetailResponse()
     {
         // arrange
-        // Endpoint: GET {{url}}/urns/54KR7689125/cases/2179140/history/4472765/pcd-review-details
+        // Endpoint: GET {{url}}/cases/2179140/history/4472765/pcd-review-details
         var urn = "54KR7689125";
         var caseId = 2179140;
         var historyId = 4472765;

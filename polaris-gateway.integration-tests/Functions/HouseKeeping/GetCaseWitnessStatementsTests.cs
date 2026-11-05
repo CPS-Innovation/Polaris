@@ -15,7 +15,7 @@ public class GetCaseWitnessStatementsTests : BaseFunctionIntegrationTest
     public async Task GetCaseWitnessStatements_CaseIdIs0_ShouldReturnNotFound()
     {
         // arrange
-        // Route: urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/witness-statements
+        // Route: cases/{caseId:min(1)}/witnesses/{witnessId}/witness-statements
         // caseId=0 fails route constraint => NotFound
         var urn = "54KR7689125";
         var caseId = 0;
