@@ -19,11 +19,12 @@ const req = (cookie) =>
 async function contract(cmsenv) {
   console.log("\ncmsenv — exported names are the contract:")
 
-  await test("exports exactly the five contract getters + the two primitives", () => {
+  await test("exports exactly the five contract getters + the three primitives", () => {
     assertEqual(
       Object.keys(cmsenv).sort().join(","),
       [
         "detect",
+        "detectOutgoing",
         "proxyDestinationCorsham",
         "proxyDestinationModernCorsham",
         "setting",
@@ -133,6 +134,43 @@ async function detection(cmsenv) {
   })
 }
 
+// DDEI's full-cookie dev login sets only Cms-Auth-Values: the percent-encoded JSON of the CMS
+// session (DevelopmentLogin.cs serialises with default options: "Cookies"; the handover's
+// serialiser camel-cases: "cookies").
+const cmsAuthValues = (dto) => "Cms-Auth-Values=" + encodeURIComponent(JSON.stringify(dto)) + "; path=/api/; HttpOnly"
+
+async function outgoing(cmsenv) {
+  console.log("\ndetectOutgoing — a dev login's outgoing Set-Cookies:")
+
+  await test("plain Set-Cookies: every one counts, attributes choose nothing", () => {
+    assertEqual(cmsenv.detectOutgoing([".CMSAUTH=x; path=/; domain=cin2.cps.gov.uk", "C-CIN5-LBsessioncookie=y; path=/"]), "cin5", "the LB cookie, last")
+    assertEqual(cmsenv.detectOutgoing([]), "default", "none")
+    assertEqual(cmsenv.detectOutgoing(undefined), "default", "absent")
+  })
+
+  await test("Cms-Auth-Values: the CMS cookies inside it choose, whichever case the field has", () => {
+    assertEqual(cmsenv.detectOutgoing([cmsAuthValues({ Cookies: ".CMSAUTH=x; C-CIN5-LBsessioncookie=y", Token: "t" })]), "cin5", "Cookies")
+    assertEqual(cmsenv.detectOutgoing([cmsAuthValues({ cookies: ".CMSAUTH=x; BIGipServer~x~cin4.cps.gov.uk_POOL=1" })]), "cin4", "cookies")
+    assertEqual(cmsenv.detectOutgoing([cmsAuthValues({ Cookies: ".CMSAUTH=x; C-CIN3-LBsessioncookie=y" })]), "default", "cin3")
+  })
+
+  await test("Cms-Auth-Values: nothing but its cookies field counts", () => {
+    const dto = { Cookies: ".CMSAUTH=x", UserIpAddress: "cin5", Token: "C-CIN5-LBsessioncookie", CmsVersionId: "__CMSENV=cin2" }
+    assertEqual(cmsenv.detectOutgoing([cmsAuthValues(dto)]), "default", "other fields ignored")
+  })
+
+  await test("Cms-Auth-Values that does not parse chooses nothing, and does not throw", () => {
+    assertEqual(cmsenv.detectOutgoing(["Cms-Auth-Values=%E0%A4%A; path=/api/"]), "default", "bad escape")
+    assertEqual(cmsenv.detectOutgoing(["Cms-Auth-Values=C-CIN5-LBsessioncookie; path=/api/"]), "default", "not JSON")
+    assertEqual(cmsenv.detectOutgoing(["Cms-Auth-Values=null"]), "default", "JSON null")
+    assertEqual(cmsenv.detectOutgoing([cmsAuthValues({ Cookies: 5 })]), "default", "not a string")
+  })
+
+  await test("Cms-Auth-Values beside other cookies: all count, the explicit choice still wins", () => {
+    assertEqual(cmsenv.detectOutgoing([cmsAuthValues({ Cookies: "C-CIN5-LBsessioncookie=y" }), "__CMSENV=cin2; path=/"]), "cin2", "__CMSENV")
+  })
+}
+
 async function primitives(cmsenv) {
   console.log("\nsetting — read a per-environment app setting:")
 
@@ -182,6 +220,7 @@ async function main() {
   const restoreEnv = applyEnv(cmsEnvObject())
   await contract(cmsenv)
   await detection(cmsenv)
+  await outgoing(cmsenv)
   await primitives(cmsenv)
   await getters(cmsenv)
   restoreEnv()
