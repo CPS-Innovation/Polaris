@@ -59,6 +59,29 @@ function detect(cookie) {
   return "default";
 }
 
+// A dev login's OUTGOING Set-Cookies -> environment (detect over what the response establishes).
+// DDEI's full-cookie login sets only Cms-Auth-Values: its value is the percent-encoded JSON of the
+// CMS session, whose cookies field (Cookies or cookies, as DDEI's two serialisers write it) holds
+// the CMS cookies, the load-balancer cookie among them. Those are read in its place; every other
+// field is ignored, as is a value that does not parse. detect itself stays strict.
+// Mirrored in the live config's cmsenv.js (__getCmsEnvCookieOut) until cutover.
+function detectOutgoing(setCookies) {
+  const text = (setCookies || []).map((c) => {
+    const pair = (c || "").split(";")[0];
+    const eq = pair.indexOf("=");
+    if (eq === -1 || pair.substring(0, eq).trim().toLowerCase() !== "cms-auth-values") return pair;
+    try {
+      const dto = JSON.parse(decodeURIComponent(pair.substring(eq + 1).trim()));
+      const key = Object.keys(dto).find((k) => k.toLowerCase() === "cookies");
+      return key && typeof dto[key] === "string" ? dto[key] : "";
+    } catch (e) {
+      // Not percent-encoded JSON, or null: it names no environment, so it chooses nothing.
+      return "";
+    }
+  });
+  return detect(text.join("; "));
+}
+
 // Read a per-environment CMS app setting from process.env: the value of
 // <ENV>_<name>, where <ENV> is the request's environment (DEFAULT/CIN2/CIN4/CIN5/CPT/CMO,
 // detected from the incoming Cookie header) and <name> is the setting's own
@@ -83,5 +106,6 @@ export default {
   upstreamCmsServicesDomainName: upstream("UPSTREAM_CMS_SERVICES_DOMAIN_NAME"),
   // The primitives, for our feature modules' imports (not for js_set).
   detect,
+  detectOutgoing,
   setting,
 };

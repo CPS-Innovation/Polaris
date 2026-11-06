@@ -14,7 +14,7 @@ code now lives in `cmsenv.js` in this folder (`detect`).
 
 **Where (live):** `cmsenv.js` (`__getCmsEnvInternal`)
 **Where (next):** `cmsenv.js` (`detect`)
-**Test:** `cmsenv.unit.test.js` → "unrelated cookies never choose, whatever they contain"; `cms-proxy.integration.test.js` (both configs)
+**Test:** `cmsenv.unit.test.js` → "unrelated cookies never choose, whatever they contain", `detectOutgoing`; `cms-proxy.integration.test.js`, `auth-handover.integration.test.js` (both configs)
 
 It used to substring-search the entire header, so any cookie mentioning `cin3` chose
 CIN3. That bit in earnest once `Cms-Session-Hint` (30 days, its value names the CMS
@@ -24,8 +24,11 @@ CIN3, and each handover renewed the hint.
 Now only `__CMSENV` or `DEVLOGIN` (when the value names an environment; DDEI's dev login
 sends `DEVLOGIN`, so it is a contract with that repo) and the load-balancer cookies,
 recognised by name (`[CF]-<ENV>-LBsessioncookie`, `BIGipServer*`), choose. The dev-login
-filter stamps `__CMSENV` from all the outgoing `Set-Cookie`s, as DDEI's first is usually
-not the load-balancer cookie and a wrong stamp now sticks.
+filter stamps `__CMSENV` from all the outgoing `Set-Cookie`s (`detectOutgoing`), as DDEI's
+first is usually not the load-balancer cookie and a wrong stamp now sticks. DDEI's full-cookie
+login sets only `Cms-Auth-Values`, so the CMS cookies are read from inside its value (the
+percent-encoded JSON's `cookies` field, any case); the old substring scan found them there by
+accident.
 
 ### C3. Fixed check order: `cin3` beats `cin2` beats `cin4`/`cin5` (load-balancer cookies only)
 

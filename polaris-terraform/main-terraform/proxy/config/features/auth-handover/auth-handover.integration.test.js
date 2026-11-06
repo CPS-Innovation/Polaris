@@ -234,6 +234,13 @@ async function ddeiTests() {
     assertIncludes(res.setCookies.join("\n"), "__CMSENV=cin5; path=/", "the env of the load-balancer cookie")
   })
 
+  // DDEI's full-cookie login sets only Cms-Auth-Values, the CMS cookies percent-encoded inside it.
+  if (!switchesOn) await test("POST /api/dev-login-full-cookie/ via DDEI: __CMSENV from the cookies inside Cms-Auth-Values", async () => {
+    const res = await hostRequest("POST", "/api/dev-login-full-cookie/", { ...H, "Content-Type": "application/x-www-form-urlencoded" }, "username=jo&password=x&selected-environment=cin5")
+    assertEqual(res.status, 200, "200")
+    assertIncludes(res.setCookies.join("\n"), "__CMSENV=cin5; path=/", "the env of the load-balancer cookie inside it")
+  })
+
   if (!switchesOn) await test("/api/dev-login-full-cookie/ -> DDEI /api/login-full-cookie", async () => {
     const res = await get("/api/dev-login-full-cookie/", { headers: H })
     assertEqual(res.status, 200, "Should proxy")

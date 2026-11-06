@@ -155,10 +155,25 @@ function __getCmsEnv(r) {
     return __getCmsEnvInternal(cookie);
 }
 
+// All of them: DDEI's dev login puts the load-balancer cookie last when the login set no newer one.
+// Its full-cookie login sets only Cms-Auth-Values, the percent-encoded JSON of the CMS session:
+// the CMS cookies are read from its cookies field (any case) instead; nothing else in it counts.
+// Mirrors proxy/config/features/common/cmsenv.js (detectOutgoing).
 function __getCmsEnvCookieOut(r) {
-    // All of them: DDEI's dev login puts the load-balancer cookie last when the login set no newer one.
-    let cookies = r.headersOut['Set-Cookie'] || [''];
-    return __getCmsEnvInternal(cookies.join('; '));
+    let text = (r.headersOut['Set-Cookie'] || []).map((c) => {
+        const pair = (c || '').split(';')[0];
+        const eq = pair.indexOf('=');
+        if (eq === -1 || pair.substring(0, eq).trim().toLowerCase() !== 'cms-auth-values') return pair;
+        try {
+            const dto = JSON.parse(decodeURIComponent(pair.substring(eq + 1).trim()));
+            const key = Object.keys(dto).find((k) => k.toLowerCase() === 'cookies');
+            return key && typeof dto[key] === 'string' ? dto[key] : '';
+        } catch (e) {
+            // Not percent-encoded JSON, or null: it names no environment, so it chooses nothing.
+            return '';
+        }
+    });
+    return __getCmsEnvInternal(text.join('; '));
 }
 
 // Only __CMSENV or DEVLOGIN (DDEI's dev login, calling /CMS), when the value names an environment

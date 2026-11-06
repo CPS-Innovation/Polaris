@@ -11,5 +11,16 @@
         "C-CIN5-LBsessioncookie=ddei-login-lb; path=/; HttpOnly"
       ]
     }
+  },
+  {
+    "re": "^/api/login-full-cookie\\?",
+    "method": "POST",
+    "file": "ddei-login.html",
+    "type": "text/html",
+    "headers": {
+      "Set-Cookie": [
+        "Cms-Auth-Values=%7B%22Cookies%22%3A%22.CMSAUTH%3Dddei-full-auth%3B%20ASP.NET_SessionId%3Dddei-full-session%3B%20C-CIN5-LBsessioncookie%3Dddei-full-lb%22%2C%22UserIpAddress%22%3A%2210.0.0.1%22%2C%22Token%22%3A%22ddei-full-token%22%7D; path=/api/; samesite=none; secure; httponly"
+      ]
+    }
   }
 ]
