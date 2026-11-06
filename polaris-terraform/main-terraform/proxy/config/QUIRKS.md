@@ -41,8 +41,8 @@ lives in under the refactored (`next`) config.
 | B3  | Security headers silently dropped on many locations      | **this file**                                                                    |
 | B4  | `ENVIRONMENT` / `$environment` declared, never read      | **this file**                                                                    |
 | C1  | `_POOL` regex over-captures separator-less cookie names  | [`features/auth-handover/QUIRKS.md`](./features/auth-handover/QUIRKS.md)         |
-| C2  | CMS-env detection is a loose substring over `Cookie`     | [`features/common/QUIRKS.md`](./features/common/QUIRKS.md)                       |
-| C3  | Fixed check order: cin3 beats cin2 beats cin4/cin5       | [`features/common/QUIRKS.md`](./features/common/QUIRKS.md)                       |
+| C2  | ✅ CMS-env detection no longer scans the whole `Cookie`  | [`features/common/QUIRKS.md`](./features/common/QUIRKS.md)                       |
+| C3  | LB cookies only: cin3 beats cin2 beats cin4/cin5         | [`features/common/QUIRKS.md`](./features/common/QUIRKS.md)                       |
 | C4  | `getDomainFromCookie` throws when nothing matches        | [`features/global-components/QUIRKS.md`](./features/global-components/QUIRKS.md) |
 | C5  | Missing `cookie` arg → silent `{error}` session hint     | [`features/auth-handover/QUIRKS.md`](./features/auth-handover/QUIRKS.md)         |
 | D1  | Rate limiter can never fire (burst is 10¹⁷)              | **this file**                                                                    |

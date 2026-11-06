@@ -455,6 +455,19 @@ async function devLogin(authHandover) {
     assert(r.headersOut["Set-Cookie"].some((c) => c === "__CMSENV=cin4; path=/"), `Expected __CMSENV=cin4, got ${JSON.stringify(r.headersOut["Set-Cookie"])}`)
   })
 
+  await test("POST reads every outgoing Set-Cookie: DDEI's load-balancer cookie can come last", () => {
+    const r = createMockRequest({ method: "POST", headersOut: { "Set-Cookie": [".CMSAUTH=x; path=/", "C-CIN5-LBsessioncookie=y; path=/"] } })
+    authHandover.devLogin(r)
+    assert(r.headersOut["Set-Cookie"].some((c) => c === "__CMSENV=cin5; path=/"), `Expected __CMSENV=cin5, got ${JSON.stringify(r.headersOut["Set-Cookie"])}`)
+  })
+
+  await test("POST reads the CMS cookies inside Cms-Auth-Values: DDEI's full-cookie login sets only that", () => {
+    const value = encodeURIComponent(JSON.stringify({ Cookies: ".CMSAUTH=x; C-CIN5-LBsessioncookie=y", Token: "t" }))
+    const r = createMockRequest({ method: "POST", headersOut: { "Set-Cookie": ["Cms-Auth-Values=" + value + "; path=/api/; HttpOnly"] } })
+    authHandover.devLogin(r)
+    assert(r.headersOut["Set-Cookie"].some((c) => c === "__CMSENV=cin5; path=/"), `Expected __CMSENV=cin5, got ${JSON.stringify(r.headersOut["Set-Cookie"])}`)
+  })
+
   await test("POST defaults to 'default' when the outgoing cookie names no environment", () => {
     const r = createMockRequest({ method: "POST", headersOut: { "Set-Cookie": ["session=abc"] } })
     authHandover.devLogin(r)
