@@ -25,21 +25,21 @@ using Xunit;
 
 public class GetWitnessStatementsLegacyTests
 {
-    private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
-    private readonly Mock<IMasterDataServiceClient> _masterDataServiceClientMock;
-    private readonly GetWitnessStatementsLegacy _getWitnessStatements;
+    private readonly Mock<IMdsArgFactory> mdsArgFactoryMock;
+    private readonly Mock<IMasterDataServiceClient> masterDataServiceClientMock;
+    private readonly GetWitnessStatementsLegacy getWitnessStatements;
 
     public GetWitnessStatementsLegacyTests()
     {
-        _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
-        _masterDataServiceClientMock = new Mock<IMasterDataServiceClient>();
-        _getWitnessStatements = new GetWitnessStatementsLegacy(_mdsArgFactoryMock.Object, _masterDataServiceClientMock.Object);
+        this.mdsArgFactoryMock = new Mock<IMdsArgFactory>();
+        this.masterDataServiceClientMock = new Mock<IMasterDataServiceClient>();
+        this.getWitnessStatements = new GetWitnessStatementsLegacy(this.mdsArgFactoryMock.Object, this.masterDataServiceClientMock.Object);
     }
 
     [Fact]
     public async Task Run_ShouldReturnOkObjectResult()
     {
-        //arrange
+        // arrange
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
@@ -48,25 +48,25 @@ public class GetWitnessStatementsLegacyTests
         {
             WitnessId = witnessId,
         };
-        var witnessStatementsResponse = new WitnessStatementsResponse();
-        _mdsArgFactoryMock.Setup(s => s.CreateWitnessStatementsArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, witnessId)).Returns(witnessStatementsArgDto);
-        _masterDataServiceClientMock
+        var witnessStatementsResponse = new Cps.MasterDataService.Infrastructure.ApiClient.WitnessStatementResponseDto();
+        this.mdsArgFactoryMock.Setup(s => s.CreateWitnessStatementsArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, witnessId)).Returns(witnessStatementsArgDto);
+        this.masterDataServiceClientMock
         .Setup(s => s.GetWitnessStatementsAsync(
             It.IsAny<GetWitnessStatementsRequest>(),
             It.IsAny<CmsAuthValues>(),
             It.IsAny<CancellationToken>()))
         .ReturnsAsync(witnessStatementsResponse);
-        //act
-        var result = await _getWitnessStatements.Run(req, caseUrn, caseId, witnessId);
+        // act
+        var result = await this.getWitnessStatements.Run(req, caseUrn, caseId, witnessId);
 
-        //assert
+        // assert
         Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]
     public async Task Run_ShouldReturnWitnessStatementsWithParentIdMatchingDocumentId()
     {
-        //arrange
+        // arrange
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
@@ -76,28 +76,37 @@ public class GetWitnessStatementsLegacyTests
             WitnessId = witnessId,
         };
 
-        var witnessStatementsResponse = new WitnessStatementsResponse
+        var witnessStatementsResponse = new Cps.MasterDataService.Infrastructure.ApiClient.WitnessStatementResponseDto()
         {
-            WitnessStatements =
+            StatementsForWitness =
             [
-                new WitnessStatement(100, 1),
-                new WitnessStatement(200, 2),
-                new WitnessStatement(0, 3),
+                new Cps.MasterDataService.Infrastructure.ApiClient.WitnessStatementDto
+                {
+                    Id = 100,
+                },
+                new Cps.MasterDataService.Infrastructure.ApiClient.WitnessStatementDto
+                {
+                    Id = 200,
+                },
+                new Cps.MasterDataService.Infrastructure.ApiClient.WitnessStatementDto
+                {
+                    Id = 0,
+                },
             ],
         };
 
-        _mdsArgFactoryMock.Setup(s => s.CreateWitnessStatementsArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, witnessId)).Returns(witnessStatementsArgDto);
-        _masterDataServiceClientMock
+        this.mdsArgFactoryMock.Setup(s => s.CreateWitnessStatementsArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, witnessId)).Returns(witnessStatementsArgDto);
+        this.masterDataServiceClientMock
         .Setup(s => s.GetWitnessStatementsAsync(
             It.IsAny<GetWitnessStatementsRequest>(),
             It.IsAny<CmsAuthValues>(),
             It.IsAny<CancellationToken>()))
         .ReturnsAsync(witnessStatementsResponse);
 
-        //act
-        var result = await _getWitnessStatements.Run(req, caseUrn, caseId, witnessId);
+        // act
+        var result = await this.getWitnessStatements.Run(req, caseUrn, caseId, witnessId);
 
-        //assert
+        // assert
         var okResult = Assert.IsType<OkObjectResult>(result);
         var response = Assert.IsType<WitnessStatementsResponse>(okResult.Value);
         Assert.Equal(3, response.WitnessStatements.Count);
