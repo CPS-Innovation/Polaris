@@ -52,7 +52,7 @@ public class WitnessService(
                 LoggingConstants.HskUiLogPrefix,
                 witnessIdString);
 
-            throw;
+            throw new InvalidOperationException($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching statements for witnessId {witnessIdString}", ex);
         }
     }
 
@@ -79,7 +79,7 @@ public class WitnessService(
                 LoggingConstants.HskUiLogPrefix,
                 witnessIdString);
 
-            throw;
+            throw new InvalidOperationException($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching statements for witnessId {witnessIdString}", ex);
         }
     }
 
@@ -105,7 +105,7 @@ public class WitnessService(
                 LoggingConstants.HskUiLogPrefix,
                 caseIdString);
 
-            throw;
+            throw new InvalidOperationException($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching witnesses for caseId {caseIdString}", ex);
         }
     }
 
@@ -114,7 +114,7 @@ public class WitnessService(
     {
         try
         {
-            this.logger.LogInformation("{LogPrefix} Attempting to add witness to case with a caseId {CaseId}", LoggingConstants.HskUiLogPrefix,caseId);
+            this.logger.LogInformation("{LogPrefix} Attempting to add witness to case with a caseId {CaseId}", LoggingConstants.HskUiLogPrefix, caseId);
 
             var checkCaeLockStatus = await this.caseLockService.CheckCaseLockAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
             if (checkCaeLockStatus.IsLocked && !checkCaeLockStatus.IsLockedByCurrentUser)
@@ -156,7 +156,7 @@ public class WitnessService(
                 LoggingConstants.HskUiLogPrefix,
                 caseId);
 
-            throw;
+            throw new InvalidOperationException($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching witnesses for caseId {caseId}", ex);
         }
     }
 }
