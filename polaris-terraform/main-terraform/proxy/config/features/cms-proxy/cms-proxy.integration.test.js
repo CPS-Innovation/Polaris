@@ -148,6 +148,31 @@ async function cmsEnvSelection() {
     const res = await cget("/CMS.Live/Home", envCookie("nonsense"))
     assertIncludes(res.headers.get("x-mock-host"), "cms.cps.gov.uk", "Should default")
   })
+
+  // Only __CMSENV and the load-balancer cookies' names choose: the browser's other cookies can
+  // mention an environment (the 30-day Cms-Session-Hint names the CMS domain of its last handover).
+  const hint = (env) =>
+    "Cms-Session-Hint=" + encodeURIComponent(JSON.stringify({ cmsDomains: [env + ".cps.gov.uk"] }))
+  const jarCases = [
+    ["__CMSENV=cin5 beats a session hint naming cin3", `__CMSENV=cin5; ${hint("cin3")}`, "cin5.cps.gov.uk"],
+    ["__CMSENV=cin2 beats a session hint naming cin3", `${hint("cin3")}; __CMSENV=cin2`, "cin2.cps.gov.uk"],
+    ["__CMSENV=default beats a session hint naming cin5", `__CMSENV=default; ${hint("cin5")}`, "cms.cps.gov.uk"],
+    ["a session hint alone chooses nothing", hint("cin5"), "cms.cps.gov.uk"],
+    ["__CMSENV=cin5 beats a stale cin3 LB cookie", "C-CIN3-LBsessioncookie=x; __CMSENV=cin5", "cin5.cps.gov.uk"],
+    ["__CMSENV=default beats a stale cin5 LB cookie", "__CMSENV=default; C-CIN5-LBsessioncookie=x", "cms.cps.gov.uk"],
+    ["no __CMSENV: the LB cookie chooses", "UID=1; F-CIN4-LBsessioncookie=x", "cin4.cps.gov.uk"],
+    ["no __CMSENV: the BIG-IP cookie chooses", "BIGipServer~x~cin2.cps.gov.uk_POOL=1", "cin2.cps.gov.uk"],
+    ["an unrelated cookie's value chooses nothing", "user=jo.CIN2", "cms.cps.gov.uk"],
+    ["DDEI's DEVLOGIN chooses", "DEVLOGIN=cin5;", "cin5.cps.gov.uk"],
+    ["DDEI's blank DEVLOGIN = default", "DEVLOGIN=;", "cms.cps.gov.uk"],
+  ]
+  for (const [label, Cookie, expectedDomain] of jarCases) {
+    await test(`${label} -> upstream Host ${expectedDomain}`, async () => {
+      const res = await cget("/CMS.Live/Home", { Cookie })
+      assertEqual(res.status, 200, "Should proxy")
+      assertIncludes(res.headers.get("x-mock-host"), expectedDomain, "Selected CMS environment")
+    })
+  }
 }
 
 async function cmsClassic() {
