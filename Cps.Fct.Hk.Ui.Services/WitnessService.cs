@@ -52,7 +52,7 @@ public class WitnessService(
                 LoggingConstants.HskUiLogPrefix,
                 witnessIdString);
 
-            throw new InvalidOperationException($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching statements for witnessId {witnessIdString}", ex);
+            throw new Exception($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching statements for witnessId {witnessIdString}", ex);
         }
     }
 
@@ -79,7 +79,7 @@ public class WitnessService(
                 LoggingConstants.HskUiLogPrefix,
                 witnessIdString);
 
-            throw new InvalidOperationException($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching statements for witnessId {witnessIdString}", ex);
+            throw new Exception($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching statements for witnessId {witnessIdString}", ex);
         }
     }
 
@@ -105,7 +105,7 @@ public class WitnessService(
                 LoggingConstants.HskUiLogPrefix,
                 caseIdString);
 
-            throw new InvalidOperationException($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching witnesses for caseId {caseIdString}", ex);
+            throw new Exception($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching witnesses for caseId {caseIdString}", ex);
         }
     }
 
@@ -156,7 +156,7 @@ public class WitnessService(
                 LoggingConstants.HskUiLogPrefix,
                 caseId);
 
-            throw new InvalidOperationException($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching witnesses for caseId {caseId}", ex);
+            throw new Exception($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching witnesses for caseId {caseId}", ex);
         }
     }
 }
