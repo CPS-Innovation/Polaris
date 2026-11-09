@@ -90,7 +90,7 @@ public class DocumentTypeMapper : IDocumentTypeMapper
             { 1200, new DocumentTypeInfo { DocumentType = "Other Material", Category = DocumentTypeCategories.OtherMaterial, Group = DocumentTypeGroups.Other } },
             { 1056, new DocumentTypeInfo { DocumentType = "PCN1", Category = DocumentTypeCategories.DefendantPreCons, Group = DocumentTypeGroups.Other } },
             { 1057, new DocumentTypeInfo { DocumentType = "PCN2", Category = DocumentTypeCategories.DefendantPreCons, Group = DocumentTypeGroups.Other } },
-            { 1058, new DocumentTypeInfo { DocumentType = "PCN3", Category = DocumentTypeCategories.UnusedMaterial, Group = DocumentTypeGroups.MgForm } },
+            { 1058, new DocumentTypeInfo { DocumentType = "PCN3", Category = DocumentTypeCategories.OtherMaterial, Group = DocumentTypeGroups.Other } },
             { 1051, new DocumentTypeInfo { DocumentType = "PE1", Category = DocumentTypeCategories.Statement, Group = DocumentTypeGroups.Statement } },
             { 1052, new DocumentTypeInfo { DocumentType = "PE2", Category = DocumentTypeCategories.Exhibit, Group = DocumentTypeGroups.Exhibit } },
             { 1053, new DocumentTypeInfo { DocumentType = "PE3", Category = DocumentTypeCategories.Communication } },

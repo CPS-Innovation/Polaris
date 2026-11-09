@@ -67,6 +67,26 @@ public class DocumentTypeMapperTests
     }
 
     /// <summary>
+    /// Tests that <see cref="DocumentTypeMapper.MapDocumentType"/> returns the correct <see cref="DocumentTypeInfo"/>
+    /// for the PCN3 document type ID, which is categorized as Other Material with the Other reclassification group.
+    /// </summary>
+    [Fact]
+    public void MapDocumentType_Pcn3Id_ReturnsOtherMaterialCategoryWithOtherGroup()
+    {
+        // Arrange
+        int documentTypeId = 1058; // PCN3
+
+        // Act
+        DocumentTypeInfo result = this.documentTypeMapper.MapDocumentType(documentTypeId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("PCN3", result.DocumentType);
+        Assert.Equal(DocumentTypeCategories.OtherMaterial, result.Category);
+        Assert.Equal(DocumentTypeGroups.Other, result.Group);
+    }
+
+    /// <summary>
     /// Tests that <see cref="DocumentTypeMapper.MapDocumentType"/> returns "Unknown" values for an invalid document type ID.
     /// </summary>
     [Fact]
@@ -307,10 +327,10 @@ public class DocumentTypeMapperTests
         Assert.Equal(12, result.Count(x => x.Group == DocumentTypeGroups.Exhibit));
 
         // MG Form
-        Assert.Equal(43, result.Count(x => x.Group == DocumentTypeGroups.MgForm));
+        Assert.Equal(42, result.Count(x => x.Group == DocumentTypeGroups.MgForm));
 
         // Other
-        Assert.Equal(13, result.Count(x => x.Group == DocumentTypeGroups.Other));
+        Assert.Equal(14, result.Count(x => x.Group == DocumentTypeGroups.Other));
     }
 
 
