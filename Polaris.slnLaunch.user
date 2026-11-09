@@ -3,6 +3,10 @@
     "Name": "All Functions",
     "Projects": [
       {
+        "Path": "polaris-pipeline\\coordinator\\coordinator.csproj",
+        "Action": "Start"
+      },
+      {
         "Path": "polaris-pipeline\\pdf-generator\\pdf-generator.csproj",
         "Action": "Start"
       },
@@ -20,10 +24,6 @@
       },
       {
         "Path": "polaris-pipeline\\pdf-thumbnail-generator\\pdf-thumbnail-generator.csproj",
-        "Action": "Start"
-      },
-      {
-        "Path": "polaris-pipeline\\coordinator\\coordinator.csproj",
         "Action": "Start"
       }
     ]
