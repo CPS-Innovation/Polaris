@@ -1,4 +1,10 @@
-﻿using Common.Clients.PdfGenerator;
+﻿// <copyright file="BaseGeneratePdf.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.Durable.Activity.GeneratePdf;
+
+using Common.Clients.PdfGenerator;
 using Common.Configuration;
 using Common.Constants;
 using Common.Extensions;
@@ -12,32 +18,34 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace coordinator.Durable.Activity.GeneratePdf;
-
 public abstract class BaseGeneratePdf
 {
     protected readonly IMdsArgFactory MdsArgFactory;
     protected readonly IMdsClient MdsClient;
-    private readonly IPdfGeneratorClient _pdfGeneratorClient;
-    private readonly IPolarisBlobStorageService _polarisBlobStorageService;
+    protected readonly IMasterDataServiceClient masterDataServiceClient;
+    private readonly IPdfGeneratorClient pdfGeneratorClient;
+    private readonly IPolarisBlobStorageService polarisBlobStorageService;
 
-    protected BaseGeneratePdf(IMdsArgFactory mdsArgFactory,
+    protected BaseGeneratePdf(
+        IMdsArgFactory mdsArgFactory,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IPdfGeneratorClient pdfGeneratorClient,
-        IConfiguration configuration, 
-        IMdsClient mdsClient)
+        IConfiguration configuration,
+        IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient)
     {
-        MdsArgFactory = mdsArgFactory;
-        _pdfGeneratorClient = pdfGeneratorClient;
-        _polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
-        MdsClient = mdsClient.ExceptionIfNull();
+        this.MdsArgFactory = mdsArgFactory;
+        this.pdfGeneratorClient = pdfGeneratorClient;
+        this.polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
+        this.MdsClient = mdsClient.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
     }
 
     protected async Task<PdfConversionResponse> Run(DocumentPayload payload)
     {
         var blobId = new BlobIdType(payload.CaseId, payload.MaterialId, payload.DocumentId, BlobType.Pdf);
 
-        if (await _polarisBlobStorageService.BlobExistsAsync(blobId, payload.IsOcredProcessedPreference))
+        if (await this.polarisBlobStorageService.BlobExistsAsync(blobId, payload.IsOcredProcessedPreference))
         {
             return new PdfConversionResponse { BlobAlreadyExists = true, PdfConversionStatus = PdfConversionStatus.DocumentConverted };
         }
@@ -47,9 +55,9 @@ public abstract class BaseGeneratePdf
             return new PdfConversionResponse { BlobAlreadyExists = false, PdfConversionStatus = PdfConversionStatus.DocumentTypeUnsupported };
         }
 
-        await using var documentStream = await GetDocumentStreamAsync(payload);
+        await using var documentStream = await this.GetDocumentStreamAsync(payload);
 
-        var response = await _pdfGeneratorClient.ConvertToPdfAsync(
+        var response = await this.pdfGeneratorClient.ConvertToPdfAsync(
             payload.CorrelationId,
             payload.Urn,
             payload.CaseId,
@@ -64,7 +72,7 @@ public abstract class BaseGeneratePdf
             return new PdfConversionResponse { BlobAlreadyExists = false, PdfConversionStatus = response.Status };
         }
 
-        await _polarisBlobStorageService.UploadBlobAsync(response.PdfStream, blobId, payload.IsOcredProcessedPreference);
+        await this.polarisBlobStorageService.UploadBlobAsync(response.PdfStream, blobId, payload.IsOcredProcessedPreference);
         await response.PdfStream.DisposeAsync();
 
         return new PdfConversionResponse { BlobAlreadyExists = false, PdfConversionStatus = PdfConversionStatus.DocumentConverted };

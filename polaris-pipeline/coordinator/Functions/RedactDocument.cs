@@ -11,6 +11,7 @@ using Common.Exceptions;
 using Common.Extensions;
 using Common.Services.BlobStorage;
 using coordinator.Clients.PdfRedactor;
+using Cps.MasterDataService.Infrastructure.ApiClient;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Services.CaseUrnResolver;
@@ -25,6 +26,7 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Stream = System.IO.Stream;
 
 public class RedactDocument
 {
@@ -32,7 +34,7 @@ public class RedactDocument
     private readonly IPdfRedactorClient redactionClient;
     private readonly IPolarisBlobStorageService polarisBlobStorageService;
     private readonly IMdsArgFactory mdsArgFactory;
-    private readonly IMdsClient mdsClient;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
 
     public RedactDocument(
         IValidator<RedactPdfRequestWithDocumentDto> requestValidator,
@@ -40,13 +42,13 @@ public class RedactDocument
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IMdsArgFactory mdsArgFactory,
         IConfiguration configuration,
-        IMdsClient mdsClient)
+        IMasterDataServiceClient masterDataServiceClient)
     {
         this.requestValidator = requestValidator.ExceptionIfNull();
         this.redactionClient = redactionClient.ExceptionIfNull();
         this.polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        this.mdsClient = mdsClient.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
     }
 
     [Function(nameof(RedactDocument))]
@@ -140,13 +142,22 @@ public class RedactDocument
             DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document),
             documentId);
 
-        var ddeiResult = await this.mdsClient.UploadPdfAsync(arg, modifiedDocumentStream ?? redactedDocumentStream, cancellationToken);
-
-        if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
+        try
         {
-            return new StatusCodeResult((int)ddeiResult.StatusCode);
-        }
+            await this.masterDataServiceClient.UploadPdfAsync(
+                arg,
+                modifiedDocumentStream ?? redactedDocumentStream,
+                cmsAuthValues,
+                cancellationToken);
 
-        return new OkResult();
+            return new OkResult();
+        }
+        catch (ApiException ex) when (
+            ex.StatusCode is
+                (int)HttpStatusCode.Gone or
+                (int)HttpStatusCode.RequestEntityTooLarge)
+        {
+            return new StatusCodeResult(ex.StatusCode);
+        }
     }
 }

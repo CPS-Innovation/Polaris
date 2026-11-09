@@ -125,7 +125,10 @@ public class RenameDocument : BaseFunction
             };
             if (string.Equals(document.Classification, ExhibitClassification, StringComparison.InvariantCultureIgnoreCase))
             {
-                await this.mdsClient.RenameExhibitAsync(mdsRenameDocumentArgDto, cancellationToken); // TODO: refactor to masterDataServiceClient.RenameExhibitMaterialAsync when MDS endpoint is fixed
+                await this.masterDataServiceClient.RenameExhibitMaterialAsync(
+                    new RenameMaterialRequest(mdsRenameDocumentArgDto.CorrelationId, (int)mdsRenameDocumentArgDto.MaterialId, mdsRenameDocumentArgDto.DocumentName),
+                    cmsAuthValues,
+                    cancellationToken);
             }
             else if (!string.Equals(document.Classification, StatementClassification, StringComparison.InvariantCultureIgnoreCase))
             {

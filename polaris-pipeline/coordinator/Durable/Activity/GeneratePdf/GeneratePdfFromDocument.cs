@@ -1,5 +1,12 @@
-﻿using Common.Clients.PdfGenerator;
+﻿// <copyright file="GeneratePdfFromDocument.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.Durable.Activity;
+
+using Common.Clients.PdfGenerator;
 using Common.Services.BlobStorage;
+using Common.Dto.Request;
 using coordinator.Domain;
 using coordinator.Durable.Activity.GeneratePdf;
 using coordinator.Durable.Payloads;
@@ -11,8 +18,6 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace coordinator.Durable.Activity;
-
 public class GeneratePdfFromDocument : BaseGeneratePdf
 {
     public GeneratePdfFromDocument(
@@ -20,8 +25,11 @@ public class GeneratePdfFromDocument : BaseGeneratePdf
         IMdsArgFactory mdsArgFactory,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IConfiguration configuration,
-        IMdsClient mdsClient)
-        : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient) { }
+        IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient)
+        : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient, masterDataServiceClient)
+    {
+    }
 
     [Function(nameof(GeneratePdfFromDocument))]
     public new async Task<PdfConversionResponse> Run([ActivityTrigger] DocumentPayload payload)
@@ -31,7 +39,7 @@ public class GeneratePdfFromDocument : BaseGeneratePdf
 
     protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload)
     {
-        var arg = MdsArgFactory.CreateDocumentVersionArgDto(
+        var arg = this.MdsArgFactory.CreateDocumentVersionArgDto(
             payload.CmsAuthValues,
             payload.CorrelationId,
             payload.Urn,
@@ -39,7 +47,7 @@ public class GeneratePdfFromDocument : BaseGeneratePdf
             payload.MaterialId,
             payload.DocumentId);
 
-        var result = await MdsClient.GetDocumentAsync(arg);
+        var result = await this.masterDataServiceClient.GetDocumentByDocumentIdAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
 
         return result.Stream;
     }

@@ -24,16 +24,16 @@ using System.Threading.Tasks;
 public class CheckoutDocument : BaseFunction
 {
     private readonly IMdsArgFactory mdsArgFactory;
-    private readonly IMdsClient mdsClient;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
     private readonly ICaseUrnResolver caseUrnResolver;
 
     public CheckoutDocument(
         IMdsArgFactory mdsArgFactory,
-        IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient,
         ICaseUrnResolver caseUrnResolver)
     {
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        this.mdsClient = mdsClient.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
@@ -54,14 +54,15 @@ public class CheckoutDocument : BaseFunction
         var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         var mdsDocumentIdAndVersionIdArgDto = this.mdsArgFactory.CreateDocumentVersionArgDto(
-                     cmsAuthValues: cmsAuthValues.CmsAuthFullValue,
-                     correlationId: correlationId,
-                     urn: caseUrn,
-                     caseId: caseId,
-                     materialId: materialId,
-                     documentId: documentId);
+            cmsAuthValues: cmsAuthValues.CmsAuthFullValue,
+            correlationId: correlationId,
+            urn: caseUrn,
+            caseId: caseId,
+            materialId: materialId,
+            documentId: documentId);
 
-        await this.mdsClient.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto, cancellationToken);
+        await this.masterDataServiceClient.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto, cmsAuthValues, cancellationToken);
+
         return new OkResult();
     }
 }

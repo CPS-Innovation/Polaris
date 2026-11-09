@@ -1,4 +1,11 @@
-﻿using Common.Dto.Response;
+﻿// <copyright file="GetMaterialTypeListTests.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Tests.Functions;
+
+using Common.Dto.Request;
+using Common.Dto.Response;
 using Ddei.Domain.CaseData.Args.Core;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
@@ -9,40 +16,41 @@ using Moq;
 using PolarisGateway.Functions;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace PolarisGateway.Tests.Functions;
-
 public class GetMaterialTypeListTests
 {
-    private readonly Mock<ILogger<GetMaterialTypeList>> _loggerMock;
-    private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
-    private readonly Mock<IMdsClient> _mdsClientMock;
-    private readonly GetMaterialTypeList _getMaterialTypeList;
+    private readonly Mock<IMdsArgFactory> mdsArgFactoryMock;
+    private readonly Mock<IMasterDataServiceClient> masterDataServiceClientMock;
+    private readonly GetMaterialTypeList getMaterialTypeList;
 
     public GetMaterialTypeListTests()
     {
-        _loggerMock = new Mock<ILogger<GetMaterialTypeList>>();
-        _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
-        _mdsClientMock = new Mock<IMdsClient>();
-        _getMaterialTypeList = new GetMaterialTypeList(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsClientMock.Object);
+        this.mdsArgFactoryMock = new Mock<IMdsArgFactory>();
+        this.masterDataServiceClientMock = new Mock<IMasterDataServiceClient>();
+        this.getMaterialTypeList = new GetMaterialTypeList(this.masterDataServiceClientMock.Object);
     }
 
     [Fact]
     public async Task Run_ShouldReturnOkObjectResult()
     {
-        //arrange
+        // arrange
         var req = new DefaultHttpContext().Request;
         var cmsBaseArgDto = new CmsBaseArgDto();
         var materialTypes = new List<MaterialTypeDto>();
-        _mdsArgFactoryMock.Setup(s => s.CreateCmsCaseDataArgDto(It.IsAny<string>(), It.IsAny<Guid>())).Returns(cmsBaseArgDto);
-        _mdsClientMock.Setup(s => s.GetMaterialTypeListAsync(cmsBaseArgDto)).ReturnsAsync(materialTypes);
-        
-        //act
-        var result = await _getMaterialTypeList.Run(req);
+        this.mdsArgFactoryMock.Setup(s => s.CreateCmsCaseDataArgDto(It.IsAny<string>(), It.IsAny<Guid>())).Returns(cmsBaseArgDto);
+        this.masterDataServiceClientMock
+            .Setup(s => s.GetMaterialTypeListAsync(
+                It.IsAny<CmsAuthValues>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(materialTypes);
 
-        //assert
+        // act
+        var result = await this.getMaterialTypeList.Run(req);
+
+        // assert
         Assert.IsType<OkObjectResult>(result);
     }
 }

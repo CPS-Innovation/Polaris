@@ -11,9 +11,12 @@ using Common.Exceptions;
 using Common.Extensions;
 using Common.Services.BlobStorage;
 using coordinator.Clients.PdfRedactor;
+using Cps.MasterDataService.Infrastructure.ApiClient;
 using Ddei.Factories;
+using DdeiClient.Clients.Interfaces;
 using DdeiClient.Enums;
 using DdeiClient.Factories;
+using DdeiClient.Services.CaseUrnResolver;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,8 +27,6 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using DdeiClient.Clients.Interfaces;
-using DdeiClient.Services.CaseUrnResolver;
 
 public class ModifyDocument
 {
@@ -33,7 +34,7 @@ public class ModifyDocument
     private readonly IPdfRedactorClient pdfRedactorClient;
     private readonly IPolarisBlobStorageService polarisBlobStorageService;
     private readonly IMdsArgFactory mdsArgFactory;
-    private readonly IMdsClient mdsClient;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
     private readonly ICaseUrnResolver caseUrnResolver;
 
     public ModifyDocument(
@@ -42,7 +43,7 @@ public class ModifyDocument
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IMdsArgFactory mdsArgFactory,
         IConfiguration configuration,
-        IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient,
         ICaseUrnResolver caseUrnResolver)
     {
         this.requestValidator = requestValidator.ExceptionIfNull();
@@ -50,7 +51,7 @@ public class ModifyDocument
         this.polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty).ExceptionIfNull();
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
-        this.mdsClient = mdsClient.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
     }
 
     [Function(nameof(ModifyDocument))]
@@ -108,13 +109,21 @@ public class ModifyDocument
             DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document),
             documentId);
 
-        var ddeiResult = await this.mdsClient.UploadPdfAsync(arg, modifiedDocumentStream);
-
-        if (ddeiResult.StatusCode == HttpStatusCode.Gone || ddeiResult.StatusCode == HttpStatusCode.RequestEntityTooLarge)
+        try
         {
-            return new StatusCodeResult((int)ddeiResult.StatusCode);
-        }
+            await this.masterDataServiceClient.UploadPdfAsync(
+                arg,
+                modifiedDocumentStream,
+                cmsAuthValues);
 
-        return new OkResult();
+            return new OkResult();
+        }
+        catch (ApiException ex) when (
+            ex.StatusCode is
+                (int)HttpStatusCode.Gone or
+                (int)HttpStatusCode.RequestEntityTooLarge)
+        {
+            return new StatusCodeResult(ex.StatusCode);
+        }
     }
 }

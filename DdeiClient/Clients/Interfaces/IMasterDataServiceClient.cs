@@ -6,6 +6,7 @@ namespace DdeiClient.Clients.Interfaces
 {
     using Common.Dto.Request;
     using Common.Dto.Request.HouseKeeping;
+    using Common.Dto.Response;
     using Common.Dto.Response.Case;
     using Common.Dto.Response.Document;
     using Common.Dto.Response.Documents;
@@ -332,5 +333,15 @@ namespace DdeiClient.Clients.Interfaces
         Task<IEnumerable<CaseIdentifiersDto>> ListCaseIdentifiersAsync(MdsUrnArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         Task ToggleIsUnusedDocumentAsync(MdsToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task<CaseIdentifiersDto> LookupUrnAsync(MdsCaseIdOnlyArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task CancelCheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task UploadPdfAsync(MdsMaterialIdAndDocumentIdArgDto arg, Stream stream, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
     }
 }

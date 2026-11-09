@@ -76,7 +76,8 @@ public class PdfRetrievalService : IPdfRetrievalService
     private async Task<(Stream Stream, FileType FileType, bool IsKnownFileType)> GetDocumentStreamAsync(string cmsAuthValues, Guid correlationId, string urn, int caseId, string materialId, long documentId)
     {
         var mdsDocumentIdAndVersionIdArgDto = this.mdsArgFactory.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId, materialId, documentId);
-        var fileResult = await this.mdsClient.GetDocumentAsync(mdsDocumentIdAndVersionIdArgDto); // TODO: Refactor to masterDataServiceClient.GetDocumentByDocumentIdAsync() when fixed in MDS
+
+        var fileResult = await this.masterDataServiceClient.GetDocumentByDocumentIdAsync(mdsDocumentIdAndVersionIdArgDto, new CmsAuthValues(cmsAuthValues, correlationId));
 
         var isKnownFileType = FileTypeHelper.TryGetSupportedFileType(fileResult.FileName, out var fileType);
         return (fileResult.Stream, fileType, isKnownFileType);

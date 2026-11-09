@@ -23,7 +23,6 @@ using System.Threading.Tasks;
 
 public class GeneratePdfFromDefendantsAndCharges : BaseGeneratePdf
 {
-    private readonly IMasterDataServiceClient masterDataServiceClient;
     private readonly ICaseDetailsMapper caseDetailsMapper;
     private readonly IConvertModelToHtmlService convertPcdRequestToHtmlService;
 
@@ -36,9 +35,8 @@ public class GeneratePdfFromDefendantsAndCharges : BaseGeneratePdf
         IMdsArgFactory mdsArgFactory,
         IConvertModelToHtmlService convertPcdRequestToHtmlService,
         IConfiguration configuration)
-        : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient)
+        : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient, masterDataServiceClient)
     {
-        this.masterDataServiceClient = masterDataServiceClient;
         this.caseDetailsMapper = caseDetailsMapper;
         this.convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
     }
