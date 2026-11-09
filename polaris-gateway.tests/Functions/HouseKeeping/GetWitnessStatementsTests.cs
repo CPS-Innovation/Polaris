@@ -183,8 +183,8 @@ public class GetCaseWitnessStatementsTests
 
         // Set up a DefaultHttpContext to support setting headers
         var context = new DefaultHttpContext();
+        context.Request.Headers.Append("corelation", "1232131231");
         mockRequest.Setup(r => r.HttpContext).Returns(context);
-        mockRequest.Setup(r => r.Headers.Append("corelation", "1232131231"));
 
         return mockRequest;
     }

@@ -8,6 +8,7 @@ using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response;
 using Common.Dto.Response.HouseKeeping;
+using Cps.MasterDataService.Infrastructure.ApiClient;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
@@ -107,16 +108,27 @@ public class GetWitnessStatementsLegacyTests
         var result = await this.getWitnessStatements.Run(req, caseUrn, caseId, witnessId);
 
         // assert
+        // assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var response = Assert.IsType<WitnessStatementsResponse>(okResult.Value);
-        Assert.Equal(3, response.WitnessStatements.Count);
-        Assert.Equal(100, response.WitnessStatements[0].Id);
-        Assert.Equal(1, response.WitnessStatements[0].StatementNumber);
 
-        Assert.Equal(200, response.WitnessStatements[1].Id);
-        Assert.Equal(2, response.WitnessStatements[1].StatementNumber);
+        var response = Assert.IsType<WitnessStatementResponseDto>(
+            okResult.Value);
 
-        Assert.Equal(0, response.WitnessStatements[2].Id);
-        Assert.Equal(3, response.WitnessStatements[2].StatementNumber);
+        Assert.Equal(3, response.StatementsForWitness.Count);
+
+        Assert.Collection(
+            response.StatementsForWitness,
+            statement =>
+            {
+                Assert.Equal(100, statement.Id);
+            },
+            statement =>
+            {
+                Assert.Equal(200, statement.Id);
+            },
+            statement =>
+            {
+                Assert.Equal(0, statement.Id);
+            });
     }
 }
