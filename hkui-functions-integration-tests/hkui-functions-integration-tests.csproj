@@ -11,7 +11,6 @@
 	  <RootNamespace>HkuiFunctionsIntegrationTests</RootNamespace>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Aspose.PDF.Drawing" Version="24.4.0" />
 		<PackageReference Include="FluentAssertions" Version="8.10.0" />
 		<PackageReference Include="coverlet.collector" Version="10.0.1">
 			<PrivateAssets>all</PrivateAssets>
