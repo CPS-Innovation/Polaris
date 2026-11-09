@@ -45,7 +45,7 @@ public class MdsCaseOrchestrationService(IMdsClient mdsClient,
         var caseIdentifiers = await this.masterDataServiceClient.ListCaseIdentifiersAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId), cancellationToken);
 
         var calls = caseIdentifiers.Select(async caseIdentifier =>
-            await this.GetCaseDetails(this.mdsArgFactory.CreateCaseArgFromUrnArg(arg, (int)caseIdentifier.Id), cancellationToken));
+            await this.GetCaseDetails(this.mdsArgFactory.CreateCaseArgFromUrnArg(arg, checked((int)caseIdentifier.Id)), cancellationToken));
 
         var cases = await Task.WhenAll(calls);
         return cases.Select(@case => this.caseDetailsMapper.MapCaseDetails(@case));
