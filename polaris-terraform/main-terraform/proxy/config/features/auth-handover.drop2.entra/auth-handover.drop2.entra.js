@@ -324,7 +324,8 @@ function _probe(hint) {
 
 // Which kind of destination `r` is, for passing the CMS token on (decided 2026-10-15):
 //   "polaris" — our own /auth-refresh-inbound on THIS host (relative, or absolute to this Host):
-//               it gets token + version, so drop1 skips discover/mint/verify;
+//               it gets token + version, so drop1 skips discover/mint/verify. Only when drop1
+//               answers it: DDEI does its own lookup and would log the token with its query;
 //   "os"      — an OutSystems handover page (…/auth-handover.html?…stage=os-cookie-return…):
 //               global-components' os-handover takes the token and skips its own bounce;
 //   "other"   — everyone else gets exactly today's r + cc.
@@ -342,7 +343,8 @@ function _destKind(r, dest) {
 function _continuationUrl(r, st) {
   let url = st.r + (st.r.includes("?") ? "&" : "?") + "cc=" + encodeURIComponent(st.cc);
   const kind = _destKind(r, st.r);
-  if (st.tok && (kind === "polaris" || kind === "os")) {
+  const usesToken = kind === "os" || (kind === "polaris" && replaceDdei.enabled(r) === "true");
+  if (st.tok && usesToken) {
     url += "&cms-modern-token=" + encodeURIComponent(st.tok);
     if (kind === "polaris" && st.ver) url += "&cms-version-id=" + encodeURIComponent(st.ver);
   }

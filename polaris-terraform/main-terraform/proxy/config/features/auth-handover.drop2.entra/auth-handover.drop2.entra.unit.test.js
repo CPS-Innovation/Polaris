@@ -68,6 +68,7 @@ function form(body) {
 }
 
 const ENV = {
+  NON_DDEI_INIT_ENABLED: "true",
   ENTRA_TENANT_ID: "00000000-0000-0000-0000-0000000000aa",
   ENTRA_CLIENT_ID: "00000000-0000-0000-0000-0000000000cc",
   ENTRA_CLIENT_SECRET: "test-secret",
@@ -502,6 +503,16 @@ async function callbackTests() {
       "presence swap BEFORE the MDS swap",
     )
     assertRefreshTokenContained(r)
+  })
+
+  await test("DDEI behind /auth-refresh-inbound (drop1 off): not passed the token, which its logs would keep", async () => {
+    const r = await callbackScenario({ term: "top-level", env: { NON_DDEI_INIT_ENABLED: "false" } })
+    assertEqual(r.returnBody, continuation(DEST_POLARIS, ""), "r + cc only")
+  })
+
+  await test("drop1 off, OS handover page: still passed the token (it never reaches DDEI)", async () => {
+    const r = await callbackScenario({ term: "top-level", dest: DEST_OS, env: { NON_DDEI_INIT_ENABLED: "false" } })
+    assertEqual(r.returnBody, continuation(DEST_OS, OS_TOKEN_PARAMS), "-> OS handover page")
   })
 
   await test("top-level success, OS handover page: 302 to r with cc + token (no version)", async () => {

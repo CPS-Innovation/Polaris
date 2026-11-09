@@ -10,14 +10,14 @@
 //         cmsenv.detect reads it):
 //           1. GET /CMS  -> the CMS version (Location) + the load-balancer cookie
 //           2. POST /<version>/User/uaulLogin.aspx with the credentials
-//         then
-//           /dev-login/                 hands the CMS cookies to the browser (+ __CMSENV) and
-//                                       links into the apps;
-//           /api/dev-login-full-cookie/ looks the modern token up (drop1) and sets the
-//                                       gateway's Cms-Auth-Values cookie instead.
+//         then looks the modern token up (drop1) and answers a result page (Open Modern, the
+//         cookies in full). They differ in what the browser gets:
+//           /dev-login/                 the CMS cookies (+ __CMSENV), and the page adds the app links;
+//           /api/dev-login-full-cookie/ the gateway's Cms-Auth-Values cookie (+ __CMSENV) instead.
 //
 // Contract kept from DDEI's pages (polaris-e2e and shared.integration-tests drive them): form
-// fields username / password / selected-environment (blank = default), an
+// fields username / password / selected-environment (blank = default), as a urlencoded or
+// multipart form (req.Form read both: curl --form is multipart), an
 // input[type=submit], `strong[data-testid='login-ok']` on success, and on the full-cookie
 // POST Cms-Auth-Values is the FIRST Set-Cookie.
 // Pre-prod tooling: the credentials go to CMS and nowhere else, and are never logged.
@@ -73,22 +73,51 @@ function _html(s) {
     .replaceAll("'", "&#39;");
 }
 
+// Decode a urlencoded name or value. As ASP.NET's form reader, a % that is not a valid escape
+// stays as typed: a password holding one must reach CMS, not silently become blank.
+function _decode(s) {
+  const spaced = s.replaceAll("+", " ");
+  try {
+    return decodeURIComponent(spaced);
+  } catch (e) {
+    return spaced.replace(/(?:%[0-9a-fA-F]{2})+/g, (run) => {
+      try {
+        return decodeURIComponent(run);
+      } catch (e2) {
+        return run;
+      }
+    });
+  }
+}
+
 // An application/x-www-form-urlencoded body -> { name: value } (first value wins).
-function _form(body) {
+function _urlEncodedForm(body) {
   const out = {};
   (body || "").split("&").forEach((pair) => {
     if (!pair) return;
     const eq = pair.indexOf("=");
-    const k = eq === -1 ? pair : pair.substring(0, eq);
-    const v = eq === -1 ? "" : pair.substring(eq + 1);
-    try {
-      const key = decodeURIComponent(k.replaceAll("+", " "));
-      if (!(key in out)) out[key] = decodeURIComponent(v.replaceAll("+", " "));
-    } catch (e) {
-      // a malformed %-sequence: skip that field, as a missing one
-    }
+    const key = _decode(eq === -1 ? pair : pair.substring(0, eq));
+    if (!(key in out)) out[key] = eq === -1 ? "" : _decode(pair.substring(eq + 1));
   });
   return out;
+}
+
+// A multipart/form-data body -> { name: value } (first value wins).
+function _multipartForm(body, boundary) {
+  const out = {};
+  (body || "").split("--" + boundary).forEach((part) => {
+    const blank = part.indexOf("\r\n\r\n");
+    if (blank === -1) return;
+    const m = part.substring(0, blank).match(/;\s*name="([^"]*)"/i);
+    if (m && !(m[1] in out)) out[m[1]] = part.substring(blank + 4).replace(/\r\n$/, "");
+  });
+  return out;
+}
+
+const MULTIPART_RE = /^multipart\/form-data\b.*\bboundary=(?:"([^"]+)"|([^;\s]+))/i;
+function _form(r) {
+  const m = (r.headersIn["Content-Type"] || "").match(MULTIPART_RE);
+  return m ? _multipartForm(r.requestText, m[1] || m[2]) : _urlEncodedForm(r.requestText);
 }
 
 function _setCookies(resp) {
@@ -98,9 +127,10 @@ function _setCookies(resp) {
   return one ? [one] : [];
 }
 
-// Log in to CMS (DDEI GetCmsCookiesAsync). Returns { setCookies, ok }: every Set-Cookie the login
-// answered (with attributes, for the browser), plus the /CMS load-balancer cookie when the login
-// set no newer one; ok = a .CMSAUTH cookie came back. Throws on a transport error.
+// Log in to CMS (DDEI GetCmsCookiesAsync). Returns { setCookies, cookieHeader, ok }: every
+// Set-Cookie the login answered (with attributes, for the browser), plus the /CMS load-balancer
+// cookie when the login set no newer one; those as a Cookie header for calling CMS; ok = a .CMSAUTH
+// cookie came back. Throws on a transport error.
 async function _cmsLogin(host, username, password, env) {
   const envCookie = "DEVLOGIN=" + env;
   const home = await ngx.fetch("https://" + host + "/CMS", {
@@ -129,6 +159,7 @@ async function _cmsLogin(host, username, password, env) {
   if (!setCookies.some((c) => LB_COOKIE_RE.test(c))) setCookies = setCookies.concat(lb);
   return {
     setCookies: setCookies,
+    cookieHeader: setCookies.map((x) => x.split(";")[0]).join("; "),
     ok: resp.status < 400 && setCookies.some((c) => c.indexOf(".CMSAUTH") === 0),
   };
 }
@@ -173,15 +204,33 @@ function _loggedInLine(username, ok) {
   );
 }
 
-function _appLinks(r) {
+// The result page's links: Open Modern whenever there is a token; the P / M / C links only where
+// the browser was given the CMS cookies they hand over (/dev-login/).
+function _links(r, session, withAppLinks) {
   const key = appLaunch.proxyLaunchKey(r.headersIn.Host || "");
   const link = (href, text) => '<li><a href="' + _html(href) + '" target="_blank">' + text + "</a></li>";
-  return (
-    "<ul>" +
-    link(POLARIS_LINK, "Casework app (P button)") +
-    link(MATERIALS_LINK, "Materials app (M button)") +
-    (key ? link("/launch/" + key, "Home page (C button)") : "") +
-    "</ul>"
+  const apps = withAppLinks
+    ? link(POLARIS_LINK, "Casework app (P button)") +
+      link(MATERIALS_LINK, "Materials app (M button)") +
+      (key ? link("/launch/" + key, "Home page (C button)") : "")
+    : "";
+  const modern = session.token ? link("/viewer/landing#/dashboard/" + session.token, "Open Modern (new tab)") : "";
+  return apps || modern ? "<ul>" + apps + modern + "</ul>" : "";
+}
+
+// The page both routes answer a login with: a failed token lookup loses the Open Modern link and
+// says why, and the rest still stands.
+function _resultPage(r, heading, withAppLinks, c, login, session, cookies) {
+  return _page(
+    heading,
+    _loggedInLine(c.username, login.ok) +
+      (login.ok ? _links(r, session, withAppLinks) : "") +
+      (session.reason ? "<p>Logged in, but no CMS modern token: " + _html(session.reason) + "</p>" : "") +
+      // What this response itself sets on our domain, which is not what CMS sent.
+      "<p>Set-Cookie on this response:</p><pre>" + (cookies.length ? _html(cookies.join("\n")) : "(none)") + "</pre>" +
+      // In full, as DDEI's page did: the Cookie header (paste into a tool / `cc`) and each Set-Cookie.
+      "<p>Cookie header:</p><pre>" + _html(login.cookieHeader) + "</pre>" +
+      "<p>Set-Cookie (as CMS sent them):</p><pre>" + _html(login.setCookies.join("\n")) + "</pre>",
   );
 }
 
@@ -193,15 +242,30 @@ function _respond(r, status, cookies, html) {
 }
 
 // The POST's credentials + env, or null (then a 400). Only the offered envs are accepted, so
-// the DEVLOGIN cookie never carries an arbitrary value.
+// the DEVLOGIN cookie never carries an arbitrary value. Any case; cin3 names the default (as
+// cmsenv.detect reads it), which DDEI's unchecked pass-through also allowed.
 function _credentials(r) {
-  const f = _form(r.requestText);
-  const env = f["selected-environment"] || "";
+  const f = _form(r);
+  const named = (f["selected-environment"] || "").toLowerCase();
+  const env = named === "cin3" ? "" : named;
   if (!f.username || (env && !_otherEnvs().includes(env))) return null;
   return { username: f.username, password: f.password || "", env: env };
 }
 
-async function _handle(r, heading, onLoggedIn) {
+function _badRequestHtml() {
+  return (
+    "<p>Send a urlencoded or multipart form with <code>username</code>, <code>password</code> and, " +
+    "optionally, <code>selected-environment</code> (blank, cin3, or one of: " +
+    _html(_otherEnvs().join(", ")) + ").</p>"
+  );
+}
+
+function _envMarker(c) {
+  return "__CMSENV=" + cmsenv.detect("DEVLOGIN=" + c.env) + "; path=/";
+}
+
+// answer(c, login, session) -> { status, cookies }: the route's own part of the response.
+async function _handle(r, heading, withAppLinks, answer) {
   if (r.method === "GET") {
     _respond(r, 200, CLEARED_COOKIES, _formPage(heading));
     return;
@@ -212,7 +276,7 @@ async function _handle(r, heading, onLoggedIn) {
   }
   const c = _credentials(r);
   if (!c) {
-    _respond(r, 400, [], _page(heading, "<p>A user name (and a listed CMS environment) is required.</p>"));
+    _respond(r, 400, [], _page(heading, _badRequestHtml()));
     return;
   }
   let login;
@@ -222,64 +286,35 @@ async function _handle(r, heading, onLoggedIn) {
     _respond(r, 502, [], _page(heading, "<p>Could not reach CMS.</p>"));
     return;
   }
-  await onLoggedIn(c, login);
+  const session = login.ok
+    ? await replaceDdei.lookupCmsSession(r.headersIn.Host, login.cookieHeader)
+    : { token: "", versionId: "", reason: "" };
+  const out = answer(c, login, session);
+  _respond(r, out.status, out.cookies, _resultPage(r, heading, withAppLinks, c, login, session, out.cookies));
 }
 
-// /dev-login/ — the browser gets the CMS cookies (and __CMSENV, so the Open Modern link works)
-// and links into the apps.
+// /dev-login/ — the browser gets the CMS cookies (and __CMSENV, so the Open Modern link works).
 async function devLogin(r) {
-  const heading = "Polaris developer login";
-  await _handle(r, heading, async (c, login) => {
-    const marker = "__CMSENV=" + cmsenv.detect("DEVLOGIN=" + c.env) + "; path=/";
-    // In full, as DDEI's page did: the Cookie header (paste into a tool / `cc`) and each Set-Cookie.
-    const cookieHeader = login.setCookies.map((x) => x.split(";")[0]).join("; ");
-    _respond(
-      r,
-      200,
-      login.setCookies.concat([marker]),
-      _page(
-        heading,
-        _loggedInLine(c.username, login.ok) +
-          (login.ok ? _appLinks(r) : "") +
-          "<p>Cookie header:</p><pre>" + _html(cookieHeader) + "</pre>" +
-          "<p>Set-Cookie (as CMS sent them):</p><pre>" + _html(login.setCookies.join("\n")) + "</pre>",
-      ),
-    );
-  });
+  await _handle(r, "Polaris developer login", true, (c, login) => ({
+    status: 200,
+    cookies: login.setCookies.concat([_envMarker(c)]),
+  }));
 }
 
 // /api/dev-login-full-cookie/ — the gateway's Cms-Auth-Values (Path=/api/) for the CMS session,
-// FIRST of the Set-Cookies (shared.integration-tests reads the first), then __CMSENV.
+// FIRST of the Set-Cookies (shared.integration-tests reads the first), then __CMSENV. The CMS
+// cookies are shown on the page but not set (as DDEI). SameSite as DDEI's DevelopmentLogin: None
+// over https, so a UI on another site (localhost) can send it to the API; absent over http.
 async function devLoginFullCookie(r) {
-  const heading = "Polaris developer login (full cookie)";
-  await _handle(r, heading, async (c, login) => {
-    if (!login.ok) {
-      _respond(r, 401, [], _page(heading, _loggedInLine(c.username, false)));
-      return;
-    }
-    const cookieHeader = login.setCookies.map((x) => x.split(";")[0]).join("; ");
-    const found = await replaceDdei.lookupCmsSession(r.headersIn.Host, cookieHeader);
-    if (!found.token) {
-      _respond(r, 502, [], _page(heading, "<p>Logged in, but no CMS modern token: " + _html(found.reason) + "</p>"));
-      return;
-    }
-    const authValues = replaceDdei.cmsAuthValuesCookie(r, {
-      cookieHeader: cookieHeader,
-      token: found.token,
-      versionId: found.versionId,
-    });
-    const marker = "__CMSENV=" + cmsenv.detect("DEVLOGIN=" + c.env) + "; path=/";
-    _respond(
+  await _handle(r, "Polaris developer login (full cookie)", false, (c, login, session) => {
+    if (!login.ok) return { status: 401, cookies: [] };
+    if (!session.token) return { status: 502, cookies: [] };
+    const authValues = replaceDdei.cmsAuthValuesCookie(
       r,
-      200,
-      [authValues, marker],
-      _page(
-        heading,
-        _loggedInLine(c.username, true) +
-          '<p><a href="/viewer/landing#/dashboard/' + _html(found.token) + '" target="_blank">Open Modern (new tab)</a></p>' +
-          "<p>Cms-Auth-Values is set for <code>/api/</code>.</p>",
-      ),
+      { cookieHeader: login.cookieHeader, token: session.token, versionId: session.versionId },
+      replaceDdei.isHttps(r) ? "None" : "",
     );
+    return { status: 200, cookies: [authValues, _envMarker(c)] };
   });
 }
 

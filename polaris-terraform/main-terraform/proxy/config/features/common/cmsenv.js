@@ -23,22 +23,64 @@
 // Cookie text -> environment token. NOTE: cin3 maps to "default". The shared
 // detection rule: features that need it (e.g. auth-handover's dev-login, which
 // detects from the outgoing Set-Cookie) call this rather than duplicate it.
+//
+// Only these cookies choose the environment, picked out by NAME; every other cookie is ignored,
+// whatever it contains (Cms-Session-Hint's value names a CMS domain, for one):
+//   1. __CMSENV (the /cinN switches, dev login) or DEVLOGIN (sent by DDEI's and our dev logins
+//      when calling /CMS), when the value names an environment: the explicit choice, so it wins.
+//   2. Otherwise the load-balancer cookies, whose NAMES carry the environment. There is no
+//      guarantee of an explicit choice: DDEI's other calls carry only the CMS cookies.
+// __CMSENV=cpt is not a choice here (#2181): cpt is selected by its LB cookie alone.
+// Mirrored in the live config's cmsenv.js (__getCmsEnvInternal) until cutover.
+const LB_COOKIE_NAME = /^(?:[cf]-[a-z0-9]+-lbsessioncookie|bigipserver.*)$/;
+
 function detect(cookie) {
-  cookie = (cookie || "").toLowerCase();
-  if (cookie.includes("cin3")) return "default";
-  if (cookie.includes("cin2")) return "cin2";
-  if (cookie.includes("cin4")) return "cin4";
-  if (cookie.includes("cin5")) return "cin5";
-  if (cookie.includes("-cpt-lb")) return "cpt";
-  // CMO has no dedicated upstream (RMAT-242); route it to the default env, which is
-  // cmo.cps.gov.uk in UAT.
-  if (cookie.includes("-cmo-lb")) return "default";
+  let marker = "";
+  const lbNames = [];
+  (cookie || "").toLowerCase().split(";").forEach((pair) => {
+    const eq = pair.indexOf("=");
+    if (eq === -1) return;
+    const name = pair.substring(0, eq).trim();
+    if (name === "__cmsenv" || name === "devlogin") marker = marker || pair.substring(eq + 1).trim();
+    else if (LB_COOKIE_NAME.test(name)) lbNames.push(name);
+  });
+
+  if (marker === "cin3" || marker === "default") return "default";
+  if (marker === "cin2" || marker === "cin4" || marker === "cin5") return marker;
+
+  const lb = lbNames.join(" ");
+  if (lb.includes("cin3")) return "default";
+  if (lb.includes("cin2")) return "cin2";
+  if (lb.includes("cin4")) return "cin4";
+  if (lb.includes("cin5")) return "cin5";
+  if (lb.includes("-cpt-lb")) return "cpt";
+  // Anything else, including CMO: it has no dedicated upstream (RMAT-242), and the default env
+  // is cmo.cps.gov.uk in UAT.
   return "default";
 }
-// NOTE (parity with the live config, FCT2-18732): the substring scan is deliberately
-// naive — there is no guarantee of a __CMSENV cookie, so we fall through to whatever
-// env token appears in the LB/BIG-IP cookies. Known-fragile (a stray "mod"/"cpt" substring
-// mis-routes); to be addressed wholesale later, not here.
+
+// A dev login's OUTGOING Set-Cookies -> environment (detect over what the response establishes).
+// DDEI's full-cookie login sets only Cms-Auth-Values: its value is the percent-encoded JSON of the
+// CMS session, whose cookies field (Cookies or cookies, as DDEI's two serialisers write it) holds
+// the CMS cookies, the load-balancer cookie among them. Those are read in its place; every other
+// field is ignored, as is a value that does not parse. detect itself stays strict.
+// Mirrored in the live config's cmsenv.js (__getCmsEnvCookieOut) until cutover.
+function detectOutgoing(setCookies) {
+  const text = (setCookies || []).map((c) => {
+    const pair = (c || "").split(";")[0];
+    const eq = pair.indexOf("=");
+    if (eq === -1 || pair.substring(0, eq).trim().toLowerCase() !== "cms-auth-values") return pair;
+    try {
+      const dto = JSON.parse(decodeURIComponent(pair.substring(eq + 1).trim()));
+      const key = Object.keys(dto).find((k) => k.toLowerCase() === "cookies");
+      return key && typeof dto[key] === "string" ? dto[key] : "";
+    } catch (e) {
+      // Not percent-encoded JSON, or null: it names no environment, so it chooses nothing.
+      return "";
+    }
+  });
+  return detect(text.join("; "));
+}
 
 // Read a per-environment CMS app setting from process.env: the value of
 // <ENV>_<name>, where <ENV> is the request's environment (DEFAULT/CIN2/CIN4/CIN5/CPT/CMO,
@@ -64,5 +106,6 @@ export default {
   upstreamCmsServicesDomainName: upstream("UPSTREAM_CMS_SERVICES_DOMAIN_NAME"),
   // The primitives, for our feature modules' imports (not for js_set).
   detect,
+  detectOutgoing,
   setting,
 };

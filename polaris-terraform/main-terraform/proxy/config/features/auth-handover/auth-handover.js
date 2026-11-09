@@ -302,8 +302,10 @@ function devLogin(r) {
     const cookies = r.headersOut["Set-Cookie"] || [];
     r.headersOut["Set-Cookie"] = cookies.concat(devLoginNonDdei.CLEARED_COOKIES);
   } else if (r.method === "POST") {
-    const cmsEnv = cmsenv.detect((r.headersOut["Set-Cookie"] || [""])[0]);
     const cookies = r.headersOut["Set-Cookie"] || [];
+    // All of them: DDEI's login puts the load-balancer cookie last when the login set no newer one,
+    // and its full-cookie login carries the CMS cookies inside Cms-Auth-Values.
+    const cmsEnv = cmsenv.detectOutgoing(cookies);
     cookies.push("__CMSENV=" + cmsEnv + "; path=/");
     r.headersOut["Set-Cookie"] = cookies;
   }
@@ -315,7 +317,7 @@ function devLogin(r) {
 // A tiny page that sets/clears the `polaris_auth_handover` cookie so an INDIVIDUAL
 // user can opt into drop1/drop2 ahead of the org-wide switch. The routing gate in
 // auth-handover.conf ($non_ddei = drop1's `enabled`) turns drop1 on for either cookie value
-// as well as for the global ENTRA_STORE_ENABLED / NON_DDEI_INIT_ENABLED switches. Removing
+// as well as for the global NON_DDEI_INIT_ENABLED switch. Removing
 // the cookie falls back to those globals (DDEI while they're off).
 //
 // Lives in the base auth-handover feature (not a drop folder) because it arbitrates

@@ -227,6 +227,20 @@ async function ddeiTests() {
     assertIncludes(cookies, "F-CIN5-LBsessioncookie=deleted", "clears an LB session cookie")
   })
 
+  // The fixture orders them as DDEI does: its load-balancer cookie last (CmsService.GetCmsCookiesAsync).
+  if (!switchesOn) await test("POST /dev-login/ via DDEI: __CMSENV from any Set-Cookie, not just the first", async () => {
+    const res = await hostRequest("POST", "/dev-login/", { ...H, "Content-Type": "application/x-www-form-urlencoded" }, "username=jo&password=x&selected-environment=cin5")
+    assertEqual(res.status, 200, "200")
+    assertIncludes(res.setCookies.join("\n"), "__CMSENV=cin5; path=/", "the env of the load-balancer cookie")
+  })
+
+  // DDEI's full-cookie login sets only Cms-Auth-Values, the CMS cookies percent-encoded inside it.
+  if (!switchesOn) await test("POST /api/dev-login-full-cookie/ via DDEI: __CMSENV from the cookies inside Cms-Auth-Values", async () => {
+    const res = await hostRequest("POST", "/api/dev-login-full-cookie/", { ...H, "Content-Type": "application/x-www-form-urlencoded" }, "username=jo&password=x&selected-environment=cin5")
+    assertEqual(res.status, 200, "200")
+    assertIncludes(res.setCookies.join("\n"), "__CMSENV=cin5; path=/", "the env of the load-balancer cookie inside it")
+  })
+
   if (!switchesOn) await test("/api/dev-login-full-cookie/ -> DDEI /api/login-full-cookie", async () => {
     const res = await get("/api/dev-login-full-cookie/", { headers: H })
     assertEqual(res.status, 200, "Should proxy")
@@ -531,6 +545,14 @@ async function nonDdeiTests() {
     assertIncludes(res.body, 'href="/polaris?polaris-ui-url=/materials-ui"', "M link")
   })
 
+  await test("POST /api/dev-login-full-cookie/ as multipart (curl --form), in real njs", async () => {
+    const part = (name, value) => '--xB\r\nContent-Disposition: form-data; name="' + name + '"\r\n\r\n' + value + "\r\n"
+    const body = part("username", "jo.CIN3") + part("password", "x") + "--xB--\r\n"
+    const res = await hostRequest("POST", "/api/dev-login-full-cookie/", Object.assign({}, headers, { "Content-Type": "multipart/form-data; boundary=xB" }), body)
+    assertEqual(res.status, 200, "200: " + res.body.slice(0, 200))
+    assert((res.setCookies[0] || "").indexOf("Cms-Auth-Values=") === 0, "first Set-Cookie: " + (res.setCookies[0] || "").slice(0, 40))
+  })
+
   await test("POST /api/dev-login-full-cookie/: Cms-Auth-Values first, with the minted token", async () => {
     const res = await hostRequest("POST", "/api/dev-login-full-cookie/", form, "username=jo&password=x")
     assertEqual(res.status, 200, "200: " + res.body.slice(0, 200))
@@ -539,6 +561,8 @@ async function nonDdeiTests() {
     const dto = JSON.parse(decodeURIComponent(first.split(";")[0].slice("Cms-Auth-Values=".length)))
     assertEqual(dto.token, FIXTURE_SESSION_ID, "token")
     assertIncludes(dto.cookies, ".CMSAUTH=dev-login-auth", "the CMS session")
+    assertIncludes(first, "Path=/api/", "gateway path")
+    assert(/SameSite=None/.test(first) === /; Secure/.test(first), "None only with Secure: " + first.split(";").slice(1).join(";"))
   })
 }
 
