@@ -3,6 +3,7 @@
 // </copyright>
 
 namespace Cps.Fct.Hk.Ui.Services;
+
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -34,26 +35,13 @@ public class WitnessService(
     {
         string witnessIdString = witnessId.ToString(CultureInfo.InvariantCulture);
 
-        try
-        {
-            this.logger.LogInformation("{LogPrefix} Getting statements for witnessId [{WitnessId}]", LoggingConstants.HskUiLogPrefix, witnessIdString);
+        this.logger.LogInformation("{LogPrefix} Getting statements for witnessId [{WitnessId}]", LoggingConstants.HskUiLogPrefix, witnessIdString);
 
-            var request = new GetWitnessStatementsRequest(witnessId, Guid.NewGuid());
+        var request = new GetWitnessStatementsRequest(witnessId, Guid.NewGuid());
 
-            WitnessStatementsResponse? statements = await this.apiClient.GetWitnessStatementsLegacyAsync(request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+        WitnessStatementsResponse? statements = await this.apiClient.GetWitnessStatementsLegacyAsync(request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
-            return statements;
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(
-                ex,
-                "{LogPrefix} Error occurred while fetching statements for witnessId {WitnessId}",
-                LoggingConstants.HskUiLogPrefix,
-                witnessIdString);
-
-            throw;
-        }
+        return statements;
     }
 
     /// <inheritdoc/>
@@ -61,26 +49,13 @@ public class WitnessService(
     {
         string witnessIdString = witnessId.ToString(CultureInfo.InvariantCulture);
 
-        try
-        {
-            this.logger.LogInformation("{LogPrefix} Getting statements for witnessId [{WitnessId}]", LoggingConstants.HskUiLogPrefix, witnessIdString);
+        this.logger.LogInformation("{LogPrefix} Getting statements for witnessId [{WitnessId}]", LoggingConstants.HskUiLogPrefix, witnessIdString);
 
-            var request = new GetWitnessStatementsRequest(witnessId, Guid.NewGuid());
+        var request = new GetWitnessStatementsRequest(witnessId, Guid.NewGuid());
 
-            ApiClient.WitnessStatementResponseDto? statements = await this.apiClient.GetWitnessStatementsAsync(request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+        ApiClient.WitnessStatementResponseDto? statements = await this.apiClient.GetWitnessStatementsAsync(request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
-            return statements;
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(
-                ex,
-                "{LogPrefix} Error occurred while fetching statements for witnessId {WitnessId}",
-                LoggingConstants.HskUiLogPrefix,
-                witnessIdString);
-
-            throw;
-        }
+        return statements;
     }
 
     /// <inheritdoc/>
@@ -112,51 +87,38 @@ public class WitnessService(
     /// <inheritdoc/>
     public async Task<long?> AddWitnessAsync(string urn, int caseId, string firstName, string lastName, CmsAuthValues cmsAuthValues, Guid correspondenceId = default, CancellationToken cancellationToken = default)
     {
-        try
+        this.logger.LogInformation("{LogPrefix} Attempting to add witness to case with a caseId {CaseId}", LoggingConstants.HskUiLogPrefix, caseId);
+
+        var checkCaeLockStatus = await this.caseLockService.CheckCaseLockAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+        if (checkCaeLockStatus.IsLocked && !checkCaeLockStatus.IsLockedByCurrentUser)
         {
-            this.logger.LogInformation("{LogPrefix} Attempting to add witness to case with a caseId {CaseId}", LoggingConstants.HskUiLogPrefix, caseId);
-
-            var checkCaeLockStatus = await this.caseLockService.CheckCaseLockAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
-            if (checkCaeLockStatus.IsLocked && !checkCaeLockStatus.IsLockedByCurrentUser)
-            {
-                throw new CaseLockedException($"{LoggingConstants.HskUiLogPrefix} Attempting to add case witness for caseId [{caseId}] is failed as case is locked by [{checkCaeLockStatus.LockedByUser}].");
-            }
-
-            long? newWitnessId = null;
-            var request = new AddWitnessRequest(correspondenceId == default ? Guid.NewGuid() : correspondenceId, caseId, firstName, lastName);
-
-            await this.apiClient.AddWitnessAsync(request, cmsAuthValues).ConfigureAwait(false);
-
-            // Get the newly added witness details
-            WitnessesResponse witnesses = await this.GetCaseWitnessesAsync(caseId, cmsAuthValues).ConfigureAwait(false);
-
-            Common.Dto.Response.HouseKeeping.Witness? newWitness = witnesses?.Witnesses?
-                .Where(x => x.FirstName.Equals(firstName, StringComparison.InvariantCultureIgnoreCase)
-                        && x.Surname.Equals(lastName, StringComparison.InvariantCultureIgnoreCase))
-                .FirstOrDefault();
-
-            if (newWitness != null && newWitness?.WitnessId > 0)
-            {
-                newWitnessId = newWitness.WitnessId;
-                this.logger.LogInformation(LoggingConstants.AddWitnessOperationSuccess, LoggingConstants.HskUiLogPrefix, caseId, newWitnessId);
-
-                return newWitnessId;
-            }
-            else
-            {
-                this.logger.LogError(LoggingConstants.AddWitnessOperationFailed, LoggingConstants.HskUiLogPrefix, caseId);
-                throw new InvalidOperationException($"{LoggingConstants.HskUiLogPrefix} Error occurred while adding witness for caseId [{caseId}]");
-            }
+            throw new CaseLockedException($"{LoggingConstants.HskUiLogPrefix} Attempting to add case witness for caseId [{caseId}] is failed as case is locked by [{checkCaeLockStatus.LockedByUser}].");
         }
-        catch (Exception ex)
-        {
-            this.logger.LogError(
-                ex,
-                LoggingConstants.AddWitnessOperationFailed,
-                LoggingConstants.HskUiLogPrefix,
-                caseId);
 
-            throw;
+        long? newWitnessId = null;
+        var request = new AddWitnessRequest(correspondenceId == default ? Guid.NewGuid() : correspondenceId, caseId, firstName, lastName);
+
+        await this.apiClient.AddWitnessAsync(request, cmsAuthValues).ConfigureAwait(false);
+
+        // Get the newly added witness details
+        WitnessesResponse witnesses = await this.GetCaseWitnessesAsync(caseId, cmsAuthValues).ConfigureAwait(false);
+
+        Common.Dto.Response.HouseKeeping.Witness? newWitness = witnesses?.Witnesses?
+            .Where(x => x.FirstName.Equals(firstName, StringComparison.InvariantCultureIgnoreCase)
+                    && x.Surname.Equals(lastName, StringComparison.InvariantCultureIgnoreCase))
+            .FirstOrDefault();
+
+        if (newWitness != null && newWitness?.WitnessId > 0)
+        {
+            newWitnessId = newWitness.WitnessId;
+            this.logger.LogInformation(LoggingConstants.AddWitnessOperationSuccess, LoggingConstants.HskUiLogPrefix, caseId, newWitnessId);
+
+            return newWitnessId;
+        }
+        else
+        {
+            this.logger.LogError(LoggingConstants.AddWitnessOperationFailed, LoggingConstants.HskUiLogPrefix, caseId);
+            throw new InvalidOperationException($"{LoggingConstants.HskUiLogPrefix} Error occurred while adding witness for caseId [{caseId}]");
         }
     }
 }
