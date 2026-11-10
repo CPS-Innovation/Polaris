@@ -139,7 +139,16 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns><see cref="Task"/> representing the asynchronous operation.</returns>
-        Task<WitnessStatementsResponse> GetWitnessStatementsAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+        Task<WitnessStatementsResponse> GetWitnessStatementsLegacyAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Gets statements for a witness.
+        /// </summary>
+        /// <param name="request">The request object.</param>
+        /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns><see cref="Task"/> representing the asynchronous operation.</returns>
+        Task<ApiClient.WitnessStatementResponseDto> GetWitnessStatementsAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Adds a case action plan for a given case Id.

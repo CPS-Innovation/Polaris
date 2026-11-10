@@ -620,14 +620,14 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
     }
 
     /// <inheritdoc/>
-    public async Task<FileStreamResult?> GetMaterialDocumentAsync(GetDocumentRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    public async Task<FileStreamResult> GetMaterialDocumentAsync(GetDocumentRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         Requires.NotNull(request);
         Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
 
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "GetMaterialDocument";
-        FileStreamResult? results;
+        FileStreamResult results;
 
         try
         {
@@ -638,7 +638,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
             var data = await client.GetMaterialDocumentAsync(caseId, request.FilePath, cancellationToken);
 
             string fileDownloadName = Path.GetFileName(request.FilePath);
-            string? contentType = FileUtils.GetMimeType(fileDownloadName) ??
+            string contentType = FileUtils.GetMimeType(fileDownloadName) ??
                 throw new InvalidOperationException($"{LoggingConstants.HskUiLogPrefix} Content type cannot be determined for file: {fileDownloadName}");
 
             // Create FileStreamResult using the stream and content type
@@ -773,11 +773,11 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
             if (data is not null)
             {
-                results.Witnesses = data.Select(witness => new Witness(
+                results.Witnesses = [.. data.Select(witness => new Witness(
                     witness.CaseId,
                     witness.WitnessId,
                     witness.FirstName,
-                    witness.Surname)).ToList();
+                    witness.Surname))];
             }
 
             if (results.Witnesses.Count > 0)
@@ -797,7 +797,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
     }
 
     /// <inheritdoc/>
-    public async Task<WitnessStatementsResponse> GetWitnessStatementsAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    public async Task<WitnessStatementsResponse> GetWitnessStatementsLegacyAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         Requires.NotNull(request);
         Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
@@ -824,6 +824,33 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
             {
                 additionalInfo = $"retrieved #{results.WitnessStatements.Count} statements";
             }
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+            throw;
+        }
+
+        return results;
+    }
+
+    /// <inheritdoc/>
+    public async Task<ApiClient.WitnessStatementResponseDto> GetWitnessStatementsAsync(GetWitnessStatementsRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(request);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
+
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "GetStatementsForWitness";
+
+        ApiClient.WitnessStatementResponseDto results;
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+
+            var data = await client.GetStatementsForWitnessAsync(request.WitnessId, cancellationToken);
+            results = data;
         }
         catch (Exception exception)
         {
