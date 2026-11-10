@@ -131,7 +131,6 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>List of witnesses.</returns>
-        //Task<WitnessesResponse> GetCaseWitnessesAsync(GetCaseWitnessesRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
         Task<IEnumerable<BaseCaseWitnessResponse>> GetCaseWitnessesAsync(GetCaseWitnessesRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
