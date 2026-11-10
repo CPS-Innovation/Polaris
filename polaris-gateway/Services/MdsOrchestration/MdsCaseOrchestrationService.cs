@@ -57,10 +57,8 @@ public class MdsCaseOrchestrationService(IMdsClient mdsClient,
         var cmsAuthValues = new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId);
 
         var getCaseSummaryTask = this.masterDataServiceClient.GetCaseSummaryAsync(caseSummaryRequest, cmsAuthValues, cancellationToken);
-
-        var witnessesTask = this.mdsClient.GetWitnessesAsync(arg, cancellationToken);
-
-        var getDefendantsAndChargesTask = this.masterDataServiceClient.GetCaseDefendantsAsync(new ListCaseDefendantsRequest(arg.CaseId, arg.CorrelationId), new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId), cancellationToken);
+        var witnessesTask = this.masterDataServiceClient.GetCaseWitnessesAsync(new GetCaseWitnessesRequest(arg.CaseId, arg.CorrelationId), cmsAuthValues, cancellationToken);
+        var getDefendantsAndChargesTask = this.masterDataServiceClient.GetCaseDefendantsAsync(new ListCaseDefendantsRequest(arg.CaseId, arg.CorrelationId), cmsAuthValues, cancellationToken);
         var getPcdRequestTask = this.masterDataServiceClient.GetCasePcdRequestsAsync(arg, cmsAuthValues, cancellationToken);
 
         var caseSummaryResponse = await getCaseSummaryTask;

@@ -843,7 +843,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
     }
 
     /// <inheritdoc/>
-    public async Task<WitnessesResponse> GetCaseWitnessesAsync(GetCaseWitnessesRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<BaseCaseWitnessResponse>> GetCaseWitnessesAsync(GetCaseWitnessesRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         Requires.NotNull(request);
         Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
@@ -851,7 +851,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "ListCaseWitnesses";
         string additionalInfo = $"received #0 witnesses";
-        WitnessesResponse results = new ();
+        IEnumerable<BaseCaseWitnessResponse> results = new List<BaseCaseWitnessResponse>();
 
         try
         {
@@ -861,16 +861,39 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
             if (data is not null)
             {
-                results.Witnesses = data.Select(witness => new Witness(
-                    witness.CaseId,
-                    witness.WitnessId,
-                    witness.FirstName,
-                    witness.Surname)).ToList();
+                results = data.Select(witness => new MdsCaseWitnessResponse
+                {
+                    Id = checked((int)witness.WitnessId),
+                    ShoulderNumber = witness.ContactDetails?.ShoulderNo ?? string.Empty,
+                    Title = witness.ContactDetails?.Title ?? string.Empty,
+                    FirstName = witness.FirstName ?? string.Empty,
+                    Surname = witness.Surname ?? string.Empty,
+                    Child = witness.IsChild ?? false,
+                    Expert = witness.IsExpert ?? false,
+                    GreatestNeed = witness.IsGreatestNeed ?? false,
+                    Prisoner = witness.IsPrisoner ?? false,
+                    Interpreter = witness.IsInterpreter ?? false,
+                    Vulnerable = witness.IsVulnerable ?? false,
+                    Police = witness.IsPolice ?? false,
+                    Professional = witness.IsProfessional ?? false,
+                    SpecialNeeds = witness.IsSpecialNeeds ?? false,
+                    Intimidated = witness.IsIntimidated ?? false,
+                    Victim = witness.IsWitnessAndVictim ?? false,
+                    WitnessStatements = witness.WitnessStatements?
+                        .Select(statement => new WitnessStatementDto
+                        {
+                            DocumentId = statement.DocId,
+                            ListOrder = statement.ListOrder,
+                        })
+                        .ToList()
+                        ?? [],
+                }).ToList();
             }
 
-            if (results.Witnesses.Count > 0)
+            var witnessCount = results.Count();
+            if (witnessCount > 0)
             {
-                additionalInfo = $"retrieved #{results.Witnesses.Count} witnesses";
+                additionalInfo = $"retrieved #{witnessCount} witnesses";
             }
 
             this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, additionalInfo);

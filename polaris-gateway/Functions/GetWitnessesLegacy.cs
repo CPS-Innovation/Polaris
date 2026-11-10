@@ -62,7 +62,11 @@ public class GetWitnessesLegacy : BaseFunction
             new CmsAuthValues(cmsAuthValues, correlationId),
             cancellationToken);
 
-        var witnesses = witnessesResponse.Witnesses.Select(this.caseWitnessMapper.Map);
+        var witnesses = witnessesResponse.Select(witness => new CaseWitnessDto
+        {
+            Id = witness.Id,
+            Name = witness.Name,
+        });
 
         return new OkObjectResult(witnesses);
     }
