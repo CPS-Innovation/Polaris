@@ -23,8 +23,8 @@ echo "=============="
 # Dropping in (or deleting) a feature folder needs no change here.
 FAILED=0
 for f in $(find "$SCRIPT_DIR" "$CONFIG_DIR" -name '*.unit.test.js' -not -path '*/.tmp/*' | sort); do
-  [ -e "$f" ] || continue
-  if [ -n "$FILTER" ] && [[ "$f" != *"$FILTER"* ]]; then continue; fi
+  [[ -e "$f" ]] || continue
+  if [[ -n "$FILTER" ]] && [[ "$f" != *"$FILTER"* ]]; then continue; fi
   echo ""
   echo -e "${YELLOW}==== $(basename "$f") ====${NC}"
   if ! node "$f"; then
@@ -36,7 +36,7 @@ rm -rf "$SCRIPT_DIR/.tmp"
 
 echo ""
 echo "=============="
-if [ $FAILED -gt 0 ]; then
+if [[ $FAILED -gt 0 ]]; then
   echo -e "${RED}$FAILED test file(s) failed${NC}"
   exit 1
 fi

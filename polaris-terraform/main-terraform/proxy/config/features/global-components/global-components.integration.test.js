@@ -8,6 +8,8 @@
  * (global-components/infra/proxy); here we just confirm every route family still
  * routes correctly through this proxy — the njs module loads, the CORS/OPTIONS
  * handling works, and the proxied routes reach their (mocked) upstreams.
+ * One exception: /case-review-redirect's host handling (FCT2-22132) is pinned in
+ * full, because it is an open-redirect guard and live + next each carry a copy.
  *
  * Routes (features/global-components.conf):
  *   = /global-components/cms-session-hint        gloco.handleSessionHint
@@ -27,6 +29,7 @@ const {
   assertIncludes,
   get,
   summarise,
+  isNext,
 } = require("../../../tests/integration/test-utils")
 
 const notServerError = (res, label) =>
@@ -53,6 +56,35 @@ async function njsHandlers() {
   await test("case-review-redirect responds (handleCaseReviewRedirect)", async () => {
     const res = await get("/case-review-redirect/cps-tst/test?URN=1&CMSCaseId=2")
     notServerError(res, "case-review-redirect")
+  })
+}
+
+// FCT2-22132: /case-review-redirect/{osHost}/{envFolder} — osHost is an
+// outsystemsenterprise.com subdomain (original form) or a full host in our estate.
+// Runs against BOTH configs, so it also pins live and next to the same behaviour.
+async function caseReviewRedirect() {
+  console.log("\n/case-review-redirect — OS host forms (FCT2-22132):")
+
+  // The OS landing URL is double-encoded inside the 302 (auth-refresh-outbound?r=<handover>?r=<landing>).
+  const landingOf = (res) => decodeURIComponent(decodeURIComponent(res.headers.get("location") || ""))
+
+  await test("subdomain form -> <sub>.outsystemsenterprise.com, via auth-refresh-outbound", async () => {
+    const res = await get("/case-review-redirect/cps-tst/test?URN=1&CMSCaseId=2")
+    assertEqual(res.status, 302, "302")
+    assertIncludes(res.headers.get("location"), "/auth-refresh-outbound?r=", "routed through auth-refresh-outbound")
+    assertIncludes(landingOf(res), "https://cps-tst.outsystemsenterprise.com/CaseReview/LandingPage?CMSCaseId=2&URN=1", "OS landing")
+  })
+
+  await test("full cps.gov.uk host is used as-is (lower-cased)", async () => {
+    const res = await get("/case-review-redirect/OApps-QA-NotProd.int.cps.gov.uk/test?URN=1&CMSCaseId=2")
+    assertEqual(res.status, 302, "302")
+    assertIncludes(landingOf(res), "https://oapps-qa-notprod.int.cps.gov.uk/CaseReview/LandingPage", "full host, lower-cased")
+  })
+
+  await test("a full host outside our estate is refused (no open redirect)", async () => {
+    const res = await get("/case-review-redirect/evil.com/test?URN=1&CMSCaseId=2")
+    assertEqual(res.status, 400, "400")
+    assertIncludes(await res.text(), "unexpected OS host", "explained")
   })
 }
 
@@ -95,6 +127,27 @@ async function blobAndAnalytics() {
     const echo = await res.json()
     assertIncludes(echo.url, "/test/global-components.js", "Path preserved to blob")
   })
+
+  // gzip on the blob route (ported from global-components #1056). The echo body
+  // must clear gzip_min_length (1024) and blob forwards no request headers, so a
+  // long path is the only way to pad it. NEXT config only: the live monolith is
+  // left as on development (it is the rollback once every env runs the next config).
+  const BIG_BLOB = `/global-components/test/${"x".repeat(1100)}.js`
+
+  if (isNext) {
+    await test("NEXT: /global-components/{env}/* gzips when the client accepts it", async () => {
+      const res = await get(BIG_BLOB, { headers: { "Accept-Encoding": "gzip" } })
+      assertEqual(res.status, 200, "Should proxy to the blob mock")
+      assertEqual(res.headers.get("content-encoding"), "gzip", "Compressed")
+      assertIncludes(res.headers.get("vary") || "", "Accept-Encoding", "gzip_vary on")
+    })
+
+    await test("NEXT: /global-components/{env}/* stays identity when the client does not accept gzip", async () => {
+      const res = await get(BIG_BLOB, { headers: { "Accept-Encoding": "identity" } })
+      assertEqual(res.status, 200, "Should proxy to the blob mock")
+      assertEqual(res.headers.get("content-encoding"), null, "Not compressed")
+    })
+  }
 
   // The page carries no CSP of its own, so this header is what restricts its ?src=.
   await test("/global-components/{env}/auth-handover.html is proxied with a CSP restricting scripts to this host", async () => {
@@ -145,6 +198,7 @@ async function cors() {
 
 async function main() {
   await njsHandlers()
+  await caseReviewRedirect()
   await mdsProxy()
   await blobAndAnalytics()
   await cors()

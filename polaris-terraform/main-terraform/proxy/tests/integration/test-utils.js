@@ -11,6 +11,9 @@ const PROXY_BASE = process.env.PROXY_BASE || "http://localhost:8080"
 // assertion to one config when a behaviour deliberately differs between them.
 const CONFIG_KIND = process.env.PROXY_CONFIG_KIND || "live"
 const isNext = CONFIG_KIND === "next"
+// The pass's switches (set by run-tests.sh): "off" = cmsproxy.mock.env (parity with live),
+// "on" = as deployed (docker-compose.switches-on.yml: NON_DDEI_INIT_ENABLED=true).
+const switchesOn = process.env.PROXY_SWITCHES === "on"
 
 const state = { passed: 0, failed: 0, results: [] }
 
@@ -95,6 +98,7 @@ module.exports = {
   PROXY_BASE,
   CONFIG_KIND,
   isNext,
+  switchesOn,
   getState,
   assert,
   assertEqual,

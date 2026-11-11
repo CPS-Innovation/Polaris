@@ -6,7 +6,7 @@
  * EVERY getter its conf js_sets — both the ones unique to it (Farnborough dests +
  * all four DC IPs) and its own copies of the ones cms-proxy.js also has (Corsham
  * dests + domain getters). All are built from its own factories over
- * common.setting (`import common from "../common/cms-detection.js"`), so these
+ * cmsenv.setting (`import cmsenv from "../common/cmsenv.js"`), so these
  * tests also exercise that cross-directory wiring.
  *
  * Loaded from the REAL config/features/polaris-ddei.js — see njs-harness.js.

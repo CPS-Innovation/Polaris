@@ -10,7 +10,7 @@
  *  1. FIXTURE routes — DISCOVERED from the feature folders at startup. A feature
  *     that needs canned upstream bodies ships them itself:
  *
- *       config/features/<name>/fixtures/routes.json   [{ re, file, type }, ...]
+ *       config/features/<name>/fixtures/routes.json   [{ re, file, type, headers? }, ...]
  *       config/features/<name>/fixtures/<file>
  *
  *     so this mock holds NO per-feature knowledge and a feature stays complete in
@@ -64,8 +64,12 @@ function discoverFixtureRoutes() {
     for (const r of entries) {
       routes.push({
         re: new RegExp(r.re, "i"),
+        // Only this HTTP method, optional (e.g. a login POST, whose GET keeps the echo default).
+        method: r.method,
         type: r.type,
         file: r.file,
+        // Extra response headers (e.g. a CMS login's Set-Cookie array), optional.
+        headers: r.headers || {},
         path: path.join(FEATURES_DIR, feature, "fixtures", r.file),
         feature,
       })
@@ -88,7 +92,7 @@ function handler(req, res) {
   }
 
   for (const route of fixtureRoutes) {
-    if (route.re.test(url)) {
+    if (route.re.test(url) && (!route.method || route.method === req.method)) {
       const file = route.path
       if (fs.existsSync(file)) {
         res.writeHead(200, {
@@ -98,6 +102,7 @@ function handler(req, res) {
           // Echo the Host back in a header too, so body-fixture routes can still
           // assert which CMS environment was selected.
           "X-Mock-Host": req.headers.host || "",
+          ...route.headers,
         })
         return res.end(fs.readFileSync(file, "utf8"))
       }

@@ -12,7 +12,7 @@ code now lives in `auth-handover.js` in this folder.
 
 ### A1. 🔴 An empty or trailing-comma'd `AUTH_HANDOVER_WHITELIST` allows **everything**
 
-**Where (live):** `nginx.js:119-123` (`appAuthRedirect`)
+**Where (live):** `nginx.js:172-176` (`appAuthRedirect`)
 **Where (next):** `auth-handover.js` (`appAuthRedirect`)
 **Test:** `auth-handover.unit.test.js` → "QUIRK: an unset whitelist allows EVERYTHING (open redirect + cc leak)", "QUIRK: a TRAILING COMMA in the whitelist also allows everything"
 
@@ -40,7 +40,7 @@ mid-flight. (Same for A2 — a natural companion fix when the ticket is picked u
 
 ### A2. 🔴 The whitelist is a **prefix** match, not an origin match
 
-**Where (live):** `nginx.js:121-123`
+**Where (live):** `nginx.js:174-176`
 **Where (next):** `auth-handover.js` (`appAuthRedirect`)
 **Test:** `auth-handover.unit.test.js` → "QUIRK: whitelist is a prefix match, not an origin match"
 
@@ -115,13 +115,15 @@ which **overrides the global switches** and routes only THAT browser into the dr
 (remove the cookie to fall back to the globals). This is deliberate for canary rollout,
 and low-risk: the drops are additive/best-effort (drop2 degrades to drop1, drop1
 fail-redirects), so a self-enrolled user can't get a worse outcome than the legacy path.
-**Before prod / wide rollout:** decide whether to gate the page (allowlist, `internal`,
-or an auth check) so enrolment is controlled rather than open. The cookie is HttpOnly +
+**Now due** — the globals are on (`NON_DDEI_INIT_ENABLED` in every env, Entra in dev/QA/UAT;
+#2190), so enrolment is no longer the only way in: decide whether to gate the page
+(allowlist, `internal`, or an auth check) so enrolment is controlled rather than open. The cookie is HttpOnly +
 `SameSite=Lax` and read only server-side (nginx `$cookie_`).
 
 ### N2. ⚪ No explicit "force DDEI" opt-out value (yet)
 
 Enrolment supports `drop1` / `drop2` / removed(→globals). There is no cookie value that
-forces **legacy DDEI when a global switch is ON** — an escape hatch worth adding once a
-drop becomes the global default (a `ddei` value routing to an internal DDEI `proxy_pass`
-location, ahead of the global `if`s). Not built while the globals are off.
+forces **legacy DDEI when a global switch is ON** — an escape hatch (a `ddei` value
+routing to an internal DDEI `proxy_pass` location, ahead of the global `if`s). **Now
+due:** a drop is the global default (`NON_DDEI_INIT_ENABLED` true in every env, Entra in
+dev/QA/UAT; #2190), and it is still not built.

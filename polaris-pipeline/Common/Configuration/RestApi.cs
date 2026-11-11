@@ -14,13 +14,11 @@ public static class RestApi
     public const string CaseSearchCountLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/search/count";
     public const string CaseSearchCount = "cases/{caseId:min(1)}/search/count";
     public const string CaseExhibitProducersLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/exhibit-producers";
-    public const string CaseExhibitProducers = "cases/{caseId:min(1)}/exhibit-producers";
-    public const string CaseWitnessesLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses";
     public const string CaseWitnesses = "cases/{caseId:min(1)}/witnesses";
+    public const string CaseWitnessesLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses";
     public const string WitnessStatementsLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
     public const string WitnessStatements = "cases/{caseId:min(1)}/witnesses/{witnessId}/statements";
     public const string DocumentsLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents";
-    public const string Documents = "cases/{caseId:min(1)}/documents";
     public const string DocumentNotesLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/notes";
     public const string DocumentNotes = "cases/{caseId:min(1)}/materials/{materialId}/notes";
     public const string RedactDocumentLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/redact";
@@ -43,17 +41,15 @@ public static class RestApi
     public const string ToggleIsUnusedDocument = "cases/{caseId:min(1)}/materials/{materialId}/toggle/{isUnused}";
     public const string OcrSearch = "cases/{caseId:min(1)}/materials/{materialId}/documents/{documentId:min(1)}/search";
     public const string OcrSearchTracker = "urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{documentId:min(1)}/search/tracker";
+    public const string ExhibitProducers = "cases/{caseId:min(1)}/exhibit-producers";
 
     // House keeping endpoints (legacy, URN-based - retained for existing system compatibility)
     public const string CaseInfoLegacy = "urns/{caseUrn}/case-info/{caseId:min(1)}";
-    public const string CaseMaterialsLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/case-materials";
     public const string CaseMaterialsPreviewLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/preview";
     public const string MaterialDocumentLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/document";
     public const string DocumentTypesLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/document-types";
-    public const string ExhibitProducersLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/case-exhibit-producers";
     public const string CaseWitnessStatementsLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/witnesses/{witnessId}/witness-statements";
     public const string CompleteReclassificationLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/reclassify-complete";
-    public const string CaseWitnessesHkLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/case-witnesses";
     public const string CaseLockInfoLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/case-lock-info";
     public const string RenameMaterialLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/rename";
     public const string DiscardMaterialLegacy = "urns/{caseUrn}/cases/{caseId:min(1)}/materials/{materialId}/discard";
@@ -77,14 +73,12 @@ public static class RestApi
 
     // House keeping endpoints (new, no URN in route)
     public const string CaseInfo = "case-info/{caseId:min(1)}";
-    public const string CaseMaterials = "cases/{caseId:min(1)}/case-materials";
+    public const string CaseMaterials = "cases/{caseId:min(1)}/documents";
     public const string CaseMaterialsPreview = "cases/{caseId:min(1)}/materials/{materialId}/preview";
     public const string MaterialDocument = "cases/{caseId:min(1)}/materials/{materialId}/document";
     public const string DocumentTypes = "cases/{caseId:min(1)}/document-types";
-    public const string ExhibitProducers = "cases/{caseId:min(1)}/case-exhibit-producers";
     public const string CaseWitnessStatements = "cases/{caseId:min(1)}/witnesses/{witnessId}/witness-statements";
     public const string CompleteReclassification = "cases/{caseId:min(1)}/materials/{materialId}/reclassify-complete";
-    public const string CaseWitnessesHk = "cases/{caseId:min(1)}/case-witnesses";
     public const string CaseLockInfo = "cases/{caseId:min(1)}/case-lock-info";
     public const string RenameMaterial = "cases/{caseId:min(1)}/materials/{materialId}/rename";
     public const string DiscardMaterial = "cases/{caseId:min(1)}/materials/{materialId}/discard";

@@ -13,9 +13,10 @@
 const { test, assertEqual, summarise } = require("../../../tests/unit/test-utils")
 const { loadNjs, createMockRequest, cmsEnvObject, applyEnv } = require("../../../tests/unit/njs-harness")
 
-// The two OutSystems hop `?r=` values, verbatim from the old static blocks.
-const PROD_R = "https%3A%2F%2Fcps.outsystemsenterprise.com%2FCasework_Patterns%2Fauth-handover.html%3Fsrc%3Dhttps%3A%2F%2Fpolaris.cps.gov.uk%2Fglobal-components%2Fprod%2Fauth-handover.js%26stage%3Dos-cookie-return%26r%3Dhttps%253A%252F%252Fcps.outsystemsenterprise.com%252Fcasework_blocks%252Fhome%253FIsFromCMS%253DTrue"
-const TEST_R = "https%3A%2F%2Fcps-tst.outsystemsenterprise.com%2FCasework_Patterns%2Fauth-handover.html%3Fsrc%3Dhttps%3A%2F%2Fpolaris-qa-notprod.cps.gov.uk%2Fglobal-components%2Ftest%2Fauth-handover.js%26stage%3Dos-cookie-return%26r%3Dhttps%253A%252F%252Fcps-tst.outsystemsenterprise.com%252Fcasework%252Fhome%253FIsFromCMS%253DTrue"
+// The two OutSystems hop `?r=` values, verbatim from the live static blocks
+// (PROD_R as amended by FCT2-21520: casework_blocks/home -> casework/home).
+const PROD_R = "https%3A%2F%2Fcps.outsystemsenterprise.com%2FCasework_Patterns%2Fauth-handover.html%3Fsrc%3Dhttps%3A%2F%2Fpolaris.cps.gov.uk%2Fglobal-components%2Fprod%2Fauth-handover.js%26stage%3Dos-cookie-return%26r%3Dhttps%253A%252F%252Fcps.outsystemsenterprise.com%252Fcasework%252Fhome%253FIsFromCMS%253DTrue"
+const TEST_R = "https%3A%2F%2Foapps-qa-notprod.int.cps.gov.uk%2FCasework_Patterns%2Fauth-handover.html%3Fsrc%3Dhttps%3A%2F%2Fpolaris-qa-notprod.cps.gov.uk%2Fglobal-components%2Ftest%2Fauth-handover.js%26stage%3Dos-cookie-return%26r%3Dhttps%253A%252F%252Foapps-qa-notprod.int.cps.gov.uk%252Fcasework%252Fhome%253FIsFromCMS%253DTrue"
 
 const expect = (host, rParam) => `https://${host}/polaris?r=${rParam}`
 
@@ -45,11 +46,32 @@ async function launches(appLaunch) {
     })
   }
 
+  await test("/launch/dev-proxy (new, no live block) -> the dev proxy + dev OutSystems + gc stage dev", () => {
+    const r = createMockRequest({ uri: "/launch/dev-proxy" })
+    appLaunch.launch(r)
+    const hop = "https://cps-dev.outsystemsenterprise.com/Casework_Patterns/auth-handover.html?src=https://polaris-dev-notprod.cps.gov.uk/global-components/dev/auth-handover.js&stage=os-cookie-return&r=" + encodeURIComponent("https://cps-dev.outsystemsenterprise.com/casework/home?IsFromCMS=True")
+    assertEqual(r.returnBody, "https://polaris-dev-notprod.cps.gov.uk/polaris?r=" + encodeURIComponent(hop), "Location")
+  })
+
   await test("unknown /launch/<key> -> 404", () => {
     const r = createMockRequest({ uri: "/launch/nope" })
     appLaunch.launch(r)
     assertEqual(r.returnCode, 404, "unknown target 404s")
   })
+}
+
+async function proxyKeys(appLaunch) {
+  console.log("\nproxyLaunchKey — the -proxy key that hands over from a proxy host:")
+  for (const [host, key] of [
+    ["polaris.cps.gov.uk", "cms-proxy"],
+    ["polaris-qa-notprod.cps.gov.uk", "cin2-proxy"],
+    ["polaris-uat-notprod.cps.gov.uk", "cpt-proxy"],
+    ["polaris-dev-notprod.cps.gov.uk", "dev-proxy"],
+    ["cin3.cps.gov.uk", ""],
+    ["", ""],
+  ]) {
+    await test(`${host || "(none)"} -> ${key || '""'}`, () => assertEqual(appLaunch.proxyLaunchKey(host), key, "key"))
+  }
 }
 
 async function main() {
@@ -58,6 +80,7 @@ async function main() {
   const restoreEnv = applyEnv(cmsEnvObject())
   const appLaunch = await loadNjs("features/app-launch/app-launch.js")
   await launches(appLaunch)
+  await proxyKeys(appLaunch)
   restoreEnv()
   process.exit(summarise("app-launch.js (unit)"))
 }
