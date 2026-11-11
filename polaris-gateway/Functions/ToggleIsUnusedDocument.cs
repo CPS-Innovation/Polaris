@@ -24,14 +24,14 @@ using System.Threading.Tasks;
 
 public class ToggleIsUnusedDocument : BaseFunction
 {
-    private readonly IMasterDataServiceClient masterDataServiceClient;
+    private readonly IMdsClient mdsClient;
     private readonly ICaseUrnResolver caseUrnResolver;
 
     public ToggleIsUnusedDocument(
-        IMasterDataServiceClient masterDataServiceClient,
+        IMdsClient mdsClient,
         ICaseUrnResolver caseUrnResolver)
     {
-        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        this.mdsClient = mdsClient.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
@@ -68,11 +68,6 @@ public class ToggleIsUnusedDocument : BaseFunction
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        await this.masterDataServiceClient.ToggleIsUnusedDocumentAsync(
-            toggleIsUnusedDocumentDto,
-            cmsAuthValues,
-            cancellationToken);
-
-        return new OkResult();
+        return await this.mdsClient.ToggleIsUnusedDocumentAsync(toggleIsUnusedDocumentDto, cancellationToken) ? new OkResult() : new BadRequestResult();
     }
 }
