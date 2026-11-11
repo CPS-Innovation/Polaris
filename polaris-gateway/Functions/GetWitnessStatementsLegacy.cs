@@ -1,12 +1,4 @@
-// <copyright file="GetWitnessStatementsLegacy.cs" company="TheCrownProsecutionService">
-// Copyright (c) The Crown Prosecution Service. All rights reserved.
-// </copyright>
-
-namespace PolarisGateway.Functions;
-
 using Common.Configuration;
-using Common.Dto.Request.HouseKeeping;
-using Common.Dto.Request;
 using Common.Dto.Response;
 using Common.Extensions;
 using Ddei.Factories;
@@ -23,17 +15,22 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
+namespace PolarisGateway.Functions;
+
 public class GetWitnessStatementsLegacy : BaseFunction
 {
-    private readonly IMdsArgFactory mdsArgFactory;
-    private readonly IMasterDataServiceClient masterDataServiceClient;
+    private readonly ILogger<GetWitnessStatementsLegacy> _logger;
+    private readonly IMdsArgFactory _mdsArgFactory;
+    private readonly IMdsClient _mdsClient;
 
     public GetWitnessStatementsLegacy(
+        ILogger<GetWitnessStatementsLegacy> logger,
         IMdsArgFactory mdsArgFactory,
-        IMasterDataServiceClient masterDataServiceClient)
+        IMdsClient mdsClient)
     {
-        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        _logger = logger.ExceptionIfNull();
+        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
     }
 
     [Function(nameof(GetWitnessStatementsLegacy))]
@@ -51,12 +48,9 @@ public class GetWitnessStatementsLegacy : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var witnessStatementsArgDto = this.mdsArgFactory.CreateWitnessStatementsArgDto(cmsAuthValues, correlationId, caseUrn, caseId, witnessId);
-        var witnessStatementsResponse = await this.masterDataServiceClient.GetWitnessStatementsAsync(
-            new GetWitnessStatementsRequest(witnessStatementsArgDto.WitnessId, correlationId),
-            new CmsAuthValues(cmsAuthValues, correlationId),
-            cancellationToken);
+        var witnessStatementsArgDto = _mdsArgFactory.CreateWitnessStatementsArgDto(cmsAuthValues, correlationId, caseUrn, caseId, witnessId);
+        var witnessStatementDtos = await _mdsClient.GetWitnessStatementsAsync(witnessStatementsArgDto, cancellationToken: cancellationToken);
 
-        return new OkObjectResult(witnessStatementsResponse);
+        return new OkObjectResult(witnessStatementDtos);
     }
 }

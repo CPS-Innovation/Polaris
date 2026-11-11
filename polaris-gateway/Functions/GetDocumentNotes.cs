@@ -25,17 +25,17 @@ using System.Threading.Tasks;
 
 public class GetDocumentNotes : BaseFunction
 {
-    private readonly IMasterDataServiceClient masterDataServiceClient;
+    private readonly IMdsClient mdsClient;
     private readonly IMdsArgFactory mdsArgFactory;
     private readonly ICaseUrnResolver caseUrnResolver;
 
     public GetDocumentNotes(
-        IMasterDataServiceClient masterDataServiceClient,
+        IMdsClient mdsClient,
         IMdsArgFactory mdsArgFactory,
         ICaseUrnResolver caseUrnResolver)
         : base()
     {
-        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        this.mdsClient = mdsClient.ExceptionIfNull();
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
@@ -57,7 +57,7 @@ public class GetDocumentNotes : BaseFunction
 
         var arg = this.mdsArgFactory.CreateDocumentArgDto(cmsAuthValues.CmsAuthFullValue, correlationId, caseUrn, caseId, materialId);
 
-        var result = await this.masterDataServiceClient.ListDocumentNotesAsync(arg, cmsAuthValues, cancellationToken);
+        var result = await this.mdsClient.GetDocumentNotesAsync(arg, cancellationToken: cancellationToken);
 
         return new OkObjectResult(result);
     }
