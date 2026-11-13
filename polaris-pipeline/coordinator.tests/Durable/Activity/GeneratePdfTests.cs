@@ -31,7 +31,6 @@ public class GeneratePdfFromDocumentTests
     private readonly Mock<IMdsArgFactory> mdsArgFactoryMock;
     private readonly Mock<Func<string, IPolarisBlobStorageService>> blobStorageServiceFactoryMock;
     private readonly Mock<IConfiguration> configurationMock;
-    private readonly Mock<IMdsClient> mdsClientMock;
     private readonly Mock<IMasterDataServiceClient> masterDataServiceClientMock;
     private readonly Mock<IPolarisBlobStorageService> polarisBlobStorageServiceMock;
     private readonly GeneratePdfFromDocument generatePdfFromDocument;
@@ -42,12 +41,11 @@ public class GeneratePdfFromDocumentTests
         this.mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         this.blobStorageServiceFactoryMock = new Mock<Func<string, IPolarisBlobStorageService>>();
         this.configurationMock = new Mock<IConfiguration>();
-        this.mdsClientMock = new Mock<IMdsClient>();
         this.masterDataServiceClientMock = new Mock<IMasterDataServiceClient>();
         this.polarisBlobStorageServiceMock = new Mock<IPolarisBlobStorageService>();
         this.configurationMock.Setup(s => s[StorageKeys.BlobServiceContainerNameDocuments]).Returns(string.Empty);
         this.blobStorageServiceFactoryMock.Setup(s => s.Invoke(It.IsAny<string>())).Returns(this.polarisBlobStorageServiceMock.Object);
-        this.generatePdfFromDocument = new GeneratePdfFromDocument(this.pdfGeneratorClientMock.Object, this.mdsArgFactoryMock.Object, this.blobStorageServiceFactoryMock.Object, this.configurationMock.Object, this.mdsClientMock.Object, this.masterDataServiceClientMock.Object);
+        this.generatePdfFromDocument = new GeneratePdfFromDocument(this.pdfGeneratorClientMock.Object, this.mdsArgFactoryMock.Object, this.blobStorageServiceFactoryMock.Object, this.configurationMock.Object, this.masterDataServiceClientMock.Object);
     }
 
     [Fact]
