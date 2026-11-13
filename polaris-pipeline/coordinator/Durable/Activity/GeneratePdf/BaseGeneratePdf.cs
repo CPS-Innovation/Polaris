@@ -21,7 +21,6 @@ using System.Threading.Tasks;
 public abstract class BaseGeneratePdf
 {
     protected readonly IMdsArgFactory MdsArgFactory;
-    protected readonly IMdsClient MdsClient;
     protected readonly IMasterDataServiceClient masterDataServiceClient;
     private readonly IPdfGeneratorClient pdfGeneratorClient;
     private readonly IPolarisBlobStorageService polarisBlobStorageService;
@@ -31,13 +30,11 @@ public abstract class BaseGeneratePdf
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IPdfGeneratorClient pdfGeneratorClient,
         IConfiguration configuration,
-        IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient)
     {
         this.MdsArgFactory = mdsArgFactory;
         this.pdfGeneratorClient = pdfGeneratorClient;
         this.polarisBlobStorageService = blobStorageServiceFactory(configuration[StorageKeys.BlobServiceContainerNameDocuments] ?? string.Empty) ?? throw new ArgumentNullException(nameof(blobStorageServiceFactory));
-        this.MdsClient = mdsClient.ExceptionIfNull();
         this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
     }
 

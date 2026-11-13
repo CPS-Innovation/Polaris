@@ -679,7 +679,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
     {
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "ListDocumentNotes";
-        List<DocumentNoteDto> results = new();
+        List<DocumentNoteDto> results = new ();
         try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
@@ -689,7 +689,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
             {
                 results = data.Select(note => new DocumentNoteDto
                 {
-                    Id = (int)arg.MaterialId, // TODO: Map from note.Id when API starts returning it. Consider using ICaseDocumentNoteMapper.Map which does the same thing
+                    Id = note.Id,
                     CreatedByName = note.CreatedByName,
                     SortOrder = note.SequenceNumber,
                     Date = note.Date,
