@@ -25,13 +25,12 @@ public class GeneratePdfFromPcdRequest : BaseGeneratePdf
     private readonly IConvertModelToHtmlService convertPcdRequestToHtmlService;
     public GeneratePdfFromPcdRequest(
         IPdfGeneratorClient pdfGeneratorClient,
-        IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IMdsArgFactory mdsArgFactory,
         IConvertModelToHtmlService convertPcdRequestToHtmlService,
         IConfiguration configuration)
-        : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient, masterDataServiceClient)
+        : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, masterDataServiceClient)
     {
         this.convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
 

@@ -25,9 +25,8 @@ public class GeneratePdfFromDocument : BaseGeneratePdf
         IMdsArgFactory mdsArgFactory,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IConfiguration configuration,
-        IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient)
-        : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient, masterDataServiceClient)
+        : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, masterDataServiceClient)
     {
     }
 

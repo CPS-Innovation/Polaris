@@ -28,14 +28,13 @@ public class GeneratePdfFromDefendantsAndCharges : BaseGeneratePdf
 
     public GeneratePdfFromDefendantsAndCharges(
         IPdfGeneratorClient pdfGeneratorClient,
-        IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient,
         ICaseDetailsMapper caseDetailsMapper,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IMdsArgFactory mdsArgFactory,
         IConvertModelToHtmlService convertPcdRequestToHtmlService,
         IConfiguration configuration)
-        : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient, masterDataServiceClient)
+        : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, masterDataServiceClient)
     {
         this.caseDetailsMapper = caseDetailsMapper;
         this.convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
