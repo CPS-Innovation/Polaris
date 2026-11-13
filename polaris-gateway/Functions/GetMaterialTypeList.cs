@@ -1,6 +1,13 @@
+// <copyright file="GetMaterialTypeList.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
 using Common.Configuration;
 using Common.Dto.Response;
 using Common.Dto.Response.Case;
+using Common.Dto.Request;
 using Common.Extensions;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
@@ -16,22 +23,14 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Functions;
-
 public class GetMaterialTypeList : BaseFunction
 {
-    private readonly ILogger<GetMaterialTypeList> _logger;
-    private readonly IMdsArgFactory _mdsArgFactory;
-    private readonly IMdsClient _mdsClient;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
 
     public GetMaterialTypeList(
-        ILogger<GetMaterialTypeList> logger,
-        IMdsArgFactory mdsArgFactory,
-        IMdsClient mdsClient)
+        IMasterDataServiceClient masterDataServiceClient)
     {
-        _logger = logger.ExceptionIfNull();
-        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        _mdsClient = mdsClient.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
     }
 
     [Function(nameof(GetMaterialTypeList))]
@@ -46,8 +45,7 @@ public class GetMaterialTypeList : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var mdsBaseArgDto = _mdsArgFactory.CreateCmsCaseDataArgDto(cmsAuthValues, correlationId);
-        var materialTypes = await _mdsClient.GetMaterialTypeListAsync(mdsBaseArgDto, cancellationToken);
+        var materialTypes = await this.masterDataServiceClient.GetMaterialTypeListAsync(new CmsAuthValues(cmsAuthValues, correlationId), cancellationToken);
 
         return new OkObjectResult(materialTypes);
     }

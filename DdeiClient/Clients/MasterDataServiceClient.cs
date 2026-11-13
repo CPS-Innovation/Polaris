@@ -8,13 +8,20 @@ using Azure.Core;
 using Common.Constants;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
+using Common.Dto.Response;
+using Common.Dto.Response.Case;
 using Common.Dto.Response.Document;
 using Common.Dto.Response.Documents;
 using Common.Dto.Response.HouseKeeping;
 using Common.Dto.Response.HouseKeeping.Pcd;
+using Common.Extensions;
+using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.CaseData.Args.Core;
+using Ddei.Mappers;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Diagnostics;
+using DdeiClient.Domain.Args;
+using DdeiClient.Domain.Response;
 using DdeiClient.Utils;
 using Microsoft;
 using Microsoft.AspNetCore.Mvc;
@@ -29,11 +36,43 @@ using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
 /// <summary>
 ///  Repesents Mds API client.
 /// </summary>
-public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiClientFactory, ILoggerFactory loggerFactory)
+public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiClientFactory, ICmsMaterialTypeMapper cmsMaterialTypeMapper, ILoggerFactory loggerFactory)
     : IMasterDataServiceClient
 {
     private readonly IMasterDataServiceApiClientFactory mdsApiClientFactory = mdsApiClientFactory;
+    private readonly ICmsMaterialTypeMapper cmsMaterialTypeMapper = cmsMaterialTypeMapper.ExceptionIfNull();
     private readonly ILogger<MasterDataServiceClient> logger = loggerFactory.CreateLogger<MasterDataServiceClient>();
+
+    public async Task<CaseIdentifiersDto> LookupUrnAsync(MdsCaseIdOnlyArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "LookupUrn";
+
+        CaseIdentifiersDto result = null;
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+
+            var data = await client.LookupUrnAsync(arg.CaseId, cancellationToken);
+
+            if (data is not null)
+            {
+                result = new CaseIdentifiersDto
+                {
+                    Id = data.Id,
+                    Urn = data.Urn,
+                    UrnRoot = data.UrnRoot,
+                };
+            }
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
+            throw;
+        }
+
+        return result;
+    }
 
     /// <inheritdoc/>
     public async Task<CaseSummaryResponse> GetCaseSummaryAsync(GetCaseSummaryRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
@@ -73,6 +112,42 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
 
         return result;
+    }
+
+    public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "CheckoutDocument";
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+            await client.DocumentAsync(arg.CaseId, arg.MaterialId, arg.DocumentId, cancellationToken);
+
+            return new CheckoutDocumentDto { IsSuccess = true };
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
+            throw;
+        }
+    }
+
+    public async Task CancelCheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "CancelCheckoutDocument";
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+            await client.CancelCheckoutDocumentAsync(arg.CaseId, arg.MaterialId, arg.DocumentId, cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
+            throw;
+        }
     }
 
     public async Task<IEnumerable<DocumentDto>> ListDocumentsAsync(MdsCaseIdentifiersArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
@@ -144,6 +219,23 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
             }
 
             return results;
+        }
+        catch (Exception ex)
+        {
+            this.HandleException(OperationName, ex, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
+            throw;
+        }
+    }
+
+    public async Task UploadPdfAsync(MdsMaterialIdAndDocumentIdArgDto arg, Stream stream, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "UploadPdf";
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+            await client.UploadDocumentToCaseAsyncPUTAsync(arg.CaseId, arg.MaterialId, arg.DocumentId, stream, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -534,6 +626,87 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
+    public async Task<Common.Dto.Response.FileResult> GetDocumentByDocumentIdAsync(MdsMaterialIdAndDocumentIdArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "GetDocumentByDocumentId";
+        Common.Dto.Response.FileResult result = new ();
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+
+            var data = await client.GetDocumentByDocumentIdAsync(arg.CaseId, arg.MaterialId, arg.DocumentId, cancellationToken);
+
+            if (data?.Stream is not null)
+            {
+                result.Stream = data.Stream;
+                result.FileName = data.Headers["Content-Disposition"].FirstOrDefault();
+            }
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
+            throw;
+        }
+
+        return result;
+    }
+
+    public async Task CreateDocumentNoteAsync(MdsAddDocumentNoteArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "CreateDocumentNote";
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+            ApiClient.CreateDocumentNoteRequest documentNoteRequest = new()
+            {
+                Text = arg.Text,
+            };
+
+            await client.CreateDocumentNoteAsync(arg.CaseId, (int)arg.MaterialId, documentNoteRequest, cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
+            throw;
+        }
+    }
+
+    public async Task<List<DocumentNoteDto>> ListDocumentNotesAsync(MdsDocumentArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "ListDocumentNotes";
+        List<DocumentNoteDto> results = new ();
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+            var data = await client.ListDocumentNotesAsync((int)arg.MaterialId, cancellationToken);
+
+            if (data is not null)
+            {
+                results = data.Select(note => new DocumentNoteDto
+                {
+                    Id = note.Id,
+                    CreatedByName = note.CreatedByName,
+                    SortOrder = note.SequenceNumber,
+                    Date = note.Date,
+                    Text = note.Text,
+                    Type = note.NoteType?.ToString() ?? string.Empty,
+                }).ToList();
+            }
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
+            throw;
+        }
+
+        return results;
+    }
+
     /// <inheritdoc/>
     public async Task<FileStreamResult?> GetMaterialDocumentAsync(GetDocumentRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
@@ -670,7 +843,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
     }
 
     /// <inheritdoc/>
-    public async Task<WitnessesResponse> GetCaseWitnessesAsync(GetCaseWitnessesRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<BaseCaseWitnessResponse>> GetCaseWitnessesAsync(GetCaseWitnessesRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
         Requires.NotNull(request);
         Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
@@ -678,7 +851,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "ListCaseWitnesses";
         string additionalInfo = $"received #0 witnesses";
-        WitnessesResponse results = new ();
+        IEnumerable<BaseCaseWitnessResponse> results = new List<BaseCaseWitnessResponse>();
 
         try
         {
@@ -688,16 +861,39 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
 
             if (data is not null)
             {
-                results.Witnesses = data.Select(witness => new Witness(
-                    witness.CaseId,
-                    witness.WitnessId,
-                    witness.FirstName,
-                    witness.Surname)).ToList();
+                results = data.Select(witness => new MdsCaseWitnessResponse
+                {
+                    Id = checked((int)witness.WitnessId),
+                    ShoulderNumber = witness.ContactDetails?.ShoulderNo ?? string.Empty,
+                    Title = witness.ContactDetails?.Title ?? string.Empty,
+                    FirstName = witness.FirstName ?? string.Empty,
+                    Surname = witness.Surname ?? string.Empty,
+                    Child = witness.IsChild ?? false,
+                    Expert = witness.IsExpert ?? false,
+                    GreatestNeed = witness.IsGreatestNeed ?? false,
+                    Prisoner = witness.IsPrisoner ?? false,
+                    Interpreter = witness.IsInterpreter ?? false,
+                    Vulnerable = witness.IsVulnerable ?? false,
+                    Police = witness.IsPolice ?? false,
+                    Professional = witness.IsProfessional ?? false,
+                    SpecialNeeds = witness.IsSpecialNeeds ?? false,
+                    Intimidated = witness.IsIntimidated ?? false,
+                    Victim = witness.IsWitnessAndVictim ?? false,
+                    WitnessStatements = witness.WitnessStatements?
+                        .Select(statement => new WitnessStatementDto
+                        {
+                            DocumentId = statement.DocId,
+                            ListOrder = statement.ListOrder,
+                        })
+                        .ToList()
+                        ?? [],
+                }).ToList();
             }
 
-            if (results.Witnesses.Count > 0)
+            var witnessCount = results.Count();
+            if (witnessCount > 0)
             {
-                additionalInfo = $"retrieved #{results.Witnesses.Count} witnesses";
+                additionalInfo = $"retrieved #{witnessCount} witnesses";
             }
 
             this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, additionalInfo);
@@ -849,6 +1045,98 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         }
     }
 
+    public async Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "GetMaterialTypeList";
+
+        IEnumerable<MaterialTypeDto> response = null;
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+
+            var data = await client.GetMaterialTypeListAsync(cancellationToken);
+
+            var apiResponse = data?
+                .Select(materialType => new MdsMaterialTypeListResponse
+                {
+                    Code = materialType.Code ?? string.Empty,
+                    Description = materialType.Description ?? string.Empty,
+                    LongDescription = materialType.LongDescription ?? string.Empty,
+                    Classification = materialType.Classification ?? string.Empty,
+                    IsCaseMaterial = materialType.IsCaseMaterial ?? string.Empty,
+
+                    AssociatedDispatchDocumentTypes = materialType.AssociatedDispatchDocumentTypes?
+                        .Select(documentType => new AssociatedDispatchDocumentType
+                        {
+                            DocType = documentType.DocType,
+                            RequiredForDispatch = documentType.RequiredForDispatch,
+                        })
+                        .ToList()
+                        ?? [],
+
+                    PreventCheckOutAfterDispatch = materialType.PreventCheckOutAfterDispatch,
+                    PreventCheckOutOfClassisDocument = materialType.PreventCheckOutOfClassisDocument,
+                    ListOrder = materialType.ListOrder ?? string.Empty,
+                    Selectable = materialType.Selectable ?? string.Empty,
+                    AddAsUsedOrUnused = materialType.AddAsUsedOrUnused ?? string.Empty,
+                    ListOrderValue = materialType.ListOrderValue,
+                })
+                .ToList()
+                ?? [];
+
+            response = apiResponse.Select(materialType => this.cmsMaterialTypeMapper.Map(materialType)).ToArray();
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
+            throw;
+        }
+
+        return response;
+    }
+
+    public async Task<RenameMaterialResponse> RenameExhibitMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        Requires.NotNull(request);
+        Requires.NotNull(request.materialId);
+        Requires.NotNull(cmsAuthValues.CmsAuthFullValue);
+
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "RenameExhibitMaterial";
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+
+            var renameExhibitMaterialRequest = new ApiClient.RenameMaterialDescriptionRequest()
+            {
+                MaterialId = request.materialId,
+                Description = request.subject,
+            };
+
+            var data = await client.RenameExhibitMaterialAsync(request.materialId, renameExhibitMaterialRequest, cancellationToken);
+
+            if (data?.UpdateCommunication?.Id == null)
+            {
+                return default;
+            }
+
+            RenameMaterialResponse result = new (
+                new RenameMaterialData { Id = data.UpdateCommunication.Id });
+
+            this.LogOperationCompletedEvent(OperationName, request, stopwatch.Elapsed, string.Empty);
+
+            return result;
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+            throw;
+        }
+    }
+
     /// <inheritdoc/>
     public async Task<ReclassificationResponse> ReclassifyCommunicationAsync(ReclassifyCommunicationRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
     {
@@ -888,6 +1176,55 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         catch (Exception exception)
         {
             this.HandleException(OperationName, exception, request, stopwatch.Elapsed);
+            throw;
+        }
+    }
+
+    public async Task<IEnumerable<CaseIdentifiersDto>> ListCaseIdentifiersAsync(MdsUrnArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "ListCaseIdentifiers";
+
+        List<CaseIdentifiersDto> results = new List<CaseIdentifiersDto>();
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+
+            var data = await client.ListCaseIdentifiersAsync(arg.Urn, cancellationToken);
+
+            if (data is not null)
+            {
+                results = data.Select(caseIdentifier => new CaseIdentifiersDto
+                {
+                    Id = caseIdentifier.Id,
+                    Urn = caseIdentifier.Urn,
+                    UrnRoot = caseIdentifier.UrnRoot,
+                }).ToList();
+            }
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
+            throw;
+        }
+
+        return results;
+    }
+
+    public async Task ToggleIsUnusedDocumentAsync(MdsToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        const string OperationName = "ToggleIsUnusedDocument";
+
+        try
+        {
+            var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
+            await client.ToggleIsUnusedDocumentAsync(toggleIsUnusedDocumentDto.CaseId, (int)toggleIsUnusedDocumentDto.MaterialId, toggleIsUnusedDocumentDto.IsUnused, cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            this.HandleException(OperationName, exception, new BaseRequest(Guid.NewGuid()), stopwatch.Elapsed);
             throw;
         }
     }
@@ -1480,7 +1817,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
 
-            var data = await client.GetPcdReviewAsync(caseId, cancellationToken);
+            var data = await client.GetPcdReviewAsync(caseId, cancellationToken: cancellationToken);
             return data;
         }
         catch (Exception exception)

@@ -1,4 +1,10 @@
-﻿using Common.Clients.PdfGenerator;
+﻿// <copyright file="GeneratePdfFromPcdRequest.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace coordinator.Durable.Activity;
+
+using Common.Clients.PdfGenerator;
 using Common.Services.BlobStorage;
 using Common.Services.RenderHtmlService;
 using Common.Dto.Request.HouseKeeping;
@@ -14,24 +20,19 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace coordinator.Durable.Activity;
-
 public class GeneratePdfFromPcdRequest : BaseGeneratePdf
 {
-    private readonly IConvertModelToHtmlService _convertPcdRequestToHtmlService;
-    private readonly IMasterDataServiceClient _masterDataServiceClient;
+    private readonly IConvertModelToHtmlService convertPcdRequestToHtmlService;
     public GeneratePdfFromPcdRequest(
         IPdfGeneratorClient pdfGeneratorClient,
-        IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient,
         Func<string, IPolarisBlobStorageService> blobStorageServiceFactory,
         IMdsArgFactory mdsArgFactory,
         IConvertModelToHtmlService convertPcdRequestToHtmlService,
         IConfiguration configuration)
-        : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, mdsClient)
+        : base(mdsArgFactory, blobStorageServiceFactory, pdfGeneratorClient, configuration, masterDataServiceClient)
     {
-        _convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
-        _masterDataServiceClient = masterDataServiceClient;
+        this.convertPcdRequestToHtmlService = convertPcdRequestToHtmlService;
 
     }
 
@@ -43,17 +44,17 @@ public class GeneratePdfFromPcdRequest : BaseGeneratePdf
 
     protected override async Task<Stream> GetDocumentStreamAsync(DocumentPayload payload)
     {
-        var arg = MdsArgFactory.CreatePcdArg(
+        var arg = this.MdsArgFactory.CreatePcdArg(
             payload.CmsAuthValues,
             payload.CorrelationId,
             payload.Urn,
             payload.CaseId,
             payload.MaterialId);
 
-        var pcdRequest = await _masterDataServiceClient.GetPcdRequestByPcdIdAsync(
+        var pcdRequest = await this.masterDataServiceClient.GetPcdRequestByPcdIdAsync(
             new GetPcdRequestByPcdIdCoreRequest(arg.CaseId, arg.PcdId, arg.CorrelationId),
             new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId));
 
-        return await _convertPcdRequestToHtmlService.ConvertAsync(pcdRequest);
+        return await this.convertPcdRequestToHtmlService.ConvertAsync(pcdRequest);
     }
 }

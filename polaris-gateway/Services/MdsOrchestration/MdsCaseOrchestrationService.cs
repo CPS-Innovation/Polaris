@@ -23,13 +23,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class MdsCaseOrchestrationService(IMdsClient mdsClient,
-                            IMasterDataServiceClient masterDataServiceClient,
-                            IMdsArgFactory mdsArgFactory,
-                            ICaseDetailsMapper caseDetailsMapper)
-                            : IMdsCaseOrchestrationService
+public class MdsCaseOrchestrationService(
+    IMasterDataServiceClient masterDataServiceClient,
+    IMdsArgFactory mdsArgFactory,
+    ICaseDetailsMapper caseDetailsMapper)
+    : IMdsCaseOrchestrationService
 {
-    private readonly IMdsClient mdsClient = mdsClient;
     private readonly IMasterDataServiceClient masterDataServiceClient = masterDataServiceClient;
     private readonly IMdsArgFactory mdsArgFactory = mdsArgFactory;
     private readonly ICaseDetailsMapper caseDetailsMapper = caseDetailsMapper;
@@ -42,10 +41,10 @@ public class MdsCaseOrchestrationService(IMdsClient mdsClient,
 
     public async Task<IEnumerable<CaseDto>> GetCases(MdsUrnArgDto arg, CancellationToken cancellationToken = default)
     {
-        var caseIdentifiers = await this.mdsClient.ListCaseIdsAsync(arg, cancellationToken);
+        var caseIdentifiers = await this.masterDataServiceClient.ListCaseIdentifiersAsync(arg, new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId), cancellationToken);
 
         var calls = caseIdentifiers.Select(async caseIdentifier =>
-            await this.GetCaseDetails(this.mdsArgFactory.CreateCaseArgFromUrnArg(arg, caseIdentifier.Id), cancellationToken));
+            await this.GetCaseDetails(this.mdsArgFactory.CreateCaseArgFromUrnArg(arg, checked((int)caseIdentifier.Id)), cancellationToken));
 
         var cases = await Task.WhenAll(calls);
         return cases.Select(@case => this.caseDetailsMapper.MapCaseDetails(@case));
@@ -57,8 +56,8 @@ public class MdsCaseOrchestrationService(IMdsClient mdsClient,
         var cmsAuthValues = new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId);
 
         var getCaseSummaryTask = this.masterDataServiceClient.GetCaseSummaryAsync(caseSummaryRequest, cmsAuthValues, cancellationToken);
-        var witnessesTask = this.mdsClient.GetWitnessesAsync(arg, cancellationToken);
-        var getDefendantsAndChargesTask = this.masterDataServiceClient.GetCaseDefendantsAsync(new ListCaseDefendantsRequest(arg.CaseId, arg.CorrelationId), new CmsAuthValues(arg.CmsAuthValues, arg.CorrelationId), cancellationToken);
+        var witnessesTask = this.masterDataServiceClient.GetCaseWitnessesAsync(new GetCaseWitnessesRequest(arg.CaseId, arg.CorrelationId), cmsAuthValues, cancellationToken);
+        var getDefendantsAndChargesTask = this.masterDataServiceClient.GetCaseDefendantsAsync(new ListCaseDefendantsRequest(arg.CaseId, arg.CorrelationId), cmsAuthValues, cancellationToken);
         var getPcdRequestTask = this.masterDataServiceClient.GetCasePcdRequestsAsync(arg, cmsAuthValues, cancellationToken);
 
         var caseSummaryResponse = await getCaseSummaryTask;

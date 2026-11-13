@@ -1,6 +1,14 @@
-﻿using Common.Dto.Response.Case;
+﻿// <copyright file="CheckoutDocumentLegacyTests.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Tests.Functions;
+
+using Common.Dto.Request;
+using Common.Dto.Response.Case;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Factories;
+using DdeiClient.Clients;
 using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,30 +17,27 @@ using Moq;
 using PolarisGateway.Functions;
 using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace PolarisGateway.Tests.Functions;
-
 public class CheckoutDocumentLegacyTests
 {
-    private readonly Mock<ILogger<CheckoutDocumentLegacy>> _loggerMock;
-    private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
-    private readonly Mock<IMdsClient> _mdsClientMock;
-    private readonly CheckoutDocumentLegacy _checkoutDocument;
+    private readonly Mock<IMdsArgFactory> mdsArgFactoryMock;
+    private readonly Mock<IMasterDataServiceClient> masterDataServiceClientMock;
+    private readonly CheckoutDocumentLegacy checkoutDocument;
 
     public CheckoutDocumentLegacyTests()
     {
-        _loggerMock = new Mock<ILogger<CheckoutDocumentLegacy>>();
-        _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
-        _mdsClientMock = new Mock<IMdsClient>();
-        _checkoutDocument = new CheckoutDocumentLegacy(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsClientMock.Object);
+        this.mdsArgFactoryMock = new Mock<IMdsArgFactory>();
+        this.masterDataServiceClientMock = new Mock<IMasterDataServiceClient>();
+        this.checkoutDocument = new CheckoutDocumentLegacy(this.mdsArgFactoryMock.Object, this.masterDataServiceClientMock.Object);
     }
 
     [Fact]
     public async Task Run_ClientResultIsSuccess_ShouldReturn200()
     {
-        //arrange
+        // arrange
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
@@ -41,15 +46,20 @@ public class CheckoutDocumentLegacyTests
         var mdsDocumentIdAndVersionIdArgDto = new MdsMaterialIdAndDocumentIdArgDto();
         var checkoutDocumentDto = new CheckoutDocumentDto()
         {
-            IsSuccess = true
+            IsSuccess = true,
         };
-        _mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, materialId, documentId)).Returns(mdsDocumentIdAndVersionIdArgDto);
-        _mdsClientMock.Setup(s => s.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto)).ReturnsAsync(checkoutDocumentDto);
+        this.mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, materialId, documentId)).Returns(mdsDocumentIdAndVersionIdArgDto);
+        this.masterDataServiceClientMock
+            .Setup(s => s.CheckoutDocumentAsync(
+                mdsDocumentIdAndVersionIdArgDto,
+                It.IsAny<CmsAuthValues>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(checkoutDocumentDto);
 
-        //act
-        var result = await _checkoutDocument.Run(req, caseUrn, caseId, materialId, documentId);
+        // act
+        var result = await this.checkoutDocument.Run(req, caseUrn, caseId, materialId, documentId);
 
-        //assert
+        // assert
         Assert.IsType<OkResult>(result);
     }
 
@@ -65,7 +75,7 @@ public class CheckoutDocumentLegacyTests
 
         var argDto = new MdsMaterialIdAndDocumentIdArgDto();
 
-        _mdsArgFactoryMock
+        this.mdsArgFactoryMock
             .Setup(s => s.CreateDocumentVersionArgDto(
                 It.IsAny<string>(),
                 It.IsAny<Guid>(),
@@ -75,12 +85,15 @@ public class CheckoutDocumentLegacyTests
                 documentId))
             .Returns(argDto);
 
-        _mdsClientMock
-            .Setup(s => s.CheckoutDocumentAsync(argDto))
+        this.masterDataServiceClientMock
+            .Setup(s => s.CheckoutDocumentAsync(
+                argDto,
+                It.IsAny<CmsAuthValues>(),
+                It.IsAny<CancellationToken>()))
             .ThrowsAsync(new HttpRequestException("409 Conflict"));
 
         // act & assert
         await Assert.ThrowsAsync<HttpRequestException>(() =>
-            _checkoutDocument.Run(req, caseUrn, caseId, materialId, documentId));
+            this.checkoutDocument.Run(req, caseUrn, caseId, materialId, documentId));
     }
 }

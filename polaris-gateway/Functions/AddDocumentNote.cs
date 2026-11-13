@@ -29,18 +29,18 @@ public class AddDocumentNote : BaseFunction
 {
     private readonly ILogger<AddDocumentNote> logger;
     private readonly IMdsArgFactory mdsArgFactory;
-    private readonly IMdsClient mdsClient;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
     private readonly ICaseUrnResolver caseUrnResolver;
 
     public AddDocumentNote(
         ILogger<AddDocumentNote> logger,
         IMdsArgFactory mdsArgFactory,
-        IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient,
         ICaseUrnResolver caseUrnResolver)
     {
         this.logger = logger.ExceptionIfNull();
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        this.mdsClient = mdsClient.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
@@ -86,7 +86,7 @@ public class AddDocumentNote : BaseFunction
 
             var arg = this.mdsArgFactory.CreateAddDocumentNoteArgDto(cmsAuthValues.CmsAuthFullValue, correlationId, caseUrn, caseId, materialId, body.Value.Text);
 
-            await this.mdsClient.AddDocumentNoteAsync(arg, cancellationToken);
+            await this.masterDataServiceClient.CreateDocumentNoteAsync(arg, cmsAuthValues, cancellationToken);
 
             telemetryEvent.IsSuccess = true;
             this.logger.TrackEvent(telemetryEvent);

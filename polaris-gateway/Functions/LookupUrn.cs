@@ -1,5 +1,12 @@
-﻿using Common.Configuration;
+﻿// <copyright file="LookupUrn.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
+using Common.Configuration;
 using Common.Extensions;
+using Common.Dto.Request;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -13,23 +20,18 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Functions;
-
 public class LookupUrn : BaseFunction
 {
-    private readonly ILogger<LookupUrn> _logger;
-    private readonly IMdsClient _mdsClient;
-    private readonly IMdsArgFactory _mdsArgFactory;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
+    private readonly IMdsArgFactory mdsArgFactory;
 
     public LookupUrn(
-        ILogger<LookupUrn> logger,
-        IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient,
         IMdsArgFactory mdsArgFactory)
         : base()
     {
-        _logger = logger.ExceptionIfNull();
-        _mdsClient = mdsClient.ExceptionIfNull();
-        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
     }
 
     [Function(nameof(LookupUrn))]
@@ -46,9 +48,9 @@ public class LookupUrn : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var arg = _mdsArgFactory.CreateCaseIdArg(cmsAuthValues, correlationId, caseId);
+        var arg = this.mdsArgFactory.CreateCaseIdArg(cmsAuthValues, correlationId, caseId);
 
-        var result = await _mdsClient.GetUrnFromCaseIdAsync(arg, cancellationToken: cancellationToken);
+        var result = await this.masterDataServiceClient.LookupUrnAsync(arg, new CmsAuthValues(cmsAuthValues, correlationId), cancellationToken);
 
         return new OkObjectResult(result);
     }

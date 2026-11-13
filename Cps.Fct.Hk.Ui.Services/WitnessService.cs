@@ -3,17 +3,19 @@
 // </copyright>
 
 namespace Cps.Fct.Hk.Ui.Services;
-using System;
-using System.Globalization;
-using System.Threading.Tasks;
 using Common.Constants;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
+using Common.Dto.Response;
 using Common.Dto.Response.HouseKeeping;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Cps.Fct.Hk.Ui.Interfaces.Exceptions;
 using DdeiClient.Clients.Interfaces;
+using DdeiClient.Domain.Response;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Globalization;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Provides witness related services to a case.
@@ -65,8 +67,19 @@ public class WitnessService(
             this.logger.LogInformation("{LogPrefix} Getting witnesses for caseId {CaseId}", LoggingConstants.HskUiLogPrefix, caseIdString);
 
             var request = new GetCaseWitnessesRequest(caseId, Guid.NewGuid());
-            WitnessesResponse? witnesses = await this.apiClient.GetCaseWitnessesAsync(request, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+            IEnumerable<BaseCaseWitnessResponse> apiResponse = await this.apiClient.GetCaseWitnessesAsync(request, cmsAuthValues, cancellationToken).ConfigureAwait(false); // ghana, map full response to WitnessesResponse model
 
+            WitnessesResponse? witnesses = new ()
+            {
+                Witnesses = apiResponse
+                    .Cast<MdsCaseWitnessResponse>()
+                    .Select(witness => new Witness(
+                        caseId,
+                        witness.Id,
+                        witness.FirstName,
+                        witness.Surname))
+                    .ToList(),
+            };
             return witnesses;
         }
         catch (Exception ex)
