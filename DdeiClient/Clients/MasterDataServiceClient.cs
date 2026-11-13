@@ -661,7 +661,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
         try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);
-            ApiClient.CreateDocumentNoteRequest documentNoteRequest = new ()
+            ApiClient.CreateDocumentNoteRequest documentNoteRequest = new()
             {
                 Text = arg.Text,
             };
@@ -679,7 +679,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
     {
         var stopwatch = Stopwatch.StartNew();
         const string OperationName = "ListDocumentNotes";
-        List<DocumentNoteDto> results = new ();
+        List<DocumentNoteDto> results = new();
         try
         {
             var client = this.mdsApiClientFactory.Create(cmsAuthValues.CmsAuthFullValue);

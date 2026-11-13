@@ -36,7 +36,6 @@ public class PdfRetrievalServiceTests
     private readonly Mock<IMdsArgFactory> mdsArgFactoryMock;
     private readonly Mock<IConvertModelToHtmlService> convertModelToHtmlServiceMock;
     private readonly Mock<IPdfGeneratorClient> pdfGeneratorClientMock;
-    private readonly Mock<IMdsClient> mdsClientMock;
     private readonly Mock<IMasterDataServiceClient> masterDataServiceClientMock;
     private readonly Mock<ICaseDetailsMapper> caseDetailsMapperMock;
     private readonly PdfRetrievalService pdfRetrievalService;
@@ -46,10 +45,9 @@ public class PdfRetrievalServiceTests
         this.mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         this.convertModelToHtmlServiceMock = new Mock<IConvertModelToHtmlService>();
         this.pdfGeneratorClientMock = new Mock<IPdfGeneratorClient>();
-        this.mdsClientMock = new Mock<IMdsClient>();
         this.masterDataServiceClientMock = new Mock<IMasterDataServiceClient>();
         this.caseDetailsMapperMock = new Mock<ICaseDetailsMapper>();
-        this.pdfRetrievalService = new PdfRetrievalService(this.mdsArgFactoryMock.Object, this.convertModelToHtmlServiceMock.Object, this.pdfGeneratorClientMock.Object, this.mdsClientMock.Object, this.masterDataServiceClientMock.Object, this.caseDetailsMapperMock.Object);
+        this.pdfRetrievalService = new PdfRetrievalService(this.mdsArgFactoryMock.Object, this.convertModelToHtmlServiceMock.Object, this.pdfGeneratorClientMock.Object, this.masterDataServiceClientMock.Object, this.caseDetailsMapperMock.Object);
     }
 
     [Fact]

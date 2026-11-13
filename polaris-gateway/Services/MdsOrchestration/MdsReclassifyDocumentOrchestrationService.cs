@@ -8,10 +8,8 @@ using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response;
 using Common.Dto.Response.Document;
-using Common.Dto.Response.HouseKeeping;
 using Common.Extensions;
 using Common.Mappers;
-using Cps.MasterDataService.Infrastructure.ApiClient;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Domain.Response.Document;
 using Ddei.Factories;
@@ -29,18 +27,15 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
     private const string DefenceStatementClassification = "DEFENCESTATEMENT";
     private const int DefenceStatementTypeId = -2;
 
-    private readonly IMdsClient mdsClient;
     private readonly IMasterDataServiceClient masterDataServiceClient;
     private readonly ICmsDocumentDtoMapper cmsDocumentDtoMapper;
 
     public MdsReclassifyDocumentOrchestrationService(
-            IMdsClient mdsClient,
             IMasterDataServiceClient masterDataServiceClient,
             ICmsDocumentDtoMapper cmsDocumentDtoMapper,
             IMdsArgFactory mdsArgFactory
         )
     {
-        this.mdsClient = mdsClient.ExceptionIfNull();
         this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
         this.cmsDocumentDtoMapper = cmsDocumentDtoMapper.ExceptionIfNull();
     }

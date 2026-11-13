@@ -26,7 +26,6 @@ public class PdfRetrievalService : IPdfRetrievalService
     private readonly IMdsArgFactory mdsArgFactory;
     private readonly IConvertModelToHtmlService convertModelToHtmlService;
     private readonly IPdfGeneratorClient pdfGeneratorClient;
-    private readonly IMdsClient mdsClient;
     private readonly IMasterDataServiceClient masterDataServiceClient;
     private readonly ICaseDetailsMapper caseDetailsMapper;
 
@@ -34,14 +33,12 @@ public class PdfRetrievalService : IPdfRetrievalService
         IMdsArgFactory mdsArgFactory,
         IConvertModelToHtmlService convertModelToHtmlService,
         IPdfGeneratorClient pdfGeneratorClient,
-        IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient,
         ICaseDetailsMapper caseDetailsMapper)
     {
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         this.convertModelToHtmlService = convertModelToHtmlService.ExceptionIfNull();
         this.pdfGeneratorClient = pdfGeneratorClient.ExceptionIfNull();
-        this.mdsClient = mdsClient.ExceptionIfNull();
         this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
         this.caseDetailsMapper = caseDetailsMapper.ExceptionIfNull();
     }

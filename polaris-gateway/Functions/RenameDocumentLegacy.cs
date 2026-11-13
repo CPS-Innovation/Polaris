@@ -43,7 +43,7 @@ public class RenameDocumentLegacy : BaseFunction
 
     public RenameDocumentLegacy(
         ILogger<RenameDocumentLegacy> logger,
-        IMdsClient mdsClient, 
+        IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient,
         ICmsDocumentDtoMapper cmsDocumentDtoMapper)
     {

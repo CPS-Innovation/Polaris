@@ -23,13 +23,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class MdsCaseOrchestrationService(IMdsClient mdsClient,
-                            IMasterDataServiceClient masterDataServiceClient,
-                            IMdsArgFactory mdsArgFactory,
-                            ICaseDetailsMapper caseDetailsMapper)
-                            : IMdsCaseOrchestrationService
+public class MdsCaseOrchestrationService(
+    IMasterDataServiceClient masterDataServiceClient,
+    IMdsArgFactory mdsArgFactory,
+    ICaseDetailsMapper caseDetailsMapper)
+    : IMdsCaseOrchestrationService
 {
-    private readonly IMdsClient mdsClient = mdsClient;
     private readonly IMasterDataServiceClient masterDataServiceClient = masterDataServiceClient;
     private readonly IMdsArgFactory mdsArgFactory = mdsArgFactory;
     private readonly ICaseDetailsMapper caseDetailsMapper = caseDetailsMapper;

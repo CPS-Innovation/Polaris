@@ -123,7 +123,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return mdsResults.Select(mdsResult => this.caseDocumentMapper.Map(mdsResult));
     }
 
-    // calls cases/{caseId}/documents/{materialId}/versions/{documentId}
     public async Task<FileResult> GetDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg, CancellationToken cancellationToken = default)
     {
         var response = await this.CallHttpClientAsync(this.mdsClientRequestFactory.CreateGetDocumentRequest(arg), arg.CmsAuthValues, cancellationToken);
@@ -151,7 +150,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         await this.CallHttpClientAsync(this.mdsClientRequestFactory.CreateCancelCheckoutDocumentRequest(arg), arg.CmsAuthValues, cancellationToken);
     }
 
-    // calls cases/{caseId}/documents/{materialId}/versions/{documentId} PUT
     public async Task<HttpResponseMessage> UploadPdfAsync(MdsMaterialIdAndDocumentIdArgDto arg, Stream stream, CancellationToken cancellationToken = default)
     {
         return await this.CallHttpClientAsync(
@@ -164,7 +162,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
             ]);
     }
 
-    // calls documents/{documentId}/notes
     public async Task<IEnumerable<DocumentNoteDto>> GetDocumentNotesAsync(MdsDocumentArgDto arg, CancellationToken cancellationToken = default)
     {
         var mdsResults = await this.CallHttpClientAsync<List<DocumentNoteResponse>>(this.mdsClientRequestFactory.CreateGetDocumentNotesRequest(arg), arg.CmsAuthValues, cancellationToken);
@@ -172,7 +169,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return mdsResults.Select(mdsResult => this.caseDocumentNoteMapper.Map(mdsResult)).ToArray();
     }
 
-    // calls cases/{caseId}/documents/{documentId}/notes
     public async Task<DocumentNoteResult> AddDocumentNoteAsync(MdsAddDocumentNoteArgDto arg, CancellationToken cancellationToken = default)
     {
         var response = await this.CallHttpClientAsync<MdsDocumentNoteAddedResponse>(this.mdsClientRequestFactory.CreateAddDocumentNoteRequest(arg), arg.CmsAuthValues, cancellationToken);
@@ -180,7 +176,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return this.caseDocumentNoteResultMapper.Map(response);
     }
 
-    // calls material/{materialId}/rename
     public async Task<DocumentRenamedResultDto> RenameDocumentAsync(MdsRenameDocumentArgDto arg, CancellationToken cancellationToken = default)
     {
         var response = await this.CallHttpClientAsync<RenameMaterialResponse>(this.mdsClientRequestFactory.CreateRenameDocumentRequest(arg), arg.CmsAuthValues, cancellationToken);
@@ -196,13 +191,11 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return new DocumentRenamedResultDto { Id = response.UpdateCommunicationDescription.Id };
     }
 
-    // calls communication/reclassify
     public async Task<MdsCommunicationReclassifiedResponse> ReclassifyCommunicationAsync(MdsReclassifyCommunicationArgDto arg, CancellationToken cancellationToken = default)
     {
         return await this.CallHttpClientAsync<MdsCommunicationReclassifiedResponse>(this.mdsClientRequestFactory.CreateReclassifyCommunicationRequest(arg), arg.CmsAuthValues, cancellationToken);
     }
 
-    // calls cases/{caseId}/producers
     public async Task<IEnumerable<ExhibitProducerDto>> GetExhibitProducersAsync(MdsCaseIdentifiersArgDto arg, CancellationToken cancellationToken = default)
     {
         var mdsResults = await this.CallHttpClientAsync<MdsDocumentExhibitProducerResponse>(this.mdsClientRequestFactory.CreateGetExhibitProducersRequest(arg), arg.CmsAuthValues, cancellationToken);
@@ -210,7 +203,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return mdsResults.ExhibitProducers.Select(this.caseExhibitProducerMapper.Map);
     }
 
-    // calls cases/{caseId}/witnesses
     public async Task<IEnumerable<BaseCaseWitnessResponse>> GetWitnessesAsync(MdsCaseIdentifiersArgDto arg, CancellationToken cancellationToken = default)
     {
         var mdsResults = await this.CallHttpClientAsync<List<MdsCaseWitnessResponse>>(this.mdsClientRequestFactory.CreateCaseWitnessesRequest(arg), arg.CmsAuthValues, cancellationToken);
@@ -218,7 +210,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return mdsResults;
     }
 
-    // calls reference/reclassification
     public async Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(CmsBaseArgDto arg, CancellationToken cancellationToken = default)
     {
         var mdsResults = await this.CallHttpClientAsync<List<MdsMaterialTypeListResponse>>(this.mdsClientRequestFactory.CreateGetMaterialTypeListRequest(arg), arg.CmsAuthValues, cancellationToken);
@@ -226,7 +217,6 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return mdsResults.Select(mdsResult => this.cmsMaterialTypeMapper.Map(mdsResult)).ToArray();
     }
 
-    // calls witnesses/{witnessId}/statements
     public async Task<IEnumerable<WitnessStatementDto>> GetWitnessStatementsAsync(MdsWitnessStatementsArgDto arg, CancellationToken cancellationToken = default)
     {
         var mdsResults = await this.CallHttpClientAsync<StatementsForWitnessResponse>(this.mdsClientRequestFactory.CreateGetWitnessStatementsRequest(arg), arg.CmsAuthValues, cancellationToken);
@@ -234,12 +224,10 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return mdsResults.StatementsForWitness.Select(this.caseWitnessStatementMapper.Map).ToArray();
     }
 
-    // calls cases/{caseId}/documents/{documentId}/toggle/{isUnused}
     public async Task<bool> ToggleIsUnusedDocumentAsync(MdsToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto, CancellationToken cancellationToken = default) =>
         (await this.CallHttpClientAsync(this.mdsClientRequestFactory.CreateToggleIsUnusedDocumentRequest(toggleIsUnusedDocumentDto), toggleIsUnusedDocumentDto.CmsAuthValues, cancellationToken))
         .IsSuccessStatusCode;
 
-    // calls urns/{urn}/case-identifiers
     public async Task<IEnumerable<MdsCaseIdentifiersDto>> ListCaseIdsAsync(MdsUrnArgDto arg, CancellationToken cancellationToken = default) =>
         await this.CallHttpClientAsync<IEnumerable<MdsCaseIdentifiersDto>>(this.mdsClientRequestFactory.CreateListCasesRequest(arg), arg.CmsAuthValues, cancellationToken);
 

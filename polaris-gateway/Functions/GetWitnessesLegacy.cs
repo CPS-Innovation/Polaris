@@ -29,16 +29,14 @@ public class GetWitnessesLegacy : BaseFunction
 {
     private readonly IMdsArgFactory mdsArgFactory;
     private readonly IMasterDataServiceClient masterDataServiceClient;
-    private readonly ICaseWitnessMapper caseWitnessMapper;
+
     public GetWitnessesLegacy(
         IMdsArgFactory mdsArgFactory,
-        IMasterDataServiceClient masterDataServiceClient,
-        ICaseWitnessMapper caseWitnessMapper)
+        IMasterDataServiceClient masterDataServiceClient)
         : base()
     {
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
         this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
-        this.caseWitnessMapper = caseWitnessMapper.ExceptionIfNull();
     }
 
     [Function(nameof(GetWitnessesLegacy))]
