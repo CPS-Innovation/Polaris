@@ -43,7 +43,7 @@ public class GetWitnessStatementsLegacy : BaseFunction
     [OpenApiParameter(name: "caseUrn", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Case URN", Description = "The URN identifier of the case")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to add a new action plan.", Required = true)]
     [OpenApiParameter("witnessId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to add a new action plan.", Required = true)]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(WitnessStatementResponseDto), Summary = "Case found", Description = "Returns case details")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(IEnumerable<Cps.MasterDataService.Infrastructure.ApiClient.WitnessStatementDto>), Summary = "Case found", Description = "Returns case details")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.WitnessStatementsLegacy)] HttpRequest req, string caseUrn, int caseId, int witnessId, CancellationToken cancellationToken = default)
