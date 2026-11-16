@@ -1,12 +1,5 @@
-﻿// <copyright file="ToggleIsUnusedDocumentLegacy.cs" company="TheCrownProsecutionService">
-// Copyright (c) The Crown Prosecution Service. All rights reserved.
-// </copyright>
-
-namespace PolarisGateway.Functions;
-
-using Common.Configuration;
+﻿using Common.Configuration;
 using Common.Domain.Document;
-using Common.Dto.Request;
 using Common.Extensions;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Domain.Args;
@@ -21,14 +14,18 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
+namespace PolarisGateway.Functions;
+
 public class ToggleIsUnusedDocumentLegacy : BaseFunction
 {
-    private readonly IMasterDataServiceClient masterDataServiceClient;
-
+    private readonly ILogger<ToggleIsUnusedDocumentLegacy> _logger;
+    private readonly IMdsClient _mdsClient;
     public ToggleIsUnusedDocumentLegacy(
-        IMasterDataServiceClient masterDataServiceClient)
+        ILogger<ToggleIsUnusedDocumentLegacy> logger,
+        IMdsClient mdsClient)
     {
-        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        _logger = logger.ExceptionIfNull();
+        _mdsClient = mdsClient.ExceptionIfNull();
     }
 
     [Function(nameof(ToggleIsUnusedDocumentLegacy))]
@@ -63,12 +60,6 @@ public class ToggleIsUnusedDocumentLegacy : BaseFunction
         };
 
         cancellationToken.ThrowIfCancellationRequested();
-
-        await this.masterDataServiceClient.ToggleIsUnusedDocumentAsync(
-            toggleIsUnusedDocumentDto,
-            new CmsAuthValues(cmsAuthValues, correlationId),
-            cancellationToken);
-
-        return new OkResult();
+        return await _mdsClient.ToggleIsUnusedDocumentAsync(toggleIsUnusedDocumentDto, cancellationToken) ? new OkResult() : new BadRequestResult();
     }
 }

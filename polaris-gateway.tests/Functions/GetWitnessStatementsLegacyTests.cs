@@ -1,12 +1,4 @@
-﻿// <copyright file="GetWitnessStatementsLegacyTests.cs" company="TheCrownProsecutionService">
-// Copyright (c) The Crown Prosecution Service. All rights reserved.
-// </copyright>
-
-namespace PolarisGateway.Tests.Functions;
-
-using Common.Dto.Request;
-using Common.Dto.Request.HouseKeeping;
-using Common.Dto.Response;
+﻿using Common.Dto.Response;
 using Common.Dto.Response.HouseKeeping;
 using Cps.MasterDataService.Infrastructure.ApiClient;
 using Ddei.Domain.CaseData.Args;
@@ -20,9 +12,10 @@ using PolarisGateway.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+
+namespace PolarisGateway.Tests.Functions;
 
 public class GetWitnessStatementsLegacyTests
 {
@@ -72,7 +65,8 @@ public class GetWitnessStatementsLegacyTests
         var caseUrn = "caseUrn";
         var caseId = 1;
         var witnessId = 2;
-        var witnessStatementsArgDto = new MdsWitnessStatementsArgDto
+        var witnessStatementsArgDto = new MdsWitnessStatementsArgDto();
+        var witnessStatementDtos = new List<WitnessStatementDto>
         {
             WitnessId = witnessId,
         };
