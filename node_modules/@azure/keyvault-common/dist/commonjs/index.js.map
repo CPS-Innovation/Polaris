@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/index.ts"],
-  "sourcesContent": ["// Copyright (c) Microsoft Corporation.\n// Licensed under the MIT License.\n\nexport * from \"./keyVaultAuthenticationPolicy.js\";\nexport * from \"./parseKeyVaultIdentifier.js\";\nexport type * from \"./extendedClientOptions.js\";\nexport type { AdditionalPolicyConfig } from \"@azure-rest/core-client\";\n"],
-  "mappings": ";;;;;;;;;;;;;;AAAA;AAAA;AAGA,wBAAc,8CAHd;AAIA,wBAAc,yCAJd;",
-  "names": []
-}
