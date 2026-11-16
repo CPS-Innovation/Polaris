@@ -1,5 +1,6 @@
 ﻿using Common.Dto.Response;
-using Common.Dto.Response;
+using Common.Dto.Response.HouseKeeping;
+using Cps.MasterDataService.Infrastructure.ApiClient;
 using Ddei.Domain.CaseData.Args;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
@@ -18,41 +19,48 @@ namespace PolarisGateway.Tests.Functions;
 
 public class GetWitnessStatementsLegacyTests
 {
-    private readonly Mock<ILogger<GetWitnessStatementsLegacy>> _loggerMock;
-    private readonly Mock<IMdsArgFactory> _mdsArgFactoryMock;
-    private readonly Mock<IMdsClient> _mdsClientMock;
-    private readonly GetWitnessStatementsLegacy _getWitnessStatements;
+    private readonly Mock<IMdsArgFactory> mdsArgFactoryMock;
+    private readonly Mock<IMasterDataServiceClient> masterDataServiceClientMock;
+    private readonly GetWitnessStatementsLegacy getWitnessStatements;
+
     public GetWitnessStatementsLegacyTests()
     {
-        _loggerMock = new Mock<ILogger<GetWitnessStatementsLegacy>>();
-        _mdsArgFactoryMock = new Mock<IMdsArgFactory>();
-        _mdsClientMock = new Mock<IMdsClient>();
-        _getWitnessStatements = new GetWitnessStatementsLegacy(_loggerMock.Object, _mdsArgFactoryMock.Object, _mdsClientMock.Object);
+        this.mdsArgFactoryMock = new Mock<IMdsArgFactory>();
+        this.masterDataServiceClientMock = new Mock<IMasterDataServiceClient>();
+        this.getWitnessStatements = new GetWitnessStatementsLegacy(this.mdsArgFactoryMock.Object, this.masterDataServiceClientMock.Object);
     }
 
     [Fact]
     public async Task Run_ShouldReturnOkObjectResult()
     {
-        //arrange
+        // arrange
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
         var witnessId = 2;
-        var witnessStatementsArgDto = new MdsWitnessStatementsArgDto();
-        var witnessStatementDtos = new List<WitnessStatementDto>();
-        _mdsArgFactoryMock.Setup(s => s.CreateWitnessStatementsArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, witnessId)).Returns(witnessStatementsArgDto);
-        _mdsClientMock.Setup(s => s.GetWitnessStatementsAsync(witnessStatementsArgDto)).ReturnsAsync(witnessStatementDtos);
-        //act
-        var result = await _getWitnessStatements.Run(req, caseUrn, caseId, witnessId);
+        var witnessStatementsArgDto = new MdsWitnessStatementsArgDto
+        {
+            WitnessId = witnessId,
+        };
+        var witnessStatementsResponse = new Cps.MasterDataService.Infrastructure.ApiClient.WitnessStatementResponseDto();
+        this.mdsArgFactoryMock.Setup(s => s.CreateWitnessStatementsArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, witnessId)).Returns(witnessStatementsArgDto);
+        this.masterDataServiceClientMock
+        .Setup(s => s.GetWitnessStatementsAsync(
+            It.IsAny<GetWitnessStatementsRequest>(),
+            It.IsAny<CmsAuthValues>(),
+            It.IsAny<CancellationToken>()))
+        .ReturnsAsync(witnessStatementsResponse);
+        // act
+        var result = await this.getWitnessStatements.Run(req, caseUrn, caseId, witnessId);
 
-        //assert
+        // assert
         Assert.IsType<OkObjectResult>(result);
     }
 
     [Fact]
     public async Task Run_ShouldReturnWitnessStatementsWithParentIdMatchingDocumentId()
     {
-        //arrange
+        // arrange
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
@@ -60,25 +68,61 @@ public class GetWitnessStatementsLegacyTests
         var witnessStatementsArgDto = new MdsWitnessStatementsArgDto();
         var witnessStatementDtos = new List<WitnessStatementDto>
         {
-            new WitnessStatementDto { DocumentId = 100, StatementNumber = 1 },
-            new WitnessStatementDto { DocumentId = 200, StatementNumber = 2 },
-            new WitnessStatementDto { DocumentId = null, StatementNumber = 3 }
+            WitnessId = witnessId,
         };
-        _mdsArgFactoryMock.Setup(s => s.CreateWitnessStatementsArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, witnessId)).Returns(witnessStatementsArgDto);
-        _mdsClientMock.Setup(s => s.GetWitnessStatementsAsync(witnessStatementsArgDto)).ReturnsAsync(witnessStatementDtos);
 
-        //act
-        var result = await _getWitnessStatements.Run(req, caseUrn, caseId, witnessId);
+        var witnessStatementsResponse = new Cps.MasterDataService.Infrastructure.ApiClient.WitnessStatementResponseDto()
+        {
+            StatementsForWitness =
+            [
+                new Cps.MasterDataService.Infrastructure.ApiClient.WitnessStatementDto
+                {
+                    Id = 100,
+                },
+                new Cps.MasterDataService.Infrastructure.ApiClient.WitnessStatementDto
+                {
+                    Id = 200,
+                },
+                new Cps.MasterDataService.Infrastructure.ApiClient.WitnessStatementDto
+                {
+                    Id = 0,
+                },
+            ],
+        };
 
-        //assert
+        this.mdsArgFactoryMock.Setup(s => s.CreateWitnessStatementsArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, witnessId)).Returns(witnessStatementsArgDto);
+        this.masterDataServiceClientMock
+        .Setup(s => s.GetWitnessStatementsAsync(
+            It.IsAny<GetWitnessStatementsRequest>(),
+            It.IsAny<CmsAuthValues>(),
+            It.IsAny<CancellationToken>()))
+        .ReturnsAsync(witnessStatementsResponse);
+
+        // act
+        var result = await this.getWitnessStatements.Run(req, caseUrn, caseId, witnessId);
+
+        // assert
+        // assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var statements = Assert.IsAssignableFrom<List<WitnessStatementDto>>(okResult.Value);
-        Assert.Equal(3, statements.Count);
-        Assert.Equal(100, statements[0].ParentId);
-        Assert.Equal(100, statements[0].DocumentId);
-        Assert.Equal(200, statements[1].ParentId);
-        Assert.Equal(200, statements[1].DocumentId);
-        Assert.Null(statements[2].ParentId);
-        Assert.Null(statements[2].DocumentId);
+
+        var response = Assert.IsType<WitnessStatementResponseDto>(
+            okResult.Value);
+
+        Assert.Equal(3, response.StatementsForWitness.Count);
+
+        Assert.Collection(
+            response.StatementsForWitness,
+            statement =>
+            {
+                Assert.Equal(100, statement.Id);
+            },
+            statement =>
+            {
+                Assert.Equal(200, statement.Id);
+            },
+            statement =>
+            {
+                Assert.Equal(0, statement.Id);
+            });
     }
 }

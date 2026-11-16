@@ -64,8 +64,6 @@ function discoverFixtureRoutes() {
     for (const r of entries) {
       routes.push({
         re: new RegExp(r.re, "i"),
-        // Only this HTTP method, optional (e.g. a login POST, whose GET keeps the echo default).
-        method: r.method,
         type: r.type,
         file: r.file,
         // Extra response headers (e.g. a CMS login's Set-Cookie array), optional.
@@ -92,7 +90,7 @@ function handler(req, res) {
   }
 
   for (const route of fixtureRoutes) {
-    if (route.re.test(url) && (!route.method || route.method === req.method)) {
+    if (route.re.test(url)) {
       const file = route.path
       if (fs.existsSync(file)) {
         res.writeHead(200, {

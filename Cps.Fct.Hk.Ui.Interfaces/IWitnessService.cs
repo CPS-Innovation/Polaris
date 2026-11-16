@@ -4,9 +4,10 @@
 
 namespace Cps.Fct.Hk.Ui.Interfaces;
 
-using System.Threading.Tasks;
 using Common.Dto.Request;
 using Common.Dto.Response.HouseKeeping;
+using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Interfaces for witness related sevices.
@@ -29,7 +30,16 @@ public interface IWitnessService
     /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve statements for a witness.</param>
     /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task<WitnessStatementsResponse> GetWitnessStatementsAsync(int witnessId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+    Task<ApiClient.WitnessStatementResponseDto> GetWitnessStatementsAsync(int witnessId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Service that retrieves statements for a witness.
+    /// </summary>
+    /// <param name="witnessId">Unique witness identifier to retrieve statements for.</param>
+    /// <param name="cmsAuthValues">The authentication values used to authorize the request to retrieve statements for a witness.</param>
+    /// <param name="cancellationToken">The cancellation token used to cancel the operation.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    Task<WitnessStatementsResponse> GetWitnessStatementsLegacyAsync(int witnessId, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Service that adds a case witness.

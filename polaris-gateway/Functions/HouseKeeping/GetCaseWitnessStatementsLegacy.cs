@@ -4,15 +4,11 @@
 
 namespace PolarisGateway.Functions.HouseKeeping;
 
-using System;
-using System.Diagnostics;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using Common.Configuration;
 using Common.Constants;
 using Common.Dto.Response.HouseKeeping;
 using Cps.Fct.Hk.Ui.Interfaces;
+using Cps.MasterDataService.Infrastructure.ApiClient;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -22,6 +18,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using PolarisGateway.Functions;
 using PolarisGateway.Helpers;
+using System;
+using System.Diagnostics;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 /// <summary>
 /// A function that retrieves statements for a witness.
@@ -66,7 +67,7 @@ public class GetCaseWitnessStatementsLegacy(
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            WitnessStatementsResponse? result = await this.witnessService.GetWitnessStatementsAsync(witnessId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+            WitnessStatementsResponse? result = await this.witnessService.GetWitnessStatementsLegacyAsync(witnessId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
 
             this.logger.LogInformation($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] witnessId [{witnessId}] {nameof(GetCaseWitnessStatementsLegacy)} function completed in [{stopwatch.Elapsed}]");
 

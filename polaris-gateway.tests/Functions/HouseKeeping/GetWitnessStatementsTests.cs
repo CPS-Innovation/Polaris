@@ -78,12 +78,12 @@ public class GetCaseWitnessStatementsTests
         // Arrange
         var mockRequest = SetUpMockRequest();
 
-        var expectedResponse = new WitnessStatementsResponse();
+        var expectedResponse = new Cps.MasterDataService.Infrastructure.ApiClient.WitnessStatementResponseDto();
 
         // Mock the witness service to return the expected response
         this.mockWitnessService
             .Setup(svc => svc.GetWitnessStatementsAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
-            .ReturnsAsync(expectedResponse);
+            .Returns(Task.FromResult(expectedResponse));
 
         // Act
         IActionResult result = await this.sutGetCaseWitnessStatements.Run(mockRequest.Object, 321, 121);
@@ -91,7 +91,7 @@ public class GetCaseWitnessStatementsTests
         // Assert
         OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
         Assert.NotNull(okResult.Value);
-        Assert.IsType<WitnessStatementsResponse>(okResult.Value);
+        Assert.IsType<Cps.MasterDataService.Infrastructure.ApiClient.WitnessStatementResponseDto>(okResult.Value);
 
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Information &&
@@ -136,7 +136,6 @@ public class GetCaseWitnessStatementsTests
         Assert.Contains(this.mockLogger.Logs, log =>
               log.LogLevel == LogLevel.Error &&
               log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseWitnessStatements function encountered an invalid operation error: Invalid operation error"));
-
     }
 
     /// <summary>
@@ -184,8 +183,8 @@ public class GetCaseWitnessStatementsTests
 
         // Set up a DefaultHttpContext to support setting headers
         var context = new DefaultHttpContext();
+        context.Request.Headers.Append("corelation", "1232131231");
         mockRequest.Setup(r => r.HttpContext).Returns(context);
-        mockRequest.Setup(r => r.Headers.Add("corelation", "1232131231"));
 
         return mockRequest;
     }
