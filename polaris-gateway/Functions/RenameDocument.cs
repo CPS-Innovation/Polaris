@@ -32,6 +32,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
+// TOBEREMOVED: use RenameMaterial (PATCH /cases/{caseId}/materials/{materialId}/rename) instead.
 public class RenameDocument : BaseFunction
 {
     private const string ExhibitClassification = "EXHIBIT";

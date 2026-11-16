@@ -12,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cps.Fct.Hk.Ui.Interfaces;
 using System.Diagnostics;
-using Newtonsoft.Json;
 using Cps.Fct.Hk.Ui.Services.Validators;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.OpenApi.Models;
@@ -24,6 +23,16 @@ using Common.Constants;
 using System.IO;
 using System;
 using Common.Configuration;
+using Common.Domain.Document;
+using Common.Dto.Request;
+using Common.Extensions;
+using Common.Mappers;
+using Ddei.Domain.CaseData.Args;
+using Ddei.Domain.CaseData.Args.Core;
+using DdeiClient.Clients.Interfaces;
+using DdeiClient.Services.CaseUrnResolver;
+using PolarisGateway.Helpers;
+using System.Linq;
 
 /// <summary>
 /// Represents a function that renames the material name/subject,
@@ -38,11 +47,19 @@ using Common.Configuration;
 public class RenameMaterial(
     ILogger<RenameMaterial> logger,
     ICommunicationService communicationService,
-    RenameMaterialRequestValidator renameMaterialRequestValidator) : BaseFunction(logger)
+    RenameMaterialRequestValidator renameMaterialRequestValidator,
+    IMdsClient? mdsClient = null,
+    IMasterDataServiceClient? masterDataServiceClient = null,
+    ICmsDocumentDtoMapper? cmsDocumentDtoMapper = null,
+    ICaseUrnResolver? caseUrnResolver = null) : BaseFunction(logger)
 {
     private readonly ILogger<RenameMaterial> logger = logger;
     private readonly ICommunicationService communicationService = communicationService;
     private readonly RenameMaterialRequestValidator renameMaterialRequestValidator = renameMaterialRequestValidator;
+    private readonly IMdsClient? mdsClient = mdsClient;
+    private readonly IMasterDataServiceClient? masterDataServiceClient = masterDataServiceClient;
+    private readonly ICmsDocumentDtoMapper? cmsDocumentDtoMapper = cmsDocumentDtoMapper;
+    private readonly ICaseUrnResolver? caseUrnResolver = caseUrnResolver;
 
     /// <summary>
     /// The Azure Function that processes an HTTP request for the 'material/rename' route.
@@ -75,22 +92,43 @@ public class RenameMaterial(
             // Build CMS auth values from cookie extracted from the request
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
-            string requestBody = await new StreamReader(request.Body).ReadToEndAsync().ConfigureAwait(false);
-
-            var renameMaterialRequest = JsonConvert.DeserializeObject<RenameMaterialRequest>(requestBody);
-
-            if (string.IsNullOrWhiteSpace(renameMaterialRequest?.subject))
+            request.Headers.ContentType = "application/json";
+            RenameMaterialRequest? renameMaterialRequest;
+            try
             {
-                return new BadRequestObjectResult(nameof(renameMaterialRequest.subject));
+                renameMaterialRequest = await request.ReadFromJsonAsync<RenameMaterialRequest>(cancellationToken).ConfigureAwait(false);
+            }
+            catch (System.Text.Json.JsonException ex)
+            {
+                this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} RenameMaterial function received invalid JSON.");
+                return new BadRequestObjectResult("Invalid JSON request body.");
             }
 
-            FluentValidation.Results.ValidationResult validationResult = this.renameMaterialRequestValidator.Validate(renameMaterialRequest);
+            if (renameMaterialRequest is null)
+            {
+                return new BadRequestObjectResult("A rename material request is required.");
+            }
+
+            FluentValidation.Results.ValidationResult validationResult = await this.renameMaterialRequestValidator.ValidateAsync(renameMaterialRequest, cancellationToken).ConfigureAwait(false);
             if (!validationResult.IsValid)
             {
                 return new BadRequestObjectResult(validationResult.Errors.ToArray());
             }
 
-            RenameMaterialResponse result = await this.communicationService.RenameMaterialAsync(caseId, renameMaterialRequest.materialId, renameMaterialRequest.subject, cmsAuthValues).ConfigureAwait(true);
+            RenameMaterialResponse result;
+            if (this.mdsClient is not null && this.masterDataServiceClient is not null && this.cmsDocumentDtoMapper is not null && this.caseUrnResolver is not null)
+            {
+                result = await this.RenameDocumentMaterialAsync(caseId, materialId, renameMaterialRequest, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                result = await this.communicationService.RenameMaterialAsync(caseId, renameMaterialRequest.materialId, renameMaterialRequest.subject, cmsAuthValues, renameMaterialRequest.id, cancellationToken).ConfigureAwait(false);
+            }
+
+            if (result is null)
+            {
+                return new NotFoundObjectResult("Document not found");
+            }
 
             if (result?.RenameMaterialData?.Id == null)
             {
@@ -119,5 +157,58 @@ public class RenameMaterial(
             this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} RenameMaterial function encountered an error: {ex.Message}");
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
+    }
+
+    private async Task<RenameMaterialResponse> RenameDocumentMaterialAsync(
+        int caseId,
+        int materialId,
+        RenameMaterialRequest renameMaterialRequest,
+        CmsAuthValues cmsAuthValues,
+        CancellationToken cancellationToken)
+    {
+        string caseUrn = await this.caseUrnResolver!.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);
+        var caseIdentifiers = new MdsCaseIdentifiersArgDto
+        {
+            CmsAuthValues = cmsAuthValues.CmsAuthFullValue,
+            CorrelationId = renameMaterialRequest.id,
+            Urn = caseUrn,
+            CaseId = caseId,
+        };
+
+        var documentsResponse = await this.masterDataServiceClient!.ListDocumentsAsync(
+            caseIdentifiers,
+            new CmsAuthValues(cmsAuthValues.CmsAuthFullValue, renameMaterialRequest.id),
+            cancellationToken).ConfigureAwait(false);
+        var documentId = DocumentNature.ToNumericDocumentId(materialId.ToString(), DocumentNature.Types.Document);
+        var document = documentsResponse
+            .Select(x => this.cmsDocumentDtoMapper!.Map(x, null))
+            .SingleOrDefault(x => x.DocumentId == documentId);
+
+        if (document is null)
+        {
+            return null;
+        }
+
+        var renameArguments = new MdsRenameDocumentArgDto
+        {
+            CmsAuthValues = cmsAuthValues.CmsAuthFullValue,
+            CorrelationId = renameMaterialRequest.id,
+            Urn = caseUrn,
+            CaseId = caseId,
+            MaterialId = documentId,
+            DocumentName = renameMaterialRequest.subject,
+        };
+
+        int renamedMaterialId = (int)documentId;
+        if (string.Equals(document.Classification, "EXHIBIT", StringComparison.InvariantCultureIgnoreCase))
+        {
+            renamedMaterialId = (await this.mdsClient!.RenameExhibitAsync(renameArguments, cancellationToken).ConfigureAwait(false))?.Id ?? 0;
+        }
+        else if (!string.Equals(document.Classification, "STATEMENT", StringComparison.InvariantCultureIgnoreCase))
+        {
+            renamedMaterialId = (await this.mdsClient!.RenameDocumentAsync(renameArguments, cancellationToken).ConfigureAwait(false))?.Id ?? 0;
+        }
+
+        return new RenameMaterialResponse(new RenameMaterialData { Id = renamedMaterialId });
     }
 }

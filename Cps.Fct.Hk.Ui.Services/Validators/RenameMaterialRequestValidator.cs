@@ -24,6 +24,7 @@ public class RenameMaterialRequestValidator : AbstractValidator<RenameMaterialRe
 
         this.RuleFor(x => x.subject)
             .NotEmpty().WithMessage("{PropertyName} is required.")
+              .MaximumLength(255).WithMessage("{PropertyName} must not exceed 255 characters.")
               .Matches(RegexExpressions.RenameMaterialSubjectRegex)
               .WithMessage("{PropertyName} has invalid characters.");
     }
