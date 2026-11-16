@@ -4,47 +4,41 @@ Quirks owned by this feature. See [`../../QUIRKS.md`](../../QUIRKS.md) for the s
 key, the full index, the decisions log and the cross-cutting/terraform quirks.
 
 Live line numbers are the live `main-terraform/cmsenv.js` (the golden master); the
-code now lives in `cms-detection.js` in this folder.
+code now lives in `cmsenv.js` in this folder (`detect`).
 
 ---
 
 ## C. Fragile / surprising behaviour
 
-### C2. 🔴 CMS environment detection is a loose substring match over the whole `Cookie` header
+### C2. ✅ Fixed: CMS environment detection was a loose substring match over the whole `Cookie` header
 
-**Where (live):** `cmsenv.js:163-170` (`__getCmsEnvInternal`)
-**Where (next):** `cms-detection.js` (CMS-env detection)
-**Test:** `cms-detection.unit.test.js` → "QUIRK: any cookie containing 'cin2' selects cin2, even unrelated ones"
+**Where (live):** `cmsenv.js` (`__getCmsEnvInternal`)
+**Where (next):** `cmsenv.js` (`detect`)
+**Test:** `cmsenv.unit.test.js` → "unrelated cookies never choose, whatever they contain", `detectOutgoing`; `cms-proxy.integration.test.js`, `auth-handover.integration.test.js` (both configs)
 
-```js
-cookie = cookie.toLowerCase();
-if (cookie.includes("cin3")) return "default";
-if (cookie.includes("cin2")) return "cin2";
-...
-```
+It used to substring-search the entire header, so any cookie mentioning `cin3` chose
+CIN3. That bit in earnest once `Cms-Session-Hint` (30 days, its value names the CMS
+domain of its last handover) reached the IE-mode jar: `/cin5` could no longer leave
+CIN3, and each handover renewed the hint.
 
-It does not parse `__CMSENV` — it substring-searches the **entire** Cookie header.
-So _any_ cookie containing `cin2` anywhere selects cin2, including a BIG-IP cookie
-naming a domain, or an unrelated `somethingcin2something=1`.
+Now only `__CMSENV` or `DEVLOGIN` (when the value names an environment; DDEI's dev login
+sends `DEVLOGIN`, so it is a contract with that repo) and the load-balancer cookies,
+recognised by name (`[CF]-<ENV>-LBsessioncookie`, `BIGipServer*`), choose. The dev-login
+filter stamps `__CMSENV` from all the outgoing `Set-Cookie`s (`detectOutgoing`), as DDEI's
+first is usually not the load-balancer cookie and a wrong stamp now sticks. DDEI's full-cookie
+login sets only `Cms-Auth-Values`, so the CMS cookies are read from inside its value (the
+percent-encoded JSON's `cookies` field, any case); the old substring scan found them there by
+accident.
 
-**Suggested fix:** read the `__CMSENV` cookie value properly.
+### C3. Fixed check order: `cin3` beats `cin2` beats `cin4`/`cin5` (load-balancer cookies only)
 
-### C3. 🔴 Fixed check order means `cin3` beats `cin2` beats `cin4`/`cin5`
+**Where (live):** `cmsenv.js` (`__getCmsEnvInternal`)
+**Where (next):** `cmsenv.js` (`detect`)
+**Test:** `cmsenv.unit.test.js` → "several environments' LB cookies resolve in fixed order: cin3, cin2, cin4, cin5"
 
-**Where (live):** `cmsenv.js:165-168`
-**Where (next):** `cms-detection.js` (CMS-env detection)
-**Test:** `cms-detection.unit.test.js` → "QUIRK: cin3 wins over cin2 when both appear (fixed check order)", "QUIRK: cin2 wins over cin4/cin5 when several appear"
-
-The checks return on the first hit in the order cin3 → cin2 → cin4 → cin5. With
-C2, a header mentioning several environments resolves by that fixed order rather
-than by which cookie is authoritative:
-
-```
-Cookie: __CMSENV=cin2; other=cin3   ->  DEFAULT   (not cin2!)
-```
-
-Realistic when stale BIG-IP cookies from another environment linger — which is
-exactly what the `/cinN` switch blocks exist to clear.
+`__CMSENV` now wins outright (`__CMSENV=cin2; C-CIN3-LBsessioncookie=x` is cin2, and the
+`/cin3` switch's `__CMSENV=default` beats a stale cin5 LB cookie). The fixed order only
+remains between load-balancer cookies when there is no `__CMSENV` to go by.
 
 **Suggested fix:** same as C2 — parse the value instead of scanning the header.
 
@@ -55,7 +49,7 @@ exactly what the `/cinN` switch blocks exist to clear.
 ### D9. ⚪ "DEFAULT" means CIN3
 
 **Where (live):** `var.cms_details.default_*`, `cmsenv.js:165`
-**Where (next):** `cms-detection.js` (CMS-env detection)
+**Where (next):** `cmsenv.js` (`detect`)
 
 `if (cookie.includes("cin3")) return "default"`. The naming misleads every reader —
 worth renaming, or at least a prominent comment, during §6.

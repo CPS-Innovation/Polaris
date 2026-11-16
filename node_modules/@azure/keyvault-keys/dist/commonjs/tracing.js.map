@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/tracing.ts"],
+  "sourcesContent": ["// Copyright (c) Microsoft Corporation.\n// Licensed under the MIT License.\n\nimport { createTracingClient } from \"@azure/core-tracing\";\nimport { SDK_VERSION } from \"./constants.js\";\n\nexport const tracingClient = createTracingClient({\n  namespace: \"Microsoft.KeyVault\",\n  packageName: \"@azure/keyvault-keys\",\n  packageVersion: SDK_VERSION,\n});\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAGA,0BAAoC;AACpC,uBAA4B;AAErB,MAAM,oBAAgB,yCAAoB;AAAA,EAC/C,WAAW;AAAA,EACX,aAAa;AAAA,EACb,gBAAgB;AAClB,CAAC;",
+  "names": []
+}

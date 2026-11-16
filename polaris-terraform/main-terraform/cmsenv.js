@@ -155,20 +155,55 @@ function __getCmsEnv(r) {
     return __getCmsEnvInternal(cookie);
 }
 
+// All of them: DDEI's dev login puts the load-balancer cookie last when the login set no newer one.
+// Its full-cookie login sets only Cms-Auth-Values, the percent-encoded JSON of the CMS session:
+// the CMS cookies are read from its cookies field (any case) instead; nothing else in it counts.
+// Mirrors proxy/config/features/common/cmsenv.js (detectOutgoing).
 function __getCmsEnvCookieOut(r) {
-    let cookies = r.headersOut['Set-Cookie'] || [''];
-    return __getCmsEnvInternal(cookies[0]);
+    let text = (r.headersOut['Set-Cookie'] || []).map((c) => {
+        const pair = (c || '').split(';')[0];
+        const eq = pair.indexOf('=');
+        if (eq === -1 || pair.substring(0, eq).trim().toLowerCase() !== 'cms-auth-values') return pair;
+        try {
+            const dto = JSON.parse(decodeURIComponent(pair.substring(eq + 1).trim()));
+            const key = Object.keys(dto).find((k) => k.toLowerCase() === 'cookies');
+            return key && typeof dto[key] === 'string' ? dto[key] : '';
+        } catch (e) {
+            // Not percent-encoded JSON, or null: it names no environment, so it chooses nothing.
+            return '';
+        }
+    });
+    return __getCmsEnvInternal(text.join('; '));
 }
 
+// Only __CMSENV or DEVLOGIN (DDEI's dev login, calling /CMS), when the value names an environment
+// (the explicit choice, so it wins), and the load-balancer cookies' NAMES choose the environment.
+// Every other cookie is ignored, whatever it contains (Cms-Session-Hint's value names a CMS domain,
+// for one). __CMSENV=cpt is not a choice here (#2181): cpt is selected by its LB cookie alone.
+// Mirrors proxy/config/features/common/cmsenv.js (detect).
+const LB_COOKIE_NAME = /^(?:[cf]-[a-z0-9]+-lbsessioncookie|bigipserver.*)$/;
+
 function __getCmsEnvInternal(cookie) {
-    cookie = cookie.toLowerCase();
-    if (cookie.includes("cin3")) return "default";
-    if (cookie.includes("cin2")) return "cin2";
-    if (cookie.includes("cin4")) return "cin4";
-    if (cookie.includes("cin5")) return "cin5";
-    if (cookie.includes("-cpt-lb")) return "cpt";
-    // CMO has no dedicated upstream; in UAT the default upstream is cmo.cps.gov.uk, so CMO sessions use the default env.
-    if (cookie.includes("-cmo-lb")) return "default";
+    let marker = "";
+    const lbNames = [];
+    cookie.toLowerCase().split(";").forEach((pair) => {
+        const eq = pair.indexOf("=");
+        if (eq === -1) return;
+        const name = pair.substring(0, eq).trim();
+        if (name === "__cmsenv" || name === "devlogin") marker = marker || pair.substring(eq + 1).trim();
+        else if (LB_COOKIE_NAME.test(name)) lbNames.push(name);
+    });
+
+    if (marker === "cin3" || marker === "default") return "default";
+    if (marker === "cin2" || marker === "cin4" || marker === "cin5") return marker;
+
+    const lb = lbNames.join(" ");
+    if (lb.includes("cin3")) return "default";
+    if (lb.includes("cin2")) return "cin2";
+    if (lb.includes("cin4")) return "cin4";
+    if (lb.includes("cin5")) return "cin5";
+    if (lb.includes("-cpt-lb")) return "cpt";
+    // Anything else, including CMO: it has no dedicated upstream, and in UAT the default upstream is cmo.cps.gov.uk.
     return "default";
 }
 
