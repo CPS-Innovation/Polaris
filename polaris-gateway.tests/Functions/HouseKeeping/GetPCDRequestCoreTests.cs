@@ -65,6 +65,40 @@ public class GetPcdRequestCoreTests
           log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Milestone: caseId [{caseId}] GetPCDRequestCore function completed"));
     }
 
+    [Fact]
+    public async Task Run_MissingCmsAuthCookie_ReturnsUnauthorizedWithoutCallingService()
+    {
+        // Arrange
+        int caseId = 123;
+        HttpRequest httpRequest = CreateHttpRequest(cmsAuthValues: null);
+
+        // Act
+        IActionResult result = await this.getPCDRequestCore.Run(httpRequest, caseId);
+
+        // Assert
+        result.Should().BeOfType<UnauthorizedObjectResult>();
+        this.mockCommunicationService.Verify(
+            c => c.GetPcdRequestCore(caseId, It.IsAny<CmsAuthValues>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Run_BlankCmsAuthCookie_ReturnsUnauthorizedWithoutCallingService()
+    {
+        // Arrange
+        int caseId = 123;
+        HttpRequest httpRequest = CreateHttpRequest(cmsAuthValues: string.Empty);
+
+        // Act
+        IActionResult result = await this.getPCDRequestCore.Run(httpRequest, caseId);
+
+        // Assert
+        result.Should().BeOfType<UnauthorizedObjectResult>();
+        this.mockCommunicationService.Verify(
+            c => c.GetPcdRequestCore(caseId, It.IsAny<CmsAuthValues>()),
+            Times.Never);
+    }
+
     /// <summary>
     /// Tests that the <see cref="GetPcdRequestCore.GetPcdRequestCore(ILogger{GetPcdRequestCore}, ICommunicationService, ICookieService)"/> method returns an <see cref="OkObjectResult"/>.
     /// </summary>
@@ -186,12 +220,26 @@ public class GetPcdRequestCoreTests
                     log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetPCDRequestCore function encountered an error"));
     }
 
-    private static HttpRequest CreateHttpRequest(string body = "")
+    private static HttpRequest CreateHttpRequest(string body = "", string? cmsAuthValues = "test-cms-auth-values")
     {
         var context = new DefaultHttpContext();
         HttpRequest request = context.Request;
         request.Body = new MemoryStream(Encoding.UTF8.GetBytes(body));
-        request.Cookies = null;
+        var cookies = new Mock<IRequestCookieCollection>();
+        if (cmsAuthValues is null)
+        {
+            string missingCookie = null!;
+            cookies.Setup(c => c.TryGetValue(HttpHeaderKeys.CmsAuthValues, out missingCookie))
+                .Returns(false);
+        }
+        else
+        {
+            string cookieValue = cmsAuthValues;
+            cookies.Setup(c => c.TryGetValue(HttpHeaderKeys.CmsAuthValues, out cookieValue))
+                .Returns(true);
+        }
+
+        request.Cookies = cookies.Object;
         return request;
     }
 }
