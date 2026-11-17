@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,6 +58,14 @@ public class GetExhibitProducersLegacy : BaseFunction
             new Common.Dto.Request.CmsAuthValues(cmsAuthValues, correlationId),
             cancellationToken);
 
-        return new OkObjectResult(exhibitProducersResponse);
+        var exhibitProducers = exhibitProducersResponse.ExhibitProducers?
+            .Select(producer => new ExhibitProducerDto
+            {
+                Id = checked((int)producer.Id),
+                ExhibitProducer = producer.Name,
+            })
+            .ToList() ?? [];
+
+        return new OkObjectResult(exhibitProducers);
     }
 }

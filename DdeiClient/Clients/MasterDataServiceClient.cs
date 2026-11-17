@@ -928,7 +928,7 @@ public class MasterDataServiceClient(IMasterDataServiceApiClientFactory mdsApiCl
             if (data?.StatementsForWitness is not null)
             {
                 results.WitnessStatements = data.StatementsForWitness.Select(statement =>
-                    new WitnessStatement(statement.Id, statement.Title)).ToList();
+                    new WitnessStatement(statement.Id, statement.Title, statement.DocumentId)).ToList();
             }
 
             if (results.WitnessStatements?.Count > 0)

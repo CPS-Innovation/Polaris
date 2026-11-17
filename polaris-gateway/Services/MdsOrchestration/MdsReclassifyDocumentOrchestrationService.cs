@@ -123,7 +123,7 @@ public class MdsReclassifyDocumentOrchestrationService : IMdsReclassifyDocumentO
             classification: arg.DocumentTypeId == DefenceStatementTypeId ? DefenceStatementClassification : materialType.Classification,
             materialId: (int)arg.MaterialId,
             documentTypeId: arg.DocumentTypeId,
-            used: SetReclassifyDocumentUsed(materialType, arg) ?? false,
+            used: SetReclassifyDocumentUsed(materialType, arg),
             subject: document.PresentationTitle,
             statementRequest: statementRequest,
             exhibitRequest: exhibitRequest);

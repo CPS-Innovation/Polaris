@@ -5,8 +5,8 @@
 namespace PolarisGateway.Functions;
 
 using Common.Configuration;
-using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Request;
+using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response;
 using Common.Extensions;
 using Ddei.Factories;
@@ -19,6 +19,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,6 +58,16 @@ public class GetWitnessStatementsLegacy : BaseFunction
             new CmsAuthValues(cmsAuthValues, correlationId),
             cancellationToken);
 
-        return new OkObjectResult(witnessStatementsResponse);
+        var witnessStatements = witnessStatementsResponse.WitnessStatements?
+            .Select(statement => new WitnessStatementDto
+            {
+                DocumentId = statement.DocumentId.HasValue
+                    ? checked((int)statement.DocumentId.Value)
+                    : null,
+                StatementNumber = statement.StatementNumber,
+            })
+            .ToList() ?? [];
+
+        return new OkObjectResult(witnessStatements);
     }
 }

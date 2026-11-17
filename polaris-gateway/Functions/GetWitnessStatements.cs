@@ -8,6 +8,7 @@ using Common.Configuration;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response;
+using Common.Dto.Response.HouseKeeping;
 using Common.Extensions;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
@@ -46,7 +47,7 @@ public class GetWitnessStatements : BaseFunction
     [OpenApiSecurity("Correlation-Id", SecuritySchemeType.ApiKey, Name = "Correlation-Id", In = OpenApiSecurityLocationType.Header, Description = "Must be a valid GUID")]
     [OpenApiParameter("caseId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to add a new action plan.", Required = true)]
     [OpenApiParameter("witnessId", In = ParameterLocation.Path, Type = typeof(int), Description = "The Id of the case to add a new action plan.", Required = true)]
-    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(IEnumerable<WitnessStatementDto>), Summary = "Case found", Description = "Returns case details")]
+    [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(WitnessStatementsResponse), Summary = "Case found", Description = "Returns case details")]
     [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Invalid request", Description = "Missing or invalid parameters")]
 
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = RestApi.WitnessStatements)] HttpRequest req, int caseId, int witnessId, CancellationToken cancellationToken = default)
