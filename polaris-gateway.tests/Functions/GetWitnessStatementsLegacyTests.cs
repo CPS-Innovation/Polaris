@@ -66,11 +66,12 @@ public class GetWitnessStatementsLegacyTests
     [Fact]
     public async Task Run_ShouldReturnWitnessStatementsWithParentIdMatchingDocumentId()
     {
-        //arrange
+        // arrange
         var req = new DefaultHttpContext().Request;
         var caseUrn = "caseUrn";
         var caseId = 1;
         var witnessId = 2;
+
         var witnessStatementsArgDto = new MdsWitnessStatementsArgDto
         {
             WitnessId = witnessId,
@@ -80,34 +81,49 @@ public class GetWitnessStatementsLegacyTests
         {
             WitnessStatements =
             [
-                new WitnessStatement(100, 1),
-                new WitnessStatement(200, 2),
-                new WitnessStatement(0, 3),
+                new WitnessStatement(100, 1, 10),
+                new WitnessStatement(200, 2, 20),
+                new WitnessStatement(0, 3, null),
             ],
         };
 
-        _mdsArgFactoryMock.Setup(s => s.CreateWitnessStatementsArgDto(It.IsAny<string>(), It.IsAny<Guid>(), caseUrn, caseId, witnessId)).Returns(witnessStatementsArgDto);
+        _mdsArgFactoryMock
+            .Setup(s => s.CreateWitnessStatementsArgDto(
+                It.IsAny<string>(),
+                It.IsAny<Guid>(),
+                caseUrn,
+                caseId,
+                witnessId))
+            .Returns(witnessStatementsArgDto);
+
         _masterDataServiceClientMock
-        .Setup(s => s.GetWitnessStatementsAsync(
-            It.IsAny<GetWitnessStatementsRequest>(),
-            It.IsAny<CmsAuthValues>(),
-            It.IsAny<CancellationToken>()))
-        .ReturnsAsync(witnessStatementsResponse);
+            .Setup(s => s.GetWitnessStatementsAsync(
+                It.IsAny<GetWitnessStatementsRequest>(),
+                It.IsAny<CmsAuthValues>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(witnessStatementsResponse);
 
-        //act
-        var result = await _getWitnessStatements.Run(req, caseUrn, caseId, witnessId);
+        // act
+        var result = await _getWitnessStatements.Run(req,caseUrn, caseId, witnessId);
 
-        //assert
+        // assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var response = Assert.IsType<WitnessStatementsResponse>(okResult.Value);
-        Assert.Equal(3, response.WitnessStatements.Count);
-        Assert.Equal(100, response.WitnessStatements[0].Id);
-        Assert.Equal(1, response.WitnessStatements[0].StatementNumber);
 
-        Assert.Equal(200, response.WitnessStatements[1].Id);
-        Assert.Equal(2, response.WitnessStatements[1].StatementNumber);
+        var response =
+            Assert.IsType<List<WitnessStatementDto>>(okResult.Value);
 
-        Assert.Equal(0, response.WitnessStatements[2].Id);
-        Assert.Equal(3, response.WitnessStatements[2].StatementNumber);
+        Assert.Equal(3, response.Count);
+
+        Assert.Equal(10, response[0].DocumentId);
+        Assert.Equal(10, response[0].ParentId);
+        Assert.Equal(1, response[0].StatementNumber);
+
+        Assert.Equal(20, response[1].DocumentId);
+        Assert.Equal(20, response[1].ParentId);
+        Assert.Equal(2, response[1].StatementNumber);
+
+        Assert.Null(response[2].DocumentId);
+        Assert.Null(response[2].ParentId);
+        Assert.Equal(3, response[2].StatementNumber);
     }
 }
