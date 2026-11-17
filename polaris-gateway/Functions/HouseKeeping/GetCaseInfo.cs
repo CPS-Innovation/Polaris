@@ -65,6 +65,11 @@ namespace PolarisGateway.Functions.HouseKeeping
                 // Build CMS auth values from cookie extracted from the request
                 var cmsAuthValues = this.BuildCmsAuthValues(req);
 
+                if (string.IsNullOrWhiteSpace(cmsAuthValues?.CmsAuthFullValue))
+                {
+                    return new UnauthorizedObjectResult($"{LoggingConstants.HskUiLogPrefix} CMS authentication values are missing.");
+                }
+
                 CaseSummaryResponse caseSummary;
 
                 caseSummary = await this.caseInfoService.GetCaseInfoAsync(caseId, cmsAuthValues, cancellationToken).ConfigureAwait(false);

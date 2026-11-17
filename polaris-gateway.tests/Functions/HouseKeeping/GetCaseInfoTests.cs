@@ -59,8 +59,9 @@ public class GetCaseInfoTests
 
         // Set up cookies
         var mockCookies = new Mock<IRequestCookieCollection>();
-        mockCookies.Setup(c => c.TryGetValue(It.IsAny<string>(), out It.Ref<string>.IsAny))
-            .Returns(false);
+        string cookieValue = "test-cms-auth-values";
+        mockCookies.Setup(c => c.TryGetValue(HttpHeaderKeys.CmsAuthValues, out cookieValue))
+            .Returns(true);
 
         mockRequest.Setup(r => r.Cookies).Returns(mockCookies.Object);
         mockRequest.Setup(r => r.HttpContext).Returns(context);
@@ -93,6 +94,38 @@ public class GetCaseInfoTests
         Assert.Contains(mockLogger.Logs, log =>
            log.LogLevel == LogLevel.Information &&
            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function call returned unitName [Hull UT] for caseId [123]"));
+    }
+
+    [Fact]
+    public async Task Run_ReturnsUnauthorized_WhenCmsAuthCookieIsMissing()
+    {
+        // Arrange
+        Mock<HttpRequest> mockRequest = SetUpMockRequest(cmsAuthValues: null);
+
+        // Act
+        IActionResult result = await getCaseInfoFunction.Run(mockRequest.Object, 123, CancellationToken.None);
+
+        // Assert
+        Assert.IsType<UnauthorizedObjectResult>(result);
+        mockCaseInfoService.Verify(
+            x => x.GetCaseInfoAsync(123, It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Run_ReturnsUnauthorized_WhenCmsAuthCookieIsBlank()
+    {
+        // Arrange
+        Mock<HttpRequest> mockRequest = SetUpMockRequest(cmsAuthValues: string.Empty);
+
+        // Act
+        IActionResult result = await getCaseInfoFunction.Run(mockRequest.Object, 123, CancellationToken.None);
+
+        // Assert
+        Assert.IsType<UnauthorizedObjectResult>(result);
+        mockCaseInfoService.Verify(
+            x => x.GetCaseInfoAsync(123, It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     /// <summary>
@@ -277,7 +310,7 @@ public class GetCaseInfoTests
             Times.Once);
     }
 
-    private static Mock<HttpRequest> SetUpMockRequest()
+    private static Mock<HttpRequest> SetUpMockRequest(string? cmsAuthValues = "test-cms-auth-values")
     {
         var mockRequest = new Mock<HttpRequest>();
 
@@ -286,8 +319,18 @@ public class GetCaseInfoTests
 
         // Set up cookies
         var mockCookies = new Mock<IRequestCookieCollection>();
-        mockCookies.Setup(c => c.TryGetValue(It.IsAny<string>(), out It.Ref<string>.IsAny))
-            .Returns(false);
+        if (cmsAuthValues is null)
+        {
+            string missingCookie = null!;
+            mockCookies.Setup(c => c.TryGetValue(HttpHeaderKeys.CmsAuthValues, out missingCookie))
+                .Returns(false);
+        }
+        else
+        {
+            string cookieValue = cmsAuthValues;
+            mockCookies.Setup(c => c.TryGetValue(HttpHeaderKeys.CmsAuthValues, out cookieValue))
+                .Returns(true);
+        }
 
         mockRequest.Setup(r => r.Cookies).Returns(mockCookies.Object);
         mockRequest.Setup(r => r.HttpContext).Returns(context);
