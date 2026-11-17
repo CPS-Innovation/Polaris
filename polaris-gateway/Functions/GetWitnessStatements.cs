@@ -20,6 +20,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -63,6 +64,16 @@ public class GetWitnessStatements : BaseFunction
             cmsAuthValues,
             cancellationToken);
 
-        return new OkObjectResult(witnessStatementsResponse);
+        var witnessStatements = witnessStatementsResponse.WitnessStatements?
+            .Select(statement => new WitnessStatementDto
+            {
+                DocumentId = statement.DocumentId.HasValue
+                    ? checked((int)statement.DocumentId.Value)
+                    : null,
+                StatementNumber = statement.StatementNumber,
+            })
+            .ToList() ?? [];
+
+        return new OkObjectResult(witnessStatements);
     }
 }
