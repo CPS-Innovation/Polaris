@@ -97,6 +97,11 @@ namespace PolarisGateway.Functions.HouseKeeping
                 this.logger.LogError(ex, "{Prefix} {Message}", LoggingConstants.HskUiLogPrefix, ex.Message);
                 return new UnprocessableEntityObjectResult($"{ex.Message}");
             }
+            catch (Cps.MasterDataService.Infrastructure.ApiClient.ApiException ex)
+            {
+                this.logger.LogError(ex, "{Prefix} GetCaseInfo function received an error from MDS: {StatusCode}", LoggingConstants.HskUiLogPrefix, ex.StatusCode);
+                return new StatusCodeResult(ex.StatusCode);
+            }
             catch (Exception ex)
             {
                 this.logger.LogError(ex, "{Prefix} GetCaseInfo function encountered an error: {Message}", LoggingConstants.HskUiLogPrefix, ex.Message);

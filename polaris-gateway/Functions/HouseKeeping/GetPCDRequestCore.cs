@@ -99,6 +99,11 @@ public class GetPcdRequestCore(
             this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetPCDRequestCore function encountered UnauthorizedAccess Exception.");
             return new UnauthorizedObjectResult($"GetPCDRequestCore error: {ex.Message}");
         }
+        catch (Cps.MasterDataService.Infrastructure.ApiClient.ApiException ex)
+        {
+            this.logger.LogError(ex, $"{LoggingConstants.HskUiLogPrefix} GetPCDRequestCore function received an error from MDS: {ex.StatusCode}");
+            return new StatusCodeResult(ex.StatusCode);
+        }
         catch (Exception ex)
         {
             this.logger.LogError($"{LoggingConstants.HskUiLogPrefix} GetPCDRequestCore function encountered an error: {ex.Message}");
