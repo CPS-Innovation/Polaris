@@ -19,6 +19,7 @@ using System;
 using System.Threading;
 using Common.Constants;
 using Common.Exceptions;
+using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
 
 /// <summary>
 /// Unit tests for the <see cref="GetCaseInfo"/> class.
@@ -183,6 +184,33 @@ public class GetCaseInfoTests
         Assert.Contains(mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Error &&
             log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} GetCaseInfo function encountered an unprocessable entity error: Unprocessable entity error"));
+    }
+
+    /// <summary>
+    /// Tests that the function returns the status code from an MDS API exception.
+    /// </summary>
+    /// <returns>A task representing the asynchronous test operation.</returns>
+    [Fact]
+    public async Task Run_ReturnsMdsStatusCode_WhenApiExceptionIsThrown()
+    {
+        // Arrange
+        Mock<HttpRequest> mockRequest = SetUpMockRequest();
+
+        mockCaseInfoService
+            .Setup(x => x.GetCaseInfoAsync(123, It.IsAny<CmsAuthValues>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ApiClient.ApiException(
+                "MDS not found",
+                StatusCodes.Status404NotFound,
+                string.Empty,
+                null!,
+                null));
+
+        // Act
+        IActionResult result = await getCaseInfoFunction.Run(mockRequest.Object, 123, CancellationToken.None);
+
+        // Assert
+        StatusCodeResult statusCodeResult = Assert.IsType<StatusCodeResult>(result);
+        Assert.Equal(StatusCodes.Status404NotFound, statusCodeResult.StatusCode);
     }
 
     /// <summary>
