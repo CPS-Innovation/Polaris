@@ -67,6 +67,10 @@ public class GetPcdRequestCore(
 
             var cmsAuthValues = this.BuildCmsAuthValues(request);
 
+            if (string.IsNullOrWhiteSpace(cmsAuthValues?.CmsAuthFullValue))
+            {
+                return new UnauthorizedObjectResult($"{LoggingConstants.HskUiLogPrefix} CMS authentication values are missing.");
+            }
 
             string requestBody = await new StreamReader(request.Body).ReadToEndAsync().ConfigureAwait(false);
 
