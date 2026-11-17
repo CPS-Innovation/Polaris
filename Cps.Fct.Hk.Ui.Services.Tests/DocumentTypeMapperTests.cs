@@ -318,13 +318,13 @@ public class DocumentTypeMapperTests
         Assert.NotNull(result);
 
         // Total
-        Assert.Equal(73, result.Count);
+        Assert.Equal(72, result.Count);
 
         // Statement
         Assert.Equal(5, result.Count(x => x.Group == DocumentTypeGroups.Statement));
 
         // Exhibit
-        Assert.Equal(12, result.Count(x => x.Group == DocumentTypeGroups.Exhibit));
+        Assert.Equal(11, result.Count(x => x.Group == DocumentTypeGroups.Exhibit));
 
         // MG Form
         Assert.Equal(42, result.Count(x => x.Group == DocumentTypeGroups.MgForm));
