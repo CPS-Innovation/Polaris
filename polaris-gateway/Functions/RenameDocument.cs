@@ -7,6 +7,7 @@ namespace PolarisGateway.Functions;
 using Common.Configuration;
 using Common.Domain.Document;
 using Common.Dto.Request;
+using Common.Dto.Request.HouseKeeping;
 using Common.Extensions;
 using Common.Mappers;
 using Common.Telemetry;
@@ -37,20 +38,17 @@ public class RenameDocument : BaseFunction
     private const string StatementClassification = "STATEMENT";
 
     private readonly ILogger<RenameDocument> logger;
-    private readonly IMdsClient mdsClient;
     private readonly IMasterDataServiceClient masterDataServiceClient;
     private readonly ICmsDocumentDtoMapper cmsDocumentDtoMapper;
     private readonly ICaseUrnResolver caseUrnResolver;
 
     public RenameDocument(
         ILogger<RenameDocument> logger,
-        IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient,
         ICmsDocumentDtoMapper cmsDocumentDtoMapper,
         ICaseUrnResolver caseUrnResolver)
     {
         this.logger = logger.ExceptionIfNull();
-        this.mdsClient = mdsClient.ExceptionIfNull();
         this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
         this.cmsDocumentDtoMapper = cmsDocumentDtoMapper.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
@@ -124,11 +122,17 @@ public class RenameDocument : BaseFunction
             };
             if (string.Equals(document.Classification, ExhibitClassification, StringComparison.InvariantCultureIgnoreCase))
             {
-                await this.mdsClient.RenameExhibitAsync(mdsRenameDocumentArgDto, cancellationToken);
+                await this.masterDataServiceClient.RenameExhibitMaterialAsync(
+                    new RenameMaterialRequest(mdsRenameDocumentArgDto.CorrelationId, (int)mdsRenameDocumentArgDto.MaterialId, mdsRenameDocumentArgDto.DocumentName),
+                    cmsAuthValues,
+                    cancellationToken);
             }
             else if (!string.Equals(document.Classification, StatementClassification, StringComparison.InvariantCultureIgnoreCase))
             {
-                await this.mdsClient.RenameDocumentAsync(mdsRenameDocumentArgDto, cancellationToken);
+                await this.masterDataServiceClient.RenameMaterialAsync(
+                    new RenameMaterialRequest(mdsRenameDocumentArgDto.CorrelationId, (int)mdsRenameDocumentArgDto.MaterialId, mdsRenameDocumentArgDto.DocumentName),
+                    cmsAuthValues,
+                    cancellationToken);
             }
 
             telemetryEvent.IsSuccess = true;

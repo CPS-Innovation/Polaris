@@ -1,4 +1,11 @@
+// <copyright file="GetExhibitProducersLegacy.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
 using Common.Configuration;
+using Common.Dto.Request.HouseKeeping;
 using Common.Dto.Response.Case;
 using Common.Extensions;
 using Ddei.Factories;
@@ -12,26 +19,23 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Functions;
-
 public class GetExhibitProducersLegacy : BaseFunction
 {
-    private readonly ILogger<GetExhibitProducersLegacy> _logger;
-    private readonly IMdsClient _mdsClient;
-    private readonly IMdsArgFactory _mdsArgFactory;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
+    private readonly IMdsArgFactory mdsArgFactory;
 
-    public GetExhibitProducersLegacy(ILogger<GetExhibitProducersLegacy> logger,
-        IMdsClient mdsClient,
+    public GetExhibitProducersLegacy(
+        IMasterDataServiceClient masterDataServiceClient,
         IMdsArgFactory mdsArgFactory)
         : base()
     {
-        _logger = logger.ExceptionIfNull();
-        _mdsClient = mdsClient.ExceptionIfNull();
-        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
     }
 
     [Function(nameof(GetExhibitProducersLegacy))]
@@ -47,10 +51,21 @@ public class GetExhibitProducersLegacy : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var mdsCaseIdentifiersArgDto = _mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
-        
-        var exhibitProducerDtos = await _mdsClient.GetExhibitProducersAsync(mdsCaseIdentifiersArgDto, cancellationToken: cancellationToken);
+        var mdsCaseIdentifiersArgDto = this.mdsArgFactory.CreateCaseIdentifiersArg(cmsAuthValues, correlationId, caseUrn, caseId);
 
-        return new OkObjectResult(exhibitProducerDtos);
+        var exhibitProducersResponse = await this.masterDataServiceClient.GetExhibitProducersAsync(
+            new GetExhibitProducersRequest(mdsCaseIdentifiersArgDto.CaseId, mdsCaseIdentifiersArgDto.CorrelationId),
+            new Common.Dto.Request.CmsAuthValues(cmsAuthValues, correlationId),
+            cancellationToken);
+
+        var exhibitProducers = exhibitProducersResponse.ExhibitProducers?
+            .Select(producer => new ExhibitProducerDto
+            {
+                Id = checked((int)producer.Id),
+                ExhibitProducer = producer.Name,
+            })
+            .ToList() ?? [];
+
+        return new OkObjectResult(exhibitProducers);
     }
 }

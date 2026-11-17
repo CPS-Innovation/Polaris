@@ -4,20 +4,22 @@
 
 namespace Cps.Fct.Hk.Ui.Services.Tests;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Common.Constants;
 using Common.Dto.Request;
 using Common.Dto.Request.HouseKeeping;
+using Common.Dto.Response;
 using Common.Dto.Response.HouseKeeping;
 using Cps.Fct.Hk.Ui.Interfaces;
 using Cps.Fct.Hk.Ui.Services.Tests.TestUtilities;
 using DdeiClient.Clients.Interfaces;
+using DdeiClient.Domain.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 /// <summary>
@@ -54,34 +56,56 @@ public class WitnessServiceTests
         int caseId = 4321;
         var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
-        var expectedWitnesses = new WitnessesResponse
+        IEnumerable<BaseCaseWitnessResponse> apiResponse =
+        [
+            new MdsCaseWitnessResponse
         {
-            Witnesses = new List<Witness>()
-            {
-                new (caseId, 343, "Joe", "SMITH"),
-                new (caseId, 432, "Bob", "Jackson"),
-            },
-        };
+            Id = 343,
+            FirstName = "Joe",
+            Surname = "SMITH",
+        },
+        new MdsCaseWitnessResponse
+        {
+            Id = 432,
+            FirstName = "Bob",
+            Surname = "Jackson",
+        },
+    ];
 
         this.apiClientMock
-            .Setup(x => x.GetCaseWitnessesAsync(It.IsAny<GetCaseWitnessesRequest>(), cmsAuthValues))
-            .ReturnsAsync(expectedWitnesses);
+            .Setup(x => x.GetCaseWitnessesAsync(
+                It.IsAny<GetCaseWitnessesRequest>(),
+                cmsAuthValues))
+            .ReturnsAsync(apiResponse);
 
         // Act
-        var result = await this.sutWitnessService.GetCaseWitnessesAsync(caseId, cmsAuthValues);
+        var result = await this.sutWitnessService.GetCaseWitnessesAsync(
+            caseId,
+            cmsAuthValues);
 
         // Assert
         Assert.NotNull(result);
         Assert.IsType<WitnessesResponse>(result);
-        Assert.Equal(2, result.Witnesses?.Count);
-        Assert.Equal(expectedWitnesses.Witnesses.First().CaseId, result.Witnesses?.First().CaseId);
-        Assert.Equal(expectedWitnesses.Witnesses.First().WitnessId, result.Witnesses?.First().WitnessId);
-        Assert.Equal(expectedWitnesses.Witnesses.First().FirstName, result.Witnesses?.First().FirstName);
-        Assert.Equal(expectedWitnesses.Witnesses.First().Surname, result.Witnesses?.First().Surname);
+        Assert.NotNull(result.Witnesses);
+        Assert.Equal(2, result.Witnesses.Count);
 
-        Assert.Contains(this.mockLogger.Logs, log =>
-           log.LogLevel == LogLevel.Information &&
-           log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Getting witnesses for caseId [{caseId}]"));
+        Assert.Equal(caseId, result.Witnesses[0].CaseId);
+        Assert.Equal(343, result.Witnesses[0].WitnessId);
+        Assert.Equal("Joe", result.Witnesses[0].FirstName);
+        Assert.Equal("SMITH", result.Witnesses[0].Surname);
+
+        Assert.Equal(caseId, result.Witnesses[1].CaseId);
+        Assert.Equal(432, result.Witnesses[1].WitnessId);
+        Assert.Equal("Bob", result.Witnesses[1].FirstName);
+        Assert.Equal("Jackson", result.Witnesses[1].Surname);
+
+        Assert.Contains(
+            this.mockLogger.Logs,
+            log =>
+                log.LogLevel == LogLevel.Information &&
+                log.Message != null &&
+                log.Message.Contains(
+                    $"{LoggingConstants.HskUiLogPrefix} Getting witnesses for caseId {caseId}"));
     }
 
     /// <summary>
@@ -95,31 +119,36 @@ public class WitnessServiceTests
         int caseId = 4321;
         var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
-        var expectedWitnesses = new WitnessesResponse
-        {
-            Witnesses = new List<Witness>()
-            {
-                new (caseId, 343, "Joe", "SMITH"),
-                new (caseId, 432, "Bob", "Jackson"),
-            },
-        };
-
         this.apiClientMock
-            .Setup(x => x.GetCaseWitnessesAsync(It.IsAny<GetCaseWitnessesRequest>(), cmsAuthValues))
+            .Setup(x => x.GetCaseWitnessesAsync(
+                It.IsAny<GetCaseWitnessesRequest>(),
+                cmsAuthValues))
             .ThrowsAsync(new Exception("DDEI-EAS API error."));
 
         // Act
-        Exception exception = await Assert.ThrowsAsync<Exception>(() => this.sutWitnessService.GetCaseWitnessesAsync(caseId, cmsAuthValues));
+        Exception exception = await Assert.ThrowsAsync<Exception>(() =>
+            this.sutWitnessService.GetCaseWitnessesAsync(
+                caseId,
+                cmsAuthValues));
 
-        Assert.Contains(this.mockLogger.Logs, log =>
-           log.LogLevel == LogLevel.Information &&
-           log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Getting witnesses for caseId [{caseId}]"));
+        // Assert
+        Assert.Contains(
+            this.mockLogger.Logs,
+            log =>
+                log.LogLevel == LogLevel.Information &&
+                log.Message != null &&
+                log.Message.Contains(
+                    $"{LoggingConstants.HskUiLogPrefix} Getting witnesses for caseId {caseId}"));
 
         Assert.Equal("DDEI-EAS API error.", exception.Message);
 
-        Assert.Contains(this.mockLogger.Logs, log =>
-            log.LogLevel == LogLevel.Error &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching witnesses for caseId [{caseId}]"));
+        Assert.Contains(
+            this.mockLogger.Logs,
+            log =>
+                log.LogLevel == LogLevel.Error &&
+                log.Message != null &&
+                log.Message.Contains(
+                    $"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching witnesses"));
     }
 
     /// <summary>
@@ -183,22 +212,31 @@ public class WitnessServiceTests
         var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         this.apiClientMock
-            .Setup(x => x.GetWitnessStatementsAsync(It.IsAny<GetWitnessStatementsRequest>(), cmsAuthValues))
-             .ThrowsAsync(new Exception("DDEI-EAS API error."));
+            .Setup(x => x.GetWitnessStatementsAsync(
+                It.IsAny<GetWitnessStatementsRequest>(),
+                cmsAuthValues))
+            .ThrowsAsync(new Exception("DDEI-EAS API error."));
 
         // Act
-        Exception exception = await Assert.ThrowsAsync<Exception>(() => this.sutWitnessService.GetWitnessStatementsAsync(witnessId, cmsAuthValues));
+        Exception exception = await Assert.ThrowsAsync<Exception>(() =>
+            this.sutWitnessService.GetWitnessStatementsAsync(
+                witnessId,
+                cmsAuthValues));
 
         // Assert
         Assert.Contains(this.mockLogger.Logs, log =>
-           log.LogLevel == LogLevel.Information &&
-           log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Getting statements for witnessId [{witnessId}]"));
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null &&
+            log.Message.Contains(
+                $"{LoggingConstants.HskUiLogPrefix} Getting statements for witnessId [{witnessId}]"));
 
         Assert.Equal("DDEI-EAS API error.", exception.Message);
 
         Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Error &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching statements for witnessId [{witnessId}]"));
+            log.Message != null &&
+            log.Message.Contains(
+                $"{LoggingConstants.HskUiLogPrefix} Error occurred while fetching statement"));
     }
 
     /// <summary>
@@ -214,29 +252,45 @@ public class WitnessServiceTests
         var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         this.apiClientMock
-            .Setup(x => x.AddWitnessAsync(It.IsAny<AddWitnessRequest>(), It.IsAny<CmsAuthValues>()))
+            .Setup(x => x.AddWitnessAsync(
+                It.IsAny<AddWitnessRequest>(),
+                It.IsAny<CmsAuthValues>()))
             .ThrowsAsync(new Exception("DDEI-EAS API error."));
 
         this.caseLockServiceMock
-           .Setup(x => x.CheckCaseLockAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
-           .ReturnsAsync(new CaseLockedStatusResult
-           {
-               IsLocked = false,
-           });
+            .Setup(x => x.CheckCaseLockAsync(
+                It.IsAny<int>(),
+                It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync(new CaseLockedStatusResult
+            {
+                IsLocked = false,
+            });
 
         // Act
-        Exception exception = await Assert.ThrowsAsync<Exception>(() => this.sutWitnessService.AddWitnessAsync(urn, caseId, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()));
+        Exception exception = await Assert.ThrowsAsync<Exception>(() =>
+            this.sutWitnessService.AddWitnessAsync(
+                urn,
+                caseId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CmsAuthValues>(),
+                It.IsAny<Guid>()));
 
-        Assert.Contains(this.mockLogger.Logs, log =>
-           log.LogLevel == LogLevel.Information &&
-           log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Attempting to add witness to case with a caseId [{caseId}]"));
-
+        // Assert
         Assert.Equal("DDEI-EAS API error.", exception.Message);
 
         Assert.Contains(this.mockLogger.Logs, log =>
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null &&
+            log.Message.Contains("Attempting to add witness to case"));
+
+        Assert.Contains(this.mockLogger.Logs, log =>
             log.LogLevel == LogLevel.Error &&
-            log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] failed to add a new witness"));
+            log.Message != null &&
+            log.Message.Contains(
+                $"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] failed to add a new witness"));
     }
+
 
     /// <summary>
     /// Tests method throws InvalidOperationException when new witness details not found.
@@ -247,42 +301,65 @@ public class WitnessServiceTests
     {
         // Arrange
         int caseId = 4321;
-        var expectedWitnesses = new WitnessesResponse
+
+        IEnumerable<BaseCaseWitnessResponse> apiResponse =
+        [
+            new MdsCaseWitnessResponse
         {
-            Witnesses = new List<Witness>()
-            {
-                new (caseId, 432, "Bob", "Jackson"),
-            },
-        };
+            Id = 432,
+            FirstName = "Bob",
+            Surname = "Jackson",
+        },
+    ];
+
         var cmsAuthValues = new CmsAuthValues("validCmsToken");
 
         this.apiClientMock
-            .Setup(x => x.AddWitnessAsync(It.IsAny<AddWitnessRequest>(), It.IsAny<CmsAuthValues>()))
+            .Setup(x => x.AddWitnessAsync(
+                It.IsAny<AddWitnessRequest>(),
+                It.IsAny<CmsAuthValues>()))
             .ReturnsAsync(It.IsAny<NoContentResult>());
 
         this.apiClientMock
-            .Setup(x => x.GetCaseWitnessesAsync(It.IsAny<GetCaseWitnessesRequest>(), It.IsAny<CmsAuthValues>()))
-            .ReturnsAsync(expectedWitnesses);
+            .Setup(x => x.GetCaseWitnessesAsync(
+                It.IsAny<GetCaseWitnessesRequest>(),
+                It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync(apiResponse);
 
         this.caseLockServiceMock
-           .Setup(x => x.CheckCaseLockAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
-           .ReturnsAsync(new CaseLockedStatusResult
-           {
-               IsLocked = false,
-           });
+            .Setup(x => x.CheckCaseLockAsync(
+                It.IsAny<int>(),
+                It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync(new CaseLockedStatusResult
+            {
+                IsLocked = false,
+            });
 
         // Act
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => this.sutWitnessService.AddWitnessAsync(It.IsAny<string>(), caseId, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CmsAuthValues>(), It.IsAny<Guid>()));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            this.sutWitnessService.AddWitnessAsync(
+                It.IsAny<string>(),
+                caseId,
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CmsAuthValues>(),
+                It.IsAny<Guid>()));
 
-        Assert.IsType<InvalidOperationException>(exception);
+        // Assert
+        Assert.Equal(
+            $"{LoggingConstants.HskUiLogPrefix} Error occurred while adding witness for caseId [{caseId}]",
+            exception.Message);
 
         Assert.Contains(this.mockLogger.Logs, log =>
-           log.LogLevel == LogLevel.Information &&
-           log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Attempting to add witness to case with a caseId [{caseId}]"));
+            log.LogLevel == LogLevel.Information &&
+            log.Message != null &&
+            log.Message.Contains("Attempting to add witness to case"));
 
         Assert.Contains(this.mockLogger.Logs, log =>
-          log.LogLevel == LogLevel.Error &&
-          log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Error occurred while adding witness for caseId [{caseId}]"));
+            log.LogLevel == LogLevel.Error &&
+            log.Message != null &&
+            log.Message.Contains(
+                $"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] failed to add a new witness"));
     }
 
     /// <summary>
@@ -297,51 +374,98 @@ public class WitnessServiceTests
     [InlineData("joe", "SMITH")]
     [InlineData("joE", "smitH")]
     [Theory]
-    public async Task AddWitnessAsyncReturnsOk_WhenApiCallSucceeds(string firstName, string lastName)
+    public async Task AddWitnessAsyncReturnsOk_WhenApiCallSucceeds(
+    string firstName,
+    string lastName)
     {
         // Arrange
         string urn = "123456789";
         int caseId = 4321;
         int newWitnessId = 3435;
 
-        var expectedWitnesses = new WitnessesResponse
-        {
-            Witnesses = new List<Witness>()
-            {
-                new (caseId, newWitnessId, firstName, lastName),
-                new (caseId, 432, "Bob", "Jackson"),
-            },
-        };
         var cmsAuthValues = new CmsAuthValues("validCmsToken");
+        var correspondenceId = Guid.NewGuid();
+
+        IEnumerable<BaseCaseWitnessResponse> apiResponse =
+        [
+            new MdsCaseWitnessResponse
+        {
+            Id = newWitnessId,
+            FirstName = firstName,
+            Surname = lastName,
+        },
+        new MdsCaseWitnessResponse
+        {
+            Id = 432,
+            FirstName = "Bob",
+            Surname = "Jackson",
+        },
+    ];
 
         this.apiClientMock
-            .Setup(x => x.AddWitnessAsync(It.IsAny<AddWitnessRequest>(), It.IsAny<CmsAuthValues>()))
+            .Setup(x => x.AddWitnessAsync(
+                It.IsAny<AddWitnessRequest>(),
+                It.IsAny<CmsAuthValues>()))
             .ReturnsAsync(It.IsAny<NoContentResult>());
 
         this.apiClientMock
-            .Setup(x => x.GetCaseWitnessesAsync(It.IsAny<GetCaseWitnessesRequest>(), It.IsAny<CmsAuthValues>()))
-            .ReturnsAsync(expectedWitnesses);
+            .Setup(x => x.GetCaseWitnessesAsync(
+                It.IsAny<GetCaseWitnessesRequest>(),
+                It.IsAny<CmsAuthValues>()))
+            .ReturnsAsync(apiResponse);
 
         this.caseLockServiceMock
-            .Setup(x => x.CheckCaseLockAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()))
+            .Setup(x => x.CheckCaseLockAsync(
+                It.IsAny<int>(),
+                It.IsAny<CmsAuthValues>()))
             .ReturnsAsync(new CaseLockedStatusResult
             {
                 IsLocked = false,
             });
 
         // Act
-        long? result = await this.sutWitnessService.AddWitnessAsync(urn, caseId, "Joe", "SMITH", It.IsAny<CmsAuthValues>(), It.IsAny<Guid>());
+        long? result = await this.sutWitnessService.AddWitnessAsync(
+            urn,
+            caseId,
+            "Joe",
+            "SMITH",
+            cmsAuthValues,
+            correspondenceId);
 
-        Assert.Contains(this.mockLogger.Logs, log =>
-           log.LogLevel == LogLevel.Information &&
-           log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} Attempting to add witness to case with a caseId [{caseId}]"));
+        // Assert
+        Assert.Equal(newWitnessId, result);
 
-        Assert.Contains(this.mockLogger.Logs, log =>
-          log.LogLevel == LogLevel.Information &&
-          log.Message != null && log.Message.Contains($"{LoggingConstants.HskUiLogPrefix} caseId [{caseId}] successfully added a new witness, witnessId [{newWitnessId}]"));
+        Assert.Contains(
+            this.mockLogger.Logs,
+            log =>
+                log.LogLevel == LogLevel.Information &&
+                log.Message != null &&
+                log.Message.Contains("Attempting to add witness to case"));
 
-        this.apiClientMock.Verify(x => x.AddWitnessAsync(It.IsAny<AddWitnessRequest>(), It.IsAny<CmsAuthValues>()), Times.Once());
-        this.apiClientMock.Verify(x => x.GetCaseWitnessesAsync(It.IsAny<GetCaseWitnessesRequest>(), It.IsAny<CmsAuthValues>()), Times.Once());
-        this.caseLockServiceMock.Verify(x => x.CheckCaseLockAsync(It.IsAny<int>(), It.IsAny<CmsAuthValues>()), Times.Once());
+        Assert.Contains(
+            this.mockLogger.Logs,
+            log =>
+                log.LogLevel == LogLevel.Information &&
+                log.Message != null &&
+                log.Message.Contains($"caseId [{caseId}]") &&
+                log.Message.Contains("successfully added"));
+
+        this.apiClientMock.Verify(
+            x => x.AddWitnessAsync(
+                It.IsAny<AddWitnessRequest>(),
+                It.IsAny<CmsAuthValues>()),
+            Times.Once());
+
+        this.apiClientMock.Verify(
+            x => x.GetCaseWitnessesAsync(
+                It.IsAny<GetCaseWitnessesRequest>(),
+                It.IsAny<CmsAuthValues>()),
+            Times.Once());
+
+        this.caseLockServiceMock.Verify(
+            x => x.CheckCaseLockAsync(
+                It.IsAny<int>(),
+                It.IsAny<CmsAuthValues>()),
+            Times.Once());
     }
 }

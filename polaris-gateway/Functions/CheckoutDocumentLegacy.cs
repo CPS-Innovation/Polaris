@@ -1,5 +1,12 @@
-﻿using Common.Configuration;
+﻿// <copyright file="CheckoutDocumentLegacy.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
+using Common.Configuration;
 using Common.Extensions;
+using Common.Dto.Request;
 using Ddei.Factories;
 using DdeiClient.Clients.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -13,22 +20,17 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Functions;
-
 public class CheckoutDocumentLegacy : BaseFunction
 {
-    private readonly ILogger<CheckoutDocumentLegacy> _logger;
-    private readonly IMdsArgFactory _mdsArgFactory;
-    private readonly IMdsClient _mdsClient;
+    private readonly IMdsArgFactory mdsArgFactory;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
 
     public CheckoutDocumentLegacy(
-        ILogger<CheckoutDocumentLegacy> logger,
         IMdsArgFactory mdsArgFactory,
-        IMdsClient mdsClient)
+        IMasterDataServiceClient masterDataServiceClient)
     {
-        _logger = logger.ExceptionIfNull();
-        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        _mdsClient = mdsClient.ExceptionIfNull();
+        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
     }
 
     [Function(nameof(CheckoutDocumentLegacy))]
@@ -46,7 +48,7 @@ public class CheckoutDocumentLegacy : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var mdsDocumentIdAndVersionIdArgDto = _mdsArgFactory.CreateDocumentVersionArgDto(
+        var mdsDocumentIdAndVersionIdArgDto = this.mdsArgFactory.CreateDocumentVersionArgDto(
                      cmsAuthValues: cmsAuthValues,
                      correlationId: correlationId,
                      urn: caseUrn,
@@ -54,7 +56,8 @@ public class CheckoutDocumentLegacy : BaseFunction
                      materialId: materialId,
                      documentId: documentId);
 
-        await _mdsClient.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto, cancellationToken);
+        await this.masterDataServiceClient.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto, new CmsAuthValues(cmsAuthValues, correlationId), cancellationToken);
+
         return new OkResult();
     }
 }

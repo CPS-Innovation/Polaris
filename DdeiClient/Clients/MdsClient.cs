@@ -70,6 +70,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
         this.jsonConvertWrapper = jsonConvertWrapper.ExceptionIfNull();
     }
 
+    // calls cases/{caseId}/urn
     public async Task<CaseIdentifiersDto> GetUrnFromCaseIdAsync(MdsCaseIdOnlyArgDto arg, CancellationToken cancellationToken = default)
     {
         var mdsCaseIdentifiersDto = await this.CallHttpClientAsync<MdsCaseIdentifiersDto>(this.mdsClientRequestFactory.CreateUrnLookupRequest(arg), arg.CmsAuthValues, cancellationToken);
@@ -134,6 +135,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
         };
     }
 
+    // calls cases/{caseId}/documents/{materialId}/versions/{documentId}/checkout, POST
     public async Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg, CancellationToken cancellationToken = default)
     {
         await this.CallHttpClientAsync(
@@ -142,6 +144,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return new CheckoutDocumentDto { IsSuccess = true };
     }
 
+    // calls cases/{caseId}/documents/{materialId}/versions/{documentId}/checkout, DELETE
     public async Task CancelCheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg, CancellationToken cancellationToken = default)
     {
         await this.CallHttpClientAsync(this.mdsClientRequestFactory.CreateCancelCheckoutDocumentRequest(arg), arg.CmsAuthValues, cancellationToken);
@@ -180,6 +183,7 @@ public class MdsClient : BaseCmsClient, IMdsClient
         return new DocumentRenamedResultDto { Id = response.UpdateCommunication.Id };
     }
 
+    // calls material/{materialId}/rename-exhibit, PATCH
     public async Task<DocumentRenamedResultDto> RenameExhibitAsync(MdsRenameDocumentArgDto arg, CancellationToken cancellationToken = default)
     {
         var response = await this.CallHttpClientAsync<RenameMaterialDescriptionResponse>(this.mdsClientRequestFactory.CreateRenameExhibitRequest(arg), arg.CmsAuthValues, cancellationToken);

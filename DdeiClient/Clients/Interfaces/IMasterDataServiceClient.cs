@@ -6,10 +6,15 @@ namespace DdeiClient.Clients.Interfaces
 {
     using Common.Dto.Request;
     using Common.Dto.Request.HouseKeeping;
+    using Common.Dto.Response;
+    using Common.Dto.Response.Case;
+    using Common.Dto.Response.Document;
     using Common.Dto.Response.Documents;
     using Common.Dto.Response.HouseKeeping;
     using Common.Dto.Response.HouseKeeping.Pcd;
+    using Ddei.Domain.CaseData.Args;
     using Ddei.Domain.CaseData.Args.Core;
+    using DdeiClient.Domain.Args;
     using Microsoft.AspNetCore.Mvc;
     using ApiClient = Cps.MasterDataService.Infrastructure.ApiClient;
 
@@ -126,7 +131,7 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="cmsAuthValues">CMS authentication values including cookies and tokens.</param>
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>List of witnesses.</returns>
-        Task<WitnessesResponse> GetCaseWitnessesAsync(GetCaseWitnessesRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+        Task<IEnumerable<BaseCaseWitnessResponse>> GetCaseWitnessesAsync(GetCaseWitnessesRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets statements for a witness.
@@ -164,6 +169,8 @@ namespace DdeiClient.Clients.Interfaces
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>RenameMaterialResponse object.</returns>
         Task<RenameMaterialResponse> RenameMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task<RenameMaterialResponse> RenameExhibitMaterialAsync(RenameMaterialRequest request, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Reclassifies a communication for a material identifier.
@@ -316,5 +323,25 @@ namespace DdeiClient.Clients.Interfaces
         Task<IEnumerable<PcdRequestDto>> GetCasePcdRequestsAsync(MdsCaseIdentifiersArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
 
         Task<IEnumerable<DocumentDto>> ListDocumentsAsync(MdsCaseIdentifiersArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task<Common.Dto.Response.FileResult> GetDocumentByDocumentIdAsync(MdsMaterialIdAndDocumentIdArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task<List<DocumentNoteDto>> ListDocumentNotesAsync(MdsDocumentArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task CreateDocumentNoteAsync(MdsAddDocumentNoteArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task<IEnumerable<CaseIdentifiersDto>> ListCaseIdentifiersAsync(MdsUrnArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task ToggleIsUnusedDocumentAsync(MdsToggleIsUnusedDocumentDto toggleIsUnusedDocumentDto, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task<CaseIdentifiersDto> LookupUrnAsync(MdsCaseIdOnlyArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task<CheckoutDocumentDto> CheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task CancelCheckoutDocumentAsync(MdsMaterialIdAndDocumentIdArgDto arg, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task UploadPdfAsync(MdsMaterialIdAndDocumentIdArgDto arg, Stream stream, CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
+
+        Task<IEnumerable<MaterialTypeDto>> GetMaterialTypeListAsync(CmsAuthValues cmsAuthValues, CancellationToken cancellationToken = default);
     }
 }

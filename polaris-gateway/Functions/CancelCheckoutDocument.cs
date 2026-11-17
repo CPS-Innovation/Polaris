@@ -24,16 +24,16 @@ using System.Threading.Tasks;
 public class CancelCheckoutDocument : BaseFunction
 {
     private readonly IMdsArgFactory mdsArgFactory;
-    private readonly IMdsClient mdsClient;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
     private readonly ICaseUrnResolver caseUrnResolver;
 
     public CancelCheckoutDocument(
         IMdsArgFactory mdsArgFactory,
-        IMdsClient mdsClient,
+        IMasterDataServiceClient masterDataServiceClient,
         ICaseUrnResolver caseUrnResolver)
     {
         this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        this.mdsClient = mdsClient.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
     }
 
@@ -63,7 +63,7 @@ public class CancelCheckoutDocument : BaseFunction
                 materialId: materialId,
                 documentId: documentId);
 
-        await this.mdsClient.CancelCheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto, cancellationToken: cancellationToken);
+        await this.masterDataServiceClient.CancelCheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto, cmsAuthValues, cancellationToken);
 
         return new OkResult();
     }

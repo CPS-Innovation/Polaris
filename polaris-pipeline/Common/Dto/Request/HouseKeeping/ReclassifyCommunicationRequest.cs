@@ -21,7 +21,7 @@ public record ReclassifyCommunicationRequest(
     [property: JsonPropertyName("classification")] string classification,
     [property: JsonPropertyName("materialId")] int materialId,
     [property: JsonPropertyName("documentTypeId")] int documentTypeId,
-    [property: JsonPropertyName("used")] bool used,
+    [property: JsonPropertyName("used")] bool? used,
     [property: JsonPropertyName("subject")] string subject,
     ReclassifyStatementRequest? statementRequest = null,
     ReclassifyExhibitRequest? exhibitRequest = null)

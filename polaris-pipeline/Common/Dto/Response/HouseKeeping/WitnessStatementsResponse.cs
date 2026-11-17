@@ -23,6 +23,8 @@ public record WitnessStatementsResponse
 /// </summary>
 /// <param name="Id">The ID of the statement.</param>
 /// <param name="StatementNumber">The statement number.</param>
+/// <param name="DocumentId">The ID of the document.</param>
 public record WitnessStatement(
     [property: JsonPropertyName("id")] long Id,
-    [property: JsonPropertyName("title")] int? StatementNumber);
+    [property: JsonPropertyName("title")] int? StatementNumber,
+    [property: JsonPropertyName("documentId")] long? DocumentId = null);
