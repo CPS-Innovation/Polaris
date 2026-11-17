@@ -135,6 +135,34 @@ public class GetPcdRequestCoreTests
     }
 
     /// <summary>
+    /// Tests that the function forwards the status code from an MDS API exception.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+    [Fact]
+    public async Task Run_ThrowsMdsApiException_ReturnsMdsStatusCode()
+    {
+        // Arrange
+        int caseId = 123;
+        int statusCode = StatusCodes.Status404NotFound;
+        HttpRequest httpRequest = CreateHttpRequest();
+        var exception = new Cps.MasterDataService.Infrastructure.ApiClient.ApiException(
+            "MDS error",
+            statusCode,
+            string.Empty,
+            new Dictionary<string, IEnumerable<string>>(),
+            new Exception("MDS error"));
+
+        this.mockCommunicationService.Setup(c => c.GetPcdRequestCore(caseId, It.IsAny<CmsAuthValues>()))
+            .ThrowsAsync(exception);
+
+        // Act
+        IActionResult result = await this.getPCDRequestCore.Run(httpRequest, caseId);
+
+        // Assert
+        result.Should().BeOfType<StatusCodeResult>().Which.StatusCode.Should().Be(statusCode);
+    }
+
+    /// <summary>
     /// Tests that the <see cref="GetPcdRequestCore.GetPcdRequestCore(ILogger{GetPcdRequestCore}, ICommunicationService, ICookieService)"/> method returns an <see cref="OkObjectResult"/>.
     /// </summary>
     /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
