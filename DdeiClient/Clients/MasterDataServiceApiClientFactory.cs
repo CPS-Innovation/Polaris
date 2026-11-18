@@ -4,14 +4,16 @@
 
 namespace DdeiClient.Clients
 {
+    using Common.Constants;
     using Cps.MasterDataService.Infrastructure.ApiClient;
     using DdeiClient.Clients.Interfaces;
     using DdeiClient.Configuration;
     using Microsoft;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
-    using Newtonsoft.Json.Serialization;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Serialization;
+    using System.Net;
 
     /// <summary>
     /// Mds api client factory.
@@ -67,11 +69,11 @@ namespace DdeiClient.Clients
                     throw new InvalidOperationException("Missing MDS base url in configuration.");
                 }
 
-
                 // Create the HttpClient using a named client
                 var httpClient = this.httpClientFactory.CreateClient("MdsClient");
                 httpClient.DefaultRequestHeaders.Add("x-functions-key", functionKey);
-                httpClient.DefaultRequestHeaders.Add("Cms-Auth-Values", cookieHeader);
+                httpClient.DefaultRequestHeaders.Add(HttpHeaderKeys.CmsAuthValues, WebUtility.UrlDecode(cookieHeader));
+                httpClient.DefaultRequestHeaders.Add("ClientName", "CWA");
 
                 var apiClient = new MdsApiClient(httpClient)
                 {
