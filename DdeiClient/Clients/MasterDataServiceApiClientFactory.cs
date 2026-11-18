@@ -72,7 +72,11 @@ namespace DdeiClient.Clients
                 // Create the HttpClient using a named client
                 var httpClient = this.httpClientFactory.CreateClient("MdsClient");
                 httpClient.DefaultRequestHeaders.Add(HttpHeaderKeys.XFunctionsKey, functionKey);
-                httpClient.DefaultRequestHeaders.Add(HttpHeaderKeys.CmsAuthValues, WebUtility.UrlDecode(cookieHeader));
+                httpClient.DefaultRequestHeaders.Add(
+                    HttpHeaderKeys.CmsAuthValues,
+                    cookieHeader.TrimStart().StartsWith("{")
+                        ? cookieHeader
+                        : WebUtility.UrlDecode(cookieHeader));
                 httpClient.DefaultRequestHeaders.Add(HttpHeaderKeys.ClientName, "CWA");
 
                 var apiClient = new MdsApiClient(httpClient)
