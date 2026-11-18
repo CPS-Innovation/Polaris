@@ -29,7 +29,6 @@ public class AddDocumentNoteLegacy : BaseFunction
     public AddDocumentNoteLegacy(
         ILogger<AddDocumentNoteLegacy> logger,
         IMdsArgFactory mdsArgFactory,
-        IMdsClient mdsClient,
         IMasterDataServiceClient masterDataServiceClient)
     {
         this.logger = logger.ExceptionIfNull();

@@ -36,8 +36,6 @@ public static class IServiceCollectionExtension
         services.AddHttpClientWithDefaults(configuration, MdsBaseUrlConfigKey, MdsAccessKeyConfigKey, nameof(MdsClients.Mds), MdsClientTimeoutSecondsConfigKey);
         services.AddHttpClientWithDefaults(configuration, MdsMockBaseUrlConfigKey, MdsMockAccessKeyConfigKey, nameof(MdsClients.MdsMock), MdsClientTimeoutSecondsConfigKey);
 
-        services.AddSingleton<IMdsClient, MdsClient>();
-
         services.AddDdeiAuthServices();
         services.AddMdsServices();
     }
