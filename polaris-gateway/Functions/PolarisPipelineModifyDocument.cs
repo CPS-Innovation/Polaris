@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Configuration;
+using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Extensions;
 using Common.Telemetry;
@@ -62,6 +63,8 @@ public class PolarisPipelineModifyDocument : BaseFunction
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
+        var qualifiedMaterialId = DocumentNature.ParseCmsOnly(materialId).QualifiedId;
+
         try
         {
             telemetryEvent.IsRequestValid = true;
@@ -85,7 +88,7 @@ public class PolarisPipelineModifyDocument : BaseFunction
             var response = await this.coordinatorClient.ModifyDocument(
                 caseUrn: null,
                 caseId,
-                materialId,
+                qualifiedMaterialId,
                 documentId,
                 modifyDocumentDto,
                 cmsAuthValues.CmsAuthFullValue,

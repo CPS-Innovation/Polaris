@@ -5,6 +5,7 @@
 namespace PolarisGateway.Functions;
 
 using Common.Configuration;
+using Common.Domain.Document;
 using Common.Domain.Pii;
 using Common.Dto.Request;
 using Common.Extensions;
@@ -71,6 +72,8 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
+        var qualifiedMaterialId = DocumentNature.ParseCmsOnly(materialId).QualifiedId;
+
         try
         {
             telemetryEvent.IsRequestValid = true;
@@ -94,7 +97,7 @@ public class PolarisPipelineSaveDocumentRedactions : BaseFunction
             var response = await this.coordinatorClient.SaveRedactionsAsync(
                 caseUrn: null,
                 caseId,
-                materialId,
+                qualifiedMaterialId,
                 documentId,
                 redactPdfRequest,
                 cmsAuthValues.CmsAuthFullValue,

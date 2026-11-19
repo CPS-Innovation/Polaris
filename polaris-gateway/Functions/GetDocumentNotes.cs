@@ -5,6 +5,7 @@
 namespace PolarisGateway.Functions;
 
 using Common.Configuration;
+using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Dto.Response.Document;
 using Common.Extensions;
@@ -52,6 +53,8 @@ public class GetDocumentNotes : BaseFunction
     {
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
+
+        DocumentNature.ParseCmsOnly(materialId);
 
         var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 

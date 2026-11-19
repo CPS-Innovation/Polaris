@@ -325,29 +325,30 @@ public class GetCaseMaterials(
             return;
         }
 
-        var documentsByMaterialId = documents
-            .Select(d => (Success: TryGetMaterialId(d.DocumentId, out var materialId), MaterialId: materialId, Document: d))
+        var documentsByMaterialKey = documents
+            .Select(d => (Success: TryGetMaterialReference(d.DocumentId, out var reference), Reference: reference, Document: d))
             .Where(x => x.Success)
-            .ToLookup(x => x.MaterialId, x => x.Document);
+            .ToLookup(x => (x.Reference.Nature, x.Reference.NumericId), x => x.Document);
 
-        var matchedMaterialIds = new HashSet<int>();
+        var matchedMaterialKeys = new HashSet<(DocumentNature.Types Nature, long NumericId)>();
 
         for (int i = 0; i < allCaseMaterials.Count; i++)
         {
-            var matchingDocument = documentsByMaterialId[allCaseMaterials[i].MaterialId].FirstOrDefault();
+            var key = (DocumentNature.Types.Document, (long)allCaseMaterials[i].MaterialId);
+            var matchingDocument = documentsByMaterialKey[key].FirstOrDefault();
 
             if (matchingDocument == null)
             {
                 continue;
             }
 
-            matchedMaterialIds.Add(allCaseMaterials[i].MaterialId);
+            matchedMaterialKeys.Add(key);
             allCaseMaterials[i] = MergeCaseMaterialWithDocument(allCaseMaterials[i], matchingDocument);
         }
 
-        var newCaseMaterials = documentsByMaterialId
-            .Where(group => !matchedMaterialIds.Contains(group.Key))
-            .Select(group => CreateCaseMaterialFromDocument(group.Key, group.First()));
+        var newCaseMaterials = documentsByMaterialKey
+            .Where(group => !matchedMaterialKeys.Contains(group.Key))
+            .Select(group => CreateCaseMaterialFromDocument((int)group.Key.NumericId, group.First()));
 
         allCaseMaterials.AddRange(newCaseMaterials);
     }
@@ -367,6 +368,7 @@ public class GetCaseMaterials(
             PresentationFlags = document.PresentationFlags ?? caseMaterial.PresentationFlags,
             HasNotes = document.HasNotes,
             IsUnused = document.IsUnused,
+            IsRedactable = DocumentNature.IsRedactable(GetDocumentNatureType(document.DocumentId)),
         };
 
     /// <summary>
@@ -378,6 +380,7 @@ public class GetCaseMaterials(
     /// <returns>A new <see cref="CaseMaterial"/> populated from the document.</returns>
     private static CaseMaterial CreateCaseMaterialFromDocument(int materialId, DocumentDto document)
     {
+        var nature = GetDocumentNatureType(document.DocumentId);
         return new CaseMaterial(
             originalFileName: document.CmsOriginalFileName,
             subject: document.Subject,
@@ -395,19 +398,20 @@ public class GetCaseMaterials(
         {
             ParentId = !string.IsNullOrWhiteSpace(document.DocumentId)
                 ? document.DocumentId
-                : DocumentNature.ToQualifiedStringDocumentId(materialId, GetDocumentNatureType(document.DocumentId)),
+                : DocumentNature.ToQualifiedStringDocumentId(materialId, nature),
+            IsRedactable = DocumentNature.IsRedactable(nature),
         };
     }
 
     /// <summary>
-    /// Attempts to extract the numeric material id from a qualified document id (e.g. "CMS-12345").
+    /// Attempts to parse a qualified document id (e.g. "CMS-12345") into its <see cref="MaterialIdentifier"/>.
     /// </summary>
     /// <param name="qualifiedDocumentId">The qualified document id string.</param>
-    /// <param name="materialId">The parsed numeric material id, if successful.</param>
-    /// <returns><see langword="true"/> if the material id was successfully parsed; otherwise, <see langword="false"/>.</returns>
-    private static bool TryGetMaterialId(string qualifiedDocumentId, out int materialId)
+    /// <param name="identifier">The parsed <see cref="MaterialIdentifier"/>, if successful.</param>
+    /// <returns><see langword="true"/> if the identifier was successfully parsed; otherwise, <see langword="false"/>.</returns>
+    private static bool TryGetMaterialReference(string qualifiedDocumentId, out MaterialIdentifier identifier)
     {
-        materialId = 0;
+        identifier = default;
 
         if (string.IsNullOrWhiteSpace(qualifiedDocumentId))
         {
@@ -416,9 +420,7 @@ public class GetCaseMaterials(
 
         try
         {
-            var type = DocumentNature.GetDocumentNatureType(qualifiedDocumentId);
-            var numericId = DocumentNature.ToNumericDocumentId(qualifiedDocumentId, type);
-            materialId = (int)numericId;
+            identifier = DocumentNature.Parse(qualifiedDocumentId);
             return true;
         }
         catch (Exception)

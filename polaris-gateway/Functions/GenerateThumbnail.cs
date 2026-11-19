@@ -5,6 +5,7 @@
 namespace PolarisGateway.Functions;
 
 using Common.Configuration;
+using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Extensions;
 using DdeiClient.Services.CaseUrnResolver;
@@ -17,6 +18,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using PolarisGateway.Clients.PdfThumbnailGenerator;
 using PolarisGateway.Extensions;
+using PolarisGateway.TelemetryEvents;
+using Common.Telemetry;
 using System;
 using System.Net;
 using System.Threading;
@@ -25,12 +28,15 @@ using System.Threading.Tasks;
 public class GenerateThumbnail : BaseFunction
 {
     private readonly IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient;
+    private readonly ILogger<GenerateThumbnail> logger;
 
     public GenerateThumbnail(
-        IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient)
+        IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient,
+        ILogger<GenerateThumbnail> logger)
         : base()
     {
         this.pdfThumbnailGeneratorClient = pdfThumbnailGeneratorClient ?? throw new ArgumentNullException(nameof(pdfThumbnailGeneratorClient));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     [Function(nameof(GenerateThumbnail))]
@@ -58,6 +64,9 @@ public class GenerateThumbnail : BaseFunction
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
-        return await (await this.pdfThumbnailGeneratorClient.GenerateThumbnailAsync(caseUrn: null, caseId, materialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues.CmsAuthFullValue, correlationId, isLegacy: false)).ToActionResult();
+        var qualifiedMaterialId = DocumentNature.NormalizeMaterialId(materialId);
+        TrackCmsPrefixUsage(this.logger, materialId, caseId, documentId.ToString(), nameof(GenerateThumbnail));
+
+        return await (await this.pdfThumbnailGeneratorClient.GenerateThumbnailAsync(caseUrn: null, caseId, qualifiedMaterialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues.CmsAuthFullValue, correlationId, isLegacy: false)).ToActionResult();
     }
 }

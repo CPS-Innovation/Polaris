@@ -23,6 +23,9 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Common.Domain.Ocr;
 using DdeiClient.Services.CaseUrnResolver;
 using Common.Dto.Request;
+using Common.Domain.Document;
+using Common.Telemetry;
+using PolarisGateway.TelemetryEvents;
 
 public class GetOcr : BaseFunction
 {
@@ -31,14 +34,17 @@ public class GetOcr : BaseFunction
     private const string ForceRefreshParamName = "ForceRefresh";
     private readonly IOcrArtefactService ocrArtefactService;
     private readonly ICaseUrnResolver caseUrnResolver;
+    private readonly ILogger<GetOcr> logger;
 
     public GetOcr(
         IOcrArtefactService ocrArtefactService,
-        ICaseUrnResolver caseUrnResolver)
+        ICaseUrnResolver caseUrnResolver,
+        ILogger<GetOcr> logger)
         : base()
     {
         this.ocrArtefactService = ocrArtefactService.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
+        this.logger = logger.ExceptionIfNull();
     }
 
     [Function(nameof(GetOcr))]
@@ -57,13 +63,16 @@ public class GetOcr : BaseFunction
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
+        var qualifiedMaterialId = DocumentNature.NormalizeMaterialId(materialId);
+        TrackCmsPrefixUsage(this.logger, materialId, caseId, documentId.ToString(), nameof(GetOcr));
+
         var isOcrProcessed = req.Query.ContainsKey(IsOcrProcessedParamName) && bool.Parse(req.Query[IsOcrProcessedParamName]);
         var forceRefresh = req.Query.ContainsKey(ForceRefreshParamName) && bool.Parse(req.Query[ForceRefreshParamName]);
         var token = req.Query.ContainsKey(TokenQueryParamName) ?
             Guid.Parse(req.Query[TokenQueryParamName]) :
             (Guid?)null;
 
-        var ocrResult = await this.ocrArtefactService.GetOcrAsync(cmsAuthValues.CmsAuthFullValue, correlationId, urn: null, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh, isLegacy: false);
+        var ocrResult = await this.ocrArtefactService.GetOcrAsync(cmsAuthValues.CmsAuthFullValue, correlationId, urn: null, caseId, qualifiedMaterialId, documentId, isOcrProcessed, token, forceRefresh, isLegacy: false);
         return ocrResult.Status switch
         {
             ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Artefact)

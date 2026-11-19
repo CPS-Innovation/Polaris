@@ -6,8 +6,10 @@ namespace PolarisGateway.Functions;
 
 using Common.Configuration;
 using Common.Constants;
+using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Extensions;
+using Common.Telemetry;
 using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -30,12 +32,14 @@ public class GetPdf : BaseFunction
     private const string ForceRefreshParamName = "ForceRefresh";
     private readonly IPdfArtefactService pdfArtefactService;
     private readonly ICaseUrnResolver caseUrnResolver;
+    private readonly ILogger<GetPdf> logger;
 
-    public GetPdf(IPdfArtefactService pdfArtefactService, ICaseUrnResolver caseUrnResolver)
+    public GetPdf(IPdfArtefactService pdfArtefactService, ICaseUrnResolver caseUrnResolver, ILogger<GetPdf> logger)
         : base()
     {
         this.pdfArtefactService = pdfArtefactService.ExceptionIfNull();
         this.caseUrnResolver = caseUrnResolver.ExceptionIfNull();
+        this.logger = logger.ExceptionIfNull();
     }
 
     [Function(nameof(GetPdf))]
@@ -55,6 +59,9 @@ public class GetPdf : BaseFunction
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
+        var qualifiedMaterialId = DocumentNature.NormalizeMaterialId(materialId);
+        TrackCmsPrefixUsage(this.logger, materialId, caseId, documentId.ToString(), nameof(GetPdf));
+
         var isOcrProcessed = req.Query.ContainsKey(IsOcrProcessedParamName) && bool.Parse(req.Query[IsOcrProcessedParamName]);
         var forceRefresh = req.Query.ContainsKey(ForceRefreshParamName) && bool.Parse(req.Query[ForceRefreshParamName]);
 
@@ -63,7 +70,7 @@ public class GetPdf : BaseFunction
         var request = new GetPdfRequest(
             Urn: caseUrn,
             CaseId: caseId,
-            MaterialId: materialId,
+            MaterialId: qualifiedMaterialId,
             DocumentId: documentId,
             IsOcrProcessed: isOcrProcessed,
             ForceRefresh: forceRefresh);

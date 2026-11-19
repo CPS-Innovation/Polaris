@@ -12,6 +12,7 @@ using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.DurableTask.Client;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Net;
@@ -29,7 +30,8 @@ public class BulkRedactionSearchTests
     {
         this.bulkRedactionSearchServiceMock = new Mock<IBulkRedactionSearchService>();
         var caseUrnResolverMock = new Mock<ICaseUrnResolver>();
-        this.bulkRedactionSearch = new BulkRedactionSearchStart(this.bulkRedactionSearchServiceMock.Object, caseUrnResolverMock.Object);
+        var loggerMock = new Mock<ILogger<BulkRedactionSearchStart>>();
+        this.bulkRedactionSearch = new BulkRedactionSearchStart(this.bulkRedactionSearchServiceMock.Object, caseUrnResolverMock.Object, loggerMock.Object);
     }
 
     [Theory]

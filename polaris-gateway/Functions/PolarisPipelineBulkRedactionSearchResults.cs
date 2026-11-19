@@ -9,17 +9,21 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Common.Configuration;
+using Common.Domain.Document;
+using Common.Telemetry;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Extensions;
 using PolarisGateway.Services.Artefact.Domain;
+using PolarisGateway.TelemetryEvents;
 
-public class PolarisPipelineBulkRedactionSearchResults(ICoordinatorClient coordinatorClient) : BaseFunction
+public class PolarisPipelineBulkRedactionSearchResults(ICoordinatorClient coordinatorClient, ILogger<PolarisPipelineBulkRedactionSearchResults> logger) : BaseFunction
 {
     private const string SearchTextHeader = "SearchText";
 
@@ -37,10 +41,13 @@ public class PolarisPipelineBulkRedactionSearchResults(ICoordinatorClient coordi
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
+        var qualifiedMaterialId = DocumentNature.NormalizeMaterialId(materialId);
+        TrackCmsPrefixUsage(logger, materialId, caseId, documentId.ToString(), nameof(PolarisPipelineBulkRedactionSearchResults));
+
         return await (
             await coordinatorClient.BulkRedactionRetrieveSearchResultsAsync(
                 caseId,
-                materialId,
+                qualifiedMaterialId,
                 documentId,
                 searchText,
                 correlationId,

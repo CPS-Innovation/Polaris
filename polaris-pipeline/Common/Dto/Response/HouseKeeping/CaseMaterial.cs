@@ -148,6 +148,12 @@ public record CaseMaterial
     public bool IsUnused { get; init; }
 
     /// <summary>
+    /// Gets a value indicating whether the case material can be redacted. True for CMS documents, false for
+    /// PCD requests and defendants/charges artefacts.
+    /// </summary>
+    public bool IsRedactable { get; init; }
+
+    /// <summary>
     /// Gets the exhibit reference producer associated with the case material.
     /// </summary>
     public string Reference { get; init; }
@@ -236,5 +242,6 @@ public record CaseMaterial
         PresentationFlags = presentationFlags;
         HasNotes = hasNotes;
         IsUnused = isUnused;
+        IsRedactable = true;
     }
 }

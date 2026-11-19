@@ -5,19 +5,23 @@
 namespace PolarisGateway.Functions;
 
 using Common.Configuration;
+using Common.Domain.Document;
+using Common.Telemetry;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Extensions;
+using PolarisGateway.TelemetryEvents;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class PolarisPipelineBulkRedactionSearchStart(ICoordinatorClient coordinatorClient) : BaseFunction
+public class PolarisPipelineBulkRedactionSearchStart(ICoordinatorClient coordinatorClient, ILogger<PolarisPipelineBulkRedactionSearchStart> logger) : BaseFunction
 {
     [Function(nameof(PolarisPipelineBulkRedactionSearchStart))]
     [OpenApiOperation(operationId: nameof(PolarisPipelineBulkRedactionSearchStart), tags: ["Documents"], Summary = "Orchestration Status", Description = "Schedule new orchestration instance or returns status")]
@@ -33,6 +37,9 @@ public class PolarisPipelineBulkRedactionSearchStart(ICoordinatorClient coordina
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        return await (await coordinatorClient.BulkRedactionInitiateSearchAsync(caseId, materialId, documentId, correlationId, cmsAuthValues, cancellationToken)).ToActionResult();
+        var qualifiedMaterialId = DocumentNature.NormalizeMaterialId(materialId);
+        TrackCmsPrefixUsage(logger, materialId, caseId, documentId.ToString(), nameof(PolarisPipelineBulkRedactionSearchStart));
+
+        return await (await coordinatorClient.BulkRedactionInitiateSearchAsync(caseId, qualifiedMaterialId, documentId, correlationId, cmsAuthValues, cancellationToken)).ToActionResult();
     }
 }

@@ -6,6 +6,7 @@ namespace PolarisGateway.Functions;
 
 using Common.Configuration;
 using Common.Domain.Pii;
+using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Extensions;
 using DdeiClient.Services.CaseUrnResolver;
@@ -20,6 +21,8 @@ using Microsoft.OpenApi.Models;
 using PolarisGateway.Clients.PdfThumbnailGenerator;
 using PolarisGateway.Extensions;
 using PolarisGateway.Models;
+using PolarisGateway.TelemetryEvents;
+using Common.Telemetry;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -30,12 +33,15 @@ using System.Threading.Tasks;
 public class GetThumbnail : BaseFunction
 {
     private readonly IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient;
+    private readonly ILogger<GetThumbnail> logger;
 
     public GetThumbnail(
-        IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient)
+        IPdfThumbnailGeneratorClient pdfThumbnailGeneratorClient,
+        ILogger<GetThumbnail> logger)
         : base()
     {
         this.pdfThumbnailGeneratorClient = pdfThumbnailGeneratorClient ?? throw new ArgumentNullException(nameof(pdfThumbnailGeneratorClient));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     [Function(nameof(GetThumbnail))]
@@ -63,6 +69,9 @@ public class GetThumbnail : BaseFunction
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
-        return await (await this.pdfThumbnailGeneratorClient.GetThumbnailAsync(caseUrn: null, caseId, materialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues.CmsAuthFullValue, correlationId, isLegacy: false)).ToActionResult();
+        var qualifiedMaterialId = DocumentNature.NormalizeMaterialId(materialId);
+        TrackCmsPrefixUsage(this.logger, materialId, caseId, documentId.ToString(), nameof(GetThumbnail));
+
+        return await (await this.pdfThumbnailGeneratorClient.GetThumbnailAsync(caseUrn: null, caseId, qualifiedMaterialId, documentId, maxDimensionPixel, pageIndex, cmsAuthValues.CmsAuthFullValue, correlationId, isLegacy: false)).ToActionResult();
     }
 }

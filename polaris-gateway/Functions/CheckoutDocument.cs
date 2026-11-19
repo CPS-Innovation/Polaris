@@ -5,6 +5,7 @@
 namespace PolarisGateway.Functions;
 
 using Common.Configuration;
+using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Extensions;
 using Ddei.Factories;
@@ -51,6 +52,8 @@ public class CheckoutDocument : BaseFunction
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
+        var materialReference = DocumentNature.ParseCmsOnly(materialId);
+
         var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         var mdsDocumentIdAndVersionIdArgDto = this.mdsArgFactory.CreateDocumentVersionArgDto(
@@ -58,7 +61,7 @@ public class CheckoutDocument : BaseFunction
                      correlationId: correlationId,
                      urn: caseUrn,
                      caseId: caseId,
-                     materialId: materialId,
+                     materialId: materialReference.NumericId,
                      documentId: documentId);
 
         await this.mdsClient.CheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto, cancellationToken);

@@ -54,6 +54,8 @@ public class ToggleIsUnusedDocument : BaseFunction
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
+        var materialReference = DocumentNature.ParseCmsOnly(materialId);
+
         var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         var toggleIsUnusedDocumentDto = new MdsToggleIsUnusedDocumentDto
@@ -61,7 +63,7 @@ public class ToggleIsUnusedDocument : BaseFunction
             CaseId = caseId,
             CmsAuthValues = cmsAuthValues.CmsAuthFullValue,
             CorrelationId = correlationId,
-            MaterialId = DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document),
+            MaterialId = materialReference.NumericId,
             IsUnused = isUnused,
             Urn = caseUrn,
         };

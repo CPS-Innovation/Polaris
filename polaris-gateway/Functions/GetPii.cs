@@ -6,6 +6,7 @@ namespace PolarisGateway.Functions;
 
 using Common.Configuration;
 using Common.Domain.Pii;
+using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Extensions;
 using DdeiClient.Services.CaseUrnResolver;
@@ -21,6 +22,8 @@ using Microsoft.OpenApi.Models;
 using PolarisGateway.Models;
 using PolarisGateway.Services.Artefact;
 using PolarisGateway.Services.Artefact.Domain;
+using PolarisGateway.TelemetryEvents;
+using Common.Telemetry;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -34,12 +37,15 @@ public class GetPii : BaseFunction
     private const string IsOcrProcessedParamName = "isOcrProcessed";
     private const string ForceRefreshParamName = "ForceRefresh";
     private readonly IPiiArtefactService piiArtefactService;
+    private readonly ILogger<GetPii> logger;
 
     public GetPii(
-        IPiiArtefactService piiArtefactService)
+        IPiiArtefactService piiArtefactService,
+        ILogger<GetPii> logger)
         : base()
     {
         this.piiArtefactService = piiArtefactService.ExceptionIfNull();
+        this.logger = logger.ExceptionIfNull();
     }
 
     [Function(nameof(GetPii))]
@@ -62,13 +68,16 @@ public class GetPii : BaseFunction
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
+        var qualifiedMaterialId = DocumentNature.NormalizeMaterialId(materialId);
+        TrackCmsPrefixUsage(this.logger, materialId, caseId, documentId.ToString(), nameof(GetPii));
+
         var isOcrProcessed = req.Query.ContainsKey(IsOcrProcessedParamName) && bool.Parse(req.Query[IsOcrProcessedParamName]);
         var forceRefresh = req.Query.ContainsKey(ForceRefreshParamName) && bool.Parse(req.Query[ForceRefreshParamName]);
         var token = req.Query.ContainsKey(TokenQueryParamName) ?
             Guid.Parse(req.Query[TokenQueryParamName]) :
             (Guid?)null;
 
-        var ocrResult = await this.piiArtefactService.GetPiiAsync(cmsAuthValues.CmsAuthFullValue, correlationId, urn: null, caseId, materialId, documentId, isOcrProcessed, token, forceRefresh, isLegacy: false);
+        var ocrResult = await this.piiArtefactService.GetPiiAsync(cmsAuthValues.CmsAuthFullValue, correlationId, urn: null, caseId, qualifiedMaterialId, documentId, isOcrProcessed, token, forceRefresh, isLegacy: false);
         return ocrResult.Status switch
         {
             ResultStatus.ArtefactAvailable => new JsonResult(ocrResult.Artefact),

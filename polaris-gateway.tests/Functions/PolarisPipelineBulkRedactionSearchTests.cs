@@ -10,6 +10,7 @@ using System.Threading;
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Moq;
 using PolarisGateway.Clients.Coordinator;
 using PolarisGateway.Functions;
@@ -19,12 +20,14 @@ using Microsoft.AspNetCore.Mvc;
 public class PolarisPipelineBulkRedactionSearchTests
 {
     private readonly Mock<ICoordinatorClient> coordinatorClientMock;
+    private readonly Mock<ILogger<PolarisPipelineBulkRedactionSearchStart>> loggerMock;
     private readonly PolarisPipelineBulkRedactionSearchStart polarisPipelineBulkRedactionSearch;
 
     public PolarisPipelineBulkRedactionSearchTests()
     {
         this.coordinatorClientMock = new Mock<ICoordinatorClient>();
-        this.polarisPipelineBulkRedactionSearch = new PolarisPipelineBulkRedactionSearchStart(this.coordinatorClientMock.Object);
+        this.loggerMock = new Mock<ILogger<PolarisPipelineBulkRedactionSearchStart>>();
+        this.polarisPipelineBulkRedactionSearch = new PolarisPipelineBulkRedactionSearchStart(this.coordinatorClientMock.Object, this.loggerMock.Object);
     }
 
     [Fact]

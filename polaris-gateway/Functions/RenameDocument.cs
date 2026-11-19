@@ -76,6 +76,8 @@ public class RenameDocument : BaseFunction
         var correlationId = EstablishCorrelation(req);
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
 
+        var materialReference = DocumentNature.ParseCmsOnly(materialId);
+
         var caseUrn = await this.caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
         try
@@ -104,7 +106,7 @@ public class RenameDocument : BaseFunction
 
             var documentsResponse = await this.masterDataServiceClient.ListDocumentsAsync(mdsCaseIdentifiersArgDto, new CmsAuthValues(cmsAuthValues.CmsAuthFullValue, correlationId), cancellationToken);
             var documents = documentsResponse.Select(x => this.cmsDocumentDtoMapper.Map(x, null)).ToList();
-            var documentIdNumber = DocumentNature.ToNumericDocumentId(materialId, DocumentNature.Types.Document);
+            var documentIdNumber = materialReference.NumericId;
 
             var document = documents.SingleOrDefault(x => x.DocumentId == documentIdNumber);
 

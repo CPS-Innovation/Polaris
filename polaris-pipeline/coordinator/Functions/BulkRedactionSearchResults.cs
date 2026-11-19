@@ -6,21 +6,26 @@ namespace coordinator.Functions;
 
 using Common.Configuration;
 using Common.Constants;
+using Common.Domain.Document;
 using Common.Dto.Request;
 using Common.Extensions;
+using Common.Telemetry;
 using coordinator.Durable.Providers;
 using coordinator.Enums;
 using coordinator.Services;
+using coordinator.TelemetryEvents;
 using DdeiClient.Services.CaseUrnResolver;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask.Client;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class BulkRedactionSearchResults(IBulkRedactionSearchService bulkRedactionSearchService, ICaseUrnResolver caseUrnResolver)
+public class BulkRedactionSearchResults(IBulkRedactionSearchService bulkRedactionSearchService, ICaseUrnResolver caseUrnResolver, ILogger<BulkRedactionSearchResults> logger)
 {
     private const string SearchTextHeader = "SearchText";
 
@@ -38,11 +43,17 @@ public class BulkRedactionSearchResults(IBulkRedactionSearchService bulkRedactio
         CmsAuthValues cmsAuthValues = req.BuildCmsAuthValues();
         var caseUrn = await caseUrnResolver.ResolveCaseUrnAsync(caseId, cmsAuthValues, cancellationToken);
 
+        var qualifiedMaterialId = DocumentNature.NormalizeMaterialId(materialId);
+        if (materialId.StartsWith("CMS-", StringComparison.Ordinal))
+        {
+            logger.TrackEvent(new CmsPrefixUsageEvent(currentCorrelationId, caseId, documentId.ToString(), nameof(BulkRedactionSearchResults)));
+        }
+
         var bulkRedactionSearchDto = new BulkRedactionSearchDto
         {
             Urn = caseUrn,
             CaseId = caseId,
-            MaterialId = materialId,
+            MaterialId = qualifiedMaterialId,
             DocumentId = documentId,
             SearchText = searchText,
             CmsAuthValues = cmsAuthValues.CmsAuthFullValue,
