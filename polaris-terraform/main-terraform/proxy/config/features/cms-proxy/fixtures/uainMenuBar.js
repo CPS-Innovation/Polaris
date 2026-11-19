@@ -1,8 +1,7 @@
 // Synthesised stand-in for the CMS toolbar "uainMenuBar.js".
 // See fixtures/README.md — replace with a real capture if one becomes available.
 //
-// Must carry the three tokens cmsenv.__addAppLaunchButtonsToMenuBar rewrites, plus the
-// openPolaris function header the location's sub_filter prepends openMaterials() to.
+// Must carry the three tokens cmsenv.__addAppLaunchButtonsToMenuBar rewrites.
 // They are NOT named in this comment on purpose: the proxy rewrites the whole
 // body, comments included, which would confuse the assertions. See the code
 // below and fixtures/README.md for the list.
@@ -21,10 +20,4 @@ function buildMenuBar() {
   var cmsHome = 'https://cms.cps.gov.uk/CMS/Home';
 
   return sMenuBarLeft + sMenuBarRight + cmsHome;
-}
-
-// The real CMS menu bar defines this; the proxy's sub_filter injects openMaterials()
-// immediately before it.
-function openPolaris() {
-  window.open("/polaris");
 }

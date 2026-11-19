@@ -15,7 +15,7 @@ public class GetCaseLockInfoTests : BaseFunctionIntegrationTest
     public async Task GetCaseLockInfo_CaseIdIs0_ShouldReturnNotFound()
     {
         // arrange
-        // Route: urns/{caseUrn}/cases/{caseId:min(1)}/case-lock-info
+        // Route: cases/{caseId:min(1)}/case-lock-info
         // caseId=0 fails route constraint => NotFound
         var urn = "54KR7689125";
         var caseId = 0;

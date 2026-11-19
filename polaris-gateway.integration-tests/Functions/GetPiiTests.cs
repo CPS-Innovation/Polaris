@@ -15,7 +15,7 @@ public class GetPiiTests : BaseFunctionIntegrationTest
     public async Task GetPii_CaseIdIs0_ShouldReturnNotFound()
     {
         // arrange
-        // Route: urns/{caseUrn}/cases/{caseId:min(1)}/documents/{materialId}/versions/{materialId:min(1)}/pii
+        // Route: cases/{caseId:min(1)}/materials/{materialId}/documents/{materialId:min(1)}/pii
         // caseId=0 fails route constraint => NotFound
         var urn = "54KR7689125";
         var caseId = 0;

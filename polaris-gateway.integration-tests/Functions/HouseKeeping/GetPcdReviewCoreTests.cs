@@ -16,7 +16,7 @@ public class GetPcdReviewCoreTests : BaseFunctionIntegrationTest
     public async Task GetPcdReviewCore_CaseIdIs0_ShouldReturnNotFound()
     {
         // arrange
-        // Route: urns/{caseUrn}/cases/{caseId:min(1)}/pcd-review
+        // Route: cases/{caseId:min(1)}/pcd-review
         // caseId=0 fails route constraint => NotFound
         var urn = "54KR7689125";
         var caseId = 0;
@@ -52,7 +52,7 @@ public class GetPcdReviewCoreTests : BaseFunctionIntegrationTest
     public async Task GetPcdReviewCore_ShouldReturnOk_WithPcdReviewCoreResponse()
     {
         // arrange
-        // Endpoint: GET {{url}}/urns/54KR7689125/cases/2179140/pcd-review
+        // Endpoint: GET {{url}}/cases/2179140/pcd-review
         // Test data from MDS Client API contains:
         // - ID 4472751: "PCD Analysis" (type: 2) - should be marked as EarlyAdvice
         // - ID 4472765: "Initial Review" (type: 1)
