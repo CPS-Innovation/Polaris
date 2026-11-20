@@ -1,4 +1,11 @@
+// <copyright file="GetDocumentNotesLegacy.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
 using Common.Configuration;
+using Common.Dto.Request;
 using Common.Dto.Response.Document;
 using Common.Extensions;
 using Ddei.Factories;
@@ -15,22 +22,18 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Functions;
-
 public class GetDocumentNotesLegacy : BaseFunction
 {
-    private readonly ILogger<GetDocumentNotesLegacy> _logger;
-    private readonly IMdsClient _mdsClient;
-    private readonly IMdsArgFactory _mdsArgFactory;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
+    private readonly IMdsArgFactory mdsArgFactory;
 
-    public GetDocumentNotesLegacy(ILogger<GetDocumentNotesLegacy> logger,
-        IMdsClient mdsClient,
+    public GetDocumentNotesLegacy(
+        IMasterDataServiceClient masterDataServiceClient,
         IMdsArgFactory mdsArgFactory)
         : base()
     {
-        _logger = logger.ExceptionIfNull();
-        _mdsClient = mdsClient.ExceptionIfNull();
-        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
+        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
     }
 
     [Function(nameof(GetDocumentNotesLegacy))]
@@ -47,9 +50,9 @@ public class GetDocumentNotesLegacy : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var arg = _mdsArgFactory.CreateDocumentArgDto(cmsAuthValues, correlationId, caseUrn, caseId, materialId);
+        var arg = this.mdsArgFactory.CreateDocumentArgDto(cmsAuthValues, correlationId, caseUrn, caseId, materialId);
 
-        var result = await _mdsClient.GetDocumentNotesAsync(arg, cancellationToken: cancellationToken);
+        var result = await this.masterDataServiceClient.ListDocumentNotesAsync(arg, new CmsAuthValues(cmsAuthValues, correlationId),  cancellationToken);
 
         return new OkObjectResult(result);
     }

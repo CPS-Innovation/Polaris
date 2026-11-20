@@ -1,4 +1,10 @@
-﻿using Common.Configuration;
+﻿// <copyright file="CancelCheckoutDocumentLegacy.cs" company="TheCrownProsecutionService">
+// Copyright (c) The Crown Prosecution Service. All rights reserved.
+// </copyright>
+
+namespace PolarisGateway.Functions;
+
+using Common.Configuration;
 using Common.Dto.Request;
 using Common.Extensions;
 using Ddei.Factories;
@@ -14,22 +20,17 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PolarisGateway.Functions;
-
 public class CancelCheckoutDocumentLegacy : BaseFunction
 {
-    private readonly ILogger<CancelCheckoutDocumentLegacy> _logger;
-    private readonly IMdsArgFactory _mdsArgFactory;
-    private readonly IMdsClient _mdsClient;
+    private readonly IMdsArgFactory mdsArgFactory;
+    private readonly IMasterDataServiceClient masterDataServiceClient;
 
     public CancelCheckoutDocumentLegacy(
-        ILogger<CancelCheckoutDocumentLegacy> logger,
         IMdsArgFactory mdsArgFactory,
-        IMdsClient mdsClient)
+        IMasterDataServiceClient masterDataServiceClient)
     {
-        _logger = logger.ExceptionIfNull();
-        _mdsArgFactory = mdsArgFactory.ExceptionIfNull();
-        _mdsClient = mdsClient.ExceptionIfNull();
+        this.mdsArgFactory = mdsArgFactory.ExceptionIfNull();
+        this.masterDataServiceClient = masterDataServiceClient.ExceptionIfNull();
     }
 
     [Function(nameof(CancelCheckoutDocumentLegacy))]
@@ -49,7 +50,7 @@ public class CancelCheckoutDocumentLegacy : BaseFunction
         var correlationId = EstablishCorrelation(req);
         var cmsAuthValues = EstablishCmsAuthValues(req);
 
-        var mdsDocumentIdAndVersionIdArgDto = _mdsArgFactory.CreateDocumentVersionArgDto(
+        var mdsDocumentIdAndVersionIdArgDto = this.mdsArgFactory.CreateDocumentVersionArgDto(
                 cmsAuthValues: cmsAuthValues,
                 correlationId: correlationId,
                 urn: caseUrn,
@@ -57,7 +58,10 @@ public class CancelCheckoutDocumentLegacy : BaseFunction
                 materialId: materialId,
                 documentId: documentId);
 
-        await _mdsClient.CancelCheckoutDocumentAsync(mdsDocumentIdAndVersionIdArgDto, cancellationToken: cancellationToken);
+        await this.masterDataServiceClient.CancelCheckoutDocumentAsync(
+            mdsDocumentIdAndVersionIdArgDto,
+            new CmsAuthValues(cmsAuthValues, correlationId),
+            cancellationToken);
 
         return new OkResult();
     }

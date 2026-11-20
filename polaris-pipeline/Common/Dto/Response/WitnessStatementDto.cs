@@ -6,5 +6,7 @@ namespace Common.Dto.Response
 
         public int? ParentId => DocumentId;
         public int? StatementNumber { get; set; }
+
+        public int? ListOrder { get; set; }
     }
 }
