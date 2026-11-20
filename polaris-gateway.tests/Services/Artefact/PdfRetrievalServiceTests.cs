@@ -36,7 +36,6 @@ public class PdfRetrievalServiceTests
     private readonly Mock<IMdsArgFactory> mdsArgFactoryMock;
     private readonly Mock<IConvertModelToHtmlService> convertModelToHtmlServiceMock;
     private readonly Mock<IPdfGeneratorClient> pdfGeneratorClientMock;
-    private readonly Mock<IMdsClient> mdsClientMock;
     private readonly Mock<IMasterDataServiceClient> masterDataServiceClientMock;
     private readonly Mock<ICaseDetailsMapper> caseDetailsMapperMock;
     private readonly PdfRetrievalService pdfRetrievalService;
@@ -46,10 +45,9 @@ public class PdfRetrievalServiceTests
         this.mdsArgFactoryMock = new Mock<IMdsArgFactory>();
         this.convertModelToHtmlServiceMock = new Mock<IConvertModelToHtmlService>();
         this.pdfGeneratorClientMock = new Mock<IPdfGeneratorClient>();
-        this.mdsClientMock = new Mock<IMdsClient>();
         this.masterDataServiceClientMock = new Mock<IMasterDataServiceClient>();
         this.caseDetailsMapperMock = new Mock<ICaseDetailsMapper>();
-        this.pdfRetrievalService = new PdfRetrievalService(this.mdsArgFactoryMock.Object, this.convertModelToHtmlServiceMock.Object, this.pdfGeneratorClientMock.Object, this.mdsClientMock.Object, this.masterDataServiceClientMock.Object, this.caseDetailsMapperMock.Object);
+        this.pdfRetrievalService = new PdfRetrievalService(this.mdsArgFactoryMock.Object, this.convertModelToHtmlServiceMock.Object, this.pdfGeneratorClientMock.Object, this.masterDataServiceClientMock.Object, this.caseDetailsMapperMock.Object);
     }
 
     [Fact]
@@ -269,7 +267,12 @@ public class PdfRetrievalServiceTests
             Status = PdfConversionStatus.DocumentConverted,
         };
         this.mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId, materialId, documentId)).Returns(mdsDocumentIdAndVersionIdArgDto);
-        this.mdsClientMock.Setup(s => s.GetDocumentAsync(mdsDocumentIdAndVersionIdArgDto)).ReturnsAsync(fileResult);
+        this.masterDataServiceClientMock
+            .Setup(s => s.GetDocumentByDocumentIdAsync(
+                mdsDocumentIdAndVersionIdArgDto,
+                It.IsAny<CmsAuthValues>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fileResult);
         this.pdfGeneratorClientMock.Setup(s => s.ConvertToPdfAsync(correlationId, urn, caseId, materialId, documentId, fileResult.Stream, fileType)).ReturnsAsync(pdfResult);
 
         //act
@@ -298,7 +301,12 @@ public class PdfRetrievalServiceTests
         };
 
         this.mdsArgFactoryMock.Setup(s => s.CreateDocumentVersionArgDto(cmsAuthValues, correlationId, urn, caseId, materialId, documentId)).Returns(mdsDocumentIdAndVersionIdArgDto);
-        this.mdsClientMock.Setup(s => s.GetDocumentAsync(mdsDocumentIdAndVersionIdArgDto)).ReturnsAsync(fileResult);
+        this.masterDataServiceClientMock
+            .Setup(s => s.GetDocumentByDocumentIdAsync(
+                mdsDocumentIdAndVersionIdArgDto,
+                It.IsAny<CmsAuthValues>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fileResult);
 
         //act
         var result = await this.pdfRetrievalService.GetPdfStreamAsync(cmsAuthValues, correlationId, urn, caseId, materialId, documentId);

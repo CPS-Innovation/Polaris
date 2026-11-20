@@ -14,6 +14,7 @@ using Cps.Fct.Hk.Ui.ServiceClient.Uma.Configuration;
 using Cps.Fct.Hk.Ui.Services;
 using Cps.Fct.Hk.Ui.Services.Validators;
 using Cps.MasterDataService.Infrastructure.ApiClient;
+using Ddei.Mappers;
 using DdeiClient.Clients;
 using DdeiClient.Clients.Interfaces;
 using DdeiClient.Configuration;
@@ -131,6 +132,7 @@ public class TestBase
                 services.AddSingleton<IMaterialReclassificationOrchestrationService, MaterialReclassificationOrchestrationService>();
                 services.AddSingleton<ICaseLockService, CaseLockService>();
                 services.AddSingleton<ICaseActionPlanService, CaseActionPlanService>();
+                services.AddSingleton<ICmsMaterialTypeMapper, CmsMaterialTypeMapper>();
                 services.AddSingleton<IMasterDataServiceClient, MasterDataServiceClient>();
                 services.AddSingleton<IMasterDataServiceApiClientFactory, MasterDataServiceApiClientFactory>();
 

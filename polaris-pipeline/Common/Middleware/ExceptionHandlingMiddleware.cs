@@ -1,18 +1,19 @@
 ﻿using Common.Exceptions;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Azure.Functions.Worker.Middleware;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
-using System.Net;
-using System.Threading.Tasks;
-using System;
-using System.Linq;
-using Common.Logging;
 using Common.Extensions;
+using Common.Logging;
+using Common.Telemetry;
+using Cps.MasterDataService.Infrastructure.ApiClient;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
-using Common.Telemetry;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Azure.Functions.Worker.Middleware;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Common.Middleware;
 
@@ -40,13 +41,12 @@ public class ExceptionHandlingMiddleware : IFunctionsWorkerMiddleware
        {
             var statusCode = exception switch
             {
-                BadRequestException _ => HttpStatusCode.BadRequest,
+                BadRequestException or ArgumentNullException _ => HttpStatusCode.BadRequest,
                 DdeiClientException e => e.StatusCode,
-                ArgumentNullException or BadRequestException _ => HttpStatusCode.BadRequest,
                 CpsAuthenticationException _ => HttpStatusCode.ProxyAuthenticationRequired,
                 CmsAuthValuesMissingException _ => HttpStatusCode.Unauthorized,
-                OcrDocumentNotFoundException _ => HttpStatusCode.NotFound,
-                DocumentNotFoundException _ => HttpStatusCode.NotFound,
+                OcrDocumentNotFoundException or DocumentNotFoundException _ => HttpStatusCode.NotFound,
+                ApiException e => (HttpStatusCode)e.StatusCode,
                 HttpRequestException e => (HttpStatusCode)e.StatusCode, 
                 _ => HttpStatusCode.InternalServerError,
             };
