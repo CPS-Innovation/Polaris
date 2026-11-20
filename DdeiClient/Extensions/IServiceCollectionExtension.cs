@@ -31,7 +31,6 @@ public static class IServiceCollectionExtension
 
     public static void AddDdeiClientGateway(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton<IMdsClientFactory, MdsClientFactory>();
         services.AddHttpClientWithDefaults<IDdeiAuthClient, DdeiAuthClient>(configuration, DdeiBaseUrlConfigKey, DdeiAccessKeyConfigKey, "Ddei", DdeiClientTimeoutSecondsConfigKey);
         services.AddHttpClientWithDefaults(configuration, MdsBaseUrlConfigKey, MdsAccessKeyConfigKey, nameof(MdsClients.Mds), MdsClientTimeoutSecondsConfigKey);
         services.AddHttpClientWithDefaults(configuration, MdsMockBaseUrlConfigKey, MdsMockAccessKeyConfigKey, nameof(MdsClients.MdsMock), MdsClientTimeoutSecondsConfigKey);
@@ -48,7 +47,6 @@ public static class IServiceCollectionExtension
     private static void AddMdsServices(this IServiceCollection services)
     {
         services.AddTransient<IMdsArgFactory, MdsArgFactory>();
-        services.AddTransient<IMdsClientRequestFactory, MdsClientRequestFactory>();
         services.AddTransient<ICaseDocumentMapper<MdsDocumentResponse>, CaseDocumentMapper>();
         services.AddSingleton<IHttpResponseMessageStreamFactory, HttpResponseMessageStreamFactory>();
         services.AddTransient<ICaseDocumentMapper<MdsDocumentResponse>, CaseDocumentMapper>();
